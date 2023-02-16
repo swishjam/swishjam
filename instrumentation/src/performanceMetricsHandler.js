@@ -27,66 +27,24 @@ export class PerformanceMetricsHandler {
     return this.requiredMetrics.length === 0;
   }
 
+  _onVitalHandler(entry, vitalType) {
+    this._performanceMetrics[vitalType] = entry;
+    this.onNewMetricCallbacks.forEach(callback => callback(entry));
+    this.requiredMetrics = this.requiredMetrics.filter(metric => metric !== vitalType);
+    // For Debugging: 
+    // console.log(`Captured ${vitalType}!`);
+    // console.log('Vital Handler Entry:', entry);
+    if(this.gatheredAllPerformanceMetrics()) {
+      this.onMetricsReadyCallbacks.forEach( callback => callback(this.performanceMetrics()) );
+    }
+  }} 
+
   _setPerformanceMetricsListeners() {
-    onLCP(entry => {
-      this._performanceMetrics.lcp = entry;
-      this.onNewMetricCallbacks.forEach(callback => callback(entry));
-      this.requiredMetrics = this.requiredMetrics.filter(metric => metric !== 'lcp');
-      console.log('Got lcp!');
-      console.log(entry);
-      if(this.gatheredAllPerformanceMetrics()) {
-        this.onMetricsReadyCallbacks.forEach( callback => callback(this.performanceMetrics()) );
-      }
-    });
-    onFID(entry => {
-      this._performanceMetrics.fid = entry;
-      this.onNewMetricCallbacks.forEach(callback => callback(entry));
-      this.requiredMetrics = this.requiredMetrics.filter(metric => metric !== 'fid');
-      console.log('Got fid!');
-      console.log(entry);
-      if(this.gatheredAllPerformanceMetrics()) {
-        this.onMetricsReadyCallbacks.forEach( callback => callback(this.performanceMetrics()) );
-      }
-    });
-    onCLS(entry => {
-      this._performanceMetrics.cls = entry;
-      this.onNewMetricCallbacks.forEach(callback => callback(entry));
-      this.requiredMetrics = this.requiredMetrics.filter(metric => metric !== 'cls');
-      console.log('Got cls!');
-      console.log(entry);
-      if(this.gatheredAllPerformanceMetrics()) {
-        this.onMetricsReadyCallbacks.forEach( callback => callback(this.performanceMetrics()) );
-      }
-    });
-    onFCP(entry => {
-      this._performanceMetrics.fcp = entry;
-      this.onNewMetricCallbacks.forEach(callback => callback(entry));
-      this.requiredMetrics = this.requiredMetrics.filter(metric => metric !== 'fcp');
-      console.log('Got fcp!');
-      console.log(entry);
-      if(this.gatheredAllPerformanceMetrics()) {
-        this.onMetricsReadyCallbacks.forEach( callback => callback(this.performanceMetrics()) );
-      }
-    });
-    onTTFB(entry => {
-      this._performanceMetrics.ttfb = entry;
-      this.onNewMetricCallbacks.forEach(callback => callback(entry));
-      this.requiredMetrics = this.requiredMetrics.filter(metric => metric !== 'ttfb');
-      console.log('Got ttfb!');
-      console.log(entry);
-      if(this.gatheredAllPerformanceMetrics()) {
-        this.onMetricsReadyCallbacks.forEach( callback => callback(this.performanceMetrics()) );
-      }
-    });
-    onINP(entry => {
-      this._performanceMetrics.inp = entry;
-      this.onNewMetricCallbacks.forEach(callback => callback(entry));
-      this.requiredMetrics = this.requiredMetrics.filter(metric => metric !== 'inp');
-      console.log('Got inp!');
-      console.log(entry);
-      if(this.gatheredAllPerformanceMetrics()) {
-        this.onMetricsReadyCallbacks.forEach( callback => callback(this.performanceMetrics()) );
-      }
-    });
+    onLCP(entry => _onVitalHandler(entry, 'lcp'));
+    onFCP(entry => _onVitalHandler(entry, 'fcp'));
+    onCLS(entry => _onVitalHandler(entry, 'cls'));
+    onFID(entry => _onVitalHandler(entry, 'fid'));
+    onTTFB(entry => _onVitalHandler(entry, 'ttfb'));
+    onINP(entry => _onVitalHandler(entry, 'inp'));
   }
 }
