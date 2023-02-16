@@ -1,0 +1,84 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Parameters:
+  AWSAccountID:
+    Description: The AWS Account ID that is being used
+    Type: String
+  QueueName:
+    Description: The queue name for integration with API Gateway
+    Type: String
+    Default: api-gateway-queue
+  PassThroughProxyEndpoint:
+    Description: The proxy URL
+    Type: String
+    Default: "https://jsonplaceholder.typicode.com/{proxy}"
+  ApiGatewayDeploymentStageName:
+    Description: The API Gateway stage for this deployment
+    Type: String
+    Default: dev
+
+
+Resources:
+  DeadLetterQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: !Sub "${QueueName}-DLQ"
+
+  Queue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: !Ref QueueName
+      VisibilityTimeout: 30
+      RedrivePolicy:
+        deadLetterTargetArn:
+          Fn::GetAtt:
+          - DeadLetterQueue
+          - Arn
+        maxReceiveCount: 1
+
+  QueuePolicy:
+    DependsOn: ["Queue"]
+    Type: AWS::SQS::QueuePolicy
+    Properties:
+      PolicyDocument:
+        Statement:
+          - Action: SQS:*
+            Effect: Allow
+            Principal: 
+              AWS:
+                - "${AWSAccountID}"
+            Resource: !GetAtt Queue.Arn
+        Version: '2012-10-17'
+      Queues:
+        - !Ref Queue
+
+  ApiGatewayToSQSRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service:
+            - apigateway.amazonaws.com
+          Action:
+          - sts:AssumeRole
+      RoleName: ApiGatewayToSQSRole
+      Policies:
+      - PolicyName: ApiGatewayLogsPolicy
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+          - Action: sqs:SendMessage
+            Effect: Allow
+            Resource: !GetAtt 'Queue.Arn'
+          - Action:
+              - logs:CreateLogGroup
+              - logs:CreateLogStream
+              - logs:DescribeLogGroups
+              - logs:DescribeLogStreams
+              - logs:PutLogEvents
+              - logs:GetLogEvents
+              - logs:FilterLogEvents
+            Effect: Allow
+            Resource: "*"

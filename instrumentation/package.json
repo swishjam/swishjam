@@ -1,0 +1,26 @@
+{
+  "name": "performance-monitoring-instrumentation",
+  "version": "1.0.0",
+  "description": "Monitor your web app's front end performance metrics",
+  "main": "index.js",
+  "scripts": {
+    "build": "webpack"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tagsafe/performance-monitoring-instrumentation.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/tagsafe/performance-monitoring-instrumentation/issues"
+  },
+  "homepage": "https://github.com/tagsafe/performance-monitoring-instrumentation#readme",
+  "dependencies": {
+    "web-vitals": "^3.1.1",
+    "webpack": "^5.75.0"
+  },
+  "devDependencies": {
+    "webpack-cli": "^5.0.1"
+  }
+}
