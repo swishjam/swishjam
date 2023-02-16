@@ -1,0 +1,11 @@
+version = 0.1
+[default]
+[default.deploy]
+[default.deploy.parameters]
+stack_name = "performance-data-handler"
+s3_bucket = "aws-sam-cli-managed-default-samclisourcebucket-k2ji4oitdt85"
+s3_prefix = "performance-data-handler"
+region = "us-east-1"
+capabilities = "CAPABILITY_NAMED_IAM"
+parameter_overrides = "QueueName=\"performance-data-message-queue\" ApiGatewayDeploymentStageName=\"dev\""
+image_repositories = []

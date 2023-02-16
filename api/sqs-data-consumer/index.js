@@ -1,4 +1,4 @@
-module.exports.lambdaHandler = async (event, _context) => {
+module.exports.consumeMessages = async (event, _context) => {
   try {
     if (!(event?.Records?.length)) {
       return 'No records'
@@ -12,5 +12,4 @@ module.exports.lambdaHandler = async (event, _context) => {
     console.log(err);
     return err;
   }
-
 };
