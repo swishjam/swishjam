@@ -1,8 +1,5 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Parameters:
-  AWSAccountID:
-    Description: The AWS Account ID that is being used
-    Type: String
   QueueName:
     Description: The queue name for integration with API Gateway
     Type: String
@@ -45,7 +42,7 @@ Resources:
             Effect: Allow
             Principal: 
               AWS:
-                - "${AWSAccountID}"
+                - "${AWS::AccountId}"
             Resource: !GetAtt Queue.Arn
         Version: '2012-10-17'
       Queues:
@@ -82,3 +79,90 @@ Resources:
               - logs:FilterLogEvents
             Effect: Allow
             Resource: "*"
+
+  RestApi:
+    Type: AWS::ApiGateway::RestApi
+    Properties:
+      Name: "API Gateway to SQS"
+      Description: "Sample API for sending messages via API Gateway directly to SQS"
+      FailOnWarnings: true
+      Body:
+        openapi: 3.0.0
+        info:
+          title: API Gateway -> SQS API
+          description: This API handles a route with a POST body to be placed on an SQS queue and proxies the remaining routes
+          contact:
+            email: me@example.com
+          version: 1.0.0
+        paths:
+          /events:
+            post:
+              summary: Handles a new analytics event
+              description: "Places an event on an SQS queue for processing"
+              operationId: analyticsEvent
+              requestBody:
+                description: The analytics event to push onto queue for processing
+                content:
+                  application/json:
+                    schema:
+                      $ref: '#/components/schemas/AnalyticsEvent'
+              responses:
+                "200":
+                  description: Event post successfully handled and placed on queue
+                "400":
+                  description: Bad request
+                "500":
+                  description: Server Error
+              x-amazon-apigateway-integration:
+                credentials: !GetAtt ApiGatewayToSQSRole.Arn
+                httpMethod: "POST"
+                uri: !Sub "arn:aws:apigateway:${AWS::Region}:sqs:path/${AWS::AccountId}/${QueueName}"
+                responses:
+                  default:
+                    statusCode: "200"
+                requestParameters:
+                  integration.request.header.Content-Type: "'application/x-www-form-urlencoded'"
+                requestTemplates:
+                  application/json: "Action=SendMessage&MessageBody=$input.body"
+                passthroughBehavior: "never"
+                type: "aws"
+          # /{proxy+}:
+            x-amazon-apigateway-any-method:
+              parameters:
+              - name: proxy
+                in: path
+                required: true
+                type: string
+              x-amazon-apigateway-integration:
+                type: "http_proxy"
+                httpMethod: "ANY"
+                uri: !Ref PassThroughProxyEndpoint
+                passthroughBehavior: "when_no_match"
+                requestParameters:
+                  integration.request.path.proxy: 'method.request.path.proxy'
+
+        components:
+          schemas:
+            AnalyticsEvent:
+              required:
+              - created_at
+              - product_id
+              - event_type
+              type: object
+              properties:
+                created_at:
+                  type: string
+                  description: Timestamp in ISO-8601 format UTC
+                  format: date-time
+                  example: 2021-01-01T12:01:00-00:00
+                event_type:
+                  type: string
+                  example: ADD_TO_CART
+                  enum:
+                  - ADD_TO_CART
+                  - REMOVE_FROM_CART
+                  - PURCHASE
+                product_id:
+                  type: integer
+                  format: int64
+                  example: 123456789

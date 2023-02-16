@@ -12,7 +12,7 @@ import { PerformanceEntriesHandler } from './performanceEntriesHandler';
   const metadata = MetadataHandler.getMetadata();
   reportingHandler.setReportingData({ pageLoadId, pageLoadTs, metadata, performanceMetrics: {} });
   
-  new PerformanceEntriesHandler();
+  new PerformanceEntriesHandler().listenForPerformanceEntries();
   const performanceMetricsHandler = new PerformanceMetricsHandler();
   performanceMetricsHandler.onNewMetric(metric => {
     const newPerformanceMetrics = { ...reportingHandler.reportingData.performanceMetrics, [metric.name]: metric };
