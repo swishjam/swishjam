@@ -37,14 +37,14 @@ export class PerformanceMetricsHandler {
     if(this.gatheredAllPerformanceMetrics()) {
       this.onMetricsReadyCallbacks.forEach( callback => callback(this.performanceMetrics()) );
     }
-  }} 
+  }
 
   _setPerformanceMetricsListeners() {
-    onLCP(entry => _onVitalHandler(entry, 'lcp'));
-    onFCP(entry => _onVitalHandler(entry, 'fcp'));
-    onCLS(entry => _onVitalHandler(entry, 'cls'));
-    onFID(entry => _onVitalHandler(entry, 'fid'));
-    onTTFB(entry => _onVitalHandler(entry, 'ttfb'));
-    onINP(entry => _onVitalHandler(entry, 'inp'));
+    onLCP(entry => this._onVitalHandler(entry, 'lcp'));
+    onFCP(entry => this._onVitalHandler(entry, 'fcp'));
+    onCLS(entry => this._onVitalHandler(entry, 'cls'));
+    onFID(entry => this._onVitalHandler(entry, 'fid'));
+    onTTFB(entry => this._onVitalHandler(entry, 'ttfb'));
+    onINP(entry => this._onVitalHandler(entry, 'inp'));
   }
 }
