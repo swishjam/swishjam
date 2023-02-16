@@ -4,10 +4,6 @@ Parameters:
     Description: The queue name for integration with API Gateway
     Type: String
     Default: api-gateway-queue
-  PassThroughProxyEndpoint:
-    Description: The proxy URL
-    Type: String
-    Default: "https://jsonplaceholder.typicode.com/{proxy}"
   ApiGatewayDeploymentStageName:
     Description: The API Gateway stage for this deployment
     Type: String
@@ -40,9 +36,9 @@ Resources:
         Statement:
           - Action: SQS:*
             Effect: Allow
-            Principal: 
-              AWS:
-                - "${AWS::AccountId}"
+            Principal: '*'
+              # AWS:
+              #   - "${AWS::AccountId}"
             Resource: !GetAtt Queue.Arn
         Version: '2012-10-17'
       Queues:
@@ -126,27 +122,12 @@ Resources:
                   application/json: "Action=SendMessage&MessageBody=$input.body"
                 passthroughBehavior: "never"
                 type: "aws"
-          # /{proxy+}:
-            x-amazon-apigateway-any-method:
-              parameters:
-              - name: proxy
-                in: path
-                required: true
-                type: string
-              x-amazon-apigateway-integration:
-                type: "http_proxy"
-                httpMethod: "ANY"
-                uri: !Ref PassThroughProxyEndpoint
-                passthroughBehavior: "when_no_match"
-                requestParameters:
-                  integration.request.path.proxy: 'method.request.path.proxy'
 
         components:
           schemas:
             AnalyticsEvent:
               required:
               - created_at
-              - product_id
               - event_type
               type: object
               properties:
@@ -162,7 +143,3 @@ Resources:
                   - ADD_TO_CART
                   - REMOVE_FROM_CART
                   - PURCHASE
-                product_id:
-                  type: integer
-                  format: int64
-                  example: 123456789
