@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "sam local invoke LambdaSQSMessageConsumer --event events/event.json"
+    "test": "sam local invoke LambdaSQSMessageConsumer --event events/event.json",
+    "deploy": "sam build && sam deploy --capabilities CAPABILITY_IAM"
   },
   "author": "",
   "license": "ISC",

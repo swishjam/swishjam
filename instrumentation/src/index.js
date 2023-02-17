@@ -32,26 +32,35 @@ import config from '../config';
   const metadata = MetadataHandler.getMetadata();
 
   const reportingHandler = new ReportingHandler(reportingUrl, publicApiKey);
-  reportingHandler.setReportingData({ 
-    pageLoadId, 
-    pageLoadTs, 
-    metadata, 
-    performanceEntries: [], 
-    performanceMetrics: {} 
-  });
+  reportingHandler.setStaticData({ pageLoadId, pageLoadTs, metadata });
 
-  reportingHandler.onReportedData(() => reportingHandler.reportingData.performanceEntries = []);
-  
   if (shouldCapturePerformanceEntries) {
     const performanceEntriesHandler = new PerformanceEntriesHandler(performanceEntriesToCapture, { maxNumPerformanceEntriesPerPageLoad });
-
-    const existingPerformanceEntries = performanceEntriesHandler.getPerformanceEntries();
-    reportingHandler.reportingData.performanceEntries = existingPerformanceEntries;
+    reportingHandler.updateReportingData({ 
+      performanceEntries: [
+        ...(reportingHandler.reportingData.performanceEntries || []),
+        ...performanceEntriesHandler.getPerformanceEntries()
+      ]
+    });
     
     performanceEntriesHandler.onPerformanceEntries(performanceEntries => {
-      reportingHandler.reportingData.performanceEntries = [...reportingHandler.reportingData.performanceEntries, ...performanceEntries];
+      reportingHandler.updateReportingData({ 
+        performanceEntries: [
+          ...(reportingHandler.reportingData.performanceEntries || []),
+          ...performanceEntries
+        ] 
+      });
     });
   }
-  new PerformanceMetricsHandler().onNewMetric(metric => reportingHandler.reportingData.performanceMetrics[metric.name] = metric);
+
+  new PerformanceMetricsHandler().onNewMetric(metric => {
+    reportingHandler.updateReportingData({
+      performanceMetrics: {
+        ...(reportingHandler.reportingData.performanceMetrics || {}),
+        [metric.name]: metric
+      }
+    })
+  });
+
   reportingHandler.beginReportingInterval();
 })();

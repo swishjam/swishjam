@@ -33,7 +33,7 @@ export class PerformanceMetricsHandler {
     this.requiredMetrics = this.requiredMetrics.filter(metric => metric !== vitalType);
     // For Debugging: 
     // console.log(`Captured ${vitalType}!`);
-    console.log('Vital Handler Entry:', entry);
+    // console.log('Vital Handler Entry:', entry);
     if(this.gatheredAllPerformanceMetrics()) {
       this.onMetricsReadyCallbacks.forEach( callback => callback(this.performanceMetrics()) );
     }
