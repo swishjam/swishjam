@@ -32,7 +32,8 @@ import config from '../config';
   const metadata = MetadataHandler.getMetadata();
 
   const reportingHandler = new ReportingHandler(reportingUrl, publicApiKey);
-  reportingHandler.setStaticData({ pageLoadId, pageLoadTs, metadata });
+  reportingHandler.setStaticData({ pageLoadId });
+  reportingHandler.updateReportingData({ pageLoadTs, ...metadata })
 
   if (shouldCapturePerformanceEntries) {
     const performanceEntriesHandler = new PerformanceEntriesHandler(performanceEntriesToCapture, { maxNumPerformanceEntriesPerPageLoad });

@@ -38,12 +38,12 @@ export class ReportingHandler {
     if(Object.keys(this.reportingData).length > 0) {
       const dataToReport = { ...this.staticData, ...this.reportingData };
       if(navigator.sendBeacon) {
-        navigator.sendBeacon(this.apiEndpoint, JSON.stringify(dataToReport));
+        const blob = new Blob([JSON.stringify(dataToReport)], {});
+        navigator.sendBeacon(this.apiEndpoint, blob);
       } else {
         const xhr = new XMLHttpRequest();
         xhr.open('POST', this.apiEndpoint);
         xhr.setRequestHeader('Content-Type', 'application/json');
-        xhr.setRequestHeader('x-api-key', this.apiKey);
         xhr.send(JSON.stringify(dataToReport));
       }
       this._onReportedDataCallbacks.forEach(callback => callback(dataToReport));
