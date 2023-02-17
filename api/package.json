@@ -11,5 +11,8 @@
   "license": "ISC",
   "devDependencies": {
     "aws-cli": "^0.0.2"
+  },
+  "dependencies": {
+    "device-detector-js": "^3.0.3"
   }
 }
