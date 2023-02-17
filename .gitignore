@@ -1,3 +1,4 @@
 node_modules
 instrumentation/dist
 .DS_STORE
+ api/.aws-sam
