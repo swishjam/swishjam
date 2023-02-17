@@ -3,12 +3,14 @@ import { MetadataHandler } from './metadataHandler';
 import { PerformanceMetricsHandler } from './performanceMetricsHandler';
 import { ReportingHandler } from './reportingHandler';
 import { PerformanceEntriesHandler } from './performanceEntriesHandler';
-import config from './config';
+import config from '../config';
 
 
 (function() {
   const { 
     reportingUrl, 
+    publicApiKey,
+    maxNumPerformanceEntriesPerPageLoad = 250,
     shouldCapturePerformanceEntries = true,
     performanceEntriesToCapture = [
       "element",
@@ -29,20 +31,27 @@ import config from './config';
   const pageLoadId = UuidGenerator.generate();
   const metadata = MetadataHandler.getMetadata();
 
-  const reportingHandler = new ReportingHandler(reportingUrl, '1234');
-  reportingHandler.setReportingData({ pageLoadId, pageLoadTs, metadata, performanceMetrics: {} });
+  const reportingHandler = new ReportingHandler(reportingUrl, publicApiKey);
+  reportingHandler.setReportingData({ 
+    pageLoadId, 
+    pageLoadTs, 
+    metadata, 
+    performanceEntries: [], 
+    performanceMetrics: {} 
+  });
+
+  reportingHandler.onReportedData(() => reportingHandler.reportingData.performanceEntries = []);
   
   if (shouldCapturePerformanceEntries) {
-    const performanceEntriesHandler = new PerformanceEntriesHandler();
-    const existingPerformanceEntries = performanceEntriesHandler.getPerformanceEntries(performanceEntriesToCapture);
-    new PerformanceEntriesHandler().listenForPerformanceEntries(performanceEntriesToCapture);
-  }
-  const performanceMetricsHandler = new PerformanceMetricsHandler();
-  performanceMetricsHandler.onNewMetric(metric => {
-    const newPerformanceMetrics = { ...reportingHandler.reportingData.performanceMetrics, [metric.name]: metric };
-    reportingHandler.setReportingData({ 
-      ...reportingHandler.reportingData, 
-      performanceMetrics: newPerformanceMetrics 
+    const performanceEntriesHandler = new PerformanceEntriesHandler(performanceEntriesToCapture, { maxNumPerformanceEntriesPerPageLoad });
+
+    const existingPerformanceEntries = performanceEntriesHandler.getPerformanceEntries();
+    reportingHandler.reportingData.performanceEntries = existingPerformanceEntries;
+    
+    performanceEntriesHandler.onPerformanceEntries(performanceEntries => {
+      reportingHandler.reportingData.performanceEntries = [...reportingHandler.reportingData.performanceEntries, ...performanceEntries];
     });
-  })
+  }
+  new PerformanceMetricsHandler().onNewMetric(metric => reportingHandler.reportingData.performanceMetrics[metric.name] = metric);
+  reportingHandler.beginReportingInterval();
 })();
