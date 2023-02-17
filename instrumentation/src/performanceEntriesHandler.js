@@ -1,11 +1,16 @@
 export class PerformanceEntriesHandler {
   constructor() {
-    this.performanceObserver = new PerformanceObserver(this._onPerformanceEntries);
-    this._entryTypesToObserve = ['paint', 'longtask', 'navigation', 'resource', 'largest-contentful-paint', 'first-input', 'layout-shift'];
+    this.performanceObserver = window.PerformanceObserver !== undefined ? new PerformanceObserver(this._onPerformanceEntries) : null;
   }
 
-  listenForPerformanceEntries() {
-    this.performanceObserver.observe({ entryTypes: this._entryTypesToObserve });
+  listenForPerformanceEntries(entryTypes) {
+    if(!this.performanceObserver) return;
+    this.performanceObserver.observe({ entryTypes });
+  }
+
+  getPerformanceEntries(entryTypes) {
+    if(!this.performanceObserver) return [];
+    return window.performance.getEntries().filter(entry => entryTypes.includes(entry.entryType));
   }
 
   _onPerformanceEntries(list, _observer) {

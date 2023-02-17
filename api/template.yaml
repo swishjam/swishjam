@@ -125,6 +125,7 @@ Resources:
   LambdaSQSMessageConsumer:
     Type: AWS::Serverless::Function
     Properties:
+      Name: 'performance-data-sqs-message-consumer'
       Description: A Lambda function that logs the payload of messages sent to an associated SQS queue.
       Runtime: nodejs16.x
       Architectures:
