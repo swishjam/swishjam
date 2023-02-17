@@ -1,62 +1,479 @@
 {
-  "body": "{\"message\": \"hello world\"}",
-  "resource": "/{proxy+}",
-  "path": "/path/to/resource",
-  "httpMethod": "POST",
-  "isBase64Encoded": false,
-  "queryStringParameters": {
-    "foo": "bar"
-  },
-  "pathParameters": {
-    "proxy": "/path/to/resource"
-  },
-  "stageVariables": {
-    "baz": "qux"
-  },
-  "headers": {
-    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
-    "Accept-Encoding": "gzip, deflate, sdch",
-    "Accept-Language": "en-US,en;q=0.8",
-    "Cache-Control": "max-age=0",
-    "CloudFront-Forwarded-Proto": "https",
-    "CloudFront-Is-Desktop-Viewer": "true",
-    "CloudFront-Is-Mobile-Viewer": "false",
-    "CloudFront-Is-SmartTV-Viewer": "false",
-    "CloudFront-Is-Tablet-Viewer": "false",
-    "CloudFront-Viewer-Country": "US",
-    "Host": "1234567890.execute-api.us-east-1.amazonaws.com",
-    "Upgrade-Insecure-Requests": "1",
-    "User-Agent": "Custom User Agent String",
-    "Via": "1.1 08f323deadbeefa7af34d5feb414ce27.cloudfront.net (CloudFront)",
-    "X-Amz-Cf-Id": "cDehVQoZnx43VYQb9j2-nvCh-9z396Uhbp027Y2JvkCPNLmGJHqlaA==",
-    "X-Forwarded-For": "127.0.0.1, 127.0.0.2",
-    "X-Forwarded-Port": "443",
-    "X-Forwarded-Proto": "https"
-  },
-  "requestContext": {
-    "accountId": "123456789012",
-    "resourceId": "123456",
-    "stage": "prod",
-    "requestId": "c6af9ac6-7b61-11e6-9a41-93e8deadbeef",
-    "requestTime": "09/Apr/2015:12:34:56 +0000",
-    "requestTimeEpoch": 1428582896000,
-    "identity": {
-      "cognitoIdentityPoolId": null,
-      "accountId": null,
-      "cognitoIdentityId": null,
-      "caller": null,
-      "accessKey": null,
-      "sourceIp": "127.0.0.1",
-      "cognitoAuthenticationType": null,
-      "cognitoAuthenticationProvider": null,
-      "userArn": null,
-      "userAgent": "Custom User Agent String",
-      "user": null
+  Records: [
+    {
+    "pageLoadId": "4963fe2c-b002-b1fd-3d44-980095fed482",
+    "pageLoadTs": 1676595395717,
+    "metadata": {
+      "url": "file:///Users/collin/Code/performance-monitoring-instrumentation/instrumentation/view.html",
+      "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36",
+      "screenWidth": 313,
+      "screenHeight": 796,
+      "connection": {
+        "effectiveType": "4g",
+        "downlink": 10,
+        "rtt": 0
+      }
     },
-    "path": "/prod/path/to/resource",
-    "resourcePath": "/{proxy+}",
-    "httpMethod": "POST",
-    "apiId": "1234567890",
-    "protocol": "HTTP/1.1"
-  }
+    "performanceEntries": [
+        {
+            "name": "https://xd0onfxq3k.execute-api.us-east-1.amazonaws.com/development/events",
+            "entryType": "resource",
+            "startTime": 3134.5,
+            "duration": 86.5,
+            "initiatorType": "xmlhttprequest",
+            "nextHopProtocol": "",
+            "renderBlockingStatus": "non-blocking",
+            "workerStart": 0,
+            "redirectStart": 0,
+            "redirectEnd": 0,
+            "fetchStart": 3134.5,
+            "domainLookupStart": 0,
+            "domainLookupEnd": 0,
+            "connectStart": 0,
+            "connectEnd": 0,
+            "secureConnectionStart": 0,
+            "requestStart": 0,
+            "responseStart": 0,
+            "responseEnd": 3221,
+            "transferSize": 0,
+            "encodedBodySize": 0,
+            "decodedBodySize": 0,
+            "responseStatus": 0,
+            "serverTiming": []
+        }
+    ],
+    "performanceMetrics": {
+        "TTFB": {
+            "name": "TTFB",
+            "value": 1.2999999970197678,
+            "rating": "good",
+            "delta": 1.2999999970197678,
+            "entries": [
+                {
+                    "name": "",
+                    "entryType": "navigation",
+                    "startTime": 0,
+                    "duration": 122.70000000298023,
+                    "initiatorType": "navigation",
+                    "nextHopProtocol": "",
+                    "renderBlockingStatus": "blocking",
+                    "workerStart": 0,
+                    "redirectStart": 0,
+                    "redirectEnd": 0,
+                    "fetchStart": 1.2999999970197678,
+                    "domainLookupStart": 1.2999999970197678,
+                    "domainLookupEnd": 1.2999999970197678,
+                    "connectStart": 1.2999999970197678,
+                    "connectEnd": 1.2999999970197678,
+                    "secureConnectionStart": 0,
+                    "requestStart": 1.2999999970197678,
+                    "responseStart": 1.2999999970197678,
+                    "responseEnd": 5.899999998509884,
+                    "transferSize": 0,
+                    "encodedBodySize": 0,
+                    "decodedBodySize": 0,
+                    "responseStatus": 0,
+                    "serverTiming": [],
+                    "unloadEventStart": 0,
+                    "unloadEventEnd": 0,
+                    "domInteractive": 122.39999999850988,
+                    "domContentLoadedEventStart": 122.39999999850988,
+                    "domContentLoadedEventEnd": 122.39999999850988,
+                    "domComplete": 122.60000000149012,
+                    "loadEventStart": 122.60000000149012,
+                    "loadEventEnd": 122.70000000298023,
+                    "type": "reload",
+                    "redirectCount": 0,
+                    "activationStart": 0
+                }
+            ],
+            "id": "v3-1676595395719-3741052824920",
+            "navigationType": "reload",
+            "attribution": {
+                "waitingTime": 1.2999999970197678,
+                "dnsTime": 0,
+                "connectionTime": 0,
+                "requestTime": 0,
+                "navigationEntry": {
+                    "name": "",
+                    "entryType": "navigation",
+                    "startTime": 0,
+                    "duration": 122.70000000298023,
+                    "initiatorType": "navigation",
+                    "nextHopProtocol": "",
+                    "renderBlockingStatus": "blocking",
+                    "workerStart": 0,
+                    "redirectStart": 0,
+                    "redirectEnd": 0,
+                    "fetchStart": 1.2999999970197678,
+                    "domainLookupStart": 1.2999999970197678,
+                    "domainLookupEnd": 1.2999999970197678,
+                    "connectStart": 1.2999999970197678,
+                    "connectEnd": 1.2999999970197678,
+                    "secureConnectionStart": 0,
+                    "requestStart": 1.2999999970197678,
+                    "responseStart": 1.2999999970197678,
+                    "responseEnd": 5.899999998509884,
+                    "transferSize": 0,
+                    "encodedBodySize": 0,
+                    "decodedBodySize": 0,
+                    "responseStatus": 0,
+                    "serverTiming": [],
+                    "unloadEventStart": 0,
+                    "unloadEventEnd": 0,
+                    "domInteractive": 122.39999999850988,
+                    "domContentLoadedEventStart": 122.39999999850988,
+                    "domContentLoadedEventEnd": 122.39999999850988,
+                    "domComplete": 122.60000000149012,
+                    "loadEventStart": 122.60000000149012,
+                    "loadEventEnd": 122.70000000298023,
+                    "type": "reload",
+                    "redirectCount": 0,
+                    "activationStart": 0
+                }
+            }
+        },
+        "FCP": {
+            "name": "FCP",
+            "value": 198,
+            "rating": "good",
+            "delta": 198,
+            "entries": [
+                {
+                    "name": "first-contentful-paint",
+                    "entryType": "paint",
+                    "startTime": 198,
+                    "duration": 0
+                }
+            ],
+            "id": "v3-1676595395719-6553840604859",
+            "navigationType": "reload",
+            "attribution": {
+                "timeToFirstByte": 1.2999999970197678,
+                "firstByteToFCP": 196.70000000298023,
+                "loadState": "complete",
+                "navigationEntry": {
+                    "name": "",
+                    "entryType": "navigation",
+                    "startTime": 0,
+                    "duration": 122.70000000298023,
+                    "initiatorType": "navigation",
+                    "nextHopProtocol": "",
+                    "renderBlockingStatus": "blocking",
+                    "workerStart": 0,
+                    "redirectStart": 0,
+                    "redirectEnd": 0,
+                    "fetchStart": 1.2999999970197678,
+                    "domainLookupStart": 1.2999999970197678,
+                    "domainLookupEnd": 1.2999999970197678,
+                    "connectStart": 1.2999999970197678,
+                    "connectEnd": 1.2999999970197678,
+                    "secureConnectionStart": 0,
+                    "requestStart": 1.2999999970197678,
+                    "responseStart": 1.2999999970197678,
+                    "responseEnd": 5.899999998509884,
+                    "transferSize": 0,
+                    "encodedBodySize": 0,
+                    "decodedBodySize": 0,
+                    "responseStatus": 0,
+                    "serverTiming": [],
+                    "unloadEventStart": 0,
+                    "unloadEventEnd": 0,
+                    "domInteractive": 122.39999999850988,
+                    "domContentLoadedEventStart": 122.39999999850988,
+                    "domContentLoadedEventEnd": 122.39999999850988,
+                    "domComplete": 122.60000000149012,
+                    "loadEventStart": 122.60000000149012,
+                    "loadEventEnd": 122.70000000298023,
+                    "type": "reload",
+                    "redirectCount": 0,
+                    "activationStart": 0
+                },
+                "fcpEntry": {
+                    "name": "first-contentful-paint",
+                    "entryType": "paint",
+                    "startTime": 198,
+                    "duration": 0
+                }
+            }
+        },
+        "LCP": {
+            "name": "LCP",
+            "value": 1149.2,
+            "rating": "good",
+            "delta": 1149.2,
+            "entries": [
+                {
+                    "name": "",
+                    "entryType": "largest-contentful-paint",
+                    "startTime": 1149.2,
+                    "duration": 0,
+                    "size": 62287,
+                    "renderTime": 0,
+                    "loadTime": 1149.2,
+                    "firstAnimatedFrameTime": 0,
+                    "id": "",
+                    "url": "https://avatars0.githubusercontent.com/u/1?v=4&s=460"
+                }
+            ],
+            "id": "v3-1676595395718-1870566413474",
+            "navigationType": "reload",
+            "attribution": {
+                "element": "html>body>img",
+                "timeToFirstByte": 1.2999999970197678,
+                "resourceLoadDelay": 1127,
+                "resourceLoadTime": 20.400000005960464,
+                "elementRenderDelay": 0.49999999701981324,
+                "navigationEntry": {
+                    "name": "",
+                    "entryType": "navigation",
+                    "startTime": 0,
+                    "duration": 122.70000000298023,
+                    "initiatorType": "navigation",
+                    "nextHopProtocol": "",
+                    "renderBlockingStatus": "blocking",
+                    "workerStart": 0,
+                    "redirectStart": 0,
+                    "redirectEnd": 0,
+                    "fetchStart": 1.2999999970197678,
+                    "domainLookupStart": 1.2999999970197678,
+                    "domainLookupEnd": 1.2999999970197678,
+                    "connectStart": 1.2999999970197678,
+                    "connectEnd": 1.2999999970197678,
+                    "secureConnectionStart": 0,
+                    "requestStart": 1.2999999970197678,
+                    "responseStart": 1.2999999970197678,
+                    "responseEnd": 5.899999998509884,
+                    "transferSize": 0,
+                    "encodedBodySize": 0,
+                    "decodedBodySize": 0,
+                    "responseStatus": 0,
+                    "serverTiming": [],
+                    "unloadEventStart": 0,
+                    "unloadEventEnd": 0,
+                    "domInteractive": 122.39999999850988,
+                    "domContentLoadedEventStart": 122.39999999850988,
+                    "domContentLoadedEventEnd": 122.39999999850988,
+                    "domComplete": 122.60000000149012,
+                    "loadEventStart": 122.60000000149012,
+                    "loadEventEnd": 122.70000000298023,
+                    "type": "reload",
+                    "redirectCount": 0,
+                    "activationStart": 0
+                },
+                "lcpEntry": {
+                    "name": "",
+                    "entryType": "largest-contentful-paint",
+                    "startTime": 1149.2,
+                    "duration": 0,
+                    "size": 62287,
+                    "renderTime": 0,
+                    "loadTime": 1149.2,
+                    "firstAnimatedFrameTime": 0,
+                    "id": "",
+                    "url": "https://avatars0.githubusercontent.com/u/1?v=4&s=460"
+                },
+                "url": "https://avatars0.githubusercontent.com/u/1?v=4&s=460",
+                "lcpResourceEntry": {
+                    "name": "https://avatars0.githubusercontent.com/u/1?v=4&s=460",
+                    "entryType": "resource",
+                    "startTime": 1128.2999999970198,
+                    "duration": 20.400000005960464,
+                    "initiatorType": "img",
+                    "nextHopProtocol": "",
+                    "renderBlockingStatus": "non-blocking",
+                    "workerStart": 0,
+                    "redirectStart": 0,
+                    "redirectEnd": 0,
+                    "fetchStart": 1128.2999999970198,
+                    "domainLookupStart": 0,
+                    "domainLookupEnd": 0,
+                    "connectStart": 0,
+                    "connectEnd": 0,
+                    "secureConnectionStart": 0,
+                    "requestStart": 0,
+                    "responseStart": 0,
+                    "responseEnd": 1148.7000000029802,
+                    "transferSize": 0,
+                    "encodedBodySize": 0,
+                    "decodedBodySize": 0,
+                    "responseStatus": 0,
+                    "serverTiming": []
+                }
+            }
+        },
+        "FID": {
+            "name": "FID",
+            "value": 0.8000000044703484,
+            "rating": "good",
+            "delta": 0.8000000044703484,
+            "entries": [
+                {
+                    "name": "pointerdown",
+                    "entryType": "first-input",
+                    "startTime": 1889.7999999970198,
+                    "duration": 0,
+                    "processingStart": 1890.6000000014901,
+                    "processingEnd": 1890.6000000014901,
+                    "cancelable": true
+                }
+            ],
+            "id": "v3-1676595395719-1197844799424",
+            "navigationType": "reload",
+            "attribution": {
+                "eventTarget": "",
+                "eventType": "pointerdown",
+                "eventTime": 1889.7999999970198,
+                "eventEntry": {
+                    "name": "pointerdown",
+                    "entryType": "first-input",
+                    "startTime": 1889.7999999970198,
+                    "duration": 0,
+                    "processingStart": 1890.6000000014901,
+                    "processingEnd": 1890.6000000014901,
+                    "cancelable": true
+                },
+                "loadState": "complete"
+            }
+        },
+        "INP": {
+            "name": "INP",
+            "value": 0,
+            "rating": "good",
+            "delta": 0,
+            "entries": [
+                {
+                    "name": "pointerdown",
+                    "entryType": "first-input",
+                    "startTime": 1889.7999999970198,
+                    "duration": 0,
+                    "processingStart": 1890.6000000014901,
+                    "processingEnd": 1890.6000000014901,
+                    "cancelable": true
+                }
+            ],
+            "id": "v3-1676595395719-5569800506823",
+            "navigationType": "reload",
+            "attribution": {
+                "eventTarget": "",
+                "eventType": "pointerdown",
+                "eventTime": 1889.7999999970198,
+                "eventEntry": {
+                    "name": "pointerdown",
+                    "entryType": "first-input",
+                    "startTime": 1889.7999999970198,
+                    "duration": 0,
+                    "processingStart": 1890.6000000014901,
+                    "processingEnd": 1890.6000000014901,
+                    "cancelable": true
+                },
+                "loadState": "complete"
+            }
+        },
+        "CLS": {
+            "name": "CLS",
+            "value": 0.28274795175324335,
+            "rating": "poor",
+            "delta": 0.28274795175324335,
+            "entries": [
+                {
+                    "name": "",
+                    "entryType": "layout-shift",
+                    "startTime": 1128.5,
+                    "duration": 0,
+                    "value": 0.28274795175324335,
+                    "hadRecentInput": false,
+                    "lastInputTime": 0,
+                    "sources": [
+                        {
+                            "previousRect": {
+                                "x": 16,
+                                "y": 43,
+                                "width": 594,
+                                "height": 74,
+                                "top": 43,
+                                "right": 610,
+                                "bottom": 117,
+                                "left": 16
+                            },
+                            "currentRect": {
+                                "x": 16,
+                                "y": 16,
+                                "width": 594,
+                                "height": 921,
+                                "top": 16,
+                                "right": 610,
+                                "bottom": 937,
+                                "left": 16
+                            }
+                        }
+                    ]
+                }
+            ],
+            "id": "v3-1676595395798-9698193798976",
+            "navigationType": "reload",
+            "attribution": {
+                "largestShiftTarget": "html>body",
+                "largestShiftTime": 1128.5,
+                "largestShiftValue": 0.28274795175324335,
+                "largestShiftSource": {
+                    "previousRect": {
+                        "x": 16,
+                        "y": 43,
+                        "width": 594,
+                        "height": 74,
+                        "top": 43,
+                        "right": 610,
+                        "bottom": 117,
+                        "left": 16
+                    },
+                    "currentRect": {
+                        "x": 16,
+                        "y": 16,
+                        "width": 594,
+                        "height": 921,
+                        "top": 16,
+                        "right": 610,
+                        "bottom": 937,
+                        "left": 16
+                    }
+                },
+                "largestShiftEntry": {
+                    "name": "",
+                    "entryType": "layout-shift",
+                    "startTime": 1128.5,
+                    "duration": 0,
+                    "value": 0.28274795175324335,
+                    "hadRecentInput": false,
+                    "lastInputTime": 0,
+                    "sources": [
+                        {
+                            "previousRect": {
+                                "x": 16,
+                                "y": 43,
+                                "width": 594,
+                                "height": 74,
+                                "top": 43,
+                                "right": 610,
+                                "bottom": 117,
+                                "left": 16
+                            },
+                            "currentRect": {
+                                "x": 16,
+                                "y": 16,
+                                "width": 594,
+                                "height": 921,
+                                "top": 16,
+                                "right": 610,
+                                "bottom": 937,
+                                "left": 16
+                            }
+                        }
+                    ]
+                },
+                "loadState": "complete"
+            }
+        }
+    }
+  ]
 }
