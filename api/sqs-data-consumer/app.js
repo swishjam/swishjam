@@ -1,4 +1,4 @@
-{ PerformanceDataPayloadFormatter } = require("./performanceDataPayloadFormatter");
+// { PerformanceDataPayloadFormatter } = require("./performanceDataPayloadFormatter");
 //const { Sequelize } = require('sequelize');
 //const env = process.env.NODE_ENV || 'development';
 //const config = require(__dirname + '/database/config/config.js')[env];
@@ -37,10 +37,6 @@ try {
 
 module.exports.consumeMessages = async (event, _context) => {
   try {
-
-
-
-
     console.log(`Received event:`);
     console.log(JSON.stringify(event));
     if (!event?.Records?.length) return 'No records';
