@@ -1,12 +1,11 @@
-const { PerformanceDataPayloadFormatter }  = require('./performanceDataPayloadFormatter');
+// const { PerformanceDataPayloadFormatter }  = require('./performanceDataPayloadFormatter');
 const { Connect } = require('./db');
-//const { PerformanceDataPayloadFormatter }  = require('./performanceDataPayloadFormatter');
 
 module.exports.consumeMessages = async (event, _context) => {
   try {
     console.log(`------------------------------ Start Lambda Function------------------------------`);
     //console.log('Received Event:', JSON.stringify(event));
-    Connect();
+    await Connect();
 
     /*if (!event?.Records?.length) return 'No records';
     console.log(`Processing ${event.Records.length} records.`);
