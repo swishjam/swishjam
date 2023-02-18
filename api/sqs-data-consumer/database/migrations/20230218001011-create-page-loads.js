@@ -60,6 +60,7 @@ module.exports = {
         type: Sequelize.DATE
       }
     });
+    await queryInterface.addIndex('page_loads', ['identifier']);
   },
   async down(queryInterface, Sequelize) {
     await queryInterface.dropTable('page_loads');
