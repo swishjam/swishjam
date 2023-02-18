@@ -9,7 +9,7 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      indentifier: {
+      identifier: {
         type: Sequelize.STRING
       },
       site_id: {

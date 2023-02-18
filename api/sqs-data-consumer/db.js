@@ -1,27 +1,27 @@
 const { Sequelize } = require('sequelize');
+const pageLoadModel = require('./database/models/page_loads');
 
-// your config file will be in your directory
-const Connect = async () => {
+const Database = () => {
   const { dbHost, dbDatabase, dbUsername, dbPassword, dbDialect  } = process.env;
-  const sequelize = new Sequelize(dbDatabase, dbUsername, dbPassword, {
+  const sq = new Sequelize(dbDatabase, dbUsername, dbPassword, {
     host: dbHost,
     port: 5432,
     logging: msg => console.log(`DB LOG: ${msg}`),
-    // maxConcurrentQueries: 100,
     dialect: dbDialect,
-    // dialectOptions: { ssl: 'Amazon RDS' },
     pool: { maxConnections: 5, maxIdleTime: 30 },
     language: 'en'
   })
+  return sq;
+}
 
-  try {
-    await sequelize.authenticate();
-    console.log('Connection has been established successfully.');
-    await sequelize.close();
-  } catch (error) {
-    console.error('Unable to connect to the database:', error);
-    await sequelize.close();
+const Models = (db) => {
+  const pageLoads = pageLoadModel(db, Sequelize.DataTypes);
+  return {
+    pageLoads
   }
 }
 
-module.exports = { Connect }
+module.exports = {
+  Database,
+  Models
+}

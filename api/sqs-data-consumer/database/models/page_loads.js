@@ -14,7 +14,7 @@ module.exports = (sequelize, DataTypes) => {
     }
   }
   page_loads.init({
-    indentifier: DataTypes.STRING,
+    identifier: DataTypes.STRING,
     site_id: DataTypes.STRING,
     page_load_ts: DataTypes.BIGINT,
     full_url: DataTypes.STRING,
@@ -31,6 +31,7 @@ module.exports = (sequelize, DataTypes) => {
   }, {
     sequelize,
     modelName: 'page_loads',
+    underscored: true,
   });
   return page_loads;
 };

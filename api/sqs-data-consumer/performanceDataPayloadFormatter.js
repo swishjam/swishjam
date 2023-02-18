@@ -1,17 +1,31 @@
-module.exports = class PerformanceDataPayloadFormatter {
+import DeviceDetector = require("device-detector-js"); 
+ 
+ class PerformanceDataPayloadFormatter {
   constructor(payload) {
     this.payload = payload;
   }
 
+  isUpdate() {
+    return this.payload.pageLoadTs ? false : true;    
+  }
+
   pageloadData() {
+    const deviceDetector = new DeviceDetector();
+    const device = deviceDetector.parse(this.payload.userAgent);
+    
+
     return {
       identifier: this.payload.pageLoadId,
+      site_id: this.payload.siteId,
       page_load_ts: this.payload.pageLoadTs,
-      full_url: this.payload.fullUrl,
-      url_host: new URL(this.payload.fullUrl).host,
-      url_path: new URL(this.payload.fullUrl).pathname,
-      url_query: new URL(this.payload.fullUrl).search,
+      full_url: this.payload.url,
+      url_host: new URL(this.payload.url).host,
+      url_path: new URL(this.payload.url).pathname,
+      url_query: new URL(this.payload.url).search,
       user_agent: this.payload.userAgent,
+      device_client_type: '',
+      device_client_name: '',
+      device_client_version: '',
       screen_width: this.payload.screenWidth,
       screen_height: this.payload.screenHeight,
       connection_effective_type: this.payload.connection.effectiveType,
@@ -32,4 +46,8 @@ module.exports = class PerformanceDataPayloadFormatter {
       // dom_interactive: this.payload.performanceMetrics?.DI?.value,
     }
   }
+}
+
+module.exports = {
+  PerformanceDataPayloadFormatter
 }
