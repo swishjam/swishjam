@@ -1,9 +1,6 @@
-// { PerformanceDataPayloadFormatter } = require("./performanceDataPayloadFormatter");
-//const { Sequelize } = require('sequelize');
-//const env = process.env.NODE_ENV || 'development';
-//const config = require(__dirname + '/database/config/config.js')[env];
-
-//console.log(config);
+const { PerformanceDataPayloadFormatter }  = require('./performanceDataPayloadFormatter');
+const { Sequelize } = require('sequelize');
+const config = require(__dirname + '/database/config/config.js');
 
 // your config file will be in your directory
 /*sequelize = new Sequelize(config.database, config.username, config.password, {
@@ -37,8 +34,12 @@ try {
 
 module.exports.consumeMessages = async (event, _context) => {
   try {
-    console.log(`Received event:`);
-    console.log(JSON.stringify(event));
+    console.log(`------------------------------ Start Lambda Function------------------------------`);
+    // console.log('Sequelize Config: ', JSON.stringify(config));
+    //console.log('Received Event:', JSON.stringify(event));
+    
+    
+    
     if (!event?.Records?.length) return 'No records';
     console.log(`Processing ${event.Records.length} records.`);
     for (const record of event.Records) {

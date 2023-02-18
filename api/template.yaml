@@ -129,11 +129,17 @@ Resources:
       Description: A Lambda function that logs the payload of messages sent to an associated SQS queue.
       Runtime: nodejs18.x
       Architectures:
-      # - x86_64
       - arm64
       Handler: src/handlers/sqs-data-consumer.consumeMessages
       # This property associates this Lambda function with the SQS queue defined above, so that whenever the queue
       # receives a message, the Lambda function is invoked
+      Environment:
+        Variables:
+          dbHost: 'performance-data-db.cytsjoeoway1.us-east-1.rds.amazonaws.com'
+          dbDatabase: 'performance_data'
+          dbUsername: 'dbuser'
+          dbPassword: 'xc0b0QnuMyZ66jFYF4p0'
+          dbDialect: 'postgres'
       Events:
         SQSQueueEvent:
           Type: SQS
