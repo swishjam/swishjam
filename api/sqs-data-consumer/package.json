@@ -1,10 +1,10 @@
 {
-  "name": "sqs-data-consumer-and-data-store",
+  "name": "sqs_data_consumer_and_data_store",
   "version": "1.0.0",
   "description": "Performance monitoring queue consumer and data model",
-  "main": "index.js",
+  "main": "app.js",
   "repository": "https://github.com/awslabs/aws-sam-cli/tree/develop/samcli/local/init/templates/cookiecutter-aws-sam-hello-nodejs",
-  "author": "Tagsafe",
+  "author": "tagsafe",
   "license": "MIT",
   "dependencies": {
     "axios": "^0.21.1",
