@@ -37,7 +37,7 @@ try {
 
 module.exports.consumeMessages = async (event, _context) => {
   try {
-    console.log(`Received event:`);
+    console.log(`Received eventzzzzzz:`);
     console.log(JSON.stringify(event));
     if (!event?.Records?.length) return 'No records';
     console.log(`Processing ${event.Records.length} records.`);

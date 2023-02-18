@@ -1,5 +1,5 @@
 node_modules
-instrumentation/dist
+instrumentation/build
 .DS_STORE
- api/.aws-sam
- .env
+api/.aws-sam
+.env

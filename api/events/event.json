@@ -1,194 +1,19 @@
 {
-  "pageLoadId": "06f92d51-dcc0-3320-61f0-10be04da7387",
-  "pageLoadTs": 1676691692881,
-  "url": "file:///Users/collin/Code/performance-monitoring-instrumentation/instrumentation/view.html",
-  "referrer": "",
-  "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36",
-  "screenWidth": 459,
-  "screenHeight": 796,
-  "connection": {
-    "effectiveType": "4g",
-    "downlink": 10,
-    "rtt": 0
-  },
-  "performanceEntries": [
+  "Records": [
     {
-      "name": "",
-      "entryType": "navigation",
-      "startTime": 0,
-      "duration": 50.899999998509884,
-      "initiatorType": "navigation",
-      "nextHopProtocol": "",
-      "renderBlockingStatus": "blocking",
-      "workerStart": 0,
-      "redirectStart": 0,
-      "redirectEnd": 0,
-      "fetchStart": 6.599999997764826,
-      "domainLookupStart": 6.599999997764826,
-      "domainLookupEnd": 6.599999997764826,
-      "connectStart": 6.599999997764826,
-      "connectEnd": 6.599999997764826,
-      "secureConnectionStart": 0,
-      "requestStart": 6.599999997764826,
-      "responseStart": 6.599999997764826,
-      "responseEnd": 12.399999998509884,
-      "transferSize": 0,
-      "encodedBodySize": 0,
-      "decodedBodySize": 0,
-      "responseStatus": 0,
-      "serverTiming": [],
-      "unloadEventStart": 0,
-      "unloadEventEnd": 0,
-      "domInteractive": 50.599999997764826,
-      "domContentLoadedEventStart": 50.599999997764826,
-      "domContentLoadedEventEnd": 50.599999997764826,
-      "domComplete": 50.69999999925494,
-      "loadEventStart": 50.69999999925494,
-      "loadEventEnd": 50.899999998509884,
-      "type": "navigate",
-      "redirectCount": 0,
-      "activationStart": 0
-    },
-    {
-      "name": "",
-      "entryType": "navigation",
-      "startTime": 0,
-      "duration": 50.899999998509884,
-      "initiatorType": "navigation",
-      "nextHopProtocol": "",
-      "renderBlockingStatus": "blocking",
-      "workerStart": 0,
-      "redirectStart": 0,
-      "redirectEnd": 0,
-      "fetchStart": 6.599999997764826,
-      "domainLookupStart": 6.599999997764826,
-      "domainLookupEnd": 6.599999997764826,
-      "connectStart": 6.599999997764826,
-      "connectEnd": 6.599999997764826,
-      "secureConnectionStart": 0,
-      "requestStart": 6.599999997764826,
-      "responseStart": 6.599999997764826,
-      "responseEnd": 12.399999998509884,
-      "transferSize": 0,
-      "encodedBodySize": 0,
-      "decodedBodySize": 0,
-      "responseStatus": 0,
-      "serverTiming": [],
-      "unloadEventStart": 0,
-      "unloadEventEnd": 0,
-      "domInteractive": 50.599999997764826,
-      "domContentLoadedEventStart": 50.599999997764826,
-      "domContentLoadedEventEnd": 50.599999997764826,
-      "domComplete": 50.69999999925494,
-      "loadEventStart": 50.69999999925494,
-      "loadEventEnd": 50.899999998509884,
-      "type": "navigate",
-      "redirectCount": 0,
-      "activationStart": 0
-    },
-    {
-      "name": "",
-      "entryType": "largest-contentful-paint",
-      "startTime": 77.699,
-      "duration": 0,
-      "size": 10286,
-      "renderTime": 77.699,
-      "loadTime": 0,
-      "firstAnimatedFrameTime": 0,
-      "id": "",
-      "url": ""
-    },
-    {
-      "name": "first-paint",
-      "entryType": "paint",
-      "startTime": 77.69999999925494,
-      "duration": 0
-    },
-    {
-      "name": "first-contentful-paint",
-      "entryType": "paint",
-      "startTime": 77.69999999925494,
-      "duration": 0
-    },
-    {
-      "name": "",
-      "entryType": "layout-shift",
-      "startTime": 1046.800000000745,
-      "duration": 0,
-      "value": 0.2875930565066274,
-      "hadRecentInput": false,
-      "lastInputTime": 0,
-      "sources": [
-        {
-          "previousRect": {
-            "x": 16,
-            "y": 43,
-            "width": 886,
-            "height": 74,
-            "top": 43,
-            "right": 902,
-            "bottom": 117,
-            "left": 16
-          },
-          "currentRect": {
-            "x": 16,
-            "y": 16,
-            "width": 886,
-            "height": 921,
-            "top": 16,
-            "right": 902,
-            "bottom": 937,
-            "left": 16
-          }
-        }
-      ]
-    },
-    {
-      "name": "https://avatars0.githubusercontent.com/u/1?v=4&s=460",
-      "entryType": "resource",
-      "startTime": 1044.5999999977648,
-      "duration": 204.20000000298023,
-      "initiatorType": "img",
-      "nextHopProtocol": "",
-      "renderBlockingStatus": "non-blocking",
-      "workerStart": 0,
-      "redirectStart": 0,
-      "redirectEnd": 0,
-      "fetchStart": 1044.5999999977648,
-      "domainLookupStart": 0,
-      "domainLookupEnd": 0,
-      "connectStart": 0,
-      "connectEnd": 0,
-      "secureConnectionStart": 0,
-      "requestStart": 0,
-      "responseStart": 0,
-      "responseEnd": 1248.800000000745,
-      "transferSize": 0,
-      "encodedBodySize": 0,
-      "decodedBodySize": 0,
-      "responseStatus": 0,
-      "serverTiming": []
-    },
-    {
-      "name": "",
-      "entryType": "largest-contentful-paint",
-      "startTime": 1249.599,
-      "duration": 0,
-      "size": 91341,
-      "renderTime": 0,
-      "loadTime": 1249.599,
-      "firstAnimatedFrameTime": 0,
-      "id": "",
-      "url": "https://avatars0.githubusercontent.com/u/1?v=4&s=460"
-    }
-  ],
-  "performanceMetrics": {
-    "TTFB": {
-      "name": "TTFB",
-      "value": 6.599999997764826,
-      "rating": "good",
-      "delta": 6.599999997764826,
-      "entries": [
+      "pageLoadId": "06f92d51-dcc0-3320-61f0-10be04da7387",
+      "pageLoadTs": 1676691692881,
+      "url": "file:///Users/collin/Code/performance-monitoring-instrumentation/instrumentation/view.html",
+      "referrer": "",
+      "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36",
+      "screenWidth": 459,
+      "screenHeight": 796,
+      "connection": {
+        "effectiveType": "4g",
+        "downlink": 10,
+        "rtt": 0
+      },
+      "performanceEntries": [
         {
           "name": "",
           "entryType": "navigation",
@@ -225,26 +50,205 @@
           "type": "navigate",
           "redirectCount": 0,
           "activationStart": 0
-        }
-      ],
-      "id": "v3-1676691692882-9012914263331",
-      "navigationType": "navigate"
-    },
-    "FCP": {
-      "name": "FCP",
-      "value": 77.69999999925494,
-      "rating": "good",
-      "delta": 77.69999999925494,
-      "entries": [
+        },
+        {
+          "name": "",
+          "entryType": "navigation",
+          "startTime": 0,
+          "duration": 50.899999998509884,
+          "initiatorType": "navigation",
+          "nextHopProtocol": "",
+          "renderBlockingStatus": "blocking",
+          "workerStart": 0,
+          "redirectStart": 0,
+          "redirectEnd": 0,
+          "fetchStart": 6.599999997764826,
+          "domainLookupStart": 6.599999997764826,
+          "domainLookupEnd": 6.599999997764826,
+          "connectStart": 6.599999997764826,
+          "connectEnd": 6.599999997764826,
+          "secureConnectionStart": 0,
+          "requestStart": 6.599999997764826,
+          "responseStart": 6.599999997764826,
+          "responseEnd": 12.399999998509884,
+          "transferSize": 0,
+          "encodedBodySize": 0,
+          "decodedBodySize": 0,
+          "responseStatus": 0,
+          "serverTiming": [],
+          "unloadEventStart": 0,
+          "unloadEventEnd": 0,
+          "domInteractive": 50.599999997764826,
+          "domContentLoadedEventStart": 50.599999997764826,
+          "domContentLoadedEventEnd": 50.599999997764826,
+          "domComplete": 50.69999999925494,
+          "loadEventStart": 50.69999999925494,
+          "loadEventEnd": 50.899999998509884,
+          "type": "navigate",
+          "redirectCount": 0,
+          "activationStart": 0
+        },
+        {
+          "name": "",
+          "entryType": "largest-contentful-paint",
+          "startTime": 77.699,
+          "duration": 0,
+          "size": 10286,
+          "renderTime": 77.699,
+          "loadTime": 0,
+          "firstAnimatedFrameTime": 0,
+          "id": "",
+          "url": ""
+        },
+        {
+          "name": "first-paint",
+          "entryType": "paint",
+          "startTime": 77.69999999925494,
+          "duration": 0
+        },
         {
           "name": "first-contentful-paint",
           "entryType": "paint",
           "startTime": 77.69999999925494,
           "duration": 0
+        },
+        {
+          "name": "",
+          "entryType": "layout-shift",
+          "startTime": 1046.800000000745,
+          "duration": 0,
+          "value": 0.2875930565066274,
+          "hadRecentInput": false,
+          "lastInputTime": 0,
+          "sources": [
+            {
+              "previousRect": {
+                "x": 16,
+                "y": 43,
+                "width": 886,
+                "height": 74,
+                "top": 43,
+                "right": 902,
+                "bottom": 117,
+                "left": 16
+              },
+              "currentRect": {
+                "x": 16,
+                "y": 16,
+                "width": 886,
+                "height": 921,
+                "top": 16,
+                "right": 902,
+                "bottom": 937,
+                "left": 16
+              }
+            }
+          ]
+        },
+        {
+          "name": "https://avatars0.githubusercontent.com/u/1?v=4&s=460",
+          "entryType": "resource",
+          "startTime": 1044.5999999977648,
+          "duration": 204.20000000298023,
+          "initiatorType": "img",
+          "nextHopProtocol": "",
+          "renderBlockingStatus": "non-blocking",
+          "workerStart": 0,
+          "redirectStart": 0,
+          "redirectEnd": 0,
+          "fetchStart": 1044.5999999977648,
+          "domainLookupStart": 0,
+          "domainLookupEnd": 0,
+          "connectStart": 0,
+          "connectEnd": 0,
+          "secureConnectionStart": 0,
+          "requestStart": 0,
+          "responseStart": 0,
+          "responseEnd": 1248.800000000745,
+          "transferSize": 0,
+          "encodedBodySize": 0,
+          "decodedBodySize": 0,
+          "responseStatus": 0,
+          "serverTiming": []
+        },
+        {
+          "name": "",
+          "entryType": "largest-contentful-paint",
+          "startTime": 1249.599,
+          "duration": 0,
+          "size": 91341,
+          "renderTime": 0,
+          "loadTime": 1249.599,
+          "firstAnimatedFrameTime": 0,
+          "id": "",
+          "url": "https://avatars0.githubusercontent.com/u/1?v=4&s=460"
         }
       ],
-      "id": "v3-1676691692882-7552186865969",
-      "navigationType": "navigate"
+      "performanceMetrics": {
+        "TTFB": {
+          "name": "TTFB",
+          "value": 6.599999997764826,
+          "rating": "good",
+          "delta": 6.599999997764826,
+          "entries": [
+            {
+              "name": "",
+              "entryType": "navigation",
+              "startTime": 0,
+              "duration": 50.899999998509884,
+              "initiatorType": "navigation",
+              "nextHopProtocol": "",
+              "renderBlockingStatus": "blocking",
+              "workerStart": 0,
+              "redirectStart": 0,
+              "redirectEnd": 0,
+              "fetchStart": 6.599999997764826,
+              "domainLookupStart": 6.599999997764826,
+              "domainLookupEnd": 6.599999997764826,
+              "connectStart": 6.599999997764826,
+              "connectEnd": 6.599999997764826,
+              "secureConnectionStart": 0,
+              "requestStart": 6.599999997764826,
+              "responseStart": 6.599999997764826,
+              "responseEnd": 12.399999998509884,
+              "transferSize": 0,
+              "encodedBodySize": 0,
+              "decodedBodySize": 0,
+              "responseStatus": 0,
+              "serverTiming": [],
+              "unloadEventStart": 0,
+              "unloadEventEnd": 0,
+              "domInteractive": 50.599999997764826,
+              "domContentLoadedEventStart": 50.599999997764826,
+              "domContentLoadedEventEnd": 50.599999997764826,
+              "domComplete": 50.69999999925494,
+              "loadEventStart": 50.69999999925494,
+              "loadEventEnd": 50.899999998509884,
+              "type": "navigate",
+              "redirectCount": 0,
+              "activationStart": 0
+            }
+          ],
+          "id": "v3-1676691692882-9012914263331",
+          "navigationType": "navigate"
+        },
+        "FCP": {
+          "name": "FCP",
+          "value": 77.69999999925494,
+          "rating": "good",
+          "delta": 77.69999999925494,
+          "entries": [
+            {
+              "name": "first-contentful-paint",
+              "entryType": "paint",
+              "startTime": 77.69999999925494,
+              "duration": 0
+            }
+          ],
+          "id": "v3-1676691692882-7552186865969",
+          "navigationType": "navigate"
+        }
+      }
     }
-  }
+  ]
 }
