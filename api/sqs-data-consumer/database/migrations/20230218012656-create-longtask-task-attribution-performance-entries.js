@@ -9,6 +9,9 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.INTEGER
       },
+      long_task_performance_entry_id: {
+        type: Sequelize.INTEGER
+      },
       page_load_identifier: {
         type: Sequelize.STRING
       },
@@ -45,6 +48,8 @@ module.exports = {
         type: Sequelize.DATE
       }
     });
+    await queryInterface.addIndex('longtask_task_attribution_performance_entries', ['page_load_identifier']);
+    await queryInterface.addIndex('longtask_task_attribution_performance_entries', ['long_task_performance_entry_id']);
   },
   async down(queryInterface, Sequelize) {
     await queryInterface.dropTable('longtask_task_attribution_performance_entries');

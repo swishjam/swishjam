@@ -51,6 +51,7 @@ module.exports = {
         type: Sequelize.DATE
       }
     });
+    await queryInterface.addIndex('largest_contentful_paint_entries', ['page_load_identifier']);
   },
   async down(queryInterface, Sequelize) {
     await queryInterface.dropTable('largest_contentful_paint_entries');
