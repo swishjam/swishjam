@@ -51,7 +51,7 @@ Resources:
                       $ref: '#/components/schemas/PerformanceData'
               responses:
                 "200":
-                  description: Data successfully handled and placed on queue
+                  description: Success
                 "400":
                   description: Bad request
                 "500":
@@ -127,9 +127,10 @@ Resources:
     Properties:
       FunctionName: 'performance-data-sqs-message-consumer'
       Description: A Lambda function that logs the payload of messages sent to an associated SQS queue.
-      Runtime: nodejs16.x
+      Runtime: nodejs18.x
       Architectures:
-      - x86_64
+      # - x86_64
+      - arm64
       Handler: src/handlers/sqs-data-consumer.consumeMessages
       # This property associates this Lambda function with the SQS queue defined above, so that whenever the queue
       # receives a message, the Lambda function is invoked
