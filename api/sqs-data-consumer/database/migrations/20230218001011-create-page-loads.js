@@ -36,6 +36,39 @@ module.exports = {
       device_type: {
         type: Sequelize.STRING
       },
+      device_brand: {
+        type: Sequelize.STRING
+      },
+      device_model: {
+        type: Sequelize.STRING
+      },
+      device_bot: {
+        type: Sequelize.STRING
+      },
+      device_client_type: {
+        type: Sequelize.STRING
+      },
+      device_client_name: {
+        type: Sequelize.STRING
+      },
+      device_client_version: {
+        type: Sequelize.STRING
+      },
+      device_client_engine: {
+        type: Sequelize.STRING
+      },
+      device_client_engine_version: {
+        type: Sequelize.STRING
+      },
+      device_os_name: {
+        type: Sequelize.STRING
+      },
+      device_os_version: {
+        type: Sequelize.STRING
+      },
+      device_os_platform: {
+        type: Sequelize.STRING
+      },
       screen_width: {
         type: Sequelize.INTEGER
       },

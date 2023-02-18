@@ -1,6 +1,6 @@
-import DeviceDetector = require("device-detector-js"); 
- 
- class PerformanceDataPayloadFormatter {
+const DeviceDetector = require("device-detector-js"); 
+
+class PerformanceDataPayloadFormatter {
   constructor(payload) {
     this.payload = payload;
   }
@@ -12,7 +12,6 @@ import DeviceDetector = require("device-detector-js");
   pageloadData() {
     const deviceDetector = new DeviceDetector();
     const device = deviceDetector.parse(this.payload.userAgent);
-    
 
     return {
       identifier: this.payload.pageLoadId,
@@ -23,9 +22,18 @@ import DeviceDetector = require("device-detector-js");
       url_path: new URL(this.payload.url).pathname,
       url_query: new URL(this.payload.url).search,
       user_agent: this.payload.userAgent,
-      device_client_type: '',
-      device_client_name: '',
-      device_client_version: '',
+      device_client_type: device.client.type,
+      device_client_name: device.client.name,
+      device_client_version: device.client.version,
+      device_client_engine: device.client.engine,
+      device_client_engine_version: device.client.engineVersion,
+      device_os_name: device.os.name,
+      device_os_version: device.os.version,
+      device_os_platform: device.os.platform,
+      device_type: device.device.type,
+      device_brand: device.device.brand,
+      device_model: device.device.model,
+      device_bot: device.bot,
       screen_width: this.payload.screenWidth,
       screen_height: this.payload.screenHeight,
       connection_effective_type: this.payload.connection.effectiveType,
