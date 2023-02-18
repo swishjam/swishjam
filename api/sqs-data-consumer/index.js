@@ -1,16 +1,13 @@
-module.exports.consumeMessages = async (event, _context) => {
-  console.log(`------------ consumed event ------------`);
-  try {
-    console.log(`Received event:`)
-    console.dir(event, {depth: null, colors: true})
- 
-    const body = JSON.parse(event.body)
+const { PerformanceDataPayloadFormatter } = require("./performanceDataPayloadFormatter");
 
-    if (!(event?.Records?.length)) {
-      return 'No records'
-    }
-    console.log(`Processing ${event.Records.length} records!!!`);
+module.exports.consumeMessages = async (event, _context) => {
+  try {
+    console.log(`Received event:`);
+    console.log(JSON.stringify(event));
+    if (!event?.Records?.length) return 'No records';
+    console.log(`Processing ${event.Records.length} records.`);
     for (const record of event.Records) {
+      const data = new PerformanceDataPayloadFormatter(record.body);
       console.log(record.body);
     }
     return 'Successfully processed Records'

@@ -1,0 +1,121 @@
+{
+  "page_loads": {
+    "site_id": "Relation",
+    "identifier": "String",
+    "page_load_ts": "Timestamp",
+    "full_url": "String",
+    "url_host": "String",
+    "url_path": "String",
+    "url_query": "String",
+    "user_agent": "String",
+    "device_type": "String",
+    "screen_width": "Integer",
+    "screen_height": "Integer",
+    "connection_effective_type": "String",
+    "connection_downlink": "Integer",
+    "connection_rtt": "Integer"
+  },
+  "element_performance_entries": {
+    "duration": "Integer",
+    "entry_type": "String",
+    "name": "String",
+    "start_time": "Integer",
+    "element_identifier": "String",
+    "element_id": "String",
+    "identifier": "String",
+    "intersection_rect": "String",
+    "load_time": "Integer",
+    "natural_height": "Integer",
+    "render_time": "Integer",
+    "url": "String"
+  },
+  "event_performance_entries": {
+    "duration": "Integer",
+    "entry_type": "String",
+    "name": "String",
+    "start_time": "Integer",
+    "interaction_id": "String",
+    "processing_start": "Integer",
+    "processing_end": "Integer",
+    "target": "String"
+  },
+  "first_input_performance_entries": {
+    "duration": "Integer",
+    "entry_type": "String",
+    "name": "String",
+    "start_time": "Integer",
+    "interaction_id": "String",
+    "processing_start": "Integer",
+    "processing_end": "Integer",
+    "target": "String"
+  },
+  "largest_contentful_paint_entries": {
+    "duration": "Integer",
+    "entry_type": "String",
+    "name": "String",
+    "start_time": "Integer",
+    "element_identifier": "String",
+    "render_time": "Integer",
+    "load_time": "Integer",
+    "size": "Float",
+    "element_id": "String",
+    "url": "String"
+  },
+  "longtask_performance_entries": {
+    "duration": "Integer",
+    "entry_type": "String",
+    "name": "String",
+    "start_time": "Integer",
+  },
+  "longtask_task_attribution_performance_entries": {
+    "duration": "Integer",
+    "entry_type": "String",
+    "name": "String",
+    "start_time": "Integer",
+    "container_type": "String",
+    "container_src": "String",
+    "container_id": "String",
+    "container_name": "String"
+  },
+  "mark_performance_entries": {
+    "duration": "Integer",
+    "entry_type": "String",
+    "name": "String",
+    "start_time": "Integer",
+    "detail": "String"
+  },
+  "measure_performance_entries": {
+    "duration": "Integer",
+    "entry_type": "String",
+    "name": "String",
+    "start_time": "Integer",
+    "detail": "String"
+  },
+  "navigation_performance_entries": {
+    "duration": "Integer",
+    "entry_type": "String",
+    "name": "String",
+    "start_time": "Integer",
+    "initiator_type": "String",
+    "dom_complete": "Integer",
+    "dom_content_loaded_event_end": "Integer",
+    "dom_content_loaded_event_start": "Integer",
+    "dom_interactive": "Integer",
+    "load_event_end": "Integer",
+    "load_event_start": "Integer",
+    "redirect_count": "Integer",
+    "type": "String",
+    "unload_event_end": "Integer",
+    "unload_event_start": "Integer"
+  },
+  "performance_metrics": {
+    "time_to_first_byte": "Float",
+    "first_contentful_paint": "Float",
+    "first_input_delay": "Float",
+    "largest_contentful_paint": "Float",
+    "cumulative_layout_shift": "Float",
+    "interaction_to_next_paint": "Float",
+    "dom_interactive": "Float",
+    "dom_complete": "Float"
+  }
+}
