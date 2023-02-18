@@ -25,6 +25,9 @@ Parameters:
   DatabaseHostname:
     Description: The hostname of the database analytic data should be written to
     Type: String
+  DatabaseDialect:
+    Description: The dialect of the database analytic data should be written to
+    Type: String
   # QueueName:
   #   Description: The queue name for integration with API Gateway
   #   Type: String
@@ -141,7 +144,6 @@ Resources:
       Description: A Lambda function that logs the payload of messages sent to an associated SQS queue.
       Runtime: nodejs18.x
       Architectures:
-      # - x86_64
       - arm64
       # Handler: src/handlers/sqs-data-consumer.consumeMessages
       Handler: sqs-data-consumer/app.consumeMessages
@@ -149,10 +151,11 @@ Resources:
       # receives a message, the Lambda function is invoked
       Environment:
         Variables:
-          DATABASE_NAME: !Ref DatabaseName
-          DATABASE_USERNAME: !Ref DatabaseUsername
-          DATABASE_PASSWORD: !Ref DatabasePassword
-          DATABASE_HOSTNAME: !Ref DatabaseHostname
+          dbHost: !Ref DatabaseHostname
+          dbDatabase: !Ref DatabaseName 
+          dbUsername: !Ref DatabaseUsername
+          dbPassword: !Ref DatabasePassword
+          dbDialect: !Ref DatabaseDialect
       Events:
         SQSQueueEvent:
           Type: SQS

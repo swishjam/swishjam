@@ -1,4 +1,4 @@
-![Tagsafe Performance Monitoring Instrucmentation]()
+![Tagsafe Performance Monitoring Instrumentation]()
 
 <div align="center"><strong>Tagsafe Performance Monitoring Instrucmentation</strong></div>
 <div align="center">The next generation of web performance tooling. <br />Performance monitoring owned by you.</div>

@@ -1,4 +1,4 @@
-export class PerformanceDataPayloadFormatter {
+module.exports = class PerformanceDataPayloadFormatter {
   constructor(payload) {
     this.payload = payload;
   }
