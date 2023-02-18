@@ -3,16 +3,6 @@ const env = process.env.NODE_ENV || 'development';
 const config = require(__dirname + '/database/config/config.js')[env];
 
 console.log(config);
-//const sequelize = new Sequelize(config.url);
-/*const sequelize = new Sequelize(
-    'development-performance-data.cytsjoeoway1.us-east-1.rds.amazonaws.com:5432',
-    'dbuser', 
-    'xc0b0QnuMyZ66jFYF4p0',
-    {
-        host: 'localhost',
-        dialect: 'postgres'
-    }
-);*/
 
 // your config file will be in your directory
 sequelize = new Sequelize(config.database, config.username, config.password, {
