@@ -42,7 +42,7 @@ module.exports.consumeMessages = async (event, _context) => {
     if (!event?.Records?.length) return 'No records';
     console.log(`Processing ${event.Records.length} records.`);
     for (const record of event.Records) {
-      const data = new PerformanceDataPayloadFormatter(record.body);
+      //const data = new PerformanceDataPayloadFormatter(record.body);
       console.log(record.body);
     }
     return 'Successfully processed Records'
