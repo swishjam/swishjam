@@ -12,15 +12,30 @@ Description: >-
 Transform:
 - AWS::Serverless-2016-10-31
 
-# Parameters:
-#   QueueName:
-#     Description: The queue name for integration with API Gateway
-#     Type: String
-#     Default: performance-data-message-queue
-#   ApiGatewayDeploymentStageName:
-#     Description: The API Gateway stage for this deployment
-#     Type: String
-#     Default: dev
+Parameters:
+  DatabaseName:
+    Description: The name of the database analytic data should be written to
+    Type: String
+  DatabaseUsername: 
+    Description: The username of the database analytic data should be written to
+    Type: String
+  DatabasePassword:
+    Description: The password of the database analytic data should be written to
+    Type: String
+  DatabaseHostname:
+    Description: The hostname of the database analytic data should be written to
+    Type: String
+  DatabaseDialect:
+    Description: The dialect of the database analytic data should be written to
+    Type: String
+  # QueueName:
+  #   Description: The queue name for integration with API Gateway
+  #   Type: String
+  #   Default: performance-data-message-queue
+  # ApiGatewayDeploymentStageName:
+  #   Description: The API Gateway stage for this deployment
+  #   Type: String
+  #   Default: dev
 
 Resources:
   RestApi:
@@ -130,16 +145,17 @@ Resources:
       Runtime: nodejs18.x
       Architectures:
       - arm64
-      Handler: src/handlers/sqs-data-consumer.consumeMessages
+      # Handler: src/handlers/sqs-data-consumer.consumeMessages
+      Handler: sqs-data-consumer/app.consumeMessages
       # This property associates this Lambda function with the SQS queue defined above, so that whenever the queue
       # receives a message, the Lambda function is invoked
       Environment:
         Variables:
-          dbHost: 'performance-data-db.cytsjoeoway1.us-east-1.rds.amazonaws.com'
-          dbDatabase: 'performance_data'
-          dbUsername: 'dbuser'
-          dbPassword: 'xc0b0QnuMyZ66jFYF4p0'
-          dbDialect: 'postgres'
+          dbHost: !Ref DatabaseHostname
+          dbDatabase: !Ref DatabaseName 
+          dbUsername: !Ref DatabaseUsername
+          dbPassword: !Ref DatabasePassword
+          dbDialect: !Ref DatabaseDialect
       Events:
         SQSQueueEvent:
           Type: SQS

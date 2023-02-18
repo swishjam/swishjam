@@ -7,5 +7,6 @@ s3_bucket = "aws-sam-cli-managed-default-samclisourcebucket-k2ji4oitdt85"
 s3_prefix = "performance-data-handler"
 region = "us-east-1"
 capabilities = "CAPABILITY_NAMED_IAM"
-parameter_overrides = "QueueName=\"performance-data-message-queue\" ApiGatewayDeploymentStageName=\"dev\""
+parameter_overrides = "DatabaseName=\"TEST1\" DatabaseUsername=\"TEST2\" DatabasePassword=\"Test3\" DatabaseHostname=\"TEST4\""
 image_repositories = []
+confirm_changeset = true

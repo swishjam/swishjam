@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "scripts": {
-    "test": "sam local invoke LambdaSQSMessageConsumer --event events/event.json",
+    "test": "sam local invoke LambdaSQSMessageConsumer --event events/event.json --parameter-overrides 'DatabaseHostname=performance-data-db.cytsjoeoway1.us-east-1.rds.amazonaws.com, DatabaseName=performance_data, DatabaseUsername=dbuser, DatabasePassword=xc0b0QnuMyZ66jFYF4p0, DatabaseDialect=postgres'",
     "deploy": "sam build && sam deploy --capabilities CAPABILITY_IAM"
   },
   "author": "",
