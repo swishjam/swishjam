@@ -12,15 +12,27 @@ Description: >-
 Transform:
 - AWS::Serverless-2016-10-31
 
-# Parameters:
-#   QueueName:
-#     Description: The queue name for integration with API Gateway
-#     Type: String
-#     Default: performance-data-message-queue
-#   ApiGatewayDeploymentStageName:
-#     Description: The API Gateway stage for this deployment
-#     Type: String
-#     Default: dev
+Parameters:
+  DatabaseName:
+    Description: The name of the database analytic data should be written to
+    Type: String
+  DatabaseUsername: 
+    Description: The username of the database analytic data should be written to
+    Type: String
+  DatabasePassword:
+    Description: The password of the database analytic data should be written to
+    Type: String
+  DatabaseHostname:
+    Description: The hostname of the database analytic data should be written to
+    Type: String
+  # QueueName:
+  #   Description: The queue name for integration with API Gateway
+  #   Type: String
+  #   Default: performance-data-message-queue
+  # ApiGatewayDeploymentStageName:
+  #   Description: The API Gateway stage for this deployment
+  #   Type: String
+  #   Default: dev
 
 Resources:
   RestApi:
@@ -131,9 +143,16 @@ Resources:
       Architectures:
       # - x86_64
       - arm64
-      Handler: src/handlers/sqs-data-consumer.consumeMessages
+      # Handler: src/handlers/sqs-data-consumer.consumeMessages
+      Handler: sqs-data-consumer/app.consumeMessages
       # This property associates this Lambda function with the SQS queue defined above, so that whenever the queue
       # receives a message, the Lambda function is invoked
+      Environment:
+        Variables:
+          DATABASE_NAME: !Ref DatabaseName
+          DATABASE_USERNAME: !Ref DatabaseUsername
+          DATABASE_PASSWORD: !Ref DatabasePassword
+          DATABASE_HOSTNAME: !Ref DatabaseHostname
       Events:
         SQSQueueEvent:
           Type: SQS
