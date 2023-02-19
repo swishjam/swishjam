@@ -2,7 +2,7 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('mark_performance_entries', {
+    await queryInterface.createTable('paint_performance_entries', {
       id: {
         allowNull: false,
         autoIncrement: true,
@@ -10,22 +10,20 @@ module.exports = {
         type: Sequelize.INTEGER
       },
       page_view_identifier: {
-        type: Sequelize.STRING
-      },
-      duration: {
-        type: Sequelize.DECIMAL
-      },
-      entry_type: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
+        allowNull: false
       },
       name: {
+        type: Sequelize.STRING
+      },
+      entry_type: {
         type: Sequelize.STRING
       },
       start_time: {
         type: Sequelize.DECIMAL
       },
-      detail: {
-        type: Sequelize.STRING
+      duration: {
+        type: Sequelize.DECIMAL
       },
       created_at: {
         allowNull: false,
@@ -38,9 +36,8 @@ module.exports = {
         defaultValue: Sequelize.fn('now')
       }
     });
-    await queryInterface.addIndex('mark_performance_entries', ['page_view_identifier']);
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('mark_performance_entries');
+    await queryInterface.dropTable('paint_performance_entries');
   }
 };

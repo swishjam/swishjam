@@ -25,7 +25,7 @@ module.exports = {
         type: Sequelize.STRING
       },
       start_time: {
-        type: Sequelize.BIGINT
+        type: Sequelize.DECIMAL
       },
       container_type: {
         type: Sequelize.STRING

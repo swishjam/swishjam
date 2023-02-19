@@ -6,6 +6,10 @@ class PerformanceDataPayloadFormatter {
     this.payload = payload;
   }
 
+  pageViewIdentifier() {
+    return this.payload.pageLoadId;
+  }
+
   isUpdate() {
     return this.payload.pageLoadTs ? false : true;    
   }
@@ -43,7 +47,7 @@ class PerformanceDataPayloadFormatter {
 
   performanceMetricsData() {
     return {
-      page_view_identifier: this.pageViewData().identifier, // should this be the identifier? or the primary key ID?
+      page_view_identifier: this.pageViewIdentifier(), // should this be the identifier? or the primary key ID?
       time_to_first_byte: this.payload.performanceMetrics?.TTFB?.value,
       first_contentful_paint: this.payload.performanceMetrics?.FCP?.value,
       first_input_delay: this.payload.performanceMetrics?.FID?.value,
@@ -55,16 +59,7 @@ class PerformanceDataPayloadFormatter {
   }
 
   performanceEntries() {
-    console.log('the first performance entry is: ');
-    console.log(this.payload.performanceEntries[0]);
-    return (this.payload.performanceEntries || []).map(entry => {
-      console.log('Formatting in mappppp....');
-      console.log(JSON.stringify(entry));
-      return {
-        entryType: entry.entryType,
-        data: PerformanceEntryFormatter.format(entry, this.pageViewData().identifier)
-      }
-    });
+    return (this.payload.performanceEntries || []).map(entry => PerformanceEntryFormatter.format(entry, this.pageViewData().identifier));
   }
 }
 

@@ -22,7 +22,7 @@ module.exports = {
         type: Sequelize.STRING
       },
       start_time: {
-        type: Sequelize.BIGINT
+        type: Sequelize.DECIMAL
       },
       element_identifier: {
         type: Sequelize.STRING

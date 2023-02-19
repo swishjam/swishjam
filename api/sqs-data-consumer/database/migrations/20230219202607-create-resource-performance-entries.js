@@ -2,7 +2,7 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('navigation_performance_entries', {
+    await queryInterface.createTable('resource_performance_entries', {
       id: {
         allowNull: false,
         autoIncrement: true,
@@ -10,54 +10,73 @@ module.exports = {
         type: Sequelize.INTEGER
       },
       page_view_identifier: {
-        type: Sequelize.STRING
-      },
-      duration: {
-        type: Sequelize.DECIMAL
+        type: Sequelize.STRING,
+        allowNull: false
       },
       entry_type: {
-        type: Sequelize.STRING
-      },
-      name: {
         type: Sequelize.STRING
       },
       start_time: {
         type: Sequelize.DECIMAL
       },
+      duration: {
+        type: Sequelize.DECIMAL
+      },
+      name: {
+        type: Sequelize.STRING
+      },
       initiator_type: {
         type: Sequelize.STRING
       },
-      dom_complete: {
+      render_blocking_status: {
         type: Sequelize.STRING
       },
-      dom_complete: {
+      worker_start: {
         type: Sequelize.DECIMAL
       },
-      dom_content_loaded_event_end: {
+      redirect_start: {
         type: Sequelize.DECIMAL
       },
-      dom_content_loaded_event_start: {
+      redirect_end: {
         type: Sequelize.DECIMAL
       },
-      dom_interactive: {
+      fetch_start: {
         type: Sequelize.DECIMAL
       },
-      load_event_end: {
+      domain_lookup_start: {
         type: Sequelize.DECIMAL
       },
-      load_event_start: {
+      domain_lookup_end: {
         type: Sequelize.DECIMAL
       },
-      redirect_count: {
+      connect_start: {
         type: Sequelize.DECIMAL
       },
-      type: {
-        type: Sequelize.STRING
-      },
-      unload_event_end: {
+      connect_end: {
         type: Sequelize.DECIMAL
       },
-      unload_event_start: {
+      secure_connection_start: {
+        type: Sequelize.DECIMAL
+      },
+      request_start: {
+        type: Sequelize.DECIMAL
+      },
+      response_start: {
+        type: Sequelize.DECIMAL
+      },
+      response_end: {
+        type: Sequelize.DECIMAL
+      },
+      transfer_size: {
+        type: Sequelize.DECIMAL
+      },
+      encoded_body_size: {
+        type: Sequelize.DECIMAL
+      },
+      decoded_body_size: {
+        type: Sequelize.DECIMAL
+      },
+      repsonse_status: {
         type: Sequelize.DECIMAL
       },
       created_at: {
@@ -71,9 +90,8 @@ module.exports = {
         defaultValue: Sequelize.fn('now')
       }
     });
-    await queryInterface.addIndex('navigation_performance_entries', ['page_view_identifier']);
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('navigation_performance_entries');
+    await queryInterface.dropTable('resource_performance_entries');
   }
 };

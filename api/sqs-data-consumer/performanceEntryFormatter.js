@@ -1,32 +1,36 @@
 module.exports = class PerformanceEntryFormatter {
-  static format = (entry, page_load_identifier) => {
-    console.log(`Formatting.....`);
-    console.log(JSON.stringify(entry));
+  static format = (entry, page_view_identifier) => {
     switch(entry.entryType) {
       case 'element':
-        return { page_load_identifier, ...this._formatElementEntry(entry) };
+        return { page_view_identifier, ...PerformanceEntryFormatter._formatElementEntry(entry) };
       case 'event':
-        return { page_load_identifier, ...this._formatEventEntry(entry) };
+        return { page_view_identifier, ...PerformanceEntryFormatter._formatEventEntry(entry) };
       case 'first-input':
-        return { page_load_identifier, ...this._formatFirstInputEntry(entry) };
+        return { page_view_identifier, ...PerformanceEntryFormatter._formatFirstInputEntry(entry) };
       case 'largest-contentful-paint':
-        return { page_load_identifier, ...this._formatLargestContentfulPaintEntry(entry) };
+        return { page_view_identifier, ...PerformanceEntryFormatter._formatLargestContentfulPaintEntry(entry) };
       case 'longtask':
-        return { page_load_identifier, ...this._formatLongTaskEntry(entry) };
+        return { page_view_identifier, ...PerformanceEntryFormatter._formatLongTaskEntry(entry) };
       case 'taskattribution':
-        return { page_load_identifier, ...this._formatTaskAttributionEntry(entry) };
+        return { page_view_identifier, ...PerformanceEntryFormatter._formatTaskAttributionEntry(entry) };
       case 'mark':
-        return { page_load_identifier, ...this._formatMarkEntry(entry) };
+        return { page_view_identifier, ...PerformanceEntryFormatter._formatMarkEntry(entry) };
       case 'measure':
-        return { page_load_identifier, ...this._formatMeasureEntry(entry) };
+        return { page_view_identifier, ...PerformanceEntryFormatter._formatMeasureEntry(entry) };
       case 'navigation':
-        return { page_load_identifier, ...this._formatNavigationEntry(entry) };
+        return { page_view_identifier, ...PerformanceEntryFormatter._formatNavigationEntry(entry) };
+      case 'paint':
+        return { page_view_identifier, ...PerformanceEntryFormatter._formatPaintEntry(entry) };
+      case 'resource':
+        return { page_view_identifier, ...PerformanceEntryFormatter._formatResourceEntry(entry) };
+      case 'layout-shift':
+        return { page_view_identifier, ...PerformanceEntryFormatter._formatLayoutShiftEntry(entry) };
       default:
-        return null;
+        return { page_view_identifier, entry_type: entry.entryType };
     }
   }
   
-  _formatElementEntry(entry) {
+  static _formatElementEntry(entry) {
     return {
       duration: entry.duration,
       entry_type: entry.entryType,
@@ -43,7 +47,7 @@ module.exports = class PerformanceEntryFormatter {
     }
   }
   
-  _formatEventEntry(entry) {
+  static _formatEventEntry(entry) {
     return {
       duration: entry.duration,
       entry_type: entry.entryType,
@@ -56,7 +60,7 @@ module.exports = class PerformanceEntryFormatter {
     }
   }
   
-  _formatFirstInputEntry(entry) {
+  static _formatFirstInputEntry(entry) {
     return {
       duration: entry.duration,
       entry_type: entry.entryType,
@@ -69,7 +73,7 @@ module.exports = class PerformanceEntryFormatter {
     }
   }
   
-  _formatLargestContentfulPaintEntry(entry) {
+  static _formatLargestContentfulPaintEntry(entry) {
     return {
       duration: entry.duration,
       entry_type: entry.entryType,
@@ -84,7 +88,7 @@ module.exports = class PerformanceEntryFormatter {
     }
   }
   
-  _formatLongTaskEntry(entry) {
+  static _formatLongTaskEntry(entry) {
     return {
       duration: entry.duration,
       entry_type: entry.entryType,
@@ -93,7 +97,7 @@ module.exports = class PerformanceEntryFormatter {
     }
   }
   
-  _formatTaskAttributionEntry(entry) {
+  static _formatTaskAttributionEntry(entry) {
     return {
       long_task_performance_entry_id: '',
       duration: entry.duration,
@@ -107,7 +111,7 @@ module.exports = class PerformanceEntryFormatter {
     }
   }
   
-  _formatMarkEntry(entry) {
+  static _formatMarkEntry(entry) {
     return {
       duration: entry.duration,
       entry_type: entry.entryType,
@@ -117,7 +121,7 @@ module.exports = class PerformanceEntryFormatter {
     }
   }
   
-  _formatMeasureEntry(entry) {
+  static _formatMeasureEntry(entry) {
     return {
       duration: entry.duration,
       entry_type: entry.entryType,
@@ -127,8 +131,7 @@ module.exports = class PerformanceEntryFormatter {
     }
   }
   
-  _formatNavigationEntry(entry) {
-    console.log(JSON.stringify(entry));
+  static _formatNavigationEntry(entry) {
     return {
       duration: entry.duration,
       entry_type: entry.entryType,
@@ -145,6 +148,53 @@ module.exports = class PerformanceEntryFormatter {
       type: entry.type,
       unload_event_end: entry.unloadEventEnd,
       unload_event_start: entry.unloadEventStart,
+    }
+  }
+
+  static _formatPaintEntry(entry) {
+    return {
+      duration: entry.duration,
+      entry_type: entry.entryType,
+      name: entry.name,
+      start_time: entry.startTime,
+    }
+  }
+
+  static _formatResourceEntry(entry) {
+    return {
+      name: entry.name,
+      entry_type: entry.entryType,
+      start_time: entry.startTime,
+      duration: entry.duration,
+      initiator_type: entry.initiatorType,
+      render_blocking_status: entry.renderBlockingStatus,
+      worker_start: entry.workerStart,
+      redirect_start: entry.redirectStart,
+      redirect_end: entry.redirectEnd,
+      fetch_start: entry.fetchStart,
+      domain_lookup_start: entry.domainLookupStart,
+      domain_lookup_end: entry.domainLookupEnd,
+      connect_start: entry.connectStart,
+      connect_end: entry.connectEnd,
+      secure_connection_start: entry.secureConnectionStart,
+      request_start: entry.requestStart,
+      response_start: entry.responseStart,
+      response_end: entry.responseEnd,
+      transfer_size: entry.transferSize,
+      encoded_body_size: entry.encodedBodySize,
+      decoded_body_size: entry.decodedBodySize,
+      // response_status: entry.responseStatus
+    }
+  }
+
+  static _formatLayoutShiftEntry(entry) {
+    return {
+      name: entry.name,
+      entry_type: entry.entryType,
+      start_time: entry.startTime,
+      duration: entry.duration,
+      value: entry.value,
+      last_input_time: entry.lastInputTime,
     }
   }
 }
