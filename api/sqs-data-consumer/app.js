@@ -4,30 +4,35 @@ const { Database, Models } = require('./db');
 module.exports.consumeMessages = async (event, _context) => {
   try {
     console.log(`------------------------------ Start Lambda Function------------------------------`);
-    // console.log('Received Event:', JSON.stringify(event));
-   
     if (!event?.Records?.length) return 'No records';
-    
-    // Connect to the database
+
     const db = Database();
-    console.log(db); 
-    const { pageLoads } = Models(db); 
     await db.authenticate();
-    //const pgl = await pageLoads.findAll(); 
-    //console.log(pgl); 
-    //console.log('Db Connection has been established successfully.');
-    //let d = await pageLoads.findAll()
-    //console.log(d)
-    //db.close()
 
     for (const record of event.Records) {
-      //console.log('Record:', JSON.stringify(record));
       const data = new PerformanceDataPayloadFormatter(record);
-      const jane = pageLoads.build(data.pageloadData());       
-      await jane.save();
-      console.log('Jane was saved to the database!'); 
-      //console.log(JSON.stringify(data.pageloadData()));
-    }
+      if (!data.isUpdate()) {
+        const { pageLoads, performanceMetrics } = Models(db); 
+        await pageLoads.create(data.pageloadData());
+        await performanceMetrics.create(data.performanceMetrics());
+      }
+
+      const tableNameToModelMap = {
+        element_performance_entries: Models(db).elementPerformanceEntries,
+        event_performance_entries: Models(db).eventPerformanceEntries,
+        first_input_performance_entries: Models(db).firstInputPerformanceEntries,
+        largest_contentful_paint_performance_entries: Models(db).largestContentfulPaintPerformanceEntries,
+        longtask_performance_entries: Models(db).longtaskPerformanceEntries,
+        longtask_task_attribution_performance_entries: Models(db).longtaskAttributionPerformanceEntries,
+        mark_performance_entries: Models(db).markPerformanceEntries,
+        measure_performance_entries: Models(db).measurePerformanceEntries,
+        navigation_performance_entries: Models(db).navigationPerformanceEntries,
+      };
+      const performanceEntriesMap = data.performanceEntries();
+      for (const [tableName, entries] of performanceEntriesMap) {
+        await tableNameToModelMap[tableName].bulkCreate(entries);
+      }
+    };
     
     await db.close();
     return 'Successfully processed Records'

@@ -1,4 +1,5 @@
 const DeviceDetector = require("device-detector-js"); 
+const PerformanceEntryFormatter = require('./performanceEntryFormatter');
 
 class PerformanceDataPayloadFormatter {
   constructor(payload) {
@@ -53,6 +54,26 @@ class PerformanceDataPayloadFormatter {
       cumulative_layout_shift: this.payload.performanceMetrics?.CLS?.value,
       // dom_interactive: this.payload.performanceMetrics?.DI?.value,
     }
+  }
+
+  performanceEntries() {
+    const entryTypeToDbTableMap = {
+      'element': 'element_performance_entries',
+      'event': 'event_performance_entries',
+      'first-input': 'first_input_performance_entries',
+      'largest-contentful-paint': 'largest_contentful_paint_performance_entries',
+      'longtask': 'longtask_performance_entries',
+      'taskattribution': 'longtask_task_attribution_performance_entries',
+      'mark': 'mark_performance_entries',
+      'measure': 'measure_performance_entries',
+      'navigation': 'navigation_performance_entries',
+    };
+    let entriesGroupedByDbTable = {};
+    (this.payload.performanceEntries || []).forEach(entry => {
+      const tableName = entryTypeToDbTableMap[entry.entryType];
+      performanceEntries[tableName] = PerformanceEntryFormatter.format(entry, this.pageloadData().identifier)
+    });
+    return entriesGroupedByDbTable;
   }
 }
 
