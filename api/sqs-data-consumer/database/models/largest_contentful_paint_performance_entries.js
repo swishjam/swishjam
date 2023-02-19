@@ -3,7 +3,7 @@ const {
   Model
 } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
-  class largest_contentful_paint_entries extends Model {
+  class largest_contentful_paint_performance_entries extends Model {
     /**
      * Helper method for defining associations.
      * This method is not a part of Sequelize lifecycle.
@@ -13,7 +13,7 @@ module.exports = (sequelize, DataTypes) => {
       // define association here
     }
   }
-  largest_contentful_paint_entries.init({
+  largest_contentful_paint_performance_entries.init({
     page_load_identifier: DataTypes.STRING,
     duration: DataTypes.INTEGER,
     entry_type: DataTypes.STRING,
@@ -27,8 +27,8 @@ module.exports = (sequelize, DataTypes) => {
     url: DataTypes.STRING
   }, {
     sequelize,
-    modelName: 'largest_contentful_paint_entries',
+    modelName: 'largest_contentful_paint_performance_entries',
     underscored: true,
   });
-  return largest_contentful_paint_entries;
+  return largest_contentful_paint_performance_entries;
 };

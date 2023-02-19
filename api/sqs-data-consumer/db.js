@@ -16,7 +16,7 @@ const Database = () => {
   const sq = new Sequelize(dbDatabase, dbUsername, dbPassword, {
     host: dbHost,
     port: 5432,
-    logging: msg => console.log(`DB LOG: ${msg}`),
+    logging: msg => {console.log('-------------');console.log(`DB LOG: ${msg}`);console.log('-------------')},
     dialect: dbDialect,
     pool: { maxConnections: 5, maxIdleTime: 30 },
     language: 'en'

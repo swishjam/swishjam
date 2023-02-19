@@ -2,7 +2,7 @@ const { PerformanceDataPayloadFormatter } = require('./performanceDataPayloadFor
 const { Database, Models } = require('./db');
 
 module.exports.consumeMessages = async (event, _context) => {
-  try {
+  //try {
     console.log(`------------------------------ Start Lambda Function------------------------------`);
     if (!event?.Records?.length) return 'No records';
 
@@ -13,10 +13,14 @@ module.exports.consumeMessages = async (event, _context) => {
       const data = new PerformanceDataPayloadFormatter(record);
       if (!data.isUpdate()) {
         const { pageLoads, performanceMetrics } = Models(db); 
-        await pageLoads.create(data.pageloadData());
-        await performanceMetrics.create(data.performanceMetrics());
+        let l = await pageLoads.create(data.pageloadData());
+        console.log('page load returns: ',JSON.stringify(l));
+        console.log(JSON.stringify(data.performanceMetrics()));
+        await performanceMetrics.create(data.performanceMetrics()) || (() => {throw new Error('wtf')})();
+        console.log('perf load returns: ',JSON.stringify(m));
       }
-
+      /*
+      console.log('table name to mode map')
       const tableNameToModelMap = {
         element_performance_entries: Models(db).elementPerformanceEntries,
         event_performance_entries: Models(db).eventPerformanceEntries,
@@ -28,17 +32,19 @@ module.exports.consumeMessages = async (event, _context) => {
         measure_performance_entries: Models(db).measurePerformanceEntries,
         navigation_performance_entries: Models(db).navigationPerformanceEntries,
       };
+      console.log('trying to create entries mapping');
       const performanceEntriesMap = data.performanceEntries();
+      console.log(performanceEntriesMap)
       for (const [tableName, entries] of performanceEntriesMap) {
         await tableNameToModelMap[tableName].bulkCreate(entries);
-      }
+      }*/
     };
     
     await db.close();
     return 'Successfully processed Records'
-  } catch (err) {
-    console.log(err);
+  /*} catch (err) {
+    console.error(err);
     await db.close();
     return err;
-  }
+  }*/
 };
