@@ -3,7 +3,7 @@ const pageLoadModel = require('./database/models/page_loads');
 const elementPerformanceEntryModel = require('./database/models/element_performance_entries');
 const eventPerformanceEntryModel = require('./database/models/event_performance_entries');
 const firstInputPerformanceEntryModel = require('./database/models/first_input_performance_entries');
-const largestContentfulPaintPerformanceEntryModel = require('./database/models/largest_contentful_paint_entries');
+const largestContentfulPaintPerformanceEntryModel = require('./database/models/largest_contentful_paint_performance_entries');
 const longtaskPerformanceEntryModel = require('./database/models/longtask_performance_entries');
 const longtaskAttributionPerformanceEntryModel = require('./database/models/longtask_task_attribution_performance_entries');
 const markPerformanceEntryModel = require('./database/models/mark_performance_entries');
@@ -16,7 +16,7 @@ const Database = () => {
   const sq = new Sequelize(dbDatabase, dbUsername, dbPassword, {
     host: dbHost,
     port: 5432,
-    logging: msg => console.log(`DB LOG: ${msg}`),
+    logging: msg => {console.log('-------------');console.log(`DB LOG: ${msg}`);console.log('-------------')},
     dialect: dbDialect,
     pool: { maxConnections: 5, maxIdleTime: 30 },
     language: 'en'

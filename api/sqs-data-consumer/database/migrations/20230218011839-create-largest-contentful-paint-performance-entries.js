@@ -2,7 +2,7 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('largest_contentful_paint_entries', {
+    await queryInterface.createTable('largest_contentful_paint_performance_entries', {
       id: {
         allowNull: false,
         autoIncrement: true,
@@ -51,9 +51,9 @@ module.exports = {
         type: Sequelize.DATE
       }
     });
-    await queryInterface.addIndex('largest_contentful_paint_entries', ['page_load_identifier']);
+    await queryInterface.addIndex('largest_contentful_paint_performance_entries', ['page_load_identifier']);
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('largest_contentful_paint_entries');
+    await queryInterface.dropTable('largest_contentful_paint_performance_entries');
   }
 };
