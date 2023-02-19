@@ -7,7 +7,7 @@ module.exports = {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
-        type: Sequelize.DECIMAL
+        type: Sequelize.INTEGER
       },
       long_task_performance_entry_id: {
         type: Sequelize.DECIMAL
