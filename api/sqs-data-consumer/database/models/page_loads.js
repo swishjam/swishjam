@@ -34,11 +34,11 @@ module.exports = (sequelize, DataTypes) => {
     device_os_name: DataTypes.STRING,
     device_os_version: DataTypes.STRING,
     device_os_platform: DataTypes.STRING,
-    screen_width: DataTypes.INTEGER,
-    screen_height: DataTypes.INTEGER,
+    screen_width: DataTypes.DECIMAL,
+    screen_height: DataTypes.DECIMAL,
     connection_effective_type: DataTypes.STRING,
-    connection_downlink: DataTypes.INTEGER,
-    connection_rtt: DataTypes.INTEGER
+    connection_downlink: DataTypes.DECIMAL,
+    connection_rtt: DataTypes.DECIMAL
   }, {
     sequelize,
     modelName: 'page_loads',

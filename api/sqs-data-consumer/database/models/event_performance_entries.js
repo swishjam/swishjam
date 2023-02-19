@@ -15,13 +15,13 @@ module.exports = (sequelize, DataTypes) => {
   }
   event_performance_entries.init({
     page_load_identifier: DataTypes.STRING,
-    duration: DataTypes.INTEGER,
+    duration: DataTypes.DECIMAL,
     entry_type: DataTypes.STRING,
     name: DataTypes.STRING,
     start_time: DataTypes.BIGINT,
     interaction_id: DataTypes.STRING,
-    processing_start: DataTypes.INTEGER,
-    processing_end: DataTypes.INTEGER,
+    processing_start: DataTypes.DECIMAL,
+    processing_end: DataTypes.DECIMAL,
     target: DataTypes.STRING
   }, {
     sequelize,

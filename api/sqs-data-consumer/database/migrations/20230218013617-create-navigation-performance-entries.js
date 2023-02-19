@@ -7,13 +7,13 @@ module.exports = {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
-        type: Sequelize.INTEGER
+        type: Sequelize.DECIMAL
       },
       page_load_identifier: {
         type: Sequelize.STRING
       },
       duration: {
-        type: Sequelize.INTEGER
+        type: Sequelize.DECIMAL
       },
       entry_type: {
         type: Sequelize.STRING
@@ -31,34 +31,34 @@ module.exports = {
         type: Sequelize.STRING
       },
       dom_complete: {
-        type: Sequelize.INTEGER
+        type: Sequelize.DECIMAL
       },
       dom_content_loaded_event_end: {
-        type: Sequelize.INTEGER
+        type: Sequelize.DECIMAL
       },
       dom_content_loaded_event_start: {
-        type: Sequelize.INTEGER
+        type: Sequelize.DECIMAL
       },
       dom_interactive: {
-        type: Sequelize.INTEGER
+        type: Sequelize.DECIMAL
       },
       load_event_end: {
-        type: Sequelize.INTEGER
+        type: Sequelize.DECIMAL
       },
       load_event_start: {
-        type: Sequelize.INTEGER
+        type: Sequelize.DECIMAL
       },
       redirect_count: {
-        type: Sequelize.INTEGER
+        type: Sequelize.DECIMAL
       },
       type: {
         type: Sequelize.STRING
       },
       unload_event_end: {
-        type: Sequelize.INTEGER
+        type: Sequelize.DECIMAL
       },
       unload_event_start: {
-        type: Sequelize.INTEGER
+        type: Sequelize.DECIMAL
       },
       created_at: {
         allowNull: false,

@@ -7,13 +7,13 @@ module.exports = {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
-        type: Sequelize.INTEGER
+        type: Sequelize.DECIMAL
       },
       page_load_identifier: {
         type: Sequelize.STRING
       },
       duration: {
-        type: Sequelize.INTEGER
+        type: Sequelize.DECIMAL
       },
       entry_type: {
         type: Sequelize.STRING
@@ -28,13 +28,13 @@ module.exports = {
         type: Sequelize.STRING
       },
       render_time: {
-        type: Sequelize.INTEGER
+        type: Sequelize.DECIMAL
       },
       load_time: {
-        type: Sequelize.INTEGER
+        type: Sequelize.DECIMAL
       },
       size: {
-        type: Sequelize.INTEGER
+        type: Sequelize.DECIMAL
       },
       element_id: {
         type: Sequelize.STRING

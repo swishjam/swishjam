@@ -7,7 +7,7 @@ module.exports = {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
-        type: Sequelize.INTEGER
+        type: Sequelize.DECIMAL
       },
       identifier: {
         type: Sequelize.STRING
@@ -70,19 +70,19 @@ module.exports = {
         type: Sequelize.STRING
       },
       screen_width: {
-        type: Sequelize.INTEGER
+        type: Sequelize.DECIMAL
       },
       screen_height: {
-        type: Sequelize.INTEGER
+        type: Sequelize.DECIMAL
       },
       connection_effective_type: {
         type: Sequelize.STRING
       },
       connection_downlink: {
-        type: Sequelize.INTEGER
+        type: Sequelize.DECIMAL
       },
       connection_rtt: {
-        type: Sequelize.INTEGER
+        type: Sequelize.DECIMAL
       },
       created_at: {
         allowNull: false,

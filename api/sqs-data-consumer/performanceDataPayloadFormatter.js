@@ -46,12 +46,12 @@ class PerformanceDataPayloadFormatter {
   performanceMetrics() {
     return {
       page_load_identifier: this.pageloadData().identifier, // should this be the identifier? or the primary key ID?
-      time_to_first_byte: this.payload.performanceMetrics?.TTFB?.value,
-      first_contentful_paint: this.payload.performanceMetrics?.FCP?.value,
-      first_input_delay: this.payload.performanceMetrics?.FID?.value,
-      largest_contentful_paint: this.payload.performanceMetrics?.LCP?.value,
-      interaction_to_next_paint: this.payload.performanceMetrics?.INTP?.value,
-      cumulative_layout_shift: this.payload.performanceMetrics?.CLS?.value,
+      time_to_first_byte: parseInt(this.payload.performanceMetrics?.TTFB?.value || 0),
+      first_contentful_paint: parseInt(this.payload.performanceMetrics?.FCP?.value || 0),
+      first_input_delay: parseInt(this.payload.performanceMetrics?.FID?.value || 0),
+      largest_contentful_paint: parseInt(this.payload.performanceMetrics?.LCP?.value || 0),
+      interaction_to_next_paint: parseInt(this.payload.performanceMetrics?.INTP?.value || 0),
+      cumulative_layout_shift: parseInt(this.payload.performanceMetrics?.CLS?.value || 0),
       // dom_interactive: this.payload.performanceMetrics?.DI?.value,
     }
   }

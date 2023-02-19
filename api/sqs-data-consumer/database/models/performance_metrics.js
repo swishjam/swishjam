@@ -15,13 +15,13 @@ module.exports = (sequelize, DataTypes) => {
   }
   performance_metrics.init({
     page_load_identifier: DataTypes.STRING,
-    time_to_first_byte: DataTypes.INTEGER,
-    first_contentful_paint: DataTypes.INTEGER,
-    first_input_delay: DataTypes.INTEGER,
-    largest_contentful_paint: DataTypes.INTEGER,
-    interaction_to_next_paint: DataTypes.INTEGER,
-    dom_interactive: DataTypes.INTEGER,
-    dom_complete: DataTypes.INTEGER
+    time_to_first_byte: DataTypes.DECIMAL,
+    first_contentful_paint: DataTypes.DECIMAL,
+    first_input_delay: DataTypes.DECIMAL,
+    largest_contentful_paint: DataTypes.DECIMAL,
+    interaction_to_next_paint: DataTypes.DECIMAL,
+    dom_interactive: DataTypes.DECIMAL,
+    dom_complete: DataTypes.DECIMAL
   }, {
     sequelize,
     modelName: 'performance_metrics',

@@ -13,11 +13,8 @@ module.exports.consumeMessages = async (event, _context) => {
       const data = new PerformanceDataPayloadFormatter(record);
       if (!data.isUpdate()) {
         const { pageLoads, performanceMetrics } = Models(db); 
-        let l = await pageLoads.create(data.pageloadData());
-        console.log('page load returns: ',JSON.stringify(l));
-        console.log(JSON.stringify(data.performanceMetrics()));
-        await performanceMetrics.create(data.performanceMetrics()) || (() => {throw new Error('wtf')})();
-        console.log('perf load returns: ',JSON.stringify(m));
+        await pageLoads.create(data.pageloadData());
+        await performanceMetrics.create(data.performanceMetrics())
       }
       /*
       console.log('table name to mode map')

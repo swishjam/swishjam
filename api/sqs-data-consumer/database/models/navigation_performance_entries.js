@@ -15,22 +15,22 @@ module.exports = (sequelize, DataTypes) => {
   }
   navigation_performance_entries.init({
     page_load_identifier: DataTypes.STRING,
-    duration: DataTypes.INTEGER,
+    duration: DataTypes.DECIMAL,
     entry_type: DataTypes.STRING,
     name: DataTypes.STRING,
     start_time: DataTypes.BIGINT,
     initiator_type: DataTypes.STRING,
     dom_complete: DataTypes.STRING,
-    dom_complete: DataTypes.INTEGER,
-    dom_content_loaded_event_end: DataTypes.INTEGER,
-    dom_content_loaded_event_start: DataTypes.INTEGER,
-    dom_interactive: DataTypes.INTEGER,
-    load_event_end: DataTypes.INTEGER,
-    load_event_start: DataTypes.INTEGER,
-    redirect_count: DataTypes.INTEGER,
+    dom_complete: DataTypes.DECIMAL,
+    dom_content_loaded_event_end: DataTypes.DECIMAL,
+    dom_content_loaded_event_start: DataTypes.DECIMAL,
+    dom_interactive: DataTypes.DECIMAL,
+    load_event_end: DataTypes.DECIMAL,
+    load_event_start: DataTypes.DECIMAL,
+    redirect_count: DataTypes.DECIMAL,
     type: DataTypes.STRING,
-    unload_event_end: DataTypes.INTEGER,
-    unload_event_start: DataTypes.INTEGER
+    unload_event_end: DataTypes.DECIMAL,
+    unload_event_start: DataTypes.DECIMAL
   }, {
     sequelize,
     modelName: 'navigation_performance_entries',

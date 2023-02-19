@@ -7,31 +7,31 @@ module.exports = {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
-        type: Sequelize.INTEGER
+        type: Sequelize.DECIMAL
       },
       page_load_identifier: {
         type: Sequelize.STRING
       },
       time_to_first_byte: {
-        type: Sequelize.INTEGER
+        type: Sequelize.DECIMAL
       },
       first_contentful_paint: {
-        type: Sequelize.INTEGER
+        type: Sequelize.DECIMAL
       },
       first_input_delay: {
-        type: Sequelize.INTEGER
+        type: Sequelize.DECIMAL
       },
       largest_contentful_paint: {
-        type: Sequelize.INTEGER
+        type: Sequelize.DECIMAL
       },
       interaction_to_next_paint: {
-        type: Sequelize.INTEGER
+        type: Sequelize.DECIMAL
       },
       dom_interactive: {
-        type: Sequelize.INTEGER
+        type: Sequelize.DECIMAL
       },
       dom_complete: {
-        type: Sequelize.INTEGER
+        type: Sequelize.DECIMAL
       },
       created_at: {
         allowNull: false,

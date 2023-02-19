@@ -15,7 +15,7 @@ module.exports = (sequelize, DataTypes) => {
   }
   element_performance_entries.init({
     page_load_identifier: DataTypes.STRING,
-    duration: DataTypes.INTEGER,
+    duration: DataTypes.DECIMAL,
     entry_type: DataTypes.STRING,
     name: DataTypes.STRING,
     start_time: DataTypes.BIGINT,
@@ -23,9 +23,9 @@ module.exports = (sequelize, DataTypes) => {
     element_id: DataTypes.STRING,
     identifier: DataTypes.STRING,
     intersection_rect: DataTypes.STRING,
-    load_time: DataTypes.INTEGER,
-    natural_height: DataTypes.INTEGER,
-    render_time: DataTypes.INTEGER,
+    load_time: DataTypes.DECIMAL,
+    natural_height: DataTypes.DECIMAL,
+    render_time: DataTypes.DECIMAL,
     url: DataTypes.STRING
   }, {
     sequelize,

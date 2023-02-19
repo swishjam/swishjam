@@ -15,14 +15,14 @@ module.exports = (sequelize, DataTypes) => {
   }
   largest_contentful_paint_performance_entries.init({
     page_load_identifier: DataTypes.STRING,
-    duration: DataTypes.INTEGER,
+    duration: DataTypes.DECIMAL,
     entry_type: DataTypes.STRING,
     name: DataTypes.STRING,
     start_time: DataTypes.BIGINT,
     element_identifier: DataTypes.STRING,
-    render_time: DataTypes.INTEGER,
-    load_time: DataTypes.INTEGER,
-    size: DataTypes.INTEGER,
+    render_time: DataTypes.DECIMAL,
+    load_time: DataTypes.DECIMAL,
+    size: DataTypes.DECIMAL,
     element_id: DataTypes.STRING,
     url: DataTypes.STRING
   }, {
