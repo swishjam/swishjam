@@ -12,7 +12,7 @@ module.exports = {
       long_task_performance_entry_id: {
         type: Sequelize.DECIMAL
       },
-      page_load_identifier: {
+      page_view_identifier: {
         type: Sequelize.STRING
       },
       duration: {
@@ -41,14 +41,16 @@ module.exports = {
       },
       created_at: {
         allowNull: false,
-        type: Sequelize.DATE
+        type: Sequelize.DATE,
+        defaultValue: Sequelize.fn('now')
       },
       updated_at: {
         allowNull: false,
-        type: Sequelize.DATE
+        type: Sequelize.DATE,
+        defaultValue: Sequelize.fn('now')
       }
     });
-    await queryInterface.addIndex('longtask_task_attribution_performance_entries', ['page_load_identifier']);
+    await queryInterface.addIndex('longtask_task_attribution_performance_entries', ['page_view_identifier']);
     await queryInterface.addIndex('longtask_task_attribution_performance_entries', ['long_task_performance_entry_id']);
   },
   async down(queryInterface, Sequelize) {

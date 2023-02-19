@@ -2,7 +2,7 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('page_loads', {
+    await queryInterface.createTable('page_views', {
       id: {
         allowNull: false,
         autoIncrement: true,
@@ -10,12 +10,13 @@ module.exports = {
         type: Sequelize.INTEGER
       },
       identifier: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
+        unique: true
       },
       site_id: {
         type: Sequelize.STRING
       },
-      page_load_ts: {
+      page_view_ts: {
         type: Sequelize.BIGINT
       },
       full_url: {
@@ -86,16 +87,18 @@ module.exports = {
       },
       created_at: {
         allowNull: false,
-        type: Sequelize.DATE
+        type: Sequelize.DATE,
+        defaultValue: Sequelize.fn('now')
       },
       updated_at: {
         allowNull: false,
-        type: Sequelize.DATE
+        type: Sequelize.DATE,
+        defaultValue: Sequelize.fn('now')
       }
     });
-    await queryInterface.addIndex('page_loads', ['identifier']);
+    await queryInterface.addIndex('page_views', ['identifier']);
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('page_loads');
+    await queryInterface.dropTable('page_views');
   }
 };

@@ -1,47 +1,56 @@
 const { PerformanceDataPayloadFormatter } = require('./performanceDataPayloadFormatter');
-const { Database, Models } = require('./db');
+const { DB } = require('./db');
 
 module.exports.consumeMessages = async (event, _context) => {
+  console.log(`------------------------------ Start Lambda Function------------------------------`);
+  let db;
   try {
-    console.log(`------------------------------ Start Lambda Function------------------------------`);
     if (!event?.Records?.length) return 'No records';
-
-    const db = Database();
-    await db.authenticate();
-
+    db = new DB();
     for (const record of event.Records) {
       const data = new PerformanceDataPayloadFormatter(record);
       if (!data.isUpdate()) {
-        const { pageLoads, performanceMetrics } = Models(db); 
-        await pageLoads.create(data.pageloadData());
-        await performanceMetrics.create(data.performanceMetrics())
+        console.log(`Creating new page load: ${data.pageViewData().identifier}`)
+        await db.createPageView(data.pageViewData());
       }
-      /*
-      console.log('table name to mode map')
-      const tableNameToModelMap = {
-        element_performance_entries: Models(db).elementPerformanceEntries,
-        event_performance_entries: Models(db).eventPerformanceEntries,
-        first_input_performance_entries: Models(db).firstInputPerformanceEntries,
-        largest_contentful_paint_performance_entries: Models(db).largestContentfulPaintPerformanceEntries,
-        longtask_performance_entries: Models(db).longtaskPerformanceEntries,
-        longtask_task_attribution_performance_entries: Models(db).longtaskAttributionPerformanceEntries,
-        mark_performance_entries: Models(db).markPerformanceEntries,
-        measure_performance_entries: Models(db).measurePerformanceEntries,
-        navigation_performance_entries: Models(db).navigationPerformanceEntries,
-      };
-      console.log('trying to create entries mapping');
-      const performanceEntriesMap = data.performanceEntries();
-      console.log(performanceEntriesMap)
-      for (const [tableName, entries] of performanceEntriesMap) {
-        await tableNameToModelMap[tableName].bulkCreate(entries);
-      }*/
+
+      const performanceMetricsData = data.performanceMetricsData();
+      if (Object.keys(performanceMetricsData).length > 0) {
+        const existingPerformanceMetricsForPageView = await db.getPerformanceMetricsByPageViewIdentifier(performanceMetricsData.page_view_identifier);
+        if (existingPerformanceMetricsForPageView) {
+          console.log(`Updating existing performance metrics for page view ${data.page_view_identifier}: ${JSON.stringify(performanceMetricsData)}`);
+          await db.updatePerformanceMetrics(performanceMetricsData);
+        } else {
+          console.log(`Creating new performance metrics for page view ${data.page_view_identifier}: ${JSON.stringify(performanceMetricsData)}`);
+          await db.createPerformanceMetrics(performanceMetricsData);
+        }
+      }
+
+      // const entryTypeToModelMap = {
+      //   'element': Models(db).elementPerformanceEntries,
+      //   'event': Models(db).eventPerformanceEntries,
+      //   'first-input': Models(db).firstInputPerformanceEntries,
+      //   'largest-contentful-paint': Models(db).largestContentfulPaintPerformanceEntries,
+      //   'longtask': Models(db).longtaskPerformanceEntries,
+      //   'taskattribution': Models(db).longtaskAttributionPerformanceEntries,
+      //   'mark': Models(db).markPerformanceEntries,
+      //   'measure': Models(db).measurePerformanceEntries,
+      //   'navigation': Models(db).navigationPerformanceEntries,
+      // };
+      // console.log('trying to create entries mapping');
+      // const performanceEntriesMap = data.performanceEntries();
+      // console.log(performanceEntriesMap);
+      // for (const { entryType, data } of entryTypeToModelMap) {
+      //   await entryTypeToModelMap[entryType].bulkCreate(data);
+      // }
     };
     
-    await db.close();
+    await db.killConnection();
     return 'Successfully processed Records'
   } catch (err) {
     console.log(err);
     // await db.close();
+    if (db) await db.killConnection();
     return err;
   }
 };

@@ -9,13 +9,17 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      page_load_identifier: {
-        type: Sequelize.STRING
+      page_view_identifier: {
+        type: Sequelize.STRING,
+        unique: true
       },
       time_to_first_byte: {
         type: Sequelize.DECIMAL
       },
       first_contentful_paint: {
+        type: Sequelize.DECIMAL
+      },
+      cumulative_layout_shift: {
         type: Sequelize.DECIMAL
       },
       first_input_delay: {
@@ -35,14 +39,16 @@ module.exports = {
       },
       created_at: {
         allowNull: false,
-        type: Sequelize.DATE
+        type: Sequelize.DATE,
+        defaultValue: Sequelize.fn('now')
       },
       updated_at: {
         allowNull: false,
-        type: Sequelize.DATE
+        type: Sequelize.DATE,
+        defaultValue: Sequelize.fn('now')
       }
     });
-    await queryInterface.addIndex('performance_metrics', ['page_load_identifier']);
+    await queryInterface.addIndex('performance_metrics', ['page_view_identifier']);
   },
   async down(queryInterface, Sequelize) {
     await queryInterface.dropTable('performance_metrics');
