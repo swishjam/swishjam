@@ -1,5 +1,7 @@
 module.exports = class PerformanceEntryFormatter {
-  static format(entry, page_load_identifier) {
+  static format = (entry, page_load_identifier) => {
+    console.log(`Formatting.....`);
+    console.log(JSON.stringify(entry));
     switch(entry.entryType) {
       case 'element':
         return { page_load_identifier, ...this._formatElementEntry(entry) };
@@ -126,6 +128,7 @@ module.exports = class PerformanceEntryFormatter {
   }
   
   _formatNavigationEntry(entry) {
+    console.log(JSON.stringify(entry));
     return {
       duration: entry.duration,
       entry_type: entry.entryType,

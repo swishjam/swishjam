@@ -10,14 +10,12 @@ class PerformanceDataPayloadFormatter {
     return this.payload.pageLoadTs ? false : true;    
   }
 
-  pageloadData() {
-    const deviceDetector = new DeviceDetector();
-    const device = deviceDetector.parse(this.payload.userAgent);
-
+  pageViewData() {
+    const device = new DeviceDetector().parse(this.payload.userAgent);
     return {
       identifier: this.payload.pageLoadId,
       site_id: this.payload.siteId,
-      page_load_ts: this.payload.pageLoadTs,
+      page_view_ts: this.payload.pageLoadTs,
       full_url: this.payload.url,
       url_host: new URL(this.payload.url).host,
       url_path: new URL(this.payload.url).pathname,
@@ -43,9 +41,9 @@ class PerformanceDataPayloadFormatter {
     }
   }
 
-  performanceMetrics() {
+  performanceMetricsData() {
     return {
-      page_load_identifier: this.pageloadData().identifier, // should this be the identifier? or the primary key ID?
+      page_view_identifier: this.pageViewData().identifier, // should this be the identifier? or the primary key ID?
       time_to_first_byte: this.payload.performanceMetrics?.TTFB?.value,
       first_contentful_paint: this.payload.performanceMetrics?.FCP?.value,
       first_input_delay: this.payload.performanceMetrics?.FID?.value,
@@ -57,26 +55,17 @@ class PerformanceDataPayloadFormatter {
   }
 
   performanceEntries() {
-    const entryTypeToDbTableMap = {
-      'element': 'element_performance_entries',
-      'event': 'event_performance_entries',
-      'first-input': 'first_input_performance_entries',
-      'largest-contentful-paint': 'largest_contentful_paint_performance_entries',
-      'longtask': 'longtask_performance_entries',
-      'taskattribution': 'longtask_task_attribution_performance_entries',
-      'mark': 'mark_performance_entries',
-      'measure': 'measure_performance_entries',
-      'navigation': 'navigation_performance_entries',
-    };
-    let entriesGroupedByDbTable = {};
-    (this.payload.performanceEntries || []).forEach(entry => {
-      const tableName = entryTypeToDbTableMap[entry.entryType];
-      performanceEntries[tableName] = PerformanceEntryFormatter.format(entry, this.pageloadData().identifier)
+    console.log('the first performance entry is: ');
+    console.log(this.payload.performanceEntries[0]);
+    return (this.payload.performanceEntries || []).map(entry => {
+      console.log('Formatting in mappppp....');
+      console.log(JSON.stringify(entry));
+      return {
+        entryType: entry.entryType,
+        data: PerformanceEntryFormatter.format(entry, this.pageViewData().identifier)
+      }
     });
-    return entriesGroupedByDbTable;
   }
 }
 
-module.exports = {
-  PerformanceDataPayloadFormatter
-}
+module.exports = { PerformanceDataPayloadFormatter }
