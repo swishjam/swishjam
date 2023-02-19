@@ -38,7 +38,7 @@ module.exports.consumeMessages = async (event, _context) => {
     return 'Successfully processed Records'
   } catch (err) {
     console.log(err);
-    await db.close();
+    // await db.close();
     return err;
   }
 };
