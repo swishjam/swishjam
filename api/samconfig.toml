@@ -2,11 +2,11 @@ version = 0.1
 [default]
 [default.deploy]
 [default.deploy.parameters]
-stack_name = "performance-data-handler"
+stack_name = "performance-data-consumer"
 s3_bucket = "aws-sam-cli-managed-default-samclisourcebucket-k2ji4oitdt85"
-s3_prefix = "performance-data-handler"
+s3_prefix = "performance-data-consumer"
 region = "us-east-1"
 capabilities = "CAPABILITY_NAMED_IAM"
-parameter_overrides = "DatabaseName=\"TEST1\" DatabaseUsername=\"TEST2\" DatabasePassword=\"Test3\" DatabaseHostname=\"TEST4\""
+parameter_overrides = "DatabaseName=\"performance_data\" DatabaseUsername=\"dbuser\" DatabasePassword=\"xc0b0QnuMyZ66jFYF4p0\" DatabaseHostname=\"performance-data-db.cytsjoeoway1.us-east-1.rds.amazonaws.com\""
 image_repositories = []
 confirm_changeset = true

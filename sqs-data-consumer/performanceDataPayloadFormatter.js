@@ -1,4 +1,4 @@
-const DeviceDetector = require("device-detector-js"); 
+const DeviceDetector = require("device-detector-js");
 const PerformanceEntryFormatter = require('./performanceEntryFormatter');
 
 class PerformanceDataPayloadFormatter {
@@ -11,7 +11,7 @@ class PerformanceDataPayloadFormatter {
   }
 
   isUpdate() {
-    return this.payload.pageLoadTs ? false : true;    
+    return this.payload.url === undefined;
   }
 
   pageViewData() {

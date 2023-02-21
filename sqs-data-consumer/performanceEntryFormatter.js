@@ -26,6 +26,7 @@ module.exports = class PerformanceEntryFormatter {
       case 'layout-shift':
         return { page_view_identifier, ...PerformanceEntryFormatter._formatLayoutShiftEntry(entry) };
       default:
+        console.warn(`Unknown performance entry type: ${entry.entryType}`);
         return { page_view_identifier, entry_type: entry.entryType };
     }
   }

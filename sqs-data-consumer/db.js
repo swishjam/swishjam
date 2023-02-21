@@ -13,6 +13,7 @@ class DB {
   }
 
   async killConnection() {
+    console.log('Killing connection to DB');
     await this.dbClient.end();
   }
 

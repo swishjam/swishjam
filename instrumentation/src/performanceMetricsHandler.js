@@ -2,28 +2,16 @@
 import { onLCP, onFID, onCLS, onFCP, onTTFB, onINP } from 'web-vitals';
 
 export class PerformanceMetricsHandler {
-  constructor() {
-    this._performanceMetrics = {};
-    this.onMetricsReadyCallbacks = [];
-    this.onNewMetricCallbacks = [];
-    this._setPerformanceMetricsListeners();
+  constructor(reportingHandler) {
+    this.reportingHandler = reportingHandler;
   }
 
-  onNewMetric(callback) {
-    this.onNewMetricCallbacks.push(callback)
-  }
-
-  _onVitalHandler(entry, vitalType) {
-    this._performanceMetrics[vitalType] = entry;
-    this.onNewMetricCallbacks.forEach(callback => callback(entry));
-  }
-
-  _setPerformanceMetricsListeners() {
-    onLCP(entry => this._onVitalHandler(entry, 'lcp'));
-    onFCP(entry => this._onVitalHandler(entry, 'fcp'));
-    onCLS(entry => this._onVitalHandler(entry, 'cls'));
-    onFID(entry => this._onVitalHandler(entry, 'fid'));
-    onTTFB(entry => this._onVitalHandler(entry, 'ttfb'));
-    onINP(entry => this._onVitalHandler(entry, 'inp'));
+  beginCapturingPerformanceMetrics() {
+    onLCP(entry => this.reportingHandler.recordEvent('PAGE_LOAD_METRIC', { type: 'LCP', ...entry }));
+    onFCP(entry => this.reportingHandler.recordEvent('PAGE_LOAD_METRIC', { type: 'FCP', ...entry }));
+    onCLS(entry => this.reportingHandler.recordEvent('PAGE_LOAD_METRIC', { type: 'CLS', ...entry }));
+    onFID(entry => this.reportingHandler.recordEvent('PAGE_LOAD_METRIC', { type: 'FID', ...entry }));
+    onTTFB(entry => this.reportingHandler.recordEvent('PAGE_LOAD_METRIC', { type: 'TTFB', ...entry }));
+    onINP(entry => this.reportingHandler.recordEvent('PAGE_LOAD_METRIC', { type: 'INP', ...entry }));
   }
 }
