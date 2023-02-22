@@ -18,6 +18,7 @@ module.exports = class PageViewEvent {
       identifier: pageViewIdentifier,
       site_id: siteId,
       page_view_ts: new Date(data.pageLoadTs),
+      navigation_type: data.navigationType,
       full_url: data.url,
       url_host: this._safeUrlParse(data.url).host,
       url_path: this._safeUrlParse(data.url).pathname,

@@ -10,18 +10,22 @@ import { PerformanceMetricsHandler } from './performanceMetricsHandler';
   } else {
     const reportingHandler = new ReportingHandler();
     const pageViewTracker = new PageViewTracker(reportingHandler);
-    let currentUrl = pageViewTracker.trackPageView({ previousPageUrl: document.referrer });
+    let currentUrl = pageViewTracker.trackPageView({ navigationType: 'hard', previousPageUrl: document.referrer });
   
     new PerformanceEntriesHandler(reportingHandler).beginCapturingPerformanceEntries();
     new PerformanceMetricsHandler(reportingHandler).beginCapturingPerformanceMetrics();
   
-    window.addEventListener('hashchange', () => currentUrl = pageViewTracker.trackPageView({ previousPageUrl: currentUrl }));
-    window.addEventListener('popstate', () => currentUrl = pageViewTracker.trackPageView({ previousPageUrl: currentUrl }));
+    window.addEventListener('hashchange', () => {
+      currentUrl = pageViewTracker.trackPageView({ navigationType: 'soft', previousPageUrl: currentUrl })
+    });
+    window.addEventListener('popstate', () => {
+      currentUrl = pageViewTracker.trackPageView({ navigationType: 'soft', previousPageUrl: currentUrl })
+    });
     if (window.history.pushState) {
       const originalPushState = window.history.pushState
       window.history.pushState = function () {
         originalPushState.apply(this, arguments);
-        currentUrl = pageViewTracker.trackPageView({ previousPageUrl: currentUrl });
+        currentUrl = pageViewTracker.trackPageView({ navigationType: 'soft', previousPageUrl: currentUrl });
       }
     }
   }

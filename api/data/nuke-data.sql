@@ -1,8 +1,0 @@
-DELETE FROM page_views;
-DELETE FROM performance_metrics;
-DELETE FROM navigation_performance_entries;
-DELETE FROM resource_performance_entries;
-DELETE FROM largest_contentful_paint_performance_entries;
-DELETE FROM layout_shift_performance_entries;
-DELETE FROM first_input_performance_entries;
-DELETE FROM paint_performance_entries;

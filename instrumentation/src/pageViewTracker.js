@@ -6,12 +6,13 @@ export class PageViewTracker {
     window.addEventListener('beforeunload', () => this._reportPageLeftAtTsIfNecessary());
   }
 
-  trackPageView({ previousPageUrl }) {
+  trackPageView({ navigationType, previousPageUrl }) {
     this._reportPageLeftAtTsIfNecessary();
     this.currentPageViewIdentifier = UuidGenerator.generate('page-view');
     this.reportingHandler.setCurrentPageViewIdentifier(this.currentPageViewIdentifier);
     this.reportingHandler.recordEvent('PAGE_VIEW', this.currentPageViewIdentifier, {
       pageLoadTs: Date.now(),
+      navigationType: navigationType,
       url: window.location.href,
       referrerUrl: previousPageUrl,
       userAgent: window.navigator.userAgent,

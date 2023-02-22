@@ -7,6 +7,7 @@ const AWS = require('aws-sdk');
 const S3 = new AWS.S3();
 
 module.exports.captureEvents = async ({ s3Bucket, s3Key }, _context) => {
+  if (!s3Bucket || !s3Key) throw new Error('Invalid payload provided, must include `s3Bucket` and `s3Key`.');
   console.log(`Fetching events from S3: ${s3Bucket}/${s3Key}`);
   const { Body } = await S3.getObject({ Bucket: s3Bucket, Key: s3Key }).promise();
   const payload = JSON.parse(Body);
