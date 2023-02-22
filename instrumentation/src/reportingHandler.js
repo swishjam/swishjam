@@ -1,3 +1,4 @@
+import { UuidGenerator } from './uuidGenerator';
 import { 
   reportingUrl, 
   publicApiKey, 
@@ -20,12 +21,13 @@ export class ReportingHandler {
     this.currentPageViewIdentifier = pageViewIdentifier;
   }
 
-  recordEvent(eventName, uniqueId, data) {
+  recordEvent(eventName, data, uniqueId = null) {
     if (!EVENT_TYPES.includes(eventName)) throw new Error(`Invalid event: ${eventName}. Valid event types are: ${EVENT_TYPES.join(', ')}.`);
     if (!this.currentPageViewIdentifier) throw new Error('ReportingHandler has no currentPageViewIdentifier, cannot record event.');
     this.dataToReport.push({ 
       _event: eventName, 
-      uniqueIdentifier: uniqueId,
+      // uniqueIdentifier: uniqueId,
+      uniqueIdentifier: uniqueId || UuidGenerator.generate(eventName.toLowerCase()),
       siteId: publicApiKey,
       pageViewIdentifier: this.currentPageViewIdentifier, 
       ts: Date.now(), 

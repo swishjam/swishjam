@@ -1,6 +1,5 @@
 // import { onLCP, onFID, onCLS, onFCP, onTTFB, onINP } from 'web-vitals/attribution';
 import { onLCP, onFID, onCLS, onFCP, onTTFB, onINP } from 'web-vitals';
-import { UuidGenerator } from './uuidGenerator';
 
 export class PerformanceMetricsHandler {
   constructor(reportingHandler) {
@@ -17,6 +16,6 @@ export class PerformanceMetricsHandler {
   }
 
   _reportCWV(type, entry) {
-    this.reportingHandler.recordEvent('PAGE_LOAD_METRIC', UuidGenerator.generate('cwv'), { type: type, ...entry });
+    this.reportingHandler.recordEvent('PAGE_LOAD_METRIC', { type: type, ...entry });
   }
 }
