@@ -1,12 +1,12 @@
-![Tagsafe Performance Monitoring Instrumentation]()
+![Swishjam Performance Monitoring Instrumentation](/readme.png)
 
-<div align="center"><strong>Tagsafe Performance Monitoring Instrucmentation</strong></div>
-<div align="center">The next generation of web performance tooling. <br />Performance monitoring owned by you.</div>
+<div align="center">Swishjam <strong></strong></div>
+<div align="center">Dead Simple Open-Source Performance Tools</div>
 <br />
 <div align="center">
 <a href="https://tagsafe.io">Website</a> 
 <span> · </span>
-<a href="https://github.com/tagsafe/performance-monitoring-instrumentation">GitHub</a> 
+<a href="https://github.com/swishjam/swishjam">GitHub</a> 
 </div>
 
 ## Introduction
