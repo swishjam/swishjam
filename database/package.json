@@ -1,0 +1,11 @@
+{
+  "dependencies": {
+    "dotenv": "^16.0.3",
+    "pg": "^8.9.0",
+    "sequelize": "^6.28.0"
+  },
+  "script": {
+    "g": "npx sequelize-cli migration:generate",
+    "m": "npx sequelize-cli db:migrate"
+  }
+}

@@ -5,14 +5,17 @@ module.exports = class ResourcePerformanceEntryEvent {
   }
 
   async create() {
-    return await this.db.client`INSERT INTO longtask_task_attribution_performance_entries ${this.db.format(this._attrs())}`;
+    await this.db.client`INSERT INTO longtask_task_attribution_performance_entries ${this.db.format(this._attrs())}`;
+    return true;
   }
 
   _attrs() {
     const { data } = this.event;
     return {
       long_task_performance_entry_id: '',
+      unique_identifier: this.event.uniqueIdentifier,
       page_view_identifier: this.event.pageViewIdentifier,
+      site_id: this.event.siteId,
       duration: data.duration,
       entry_type: data.entryType,
       name: data.name,

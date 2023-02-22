@@ -8,9 +8,9 @@ export class PageViewTracker {
 
   trackPageView({ previousPageUrl }) {
     this._reportPageLeftAtTsIfNecessary();
-    this.currentPageViewIdentifier = UuidGenerator.generate(),
+    this.currentPageViewIdentifier = UuidGenerator.generate('page-view');
     this.reportingHandler.setCurrentPageViewIdentifier(this.currentPageViewIdentifier);
-    this.reportingHandler.recordEvent('PAGE_VIEW', {
+    this.reportingHandler.recordEvent('PAGE_VIEW', this.currentPageViewIdentifier, {
       pageLoadTs: Date.now(),
       url: window.location.href,
       referrerUrl: previousPageUrl,
@@ -28,7 +28,10 @@ export class PageViewTracker {
 
   _reportPageLeftAtTsIfNecessary() {
     if (!this.currentPageViewIdentifier) return;
-    this.reportingHandler.recordEvent('PAGE_LEFT', { pageLoadId: this.currentPageViewIdentifier, leftPageAtTs: Date.now() });
+    this.reportingHandler.recordEvent('PAGE_LEFT', UuidGenerator.generate('page-left'), { 
+      pageLoadId: this.currentPageViewIdentifier,
+      leftPageAtTs: Date.now(),
+    });
     this.reportingHandler.reportData();
   }
 }

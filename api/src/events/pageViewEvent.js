@@ -17,11 +17,15 @@ module.exports = class PageViewEvent {
     return {
       identifier: pageViewIdentifier,
       site_id: siteId,
-      page_view_ts: data.pageLoadTs,
+      page_view_ts: new Date(data.pageLoadTs),
       full_url: data.url,
-      url_host: new URL(data.url).host,
-      url_path: new URL(data.url).pathname,
-      url_query: new URL(data.url).search,
+      url_host: this._safeUrlParse(data.url).host,
+      url_path: this._safeUrlParse(data.url).pathname,
+      url_query: this._safeUrlParse(data.url).search,
+      referrer_full_url: data.referrerUrl,
+      referrer_url_host: this._safeUrlParse(data.referrerUrl).host,
+      referrer_url_path: this._safeUrlParse(data.referrerUrl).pathname,
+      referrer_url_query: this._safeUrlParse(data.referrerUrl).search,
       user_agent: data.userAgent,
       device_client_type: device.client.type,
       device_client_name: device.client.name,
@@ -40,6 +44,14 @@ module.exports = class PageViewEvent {
       connection_effective_type: data.connection.effectiveType,
       connection_downlink: data.connection.downlink,
       connection_rtt: data.connection.rtt,
+    }
+  }
+
+  _safeUrlParse(url) {
+    try {
+      return new URL(url);
+    } catch (e) {
+      return {};
     }
   }
 }

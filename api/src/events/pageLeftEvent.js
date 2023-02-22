@@ -6,7 +6,9 @@ module.exports = class PageLeftEvent {
   
   async updatePageView() {
     const { pageViewIdentifier, data } = this.event;
-    const { pageLeftTs } = data; 
-    return await this.db.client`UPDATE page_views SET page_left_ts = ${pageLeftTs} WHERE identifier = ${pageViewIdentifier}`;
+    const { leftPageAtTs } = data; 
+    console.log(`Updating page view ${pageViewIdentifier} with page left timestamp ${leftPageAtTs} (converted to ${new Date(leftPageAtTs)})`);
+    await this.db.client`UPDATE page_views SET left_page_at_ts = ${new Date(leftPageAtTs)} WHERE identifier = ${pageViewIdentifier}`;
+    return true;
   }
 }

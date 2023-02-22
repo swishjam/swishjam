@@ -38,7 +38,12 @@ module.exports = class PerformanceEntryEvent {
       return await new eventClass(this.event, this.db).create();
     } else {
       console.warn(`Unknown performance entry type: ${this.event.data.entryType}`);
-      return { page_view_identifier: this.event.pageViewIdentifie, entry_type: this.event.data.entryType };
+      return { 
+        unique_identifier: this.event.uniqueIdentifier, 
+        page_view_identifier: this.event.pageViewIdentifier, 
+        site_id: this.event.siteId,
+        entry_type: this.event.data.entryType 
+      };
     }
   }
 }

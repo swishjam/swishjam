@@ -1,4 +1,5 @@
 import { performanceEntryTypesToCapture } from '../config';
+import { UuidGenerator } from './uuidGenerator';
 
 export class PerformanceEntriesHandler {
   constructor(reportingHandler) {
@@ -8,13 +9,12 @@ export class PerformanceEntriesHandler {
 
   beginCapturingPerformanceEntries() {
     this._getPerformanceEntries().forEach(entry => {
-      console.log('New performance entry?', entry);
-      this.reportingHandler.recordEvent('PERFORMANCE_ENTRY', entry.toJSON());
+      this.reportingHandler.recordEvent('PERFORMANCE_ENTRY', UuidGenerator.generate('perf-entry'), entry.toJSON());
     });
     this._onPerformanceEntries(newPerformanceEntries => {
       newPerformanceEntries.forEach(entry => {
-        console.log('New performance entry?', entry);
-        this.reportingHandler.recordEvent('PERFORMANCE_ENTRY', entry.toJSON())});
+        this.reportingHandler.recordEvent('PERFORMANCE_ENTRY', UuidGenerator.generate('perf-entry'), entry.toJSON());
+      });
     });
   }
 

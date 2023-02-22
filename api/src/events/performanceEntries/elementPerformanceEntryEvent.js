@@ -5,12 +5,15 @@ module.exports = class ElementPerformanceEntryEvent {
   }
 
   async create() {
-    return await this.db.client`INSERT INTO element_performance_entries ${this.db.format(this._attrs())}`;
+    await this.db.client`INSERT INTO element_performance_entries ${this.db.format(this._attrs())}`;
+    return true;
   }
 
   _attrs() {
     return {
-      page_view_identifier: this.event.data.pageViewIdentifier,
+      unique_identifier: this.event.uniqueIdentifier,
+      page_view_identifier: this.event.pageViewIdentifier,
+      site_id: this.event.siteId,
       duration: this.event.data.duration,
       entry_type: this.event.data.entryType,
       name: this.event.data.name,

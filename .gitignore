@@ -1,5 +1,6 @@
 node_modules
 instrumentation/build
 .DS_STORE
-api/.aws-sam
+.aws-sam
 .env
+samconfig.toml

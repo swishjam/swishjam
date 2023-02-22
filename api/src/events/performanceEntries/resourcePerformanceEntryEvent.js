@@ -5,13 +5,16 @@ module.exports = class ResourcePerformanceEntryEvent {
   }
 
   async create() {
-    return await this.db.client`INSERT INTO resource_performance_entries ${this.db.format(this._attrs())}`;
+    await this.db.client`INSERT INTO resource_performance_entries ${this.db.format(this._attrs())}`;
+    return true;
   }
 
   _attrs() {
     const { data } = this.event;
     return {
+      unique_identifier: this.event.uniqueIdentifier,
       page_view_identifier: this.event.pageViewIdentifier,
+      site_id: this.event.siteId,
       name: data.name,
       entry_type: data.entryType,
       start_time: data.startTime,

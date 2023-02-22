@@ -1,7 +1,10 @@
 module.exports = {
-  "publicApiKey": "b1b2c3d4",
-  "reportingUrl": "https://xd0onfxq3k.execute-api.us-east-1.amazonaws.com/development/events",
+  "publicApiKey": "outerbase-7ho46sd3ax",
+  "reportingUrl": "https://dt4gtymuczpbzo6rssxcuv6ufy0kjsuj.lambda-url.us-east-1.on.aws/",
   "shouldCapturePerformanceEntries": true,
   "performanceEntryTypesToCapture": ["paint", "longtask", "navigation", "resource", "largest-contentful-paint", "first-input", "layout-shift"],
-  "mockApiCalls": true,
+  "mockApiCalls": false,
+  "maxNumEventsInMemory": 25,
+  "reportAfterIdleTimeMs": 10_000,
+  "sampleRate": 1.0,
 }

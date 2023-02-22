@@ -6,12 +6,15 @@ module.exports = class FirstInputPerformanceEntryEvent {
 
   async create() {
     await this.db.client`INSERT INTO first_input_performance_entries ${this.db.format(this._attrs())}`;
+    return true;
   }
 
   _attrs() {
     const { data } = this.event;
     return {
+      unique_identifier: this.event.uniqueIdentifier,
       page_view_identifier: this.event.pageViewIdentifier,
+      site_id: this.event.siteId,
       duration: data.duration,
       entry_type: data.entryType,
       name: data.name,

@@ -1,4 +1,11 @@
-import { reportingUrl, publicApiKey, reportingIntervalMs, mockApiCalls } from '../config';
+import { 
+  reportingUrl, 
+  publicApiKey, 
+  maxNumEventsInMemory, 
+  reportAfterIdleTimeMs,
+  reportingIdleTimeCheckInterval,
+  mockApiCalls,
+} from '../config';
 const EVENT_TYPES = ['PAGE_VIEW', 'PAGE_LEFT', 'PAGE_LOAD_METRIC', 'PERFORMANCE_ENTRY'];
 
 export class ReportingHandler {
@@ -6,23 +13,28 @@ export class ReportingHandler {
     if (!publicApiKey) throw new Error('No public API key provided. Please provide a public API key in the config file.');
     if (!reportingUrl) throw new Error('No reporting URL provided. Please provide a reporting URL in the config file.');
     this.dataToReport = [];
-    this._setReportingCadence();
+    this._setReportingOnIdleTimeInterval();
   }
 
   setCurrentPageViewIdentifier(pageViewIdentifier) {
     this.currentPageViewIdentifier = pageViewIdentifier;
   }
 
-  recordEvent(eventName, data) {
+  recordEvent(eventName, uniqueId, data) {
     if (!EVENT_TYPES.includes(eventName)) throw new Error(`Invalid event: ${eventName}. Valid event types are: ${EVENT_TYPES.join(', ')}.`);
     if (!this.currentPageViewIdentifier) throw new Error('ReportingHandler has no currentPageViewIdentifier, cannot record event.');
     this.dataToReport.push({ 
       _event: eventName, 
+      uniqueIdentifier: uniqueId,
       siteId: publicApiKey,
       pageViewIdentifier: this.currentPageViewIdentifier, 
       ts: Date.now(), 
       data 
     });
+    this.lastEventRecordedAtTs = Date.now();
+    if (this.dataToReport.length >= (maxNumEventsInMemory || 25)) {
+      this._reportDataIfNecessary();
+    }
   }
 
   reportData = this._reportDataIfNecessary;
@@ -31,8 +43,12 @@ export class ReportingHandler {
     return this.dataToReport.length > 0;
   }
 
-  _setReportingCadence() {
-    setInterval(() => this._reportDataIfNecessary(), reportingIntervalMs || 5_000);
+  _setReportingOnIdleTimeInterval() {
+    setInterval(() => {
+      if (this.lastEventRecordedAtTs && Date.now() - this.lastEventRecordedAtTs >= (reportAfterIdleTimeMs || 10_000)) {
+        this._reportDataIfNecessary()
+      }
+    }, reportingIdleTimeCheckInterval || 5_000);
   }
 
   _reportDataIfNecessary() {
