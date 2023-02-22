@@ -1,24 +1,30 @@
+import { performanceEntryTypesToCapture } from '../config';
+import { UuidGenerator } from './uuidGenerator';
+
 export class PerformanceEntriesHandler {
-  constructor(performanceEntriesToCapture, options = {}) {
-    this.performanceEntriesToCapture = performanceEntriesToCapture;
-    this.maxNumPerformanceEntriesPerPageLoad = options.maxNumPerformanceEntriesPerPageLoad || 250;
-    this.numPerformanceEntriesReported = 0;
+  constructor(reportingHandler) {
+    this.reportingHandler = reportingHandler;
+    this.performanceEntryTypesToCapture = performanceEntryTypesToCapture || ["paint", "longtask", "navigation", "resource", "largest-contentful-paint", "first-input", "layout-shift"];
   }
 
-  onPerformanceEntries(callback) {
+  beginCapturingPerformanceEntries() {
+    this._getPerformanceEntries().forEach(entry => {
+      this.reportingHandler.recordEvent('PERFORMANCE_ENTRY', UuidGenerator.generate('perf-entry'), entry.toJSON());
+    });
+    this._onPerformanceEntries(newPerformanceEntries => {
+      newPerformanceEntries.forEach(entry => {
+        this.reportingHandler.recordEvent('PERFORMANCE_ENTRY', UuidGenerator.generate('perf-entry'), entry.toJSON());
+      });
+    });
+  }
+
+  _onPerformanceEntries(callback) {
     if(!window.PerformanceObserver) return;
-    return new PerformanceObserver((list, observer) => {
-      callback(list.getEntries());
-      if(this.numPerformanceEntriesReported >= this.maxNumPerformanceEntriesPerPageLoad) {
-        observer.disconnect();
-      }
-    }).observe({ entryTypes: this.performanceEntriesToCapture });
+    return new PerformanceObserver((list, _observer) => callback(list.getEntries())).observe({ entryTypes: this.performanceEntryTypesToCapture });
   }
 
-  getPerformanceEntries() {
+  _getPerformanceEntries() {
     if(!window.performance || !window.performance.getEntries) return [];
-    const performanceEntries = window.performance.getEntries().filter(entry => this.performanceEntriesToCapture.includes(entry.entryType));
-    this.numPerformanceEntriesReported += performanceEntries.length;
-    return performanceEntries;
+    return window.performance.getEntries().filter(entry => this.performanceEntryTypesToCapture.includes(entry.entryType));
   }
 }

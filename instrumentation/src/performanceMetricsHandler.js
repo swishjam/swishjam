@@ -1,29 +1,22 @@
 // import { onLCP, onFID, onCLS, onFCP, onTTFB, onINP } from 'web-vitals/attribution';
 import { onLCP, onFID, onCLS, onFCP, onTTFB, onINP } from 'web-vitals';
+import { UuidGenerator } from './uuidGenerator';
 
 export class PerformanceMetricsHandler {
-  constructor() {
-    this._performanceMetrics = {};
-    this.onMetricsReadyCallbacks = [];
-    this.onNewMetricCallbacks = [];
-    this._setPerformanceMetricsListeners();
+  constructor(reportingHandler) {
+    this.reportingHandler = reportingHandler;
   }
 
-  onNewMetric(callback) {
-    this.onNewMetricCallbacks.push(callback)
+  beginCapturingPerformanceMetrics() {
+    onLCP(entry => this._reportCWV('LCP', entry));
+    onFCP(entry => this._reportCWV('FCP', entry));
+    onCLS(entry => this._reportCWV('CLS', entry));
+    onFID(entry => this._reportCWV('FID', entry));
+    onTTFB(entry => this._reportCWV('TTFB', entry));
+    onINP(entry => this._reportCWV('INP', entry));
   }
 
-  _onVitalHandler(entry, vitalType) {
-    this._performanceMetrics[vitalType] = entry;
-    this.onNewMetricCallbacks.forEach(callback => callback(entry));
-  }
-
-  _setPerformanceMetricsListeners() {
-    onLCP(entry => this._onVitalHandler(entry, 'lcp'));
-    onFCP(entry => this._onVitalHandler(entry, 'fcp'));
-    onCLS(entry => this._onVitalHandler(entry, 'cls'));
-    onFID(entry => this._onVitalHandler(entry, 'fid'));
-    onTTFB(entry => this._onVitalHandler(entry, 'ttfb'));
-    onINP(entry => this._onVitalHandler(entry, 'inp'));
+  _reportCWV(type, entry) {
+    this.reportingHandler.recordEvent('PAGE_LOAD_METRIC', UuidGenerator.generate('cwv'), { type: type, ...entry });
   }
 }

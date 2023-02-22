@@ -1,53 +1,70 @@
+import { 
+  reportingUrl, 
+  publicApiKey, 
+  maxNumEventsInMemory, 
+  reportAfterIdleTimeMs,
+  reportingIdleTimeCheckInterval,
+  mockApiCalls,
+} from '../config';
+const EVENT_TYPES = ['PAGE_VIEW', 'PAGE_LEFT', 'PAGE_LOAD_METRIC', 'PERFORMANCE_ENTRY'];
+
 export class ReportingHandler {
-  constructor(apiEndpoint, apiKey, options = {}) {
-    this.apiEndpoint = apiEndpoint;
-    this.apiKey = apiKey;
-    this.staticData = { apiKey };
-    this.reportingData = {};
-    this.reportingIntervalMs = options.reportingIntervalMs || 3_000;
-    this.stopReportingAfterMs = options.stopReportingAfterMs || 12_000;
-    this._onReportedDataCallbacks = [];
+  constructor() {
+    if (!publicApiKey) throw new Error('No public API key provided. Please provide a public API key in the config file.');
+    if (!reportingUrl) throw new Error('No reporting URL provided. Please provide a reporting URL in the config file.');
+    this.dataToReport = [];
+    this._setReportingOnIdleTimeInterval();
   }
 
-  setStaticData(data) {
-    this.staticData = { ...this.staticData, ...data };
+  setCurrentPageViewIdentifier(pageViewIdentifier) {
+    this.currentPageViewIdentifier = pageViewIdentifier;
   }
 
-  updateReportingData(data) {
-    this.reportingData = { ...this.reportingData, ...data };
-  }
-
-  onReportedData(callback) {
-    this._onReportedDataCallbacks.push(callback);
+  recordEvent(eventName, uniqueId, data) {
+    if (!EVENT_TYPES.includes(eventName)) throw new Error(`Invalid event: ${eventName}. Valid event types are: ${EVENT_TYPES.join(', ')}.`);
+    if (!this.currentPageViewIdentifier) throw new Error('ReportingHandler has no currentPageViewIdentifier, cannot record event.');
+    this.dataToReport.push({ 
+      _event: eventName, 
+      uniqueIdentifier: uniqueId,
+      siteId: publicApiKey,
+      pageViewIdentifier: this.currentPageViewIdentifier, 
+      ts: Date.now(), 
+      data 
+    });
+    this.lastEventRecordedAtTs = Date.now();
+    if (this.dataToReport.length >= (maxNumEventsInMemory || 25)) {
+      this._reportDataIfNecessary();
+    }
   }
 
   reportData = this._reportDataIfNecessary;
 
-  beginReportingInterval() {
-    let totalReportingTimeMs = 0;
-    const reportIntervalFunc = setInterval(() => {
-      this._reportDataIfNecessary();
-      totalReportingTimeMs += this.reportingIntervalMs;
-      if(totalReportingTimeMs >= this.stopReportingAfterMs) {
-        clearInterval(reportIntervalFunc);
+  _hasDataToReport() {
+    return this.dataToReport.length > 0;
+  }
+
+  _setReportingOnIdleTimeInterval() {
+    setInterval(() => {
+      if (this.lastEventRecordedAtTs && Date.now() - this.lastEventRecordedAtTs >= (reportAfterIdleTimeMs || 10_000)) {
+        this._reportDataIfNecessary()
       }
-    }, this.reportingIntervalMs);
+    }, reportingIdleTimeCheckInterval || 5_000);
   }
 
   _reportDataIfNecessary() {
-    if(Object.keys(this.reportingData).length > 0) {
-      const dataToReport = { ...this.staticData, ...this.reportingData };
-      if(navigator.sendBeacon) {
-        const blob = new Blob([JSON.stringify(dataToReport)], {});
-        navigator.sendBeacon(this.apiEndpoint, blob);
-      } else {
-        const xhr = new XMLHttpRequest();
-        xhr.open('POST', this.apiEndpoint);
-        xhr.setRequestHeader('Content-Type', 'application/json');
-        xhr.send(JSON.stringify(dataToReport));
-      }
-      this._onReportedDataCallbacks.forEach(callback => callback(dataToReport));
-      this.reportingData = {};
+    if (!this._hasDataToReport()) return;
+    const body = { siteId: publicApiKey, data: this.dataToReport };
+    if (mockApiCalls) {
+      console.log('Reporting data to mock API', body);
+    } else if (navigator.sendBeacon) {
+      const blob = new Blob([JSON.stringify(body)], {});
+      navigator.sendBeacon(reportingUrl, blob);
+    } else {
+      const xhr = new XMLHttpRequest();
+      xhr.open('POST', reportingUrl);
+      xhr.setRequestHeader('Content-Type', 'application/json');
+      xhr.send(JSON.stringify(body));
     }
+    this.dataToReport = [];
   }
 }

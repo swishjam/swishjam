@@ -1,189 +1,171 @@
-# This is the SAM template that represents the architecture of your serverless application
-# https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-sam-template-basics.html
-
-# The AWSTemplateFormatVersion identifies the capabilities of the template
-# https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/format-version-structure.html
 AWSTemplateFormatVersion: 2010-09-09
 Description: >-
   cloudformation-test
 
-# Transform section specifies one or more macros that AWS CloudFormation uses to process your template
-# https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/transform-section-structure.html
 Transform:
 - AWS::Serverless-2016-10-31
 
 Parameters:
+  EventDataToProcessS3BucketName:
+    Description: The S3 bucket name to upload payload data to
+    Type: String
+    Default: 'event-data-to-process'
+    AllowedPattern : ".+"
+  FailedToProcessEventDataS3BucketName:
+    Description: The S3 bucket name to upload event data that failed to be processed
+    Type: String
+    Default: 'failed-to-process-event-data'
+    AllowedPattern : ".+"
+  S3UploaderLambdaFunctionName:
+    Description: The name of the Lambda function that uploads the payload to S3 and invokes the 'Event Processor' Lambda function
+    Type: String
+    Default: 'event-data-s3-uploader'
+    AllowedPattern : ".+"
+  EventProcessorLambdaFunctionName:
+    Description: The name of the Lambda function to process the event payloads
+    Type: String
+    Default: 'event-data-processor'
+    AllowedPattern : ".+"
   DatabaseName:
     Description: The name of the database analytic data should be written to
     Type: String
+    AllowedPattern : ".+"
   DatabaseUsername: 
     Description: The username of the database analytic data should be written to
     Type: String
+    AllowedPattern : ".+"
   DatabasePassword:
     Description: The password of the database analytic data should be written to
     Type: String
+    AllowedPattern : ".+"
   DatabaseHostname:
     Description: The hostname of the database analytic data should be written to
     Type: String
-  DatabaseDialect:
-    Description: The dialect of the database analytic data should be written to
-    Type: String
-  # QueueName:
-  #   Description: The queue name for integration with API Gateway
-  #   Type: String
-  #   Default: performance-data-message-queue
-  # ApiGatewayDeploymentStageName:
-  #   Description: The API Gateway stage for this deployment
-  #   Type: String
-  #   Default: dev
+    AllowedPattern : ".+"
+  DatabasePort:
+    Description: The port of the database analytic data should be written to
+    Type: Number
+    Default: 5432
+    # AllowedPattern : "[0-9]+"
 
 Resources:
-  RestApi:
-    Type: AWS::ApiGateway::RestApi
+  EventDataToProcessS3Bucket:
+    Type: AWS::S3::Bucket
     Properties:
-      Name: "Performance Data Endpoint"
-      Description: "API for sending performance data via API Gateway directly to SQS"
-      FailOnWarnings: true
-      Body:
-        openapi: 3.0.0
-        info:
-          title: API Gateway -> SQS API
-          description: This API handles a route with a POST body to be placed on an SQS queue
-          contact:
-            email: collin@tagsafe.io
-          version: 1.0.0
-        paths:
-          /events:
-            post:
-              summary: Handles new performance data
-              description: "Places data on an SQS queue for processing"
-              operationId: performanceData
-              requestBody:
-                description: The performance data to push onto queue for processing
-                content:
-                  application/json:
-                    schema:
-                      $ref: '#/components/schemas/PerformanceData'
-              responses:
-                "200":
-                  description: Success
-                "400":
-                  description: Bad request
-                "500":
-                  description: Server Error
-              x-amazon-apigateway-integration:
-                credentials: !GetAtt ApiGatewayToSQSRole.Arn
-                httpMethod: "POST"
-                uri: !Sub "arn:aws:apigateway:${AWS::Region}:sqs:path/${AWS::AccountId}/performance-data-message-queue"
-                responses:
-                  default:
-                    statusCode: "200"
-                requestParameters:
-                  integration.request.header.Content-Type: "'application/x-www-form-urlencoded'"
-                requestTemplates:
-                  application/json: "Action=SendMessage&MessageBody=$input.body"
-                passthroughBehavior: "never"
-                type: "aws"
-
-        components:
-          schemas:
-            PerformanceData:
-              required:
-              - page_load_ts
-              type: object
-              properties:
-                created_at:
-                  type: string
-                  description: Timestamp in ISO-8601 format UTC
-                  format: date-time
-                  example: 2021-01-01T12:01:00-00:00
+      BucketName: !Ref EventDataToProcessS3BucketName
   
-  ApiGatewayToSQSRole:
-    Type: AWS::IAM::Role
+  FailedToProcessEventDataS3Bucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Ref FailedToProcessEventDataS3BucketName
+
+  S3UploaderAndAsyncFunctionInvoker:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Ref S3UploaderLambdaFunctionName
+      Description: Uploads the payload to S3, and then invokes the consumer Lambda function asynchronously
+      Runtime: nodejs16.x
+      Architectures:
+      - arm64
+      Handler: src/s3Storage.uploadToS3AndInvokeFunction
+      Role: !GetAtt S3UploaderRole.Arn
+      Timeout: 10
+      Environment:
+        Variables:
+          S3_BUCKET_NAME: !Ref EventDataToProcessS3BucketName
+          EVENT_CONSUMER_LAMBDA_FUNCTION_NAME: !Ref EventProcessorLambdaFunctionName
+
+  EventConsumerLambdaFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Ref EventProcessorLambdaFunctionName
+      Description: Ingests event data from provided S3 URL
+      Runtime: nodejs16.x
+      Architectures:
+      - arm64
+      Handler: src/index.captureEvents
+      Role: !GetAtt EventConsumerRole.Arn
+      Timeout: 30
+      Environment:
+        Variables:
+          DB_HOST: !Ref DatabaseHostname
+          DB_NAME: !Ref DatabaseName 
+          DB_USERNAME: !Ref DatabaseUsername
+          DB_PASSWORD: !Ref DatabasePassword
+          DB_PORT: !Ref DatabasePort
+          FAILED_TO_PROCESS_EVENT_DATA_S3_BUCKET_NAME: !Ref FailedToProcessEventDataS3BucketName
+
+  S3UploaderRole:
+    Type: 'AWS::IAM::Role'
+    Properties: 
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action: 'sts:AssumeRole'
+      Policies:
+        - PolicyName: ExecuteEventConsumerLambda
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - 'lambda:InvokeFunction'
+                Resource:
+                  - !GetAtt EventConsumerLambdaFunction.Arn
+        - PolicyName: S3Access
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - 's3:*'
+                Resource: 
+                  - !Join ['', ['arn:aws:s3:::', !Ref EventDataToProcessS3Bucket, '/*']]
+                  - !Join ['', ['arn:aws:s3:::', !Ref FailedToProcessEventDataS3Bucket, '/*']]
+        - PolicyName: CloudWatchLogsAccess
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - 'logs:CreateLogGroup'
+                  - 'logs:CreateLogStream'
+                  - 'logs:PutLogEvents'
+                Resource: '*'
+
+  EventConsumerRole:
+    Type: 'AWS::IAM::Role'
     Properties:
       AssumeRolePolicyDocument:
         Version: '2012-10-17'
         Statement:
-        - Effect: Allow
-          Principal:
-            Service:
-            - apigateway.amazonaws.com
-          Action:
-          - sts:AssumeRole
-      RoleName: ApiGatewayToSQSRole
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action: 'sts:AssumeRole'
       Policies:
-      - PolicyName: ApiGatewayLogsPolicy
-        PolicyDocument:
-          Version: '2012-10-17'
-          Statement:
-          - Action: sqs:SendMessage
-            Effect: Allow
-            Resource: !GetAtt 'PerformanceDataMessageQueue.Arn'
-          - Action:
-              - logs:CreateLogGroup
-              - logs:CreateLogStream
-              - logs:DescribeLogGroups
-              - logs:DescribeLogStreams
-              - logs:PutLogEvents
-              - logs:GetLogEvents
-              - logs:FilterLogEvents
-            Effect: Allow
-            Resource: "*"
-
-  PerformanceDataMessageQueue:
-    Type: AWS::SQS::Queue
-    Properties:
-      QueueName: 'performance-data-message-queue'
-
-  # This is the Lambda function definition associated with the source code: sqs-payload-logger.js. For all available properties, see
-  # https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
-  LambdaSQSMessageConsumer:
-    Type: AWS::Serverless::Function
-    Properties:
-      FunctionName: 'performance-data-sqs-message-consumer'
-      Description: A Lambda function that logs the payload of messages sent to an associated SQS queue.
-      Runtime: nodejs18.x
-      Architectures:
-      - arm64
-      # Handler: src/handlers/sqs-data-consumer.consumeMessages
-      Handler: sqs-data-consumer/app.consumeMessages
-      # This property associates this Lambda function with the SQS queue defined above, so that whenever the queue
-      # receives a message, the Lambda function is invoked
-      Environment:
-        Variables:
-          dbHost: !Ref DatabaseHostname
-          dbDatabase: !Ref DatabaseName 
-          dbUsername: !Ref DatabaseUsername
-          dbPassword: !Ref DatabasePassword
-          dbDialect: !Ref DatabaseDialect
-      Events:
-        SQSQueueEvent:
-          Type: SQS
-          Properties:
-            Queue: !GetAtt PerformanceDataMessageQueue.Arn
-      MemorySize: 128
-      Timeout: 25 # Chosen to be less than the default SQS Visibility Timeout of 30 seconds
-      Policies:
-      - AWSLambdaBasicExecutionRole
-  
-  ApplicationResourceGroup:
-    Type: AWS::ResourceGroups::Group
-    Properties:
-      Name:
-        Fn::Join:
-        - ''
-        - - ApplicationInsights-SAM-
-          - Ref: AWS::StackName
-      ResourceQuery:
-        Type: CLOUDFORMATION_STACK_1_0
-  
-  ApplicationInsightsMonitoring:
-    Type: AWS::ApplicationInsights::Application
-    Properties:
-      ResourceGroupName:
-        Fn::Join:
-        - ''
-        - - ApplicationInsights-SAM-
-          - Ref: AWS::StackName
-      AutoConfigurationEnabled: 'true'
-    DependsOn: ApplicationResourceGroup
+        - PolicyName: S3Access
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - 's3:*'
+                Resource: 
+                  - !Join ['', ['arn:aws:s3:::', !Ref EventDataToProcessS3Bucket, '/*']]
+                  - !Join ['', ['arn:aws:s3:::', !Ref FailedToProcessEventDataS3Bucket, '/*']]
+        - PolicyName: CloudWatchLogsAccess
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - 'logs:CreateLogGroup'
+                  - 'logs:CreateLogStream'
+                  - 'logs:PutLogEvents'
+                Resource: '*'

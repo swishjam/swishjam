@@ -1,14 +1,22 @@
 {
-  "name": "performance-monitoring-api",
+  "name": "lambda-api",
   "version": "1.0.0",
   "description": "",
+  "main": "index.js",
   "scripts": {
-    "test": "sam local invoke LambdaSQSMessageConsumer --event events/event.json --parameter-overrides 'DatabaseHostname=performance-data-db.cytsjoeoway1.us-east-1.rds.amazonaws.com DatabaseName=performance_data DatabaseUsername=dbuser DatabasePassword=xc0b0QnuMyZ66jFYF4p0 DatabaseDialect=postgres'",
-    "deploy": "sam build && sam deploy --capabilities CAPABILITY_IAM"
+    "locally": "sam local invoke EventConsumerLambdaFunction --event data/s3-data.json --parameter-overrides 'DatabaseHostname=performance-data-db.cytsjoeoway1.us-east-1.rds.amazonaws.com DatabaseName=performance_data DatabaseUsername=dbuser DatabasePassword=xc0b0QnuMyZ66jFYF4p0 DatabaseDialect=postgres'",
+    "s3-locally": "sam local invoke S3UploaderAndAsyncFunctionInvoker --event data/sample-events.json --parameter-overrides 'S3BucketName=event-data-to-process EventProcessorLambdaFunctionName=event-data-processor'",
+    "deploy": "sam build && sam deploy --capabilities CAPABILITY_NAMED_IAM",
+    "guided-deploy": "sam build && sam deploy --capabilities CAPABILITY_NAMED_IAM --guided"
   },
   "author": "",
   "license": "ISC",
+  "dependencies": {
+    "device-detector-js": "^3.0.3",
+    "dotenv": "^16.0.3",
+    "postgres": "^3.3.3"
+  },
   "devDependencies": {
-    "aws-cli": "^0.0.2"
+    "aws-sdk": "^2.1320.0"
   }
 }

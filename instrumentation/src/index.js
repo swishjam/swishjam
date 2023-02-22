@@ -1,67 +1,32 @@
-import { UuidGenerator } from './uuidGenerator';
-import { MetadataHandler } from './metadataHandler';
-import { PerformanceMetricsHandler } from './performanceMetricsHandler';
+import { sampleRate } from '../config';
 import { ReportingHandler } from './reportingHandler';
+import { PageViewTracker } from './pageViewTracker';
 import { PerformanceEntriesHandler } from './performanceEntriesHandler';
-import config from '../config';
-
+import { PerformanceMetricsHandler } from './performanceMetricsHandler';
 
 (function() {
-  const { 
-    reportingUrl, 
-    publicApiKey,
-    maxNumPerformanceEntriesPerPageLoad = 250,
-    shouldCapturePerformanceEntries = true,
-    performanceEntriesToCapture = [
-      "element",
-      "event",
-      "first-input",
-      "largest-contentful-paint",
-      "layout-shift",
-      "longtask",
-      "mark",
-      "measure",
-      "navigation",
-      "paint",
-      "resource"
-    ]
-  } = config;
-
-  const pageLoadTs = Date.now();
-  const pageLoadId = UuidGenerator.generate();
-  const metadata = MetadataHandler.getMetadata();
-
-  const reportingHandler = new ReportingHandler(reportingUrl, publicApiKey);
-  reportingHandler.setStaticData({ pageLoadId });
-  reportingHandler.updateReportingData({ pageLoadTs, ...metadata })
-
-  if (shouldCapturePerformanceEntries) {
-    const performanceEntriesHandler = new PerformanceEntriesHandler(performanceEntriesToCapture, { maxNumPerformanceEntriesPerPageLoad });
-    reportingHandler.updateReportingData({ 
-      performanceEntries: [
-        ...(reportingHandler.reportingData.performanceEntries || []),
-        ...performanceEntriesHandler.getPerformanceEntries()
-      ]
+  if (Math.random() > (sampleRate || 1.0)) {
+    console.warn('SwishJam sample rate not met, not instrumenting page');
+  } else {
+    const reportingHandler = new ReportingHandler();
+    const pageViewTracker = new PageViewTracker(reportingHandler);
+    let currentUrl = pageViewTracker.trackPageView({ navigationType: 'hard', previousPageUrl: document.referrer });
+  
+    new PerformanceEntriesHandler(reportingHandler).beginCapturingPerformanceEntries();
+    new PerformanceMetricsHandler(reportingHandler).beginCapturingPerformanceMetrics();
+  
+    window.addEventListener('hashchange', () => {
+      currentUrl = pageViewTracker.trackPageView({ navigationType: 'soft', previousPageUrl: currentUrl })
     });
-    
-    performanceEntriesHandler.onPerformanceEntries(performanceEntries => {
-      reportingHandler.updateReportingData({ 
-        performanceEntries: [
-          ...(reportingHandler.reportingData.performanceEntries || []),
-          ...performanceEntries
-        ] 
-      });
+    window.addEventListener('popstate', () => {
+      currentUrl = pageViewTracker.trackPageView({ navigationType: 'soft', previousPageUrl: currentUrl })
     });
-  }
-
-  new PerformanceMetricsHandler().onNewMetric(metric => {
-    reportingHandler.updateReportingData({
-      performanceMetrics: {
-        ...(reportingHandler.reportingData.performanceMetrics || {}),
-        [metric.name]: metric
+    if (window.history.pushState) {
+      const originalPushState = window.history.pushState
+      window.history.pushState = function () {
+        originalPushState.apply(this, arguments);
+        currentUrl = pageViewTracker.trackPageView({ navigationType: 'soft', previousPageUrl: currentUrl });
       }
-    })
-  });
-
-  reportingHandler.beginReportingInterval();
+    }
+  }
 })();
