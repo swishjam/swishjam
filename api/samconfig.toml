@@ -9,4 +9,3 @@ region = "us-east-1"
 capabilities = "CAPABILITY_NAMED_IAM"
 parameter_overrides = "EventDataToProcessS3BucketName=\"event-data-to-process\" FailedToProcessEventDataS3BucketName=\"failed-to-process-event-data\" S3UploaderLambdaFunctionName=\"event-data-s3-uploader\" EventProcessorLambdaFunctionName=\"event-data-processor\" DatabaseName=\"performance_data\" DatabaseUsername=\"dbuser\" DatabasePassword=\"xc0b0QnuMyZ66jFYF4p0\" DatabaseHostname=\"performance-data-db.cytsjoeoway1.us-east-1.rds.amazonaws.com\" DatabasePort=\"5432\""
 image_repositories = []
-confirm_changeset = false

@@ -10,34 +10,43 @@ Parameters:
     Description: The S3 bucket name to upload payload data to
     Type: String
     Default: 'event-data-to-process'
+    AllowedPattern : ".+"
   FailedToProcessEventDataS3BucketName:
     Description: The S3 bucket name to upload event data that failed to be processed
     Type: String
     Default: 'failed-to-process-event-data'
+    AllowedPattern : ".+"
   S3UploaderLambdaFunctionName:
     Description: The name of the Lambda function that uploads the payload to S3 and invokes the 'Event Processor' Lambda function
     Type: String
     Default: 'event-data-s3-uploader'
+    AllowedPattern : ".+"
   EventProcessorLambdaFunctionName:
     Description: The name of the Lambda function to process the event payloads
     Type: String
     Default: 'event-data-processor'
+    AllowedPattern : ".+"
   DatabaseName:
     Description: The name of the database analytic data should be written to
     Type: String
+    AllowedPattern : ".+"
   DatabaseUsername: 
     Description: The username of the database analytic data should be written to
     Type: String
+    AllowedPattern : ".+"
   DatabasePassword:
     Description: The password of the database analytic data should be written to
     Type: String
+    AllowedPattern : ".+"
   DatabaseHostname:
     Description: The hostname of the database analytic data should be written to
     Type: String
+    AllowedPattern : ".+"
   DatabasePort:
     Description: The port of the database analytic data should be written to
     Type: Number
     Default: 5432
+    # AllowedPattern : "[0-9]+"
 
 Resources:
   EventDataToProcessS3Bucket:
