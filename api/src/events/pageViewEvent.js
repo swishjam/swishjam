@@ -8,6 +8,7 @@ module.exports = class PageViewEvent {
 
   async createPageView() {
     await this.db.client`INSERT INTO page_views ${this.db.client(this._attrs())}`;
+    console.log(`Created new page view for ${this.event.pageViewIdentifier}`);
     return true;
   }
 
