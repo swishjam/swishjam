@@ -4,7 +4,7 @@ export class PerformanceEntriesHandler {
     this.performanceEntryTypesToCapture = options.performanceEntryTypesToCapture || ["paint", "longtask", "navigation", "resource", "largest-contentful-paint", "first-input", "layout-shift"];
     this.ignoredPerformanceEntryUrls = [
       ...(options.ignoredPerformanceEntryUrls || []),
-      ...(options.includeSwishJamResourcesEntries ? [] : [options.reportingUrl])
+      ...(options.includeSwishjamResourcesEntries ? [] : [options.reportingUrl])
     ];
   }
 

@@ -7,11 +7,11 @@ import {
   reportingIdleTimeCheckInterval,
   mockApiCalls,
   performanceEntryTypesToCapture,
-  includeSwishJamResourcesEntries
+  includeSwishjamResourcesEntries
 } from './config';
-import { SwishJam } from './src/swishjam';
+import { Swishjam } from './src/swishjam';
 
-SwishJam.init({
+Swishjam.init({
   sampleRate,
   reportingUrl,
   publicApiKey,
@@ -20,7 +20,7 @@ SwishJam.init({
   reportingIdleTimeCheckInterval,
   mockApiCalls,
   performanceEntryTypesToCapture,
-  includeSwishJamResourcesEntries
+  includeSwishjamResourcesEntries
 });
 
 

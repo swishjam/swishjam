@@ -3,11 +3,11 @@ import { PageViewTracker } from './pageViewTracker';
 import { PerformanceEntriesHandler } from './performanceEntriesHandler';
 import { PerformanceMetricsHandler } from './performanceMetricsHandler'; 
 
-export class SwishJam {
+export class Swishjam {
   static init(options = {}) {
-    window.SwishJam = { config: options };
+    window.Swishjam = { config: options };
     if (Math.random() > (options.sampleRate || 1.0)) {
-      console.warn('SwishJam sample rate not met, not instrumenting page');
+      console.warn('Swishjam sample rate not met, not instrumenting page');
     } else {
       const reportingHandler = new ReportingHandler({
         reportingUrl: options.reportingUrl,
@@ -22,7 +22,7 @@ export class SwishJam {
 
       new PerformanceEntriesHandler(reportingHandler, {
         performanceEntryTypesToCapture: options.performanceEntryTypesToCapture, 
-        includeSwishJamResourcesEntries: options.includeSwishJamResourcesEntries,
+        includeSwishjamResourcesEntries: options.includeSwishjamResourcesEntries,
         reportingUrl: options.reportingUrl,
       }).beginCapturingPerformanceEntries();
       new PerformanceMetricsHandler(reportingHandler).beginCapturingPerformanceMetrics();

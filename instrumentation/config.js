@@ -7,5 +7,5 @@ module.exports = {
   "maxNumEventsInMemory": 25,
   "reportAfterIdleTimeMs": 10_000,
   "sampleRate": 1.0,
-  "includeSwishJamResourcesEntries": false
+  "includeSwishjamResourcesEntries": false
 }

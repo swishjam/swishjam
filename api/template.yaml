@@ -1,6 +1,6 @@
 AWSTemplateFormatVersion: 2010-09-09
 Description: >-
-  CloudFormation for standing up the SwishJam serverless event ingestion
+  CloudFormation for standing up the Swishjam serverless event ingestion
 
 Transform:
 - AWS::Serverless-2016-10-31
@@ -99,7 +99,7 @@ Resources:
               properties:
                 created_at:
                   type: string
-                  description: Your SwishJam API key
+                  description: Your Swishjam API key
                   example: swishjam-api-key-xyz
   
   ApiGatewayToSQSRole:
