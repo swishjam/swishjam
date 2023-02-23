@@ -20,29 +20,37 @@ npm install @swishjam/swishjam
 ```js
 import { Swishjam } from '@swishjam/swishjam'
 Swishjam.init({
-  reportingUrl: 'https://yourwebsite.com/api/swishjam-consumer',
+  reportingUrl: 'https://example.com/api/swishjam-consumer', // Update to your consumer endpoint or one provided to you by useSwishjam.com
   publicApiKey: 'some-unique-identifier' // this associates your event data with the environment
 })
 ```
-### Installing the backend
+### Full Config Settings 
+```js
+Swishjam.init({
+  reportingUrl: 'https://yourwebsite.com/api/swishjam-consumer',
+  publicApiKey: 'some-unique-identifier' // this associates your event data with the environment
+  shouldCapturePerformanceEntries: true, // default is true
+  performanceEntryTypesToCapture: ["paint", "longtask", "navigation", "resource", "largest-contentful-paint", "first-input", "layout-shift"], // default is full list
+  mockApiCalls: false, // default false
+  maxNumEventsInMemory: 25, // default 25
+  reportAfterIdleTimeMs: 10_000, // default 10_000
+  sampleRate: 1.0, // default 1.0
+  includeSwishjamResourcesEntries: false // default false
+})
+```
+## Contributing
 ```sh
 git clone git@github.com:swishjam/swishjam.git 
 cd swishjam
-```
-* **Node v16 or higher is required**
-### Setup the Instrumentation
-```sh
+# For contributing to Swishjam instrumentation
 cd instrumentation
 npm install
+# **Node v16 or higher is required**
 ```
-
-
-## Contributing
 - Send us a PR, github issue, or email at founders@tagsafe.io
 
 ## Authors
 - Collin Schneider ([@CollinSchneid](https://twitter.com/collinschneid))
 - Zach Zimbler ([@zzimbler](https://twitter.com/zzimbler))
-
 ## License
 ISC License
