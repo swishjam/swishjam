@@ -138,6 +138,14 @@ Resources:
     Type: AWS::SQS::Queue
     Properties:
       QueueName: !Ref SqsQueueName
+      RedrivePolicy:
+        maxReceiveCount: 5
+        deadLetterTargetArn: !GetAtt EventDataDeadLetterQueue.Arn
+
+  EventDataDeadLetterQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: !Sub '${SqsQueueName}-DLQ'
 
   EventDataMessageConsumer:
     Type: AWS::Serverless::Function

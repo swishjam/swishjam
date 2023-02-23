@@ -22,41 +22,45 @@ const captureEvents = async (payload, db) => {
   const dbPromises = payload.data.map(data => {
     switch (data._event) {
       case 'PAGE_VIEW':
-        return new PageViewEvent(data, db).createPageView().catch(err => {
-          console.error(`Failed to create ${data._event}: ${err}`);
-          return {
-            error: err.message,
-            errorStack: err.stack,
-            failedEvent: data
-          }
-        });
+        return new PageViewEvent(data, db).createPageView();
+        // return new PageViewEvent(data, db).createPageView().catch(err => {
+        //   console.error(`Failed to create ${data._event}: ${err}`);
+        //   return {
+        //     error: err.message,
+        //     errorStack: err.stack,
+        //     failedEvent: data
+        //   }
+        // });
       case 'PAGE_LEFT':
-        return new PageLeftEvent(data, db).updatePageView().catch(err => {
-          console.error(`Failed to create ${data._event}: ${err}`);
-          return {
-            error: err.message,
-            errorStack: err.stack,
-            failedEvent: data
-          }
-        });
+        return new PageLeftEvent(data, db).updatePageView();
+        // return new PageLeftEvent(data, db).updatePageView().catch(err => {
+        //   console.error(`Failed to create ${data._event}: ${err}`);
+        //   return {
+        //     error: err.message,
+        //     errorStack: err.stack,
+        //     failedEvent: data
+        //   }
+        // });
       case 'PAGE_LOAD_METRIC':
-        return new PageLoadMetricEvent(data, db).createPerformanceMetric().catch(err => {
-          console.error(`Failed to create ${data._event}: ${err}`);
-          return {
-            error: err.message,
-            errorStack: err.stack,
-            failedEvent: data
-          }
-        });
+        return new PageLoadMetricEvent(data, db).createPerformanceMetric();
+        // return new PageLoadMetricEvent(data, db).createPerformanceMetric().catch(err => {
+        //   console.error(`Failed to create ${data._event}: ${err}`);
+        //   return {
+        //     error: err.message,
+        //     errorStack: err.stack,
+        //     failedEvent: data
+        //   }
+        // });
       case 'PERFORMANCE_ENTRY':
-        return new PerformanceEntryEvent(data, db).createPerformanceEntry().catch(err => {
-          console.error(`Failed to create ${data._event}: ${err}`);
-          return {
-            error: err.message,
-            errorStack: err.stack,
-            failedEvent: data
-          }
-        });
+        return new PerformanceEntryEvent(data, db).createPerformanceEntry();
+        // return new PerformanceEntryEvent(data, db).createPerformanceEntry().catch(err => {
+        //   console.error(`Failed to create ${data._event}: ${err}`);
+        //   return {
+        //     error: err.message,
+        //     errorStack: err.stack,
+        //     failedEvent: data
+        //   }
+        // });
       default:
         console.warn(`Unrecognized event type sent from instrumentation: ${data._event}`);
         return;
