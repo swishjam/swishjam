@@ -4,9 +4,9 @@
 <div align="center">Dead Simple Open-Source Performance Tools</div>
 <br />
 <div align="center">
-<a href="https://tagsafe.io">Website</a> 
+<a href="https://useswishjam.com">Website</a>
 <span> · </span>
-<a href="https://github.com/swishjam/swishjam">GitHub</a> 
+<a href="https://github.com/swishjam/swishjam">GitHub</a>
 </div>
 
 ## Swishjam is a open-source toolset for people who care about beautiful web experiences.  
