@@ -1,10 +1,11 @@
-import { performanceEntryTypesToCapture, includeSwishJamResourcesEntries, reportingUrl } from '../config';
-
 export class PerformanceEntriesHandler {
-  constructor(reportingHandler) {
+  constructor(reportingHandler, options = {}) {
     this.reportingHandler = reportingHandler;
-    this.performanceEntryTypesToCapture = performanceEntryTypesToCapture || ["paint", "longtask", "navigation", "resource", "largest-contentful-paint", "first-input", "layout-shift"];
-    this.ignoredPerformanceEntryUrls = includeSwishJamResourcesEntries ? [] : [reportingUrl]
+    this.performanceEntryTypesToCapture = options.performanceEntryTypesToCapture || ["paint", "longtask", "navigation", "resource", "largest-contentful-paint", "first-input", "layout-shift"];
+    this.ignoredPerformanceEntryUrls = [
+      ...(options.ignoredPerformanceEntryUrls || []),
+      ...(options.includeSwishJamResourcesEntries ? [] : [options.reportingUrl])
+    ];
   }
 
   beginCapturingPerformanceEntries() {
