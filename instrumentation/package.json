@@ -1,21 +1,21 @@
 {
-  "name": "performance-monitoring-instrumentation",
+  "name": "@swishjam/swishjam",
   "version": "1.0.0",
   "description": "Monitor your web app's front end performance metrics",
-  "main": "index.js",
+  "main": "src/swishjam.js",
   "scripts": {
     "build": "webpack"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/tagsafe/performance-monitoring-instrumentation.git"
+    "url": "git+https://github.com/swishjam/swishjam.git"
   },
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/tagsafe/performance-monitoring-instrumentation/issues"
+    "url": "https://github.com/swishjam/swishjam/issues"
   },
-  "homepage": "https://github.com/tagsafe/performance-monitoring-instrumentation#readme",
+  "homepage": "https://github.com/swishjam/swishjam#readme",
   "dependencies": {
     "web-vitals": "^3.1.1",
     "webpack": "^5.75.0"
@@ -30,5 +30,8 @@
   "engines": {
     "node": ">=16.0.0"
   },
-  "engineStrict": true
+  "engineStrict": true,
+  "keywords": [
+    "performance"
+  ]
 }
