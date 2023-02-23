@@ -1,12 +1,12 @@
-![Tagsafe Performance Monitoring Instrucmentation]()
+![Swishjam]()
 
-<div align="center"><strong>Tagsafe Performance Monitoring Instrucmentation</strong></div>
+<div align="center"><strong>Swishjam</strong></div>
 <div align="center">The next generation of web performance tooling. <br />Performance monitoring owned by you.</div>
 <br />
 <div align="center">
-<a href="https://tagsafe.io">Website</a> 
+<a href="https://useswishjam.com">Website</a> 
 <span> · </span>
-<a href="https://github.com/tagsafe/performance-monitoring-instrumentation">GitHub</a> 
+<a href="https://github.com/swishjam/swishjam">GitHub</a> 
 </div>
 
 ## Introduction
@@ -20,22 +20,30 @@ We believe that a more performant web makes it more accessible to everyone in th
 ## Installation
 
 Install from your command line.
+```sh
+npm install @swishjam/swishjam
+```
+## Initialize Swishjam
+
+```js
+import { Swishjam } from '@swishjam/swishjam'
+
+Swishjam.init({
+  reportingUrl: 'https://yourwebsite.com/api/swishjam-consumer',
+  publicApiKey: 'some-unique-identifier' // this associates your event data with the environment
+})
+```
 
 * **Node v16 or higher is required**
 
 ```sh
-git clone git@github.com:tagsafe/performance-monitoring-instrumentation.git 
+git clone git@github.com:swishjam/swishjam.git 
 
-cd performance-monitoring-instrumentation 
+cd swishjam
 ```
 ### Setup the Instrumentation
 ```sh
 cd instrumentation
-npm install
-```
-### Setup the AWS API Handler 
-```sh
-cd api 
 npm install
 ```
 
