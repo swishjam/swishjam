@@ -1,17 +1,14 @@
-import { 
-  reportingUrl, 
-  publicApiKey, 
-  maxNumEventsInMemory, 
-  reportAfterIdleTimeMs,
-  reportingIdleTimeCheckInterval,
-  mockApiCalls,
-} from '../config';
+import { UuidGenerator } from './uuidGenerator';
 const EVENT_TYPES = ['PAGE_VIEW', 'PAGE_LEFT', 'PAGE_LOAD_METRIC', 'PERFORMANCE_ENTRY'];
 
 export class ReportingHandler {
-  constructor() {
-    if (!publicApiKey) throw new Error('No public API key provided. Please provide a public API key in the config file.');
-    if (!reportingUrl) throw new Error('No reporting URL provided. Please provide a reporting URL in the config file.');
+  constructor(options = {}) {
+    this.reportingUrl = options.reportingUrl || (() => { throw new Error('`ReportingHandler` missing required option: `reportingUrl`.') })();
+    this.publicApiKey = options.publicApiKey || (() => { throw new Error('`ReportingHandler` missing required option: `publicApiKey`.') })();
+    this.maxNumEventsInMemory = options.maxNumEventsInMemory || 25;
+    this.reportAfterIdleTimeMs = options.reportAfterIdleTimeMs || 10_000;
+    this.reportingIdleTimeCheckInterval = options.reportingIdleTimeCheckInterval || 5_000;
+    this.mockApiCalls = options.mockApiCalls || false;
     this.dataToReport = [];
     this._setReportingOnIdleTimeInterval();
   }
@@ -20,19 +17,20 @@ export class ReportingHandler {
     this.currentPageViewIdentifier = pageViewIdentifier;
   }
 
-  recordEvent(eventName, uniqueId, data) {
+  recordEvent(eventName, data, uniqueId = null) {
     if (!EVENT_TYPES.includes(eventName)) throw new Error(`Invalid event: ${eventName}. Valid event types are: ${EVENT_TYPES.join(', ')}.`);
     if (!this.currentPageViewIdentifier) throw new Error('ReportingHandler has no currentPageViewIdentifier, cannot record event.');
     this.dataToReport.push({ 
       _event: eventName, 
-      uniqueIdentifier: uniqueId,
-      siteId: publicApiKey,
+      // uniqueIdentifier: uniqueId,
+      uniqueIdentifier: uniqueId || UuidGenerator.generate(eventName.toLowerCase()),
+      siteId: this.publicApiKey,
       pageViewIdentifier: this.currentPageViewIdentifier, 
       ts: Date.now(), 
       data 
     });
     this.lastEventRecordedAtTs = Date.now();
-    if (this.dataToReport.length >= (maxNumEventsInMemory || 25)) {
+    if (this.dataToReport.length >= this.maxNumEventsInMemory) {
       this._reportDataIfNecessary();
     }
   }
@@ -45,23 +43,23 @@ export class ReportingHandler {
 
   _setReportingOnIdleTimeInterval() {
     setInterval(() => {
-      if (this.lastEventRecordedAtTs && Date.now() - this.lastEventRecordedAtTs >= (reportAfterIdleTimeMs || 10_000)) {
+      if (this.lastEventRecordedAtTs && Date.now() - this.lastEventRecordedAtTs >= this.reportAfterIdleTimeMs) {
         this._reportDataIfNecessary()
       }
-    }, reportingIdleTimeCheckInterval || 5_000);
+    }, this.reportingIdleTimeCheckInterval);
   }
 
   _reportDataIfNecessary() {
     if (!this._hasDataToReport()) return;
-    const body = { siteId: publicApiKey, data: this.dataToReport };
-    if (mockApiCalls) {
+    const body = { siteId: this.publicApiKey, data: this.dataToReport };
+    if (this.mockApiCalls) {
       console.log('Reporting data to mock API', body);
     } else if (navigator.sendBeacon) {
       const blob = new Blob([JSON.stringify(body)], {});
-      navigator.sendBeacon(reportingUrl, blob);
+      navigator.sendBeacon(this.reportingUrl, blob);
     } else {
       const xhr = new XMLHttpRequest();
-      xhr.open('POST', reportingUrl);
+      xhr.open('POST', this.reportingUrl);
       xhr.setRequestHeader('Content-Type', 'application/json');
       xhr.send(JSON.stringify(body));
     }

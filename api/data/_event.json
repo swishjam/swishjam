@@ -1,0 +1,403 @@
+{
+  "siteId": "localfile-s7siksv9123",
+  "data": [
+    {
+      "_event": "PAGE_VIEW",
+      "uniqueIdentifier": "page_view-1677103820928-4bef0c72-bafe-b9ef-60e7-86c4d80d9a57",
+      "siteId": "localfile-s7siksv9123",
+      "pageViewIdentifier": "page_view-1677103820928-4bef0c72-bafe-b9ef-60e7-86c4d80d9a57",
+      "ts": 1677103820928,
+      "data": {
+        "pageLoadTs": 1677103820928,
+        "navigationType": "hard",
+        "url": "file:///Users/collin/Code/performance-monitoring-instrumentation/instrumentation/view.html",
+        "referrerUrl": "",
+        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36",
+        "screenWidth": 579,
+        "screenHeight": 796,
+        "connection": {
+          "effectiveType": "4g",
+          "downlink": 10,
+          "rtt": 0
+        }
+      }
+    },
+    {
+      "_event": "PERFORMANCE_ENTRY",
+      "uniqueIdentifier": "performance_entry-1677103820929-f539fc95-13a1-7beb-23f8-ad924f557f4b",
+      "siteId": "localfile-s7siksv9123",
+      "pageViewIdentifier": "page_view-1677103820928-4bef0c72-bafe-b9ef-60e7-86c4d80d9a57",
+      "ts": 1677103820929,
+      "data": {
+        "name": "",
+        "entryType": "navigation",
+        "startTime": 0,
+        "duration": 0,
+        "initiatorType": "navigation",
+        "nextHopProtocol": "",
+        "renderBlockingStatus": "blocking",
+        "workerStart": 0,
+        "redirectStart": 0,
+        "redirectEnd": 0,
+        "fetchStart": 0.7999999970197678,
+        "domainLookupStart": 0.7999999970197678,
+        "domainLookupEnd": 0.7999999970197678,
+        "connectStart": 0.7999999970197678,
+        "connectEnd": 0.7999999970197678,
+        "secureConnectionStart": 0,
+        "requestStart": 0.7999999970197678,
+        "responseStart": 0.7999999970197678,
+        "responseEnd": 3.600000001490116,
+        "transferSize": 0,
+        "encodedBodySize": 0,
+        "decodedBodySize": 0,
+        "responseStatus": 0,
+        "serverTiming": [],
+        "unloadEventStart": 0,
+        "unloadEventEnd": 0,
+        "domInteractive": 0,
+        "domContentLoadedEventStart": 0,
+        "domContentLoadedEventEnd": 0,
+        "domComplete": 0,
+        "loadEventStart": 0,
+        "loadEventEnd": 0,
+        "type": "reload",
+        "redirectCount": 0,
+        "activationStart": 0
+      }
+    },
+    {
+      "_event": "PAGE_LOAD_METRIC",
+      "uniqueIdentifier": "page_load_metric-1677103820933-64a2316b-a103-60e5-18d1-26acfebaffef",
+      "siteId": "localfile-s7siksv9123",
+      "pageViewIdentifier": "page_view-1677103820928-4bef0c72-bafe-b9ef-60e7-86c4d80d9a57",
+      "ts": 1677103820933,
+      "data": {
+        "type": "TTFB",
+        "name": "TTFB",
+        "value": 0.7999999970197678,
+        "rating": "good",
+        "delta": 0.7999999970197678,
+        "entries": [
+          {
+            "name": "",
+            "entryType": "navigation",
+            "startTime": 0,
+            "duration": 33,
+            "initiatorType": "navigation",
+            "nextHopProtocol": "",
+            "renderBlockingStatus": "blocking",
+            "workerStart": 0,
+            "redirectStart": 0,
+            "redirectEnd": 0,
+            "fetchStart": 0.7999999970197678,
+            "domainLookupStart": 0.7999999970197678,
+            "domainLookupEnd": 0.7999999970197678,
+            "connectStart": 0.7999999970197678,
+            "connectEnd": 0.7999999970197678,
+            "secureConnectionStart": 0,
+            "requestStart": 0.7999999970197678,
+            "responseStart": 0.7999999970197678,
+            "responseEnd": 3.600000001490116,
+            "transferSize": 0,
+            "encodedBodySize": 0,
+            "decodedBodySize": 0,
+            "responseStatus": 0,
+            "serverTiming": [],
+            "unloadEventStart": 0,
+            "unloadEventEnd": 0,
+            "domInteractive": 32.600000001490116,
+            "domContentLoadedEventStart": 32.600000001490116,
+            "domContentLoadedEventEnd": 32.600000001490116,
+            "domComplete": 33,
+            "loadEventStart": 33,
+            "loadEventEnd": 33,
+            "type": "reload",
+            "redirectCount": 0,
+            "activationStart": 0
+          }
+        ],
+        "id": "v3-1677103820931-5666815457001",
+        "navigationType": "reload"
+      }
+    },
+    {
+      "_event": "PERFORMANCE_ENTRY",
+      "uniqueIdentifier": "performance_entry-1677103820933-68329cd6-1fbb-aef1-a751-f05afbcb9cea",
+      "siteId": "localfile-s7siksv9123",
+      "pageViewIdentifier": "page_view-1677103820928-4bef0c72-bafe-b9ef-60e7-86c4d80d9a57",
+      "ts": 1677103820933,
+      "data": {
+        "name": "",
+        "entryType": "navigation",
+        "startTime": 0,
+        "duration": 33,
+        "initiatorType": "navigation",
+        "nextHopProtocol": "",
+        "renderBlockingStatus": "blocking",
+        "workerStart": 0,
+        "redirectStart": 0,
+        "redirectEnd": 0,
+        "fetchStart": 0.7999999970197678,
+        "domainLookupStart": 0.7999999970197678,
+        "domainLookupEnd": 0.7999999970197678,
+        "connectStart": 0.7999999970197678,
+        "connectEnd": 0.7999999970197678,
+        "secureConnectionStart": 0,
+        "requestStart": 0.7999999970197678,
+        "responseStart": 0.7999999970197678,
+        "responseEnd": 3.600000001490116,
+        "transferSize": 0,
+        "encodedBodySize": 0,
+        "decodedBodySize": 0,
+        "responseStatus": 0,
+        "serverTiming": [],
+        "unloadEventStart": 0,
+        "unloadEventEnd": 0,
+        "domInteractive": 32.600000001490116,
+        "domContentLoadedEventStart": 32.600000001490116,
+        "domContentLoadedEventEnd": 32.600000001490116,
+        "domComplete": 33,
+        "loadEventStart": 33,
+        "loadEventEnd": 33,
+        "type": "reload",
+        "redirectCount": 0,
+        "activationStart": 0
+      }
+    },
+    {
+      "_event": "PERFORMANCE_ENTRY",
+      "uniqueIdentifier": "performance_entry-1677103820966-67969794-273a-b2f4-ed38-d3ae97eb9743",
+      "siteId": "localfile-s7siksv9123",
+      "pageViewIdentifier": "page_view-1677103820928-4bef0c72-bafe-b9ef-60e7-86c4d80d9a57",
+      "ts": 1677103820966,
+      "data": {
+        "name": "first-paint",
+        "entryType": "paint",
+        "startTime": 65,
+        "duration": 0
+      }
+    },
+    {
+      "_event": "PERFORMANCE_ENTRY",
+      "uniqueIdentifier": "performance_entry-1677103820967-d4dfce31-75c3-1c6e-f2d4-e0420a14a570",
+      "siteId": "localfile-s7siksv9123",
+      "pageViewIdentifier": "page_view-1677103820928-4bef0c72-bafe-b9ef-60e7-86c4d80d9a57",
+      "ts": 1677103820967,
+      "data": {
+        "name": "first-contentful-paint",
+        "entryType": "paint",
+        "startTime": 65,
+        "duration": 0
+      }
+    },
+    {
+      "_event": "PERFORMANCE_ENTRY",
+      "uniqueIdentifier": "performance_entry-1677103820967-5b4a3b25-c11d-84ad-efd5-49ac029280c5",
+      "siteId": "localfile-s7siksv9123",
+      "pageViewIdentifier": "page_view-1677103820928-4bef0c72-bafe-b9ef-60e7-86c4d80d9a57",
+      "ts": 1677103820967,
+      "data": {
+        "name": "",
+        "entryType": "largest-contentful-paint",
+        "startTime": 65,
+        "duration": 0,
+        "size": 10286,
+        "renderTime": 65,
+        "loadTime": 0,
+        "firstAnimatedFrameTime": 0,
+        "id": "",
+        "url": ""
+      }
+    },
+    {
+      "_event": "PAGE_LOAD_METRIC",
+      "uniqueIdentifier": "page_load_metric-1677103820967-f1612ba5-a432-2aad-5fbb-800ada3e231d",
+      "siteId": "localfile-s7siksv9123",
+      "pageViewIdentifier": "page_view-1677103820928-4bef0c72-bafe-b9ef-60e7-86c4d80d9a57",
+      "ts": 1677103820967,
+      "data": {
+        "type": "FCP",
+        "name": "FCP",
+        "value": 65,
+        "rating": "good",
+        "delta": 65,
+        "entries": [
+          {
+            "name": "first-contentful-paint",
+            "entryType": "paint",
+            "startTime": 65,
+            "duration": 0
+          }
+        ],
+        "id": "v3-1677103820931-9718040214765",
+        "navigationType": "reload"
+      }
+    },
+    {
+      "_event": "PERFORMANCE_ENTRY",
+      "uniqueIdentifier": "performance_entry-1677103821943-b84a3d1c-6447-7503-bcdd-5af588978c1a",
+      "siteId": "localfile-s7siksv9123",
+      "pageViewIdentifier": "page_view-1677103820928-4bef0c72-bafe-b9ef-60e7-86c4d80d9a57",
+      "ts": 1677103821943,
+      "data": {
+        "name": "",
+        "entryType": "layout-shift",
+        "startTime": 1044,
+        "duration": 0,
+        "value": 0.2897458250321569,
+        "hadRecentInput": false,
+        "lastInputTime": 0,
+        "sources": [
+          {
+            "previousRect": {
+              "x": 16,
+              "y": 43,
+              "width": 1126,
+              "height": 74,
+              "top": 43,
+              "right": 1142,
+              "bottom": 117,
+              "left": 16
+            },
+            "currentRect": {
+              "x": 16,
+              "y": 16,
+              "width": 1126,
+              "height": 921,
+              "top": 16,
+              "right": 1142,
+              "bottom": 937,
+              "left": 16
+            }
+          }
+        ]
+      }
+    },
+    {
+      "_event": "PERFORMANCE_ENTRY",
+      "uniqueIdentifier": "performance_entry-1677103821961-91aa0368-043d-8c6f-0dd9-9872f346576f",
+      "siteId": "localfile-s7siksv9123",
+      "pageViewIdentifier": "page_view-1677103820928-4bef0c72-bafe-b9ef-60e7-86c4d80d9a57",
+      "ts": 1677103821961,
+      "data": {
+        "name": "IT BREAKS HERE???? https://avatars0.githubusercontent.com/u/1?v=4&s=460",
+        "entryType": "resource",
+        "startTime": 1042.7999999970198,
+        "duration": 19,
+        "initiatorType": "img",
+        "nextHopProtocol": "",
+        "renderBlockingStatus": "non-blocking",
+        "workerStart": 0,
+        "redirectStart": 0,
+        "redirectEnd": 0,
+        "fetchStart": 1042.7999999970198,
+        "domainLookupStart": 0,
+        "domainLookupEnd": 0,
+        "connectStart": 0,
+        "connectEnd": 0,
+        "secureConnectionStart": 0,
+        "requestStart": 0,
+        "responseStart": 0,
+        "responseEnd": 1061.7999999970198,
+        "transferSize": 0,
+        "encodedBodySize": 0,
+        "decodedBodySize": 0,
+        "responseStatus": 0,
+        "serverTiming": []
+      }
+    },
+    {
+      "_event": "PERFORMANCE_ENTRY",
+      "uniqueIdentifier": "performance_entry-1677103822000-42373c17-ce65-ab53-6ebf-675e55bc54f9",
+      "siteId": "localfile-s7siksv9123",
+      "pageViewIdentifier": "page_view-1677103820928-4bef0c72-bafe-b9ef-60e7-86c4d80d9a57",
+      "ts": 1677103822000,
+      "data": {
+        "name": "",
+        "entryType": "largest-contentful-paint",
+        "startTime": 1062.199,
+        "duration": 0,
+        "size": 115221,
+        "renderTime": 0,
+        "loadTime": 1062.199,
+        "firstAnimatedFrameTime": 0,
+        "id": "",
+        "url": "https://avatars0.githubusercontent.com/u/1?v=4&s=460"
+      }
+    },
+    {
+      "_event": "PAGE_LOAD_METRIC",
+      "uniqueIdentifier": "page_load_metric-1677103827257-72cc462f-4811-3851-524f-693056654edb",
+      "siteId": "localfile-s7siksv9123",
+      "pageViewIdentifier": "page_view-1677103820928-4bef0c72-bafe-b9ef-60e7-86c4d80d9a57",
+      "ts": 1677103827257,
+      "data": {
+        "type": "LCP",
+        "name": "LCP",
+        "value": 1062.199,
+        "rating": "good",
+        "delta": 1062.199,
+        "entries": [
+          {
+            "name": "",
+            "entryType": "largest-contentful-paint",
+            "startTime": 1062.199,
+            "duration": 0,
+            "size": 115221,
+            "renderTime": 0,
+            "loadTime": 1062.199,
+            "firstAnimatedFrameTime": 0,
+            "id": "",
+            "url": "https://avatars0.githubusercontent.com/u/1?v=4&s=460"
+          }
+        ],
+        "id": "v3-1677103820930-2267893707952",
+        "navigationType": "reload"
+      }
+    },
+    {
+      "_event": "PERFORMANCE_ENTRY",
+      "uniqueIdentifier": "performance_entry-1677103827259-f507bc10-45dc-cf9b-2b53-4988f9f1222d",
+      "siteId": "localfile-s7siksv9123",
+      "pageViewIdentifier": "page_view-1677103820928-4bef0c72-bafe-b9ef-60e7-86c4d80d9a57",
+      "ts": 1677103827259,
+      "data": {
+        "name": "pointerdown",
+        "entryType": "first-input",
+        "startTime": 6222.10000000149,
+        "duration": 8,
+        "processingStart": 6225.19999999553,
+        "processingEnd": 6225.19999999553,
+        "cancelable": true
+      }
+    },
+    {
+      "_event": "PAGE_LOAD_METRIC",
+      "uniqueIdentifier": "page_load_metric-1677103827260-29bce991-5a17-317f-9af2-9ac457b721a1",
+      "siteId": "localfile-s7siksv9123",
+      "pageViewIdentifier": "page_view-1677103820928-4bef0c72-bafe-b9ef-60e7-86c4d80d9a57",
+      "ts": 1677103827260,
+      "data": {
+        "type": "FID",
+        "name": "FID",
+        "value": 3.0999999940395355,
+        "rating": "good",
+        "delta": 3.0999999940395355,
+        "entries": [
+          {
+            "name": "pointerdown",
+            "entryType": "first-input",
+            "startTime": 6222.10000000149,
+            "duration": 8,
+            "processingStart": 6225.19999999553,
+            "processingEnd": 6225.19999999553,
+            "cancelable": true
+          }
+        ],
+        "id": "v3-1677103820931-7651467665444",
+        "navigationType": "reload"
+      }
+    }
+  ]
+}

@@ -35,7 +35,8 @@ module.exports = class PerformanceEntryEvent {
   async createPerformanceEntry() {
     const eventClass = ENTRY_TYPE_TO_EVENT_CLASS_MAP[this.event.data.entryType];
     if (eventClass) {
-      return await new eventClass(this.event, this.db).create();
+      await new eventClass(this.event, this.db).create();
+      console.log(`Created new performance entry ${this.event.data.entryType}`);
     } else {
       console.warn(`Unknown performance entry type: ${this.event.data.entryType}`);
       return { 

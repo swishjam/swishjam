@@ -5,7 +5,7 @@ module.exports = class PaintPerformanceEntryEvent {
   }
 
   async create() {
-    await this.db.client`INSERT INTO paint_performance_entries ${this.db.format(this._attrs())}`;
+    await this.db.client`INSERT INTO paint_performance_entries ${this.db.format(this._attrs())} ON CONFLICT (unique_identifier) DO NOTHING`;
     return true;
   }
 

@@ -1,19 +1,24 @@
-import { performanceEntryTypesToCapture } from '../config';
-import { UuidGenerator } from './uuidGenerator';
-
 export class PerformanceEntriesHandler {
-  constructor(reportingHandler) {
+  constructor(reportingHandler, options = {}) {
     this.reportingHandler = reportingHandler;
-    this.performanceEntryTypesToCapture = performanceEntryTypesToCapture || ["paint", "longtask", "navigation", "resource", "largest-contentful-paint", "first-input", "layout-shift"];
+    this.performanceEntryTypesToCapture = options.performanceEntryTypesToCapture || ["paint", "longtask", "navigation", "resource", "largest-contentful-paint", "first-input", "layout-shift"];
+    this.ignoredPerformanceEntryUrls = [
+      ...(options.ignoredPerformanceEntryUrls || []),
+      ...(options.includeSwishjamResourcesEntries ? [] : [options.reportingUrl])
+    ];
   }
 
   beginCapturingPerformanceEntries() {
     this._getPerformanceEntries().forEach(entry => {
-      this.reportingHandler.recordEvent('PERFORMANCE_ENTRY', UuidGenerator.generate('perf-entry'), entry.toJSON());
+      if (!this.ignoredPerformanceEntryUrls.includes(entry.name)) {
+        this.reportingHandler.recordEvent('PERFORMANCE_ENTRY', entry.toJSON());
+      }
     });
     this._onPerformanceEntries(newPerformanceEntries => {
       newPerformanceEntries.forEach(entry => {
-        this.reportingHandler.recordEvent('PERFORMANCE_ENTRY', UuidGenerator.generate('perf-entry'), entry.toJSON());
+        if (!this.ignoredPerformanceEntryUrls.includes(entry.name)) {
+          this.reportingHandler.recordEvent('PERFORMANCE_ENTRY', entry.toJSON());
+        }
       });
     });
   }
