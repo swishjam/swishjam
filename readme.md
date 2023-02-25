@@ -1,4 +1,4 @@
-![Swishjam Performance Monitoring Instrumentation](/readme.png)
+![Swishjam Performance Monitoring Instrumentation](https://useswishjam.com/readme.png)
 
 <div align="center"> <strong>Swishjam</strong></div>
 <div align="center">Dead Simple Open-Source Performance Tools</div>
@@ -14,8 +14,7 @@
 - [Coming soon] Combine CrUX (Chrome UX Report) & you real user data to see page performance
 - [Coming soon] Page loading optimization script baked in
 - [Coming soon] Notifications & regression monitors 
-- Drop us a message to dsicuss upcoming features 
-
+- Drop us a message to discuss upcoming features 
 
 ## Our goal
 We want everyone to build awesome web experiences. We see Swishjam becoming a collection of tools to measure, mitigate, and enhance your users experience and help it perform better.

@@ -1,7 +1,7 @@
-![Swishjam]()
+![Swishjam](https://useswishjam.com/readme.png)
 
-<div align="center"><strong>Swishjam</strong></div>
-<div align="center">The next generation of web performance tooling. <br />Performance monitoring owned by you.</div>
+<div align="center"><strong>Swishjam Instrumentation</strong></div>
+<div align="center">Dead Simple Open-Source Performance Tools</div>
 <br />
 <div align="center">
 <a href="https://useswishjam.com">Website</a> 
@@ -9,78 +9,48 @@
 <a href="https://github.com/swishjam/swishjam">GitHub</a> 
 </div>
 
-## Introduction
+## Swishjam Instrumentation
+A Light-weight javascript tool to capture of core web vitals, page load waterfalls, & more.
 
-This is a simple, light-weight monitoring solution to monitor your user's live experience. Our goal is to build a tiny, performant, tool to capture all of the performance data you could possibly want or need to make your site faster.  
-
-## Why
-
-We believe that a more performant web makes it more accessible to everyone in the world on any connection type. We think it's time to build a new era of performance tooling that is developer first, perfromant, and open source.
-
-## Installation
-
-Install from your command line.
+### Installing with NPM
 ```sh
 npm install @swishjam/swishjam
 ```
-## Initialize Swishjam
-
+### Initialize Swishjam
 ```js
 import { Swishjam } from '@swishjam/swishjam'
-
 Swishjam.init({
-  reportingUrl: 'https://yourwebsite.com/api/swishjam-consumer',
+  reportingUrl: 'https://example.com/api/swishjam-consumer', // Update to your consumer endpoint or one provided to you by useSwishjam.com
   publicApiKey: 'some-unique-identifier' // this associates your event data with the environment
 })
 ```
-
-* **Node v16 or higher is required**
-
+### Full Config Settings 
+```js
+Swishjam.init({
+  reportingUrl: 'https://yourwebsite.com/api/swishjam-consumer',
+  publicApiKey: 'some-unique-identifier' // this associates your event data with the environment
+  shouldCapturePerformanceEntries: true, // default is true
+  performanceEntryTypesToCapture: ["paint", "longtask", "navigation", "resource", "largest-contentful-paint", "first-input", "layout-shift"], // default is full list
+  mockApiCalls: false, // default false
+  maxNumEventsInMemory: 25, // default 25
+  reportAfterIdleTimeMs: 10_000, // default 10_000
+  sampleRate: 1.0, // default 1.0
+  includeSwishjamResourcesEntries: false // default false
+})
+```
+## Contributing
 ```sh
 git clone git@github.com:swishjam/swishjam.git 
-
 cd swishjam
-```
-### Setup the Instrumentation
-```sh
+# For contributing to Swishjam instrumentation
 cd instrumentation
 npm install
+# **Node v16 or higher is required**
 ```
-
-## Getting started
---
-
-## Components
---
-
-## Integrations
---
-
-## Browser Support
-
-Instrumentation has been tested on the following popular browsers.
-
-| <img src="https://react.email/static/icons/gmail.svg" width="48px" height="48px" alt="Gmail logo"> | <img src="https://react.email/static/icons/apple-mail.svg" width="48px" height="48px" alt="Apple Mail"> | <img src="https://react.email/static/icons/outlook.svg" width="48px" height="48px" alt="Outlook logo"> | <img src="https://react.email/static/icons/yahoo-mail.svg" width="48px" height="48px" alt="Yahoo! Mail logo"> | <img src="https://react.email/static/icons/hey.svg" width="48px" height="48px" alt="HEY logo"> | <img src="https://react.email/static/icons/superhuman.svg" width="48px" height="48px" alt="Superhuman logo"> |
-| -------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
-
-## Development
-
-#### Install dependencies
-
-```sh
-yarn install
-```
-
-#### Build and run packages
-- 
-
-## Contributing
 - Send us a PR, github issue, or email at founders@tagsafe.io
 
 ## Authors
 - Collin Schneider ([@CollinSchneid](https://twitter.com/collinschneid))
 - Zach Zimbler ([@zzimbler](https://twitter.com/zzimbler))
-
 ## License
-
-MIT License
+ISC License
