@@ -11,13 +11,13 @@ export class PerformanceEntriesHandler {
   beginCapturingPerformanceEntries() {
     this._getPerformanceEntries().forEach(entry => {
       if (!this.ignoredPerformanceEntryUrls.includes(entry.name)) {
-        this.reportingHandler.recordEvent('PERFORMANCE_ENTRY', entry.toJSON());
+        this.reportingHandler.recordEvent('PERFORMANCE_ENTRY', this._formattedPerformanceEntry(entry));
       }
     });
     this._onPerformanceEntries(newPerformanceEntries => {
       newPerformanceEntries.forEach(entry => {
         if (!this.ignoredPerformanceEntryUrls.includes(entry.name)) {
-          this.reportingHandler.recordEvent('PERFORMANCE_ENTRY', entry.toJSON());
+          this.reportingHandler.recordEvent('PERFORMANCE_ENTRY', this._formattedPerformanceEntry(entry));
         }
       });
     });
@@ -31,5 +31,9 @@ export class PerformanceEntriesHandler {
   _getPerformanceEntries() {
     if(!window.performance || !window.performance.getEntries) return [];
     return window.performance.getEntries().filter(entry => this.performanceEntryTypesToCapture.includes(entry.entryType));
+  }
+
+  _formattedPerformanceEntry(entry) {
+    return { ...entry.toJSON(), name: encodeURIComponent(entry.name || "") };
   }
 }

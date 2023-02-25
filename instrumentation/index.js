@@ -3,6 +3,7 @@ import {
   reportingUrl,
   publicApiKey,
   maxNumEventsInMemory,
+  shouldCapturePerformanceEntries,
   reportAfterIdleTimeMs,
   reportingIdleTimeCheckInterval,
   mockApiCalls,
@@ -20,7 +21,8 @@ Swishjam.init({
   reportingIdleTimeCheckInterval,
   mockApiCalls,
   performanceEntryTypesToCapture,
-  includeSwishjamResourcesEntries
+  includeSwishjamResourcesEntries,
+  shouldCapturePerformanceEntries
 });
 
 

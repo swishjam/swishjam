@@ -37,7 +37,8 @@ module.exports = class PageLoadMetricEvent {
             metric_name = ${type}
         `;
       } else {
-        await this.db.client`INSERT INTO performance_metrics ${this.db.format(attrs)} ON CONFLICT (unique_identifier) DO NOTHING`;
+        // await this.db.client`INSERT INTO performance_metrics ${this.db.format(attrs)} ON CONFLICT (unique_identifier) DO NOTHING`;
+        await this.db.client`INSERT INTO performance_metrics ${this.db.format(attrs)}`;
         console.log(`Created new performance metric for ${type}`);
       }
       return true;

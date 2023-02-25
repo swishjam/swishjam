@@ -5,7 +5,8 @@ module.exports = class LargestContentfulPaintPerformanceEntryEvent {
   }
 
   async create() {
-    await this.db.client`INSERT INTO largest_contentful_paint_performance_entries ${this.db.format(this._attrs())} ON CONFLICT (unique_identifier) DO NOTHING`;
+    // await this.db.client`INSERT INTO largest_contentful_paint_performance_entries ${this.db.format(this._attrs())} ON CONFLICT (unique_identifier) DO NOTHING`;
+    await this.db.client`INSERT INTO largest_contentful_paint_performance_entries ${this.db.format(this._attrs())}`;
     return true;
   }
 

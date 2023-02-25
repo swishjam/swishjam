@@ -5,7 +5,8 @@ module.exports = class ElementPerformanceEntryEvent {
   }
 
   async create() {
-    await this.db.client`INSERT INTO element_performance_entries ${this.db.format(this._attrs())} ON CONFLICT (unique_identifier) DO NOTHING`;
+    // await this.db.client`INSERT INTO element_performance_entries ${this.db.format(this._attrs())} ON CONFLICT (unique_identifier) DO NOTHING`;
+    await this.db.client`INSERT INTO element_performance_entries ${this.db.format(this._attrs())}`;
     return true;
   }
 

@@ -4,3 +4,5 @@ instrumentation/build
 .aws-sam
 .env
 samconfig.toml
+test.html
+api-cdk

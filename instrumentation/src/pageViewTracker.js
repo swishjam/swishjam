@@ -13,8 +13,8 @@ export class PageViewTracker {
     this.reportingHandler.recordEvent('PAGE_VIEW', {
       pageLoadTs: Date.now(),
       navigationType: navigationType,
-      url: window.location.href,
-      referrerUrl: previousPageUrl,
+      url: encodeURIComponent(window.location.href || ''),
+      referrerUrl: encodeURIComponent(previousPageUrl || ''),
       userAgent: window.navigator.userAgent,
       screenWidth: window.innerWidth,
       screenHeight: window.innerHeight,

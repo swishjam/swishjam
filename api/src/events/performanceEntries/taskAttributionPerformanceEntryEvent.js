@@ -5,7 +5,8 @@ module.exports = class ResourcePerformanceEntryEvent {
   }
 
   async create() {
-    await this.db.client`INSERT INTO longtask_task_attribution_performance_entries ${this.db.format(this._attrs())} ON CONFLICT (unique_identifier) DO NOTHING`;
+    // await this.db.client`INSERT INTO longtask_task_attribution_performance_entries ${this.db.format(this._attrs())} ON CONFLICT (unique_identifier) DO NOTHING`;
+    await this.db.client`INSERT INTO longtask_task_attribution_performance_entries ${this.db.format(this._attrs())}`;
     return true;
   }
 
