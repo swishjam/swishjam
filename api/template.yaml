@@ -7,23 +7,23 @@ Transform:
 
 Parameters:
   DatabaseName:
-    Description: The name of the database analytic data should be written to
+    Description: The name of the database event data should be written to
     Type: String
     AllowedPattern : ".+"
   DatabaseUsername: 
-    Description: The username of the database analytic data should be written to
+    Description: The username of the database event data should be written to
     Type: String
     AllowedPattern : ".+"
   DatabasePassword:
-    Description: The password of the database analytic data should be written to
+    Description: The password of the database event data should be written to
     Type: String
     AllowedPattern : ".+"
   DatabaseHostname:
-    Description: The hostname of the database analytic data should be written to
+    Description: The hostname of the database event data should be written to
     Type: String
     AllowedPattern : ".+"
   DatabasePort:
-    Description: The port of the database analytic data should be written to
+    Description: The port of the database event data should be written to
     Type: Number
     Default: 5432
     # AllowedPattern : "[0-9]+"
