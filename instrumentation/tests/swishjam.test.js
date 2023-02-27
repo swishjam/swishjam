@@ -11,6 +11,8 @@ describe('init', () => {
   });
 
   it('initializes Swishjam with default config', () => {
+    window.navigator = window.navigator || {};
+    window.navigator.connection = window.navigator.connection || {};
     Swishjam.init({
       reportingUrl: 'https://api.swishjam.com/v1/events',
       publicApiKey: 'foo123',
