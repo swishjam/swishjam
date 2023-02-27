@@ -50,7 +50,8 @@ Swishjam.init({
   publicApiKey: 'abc-789'
 })
 ```
-4. That's it, Swishjam JS will now collect and send performance data to your specific Reporting URL. Here are the other options available to you when calling the `Swishjam.init` method:
+
+That's it, Swishjam JS will now collect and send performance data to your specific Reporting URL. Here are the other options available to you when calling the `Swishjam.init` method:
 ```js
 Swishjam.init({
   reportingUrl, // The API endpoint Swishjam will send data to (typically the API Gateway endpoint generated in the `/api` setup)
@@ -79,11 +80,12 @@ The `api` directory is the ingestion layer of Swishjam that receives and process
 3. An AWS Lambda function that pulls messages from SQS, parses the data, and writes it to the Postgres DB.
 
 The configuration is all maintained and built using an AWS CloudFormation template and the SAM framework to deploy it. In order to get started you must:
-1. ![Install the SAM CLI](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/install-sam-cli.html)
+1. ([Install the SAM CLI](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/install-sam-cli.html))
 2. Run `npm install` in the `/api` directory.
 3. Run `npm run guided-deploy` to deploy the AWS services to your specified AWS account. 
 - The CLI will prompt your for various configuration options (ie: Database host, Database username, etc...) required to run the AWS services. 
 - Use the created API Gateway endpoint as your reporting URL in instrumentation.
+4. The Swishjam Reporting API URL is outputted in the console. Use this value as the `reportingUrl` option in your `Swishjam.init` JS method.
 
 ## Contributing
 - Send us a PR, github issue, or email at founders@tagsafe.io
