@@ -5,6 +5,10 @@ const { PerformanceMetricsHandler } = require('./performanceMetricsHandler');
 
 class Swishjam {
   static init(options = {}) {
+    if(window.Swishjam) {
+      console.warn('Swishjam already initialized, not instrumenting page');
+      return;
+    }
     options = Swishjam._setConfig(options);
     window.Swishjam = { config: options };
     if (Math.random() > options.sampleRate) {
