@@ -4,3 +4,4 @@ instrumentation/build
 .aws-sam
 .env
 samconfig.toml
+.next

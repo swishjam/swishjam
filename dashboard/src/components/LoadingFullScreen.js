@@ -6,7 +6,7 @@ export default function LoadingFullScreen () {
     <div>
       <div className="flex h-screen">
         <div className="m-auto">
-          <LoadingSpinner color="swishjam" size="8" />
+          <LoadingSpinner size="8" />
         </div>
       </div>
     </div>
