@@ -1,0 +1,19 @@
+.root {
+  @apply sticky top-0 bg-white border-b z-40 transition-all duration-150;
+}
+
+.link {
+  @apply text-gray-900 inline-flex items-center leading-6 font-medium transition ease-in-out duration-75 cursor-pointer rounded-md p-1;
+}
+
+.link:hover {
+  @apply text-purple-400;
+}
+
+.link:focus {
+  @apply outline-none text-purple-400 ring-0;
+}
+
+.logo {
+  @apply cursor-pointer transform duration-100 ease-in-out;
+}
