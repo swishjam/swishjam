@@ -1,7 +1,7 @@
-// import { onLCP, onFID, onCLS, onFCP, onTTFB, onINP } from 'web-vitals/attribution';
-import { onLCP, onFID, onCLS, onFCP, onTTFB, onINP } from 'web-vitals';
+// const { onLCP, onFID, onCLS, onFCP, onTTFB, onINP } = require('web-vitals/attribution');
+const { onLCP, onFID, onCLS, onFCP, onTTFB, onINP } = require('web-vitals');
 
-export class PerformanceMetricsHandler {
+class PerformanceMetricsHandler {
   constructor(reportingHandler) {
     this.reportingHandler = reportingHandler;
   }
@@ -19,3 +19,5 @@ export class PerformanceMetricsHandler {
     this.reportingHandler.recordEvent('PAGE_LOAD_METRIC', { type: type, ...entry });
   }
 }
+
+module.exports = { PerformanceMetricsHandler }

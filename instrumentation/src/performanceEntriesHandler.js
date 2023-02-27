@@ -1,4 +1,4 @@
-export class PerformanceEntriesHandler {
+class PerformanceEntriesHandler {
   constructor(reportingHandler, options = {}) {
     this.reportingHandler = reportingHandler;
     this.performanceEntryTypesToCapture = options.performanceEntryTypesToCapture || ["paint", "longtask", "navigation", "resource", "largest-contentful-paint", "first-input", "layout-shift"];
@@ -37,3 +37,5 @@ export class PerformanceEntriesHandler {
     return { ...entry.toJSON(), name: encodeURIComponent(entry.name || "") };
   }
 }
+
+module.exports = { PerformanceEntriesHandler }

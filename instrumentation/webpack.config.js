@@ -1,8 +1,8 @@
 const path = require('path');
 
-module.exports = env => ({
+module.exports = _env => ({
   mode: 'production',
-  entry: './index.js',
+  entry: './src/swishjam.js',
   output: {
     path: path.resolve(__dirname, 'build'),
     filename: 'src.js',

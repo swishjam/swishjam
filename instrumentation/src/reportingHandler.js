@@ -1,7 +1,7 @@
-import { UuidGenerator } from './uuidGenerator';
+const { UuidGenerator } = require('./uuidGenerator');
 const EVENT_TYPES = ['PAGE_VIEW', 'PAGE_LEFT', 'PAGE_LOAD_METRIC', 'PERFORMANCE_ENTRY'];
 
-export class ReportingHandler {
+class ReportingHandler {
   constructor(options = {}) {
     this.reportingUrl = options.reportingUrl || (() => { throw new Error('`ReportingHandler` missing required option: `reportingUrl`.') })();
     this.publicApiKey = options.publicApiKey || (() => { throw new Error('`ReportingHandler` missing required option: `publicApiKey`.') })();
@@ -66,3 +66,5 @@ export class ReportingHandler {
     this.dataToReport = [];
   }
 }
+
+module.exports = { ReportingHandler }

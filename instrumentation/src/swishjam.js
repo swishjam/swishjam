@@ -1,9 +1,9 @@
-import { ReportingHandler } from './reportingHandler';
-import { PageViewTracker } from './pageViewTracker';
-import { PerformanceEntriesHandler } from './performanceEntriesHandler';
-import { PerformanceMetricsHandler } from './performanceMetricsHandler'; 
+const { ReportingHandler } = require('./reportingHandler');
+const { PageViewTracker } = require('./pageViewTracker');
+const { PerformanceEntriesHandler } = require('./performanceEntriesHandler');
+const { PerformanceMetricsHandler } = require('./performanceMetricsHandler'); 
 
-export class Swishjam {
+class Swishjam {
   static init(options = {}) {
     options = Swishjam._setConfig(options);
     window.Swishjam = { config: options };
@@ -63,3 +63,5 @@ export class Swishjam {
     }
   }
 }
+
+module.exports = { Swishjam }

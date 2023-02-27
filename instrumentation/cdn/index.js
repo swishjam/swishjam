@@ -1,4 +1,4 @@
-import { Swishjam } from '../src/swishjam';
+const { Swishjam } = require('../src/swishjam');
 
 (function() {
   const reportingUrl = document.currentScript.getAttribute('swishjam-reporting-url');

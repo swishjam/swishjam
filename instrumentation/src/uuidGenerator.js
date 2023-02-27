@@ -1,4 +1,4 @@
-export class UuidGenerator {
+class UuidGenerator {
   static generate(prefix) {
     return `${prefix}-${Date.now()}-xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx`.replace(/x/g, function(c) {
       var r = (Math.random() * 16) | 0,
@@ -7,3 +7,5 @@ export class UuidGenerator {
     });
   }
 }
+
+module.exports = { UuidGenerator };
