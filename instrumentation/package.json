@@ -4,8 +4,8 @@
   "description": "Monitor your web app's front end performance metrics",
   "main": "src/swishjam.js",
   "scripts": {
-    "build": "webpack",
-    "test": "jest "
+    "build": "webpack --config webpack.config.js",
+    "test": "jest"
   },
   "repository": {
     "type": "git",
