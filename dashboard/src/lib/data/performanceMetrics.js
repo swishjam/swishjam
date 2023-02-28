@@ -20,7 +20,7 @@ export default class PerformanceMetricsData {
     };
   }
 
-  static async getPercentileMetric({ siteId, metric, percentile, startTs }) {
+  static async getPercentileMetric({ siteId, metric, percentile = 0.75, startTs }) {
     const query = `
       SELECT
         COUNT(*) AS num_records,
@@ -38,4 +38,79 @@ export default class PerformanceMetricsData {
       percentileResult: results.rows[0].percentile_result
     };
   }
+
+  static async getTimeseriesDataForMetric({ siteId, metric, startTs }) {
+    const metricToUpperBoundsDict = {
+      FCP: {
+        good: 1_800,
+        medium: 3_000
+      },
+      LCP: {
+        good: 2_500,
+        medium: 4_000
+      },
+      CLS: {
+        good: 0.1,
+        medium: 0.25
+      },
+      FID: {
+        good: 100,
+        medium: 300
+      },
+      TTFB: {
+        good: 800,
+        medium: 1_800
+      },
+      INP: {
+        good: 200,
+        medium: 500
+      }
+    }
+    if (!metricToUpperBoundsDict[metric]) throw new Error(`Invalid metric: ${metric}`);
+    const query = `
+      SELECT
+        date_trunc('hour', page_views.page_view_ts) AS hour,
+        date_trunc('day', page_views.page_view_ts) AS day,
+        COUNT(*) AS num_records,
+        COUNT(CASE WHEN metric_value <= ${metricToUpperBoundsDict[metric].good} THEN 1 END) AS num_good_records,
+        100.0 * (
+          (COUNT(CASE WHEN metric_value <= ${metricToUpperBoundsDict[metric].good} THEN 1 END)) / 
+          (COUNT(*))
+        ) AS percent_good_records,
+        COUNT(
+          CASE WHEN 
+            metric_value > ${metricToUpperBoundsDict[metric].good} AND 
+            metric_value <= ${metricToUpperBoundsDict[metric].medium} 
+          THEN 1 END
+        ) AS num_medium_records,
+        100.0 * (
+          (COUNT(
+            CASE WHEN 
+              metric_value > ${metricToUpperBoundsDict[metric].good} AND 
+              metric_value <= ${metricToUpperBoundsDict[metric].medium} 
+            THEN 1 END)
+          ) / 
+          (COUNT(*))
+        ) AS percent_medium_records,
+        COUNT(CASE WHEN metric_value > ${metricToUpperBoundsDict[metric].medium} THEN 1 END) AS num_bad_records,
+        100.0 * (
+          (COUNT(CASE WHEN metric_value > ${metricToUpperBoundsDict[metric].medium} THEN 1 END)) / 
+          (COUNT(*))
+        ) AS percent_bad_records
+      FROM
+        performance_metrics
+      LEFT JOIN 
+        page_views ON performance_metrics.page_view_identifier = page_views.identifier
+      WHERE
+        performance_metrics.site_id = $1 AND
+        metric_name = $2 AND
+        page_views.page_view_ts >= $3
+      GROUP BY
+        day, hour
+      ORDER BY
+        day, hour
+    `;
+    const results = await db.query(query, [siteId, metric, new Date(startTs)]);
+    return results.rows;
+  };
 }
