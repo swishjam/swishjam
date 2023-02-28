@@ -3,7 +3,7 @@ export const GetData = async (data) => {
     const queryParams = new URLSearchParams(data); 
     let res = await (await fetch(`/api/cwv/average?${queryParams}`, {})).json()
     console.log(res)
-    return res.data
+    return res
   } catch(e) {
     console.log(e.message)
   }

@@ -1,5 +1,5 @@
 import db from '../db';
-
+import { cwvMetricBounds } from '@/lib/utils';
 export default class PerformanceMetricsData {
   static async getAverageMetric({ siteId, metric, startTs }) {
     const query = `
@@ -40,32 +40,7 @@ export default class PerformanceMetricsData {
   }
 
   static async getTimeseriesDataForMetric({ siteId, metric, startTs }) {
-    const metricToUpperBoundsDict = {
-      FCP: {
-        good: 1_800,
-        medium: 3_000
-      },
-      LCP: {
-        good: 2_500,
-        medium: 4_000
-      },
-      CLS: {
-        good: 0.1,
-        medium: 0.25
-      },
-      FID: {
-        good: 100,
-        medium: 300
-      },
-      TTFB: {
-        good: 800,
-        medium: 1_800
-      },
-      INP: {
-        good: 200,
-        medium: 500
-      }
-    }
+    const metricToUpperBoundsDict = cwvMetricBounds;
     if (!metricToUpperBoundsDict[metric]) throw new Error(`Invalid metric: ${metric}`);
     const query = `
       SELECT

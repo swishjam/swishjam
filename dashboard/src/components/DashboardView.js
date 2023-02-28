@@ -10,24 +10,7 @@ import {
 } from '@tremor/react';
 import WebVitalCard from './WebVitalCard';
 import { GetData } from '@lib/api';
-
-const categories = [
-  {
-      title: 'First Contentful Paint Avg',
-      metric: '9.5',
-      percentageValue: 95,
-  },
-  {
-      title: 'Largest Contentful Paint Avg',
-      metric: '8.2',
-      percentageValue: 82,
-  },
-  {
-      title: 'RABBLE RABBLE',
-      metric: '6.8',
-      percentageValue: 68,
-  },
-];
+import { msToSeconds, cwvMetricBounds } from '@lib/utils';
 
 const sales = [
   {
@@ -104,30 +87,57 @@ const sales = [
   },
 ];
 
-/*
-          <h2>Welcome!</h2>
-          <code className="highlight">{user.role}</code>
-          <Link className="button" href="/profile">
-            Go to Profile
-          </Link>
-          <button type="button" className="button-inverse" onClick={signOut}>
-            Sign Out
-          </button>
-        </main>
-*/
 export default function DashboardView() {
-  const item = categories[0]
-  const [metrics, setMetrics] = useState()
+  const [ lcp, setLcp ] = useState({
+    key: "LCP",
+    title: "Largest Contentful Paint Avg",
+    timeseries: sales, 
+    metric: '',
+    metricUnits: 's',
+    bounds: cwvMetricBounds.LCP,
+  });
+  const [ inp, setInp ] = useState({
+    key: "INP",
+    title: "Interaction to Next Paint Avg",
+    metric: '',
+    metricUnits: 's',
+    timeseries: sales, 
+    bounds: cwvMetricBounds.INP,
+  });
+  const [ cls, setCls ] = useState({
+    key: "CLS",
+    title: "CLS ",
+    metric: '',
+    metricUnits: 's',
+    timeseries: sales, 
+    bounds: cwvMetricBounds.CLS,
+  });
+
+  const cwv = [
+    lcp,
+    inp,
+    cls,
+  ]
 
   useEffect(() => {
+
     GetData({
       siteId: 'sj-55a4ab9cebf9d45f',
       metric: 'LCP',
-    }).then(data => {
-      console.log(data)
+    }).then(res => {
+      console.log(res) 
+      setLcp((prevState) => ({
+        ...prevState,
+        metric: res.average
+      }));
+      
+    })
+    const fcpData = GetData({
+      siteId: 'sj-55a4ab9cebf9d45f',
+      metric: 'FCP',
     })
   
-  });
+  }, []);
 
 
   return (
@@ -135,13 +145,15 @@ export default function DashboardView() {
       <h1 className="text-lg font-medium mt-8">Real User Core Web Vitals</h1>
 
       <ColGrid numColsMd={2} numColsLg={3} gapX="gap-x-6" gapY="gap-y-6" marginTop="mt-6">
-        {categories.map((item, index) => (
+        {cwv.map((item, index) => (
           <WebVitalCard 
-            key={index} 
+            key={item.key} 
             title={item.title} 
-            metric={item.metric} 
-            metricTotal={10} 
-            timeseries={sales} 
+            metric={msToSeconds(item.metric)} 
+            metricUnits={item.metricUnits} 
+            metricPercent={90} 
+            bounds={item.bounds} 
+            timeseries={item.timeseries} 
           />
           
         ))} 

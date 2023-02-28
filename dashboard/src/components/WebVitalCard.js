@@ -11,24 +11,24 @@ import {
   Block,
 } from '@tremor/react';
 
-const subCategoryPercentageValues = [10, 45, 55];
+const subCategoryPercentageValues = [33, 34, 33];
 //const valueFormatter = (number) => `$ ${Intl.NumberFormat('us').format(number).toString()}`;
 const valueFormatter = (number) => `${number}`;
 
-export default function WebVitalCard({ title, metric, metricTotal, timeseries }, ...props) {
+export default function WebVitalCard({ title, metric, metricUnits, metricPercent, bounds, timeseries }, ...props) {
 
   return (
     <Card>
       <Text>{title}</Text>
       <Flex justifyContent="justify-start" alignItems="items-baseline" spaceX="space-x-1">
         <Metric>{metric}</Metric>
-        <Text>ms</Text>
+        <Text>{metricUnits}</Text>
       </Flex>
       <CategoryBar
         categoryPercentageValues={subCategoryPercentageValues}
         colors={['rose', 'yellow', 'emerald']}
-        percentageValue={(metric/metricTotal)*100}
-        tooltip={`${metric} Avg`}
+        percentageValue={metricPercent}
+        tooltip={`${metric}${metricUnits}`}
         showLabels={false}
         marginTop="mt-5"
       />
