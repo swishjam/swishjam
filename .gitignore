@@ -4,4 +4,5 @@ instrumentation/build
 .aws-sam
 .env
 samconfig.toml
-.next
+dashboard/.next
+dashboard/.next/**
