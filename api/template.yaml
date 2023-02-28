@@ -160,7 +160,7 @@ Resources:
   FailedEventDataS3Bucket:
     Type: AWS::S3::Bucket
     Properties:
-      BucketName: !Sub "${EventConsumerLambdaFunctionName}-failed-events"
+      BucketName: !Sub "failed-swishjam-events-${AWS::AccountId}"
 
   EventDataMessageConsumer:
     Type: AWS::Serverless::Function
@@ -177,7 +177,7 @@ Resources:
           DB_NAME: !Ref DatabaseName 
           DB_USERNAME: !Ref DatabaseUsername
           DB_PASSWORD: !Ref DatabasePassword
-          FAILED_EVENTS_S3_BUCKET_NAME: !Sub "${EventConsumerLambdaFunctionName}-failed-events"
+          FAILED_EVENTS_S3_BUCKET_NAME: !Sub "failed-swishjam-events-${AWS::AccountId}"
       Events:
         SQSQueueEvent:
           Type: SQS
