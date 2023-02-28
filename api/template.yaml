@@ -157,6 +157,11 @@ Resources:
     Properties:
       QueueName: !Sub '${SqsQueueName}-DLQ'
 
+  FailedEventDataS3Bucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub "${EventConsumerLambdaFunctionName}-failed-events"
+
   EventDataMessageConsumer:
     Type: AWS::Serverless::Function
     Properties:
@@ -172,6 +177,7 @@ Resources:
           DB_NAME: !Ref DatabaseName 
           DB_USERNAME: !Ref DatabaseUsername
           DB_PASSWORD: !Ref DatabasePassword
+          FAILED_EVENTS_S3_BUCKET_NAME: !Sub "${EventConsumerLambdaFunctionName}-failed-events"
       Events:
         SQSQueueEvent:
           Type: SQS
@@ -181,6 +187,7 @@ Resources:
       Timeout: 25 # Chosen to be less than the default SQS Visibility Timeout of 30 seconds
       Policies:
       - AWSLambdaBasicExecutionRole
+      - AmazonS3FullAccess
   
   ApplicationResourceGroup:
     Type: AWS::ResourceGroups::Group
