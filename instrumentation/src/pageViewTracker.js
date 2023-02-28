@@ -1,6 +1,6 @@
-import { UuidGenerator } from "./uuidGenerator";
+const { UuidGenerator } = require("./uuidGenerator");
 
-export class PageViewTracker {
+class PageViewTracker {
   constructor(reportingHandler) {
     this.reportingHandler = reportingHandler;
     window.addEventListener('beforeunload', () => this._reportPageLeftAtTsIfNecessary());
@@ -13,8 +13,8 @@ export class PageViewTracker {
     this.reportingHandler.recordEvent('PAGE_VIEW', {
       pageLoadTs: Date.now(),
       navigationType: navigationType,
-      url: window.location.href,
-      referrerUrl: previousPageUrl,
+      url: encodeURIComponent(window.location.href || ''),
+      referrerUrl: encodeURIComponent(previousPageUrl || ''),
       userAgent: window.navigator.userAgent,
       screenWidth: window.innerWidth,
       screenHeight: window.innerHeight,
@@ -36,3 +36,5 @@ export class PageViewTracker {
     this.reportingHandler.reportData();
   }
 }
+
+module.exports = { PageViewTracker }

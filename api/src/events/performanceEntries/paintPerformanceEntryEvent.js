@@ -5,7 +5,7 @@ module.exports = class PaintPerformanceEntryEvent {
   }
 
   async create() {
-    await this.db.client`INSERT INTO paint_performance_entries ${this.db.format(this._attrs())} ON CONFLICT (unique_identifier) DO NOTHING`;
+    await this.db.client`INSERT INTO paint_performance_entries ${this.db.format(this._attrs())} ON CONFLICT DO NOTHING`;
     return true;
   }
 
@@ -15,7 +15,7 @@ module.exports = class PaintPerformanceEntryEvent {
       unique_identifier: this.event.uniqueIdentifier,
       page_view_identifier: this.event.pageViewIdentifier,
       site_id: this.event.siteId,
-      name: data.name,
+      name: (data.name || "").substr(0, 255),
       entry_type: data.entryType,
       start_time: data.startTime,
       duration: data.duration,

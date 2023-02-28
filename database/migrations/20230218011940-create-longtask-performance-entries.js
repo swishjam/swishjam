@@ -9,33 +9,18 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      page_view_identifier: {
-        type: Sequelize.STRING
-      },
-      duration: {
-        type: Sequelize.DECIMAL
-      },
-      entry_type: {
-        type: Sequelize.STRING
-      },
-      name: {
-        type: Sequelize.STRING
-      },
-      start_time: {
-        type: Sequelize.DECIMAL
-      },
-      created_at: {
-        allowNull: false,
-        type: Sequelize.DATE,
-        defaultValue: Sequelize.fn('now')
-      },
-      updated_at: {
-        allowNull: false,
-        type: Sequelize.DATE,
-        defaultValue: Sequelize.fn('now')
-      }
+      unique_identifier: { type: Sequelize.STRING, allowNull: false, unique: true },
+      page_view_identifier: { type: Sequelize.STRING },
+      site_id: { type: Sequelize.STRING, allowNull: false },
+      duration: { type: Sequelize.DECIMAL },
+      entry_type: { type: Sequelize.STRING },
+      name: { type: Sequelize.STRING },
+      start_time: { type: Sequelize.DECIMAL },
+      created_at: { allowNull: false, type: Sequelize.DATE, defaultValue: Sequelize.fn('now') },
+      updated_at: { allowNull: false, type: Sequelize.DATE, defaultValue: Sequelize.fn('now') }
     });
     await queryInterface.addIndex('longtask_performance_entries', ['page_view_identifier']);
+    await queryInterface.addIndex('longtask_performance_entries', ['site_id', 'unique_identifier'], { unique: true });
   },
   async down(queryInterface, Sequelize) {
     await queryInterface.dropTable('longtask_performance_entries');

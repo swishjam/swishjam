@@ -1,14 +1,13 @@
 const path = require('path');
 
-module.exports = _env => ({
+module.exports = env => ({
   mode: 'production',
-  entry: './src/swishjam.js',
+  entry: './index.js',
   output: {
     path: path.resolve(__dirname, 'build'),
     filename: 'src.js',
     sourceMapFilename: "src.js.map"
   },
-  devtool: "source-map",
   module: {
     rules: [
       {

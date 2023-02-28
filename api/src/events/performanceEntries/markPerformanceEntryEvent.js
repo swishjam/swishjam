@@ -5,7 +5,7 @@ module.exports = class MarkPerformanceEntryEvent {
   }
 
   async create() {
-    await this.db.client`INSERT INTO mark_performance_entries ${this.db.format(this._attrs())} ON CONFLICT (unique_identifier) DO NOTHING`;
+    await this.db.client`INSERT INTO mark_performance_entries ${this.db.format(this._attrs())} ON CONFLICT DO NOTHING`;
     return true;
   }
 
@@ -17,7 +17,7 @@ module.exports = class MarkPerformanceEntryEvent {
       site_id: this.event.siteId,
       duration: data.duration,
       entry_type: data.entryType,
-      name: data.name,
+      name: (data.name || "").substr(0, 255),
       start_time: data.startTime,
       detail: data.detail,
     }

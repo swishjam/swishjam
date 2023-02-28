@@ -5,7 +5,7 @@ module.exports = class LargestContentfulPaintPerformanceEntryEvent {
   }
 
   async create() {
-    await this.db.client`INSERT INTO largest_contentful_paint_performance_entries ${this.db.format(this._attrs())} ON CONFLICT (unique_identifier) DO NOTHING`;
+    await this.db.client`INSERT INTO largest_contentful_paint_performance_entries ${this.db.format(this._attrs())} ON CONFLICT DO NOTHING`;
     return true;
   }
 
@@ -17,7 +17,7 @@ module.exports = class LargestContentfulPaintPerformanceEntryEvent {
       site_id: this.event.siteId,
       duration: data.duration,
       entry_type: data.entryType,
-      name: data.name,
+      name: (data.name || "").substr(0, 255),
       start_time: data.startTime,
       element_identifier: data.element,
       render_time: data.renderTime,

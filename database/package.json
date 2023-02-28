@@ -4,8 +4,8 @@
     "pg": "^8.9.0",
     "sequelize": "^6.28.0"
   },
-  "script": {
+  "scripts": {
     "g": "npx sequelize-cli migration:generate",
-    "m": "npx sequelize-cli db:migrate"
+    "db:m": "npx sequelize-cli db:migrate"
   }
 }

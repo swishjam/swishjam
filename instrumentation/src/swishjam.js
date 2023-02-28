@@ -1,12 +1,17 @@
-import { ReportingHandler } from './reportingHandler';
-import { PageViewTracker } from './pageViewTracker';
-import { PerformanceEntriesHandler } from './performanceEntriesHandler';
-import { PerformanceMetricsHandler } from './performanceMetricsHandler'; 
+const { ReportingHandler } = require('./reportingHandler');
+const { PageViewTracker } = require('./pageViewTracker');
+const { PerformanceEntriesHandler } = require('./performanceEntriesHandler');
+const { PerformanceMetricsHandler } = require('./performanceMetricsHandler'); 
 
-export class Swishjam {
+class Swishjam {
   static init(options = {}) {
+    if(window.Swishjam) {
+      console.warn('Swishjam already initialized, not instrumenting page');
+      return;
+    }
+    options = Swishjam._setConfig(options);
     window.Swishjam = { config: options };
-    if (Math.random() > (options.sampleRate || 1.0)) {
+    if (Math.random() > options.sampleRate) {
       console.warn('Swishjam sample rate not met, not instrumenting page');
     } else {
       const reportingHandler = new ReportingHandler({
@@ -20,11 +25,13 @@ export class Swishjam {
       const pageViewTracker = new PageViewTracker(reportingHandler);
       let currentUrl = pageViewTracker.trackPageView({ navigationType: 'hard', previousPageUrl: document.referrer });
 
-      new PerformanceEntriesHandler(reportingHandler, {
-        performanceEntryTypesToCapture: options.performanceEntryTypesToCapture, 
-        includeSwishjamResourcesEntries: options.includeSwishjamResourcesEntries,
-        reportingUrl: options.reportingUrl,
-      }).beginCapturingPerformanceEntries();
+      if (!options.disablePerformanceEntriesCapture) {
+        new PerformanceEntriesHandler(reportingHandler, {
+          performanceEntryTypesToCapture: options.performanceEntryTypesToCapture, 
+          includeSwishjamResourcesEntries: options.includeSwishjamResourcesEntries,
+          reportingUrl: options.reportingUrl,
+        }).beginCapturingPerformanceEntries();
+      }
       new PerformanceMetricsHandler(reportingHandler).beginCapturingPerformanceMetrics();
 
       window.addEventListener('hashchange', () => {
@@ -42,4 +49,23 @@ export class Swishjam {
       }
     }
   }
+
+  static _setConfig(config) {
+    if (!config.reportingUrl) throw new Error('Swishjam `reportingUrl` is required');
+    if (!config.publicApiKey) throw new Error('Swishjam `publicApiKey` is required');
+    return {
+      reportingUrl: config.reportingUrl,
+      publicApiKey: config.publicApiKey,
+      sampleRate: config.sampleRate || 1.0,
+      maxNumEventsInMemory: config.maxNumEventsInMemory || 25,
+      reportAfterIdleTimeMs: config.reportAfterIdleTimeMs || 10_000,
+      reportingIdleTimeCheckInterval: config.reportingIdleTimeCheckInterval || 2_000,
+      mockApiCalls: config.mockApiCalls || false,
+      performanceEntryTypesToCapture: config.performanceEntryTypesToCapture || ['navigation', 'paint', 'resource', 'longtask', 'largest-contentful-paint', 'layout-shift'],
+      includeSwishjamResourcesEntries: config.includeSwishjamResourcesEntries || false,
+      disablePerformanceEntriesCapture: config.disablePerformanceEntriesCapture || false,
+    }
+  }
 }
+
+module.exports = { Swishjam }
