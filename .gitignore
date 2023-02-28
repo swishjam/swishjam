@@ -5,6 +5,7 @@ instrumentation/cdn/v*
 .DS_STORE
 .aws-sam
 .env
+.env.*
 samconfig.toml
 dashboard/.next
 dashboard/.next/**
