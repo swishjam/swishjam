@@ -171,6 +171,7 @@ Resources:
       Architectures:
       - arm64
       Handler: src/index.processMessages
+      Tracing: Active
       Environment:
         Variables:
           DB_HOST: !Ref DatabaseHostname

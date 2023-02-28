@@ -9,7 +9,6 @@ module.exports.processMessages = async ({ Records }, _context) => {
   console.log(`Number of records received: ${Records.length}`);
   const db = DB.connect();
   for (const record of Records) {
-    console.log(`Processing record: ${JSON.stringify(record)}`);
     const payload = JSON.parse(record.body);
     await captureEvents(payload, db);
   }
