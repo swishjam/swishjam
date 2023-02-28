@@ -1,18 +1,13 @@
 'use client';
-import { useState } from 'react';
 import {
   Card,
   Metric,
   Text,
-  ColGrid,
   Flex,
   CategoryBar,
   AreaChart,
-  Block,
 } from '@tremor/react';
 
-const subCategoryPercentageValues = [33, 34, 33];
-//const valueFormatter = (number) => `$ ${Intl.NumberFormat('us').format(number).toString()}`;
 const valueFormatter = (number) => `${number}`;
 
 export default function WebVitalCard({ title, metric, metricUnits, metricPercent, bounds, timeseries }, ...props) {
@@ -25,8 +20,8 @@ export default function WebVitalCard({ title, metric, metricUnits, metricPercent
         <Text>{metricUnits}</Text>
       </Flex>
       <CategoryBar
-        categoryPercentageValues={subCategoryPercentageValues}
-        colors={['rose', 'yellow', 'emerald']}
+        categoryPercentageValues={bounds}
+        colors={['emerald', 'yellow', 'rose']}
         percentageValue={metricPercent}
         tooltip={`${metric}${metricUnits}`}
         showLabels={false}
