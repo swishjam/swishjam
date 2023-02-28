@@ -1,6 +1,7 @@
 node_modules
 instrumentation/build
 instrumentation/cdn/build
+instrumentation/cdn/v*
 .DS_STORE
 .aws-sam
 .env
