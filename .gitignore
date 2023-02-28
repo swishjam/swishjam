@@ -7,3 +7,4 @@ instrumentation/cdn/build
 samconfig.toml
 test.html
 api-cdk
+.github
