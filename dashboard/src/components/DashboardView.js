@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Card,
   Metric,
@@ -9,6 +9,7 @@ import {
   Block,
 } from '@tremor/react';
 import WebVitalCard from './WebVitalCard';
+import { GetData } from '@lib/api';
 
 const categories = [
   {
@@ -116,6 +117,18 @@ const sales = [
 */
 export default function DashboardView() {
   const item = categories[0]
+  const [metrics, setMetrics] = useState()
+
+  useEffect(() => {
+    GetData({
+      siteId: 'sj-55a4ab9cebf9d45f',
+      metric: 'LCP',
+    }).then(data => {
+      console.log(data)
+    })
+  
+  });
+
 
   return (
     <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 ">

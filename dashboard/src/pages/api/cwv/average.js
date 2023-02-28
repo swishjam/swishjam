@@ -1,5 +1,5 @@
 // import db from '../../lib/db';
-import PerformanceMetricsData from "../../../lib/data/performanceMetrics";
+import PerformanceMetricsData from '@lib/data/performanceMetrics';
 
 export default async (req, res) => {
   const defaultStartTs = Date.now() - 1000 * 60 * 60 * 24 * 7;
