@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { Card, ColGrid } from '@tremor/react';
 import WebVitalCard from './WebVitalCard';
 import { GetData } from '@lib/api';
-import { msToSeconds, cwvMetricBounds } from '@lib/utils';
+import { msToSeconds, cwvMetricBounds, calcCwvPercent, objToArray } from '@lib/utils';
 
 const sales = [
   {
@@ -81,45 +81,57 @@ const sales = [
 ];
 
 export default function DashboardView() {
-  const [ lcp, setLcp ] = useState({
-    key: "LCP",
-    title: "Largest Contentful Paint Avg",
-    // timeseries: sales, 
-    metric: '',
-    metricUnits: 's',
-    bounds: cwvMetricBounds.LCP,
+  const [ cwv, setCwv ] = useState({
+    LCP: {
+      key: "LCP",
+      title: "Largest Contentful Paint Avg",
+      timeseries: sales,
+      metric: '',
+      metricUnits: 's',
+    },
+    INP: {
+      key: "INP",
+      title: "Interaction to Next Paint Avg",
+      metric: '',
+      metricUnits: 's',
+      timeseries: sales,
+    },
+    CLS: {
+      key: "CLS",
+      title: "CLS ",
+      metric: '',
+      metricUnits: 's',
+      timeseries: sales,
+    },
   });
-  const [ inp, setInp ] = useState({
-    key: "INP",
-    title: "Interaction to Next Paint Avg",
-    metric: '',
-    metricUnits: 's',
-    // timeseries: sales, 
-    bounds: cwvMetricBounds.INP,
-  });
-  const [ cls, setCls ] = useState({
-    key: "CLS",
-    title: "CLS",
-    metric: '',
-    metricUnits: 's',
-    // timeseries: sales, 
-    bounds: cwvMetricBounds.CLS,
-  });
-
-  const cwv = [
-    lcp,
-    inp,
-    cls,
-  ]
-
-  const getAvgAndSet = (metric, setterCallback) => {
-    GetData({ siteId: 'sj-55a4ab9cebf9d45f', metric }).then(res => setterCallback(prevState => ({ ...prevState, metric: res.average })) );
-  };
+  
+  const getAndSetMetric = async (siteId, cwvKey) => {
+    GetData({
+      siteId: siteId,
+      metric: cwvKey,
+    }).then(res => {
+      //console.log(res) 
+      const pData = calcCwvPercent(res.average, cwvMetricBounds[cwvKey].good, cwvMetricBounds[cwvKey].medium ) 
+    console.log('asdfasd') 
+      //console.log(pData)
+      setCwv((prevState) => ({
+        ...prevState,
+        [cwvKey]: {
+          ...prevState[cwvKey], 
+          metric: res.average,
+          bounds: pData.bounds, 
+          metricPercent: pData.percent
+        }
+      }));
+    })
+  }
 
   useEffect(() => {
-    getAvgAndSet('LCP', setLcp);
-    getAvgAndSet('FCP', setInp);
-    getAvgAndSet('CLS', setCls);
+    const siteId = 'sj-55a4ab9cebf9d45f'
+    getAndSetMetric(siteId, 'LCP');
+    // bounds: cwvMetricBounds.INP,
+    // bounds: cwvMetricBounds.CLS,
+  
   }, []);
 
   return (
@@ -127,17 +139,17 @@ export default function DashboardView() {
       <h1 className="text-lg font-medium mt-8">Real User Core Web Vitals</h1>
 
       <ColGrid numColsMd={2} numColsLg={3} gapX="gap-x-6" gapY="gap-y-6" marginTop="mt-6">
-        {cwv.map((item, index) => (
-          <WebVitalCard 
-            key={item.key} 
-            accronym={item.key}
-            title={item.title} 
-            metric={msToSeconds(item.metric)} 
-            metricUnits={item.metricUnits} 
-            metricPercent={90} 
+        {objToArray(cwv).map(item => (
+          <WebVitalCard
+            key={item.key}
+            title={item.title}
+            metric={msToSeconds(item.metric)}
+            metricUnits={item.metricUnits}
+            metricPercent={item.metricPercent}
+            bounds={item.bounds}
+            timeseries={item.timeseries}
           />
-        ))} 
-        
+        ))}
       </ColGrid>
 
       <div className="w-full my-6">

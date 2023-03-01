@@ -1,8 +1,12 @@
 'use client';
-import { Card, Metric, Text, Flex, CategoryBar, AreaChart } from '@tremor/react';
-import WebVitalTimeSeries from './WebVitalTimeSeries';
-
-const subCategoryPercentageValues = [33, 34, 33];
+import {
+  Card,
+  Metric,
+  Text,
+  Flex,
+  CategoryBar,
+  AreaChart,
+} from '@tremor/react';
 
 export default function WebVitalCard({ accronym, title, metric, metricUnits, metricPercent }, ...props) {
   return (
@@ -13,8 +17,8 @@ export default function WebVitalCard({ accronym, title, metric, metricUnits, met
         <Text>{metricUnits}</Text>
       </Flex>
       <CategoryBar
-        categoryPercentageValues={subCategoryPercentageValues}
-        colors={['rose', 'yellow', 'emerald']}
+        categoryPercentageValues={bounds}
+        colors={['emerald', 'yellow', 'rose']}
         percentageValue={metricPercent}
         tooltip={`${metric}${metricUnits}`}
         showLabels={false}
