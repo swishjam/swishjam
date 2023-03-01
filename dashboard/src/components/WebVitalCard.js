@@ -1,13 +1,22 @@
 'use client';
 import { Card, Metric, Text, Flex, CategoryBar, AreaChart } from '@tremor/react';
+import LoadingSpinner from '@components/LoadingSpinner';
 import { msToSeconds } from '@lib/utils';
+
+const CardLoading = () => (   
+  <div className='flex'>
+    <div className='m-auto py-20'>
+      <LoadingSpinner size={8} />
+    </div>
+  </div>
+)
 
 export default function WebVitalCard({ title, metric, metricUnits, metricPercent, timeseriesData, bounds }, ...props) {
   return (
     <Card>
       <Text>{title}</Text>
-      {metric === null ? 
-        <Text>Loading...</Text> : (
+      {metric !== null ? 
+         <CardLoading />: (
         <>
           <Flex justifyContent="justify-start" alignItems="items-baseline" spaceX="space-x-1">
             <Metric>{metric}</Metric>
