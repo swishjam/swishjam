@@ -15,7 +15,7 @@ export default function WebVitalCard({ title, metric, metricUnits, metricPercent
   return (
     <Card>
       <Text>{title}</Text>
-      {metric !== null ? 
+      {metric === null ? 
          <CardLoading />: (
         <>
           <Flex justifyContent="justify-start" alignItems="items-baseline" spaceX="space-x-1">
