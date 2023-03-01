@@ -25,7 +25,6 @@ export const objToArray = (obj) => {
   return arr;  
 }
 
-
 export const cwvMetricBounds = {
   FCP: {
     good: 1_800,
@@ -33,11 +32,12 @@ export const cwvMetricBounds = {
   },
   LCP: {
     good: 2_500,
-    medium: 4_000
+    medium: 4_000,
   },
   CLS: {
     good: 0.1,
     medium: 0.25
+    
   },
   FID: {
     good: 100,

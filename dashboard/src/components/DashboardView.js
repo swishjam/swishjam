@@ -100,14 +100,14 @@ export default function DashboardView() {
       key: "INP",
       title: "Interaction to Next Paint Avg",
       metric: '',
-      metricUnits: 's',
+      metricUnits: 'ms',
       timeseries: sales,
     },
     CLS: {
       key: "CLS",
       title: "CLS ",
       metric: '',
-      metricUnits: 's',
+      metricUnits: '',
       timeseries: sales,
     },
   });
@@ -117,15 +117,20 @@ export default function DashboardView() {
       siteId: siteId,
       metric: cwvKey,
     }).then(res => {
-      //console.log(res) 
       const pData = calcCwvPercent(res.average, cwvMetricBounds[cwvKey].good, cwvMetricBounds[cwvKey].medium ) 
-    console.log('asdfasd') 
-      //console.log(pData)
+      let metric;
+      if(cwv[cwvKey].metricUnits === 's') {
+        metric = msToSeconds(res.average)
+      } else if(cwv[cwvKey].metricUnits === 'ms') {
+        metric = Number.parseInt(res.average)
+      } else {
+        metric =  Number.parseFloat(res.average).toFixed(4)
+      }
       setCwv((prevState) => ({
         ...prevState,
         [cwvKey]: {
           ...prevState[cwvKey], 
-          metric: res.average,
+          metric: metric,
           bounds: pData.bounds, 
           metricPercent: pData.percent
         }
@@ -136,9 +141,8 @@ export default function DashboardView() {
   useEffect(() => {
     const siteId = 'sj-55a4ab9cebf9d45f'
     getAndSetMetric(siteId, 'LCP');
-    // bounds: cwvMetricBounds.INP,
-    // bounds: cwvMetricBounds.CLS,
-  
+    getAndSetMetric(siteId, 'INP');
+    getAndSetMetric(siteId, 'CLS');
   }, []);
 
   return (
@@ -150,7 +154,7 @@ export default function DashboardView() {
           <WebVitalCard
             key={item.key}
             title={item.title}
-            metric={msToSeconds(item.metric)}
+            metric={item.metric}
             metricUnits={item.metricUnits}
             metricPercent={item.metricPercent}
             bounds={item.bounds}
