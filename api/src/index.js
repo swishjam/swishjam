@@ -8,12 +8,19 @@ const { S3 } = require("aws-sdk");
 module.exports.processMessages = async ({ Records }, _context) => {
   console.log(`Number of records received: ${Records.length}`);
   const db = DB.connect();
-  for (const record of Records) {
-    const payload = JSON.parse(record.body);
-    await captureEvents(payload, db);
+  try {
+    for (const record of Records) {
+      const payload = JSON.parse(record.body);
+      await captureEvents(payload, db);
+    }
+    await db.killConnection();
+    return { statusCode: 200 };
+  } catch(err) {
+    console.error(`Failed to process messages: ${err}`);
+    console.error(`Bad payload received: ${JSON.stringify(Records)}`);
+    await db.killConnection();
+    throw err;
   }
-  await db.killConnection();
-  return { statusCode: 200 };
 }
 
 const captureEvents = async (payload, db) => {
