@@ -1,5 +1,4 @@
 'use client';
-import Header from '@components/Header';
 import DashboardView from '@/components/DashboardView';
 import AuthenticatedView from '@/components/AuthenticatedView';
 
