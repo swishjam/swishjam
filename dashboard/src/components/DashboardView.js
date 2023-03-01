@@ -1,13 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
-import {
-  Card,
-  Metric,
-  Text,
-  ColGrid,
-  Flex,
-  Block,
-} from '@tremor/react';
+import { Card, ColGrid } from '@tremor/react';
 import WebVitalCard from './WebVitalCard';
 import { GetData } from '@lib/api';
 import { msToSeconds, cwvMetricBounds } from '@lib/utils';
@@ -91,7 +84,7 @@ export default function DashboardView() {
   const [ lcp, setLcp ] = useState({
     key: "LCP",
     title: "Largest Contentful Paint Avg",
-    timeseries: sales, 
+    // timeseries: sales, 
     metric: '',
     metricUnits: 's',
     bounds: cwvMetricBounds.LCP,
@@ -101,15 +94,15 @@ export default function DashboardView() {
     title: "Interaction to Next Paint Avg",
     metric: '',
     metricUnits: 's',
-    timeseries: sales, 
+    // timeseries: sales, 
     bounds: cwvMetricBounds.INP,
   });
   const [ cls, setCls ] = useState({
     key: "CLS",
-    title: "CLS ",
+    title: "CLS",
     metric: '',
     metricUnits: 's',
-    timeseries: sales, 
+    // timeseries: sales, 
     bounds: cwvMetricBounds.CLS,
   });
 
@@ -119,26 +112,15 @@ export default function DashboardView() {
     cls,
   ]
 
+  const getAvgAndSet = (metric, setterCallback) => {
+    GetData({ siteId: 'sj-55a4ab9cebf9d45f', metric }).then(res => setterCallback(prevState => ({ ...prevState, metric: res.average })) );
+  };
+
   useEffect(() => {
-
-    GetData({
-      siteId: 'sj-55a4ab9cebf9d45f',
-      metric: 'LCP',
-    }).then(res => {
-      console.log(res) 
-      setLcp((prevState) => ({
-        ...prevState,
-        metric: res.average
-      }));
-      
-    })
-    const fcpData = GetData({
-      siteId: 'sj-55a4ab9cebf9d45f',
-      metric: 'FCP',
-    })
-  
+    getAvgAndSet('LCP', setLcp);
+    getAvgAndSet('FCP', setInp);
+    getAvgAndSet('CLS', setCls);
   }, []);
-
 
   return (
     <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 ">
@@ -148,14 +130,12 @@ export default function DashboardView() {
         {cwv.map((item, index) => (
           <WebVitalCard 
             key={item.key} 
+            accronym={item.key}
             title={item.title} 
             metric={msToSeconds(item.metric)} 
             metricUnits={item.metricUnits} 
             metricPercent={90} 
-            bounds={item.bounds} 
-            timeseries={item.timeseries} 
           />
-          
         ))} 
         
       </ColGrid>

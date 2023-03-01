@@ -1,22 +1,10 @@
 'use client';
-import { useState } from 'react';
-import {
-  Card,
-  Metric,
-  Text,
-  ColGrid,
-  Flex,
-  CategoryBar,
-  AreaChart,
-  Block,
-} from '@tremor/react';
+import { Card, Metric, Text, Flex, CategoryBar, AreaChart } from '@tremor/react';
+import WebVitalTimeSeries from './WebVitalTimeSeries';
 
 const subCategoryPercentageValues = [33, 34, 33];
-//const valueFormatter = (number) => `$ ${Intl.NumberFormat('us').format(number).toString()}`;
-const valueFormatter = (number) => `${number}`;
 
-export default function WebVitalCard({ title, metric, metricUnits, metricPercent, bounds, timeseries }, ...props) {
-
+export default function WebVitalCard({ accronym, title, metric, metricUnits, metricPercent }, ...props) {
   return (
     <Card>
       <Text>{title}</Text>
@@ -32,21 +20,7 @@ export default function WebVitalCard({ title, metric, metricUnits, metricPercent
         showLabels={false}
         marginTop="mt-5"
       />
-
-      <AreaChart
-        data={timeseries}
-        dataKey="Month"
-        categories={['Good','Needs Improvement','Poor']}
-        colors={['emerald', 'yellow','rose']}
-        showYAxis={false}
-        maxValue={4490}
-        showLegend={false}
-        startEndOnly={true}
-        valueFormatter={valueFormatter}
-        height="h-48"
-        marginTop="mt-10"
-        stack={true} 
-      />
+      <WebVitalTimeSeries metric={accronym} siteId="sj-55a4ab9cebf9d45f" />
     </Card>
   );
 }
