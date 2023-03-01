@@ -95,7 +95,7 @@ export default function DashboardView() {
             <Text><Bold>Page URL</Bold></Text>
             <Text><Bold>DOM Interactive</Bold></Text>
           </Flex>
-          <BarList data={slowPageNavigations} valueFormatter={value => `${msToSeconds(value)} s`} marginTop='mt-4' />
+          <BarList data={slowPageNavigations} valueFormatter={value => `${msToSeconds(value)} s`} marginTop='mt-4' color='blue' />
         </Card>
       </div>
     </main>

@@ -18,9 +18,7 @@ export const GetCWVTimeSeriesData = async params => {
     const formatted = data.results.map(result => {
       return {
         timestamp: `${new Date(result.hour).getMonth() + 1}/${new Date(result.hour).getDate()} ${new Date(result.hour).getHours()}:00`,
-        Good: parseFloat(result.percent_good_records),
-        "Needs Improvement": parseFloat(result.percent_medium_records),
-        Poor: parseFloat(result.percent_bad_records)
+        p90: parseFloat(result.percentile_result || 0),
       }
     });
     return formatted;

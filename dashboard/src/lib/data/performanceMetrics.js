@@ -40,7 +40,7 @@ export default class PerformanceMetricsData {
     };
   }
 
-  static async getTimeseriesDataForMetric({ siteId, metric, startTs }) {
+  static async getTimeseriesGoodNeedsWorkBadDataForMetric({ siteId, metric, startTs }) {
     const metricToUpperBoundsDict = cwvMetricBounds;
     if (!metricToUpperBoundsDict[metric]) throw new Error(`Invalid metric: ${metric}`);
     const query = `
@@ -88,5 +88,25 @@ export default class PerformanceMetricsData {
     `;
     const results = await db.query(query, [siteId, metric, new Date(startTs)]);
     return results.rows;
+  };
+
+  static async getP75TimeseriesDataForMetric({ siteId, metric, startTs, percentile = 0.9 }) {
+    const query = `
+      SELECT
+        PERCENTILE_CONT(${percentile}) WITHIN GROUP (ORDER BY metric_value) AS percentile_result,
+        date_trunc('hour', page_views.page_view_ts) AS hour,
+        date_trunc('day', page_views.page_view_ts) AS day
+      FROM
+        performance_metrics
+      LEFT JOIN
+        page_views ON performance_metrics.page_view_identifier = page_views.identifier
+      WHERE
+        page_views.site_id = $1 AND
+        metric_name = $2 AND
+        page_views.page_view_ts >= $3
+      GROUP BY
+        day, hour
+    `;
+    return (await db.query(query, [siteId, metric, new Date(startTs)])).rows;
   };
 }

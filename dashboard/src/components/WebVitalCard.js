@@ -1,5 +1,6 @@
 'use client';
 import { Card, Metric, Text, Flex, CategoryBar, AreaChart } from '@tremor/react';
+import { msToSeconds } from '@lib/utils';
 
 export default function WebVitalCard({ title, metric, metricUnits, metricPercent, timeseriesData, bounds }, ...props) {
   return (
@@ -23,16 +24,13 @@ export default function WebVitalCard({ title, metric, metricUnits, metricPercent
           <AreaChart
             data={timeseriesData}
             dataKey="timestamp"
-            categories={['Good', 'Needs Improvement', 'Poor']}
-            colors={['emerald', 'yellow', 'rose']}
-            showYAxis={false}
-            maxValue={100}
+            categories={['p90']}
+            colors={['blue']}
             showLegend={false}
             startEndOnly={true}
-            valueFormatter={value => `${value}%`}
+            valueFormatter={value => metricUnits === 's' ? `${msToSeconds(value)} ${metricUnits}` : Number.parseFloat(value).toFixed(4)}
             height="h-48"
             marginTop="mt-10"
-            stack={true}
           />
         </>
       )}
