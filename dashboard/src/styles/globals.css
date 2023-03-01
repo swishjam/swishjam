@@ -3,6 +3,12 @@
 @tailwind utilities;
 
 @layer base {
+  .input {
+    @apply block w-full appearance-none rounded-md border border-gray-300 px-3 py-2 placeholder-gray-400 shadow-sm focus:border-swishjam focus:outline-none focus:ring-swishjam sm:text-sm
+  }
+}
+
+/*@layer base {
   h2 {
     @apply py-4 text-4xl font-black text-gray-800;
   }
@@ -51,3 +57,4 @@
     @apply flex flex-row items-center justify-start gap-1;
   }
 }
+*/
