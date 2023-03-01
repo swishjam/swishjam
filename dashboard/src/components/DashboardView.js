@@ -1,8 +1,8 @@
 'use client';
 import { useState, useEffect } from 'react';
-import { Card, ColGrid } from '@tremor/react';
+import { BarList, Card, ColGrid, Title, Flex, Text, Bold } from '@tremor/react';
 import WebVitalCard from './WebVitalCard';
-import { GetData, GetTimeSeriesData } from '@lib/api';
+import { GetCWVData, GetCWVTimeSeriesData, GetNavigationPerformanceEntriesData } from '@lib/api';
 import { msToSeconds, cwvMetricBounds, calcCwvPercent } from '@lib/utils';
 
 export default function DashboardView() {
@@ -24,23 +24,16 @@ export default function DashboardView() {
     key: "CLS",
     title: "Cumulative Layout Shift Average",
     metric: null,
-    metricUnits: 's',
+    metricUnits: '',
     timeseriesData: [{}]
   });
+  const [slowPageNavigations, setSlowPageNavigations] = useState([]);
   
   const getAndSetMetric = async (siteId, cwvKey) => {
-    GetData({ siteId: siteId, metric: cwvKey }).then(res => {
+    GetCWVData({ siteId: siteId, metric: cwvKey }).then(res => {
       const pData = calcCwvPercent(res.average, cwvMetricBounds[cwvKey].good, cwvMetricBounds[cwvKey].medium );
-      const currentCwv = {
-        'LCP': lcp,
-        'INP': inp,
-        'CLS': cls 
-      }[cwvKey]
-      const setStateMethod = {
-        'LCP': setLCP,
-        'INP': setINP,
-        'CLS': setCLS
-      }[cwvKey]
+      const currentCwv = { 'LCP': lcp, 'INP': inp, 'CLS': cls  }[cwvKey];
+      const setStateMethod = { 'LCP': setLCP, 'INP': setINP, 'CLS': setCLS }[cwvKey];
       
       let metric;
       
@@ -49,36 +42,32 @@ export default function DashboardView() {
       } else if(currentCwv.metricUnits === 'ms') {
         metric = Number.parseInt(res.average)
       } else {
-        metric =  Number.parseFloat(res.average).toFixed(4)
+        metric = Number.parseFloat(res.average).toFixed(4);
       }
-      setStateMethod(prevState => ({
-        ...prevState,
-        metric: metric,
-        bounds: pData.bounds,
-        metricPercent: pData.percent
-      }));
+      setStateMethod(prevState => ({ ...prevState, metric, bounds: pData.bounds, metricPercent: pData.percent }));
     })
   };
 
   const getTimeseriesDataForMetric = (siteId, metric) => {
-    GetTimeSeriesData({ siteId, metric }).then(chartData => {
-      const setStateMethod = {
-        'LCP': setLCP,
-        'INP': setINP,
-        'CLS': setCLS
-      };
-      setStateMethod[metric](prevState => ({ ...prevState, timeseriesData: chartData }));
+    GetCWVTimeSeriesData({ siteId, metric }).then(chartData => {
+      const setStateMethod = { 'LCP': setLCP, 'INP': setINP, 'CLS': setCLS }[metric];
+      setStateMethod(prevState => ({ ...prevState, timeseriesData: chartData }));
     })
   }
 
+  const getSlowPageNavigations = siteId => {
+    GetNavigationPerformanceEntriesData({ siteId, metric: 'dom_interactive' }).then(res => setSlowPageNavigations(res.records))
+  }
+
   useEffect(() => {
-    const siteId = 'sj-55a4ab9cebf9d45f'
+    const siteId = 'sj-syv3hiuj0p51nks5';
     getAndSetMetric(siteId, 'LCP');
     getAndSetMetric(siteId, 'INP');
     getAndSetMetric(siteId, 'CLS');
     getTimeseriesDataForMetric(siteId, 'LCP');
     getTimeseriesDataForMetric(siteId, 'CLS');
     getTimeseriesDataForMetric(siteId, 'INP');
+    getSlowPageNavigations(siteId);
   }, []);
 
   return (
@@ -101,7 +90,12 @@ export default function DashboardView() {
 
       <div className="w-full my-6">
         <Card>
-          <div className="h-80" />
+          <Title>Slowest Page Navigations</Title>
+          <Flex marginTop="mt-4">
+            <Text><Bold>Page URL</Bold></Text>
+            <Text><Bold>DOM Interactive</Bold></Text>
+          </Flex>
+          <BarList data={slowPageNavigations} valueFormatter={value => `${msToSeconds(value)} s`} marginTop='mt-4' />
         </Card>
       </div>
     </main>

@@ -1,5 +1,6 @@
-import db from '../db';
+import db from '@lib/db';
 import { cwvMetricBounds } from '@/lib/utils';
+
 export default class PerformanceMetricsData {
   static async getAverageMetric({ siteId, metric, startTs }) {
     const query = `

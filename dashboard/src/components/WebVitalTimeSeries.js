@@ -1,13 +1,13 @@
 import { AreaChart } from "@tremor/react";
 import { useState, useEffect } from "react";
-import { GetTimeSeriesData } from '@lib/api';
+import { GetCWVTimeSeriesData } from '@lib/api';
 
 
 export default function WebVitalTimeSeries({ metric, siteId }) {
   const [chartData, setChartData] = useState([{}]);
 
   useEffect(() => {
-    GetTimeSeriesData({ siteId, metric }).then(res => {
+    GetCWVTimeSeriesData({ siteId, metric }).then(res => {
       const formattedResults = res.results.map(result => {
         return { 
           timestamp: `${new Date(result.hour).getMonth() + 1}/${new Date(result.hour).getDate()} ${new Date(result.hour).getHours()}:00`, 

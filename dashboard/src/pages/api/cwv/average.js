@@ -1,4 +1,3 @@
-// import db from '../../lib/db';
 import PerformanceMetricsData from '@lib/data/performanceMetrics';
 
 export default async (req, res) => {

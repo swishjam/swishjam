@@ -1,7 +1,7 @@
 export default function Head() {
   return (
     <>
-      <title>Swishjamj</title>
+      <title>Swishjam</title>
       <link rel="icon" href="/favicon.ico" />
       <meta name="viewport" content="width=device-width" />
     </>
