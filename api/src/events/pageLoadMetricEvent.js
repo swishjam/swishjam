@@ -9,13 +9,6 @@ module.exports = class PageLoadMetricEvent {
   async createPerformanceMetric() {
     const { type, value } = this.event.data;
     if (VALID_PERFORMANCE_METRICS.includes(type)) {
-      const attrs = { 
-        unique_identifier: this.event.uniqueIdentifier,
-        page_view_identifier: this.event.pageViewIdentifier, 
-        site_id: this.event.siteId,
-        metric_name: type, 
-        metric_value: value 
-      };
       const existingMetric = await this.db.client`
         SELECT *
         FROM
@@ -27,7 +20,7 @@ module.exports = class PageLoadMetricEvent {
       // do all performance metrics only increase on 'updated' values...?
       // accounting for potential out of order events
       if (existingMetric && existingMetric.value < value) {
-        console.log(`Performance metric already exists for ${this.event.pageViewIdentifier} and ${type}, updating it...`);
+        const attrs = { metric_name: type, metric_value: value };
         await this.db.client`
           UPDATE 
             performance_metrics 
@@ -37,6 +30,13 @@ module.exports = class PageLoadMetricEvent {
             metric_name = ${type}
         `;
       } else {
+        const attrs = {
+          unique_identifier: this.event.uniqueIdentifier,
+          page_view_identifier: this.event.pageViewIdentifier,
+          site_id: this.event.siteId,
+          metric_name: type,
+          metric_value: value
+        };
         await this.db.client`INSERT INTO performance_metrics ${this.db.format(attrs)}`;
         console.log(`Created new performance metric for ${type}`);
       }
