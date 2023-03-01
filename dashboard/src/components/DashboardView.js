@@ -60,6 +60,8 @@ export default function DashboardView() {
     const siteId = 'sj-55a4ab9cebf9d45f'
     getAndSetMetric(siteId, 'LCP');
     getTimeseriesDataForMetric(siteId, 'LCP');
+    getTimeseriesDataForMetric(siteId, 'CLS');
+    getTimeseriesDataForMetric(siteId, 'INP');
   }, []);
 
   return (
