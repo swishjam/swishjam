@@ -17,15 +17,6 @@ export const calcCwvPercent = (val, good, medium) => {
   }
 }
 
-export const objToArray = (obj) => {
-  const arr = [];
-  for (const key in obj) {
-    arr.push(obj[key]);
-  }
-  return arr;  
-}
-
-
 export const cwvMetricBounds = {
   FCP: {
     good: 1_800,

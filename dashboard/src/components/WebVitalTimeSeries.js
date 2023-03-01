@@ -2,7 +2,6 @@ import { AreaChart } from "@tremor/react";
 import { useState, useEffect } from "react";
 import { GetTimeSeriesData } from '@lib/api';
 
-const valueFormatter = value => `${value}%`;
 
 export default function WebVitalTimeSeries({ metric, siteId }) {
   const [chartData, setChartData] = useState([{}]);
@@ -11,7 +10,7 @@ export default function WebVitalTimeSeries({ metric, siteId }) {
     GetTimeSeriesData({ siteId, metric }).then(res => {
       const formattedResults = res.results.map(result => {
         return { 
-          timestamp: `${new Date(result.hour).getMonth()}/${new Date(result.hour).getDay()} ${new Date(result.hour).getHours()}:00`, 
+          timestamp: `${new Date(result.hour).getMonth() + 1}/${new Date(result.hour).getDate()} ${new Date(result.hour).getHours()}:00`, 
           Good: parseFloat(result.percent_good_records),
           "Needs Improvement": parseFloat(result.percent_medium_records),
           Poor: parseFloat(result.percent_bad_records)

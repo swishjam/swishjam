@@ -1,14 +1,9 @@
 'use client';
-import {
-  Card,
-  Metric,
-  Text,
-  Flex,
-  CategoryBar,
-  AreaChart,
-} from '@tremor/react';
+import { Card, Metric, Text, Flex, CategoryBar, AreaChart } from '@tremor/react';
 
-export default function WebVitalCard({ accronym, title, metric, metricUnits, metricPercent }, ...props) {
+export default function WebVitalCard({ title, metric, metricUnits, metricPercent, timeseriesData, bounds }, ...props) {
+  const valueFormatter = value => `${value}%`;
+
   return (
     <Card>
       <Text>{title}</Text>
@@ -24,7 +19,20 @@ export default function WebVitalCard({ accronym, title, metric, metricUnits, met
         showLabels={false}
         marginTop="mt-5"
       />
-      <WebVitalTimeSeries metric={accronym} siteId="sj-55a4ab9cebf9d45f" />
+      <AreaChart
+        data={timeseriesData}
+        dataKey="timestamp"
+        categories={['Good', 'Needs Improvement', 'Poor']}
+        colors={['emerald', 'yellow', 'rose']}
+        showYAxis={false}
+        maxValue={100}
+        showLegend={false}
+        startEndOnly={true}
+        valueFormatter={value => `${value}%`}
+        height="h-48"
+        marginTop="mt-10"
+        stack={true}
+      />
     </Card>
   );
 }
