@@ -1,4 +1,4 @@
-const get = async (url, payload) => {
+const get = async (url, payload = {}) => {
   try {
     const queryParams = new URLSearchParams(payload);
     return await (await fetch(`${url}?${queryParams}`, {})).json();
@@ -29,4 +29,8 @@ export const GetCWVTimeSeriesData = async params => {
 
 export const GetNavigationPerformanceEntriesData = async data => {
   return await get('/api/navigationResources/average', data);
+}
+
+export const GetResourcesForUrlPath = async data => {
+  return await get(`/api/resourcePerformanceEntries/byUrlPath`, data);
 }

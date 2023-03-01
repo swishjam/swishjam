@@ -27,7 +27,7 @@ export default function DashboardView() {
     metricUnits: '',
     timeseriesData: [{}]
   });
-  const [slowPageNavigations, setSlowPageNavigations] = useState([]);
+  const [slowPageNavigations, setSlowPageNavigations] = useState();
   
   const getAndSetMetric = async (siteId, cwvKey) => {
     GetCWVData({ siteId: siteId, metric: cwvKey }).then(res => {
@@ -56,7 +56,15 @@ export default function DashboardView() {
   }
 
   const getSlowPageNavigations = siteId => {
-    GetNavigationPerformanceEntriesData({ siteId, metric: 'dom_interactive' }).then(res => setSlowPageNavigations(res.records))
+    GetNavigationPerformanceEntriesData({ siteId, metric: 'dom_interactive' }).then(res => {
+      const formatted = res.records.map(item => {
+        return {
+          ...item,
+          href: `/navigation-resources/${window.encodeURIComponent(item.name)}`,
+        }
+      });
+      setSlowPageNavigations(formatted);
+    })
   }
 
   useEffect(() => {
@@ -95,7 +103,10 @@ export default function DashboardView() {
             <Text><Bold>Page URL</Bold></Text>
             <Text><Bold>DOM Interactive</Bold></Text>
           </Flex>
-          <BarList data={slowPageNavigations} valueFormatter={value => `${msToSeconds(value)} s`} marginTop='mt-4' color='blue' />
+          {slowPageNavigations === undefined ? 
+            (<Text>Loading...</Text>) :
+            (<BarList data={slowPageNavigations} valueFormatter={value => `${msToSeconds(value)} s`} marginTop='mt-4' color='blue' />)
+          }
         </Card>
       </div>
     </main>
