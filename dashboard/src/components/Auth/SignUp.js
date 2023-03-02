@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import cn from 'classnames';
 import { Field, Form, Formik } from 'formik';
 import Link from 'next/link';
@@ -20,7 +20,7 @@ const SignUp = () => {
   const [ errorMsg, setErrorMsg ] = useState(null);
   const [ successMsg, setSuccessMsg ] = useState(null);
   const [ loading, setLoading ] = useState(false); 
-  
+
   async function signUp(formData) {
     try {
       setLoading(true);

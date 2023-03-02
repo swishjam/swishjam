@@ -101,11 +101,11 @@ export default function Header() {
                         <Menu.Item key={item.name}>
                           {({ active }) => (
                             <div
-                            onClick={() => item.onClick() } 
-                            href={item.href}
+                              onClick={() => item.onClick() } 
+                              href={item.href}
                               className={classNames(
                                 active ? 'bg-gray-100' : '',
-                                'block px-4 py-2 text-sm text-gray-700'
+                                'block px-4 py-2 text-sm text-gray-700 cursor-pointer'
                               )}
                             >
                               {item.name}
@@ -177,7 +177,7 @@ export default function Header() {
                   <button
                     key={item.name}
                     onClick={() => item.onClick()}
-                    className="block w-full px-4 py-2 text-base text-left font-medium text-gray-500 hover:bg-gray-100 hover:text-gray-800"
+                    className="block w-full px-4 py-2 text-base text-left font-medium text-gray-500 hover:bg-gray-100 hover:text-gray-800 cursor-pointer"
                   >
                     {item.name}
                   {/*<Disclosure.Button
