@@ -40,6 +40,28 @@ export default class PerformanceMetricsData {
     };
   }
 
+  static async getAveragesGroupedByPages({ siteId, metric, startTs }) {
+    const query = `
+      SELECT
+        page_views.url_path as name,
+        AVG(metric_value) AS value
+      FROM
+        performance_metrics
+      INNER JOIN
+        page_views ON performance_metrics.page_view_identifier = page_views.identifier
+      WHERE
+        performance_metrics.metric_name = $1 AND
+        page_views.site_id = $2 AND
+        page_views.page_view_ts >= $3
+      GROUP BY
+        name
+      ORDER BY
+        value DESC
+    `;
+    const results = await db.query(query, [metric, siteId, new Date(startTs)]);
+    return results.rows;
+  };
+
   static async getTimeseriesGoodNeedsWorkBadDataForMetric({ siteId, metric, startTs }) {
     const metricToUpperBoundsDict = cwvMetricBounds;
     if (!metricToUpperBoundsDict[metric]) throw new Error(`Invalid metric: ${metric}`);

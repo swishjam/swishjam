@@ -34,3 +34,7 @@ export const GetNavigationPerformanceEntriesData = async data => {
 export const GetResourcesForUrlPath = async data => {
   return await get(`/api/resourcePerformanceEntries/byUrlPath`, data);
 }
+
+export const GetPagesForCWVMetric = async data => {
+  return await get('/api/cwv/pages', data);
+}

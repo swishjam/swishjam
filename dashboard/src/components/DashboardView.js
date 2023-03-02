@@ -86,6 +86,7 @@ export default function DashboardView() {
         {[lcp, cls, inp].map(item => (
           <WebVitalCard
             key={item.key}
+            accronym={item.key}
             title={item.title}
             metric={item.metric}
             metricUnits={item.metricUnits}

@@ -1,7 +1,8 @@
 'use client';
-import { Card, Metric, Text, Flex, CategoryBar, AreaChart } from '@tremor/react';
+import { Card, Metric, Text, Flex, CategoryBar, AreaChart, Accordion } from '@tremor/react';
 import LoadingSpinner from '@components/LoadingSpinner';
 import { msToSeconds } from '@lib/utils';
+import Link from 'next/link';
 
 const CardLoading = () => (   
   <div className='flex'>
@@ -11,10 +12,10 @@ const CardLoading = () => (
   </div>
 )
 
-export default function WebVitalCard({ title, metric, metricUnits, metricPercent, timeseriesData, bounds }, ...props) {
+export default function WebVitalCard({ title, accronym, metric, metricUnits, metricPercent, timeseriesData, bounds }, ...props) {
   return (
     <Card>
-      <Text>{title}</Text>
+      <Text><Link href={`/cwv/${accronym}`}>{title}</Link></Text>
       {metric === null ? 
          <CardLoading />: (
         <>
