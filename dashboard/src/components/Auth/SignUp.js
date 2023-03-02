@@ -3,10 +3,11 @@ import { useEffect, useState } from 'react';
 import cn from 'classnames';
 import { Field, Form, Formik } from 'formik';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import * as Yup from 'yup';
 import Logo from '@components/Logo';
 import LoadingSpinner from '@components/LoadingSpinner';
-import { useAuth } from '@components/AuthProvider';
+import { setUserOrg, useAuth } from '@components/AuthProvider';
 import supabase from '@lib/supabase-browser';
 
 const SignUpSchema = Yup.object().shape({
@@ -16,10 +17,17 @@ const SignUpSchema = Yup.object().shape({
 });
 
 const SignUp = () => {
-  const { setView, initial, session } = useAuth();
+  const { initial, session, setUserOrg } = useAuth();
+  const router = useRouter();
   const [ errorMsg, setErrorMsg ] = useState(null);
   const [ successMsg, setSuccessMsg ] = useState(null);
   const [ loading, setLoading ] = useState(false); 
+
+  useEffect(() => {
+    if (session?.user && !loading) {
+        router.push('/');
+    }
+  }, [session])
 
   async function signUp(formData) {
     try {
@@ -37,25 +45,28 @@ const SignUp = () => {
         const newUser = await supabase
           .from('users')
           .insert({ id: user.id, email: user.email })
-          
         if(newUser.error) { throw newUser.error }
+        console.log('New User:', newUser)
 
         const newOrg = await supabase
           .from('organizations')
           .insert({ name: formData.company, owner_uuid: user.id })
           .select()
-
         if(newOrg.error) { throw newOrg.error }
+        console.log('New Org Created:', newOrg)
 
-        console.log(newOrg)
-
-        /*const newOrgConnection = await supabase
+        const newOrgConnection = await supabase
           .from('organization_users')
-          .insert({ organizaion_id: , user_id: user.id })
-          .select()
-        */
-        setLoading(false);
-        // setSuccessMsg('Success! Please check your email for further instructions.');
+          .insert({ organization_id: newOrg.data[0].id, user_id: user.id })
+        if(newOrgConnection.error) { throw newOrg.error }
+        console.log('New Org Connection:', newOrgConnection)
+
+        // Send to auth provider
+        setUserOrg(newOrg.data[0]);
+        
+        console.log('Created Acount, Created Org, Created Org Connection, & Redirecting to Dashboard')
+        // Forward user to dashboard 
+        router.push('/')
       }
     } catch (error) {
       console.error('Sign Up Error', error);

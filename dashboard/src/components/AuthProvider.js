@@ -4,13 +4,23 @@ import { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import supabase from 'src/lib/supabase-browser';
 
+export const EVENTS = {
+  SIGNED_IN: 'SIGNED_IN',
+  TOKEN_REFRESHED: 'SIGNED_OUT',
+  PASSWORD_RECOVERY: 'PASSWORD_RECOVERY',
+  SIGNED_OUT: 'SIGNED_OUT',
+  USER_UPDATED: 'USER_UPDATED',
+};
+
 export const AuthContext = createContext();
 
 export const AuthProvider = (props) => {
   const [initial, setInitial] = useState(true);
   const [session, setSession] = useState(null);
   const [user, setUser] = useState(null);
-  const [userData, setUserData] = useState(null);
+  const [userOrg, setUserOrg] = useState(null);
+  const [allSites, setAllSites] = useState(null);
+  const [currentSite, setCurrentSite] = useState(null);
   const router = useRouter();
   const { accessToken, ...rest } = props;
 
@@ -37,6 +47,12 @@ export const AuthProvider = (props) => {
 
       setSession(currentSession);
       setUser(currentSession?.user ?? null);
+
+      // check if user is signed in and then try to pull the user's org, sites, & set site
+      if(event === EVENTS.SIGNED_IN) {
+        //getActiveSession();
+      }
+
     });
 
     return () => {
@@ -50,10 +66,15 @@ export const AuthProvider = (props) => {
       initial,
       session,
       user,
-      userData,
+      userOrg,
+      setUserOrg,
+      currentSite,
+      setCurrentSite,
+      allSites,
+      setAllSites,
       signOut: () => supabase.auth.signOut(),
     };
-  }, [initial, session, user, userData]);
+  }, [initial, session, user, userOrg, currentSite, allSites]);
 
   return <AuthContext.Provider value={value} {...rest} />;
 };
