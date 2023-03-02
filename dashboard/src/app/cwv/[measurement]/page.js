@@ -1,9 +1,9 @@
 'use client';
 import AuthenticatedView from '@/components/AuthenticatedView';
-import { BarList, Card, Title, Flex, Text, Bold } from '@tremor/react';
+import { AreaChart, BarList, Card, Title, Flex, Text, Bold } from '@tremor/react';
 import { useEffect, useState } from "react";
 import { msToSeconds } from "@/lib/utils";
-import { GetPagesForCWVMetric } from "@/lib/api";
+import { GetPagesForCWVMetric, GetCWVTimeSeriesData } from "@/lib/api";
 import LoadingSpinner from '@/components/LoadingSpinner';
 
 const loadingIndicator = () => {
@@ -19,10 +19,20 @@ const loadingIndicator = () => {
 export default function Cwv({ params }) {
   const { measurement } = params;
   const [pages, setPages] = useState();
+  const [timeseriesData, setTimeseriesData] = useState();
   const valueFormatter = value => measurement === 'CLS' ? Number.parseFloat(value).toFixed(4) : `${msToSeconds(value)} s`;
 
   useEffect(() => {
-    GetPagesForCWVMetric({ siteId: 'sj-syv3hiuj0p51nks5', metric: measurement }).then(res => setPages(res.records));
+    GetPagesForCWVMetric({ siteId: 'sj-syv3hiuj0p51nks5', metric: measurement }).then(res => {
+      const formatted = res.records.map(record => {
+        return {
+          ...record,
+          href: `/navigation-resources/${encodeURIComponent(record.name)}`
+        }
+      })
+      setPages(formatted)
+    });
+    GetCWVTimeSeriesData({ siteId: 'sj-syv3hiuj0p51nks5', metric: measurement }).then(chartData => setTimeseriesData(chartData));
   }, []);
 
   return (
@@ -30,6 +40,24 @@ export default function Cwv({ params }) {
       <AuthenticatedView>
         <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 ">
           <h1 className="text-lg font-medium mt-8">{measurement}</h1>
+          <div className='mt-6'>
+            {timeseriesData === undefined ?
+              loadingIndicator() :
+              <Card>
+                <AreaChart
+                  data={timeseriesData}
+                  dataKey="timestamp"
+                  categories={['p90']}
+                  colors={['blue']}
+                  showLegend={false}
+                  startEndOnly={true}
+                  valueFormatter={value => measurement === 'CLS' ? Number.parseFloat(value).toFixed(4) : `${msToSeconds(value)} s`}
+                  height="h-48"
+                  marginTop="mt-10"
+                />
+              </Card>
+            }
+          </div>
           <div className='mt-6'>
             <Card>
               <Title>Worst performing pages by {measurement}.</Title>

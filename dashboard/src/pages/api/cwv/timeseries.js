@@ -8,7 +8,7 @@ export default async (req, res) => {
     if (!metric) throw new Error('Missing `metric` query param');
     if (!siteId) throw new Error('Missing `siteId` query param');
     // const results = await PerformanceMetricsData.getTimeseriesDataForMetric({ siteId, metric, startTs });
-    const results = await PerformanceMetricsData.getP75TimeseriesDataForMetric({ siteId, metric, startTs });
+    const results = await PerformanceMetricsData.getPercentileTimeseriesDataForMetric({ siteId, metric, startTs });
     res.status(200).json({ results });
   } catch (err) {
     console.error(err);

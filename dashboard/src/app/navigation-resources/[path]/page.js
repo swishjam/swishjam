@@ -12,7 +12,10 @@ export default function NavigationResource({ params }) {
   const [resources, setResources] = useState();
 
   useEffect(() => {
-    GetResourcesForUrlPath({ urlPath: encodedPath, siteId: 'sj-syv3hiuj0p51nks5' }).then(res => setResources(res.records));
+    GetResourcesForUrlPath({ urlPath: encodedPath, siteId: 'sj-syv3hiuj0p51nks5' }).then(res => {
+      const formatted = res.records.map(record => ({ ...record, href: `/resources/${encodeURIComponent(record.name)}` }))
+      setResources(formatted)
+    });
   }, []);
 
   return (

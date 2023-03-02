@@ -112,7 +112,7 @@ export default class PerformanceMetricsData {
     return results.rows;
   };
 
-  static async getP75TimeseriesDataForMetric({ siteId, metric, startTs, percentile = 0.9 }) {
+  static async getPercentileTimeseriesDataForMetric({ siteId, metric, startTs, percentile = 0.9 }) {
     const query = `
       SELECT
         PERCENTILE_CONT(${percentile}) WITHIN GROUP (ORDER BY metric_value) AS percentile_result,

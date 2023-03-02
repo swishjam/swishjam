@@ -15,10 +15,17 @@ const CardLoading = () => (
 export default function WebVitalCard({ title, accronym, metric, metricUnits, metricPercent, timeseriesData, bounds }, ...props) {
   return (
     <Card>
-      <Text><Link href={`/cwv/${accronym}`}>{title}</Link></Text>
-      {metric === null ? 
-         <CardLoading />: (
+      {metric === null ? (
         <>
+          <Link href={`/cwv/${accronym}`} className='hover:underline'><Text>{title}</Text></Link>
+          <Flex justifyContent="justify-start" alignItems="items-baseline" spaceX="space-x-1">
+            <Metric></Metric>
+          </Flex>
+          <CardLoading />
+        </>
+      ) : (
+        <>
+          <Link href={`/cwv/${accronym}`} className='hover:underline'><Text>{title}</Text></Link>
           <Flex justifyContent="justify-start" alignItems="items-baseline" spaceX="space-x-1">
             <Metric>{metric}</Metric>
             <Text>{metricUnits}</Text>
