@@ -62,7 +62,7 @@ class Swishjam {
       reportingIdleTimeCheckInterval: config.reportingIdleTimeCheckInterval || 2_000,
       mockApiCalls: config.mockApiCalls || false,
       // performanceEntryTypesToCapture: config.performanceEntryTypesToCapture || ['navigation', 'paint', 'resource', 'longtask', 'largest-contentful-paint', 'layout-shift'],
-      performanceEntryTypesToCapture: config.performanceEntryTypesToCapture || ["element", "event", "first-input", "largest-contentful-paint", "layout-shift", "longtask", "mark", "measure", "navigation"," paint", "resource"],
+      performanceEntryTypesToCapture: config.performanceEntryTypesToCapture || window.PerformanceObserver ? window.PerformanceObserver.supportedEntryTypes : [],
       includeSwishjamResourcesEntries: config.includeSwishjamResourcesEntries || false,
       disablePerformanceEntriesCapture: config.disablePerformanceEntriesCapture || false,
     }

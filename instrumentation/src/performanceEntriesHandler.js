@@ -27,7 +27,7 @@ class PerformanceEntriesHandler {
     if(!window.PerformanceObserver) return;
     return new PerformanceObserver((list, _observer) => {
       callback(list.getEntries())
-    }).observe({ entryTypes: this.performanceEntryTypesToCapture, buffered: true });
+    }).observe({ entryTypes: this.performanceEntryTypesToCapture });
   }
 
   _getPerformanceEntries() {
