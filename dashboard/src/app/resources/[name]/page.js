@@ -1,6 +1,6 @@
 'use client';
 import AuthenticatedView from '@/components/AuthenticatedView';
-import { AreaChart, Card } from '@tremor/react';
+import { AreaChart, Card, Title } from '@tremor/react';
 import { useEffect, useState } from "react";
 import { msToSeconds } from "@/lib/utils";
 import { GetResourceMetricTimeseries } from "@/lib/api";
@@ -38,21 +38,21 @@ export default function Cwv({ params }) {
             <Card>
               {timeseriesData === undefined ?
                 loadingIndicator() :
-                <AreaChart
-                  data={timeseriesData}
-                  dataKey="timestamp"
-                  categories={['metric']}
-                  colors={['blue']}
-                  showLegend={false}
-                  startEndOnly={true}
-                  valueFormatter={value => `${msToSeconds(value)} s`}
-                  height="h-48"
-                  marginTop="mt-10"
-                />
+                <>
+                  <Title>Download time</Title>
+                  <AreaChart
+                    data={timeseriesData}
+                    dataKey="timestamp"
+                    categories={['metric']}
+                    colors={['blue']}
+                    showLegend={false}
+                    startEndOnly={true}
+                    valueFormatter={value => `${msToSeconds(value)} s`}
+                    height="h-48"
+                    marginTop="mt-10"
+                  />
+                </>
               }
-            </Card>
-            <Card>
-              
             </Card>
           </div>
         </main>
