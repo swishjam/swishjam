@@ -25,7 +25,9 @@ class PerformanceEntriesHandler {
 
   _onPerformanceEntries(callback) {
     if(!window.PerformanceObserver) return;
-    return new PerformanceObserver((list, _observer) => callback(list.getEntries())).observe({ entryTypes: this.performanceEntryTypesToCapture });
+    return new PerformanceObserver((list, _observer) => {
+      callback(list.getEntries())
+    }).observe({ entryTypes: this.performanceEntryTypesToCapture, buffered: true });
   }
 
   _getPerformanceEntries() {
@@ -34,6 +36,16 @@ class PerformanceEntriesHandler {
   }
 
   _formattedPerformanceEntry(entry) {
+    // remap the attribution array to decode the name and url
+    if(entry.attribution && entry.attribution.length > 0) {
+      entry.attribution = entry.attribution.map(attribution => {
+        return {
+          ...attribution.toJSON(),
+          name: encodeURIComponent(attribution.name || ""),
+          url: encodeURIComponent(attribution.url || ""),
+        }
+      });
+    }
     // not every performance entry has a URL attribute, for now we will set it to an empty string if it is not present
     return { 
       ...entry.toJSON(), 

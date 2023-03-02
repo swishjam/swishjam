@@ -28,7 +28,7 @@ Swishjam.init({
 ```js
 Swishjam.init({
   reportingUrl: 'https://yourwebsite.com/api/swishjam-consumer',
-  publicApiKey: 'some-unique-identifier' // this associates your event data with the environment
+  publicApiKey: 'some-unique-identifier', // this associates your event data with the environment
   shouldCapturePerformanceEntries: true, // default is true
   performanceEntryTypesToCapture: ["paint", "longtask", "navigation", "resource", "largest-contentful-paint", "first-input", "layout-shift"], // default is full list
   mockApiCalls: false, // default false
