@@ -34,7 +34,12 @@ class PerformanceEntriesHandler {
   }
 
   _formattedPerformanceEntry(entry) {
-    return { ...entry.toJSON(), name: encodeURIComponent(entry.name || "") };
+    // not every performance entry has a URL attribute, for now we will set it to an empty string if it is not present
+    return { 
+      ...entry.toJSON(), 
+      name: encodeURIComponent(entry.name || ""),
+      url: encodeURIComponent(entry.url || ""),
+    };
   }
 }
 
