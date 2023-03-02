@@ -7,6 +7,13 @@ export const fetcher = (url) => fetch(url).then((res) => res.json());
 
 export const msToSeconds = (ms) => (ms / 1000).toFixed(2);
 
+export const formattedDate = dateString => {
+  const d = new Date(dateString);
+  const date = d.toLocaleDateString('en-US', { month: '2-digit', day: '2-digit' });
+  const time = d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+  return `${date} ${time}`;
+};
+
 export const calcCwvPercent = (val, good, medium) => {
   const smallestGap = Math.min(good, medium-good);   
   const total = medium + smallestGap;

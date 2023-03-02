@@ -1,3 +1,5 @@
+import { formattedDate } from "./utils";
+
 const get = async (url, payload = {}) => {
   try {
     const queryParams = new URLSearchParams(payload);
@@ -17,7 +19,7 @@ export const GetCWVTimeSeriesData = async params => {
     const data = await get('/api/cwv/timeseries', params);
     return data.results.map(result => {
       return {
-        timestamp: `${new Date(result.hour).getMonth() + 1}/${new Date(result.hour).getDate()} ${new Date(result.hour).getHours()}:00`,
+        timestamp: formattedDate(result.hour),
         p90: parseFloat(result.percentile_result || 0),
       }
     });
@@ -42,7 +44,7 @@ export const GetResourceMetricTimeseries = async data => {
   const results = await get('/api/resourcePerformanceEntries/timeseries', data);
   return results.records.map(result => {
     return {
-      timestamp: `${new Date(result.hour).getMonth() + 1}/${new Date(result.hour).getDate()} ${new Date(result.hour).getHours()}:00`,
+      timestamp: formattedDate(result.hour),
       metric: parseFloat(result.metric || 0),
     }
   });
