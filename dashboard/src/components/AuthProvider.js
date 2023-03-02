@@ -2,22 +2,7 @@
 
 import { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
-
 import supabase from 'src/lib/supabase-browser';
-
-export const EVENTS = {
-  PASSWORD_RECOVERY: 'PASSWORD_RECOVERY',
-  SIGNED_OUT: 'SIGNED_OUT',
-  USER_UPDATED: 'USER_UPDATED',
-};
-
-export const VIEWS = {
-  SIGN_IN: 'sign_in',
-  SIGN_UP: 'sign_up',
-  FORGOTTEN_PASSWORD: 'forgotten_password',
-  MAGIC_LINK: 'magic_link',
-  UPDATE_PASSWORD: 'update_password',
-};
 
 export const AuthContext = createContext();
 
@@ -26,7 +11,6 @@ export const AuthProvider = (props) => {
   const [session, setSession] = useState(null);
   const [user, setUser] = useState(null);
   const [userData, setUserData] = useState(null);
-  const [view, setView] = useState(VIEWS.SIGN_IN);
   const router = useRouter();
   const { accessToken, ...rest } = props;
 
@@ -48,24 +32,11 @@ export const AuthProvider = (props) => {
       console.log('Auth State Change', event, currentSession)
       
       if (currentSession?.access_token !== accessToken) {
-        console.log('Refresh?')
         router.refresh();
       }
 
-      console.log('set stuff')
       setSession(currentSession);
       setUser(currentSession?.user ?? null);
-
-      switch (event) {
-        case EVENTS.PASSWORD_RECOVERY:
-          setView(VIEWS.UPDATE_PASSWORD);
-          break;
-        case EVENTS.SIGNED_OUT:
-        case EVENTS.USER_UPDATED:
-          setView(VIEWS.SIGN_IN);
-          break;
-        default:
-      }
     });
 
     return () => {
@@ -80,11 +51,9 @@ export const AuthProvider = (props) => {
       session,
       user,
       userData,
-      view,
-      setView,
       signOut: () => supabase.auth.signOut(),
     };
-  }, [initial, session, user, userData, view]);
+  }, [initial, session, user, userData]);
 
   return <AuthContext.Provider value={value} {...rest} />;
 };

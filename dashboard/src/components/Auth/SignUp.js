@@ -2,10 +2,11 @@
 import { useState } from 'react';
 import cn from 'classnames';
 import { Field, Form, Formik } from 'formik';
+import Link from 'next/link';
 import * as Yup from 'yup';
 import Logo from '@components/Logo';
 import LoadingSpinner from '@components/LoadingSpinner';
-import { useAuth, VIEWS } from '@components/AuthProvider';
+import { useAuth } from '@components/AuthProvider';
 import supabase from '@lib/supabase-browser';
 
 const SignUpSchema = Yup.object().shape({
@@ -16,7 +17,6 @@ const SignUpSchema = Yup.object().shape({
 
 const SignUp = () => {
   const { setView, initial, session } = useAuth();
-  console.log(session) 
   const [ errorMsg, setErrorMsg ] = useState(null);
   const [ successMsg, setSuccessMsg ] = useState(null);
   const [ loading, setLoading ] = useState(false); 
@@ -74,7 +74,7 @@ const SignUp = () => {
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-lg">
         <div className="bg-white py-8 px-4 sm:border sm:rounded-lg sm:px-10 shadow-sm">
-          <h2 class="text-2xl mb-6 text-gray-900">Register</h2> 
+          <h2 className="text-2xl mb-6 text-gray-900">Register</h2> 
 
           <Formik
             initialValues={{
@@ -160,8 +160,8 @@ const SignUp = () => {
       </div>
     
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-lg">
-        <p class="text-sm text-gray-600">
-          Already have an account? <span class="font-medium text-swishjam hover:text-swishjam-dark"><span className="cursor-pointer" onClick={() => setView(VIEWS.SIGN_IN)}>Sign in</span></span>
+        <p className="text-sm text-gray-600">
+          Already have an account? <span className="font-medium text-swishjam hover:text-swishjam-dark"><Link href="/">Sign in</Link></span>
         </p> 
       </div> 
     

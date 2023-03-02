@@ -1,12 +1,13 @@
 'use client';
 import { useState } from 'react';
+import Link from 'next/link';
 import cn from 'classnames';
 import { Field, Form, Formik } from 'formik';
 import * as Yup from 'yup';
-import { ExclamationCircleIcon } from '@heroicons/react/20/solid'
-import { useAuth, VIEWS } from '@components/AuthProvider';
+import { useAuth } from '@components/AuthProvider';
 import supabase from '@lib/supabase-browser';
 import Logo from '@components/Logo';
+import LoadingSpinner from '@components/LoadingSpinner';
 
 const SignInSchema = Yup.object().shape({
   email: Yup.string().email('Invalid email').required('Required'),
@@ -15,14 +16,16 @@ const SignInSchema = Yup.object().shape({
 
 const SignIn = () => {
   const { setView } = useAuth();
+  const [ loading, setLoading ] = useState(false); 
   const [ errorMsg, setErrorMsg ] = useState(null);
 
   async function signIn(formData) {
+    setLoading(true);
     const { error } = await supabase.auth.signInWithPassword({
       email: formData.email,
       password: formData.password,
     });
-
+    setLoading(false);
     if (error) {
       setErrorMsg(error.message);
     }
@@ -89,12 +92,11 @@ const SignIn = () => {
                 <div>
                   <div className="flex items-center justify-between">
                     <div className="text-sm mb-4">
-                      <div
-                        onClick={() => setView(VIEWS.FORGOTTEN_PASSWORD)}
-                        className="font-medium text-swishjam hover:text-swishjam-dark cursor-pointer"
-                      >
-                        Forgot your password?
-                      </div>
+                      <Link href="/forgot-password">
+                        <div className="font-medium text-swishjam hover:text-swishjam-dark cursor-pointer">
+                          Forgot your password?
+                        </div>
+                      </Link>
                     </div>
                   </div>
 
@@ -102,21 +104,21 @@ const SignIn = () => {
                     type="submit"
                     className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-swishjam hover:bg-swishjam-dark focus:outline-none focus:ring-2 focus:ring-offset-2"
                   >
-                    Sign in
+                    {loading ? <div className="h-6"><LoadingSpinner size={6} color='white'/></div> : 'Sign In'} 
                   </button>
                 </div>
 
               </Form>
             )}
           </Formik> 
-          {errorMsg && <div className="text-red-600 text-sm text-center">{errorMsg}</div>}
+          {errorMsg && <div className="text-red-600 text-sm text-center mt-4">{errorMsg}</div>}
 
         </div>
       </div>
     
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-lg">
         <p className="text-sm text-gray-600">
-          Don't have an account? <span className="font-medium text-swishjam hover:text-swishjam-dark"><span className="cursor-pointer" onClick={() => setView(VIEWS.SIGN_UP)}>Sign up for free account</span></span>
+          Don't have an account? <span className="font-medium text-swishjam hover:text-swishjam-dark"><Link href="register"><span className="cursor-pointer">Sign up for free account</span></Link></span>
         </p> 
       </div> 
     
