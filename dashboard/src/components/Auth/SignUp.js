@@ -4,29 +4,63 @@ import cn from 'classnames';
 import { Field, Form, Formik } from 'formik';
 import * as Yup from 'yup';
 import Logo from '@components/Logo';
+import LoadingSpinner from '@components/LoadingSpinner';
 import { useAuth, VIEWS } from '@components/AuthProvider';
 import supabase from '@lib/supabase-browser';
 
 const SignUpSchema = Yup.object().shape({
   email: Yup.string().email('Invalid email').required('Required'),
+  company: Yup.string().required('Required'),
   password: Yup.string().required('Required'),
 });
 
 const SignUp = () => {
-  const { setView } = useAuth();
+  const { setView, initial, session } = useAuth();
+  console.log(session) 
   const [ errorMsg, setErrorMsg ] = useState(null);
   const [ successMsg, setSuccessMsg ] = useState(null);
-
+  const [ loading, setLoading ] = useState(false); 
+  
   async function signUp(formData) {
-    const { error } = await supabase.auth.signUp({
-      email: formData.email,
-      password: formData.password,
-    });
+    try {
+      setLoading(true);
+      const { data, error } = await supabase.auth.signUp({
+        email: formData.email,
+        password: formData.password,
+      });
+      const { user, session } = data;
 
-    if (error) {
+      if (error) {
+        throw error;
+      } else {
+
+        const newUser = await supabase
+          .from('users')
+          .insert({ id: user.id, email: user.email })
+          
+        if(newUser.error) { throw newUser.error }
+
+        const newOrg = await supabase
+          .from('organizations')
+          .insert({ name: formData.company, owner_uuid: user.id })
+          .select()
+
+        if(newOrg.error) { throw newOrg.error }
+
+        console.log(newOrg)
+
+        /*const newOrgConnection = await supabase
+          .from('organization_users')
+          .insert({ organizaion_id: , user_id: user.id })
+          .select()
+        */
+        setLoading(false);
+        // setSuccessMsg('Success! Please check your email for further instructions.');
+      }
+    } catch (error) {
+      console.error('Sign Up Error', error);
+      setLoading(false);
       setErrorMsg(error.message);
-    } else {
-      setSuccessMsg('Success! Please check your email for further instructions.');
     }
   }
 
@@ -45,6 +79,7 @@ const SignUp = () => {
           <Formik
             initialValues={{
               email: '',
+              company: '',
               password: '',
             }}
             validationSchema={SignUpSchema}
@@ -70,6 +105,24 @@ const SignUp = () => {
                   </div>
                 </div>{/* End Email input */}
 
+                <div> {/* Company Name input */}
+                  <label htmlFor="company" className="block text-sm font-medium text-gray-700">
+                    Company Name
+                  </label>
+                  <div className="mt-1">
+                    <Field
+                      className={cn('input', errors.company && touched.company && 'border-red-400')}
+                      id="company"
+                      name="company"
+                      placeholder="Company Name"
+                      type="text"
+                    />
+                    {errors.company && touched.company ? (
+                      <div className="text-red-600 mt-1 text-sm text-right">{errors.company}</div>
+                    ) : null}
+                  </div>
+                </div>{/* End Company Name input */}
+
                 <div>{/* password input */}
                   <label htmlFor="password" className="block text-sm font-medium text-gray-700">
                     Password
@@ -79,7 +132,7 @@ const SignUp = () => {
                       className={cn('input', errors.password && touched.password && 'border-red-400')}
                       id="password"
                       name="password"
-                      autoComplete="current-password"
+                      autoComplete="new-password"
                       type="password"
                     />
                     {errors.password && touched.password ? (
@@ -91,9 +144,9 @@ const SignUp = () => {
                 <div>
                   <button
                     type="submit"
-                    className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-swishjam hover:bg-swishjam-dark focus:outline-none focus:ring-2 focus:ring-offset-2"
+                    className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-swishjam hover:bg-swishjam-dark focus:outline-none focus:ring-2 focus:ring-offse6-2"
                   >
-                    Register
+                    {loading ? <div className="h-6"><LoadingSpinner size={6} color='white'/></div> : 'Register'} 
                   </button>
                 </div>
 

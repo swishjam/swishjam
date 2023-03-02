@@ -25,6 +25,7 @@ export const AuthProvider = (props) => {
   const [initial, setInitial] = useState(true);
   const [session, setSession] = useState(null);
   const [user, setUser] = useState(null);
+  const [userData, setUserData] = useState(null);
   const [view, setView] = useState(VIEWS.SIGN_IN);
   const router = useRouter();
   const { accessToken, ...rest } = props;
@@ -43,10 +44,15 @@ export const AuthProvider = (props) => {
     const {
       data: { subscription: authListener },
     } = supabase.auth.onAuthStateChange((event, currentSession) => {
+     
+      console.log('Auth State Change', event, currentSession)
+      
       if (currentSession?.access_token !== accessToken) {
+        console.log('Refresh?')
         router.refresh();
       }
 
+      console.log('set stuff')
       setSession(currentSession);
       setUser(currentSession?.user ?? null);
 
@@ -73,11 +79,12 @@ export const AuthProvider = (props) => {
       initial,
       session,
       user,
+      userData,
       view,
       setView,
       signOut: () => supabase.auth.signOut(),
     };
-  }, [initial, session, user, view]);
+  }, [initial, session, user, userData, view]);
 
   return <AuthContext.Provider value={value} {...rest} />;
 };

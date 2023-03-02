@@ -38,7 +38,7 @@ const SignIn = () => {
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-lg">
         <div className="bg-white py-8 px-4 sm:border sm:rounded-lg sm:px-10 shadow-sm">
-          <h2 class="text-2xl mb-6 text-gray-900">Sign in to your account</h2> 
+          <h2 className="text-2xl mb-6 text-gray-900">Sign in to your account</h2> 
 
           <Formik
             initialValues={{
@@ -115,8 +115,8 @@ const SignIn = () => {
       </div>
     
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-lg">
-        <p class="text-sm text-gray-600">
-          Don't have an account? <span class="font-medium text-swishjam hover:text-swishjam-dark"><span className="cursor-pointer" onClick={() => setView(VIEWS.SIGN_UP)}>Sign up for free account</span></span>
+        <p className="text-sm text-gray-600">
+          Don't have an account? <span className="font-medium text-swishjam hover:text-swishjam-dark"><span className="cursor-pointer" onClick={() => setView(VIEWS.SIGN_UP)}>Sign up for free account</span></span>
         </p> 
       </div> 
     

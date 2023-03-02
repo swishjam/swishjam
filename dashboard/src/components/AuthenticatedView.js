@@ -7,6 +7,8 @@ import { useAuth, VIEWS } from '@components/AuthProvider';
 export default function AuthenticatedView({ children }) {
   const { initial, user, view, signOut } = useAuth();
 
+  console.log('authenticated view data', initial, user, view)
+
   if (initial) {
     return <LoadingFullScreen />;
   } else if (view === VIEWS.UPDATE_PASSWORD) {
