@@ -15,7 +15,7 @@ module.exports = class LayoutShiftPerformanceEntryEvent {
       unique_identifier: this.event.uniqueIdentifier,
       page_view_identifier: this.event.pageViewIdentifier,
       site_id: this.event.siteId,
-      name: (data.name || "").substr(0, 255),
+      name: decodeURIComponent(data.name || "").substr(0, 255),
       entry_type: data.entryType,
       start_time: data.startTime,
       duration: data.duration,

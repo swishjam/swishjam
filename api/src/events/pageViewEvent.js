@@ -20,11 +20,11 @@ module.exports = class PageViewEvent {
       site_id: siteId,
       page_view_ts: new Date(data.pageLoadTs),
       navigation_type: data.navigationType,
-      full_url: data.url,
+      full_url: decodeURIComponent(data.url || ''),
       url_host: this._safeUrlParse(data.url).host,
       url_path: this._safeUrlParse(data.url).pathname,
       url_query: this._safeUrlParse(data.url).search,
-      referrer_full_url: data.referrerUrl,
+      referrer_full_url: decodeURIComponent(data.referrerUrl || ''),
       referrer_url_host: this._safeUrlParse(data.referrerUrl).host,
       referrer_url_path: this._safeUrlParse(data.referrerUrl).pathname,
       referrer_url_query: this._safeUrlParse(data.referrerUrl).search,
@@ -51,7 +51,7 @@ module.exports = class PageViewEvent {
 
   _safeUrlParse(url) {
     try {
-      return new URL(url);
+      return new URL(decodeURIComponent(url));
     } catch (e) {
       return {};
     }

@@ -17,7 +17,7 @@ module.exports = class FirstInputPerformanceEntryEvent {
       site_id: this.event.siteId,
       duration: data.duration,
       entry_type: data.entryType,
-      name: (data.name || "").substr(0, 255),
+      name: decodeURIComponent(data.name || "").substr(0, 255),
       start_time: data.startTime,
       interaction_id: data.interactionId,
       processing_start: data.processingStart,

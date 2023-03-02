@@ -18,7 +18,7 @@ module.exports = class ResourcePerformanceEntryEvent {
       site_id: this.event.siteId,
       duration: data.duration,
       entry_type: data.entryType,
-      name: (data.name || "").substr(0, 255),
+      name: decodeURIComponent(data.name || "").substr(0, 255),
       start_time: data.startTime,
       container_type: data.containerType,
       container_src: data.containerSrc,

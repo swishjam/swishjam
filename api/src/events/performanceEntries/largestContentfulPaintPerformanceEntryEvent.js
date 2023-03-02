@@ -17,14 +17,14 @@ module.exports = class LargestContentfulPaintPerformanceEntryEvent {
       site_id: this.event.siteId,
       duration: data.duration,
       entry_type: data.entryType,
-      name: (data.name || "").substr(0, 255),
+      name: decodeURIComponent(data.name || "").substr(0, 255),
       start_time: data.startTime,
       element_identifier: data.element,
       render_time: data.renderTime,
       load_time: data.loadTime,
       size: data.size,
       element_id: data.id,
-      url: data.url,
+      url: decodeURIComponent(data.url || ''),
     }
   }
 }
