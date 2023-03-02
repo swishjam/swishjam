@@ -12,3 +12,4 @@ dashboard/.next/**
 test.html
 api-cdk
 .github
+credentials.json
