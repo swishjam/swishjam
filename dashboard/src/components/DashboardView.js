@@ -51,21 +51,13 @@ export default function DashboardView() {
 
   const [slowPageNavigations, setSlowPageNavigations] = useState();
   
-  const getAndSetMetric = async (siteId, cwvKey) => {
-    GetCWVData({ siteId: siteId, metric: cwvKey }).then(res => {
+  const getAndSetWebVitalMetric = async (siteId, cwvKey) => {
+    GetCWVData({ siteId, metric: cwvKey }).then(res => {
       const pData = calcCwvPercent(res.average, cwvMetricBounds[cwvKey].good, cwvMetricBounds[cwvKey].medium );
       const currentCwv = { LCP: lcp, INP: inp, CLS: cls, FCP: fcp, FID: fid, TTFB: ttfb  }[cwvKey];
-      const setStateMethod = { LCP: setLCP, INP: setINP, CLS: setCLS, FCP: setFCP, FID: setFID, TTFB: setTTFB }[cwvKey];
-      
-      let metric;
-      
-      if(currentCwv.metricUnits === 's') {
-        metric = msToSeconds(res.average)
-      } else if(currentCwv.metricUnits === 'ms') {
-        metric = Number.parseInt(res.average)
-      } else {
-        metric = Number.parseFloat(res.average).toFixed(4);
-      }
+      const setStateMethod = { LCP: setLCP, INP: setINP, CLS: setCLS, FCP: setFCP, FID: setFID, TTFB: setTTFB }[cwvKey];      
+      const metric = currentCwv.metricUnits === 's' ? msToSeconds(res.average) : 
+                      currentCwv.metricUnits === 'ms' ? parseInt(res.average) : parseFloat(res.average).toFixed(4);
       setStateMethod(prevState => ({ ...prevState, metric, bounds: pData.bounds, metricPercent: pData.percent }));
     })
   };
@@ -79,24 +71,19 @@ export default function DashboardView() {
 
   const getSlowPageNavigations = siteId => {
     GetNavigationPerformanceEntriesData({ siteId, metric: 'dom_interactive' }).then(res => {
-      const formatted = res.records.map(item => {
-        return {
-          ...item,
-          href: `/navigation-resources/${window.encodeURIComponent(item.name)}`,
-        }
-      });
+      const formatted = res.records.map(item => ({ ...item, href: `/pages/${window.encodeURIComponent(item.name)}` }));
       setSlowPageNavigations(formatted);
     })
   }
 
   useEffect(() => {
     const siteId = 'sj-syv3hiuj0p51nks5';
-    getAndSetMetric(siteId, 'LCP');
-    getAndSetMetric(siteId, 'INP');
-    getAndSetMetric(siteId, 'CLS');
-    getAndSetMetric(siteId, 'FCP');
-    getAndSetMetric(siteId, 'FID');
-    getAndSetMetric(siteId, 'TTFB');
+    getAndSetWebVitalMetric(siteId, 'LCP');
+    getAndSetWebVitalMetric(siteId, 'INP');
+    getAndSetWebVitalMetric(siteId, 'CLS');
+    getAndSetWebVitalMetric(siteId, 'FCP');
+    getAndSetWebVitalMetric(siteId, 'FID');
+    getAndSetWebVitalMetric(siteId, 'TTFB');
     getTimeseriesDataForMetric(siteId, 'LCP');
     getTimeseriesDataForMetric(siteId, 'CLS');
     getTimeseriesDataForMetric(siteId, 'INP');

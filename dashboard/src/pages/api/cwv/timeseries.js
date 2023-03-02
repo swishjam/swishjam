@@ -2,13 +2,13 @@ import PerformanceMetricsData from '../../../lib/data/performanceMetrics';
 
 export default async (req, res) => {
   const defaultStartTs = Date.now() - 1000 * 60 * 60 * 24 * 7;
-  const { siteId, metric, startTs = defaultStartTs } = req.query;
+  const { siteId, metric, urlPath, startTs = defaultStartTs } = req.query;
 
   try {
     if (!metric) throw new Error('Missing `metric` query param');
     if (!siteId) throw new Error('Missing `siteId` query param');
     // const results = await PerformanceMetricsData.getTimeseriesDataForMetric({ siteId, metric, startTs });
-    const results = await PerformanceMetricsData.getPercentileTimeseriesDataForMetric({ siteId, metric, startTs });
+    const results = await PerformanceMetricsData.getPercentileTimeseriesDataForMetric({ siteId, metric, urlPath, startTs });
     res.status(200).json({ results });
   } catch (err) {
     console.error(err);

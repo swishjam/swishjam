@@ -1,6 +1,6 @@
 'use client';
 import AuthenticatedView from '@/components/AuthenticatedView';
-import { AreaChart, Card, Title, Flex, Text, Bold } from '@tremor/react';
+import { AreaChart, Card } from '@tremor/react';
 import { useEffect, useState } from "react";
 import { msToSeconds } from "@/lib/utils";
 import { GetResourceMetricTimeseries } from "@/lib/api";
@@ -26,10 +26,7 @@ export default function Cwv({ params }) {
       siteId: 'sj-syv3hiuj0p51nks5', 
       resourceName: encodedName, 
       metric: 'duration' 
-    }).then(res => {
-      console.log(res);
-      setTimeseriesData(res)
-    });
+    }).then(res => setTimeseriesData(res));
   }, []);
 
   return (

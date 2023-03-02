@@ -1,5 +1,5 @@
 'use client';
-import { Card, Metric, Text, Flex, CategoryBar, AreaChart, Accordion } from '@tremor/react';
+import { Card, Metric, Text, Flex, CategoryBar, AreaChart } from '@tremor/react';
 import LoadingSpinner from '@components/LoadingSpinner';
 import { msToSeconds } from '@lib/utils';
 import Link from 'next/link';
@@ -38,17 +38,25 @@ export default function WebVitalCard({ title, accronym, metric, metricUnits, met
             showLabels={false}
             marginTop="mt-5"
           />
-          <AreaChart
-            data={timeseriesData}
-            dataKey="timestamp"
-            categories={['p90']}
-            colors={['blue']}
-            showLegend={false}
-            startEndOnly={true}
-            valueFormatter={value => metricUnits === 's' ? `${msToSeconds(value)} ${metricUnits}` : Number.parseFloat(value).toFixed(4)}
-            height="h-48"
-            marginTop="mt-10"
-          />
+          {timeseriesData === undefined ?
+            <CardLoading /> : timeseriesData.length > 0 ? (
+              <AreaChart
+                data={timeseriesData}
+                dataKey="timestamp"
+                categories={['p90']}
+                colors={['blue']}
+                showLegend={false}
+                startEndOnly={true}
+                valueFormatter={value => metricUnits === 's' ? `${msToSeconds(value)} ${metricUnits}` : typeof value === Number ? parseFloat(value).toFixed(4) : ''}
+                height="h-48"
+                marginTop="mt-10"
+              />
+            ) : (
+              <div className='flex justify-center items-center py-12'>
+                <Text>No data available for timeframe</Text>
+              </div>
+            )
+          }
         </>
       )}
     </Card>
