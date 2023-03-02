@@ -42,7 +42,9 @@ export default function Cwv({ params }) {
           <h1 className="text-lg font-medium mt-8">{measurement}</h1>
           <div className='mt-6'>
             {timeseriesData === undefined ?
-              loadingIndicator() :
+              <Card>
+                {loadingIndicator()}
+              </Card> :
               <Card>
                 <AreaChart
                   data={timeseriesData}

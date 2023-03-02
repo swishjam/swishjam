@@ -27,13 +27,35 @@ export default function DashboardView() {
     metricUnits: '',
     timeseriesData: [{}]
   });
+  const [fcp, setFCP] = useState({
+    key: "FCP",
+    title: "First Contentful Paint Average",
+    metric: null,
+    metricUnits: 's',
+    timeseriesData: [{}]
+  });
+  const [fid, setFID] = useState({
+    key: "FID",
+    title: "First Input Delay Average",
+    metric: null,
+    metricUnits: 's',
+    timeseriesData: [{}]
+  });
+  const [ttfb, setTTFB] = useState({
+    key: "TTFB",
+    title: "Time to First Byte Average",
+    metric: null,
+    metricUnits: 's',
+    timeseriesData: [{}]
+  });
+
   const [slowPageNavigations, setSlowPageNavigations] = useState();
   
   const getAndSetMetric = async (siteId, cwvKey) => {
     GetCWVData({ siteId: siteId, metric: cwvKey }).then(res => {
       const pData = calcCwvPercent(res.average, cwvMetricBounds[cwvKey].good, cwvMetricBounds[cwvKey].medium );
-      const currentCwv = { 'LCP': lcp, 'INP': inp, 'CLS': cls  }[cwvKey];
-      const setStateMethod = { 'LCP': setLCP, 'INP': setINP, 'CLS': setCLS }[cwvKey];
+      const currentCwv = { LCP: lcp, INP: inp, CLS: cls, FCP: fcp, FID: fid, TTFB: ttfb  }[cwvKey];
+      const setStateMethod = { LCP: setLCP, INP: setINP, CLS: setCLS, FCP: setFCP, FID: setFID, TTFB: setTTFB }[cwvKey];
       
       let metric;
       
@@ -50,7 +72,7 @@ export default function DashboardView() {
 
   const getTimeseriesDataForMetric = (siteId, metric) => {
     GetCWVTimeSeriesData({ siteId, metric }).then(chartData => {
-      const setStateMethod = { 'LCP': setLCP, 'INP': setINP, 'CLS': setCLS }[metric];
+      const setStateMethod = { LCP: setLCP, INP: setINP, CLS: setCLS, FCP: setFCP, FID: setFID, TTFB: setTTFB }[metric];
       setStateMethod(prevState => ({ ...prevState, timeseriesData: chartData }));
     })
   }
@@ -72,9 +94,15 @@ export default function DashboardView() {
     getAndSetMetric(siteId, 'LCP');
     getAndSetMetric(siteId, 'INP');
     getAndSetMetric(siteId, 'CLS');
+    getAndSetMetric(siteId, 'FCP');
+    getAndSetMetric(siteId, 'FID');
+    getAndSetMetric(siteId, 'TTFB');
     getTimeseriesDataForMetric(siteId, 'LCP');
     getTimeseriesDataForMetric(siteId, 'CLS');
     getTimeseriesDataForMetric(siteId, 'INP');
+    getTimeseriesDataForMetric(siteId, 'FCP');
+    getTimeseriesDataForMetric(siteId, 'FID');
+    getTimeseriesDataForMetric(siteId, 'TTFB');
     getSlowPageNavigations(siteId);
   }, []);
 
@@ -83,7 +111,7 @@ export default function DashboardView() {
       <h1 className="text-lg font-medium mt-8">Real User Core Web Vitals</h1>
 
       <ColGrid numColsMd={2} numColsLg={3} gapX="gap-x-6" gapY="gap-y-6" marginTop="mt-6">
-        {[lcp, cls, inp].map(item => (
+        {[lcp, cls, inp, fcp, fid, ttfb].map(item => (
           <WebVitalCard
             key={item.key}
             accronym={item.key}
