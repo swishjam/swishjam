@@ -3,11 +3,11 @@ version = 0.1
 [default.deploy]
 [default.deploy.parameters]
 stack_name = "swishjam-ingestion"
-s3_bucket = "aws-sam-cli-managed-default-samclisourcebucket-7bk6hnwng49x"
+s3_bucket = "aws-sam-cli-managed-default-samclisourcebucket-k2ji4oitdt85"
 s3_prefix = "swishjam-ingestion"
 region = "us-east-1"
-profile = "production"
+profile = "collin-dev"
 capabilities = "CAPABILITY_NAMED_IAM"
-parameter_overrides = "DatabaseName=\"performance_data\" DatabaseUsername=\"dbuser\" DatabasePassword=\"vxa_ydq8gbh7XHD*pap\" DatabaseHostname=\"swishjam-production.c4rrxfy0dpp8.us-east-1.rds.amazonaws.com\" DatabasePort=\"5432\" RestApiName=\"swishjam-event-data-endpoint\" SqsQueueName=\"swishjam-event-data-message-queue\" EventConsumerLambdaFunctionName=\"swishjam-event-data-sqs-message-consumer\""
+parameter_overrides = "DatabaseName=\"performance_data\" DatabaseUsername=\"dbuser\" DatabasePassword=\"xc0b0QnuMyZ66jFYF4p0\" DatabaseHostname=\"performance-data-db.cytsjoeoway1.us-east-1.rds.amazonaws.com\" DatabasePort=\"5432\" RestApiName=\"swishjam-event-data-endpoint\" SqsQueueName=\"swishjam-event-data-message-queue\" EventConsumerLambdaFunctionName=\"swishjam-event-data-sqs-message-consumer\""
 image_repositories = []
 confirm_changeset = true

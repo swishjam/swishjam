@@ -27,54 +27,69 @@ export default function DashboardView() {
     metricUnits: '',
     timeseriesData: [{}]
   });
+  const [fcp, setFCP] = useState({
+    key: "FCP",
+    title: "First Contentful Paint Average",
+    metric: null,
+    metricUnits: 's',
+    timeseriesData: [{}]
+  });
+  const [fid, setFID] = useState({
+    key: "FID",
+    title: "First Input Delay Average",
+    metric: null,
+    metricUnits: 's',
+    timeseriesData: [{}]
+  });
+  const [ttfb, setTTFB] = useState({
+    key: "TTFB",
+    title: "Time to First Byte Average",
+    metric: null,
+    metricUnits: 's',
+    timeseriesData: [{}]
+  });
+
   const [slowPageNavigations, setSlowPageNavigations] = useState();
   
-  const getAndSetMetric = async (siteId, cwvKey) => {
-    GetCWVData({ siteId: siteId, metric: cwvKey }).then(res => {
+  const getAndSetWebVitalMetric = async (siteId, cwvKey) => {
+    GetCWVData({ siteId, metric: cwvKey }).then(res => {
       const pData = calcCwvPercent(res.average, cwvMetricBounds[cwvKey].good, cwvMetricBounds[cwvKey].medium );
-      const currentCwv = { 'LCP': lcp, 'INP': inp, 'CLS': cls  }[cwvKey];
-      const setStateMethod = { 'LCP': setLCP, 'INP': setINP, 'CLS': setCLS }[cwvKey];
-      
-      let metric;
-      
-      if(currentCwv.metricUnits === 's') {
-        metric = msToSeconds(res.average)
-      } else if(currentCwv.metricUnits === 'ms') {
-        metric = Number.parseInt(res.average)
-      } else {
-        metric = Number.parseFloat(res.average).toFixed(4);
-      }
+      const currentCwv = { LCP: lcp, INP: inp, CLS: cls, FCP: fcp, FID: fid, TTFB: ttfb  }[cwvKey];
+      const setStateMethod = { LCP: setLCP, INP: setINP, CLS: setCLS, FCP: setFCP, FID: setFID, TTFB: setTTFB }[cwvKey];      
+      const metric = currentCwv.metricUnits === 's' ? msToSeconds(res.average) : 
+                      currentCwv.metricUnits === 'ms' ? parseInt(res.average) : parseFloat(res.average).toFixed(4);
       setStateMethod(prevState => ({ ...prevState, metric, bounds: pData.bounds, metricPercent: pData.percent }));
     })
   };
 
   const getTimeseriesDataForMetric = (siteId, metric) => {
     GetCWVTimeSeriesData({ siteId, metric }).then(chartData => {
-      const setStateMethod = { 'LCP': setLCP, 'INP': setINP, 'CLS': setCLS }[metric];
+      const setStateMethod = { LCP: setLCP, INP: setINP, CLS: setCLS, FCP: setFCP, FID: setFID, TTFB: setTTFB }[metric];
       setStateMethod(prevState => ({ ...prevState, timeseriesData: chartData }));
     })
   }
 
   const getSlowPageNavigations = siteId => {
     GetNavigationPerformanceEntriesData({ siteId, metric: 'dom_interactive' }).then(res => {
-      const formatted = res.records.map(item => {
-        return {
-          ...item,
-          href: `/navigation-resources/${window.encodeURIComponent(item.name)}`,
-        }
-      });
+      const formatted = res.records.map(item => ({ ...item, href: `/pages/${window.encodeURIComponent(item.name)}` }));
       setSlowPageNavigations(formatted);
     })
   }
 
   useEffect(() => {
     const siteId = 'sj-syv3hiuj0p51nks5';
-    getAndSetMetric(siteId, 'LCP');
-    getAndSetMetric(siteId, 'INP');
-    getAndSetMetric(siteId, 'CLS');
+    getAndSetWebVitalMetric(siteId, 'LCP');
+    getAndSetWebVitalMetric(siteId, 'INP');
+    getAndSetWebVitalMetric(siteId, 'CLS');
+    getAndSetWebVitalMetric(siteId, 'FCP');
+    getAndSetWebVitalMetric(siteId, 'FID');
+    getAndSetWebVitalMetric(siteId, 'TTFB');
     getTimeseriesDataForMetric(siteId, 'LCP');
     getTimeseriesDataForMetric(siteId, 'CLS');
     getTimeseriesDataForMetric(siteId, 'INP');
+    getTimeseriesDataForMetric(siteId, 'FCP');
+    getTimeseriesDataForMetric(siteId, 'FID');
+    getTimeseriesDataForMetric(siteId, 'TTFB');
     getSlowPageNavigations(siteId);
   }, []);
 
@@ -83,9 +98,10 @@ export default function DashboardView() {
       <h1 className="text-lg font-medium mt-8">Real User Core Web Vitals</h1>
 
       <ColGrid numColsMd={2} numColsLg={3} gapX="gap-x-6" gapY="gap-y-6" marginTop="mt-6">
-        {[lcp, cls, inp].map(item => (
+        {[lcp, cls, inp, fcp, fid, ttfb].map(item => (
           <WebVitalCard
             key={item.key}
+            accronym={item.key}
             title={item.title}
             metric={item.metric}
             metricUnits={item.metricUnits}

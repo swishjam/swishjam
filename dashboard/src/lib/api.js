@@ -15,13 +15,12 @@ export const GetCWVData = async data => {
 export const GetCWVTimeSeriesData = async params => {
   try {
     const data = await get('/api/cwv/timeseries', params);
-    const formatted = data.results.map(result => {
+    return data.results.map(result => {
       return {
         timestamp: `${new Date(result.hour).getMonth() + 1}/${new Date(result.hour).getDate()} ${new Date(result.hour).getHours()}:00`,
         p90: parseFloat(result.percentile_result || 0),
       }
     });
-    return formatted;
   } catch (e) {
     console.error(e.message)
   }
@@ -33,4 +32,18 @@ export const GetNavigationPerformanceEntriesData = async data => {
 
 export const GetResourcesForUrlPath = async data => {
   return await get(`/api/resourcePerformanceEntries/byUrlPath`, data);
+}
+
+export const GetPagesForCWVMetric = async data => {
+  return await get('/api/cwv/pages', data);
+}
+
+export const GetResourceMetricTimeseries = async data => {
+  const results = await get('/api/resourcePerformanceEntries/timeseries', data);
+  return results.records.map(result => {
+    return {
+      timestamp: `${new Date(result.hour).getMonth() + 1}/${new Date(result.hour).getDate()} ${new Date(result.hour).getHours()}:00`,
+      metric: parseFloat(result.metric || 0),
+    }
+  });
 }

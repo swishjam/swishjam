@@ -31,4 +31,29 @@ export default class NavigationPerformanceEntries {
     `;
     return (await db.query(query, [siteId, urlPath, new Date(startTs)])).rows;
   }
+
+  static async getTimeseriesForMetric({ siteId, resourceName, metric, startTs }) {
+    const query = `
+      SELECT
+        resource_performance_entries.name AS name,
+        AVG(${metric}) AS metric,
+        date_trunc('hour', page_views.page_view_ts) AS hour,
+        date_trunc('day', page_views.page_view_ts) AS day
+      FROM
+        resource_performance_entries
+      JOIN
+        page_views ON resource_performance_entries.page_view_identifier = page_views.identifier
+      WHERE
+        page_views.site_id = $1 AND
+        resource_performance_entries.name = $2 AND
+        page_views.page_view_ts >= $3 AND
+        resource_performance_entries.${metric} IS NOT NULL AND
+        resource_performance_entries.${metric} > 0
+      GROUP BY
+        day, hour, name
+      ORDER BY
+        day, hour ASC
+    `;
+    return (await db.query(query, [siteId, decodeURIComponent(resourceName), new Date(startTs)])).rows;
+  }
 }

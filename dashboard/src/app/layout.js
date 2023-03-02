@@ -20,7 +20,9 @@ export default async function RootLayout({ children }) {
     <html lang="en">
       <body>
         <AuthProvider accessToken={accessToken}>
-          {children}
+          <div className='mb-10'>
+            {children}
+          </div>
         </AuthProvider>
       </body>
     </html>

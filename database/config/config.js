@@ -1,7 +1,7 @@
 require('dotenv').config()
 
-if(!process.env.DB_USERNAME) throw new Error('DB_USERNAME ENV variable is not defined.');
-if(!process.env.DB_PASSWORD) throw new Error('DB_PASSWORD ENV variable is not defined.');
+// if(!process.env.DB_USERNAME) throw new Error('DB_USERNAME ENV variable is not defined.');
+// if(!process.env.DB_PASSWORD) throw new Error('DB_PASSWORD ENV variable is not defined.');
 if(!process.env.DB_NAME) throw new Error('DB_NAME ENV variable is not defined.');
 if(!process.env.DB_HOST) throw new Error('DB_HOST ENV variable is not defined.');
 
