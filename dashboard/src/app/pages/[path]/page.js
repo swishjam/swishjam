@@ -74,6 +74,7 @@ export default function NavigationResource({ params }) {
                 metricPercent={item.metricPercent}
                 bounds={item.bounds}
                 timeseriesData={item.timeseriesData}
+                shouldLinkToCwvDetails={false}
               />
             ))}
           </ColGrid>

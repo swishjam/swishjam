@@ -12,12 +12,15 @@ const CardLoading = () => (
   </div>
 )
 
-export default function WebVitalCard({ title, accronym, metric, metricUnits, metricPercent, timeseriesData, bounds }, ...props) {
+export default function WebVitalCard({ title, accronym, metric, metricUnits, metricPercent, timeseriesData, bounds, shouldLinkToCwvDetails = true }, ...props) {
   return (
     <Card>
       {metric === null ? (
         <>
-          <Link href={`/cwv/${accronym}`} className='hover:underline'><Text>{title}</Text></Link>
+          {shouldLinkToCwvDetails ? 
+            <Link href={`/cwv/${accronym}`} className='hover:underline'><Text>{title}</Text></Link> :
+            <Text>{title}</Text>
+          }
           <Flex justifyContent="justify-start" alignItems="items-baseline" spaceX="space-x-1">
             <Metric></Metric>
           </Flex>
@@ -25,7 +28,10 @@ export default function WebVitalCard({ title, accronym, metric, metricUnits, met
         </>
       ) : (
         <>
-          <Link href={`/cwv/${accronym}`} className='hover:underline'><Text>{title}</Text></Link>
+            {shouldLinkToCwvDetails ?
+              <Link href={`/cwv/${accronym}`} className='hover:underline'><Text>{title}</Text></Link> :
+              <Text>{title}</Text>
+            }
           <Flex justifyContent="justify-start" alignItems="items-baseline" spaceX="space-x-1">
             <Metric>{metric}</Metric>
             <Text>{metricUnits}</Text>
