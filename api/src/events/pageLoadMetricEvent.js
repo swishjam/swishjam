@@ -31,8 +31,10 @@ module.exports = class PageLoadMetricEvent {
         `;
       } else if(!existingMetric) {
         const attrs = {
-          unique_identifier: this.event.uniqueIdentifier,
-          page_view_identifier: this.event.pageViewIdentifier,
+          uuid: this.event.uuid || this.event.uniqueIdentifier,
+          unique_identifier: this.event.uuid || this.event.uniqueIdentifier,
+          page_view_uuid: this.event.pageViewUuid || this.event.pageViewIdentifier,
+          page_view_identifier: this.event.pageViewUuid || this.event.pageViewIdentifier,
           site_id: this.event.siteId,
           metric_name: type,
           metric_value: value

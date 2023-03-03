@@ -17,15 +17,16 @@ class ReportingHandler {
     this.currentPageViewIdentifier = pageViewIdentifier;
   }
 
-  recordEvent(eventName, data, uniqueId = null) {
+  recordEvent(eventName, data, uuid = null) {
     if (!EVENT_TYPES.includes(eventName)) throw new Error(`Invalid event: ${eventName}. Valid event types are: ${EVENT_TYPES.join(', ')}.`);
     if (!this.currentPageViewIdentifier) throw new Error('ReportingHandler has no currentPageViewIdentifier, cannot record event.');
     this.dataToReport.push({ 
       _event: eventName, 
       // uniqueIdentifier: uniqueId,
-      uniqueIdentifier: uniqueId || UuidGenerator.generate(eventName.toLowerCase()),
+      uuid: uuid || UuidGenerator.generate(eventName.toLowerCase()),
       siteId: this.publicApiKey,
-      pageViewIdentifier: this.currentPageViewIdentifier, 
+      // pageViewIdentifier: this.currentPageViewIdentifier, 
+      pageViewUuid: this.currentPageViewIdentifier,
       ts: Date.now(), 
       data 
     });

@@ -12,9 +12,12 @@ module.exports = class TaskAttributionPerformanceEntryEvent {
   _attrs() {
     const { data } = this.event;
     return {
-      longtask_unique_identifier: this.event.longTaskPerformanceEntryIdentifier,
-      unique_identifier: this.event.uniqueIdentifier,
-      page_view_identifier: this.event.pageViewIdentifier,
+      uuid: this.event.uuid,
+      unique_identifier: this.event.uuid,
+      longtask_uuid: this.event.longTaskPerformanceEntryUuid,
+      longtask_unique_identifier: this.event.longTaskPerformanceEntryUuid,
+      page_view_identifier: this.event.pageViewUuid,
+      page_view_uuid: this.event.pageViewUuid,
       site_id: this.event.siteId,
       duration: data.duration,
       entry_type: data.entryType,

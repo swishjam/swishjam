@@ -7,7 +7,8 @@ describe('PageLoadMetricEvent', () => {
   
   it('it does nothing if it\'s an unrecognized metric', async () => {
     const data = {
-      pageViewIdentifier: 'page-view-identifier-xyz',
+      uuid: 'metric-123',
+      pageViewUuid: 'page-view-identifier-xyz',
       siteId: 'site-identifier-123',
       data: {
         type: 'FAKE_METRIC',
@@ -22,6 +23,29 @@ describe('PageLoadMetricEvent', () => {
   
   it('it creates a new performance_metric', async () => {
     const data = {
+      uuid: 'metric-123',
+      pageViewUuid: 'page-view-identifier-xyz',
+      siteId: 'site-identifier-123',
+      data: {
+        type: 'FCP',
+        value: 100
+      }
+    }
+    const db = DB.connect();
+    await new PageLoadMetricEvent(data, db).createPerformanceMetric();
+    const allPageLoadMetrics = await db.client`SELECT * FROM performance_metrics`;
+    expect(allPageLoadMetrics).toHaveLength(1);
+    expect(allPageLoadMetrics[0].uuid).toEqual(data.uuid);
+    expect(allPageLoadMetrics[0].unique_identifier).toEqual(data.uuid);
+    expect(allPageLoadMetrics[0].page_view_uuid).toEqual(data.pageViewUuid);
+    expect(allPageLoadMetrics[0].page_view_identifier).toEqual(data.pageViewUuid);
+    expect(allPageLoadMetrics[0].site_id).toEqual(data.siteId);
+    expect(allPageLoadMetrics[0].metric_name).toEqual('FCP');
+    expect(allPageLoadMetrics[0].metric_value).toEqual('100');
+  })
+
+  it('it uses the legacy `_identifier` columns when `uuids` are not present', async () => {
+    const data = {
       uniqueIdentifier: 'metric-123',
       pageViewIdentifier: 'page-view-identifier-xyz',
       siteId: 'site-identifier-123',
@@ -34,6 +58,11 @@ describe('PageLoadMetricEvent', () => {
     await new PageLoadMetricEvent(data, db).createPerformanceMetric();
     const allPageLoadMetrics = await db.client`SELECT * FROM performance_metrics`;
     expect(allPageLoadMetrics).toHaveLength(1);
+    expect(allPageLoadMetrics[0].uuid).toEqual(data.uniqueIdentifier);
+    expect(allPageLoadMetrics[0].unique_identifier).toEqual(data.uniqueIdentifier);
+    expect(allPageLoadMetrics[0].page_view_uuid).toEqual(data.pageViewIdentifier);
+    expect(allPageLoadMetrics[0].page_view_identifier).toEqual(data.pageViewIdentifier);
+    expect(allPageLoadMetrics[0].site_id).toEqual(data.siteId);
     expect(allPageLoadMetrics[0].metric_name).toEqual('FCP');
     expect(allPageLoadMetrics[0].metric_value).toEqual('100');
   })

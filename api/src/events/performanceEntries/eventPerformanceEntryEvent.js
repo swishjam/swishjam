@@ -12,8 +12,10 @@ module.exports = class EventPerformanceEntryEvent {
   _attrs() {
     const { data } = this.event;
     return {
-      unique_identifier: this.event.uniqueIdentifier,
-      page_view_identifier: this.event.pageViewIdentifier,
+      unique_identifier: this.event.uuid || this.event.uniqueIdentifier,
+      uuid: this.event.uuid || this.event.uniqueIdentifier,
+      page_view_identifier: this.event.pageViewUuid || this.event.pageViewIdentifier,
+      page_view_uuid: this.event.pageViewUuid || this.event.pageViewIdentifier,
       site_id: this.event.siteId,
       duration: data.duration,
       entry_type: data.entryType,

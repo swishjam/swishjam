@@ -15,8 +15,10 @@ module.exports = class LongTaskPerformanceEntryEvent {
   _attrs() {
     const { data } = this.event;
     return {
-      unique_identifier: this.event.uniqueIdentifier,
-      page_view_identifier: this.event.pageViewIdentifier,
+      unique_identifier: this.event.uuid || this.event.uniqueIdentifier,
+      uuid: this.event.uuid || this.event.uniqueIdentifier,
+      page_view_identifier: this.event.pageViewUuid || this.event.pageViewIdentifier,
+      page_view_uuid: this.event.pageViewUuid || this.event.pageViewIdentifier,
       site_id: this.event.siteId,
       duration: data.duration,
       entry_type: data.entryType,
@@ -30,9 +32,9 @@ module.exports = class LongTaskPerformanceEntryEvent {
     for(let i = 0; i < this.event.data.attribution.length; i++) {
       const taskAttributionData = this.event.data.attribution[i];
       const taskAttributionEvent = {
-        uniqueIdentifier: `${this.event.uniqueIdentifier}-${i}`,
-        longTaskPerformanceEntryIdentifier: this.event.uniqueIdentifier,
-        pageViewIdentifier: this.event.pageViewIdentifier,
+        uuid: this.event.uuid ? `${this.event.uuid}-${i}` : `${this.event.uniqueIdentifier}-${i}`,
+        longTaskPerformanceEntryUuid: this.event.uuid || this.event.uniqueIdentifier,
+        pageViewUuid: this.event.pageViewUuid || this.event.pageViewIdentifier,
         siteId: this.event.siteId,
         data: taskAttributionData,
       };
