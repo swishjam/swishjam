@@ -22,10 +22,8 @@ class ReportingHandler {
     if (!this.currentPageViewIdentifier) throw new Error('ReportingHandler has no currentPageViewIdentifier, cannot record event.');
     this.dataToReport.push({ 
       _event: eventName, 
-      // uniqueIdentifier: uniqueId,
       uuid: uuid || UuidGenerator.generate(eventName.toLowerCase()),
       siteId: this.publicApiKey,
-      // pageViewIdentifier: this.currentPageViewIdentifier, 
       pageViewUuid: this.currentPageViewIdentifier,
       ts: Date.now(), 
       data 
@@ -56,7 +54,7 @@ class ReportingHandler {
     if (this.mockApiCalls) {
       console.log('Reporting data to mock API', body);
     } else if (navigator.sendBeacon) {
-      const blob = new Blob([JSON.stringify(body)], {});
+      const blob = new Blob([JSON.stringify(body)], { type: 'application/json; charset=UTF-8' });
       navigator.sendBeacon(this.reportingUrl, blob);
     } else {
       const xhr = new XMLHttpRequest();
