@@ -28,7 +28,7 @@ module.exports = class ElementPerformanceEntryEvent {
       load_time: data.loadTime,
       natural_height: data.naturalHeight,
       render_time: data.renderTime,
-      url: decodeURIComponent(data.url || ''),
+      url: decodeURIComponent(data.url || '').substr(0, 255),
     }
   }
 }
