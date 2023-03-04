@@ -26,7 +26,7 @@ module.exports = class LargestContentfulPaintPerformanceEntryEvent {
       load_time: data.loadTime,
       size: data.size,
       element_id: data.id,
-      url: decodeURIComponent(data.url || ''),
+      url: decodeURIComponent(data.url || '').substr(0, 255),
     }
   }
 }
