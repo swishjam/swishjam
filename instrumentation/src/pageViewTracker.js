@@ -41,7 +41,7 @@ class PageViewTracker {
       if (document.visibilityState === 'hidden') {
         this._reportPageLeftAtTsIfNecessary();
       }
-    }
+    });
   }
 }
 
