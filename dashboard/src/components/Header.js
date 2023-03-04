@@ -6,6 +6,7 @@ import Link from 'next/link'
 import Logo from '@components/Logo'
 import { Disclosure, Menu, Transition } from '@headlessui/react'
 import { Bars3Icon, BellIcon, XMarkIcon } from '@heroicons/react/24/outline'
+import SiteSwitcher from '@components/SiteSwitcher';
 
 const navigation = [
   { name: 'Dashboard', href: '/', current: true },
@@ -75,6 +76,8 @@ export default function Header() {
                 </button>*/}
 
                 {/* Profile dropdown */}
+                <SiteSwitcher className="mr-16"/>
+
                 <Menu as="div" className="relative ml-3">
                   <div>
                     <Menu.Button className="flex max-w-xs items-center rounded-full bg-white text-sm focus:outline-none focus:ring-2 focus:ring-swishjam focus:ring-offset-2">

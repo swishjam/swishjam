@@ -15,9 +15,9 @@ const CreateSiteSchema = Yup.object().shape({
 export default function NewSiteDialog({ isOpen, onClose, onComplete, organizationId}) {
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState(null);
-  const { allSites, setAllSites } = useAuth();
+  const { allSites, setAllSites, setCurrentSite } = useAuth();
 
-  const createSite = async (formData) => {
+  const createSite = async (formData, { resetForm }) => {
     console.log(formData) 
     setLoading(true);
     const newSite = await supabase.from('sites').insert({
@@ -29,11 +29,13 @@ export default function NewSiteDialog({ isOpen, onClose, onComplete, organizatio
       setLoading(false);
       setErrorMsg(error.message);
     } else {
+      setAllSites([...allSites, data[0]]);
+      setCurrentSite(data[0]); 
       setLoading(false);
+      resetForm(); 
       onComplete(data);
     }
   }
-  //const closeModal = () => {}
 
   return (
     <>

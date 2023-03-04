@@ -11,8 +11,8 @@ export default function SnippetInstall() {
 
   return (
     <Card>
-      <div className="flex">
-        <div className="h-full w-1/2 pr-12" >
+      <div className="flex ">
+        <div className="h-full w-1/2 pr-12 mb-6" >
           <h1 className="text-lg font-medium mb-2">Installation Instructions</h1>
           
           <div className="flow-root">
@@ -56,15 +56,9 @@ export default function SnippetInstall() {
             </ul>
           </div>
 
-
-
-
-
-
-
         </div>
 
-        <div className="h-full w-1/2">
+        <div className="h-full w-1/2 mb-6">
           {/* copy to clipboard here */}
           <div
             className="relative bg-gray-50 border rounded-xl p-4 pr-12 break-all font-medium text-gray-900 text-sm"
