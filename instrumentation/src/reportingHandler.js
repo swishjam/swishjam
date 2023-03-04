@@ -50,7 +50,7 @@ class ReportingHandler {
 
   _reportDataIfNecessary() {
     if (!this._hasDataToReport()) return;
-    const body = { siteId: this.publicApiKey, data: this.dataToReport };
+    const body = { siteId: this.publicApiKey, originatingUrl: window.location.href, data: this.dataToReport };
     if (this.mockApiCalls) {
       console.log('Reporting data to mock API', body);
     } else if (navigator.sendBeacon) {
