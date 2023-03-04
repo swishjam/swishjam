@@ -3,7 +3,7 @@ const { UuidGenerator } = require("./uuidGenerator");
 class PageViewTracker {
   constructor(reportingHandler) {
     this.reportingHandler = reportingHandler;
-    window.addEventListener('beforeunload', () => this._reportPageLeftAtTsIfNecessary());
+    this._setPageLeftListener();
   }
 
   trackPageView({ navigationType, previousPageUrl }) {
@@ -34,6 +34,14 @@ class PageViewTracker {
       leftPageAtTs: Date.now(),
     });
     this.reportingHandler.reportData();
+  }
+
+  _setPageLeftListener() {
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'hidden') {
+        this._reportPageLeftAtTsIfNecessary();
+      }
+    }
   }
 }
 

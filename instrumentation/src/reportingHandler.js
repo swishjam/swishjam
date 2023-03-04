@@ -24,6 +24,7 @@ class ReportingHandler {
       _event: eventName, 
       uuid: uuid || UuidGenerator.generate(eventName.toLowerCase()),
       siteId: this.publicApiKey,
+      projectKey: this.publicApiKey,
       pageViewUuid: this.currentPageViewIdentifier,
       ts: Date.now(), 
       data 
@@ -50,16 +51,22 @@ class ReportingHandler {
 
   _reportDataIfNecessary() {
     if (!this._hasDataToReport()) return;
-    const body = { siteId: this.publicApiKey, originatingUrl: window.location.href, data: this.dataToReport };
+    const body = { 
+      siteId: this.publicApiKey, 
+      projectKey: this.publicApiKey, 
+      originatingUrl: window.location.href, 
+      data: this.dataToReport 
+    };
     if (this.mockApiCalls) {
       console.log('Reporting data to mock API', body);
     } else if (navigator.sendBeacon) {
-      const blob = new Blob([JSON.stringify(body)], { type: 'application/json; charset=UTF-8' });
+      const blob = new Blob([JSON.stringify(body)], {});
       navigator.sendBeacon(this.reportingUrl, blob);
     } else {
       const xhr = new XMLHttpRequest();
       xhr.open('POST', this.reportingUrl);
       xhr.setRequestHeader('Content-Type', 'application/json');
+      xhr.setRequestHeader('Access-Control-Allow-Origin', '*');
       xhr.send(JSON.stringify(body));
     }
     this.dataToReport = [];
