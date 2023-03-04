@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { Card } from '@tremor/react';
 import CopyToClipboard from "react-copy-to-clipboard";
+import { HeroImg } from '@components/HeroImg';
 
 export default function SnippetInstall() {
   const [copyTxt, setCopyTxt] = useState('Copy');
@@ -63,7 +64,7 @@ export default function SnippetInstall() {
 
         </div>
 
-        <div className="h-full w-1/2 flex flex-col justify-center items-center" >
+        <div className="h-full w-1/2">
           {/* copy to clipboard here */}
           <div
             className="relative bg-gray-50 border rounded-xl p-4 pr-12 break-all font-medium text-gray-900 text-sm"
@@ -78,6 +79,9 @@ export default function SnippetInstall() {
               </button>
             </CopyToClipboard>
           </div>
+
+          <HeroImg className="absolute bottom h-36 bottom-0 right-0 pt-2"/>
+
         </div>
 
      </div >
