@@ -6,6 +6,7 @@ const EVENT_DATA = {
   uuid: 'longtask-123',
   pageViewUuid: 'page-view-identifier-xyz',
   siteId: 'site-identifier-123',
+  projectKey: 'site-identifier-123',
   data: {
     duration: 150,
     entryType: 'longtask',
@@ -27,6 +28,8 @@ describe('LongTaskPerformanceEntry', () => {
     expect(longTasks[0].unique_identifier).toEqual(EVENT_DATA.uuid);
     expect(longTasks[0].page_view_identifier).toEqual(EVENT_DATA.pageViewUuid);
     expect(longTasks[0].page_view_uuid).toEqual(EVENT_DATA.pageViewUuid);
+    expect(longTasks[0].site_id).toEqual(EVENT_DATA.siteId);
+    expect(longTasks[0].project_key).toEqual(EVENT_DATA.projectKey);
     expect(longTasks[0].duration).toEqual(EVENT_DATA.data.duration.toString());
     expect(longTasks[0].entry_type).toEqual(EVENT_DATA.data.entryType);
     expect(longTasks[0].name).toEqual(decodeURIComponent(EVENT_DATA.data.name));
@@ -38,6 +41,7 @@ describe('LongTaskPerformanceEntry', () => {
       uniqueIdentifier: 'longtask-123',
       pageViewIdentifier: 'page-view-identifier-xyz',
       siteId: 'site-identifier-123',
+      projectKey: 'site-identifier-123',
       data: {
         duration: 150,
         entryType: 'longtask',
@@ -55,6 +59,8 @@ describe('LongTaskPerformanceEntry', () => {
     expect(longTasks[0].unique_identifier).toEqual(eventData.uniqueIdentifier);
     expect(longTasks[0].page_view_identifier).toEqual(eventData.pageViewIdentifier);
     expect(longTasks[0].page_view_uuid).toEqual(eventData.pageViewIdentifier);
+    expect(longTasks[0].site_id).toEqual(eventData.siteId);
+    expect(longTasks[0].project_key).toEqual(eventData.projectKey);
     expect(longTasks[0].duration).toEqual(eventData.data.duration.toString());
     expect(longTasks[0].entry_type).toEqual(eventData.data.entryType);
     expect(longTasks[0].name).toEqual(decodeURIComponent(eventData.data.name));
@@ -85,6 +91,7 @@ describe('LongTaskPerformanceEntry', () => {
     expect(longtaskAttributions[0].page_view_identifier).toEqual(EVENT_DATA.pageViewUuid);
     expect(longtaskAttributions[0].page_view_uuid).toEqual(EVENT_DATA.pageViewUuid);
     expect(longtaskAttributions[0].site_id).toEqual(EVENT_DATA.siteId);
+    expect(longtaskAttributions[0].project_key).toEqual(EVENT_DATA.projectKey);
     expect(longtaskAttributions[0].duration).toEqual(EVENT_DATA.data.attribution[0].duration.toString());
     expect(longtaskAttributions[0].entry_type).toEqual(EVENT_DATA.data.attribution[0].entryType);
     expect(longtaskAttributions[0].name).toEqual(decodeURIComponent(EVENT_DATA.data.attribution[0].name));

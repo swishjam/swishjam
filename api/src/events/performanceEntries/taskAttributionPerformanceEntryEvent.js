@@ -19,6 +19,7 @@ module.exports = class TaskAttributionPerformanceEntryEvent {
       page_view_identifier: this.event.pageViewUuid,
       page_view_uuid: this.event.pageViewUuid,
       site_id: this.event.siteId,
+      project_key: this.event.projectKey,
       duration: data.duration,
       entry_type: data.entryType,
       name: decodeURIComponent(data.name || "").substr(0, 255),

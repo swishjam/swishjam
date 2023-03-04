@@ -8,17 +8,18 @@ module.exports = class PageViewEvent {
 
   async createPageView() {
     await this.db.client`INSERT INTO page_views ${this.db.client(this._attrs())} ON CONFLICT DO NOTHING`;
-    console.log(`Created new page view for ${this.event.uuid}`);
+    console.log(`Created new page view for ${this.event.uuid || this.event.pageViewIdentifier}`);
     return true;
   }
 
   _attrs() {
-    const { siteId, pageViewIdentifier, uuid, data } = this.event;
+    const { siteId, projectKey, pageViewIdentifier, uuid, data } = this.event;
     const device = new DeviceDetector().parse(data.userAgent);
     return {
       identifier: uuid || pageViewIdentifier,
       uuid: uuid || pageViewIdentifier,
       site_id: siteId,
+      project_key: projectKey,
       page_view_ts: new Date(data.pageLoadTs),
       navigation_type: data.navigationType,
       full_url: decodeURIComponent(data.url || ''),

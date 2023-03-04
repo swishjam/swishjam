@@ -20,6 +20,7 @@ module.exports = class LongTaskPerformanceEntryEvent {
       page_view_identifier: this.event.pageViewUuid || this.event.pageViewIdentifier,
       page_view_uuid: this.event.pageViewUuid || this.event.pageViewIdentifier,
       site_id: this.event.siteId,
+      project_key: this.event.projectKey,
       duration: data.duration,
       entry_type: data.entryType,
       name: decodeURIComponent(data.name || "").substr(0, 255),
@@ -36,6 +37,7 @@ module.exports = class LongTaskPerformanceEntryEvent {
         longTaskPerformanceEntryUuid: this.event.uuid || this.event.uniqueIdentifier,
         pageViewUuid: this.event.pageViewUuid || this.event.pageViewIdentifier,
         siteId: this.event.siteId,
+        projectKey: this.event.projectKey,
         data: taskAttributionData,
       };
       const createPromise = new TaskAttributionPerformanceEntryEvent(taskAttributionEvent, this.db).create();

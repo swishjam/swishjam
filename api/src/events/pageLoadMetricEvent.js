@@ -36,6 +36,7 @@ module.exports = class PageLoadMetricEvent {
           page_view_uuid: this.event.pageViewUuid || this.event.pageViewIdentifier,
           page_view_identifier: this.event.pageViewUuid || this.event.pageViewIdentifier,
           site_id: this.event.siteId,
+          project_key: this.event.projectKey,
           metric_name: type,
           metric_value: value
         };

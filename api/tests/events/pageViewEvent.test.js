@@ -54,6 +54,7 @@ describe('PageViewEvent', () => {
     const exampleData = {
       pageViewIdentifier: 'page-view-identifier-xyz',
       siteId: 'site-identifier-123',
+      projectKey: 'site-identifier-123',
       data: {
         pageLoadTs: Date.now(),
         navigationType: 'hard',
@@ -78,6 +79,7 @@ describe('PageViewEvent', () => {
     expect(allPageViews[0].identifier).toEqual(exampleData.pageViewIdentifier);
     expect(allPageViews[0].uuid).toEqual(exampleData.pageViewIdentifier);
     expect(allPageViews[0].site_id).toEqual(exampleData.siteId);
+    expect(allPageViews[0].project_key).toEqual(exampleData.projectKey);
     expect(allPageViews[0].full_url).toEqual(exampleData.data.url);
     expect(allPageViews[0].url_path).toEqual(new URL(exampleData.data.url).pathname);
     expect(allPageViews[0].url_host).toEqual(new URL(exampleData.data.url).hostname);
