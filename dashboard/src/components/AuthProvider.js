@@ -25,6 +25,34 @@ export const AuthProvider = (props) => {
   const { accessToken, ...rest } = props;
 
   useEffect(() => {
+    console.log('does this load only once?');
+    async function getCoreUserData(lUser) {
+      try { 
+        if (lUser) {
+          const uO = await supabase.from('organization_users').select('*').eq('user_id', lUser.id)
+          if (uO.error) { throw uO.error } 
+        
+          const org = await supabase.from('organizations').select('*').eq('id', uO.data[0].organization_id)
+          if (org.error) { throw org.error } 
+          setUserOrg(org.data[0])  
+        
+          const sites = await supabase.from('sites').select('*').eq('organization_id', org.data[0].id)
+          setAllSites(sites.data)
+
+          const lsCurSite = JSON.parse(await localStorage.getItem("currentSite")); 
+          if(!lsCurSite) {
+            setCurrentSite(sites.data[0]);
+            localStorage.setItem("currentSite", JSON.stringify(sites.data[0]));
+          } else {
+            setCurrentSite(lsCurSite);
+          }
+        }
+      } catch (error) {
+        console.error(error);
+      }
+      return;
+    }
+
     async function getActiveSession() {
       const {
         data: { session: activeSession },
@@ -32,6 +60,8 @@ export const AuthProvider = (props) => {
       setSession(activeSession);
       setUser(activeSession?.user ?? null);
       setInitial(false);
+      getCoreUserData(activeSession?.user ?? null);
+      console.log('user is logged in when page loads') 
     }
     getActiveSession();
 
@@ -48,9 +78,17 @@ export const AuthProvider = (props) => {
       setSession(currentSession);
       setUser(currentSession?.user ?? null);
 
+      if(event === EVENTS.SIGNED_OUT) {
+        setUserOrg(null);
+        setAllSites(null);
+        setCurrentSite(null);
+      }
       // check if user is signed in and then try to pull the user's org, sites, & set site
+      console.log(event) 
       if(event === EVENTS.SIGNED_IN) {
-        //getActiveSession();
+        if(currentSession?.user) {
+          getCoreUserData(currentSession.user);
+        } 
       }
 
     });
