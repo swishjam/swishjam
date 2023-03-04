@@ -16,8 +16,6 @@ export default async function RootLayout({ children }) {
 
   const accessToken = session?.access_token || null;
 
-  console.info('Future Self: Develop in Incognitor BC Nextjs derps out with chrome extensions messing with the UI in dev mode')
-
   return (
     <html lang="en">
       <body>
