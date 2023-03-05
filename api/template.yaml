@@ -1,0 +1,218 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: >-
+  CloudFormation for standing up the Swishjam serverless event ingestion
+
+Transform:
+- AWS::Serverless-2016-10-31
+
+Parameters:
+  DatabaseName:
+    Description: The name of the database event data should be written to
+    Type: String
+    AllowedPattern : ".+"
+  DatabaseUsername: 
+    Description: The username of the database event data should be written to
+    Type: String
+    AllowedPattern : ".+"
+  DatabasePassword:
+    Description: The password of the database event data should be written to
+    Type: String
+    AllowedPattern : ".+"
+  DatabaseHostname:
+    Description: The hostname of the database event data should be written to
+    Type: String
+    AllowedPattern : ".+"
+  DatabasePort:
+    Description: The port of the database event data should be written to
+    Type: Number
+    Default: 5432
+    # AllowedPattern : "[0-9]+"
+  RestApiName:
+    Description: The name of the API that event data is sent to
+    Type: String
+    Default: swishjam-event-data-endpoint
+    AllowedPattern : ".+"
+  SqsQueueName:
+    Description: The queue name for integration with API Gateway
+    Type: String
+    Default: swishjam-event-data-message-queue
+    AllowedPattern : ".+"
+  EventConsumerLambdaFunctionName:
+    Description: The name of the Lambda function that consumes the SQS event messages
+    Type: String
+    Default: swishjam-event-data-sqs-message-consumer
+    AllowedPattern : ".+"
+
+Resources:
+  RestApi:
+    Type: AWS::ApiGateway::RestApi
+    Properties:
+      Name: !Ref RestApiName
+      Description: "API for sending performance data via API Gateway directly to SQS"
+      FailOnWarnings: true
+      Body:
+        openapi: 3.0.0
+        info:
+          title: API Gateway -> SQS API
+          description: This API handles a route with a POST body to be placed on an SQS queue
+          version: 1.0.0
+        paths:
+          /events:
+            post:
+              summary: Handles new performance data
+              description: Places data on an SQS queue for processing
+              operationId: eventDataReceiver
+              requestBody:
+                description: Receives the event data to push onto queue for processing
+                content:
+                  application/json:
+                    schema:
+                      $ref: '#/components/schemas/EventData'
+              responses:
+                "200":
+                  description: Success
+                "400":
+                  description: Bad request
+                "500":
+                  description: Server Error
+              x-amazon-apigateway-integration:
+                credentials: !GetAtt ApiGatewayToSQSRole.Arn
+                httpMethod: "POST"
+                uri: !Sub "arn:aws:apigateway:${AWS::Region}:sqs:path/${AWS::AccountId}/${SqsQueueName}"
+                responses:
+                  default:
+                    statusCode: "200"
+                requestParameters:
+                  integration.request.header.Content-Type: "'application/x-www-form-urlencoded'"
+                requestTemplates:
+                  application/json: "Action=SendMessage&MessageBody=$input.body"
+                passthroughBehavior: "never"
+                type: "aws"
+        components:
+          schemas:
+            EventData:
+              required:
+              - siteId
+              type: string
+              properties:
+                created_at:
+                  type: string
+                  description: Your Swishjam API key
+                  example: swishjam-api-key-xyz
+  
+  RestApiDeployment:
+    Type: AWS::ApiGateway::Deployment
+    Properties:
+      RestApiId: !Ref RestApi
+
+  RestApiStage:
+    Type: AWS::ApiGateway::Stage
+    Properties:
+      RestApiId: !Ref RestApi
+      DeploymentId: !Ref RestApiDeployment
+      StageName: swishjam
+
+  ApiGatewayToSQSRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service:
+            - apigateway.amazonaws.com
+          Action:
+          - sts:AssumeRole
+      RoleName: ApiGatewayToSQSRole
+      Policies:
+      - PolicyName: ApiGatewayLogsPolicy
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+          - Action: sqs:SendMessage
+            Effect: Allow
+            Resource: !GetAtt 'EventDataMessageQueue.Arn'
+          - Action:
+              - logs:CreateLogGroup
+              - logs:CreateLogStream
+              - logs:DescribeLogGroups
+              - logs:DescribeLogStreams
+              - logs:PutLogEvents
+              - logs:GetLogEvents
+              - logs:FilterLogEvents
+            Effect: Allow
+            Resource: "*"
+
+  EventDataMessageQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: !Ref SqsQueueName
+      RedrivePolicy:
+        maxReceiveCount: 5
+        deadLetterTargetArn: !GetAtt EventDataDeadLetterQueue.Arn
+
+  EventDataDeadLetterQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: !Sub '${SqsQueueName}-DLQ'
+
+  FailedEventDataS3Bucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub "failed-swishjam-events-${AWS::AccountId}"
+
+  EventDataMessageConsumer:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Ref EventConsumerLambdaFunctionName
+      Description: Processes the event data from the message queue
+      Runtime: nodejs16.x
+      Architectures:
+      - arm64
+      Handler: src/index.processMessages
+      Tracing: Active
+      Environment:
+        Variables:
+          DB_HOST: !Ref DatabaseHostname
+          DB_NAME: !Ref DatabaseName 
+          DB_USERNAME: !Ref DatabaseUsername
+          DB_PASSWORD: !Ref DatabasePassword
+          FAILED_EVENTS_S3_BUCKET_NAME: !Sub "failed-swishjam-events-${AWS::AccountId}"
+      Events:
+        SQSQueueEvent:
+          Type: SQS
+          Properties:
+            Queue: !GetAtt EventDataMessageQueue.Arn
+      MemorySize: 128
+      Timeout: 25 # Chosen to be less than the default SQS Visibility Timeout of 30 seconds
+      Policies:
+      - AWSLambdaBasicExecutionRole
+      - AmazonS3FullAccess
+  
+  ApplicationResourceGroup:
+    Type: AWS::ResourceGroups::Group
+    Properties:
+      Name:
+        Fn::Join:
+        - ''
+        - - ApplicationInsights-SAM-
+          - Ref: AWS::StackName
+      ResourceQuery:
+        Type: CLOUDFORMATION_STACK_1_0
+  
+  ApplicationInsightsMonitoring:
+    Type: AWS::ApplicationInsights::Application
+    Properties:
+      ResourceGroupName:
+        Fn::Join:
+        - ''
+        - - ApplicationInsights-SAM-
+          - Ref: AWS::StackName
+      AutoConfigurationEnabled: 'true'
+    DependsOn: ApplicationResourceGroup
+
+Outputs:
+  SwishjamReportingURL:
+    Description: The API Gateway Endpoint generated by the Cloudformation template. Use this as your Swishjam JS reportingUrl.
+    Value: !Sub "https://${RestApi}.execute-api.${AWS::Region}.amazonaws.com/swishjam/events"
