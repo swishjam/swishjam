@@ -42,7 +42,7 @@ export const AuthProvider = (props) => {
     async function getCoreUserData(lUser) {
       try { 
         if (lUser) {
-          console.log(window.location.href);
+          //console.log(window.location.href);
           if(window?.location?.href?.includes('register')) {
             return
           } 
