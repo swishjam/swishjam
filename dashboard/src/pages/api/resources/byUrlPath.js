@@ -2,15 +2,16 @@ import ResourcePerformanceEntries from '@/lib/data/resourcePerformanceEntries';
 
 export default async (req, res) => {
   const defaultStartTs = Date.now() - 1000 * 60 * 60 * 24 * 7;
-  const { siteId, urlPath, startTs = defaultStartTs } = req.query;
+  const { siteId, urlHostAndPath, metric = 'duration', startTs = defaultStartTs } = req.query;
 
   try {
     if (!siteId) throw new Error('Missing `siteId` query param');
-    if (!urlPath) throw new Error('Missing `urlPath` query param');
-    const records = await ResourcePerformanceEntries.getForUrlPath({ 
+    if (!urlHostAndPath) throw new Error('Missing `urlHostAndPath` query param');
+    const records = await ResourcePerformanceEntries.getAll({ 
       siteId, 
-      startTs,
-      urlPath: decodeURIComponent(urlPath), 
+      startTs, 
+      metric,
+      urlHostAndPath: decodeURIComponent(urlHostAndPath),
     });
     res.status(200).json({ records });
   } catch (err) {

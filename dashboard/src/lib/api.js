@@ -32,8 +32,8 @@ export const GetNavigationPerformanceEntriesData = async data => {
   return await get('/api/navigationResources/average', data);
 }
 
-export const GetResourcesForUrlPath = async data => {
-  return await get(`/api/resourcePerformanceEntries/byUrlPath`, data);
+export const GetResourcePerformanceEntries = async data => {
+  return await get(`/api/resources`, data);
 }
 
 export const GetPagesForCWVMetric = async data => {
@@ -41,11 +41,15 @@ export const GetPagesForCWVMetric = async data => {
 }
 
 export const GetResourceMetricTimeseries = async data => {
-  const results = await get('/api/resourcePerformanceEntries/timeseries', data);
+  const results = await get('/api/resources/timeseries', data);
   return results.records.map(result => {
     return {
       timestamp: formattedDate(result.hour),
       metric: parseFloat(result.metric || 0),
     }
   });
+}
+
+export const GetUrlsForSiteId = async data => {
+  return (await get('/api/pages/forSite', data)).urls;
 }

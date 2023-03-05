@@ -24,7 +24,7 @@ module.exports.processMessages = async ({ Records }, _context) => {
 }
 
 const captureEvents = async (payload, db) => {
-  console.log(`Processing ${payload.data.length} events for ${payload.siteId}...`);
+  console.log(`Processing ${payload.data.length} events for ${payload.projectKey || payload.siteId}...`);
   console.log(`Payload: ${JSON.stringify(payload)}`);
   const dbPromises = payload.data.map(data => {
     switch (data._event) {

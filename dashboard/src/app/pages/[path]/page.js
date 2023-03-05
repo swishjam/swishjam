@@ -3,7 +3,7 @@ import AuthenticatedView from '@/components/AuthenticatedView';
 import { BarList, Card, Title, Flex, Text, Bold, ColGrid } from '@tremor/react';
 import { useEffect, useState } from "react";
 import { msToSeconds } from "@/lib/utils";
-import { GetResourcesForUrlPath, GetCWVData, GetCWVTimeSeriesData } from "@/lib/api";
+import { GetResourcePerformanceEntries, GetCWVData, GetCWVTimeSeriesData } from "@/lib/api";
 import WebVitalCard from '@/components/WebVitalCard';
 import { cwvMetricBounds, calcCwvPercent } from '@/lib/utils';
 
@@ -39,10 +39,11 @@ export default function NavigationResource({ params }) {
   };
 
   useEffect(() => {
-    GetResourcesForUrlPath({ urlPath: encodedPath, siteId: 'sj-syv3hiuj0p51nks5' }).then(res => {
+    GetResourcePerformanceEntries({ urlPath: encodedPath, siteId: 'sj-syv3hiuj0p51nks5' }).then(res => {
       const formatted = res.records.map(record => ({ ...record, href: `/resources/${encodeURIComponent(record.name)}` }))
       setResources(formatted)
     });
+    
     const siteId = 'sj-syv3hiuj0p51nks5';
     getAndSetWebVitalMetric(siteId, 'LCP');
     getAndSetWebVitalMetric(siteId, 'INP');

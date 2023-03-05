@@ -25,7 +25,6 @@ module.exports = class DB {
   }
 
   async killConnection() {
-    console.log('Killing connection to DB');
     await this.client.end();
   }
 }

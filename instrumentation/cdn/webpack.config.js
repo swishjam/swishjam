@@ -8,6 +8,7 @@ module.exports = env => ({
     filename: 'src.js',
     sourceMapFilename: "src.js.map"
   },
+  devtool: 'source-map',
   module: {
     rules: [
       {

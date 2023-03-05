@@ -26,6 +26,7 @@ describe('PageLoadMetricEvent', () => {
       uuid: 'metric-123',
       pageViewUuid: 'page-view-identifier-xyz',
       siteId: 'site-identifier-123',
+      projectKey: 'site-identifier-123',
       data: {
         type: 'FCP',
         value: 100
@@ -40,6 +41,7 @@ describe('PageLoadMetricEvent', () => {
     expect(allPageLoadMetrics[0].page_view_uuid).toEqual(data.pageViewUuid);
     expect(allPageLoadMetrics[0].page_view_identifier).toEqual(data.pageViewUuid);
     expect(allPageLoadMetrics[0].site_id).toEqual(data.siteId);
+    expect(allPageLoadMetrics[0].project_key).toEqual(data.projectKey);
     expect(allPageLoadMetrics[0].metric_name).toEqual('FCP');
     expect(allPageLoadMetrics[0].metric_value).toEqual('100');
   })

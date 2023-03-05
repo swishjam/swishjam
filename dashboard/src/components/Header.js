@@ -9,8 +9,8 @@ import { Bars3Icon, BellIcon, XMarkIcon } from '@heroicons/react/24/outline'
 import SiteSwitcher from '@components/SiteSwitcher';
 
 const navigation = [
-  { name: 'Dashboard', href: '/', current: true },
-  //{ name: 'Team', href: '#', current: false },
+  { name: 'Web Vitals', href: '/', current: true },
+  { name: 'Page Resources', href: '/resources', current: false },
   //{ name: 'Projects', href: '#', current: false },
   //{ name: 'Calendar', href: '#', current: false },
 ]

@@ -45,6 +45,7 @@ module.exports = class PerformanceEntryEvent {
         page_view_identifier: this.event.pageViewUuid || this.event.pageViewIdentifier,
         page_view_uuid: this.event.pageViewUuid || this.event.pageViewIdentifier,
         site_id: this.event.siteId,
+        project_key: this.event.projectKey,
         entry_type: this.event.data.entryType 
       };
     }
