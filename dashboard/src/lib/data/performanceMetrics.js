@@ -2,7 +2,7 @@ import db from '@lib/db';
 import { cwvMetricBounds } from '@/lib/utils';
 
 export default class PerformanceMetricsData {
-  static async getAverageMetric({ siteId, metric, startTs, urlPath }) {
+  static async getAverageMetric({ projectKey, metric, startTs, urlPath }) {
     if(urlPath) {
       const query = `
         SELECT 
@@ -13,12 +13,12 @@ export default class PerformanceMetricsData {
         JOIN
           page_views ON performance_metrics.page_view_identifier = page_views.identifier
         WHERE 
-          page_views.site_id = $1 AND
+          page_views.project_key = $1 AND
           performance_metrics.metric_name = $2 AND 
           page_views.page_view_ts >= $3 AND 
           page_views.url_path = $4
       `;
-      const results = await db.query(query, [siteId, metric, new Date(startTs), decodeURIComponent(urlPath)]);
+      const results = await db.query(query, [projectKey, metric, new Date(startTs), decodeURIComponent(urlPath)]);
       return {
         numRecords: results.rows[0].num_records,
         average: results.rows[0].average
@@ -33,11 +33,11 @@ export default class PerformanceMetricsData {
         JOIN
           page_views ON performance_metrics.page_view_identifier = page_views.identifier
         WHERE 
-          page_views.site_id = $1 AND
+          page_views.project_key = $1 AND
           performance_metrics.metric_name = $2 AND 
           page_views.page_view_ts >= $3 
       `;
-      const results = await db.query(query, [siteId, metric, new Date(startTs)]);
+      const results = await db.query(query, [projectKey, metric, new Date(startTs)]);
       return {
         numRecords: results.rows[0].num_records,
         average: results.rows[0].average
@@ -45,7 +45,7 @@ export default class PerformanceMetricsData {
     }
   }
 
-  static async getPercentileMetric({ siteId, metric, percentile = 0.75, startTs }) {
+  static async getPercentileMetric({ projectKey, metric, percentile = 0.75, startTs }) {
     const query = `
       SELECT
         COUNT(*) AS num_records,
@@ -53,18 +53,18 @@ export default class PerformanceMetricsData {
       FROM
         performance_metrics
       WHERE
-        site_id = $1 AND
+        project_key = $1 AND
         metric_name = $2 AND
         created_at >= $3
     `;
-    const results = await db.query(query, [siteId, metric, new Date(startTs)]);
+    const results = await db.query(query, [projectKey, metric, new Date(startTs)]);
     return {
       numRecords: results.rows[0].num_records,
       percentileResult: results.rows[0].percentile_result
     };
   }
 
-  static async getAveragesGroupedByPages({ siteId, metric, startTs }) {
+  static async getAveragesGroupedByPages({ projectKey, metric, startTs }) {
     const query = `
       SELECT
         page_views.url_path as name,
@@ -75,18 +75,18 @@ export default class PerformanceMetricsData {
         page_views ON performance_metrics.page_view_identifier = page_views.identifier
       WHERE
         performance_metrics.metric_name = $1 AND
-        page_views.site_id = $2 AND
+        page_views.project_key = $2 AND
         page_views.page_view_ts >= $3
       GROUP BY
         name
       ORDER BY
         value DESC
     `;
-    const results = await db.query(query, [metric, siteId, new Date(startTs)]);
+    const results = await db.query(query, [metric, projectKey, new Date(startTs)]);
     return results.rows;
   };
 
-  static async getTimeseriesGoodNeedsWorkBadDataForMetric({ siteId, metric, startTs }) {
+  static async getTimeseriesGoodNeedsWorkBadDataForMetric({ projectKey, metric, startTs }) {
     const metricToUpperBoundsDict = cwvMetricBounds;
     if (!metricToUpperBoundsDict[metric]) throw new Error(`Invalid metric: ${metric}`);
     const query = `
@@ -124,7 +124,7 @@ export default class PerformanceMetricsData {
       LEFT JOIN 
         page_views ON performance_metrics.page_view_identifier = page_views.identifier
       WHERE
-        performance_metrics.site_id = $1 AND
+        performance_metrics.project_key = $1 AND
         metric_name = $2 AND
         page_views.page_view_ts >= $3
       GROUP BY
@@ -132,11 +132,11 @@ export default class PerformanceMetricsData {
       ORDER BY
         day, hour
     `;
-    const results = await db.query(query, [siteId, metric, new Date(startTs)]);
+    const results = await db.query(query, [projectKey, metric, new Date(startTs)]);
     return results.rows;
   };
 
-  static async getPercentileTimeseriesDataForMetric({ siteId, metric, startTs, urlPath, percentile = 0.9 }) {
+  static async getPercentileTimeseriesDataForMetric({ projectKey, metric, startTs, urlPath, percentile = 0.9 }) {
     if(urlPath) {
       const query = `
         SELECT
@@ -148,14 +148,14 @@ export default class PerformanceMetricsData {
         LEFT JOIN
           page_views ON performance_metrics.page_view_identifier = page_views.identifier
         WHERE
-          page_views.site_id = $1 AND
+          page_views.project_key = $1 AND
           metric_name = $2 AND
           page_views.page_view_ts >= $3 AND
           page_views.url_path = $4
         GROUP BY
           day, hour
       `;
-      const results = await db.query(query, [siteId, metric, new Date(startTs), decodeURIComponent(urlPath)]);
+      const results = await db.query(query, [projectKey, metric, new Date(startTs), decodeURIComponent(urlPath)]);
       return results.rows;
     } else {
       const query = `
@@ -168,13 +168,13 @@ export default class PerformanceMetricsData {
         LEFT JOIN
           page_views ON performance_metrics.page_view_identifier = page_views.identifier
         WHERE
-          page_views.site_id = $1 AND
+          page_views.project_key = $1 AND
           metric_name = $2 AND
           page_views.page_view_ts >= $3
         GROUP BY
           day, hour
       `;
-      return (await db.query(query, [siteId, metric, new Date(startTs)])).rows;
+      return (await db.query(query, [projectKey, metric, new Date(startTs)])).rows;
     }
   };
 }

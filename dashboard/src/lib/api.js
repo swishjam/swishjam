@@ -1,8 +1,19 @@
 import { formattedDate } from "./utils";
 
+const params = data => {
+  const currentProject = localStorage.getItem('currentProject')
+  if (currentProject) {
+    const { public_id: projectKey } = JSON.parse(currentProject);
+    if (!projectKey) throw new Error('No current project key found');
+    return { projectKey, ...data };
+  } else {
+    throw new Error('No current project found');
+  }
+}
+
 const get = async (url, payload = {}) => {
   try {
-    const queryParams = new URLSearchParams(payload);
+    const queryParams = new URLSearchParams(params(payload));
     return await (await fetch(`${url}?${queryParams}`, {})).json();
   } catch (e) {
     console.error(e.message);
@@ -50,6 +61,6 @@ export const GetResourceMetricTimeseries = async data => {
   });
 }
 
-export const GetUrlsForSiteId = async data => {
+export const GetUrlsForCurrentProject = async data => {
   return (await get('/api/pages/forSite', data)).urls;
 }
