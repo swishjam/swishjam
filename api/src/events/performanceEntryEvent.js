@@ -40,11 +40,8 @@ module.exports = class PerformanceEntryEvent {
     } else {
       console.warn(`Unknown performance entry type: ${this.event.data.entryType}`);
       return { 
-        unique_identifier: this.event.uuid || this.event.uniqueIdentifier,
-        uuid: this.event.uuid || this.event.uniqueIdentifier,
-        page_view_identifier: this.event.pageViewUuid || this.event.pageViewIdentifier,
-        page_view_uuid: this.event.pageViewUuid || this.event.pageViewIdentifier,
-        site_id: this.event.siteId,
+        uuid: this.event.uuid,
+        page_view_uuid: this.event.pageViewUuid,
         project_key: this.event.projectKey,
         entry_type: this.event.data.entryType 
       };

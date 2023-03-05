@@ -10,14 +10,11 @@ module.exports = class MarkPerformanceEntryEvent {
   }
 
   _attrs() {
-    const { data } = this.event;
+    const { uuid, pageViewUuid, projectKey, data } = this.event;
     return {
-      unique_identifier: this.event.uuid || this.event.uniqueIdentifier,
-      uuid: this.event.uuid || this.event.uniqueIdentifier,
-      page_view_identifier: this.event.pageViewUuid || this.event.pageViewIdentifier,
-      page_view_uuid: this.event.pageViewUuid || this.event.pageViewIdentifier,
-      site_id: this.event.siteId,
-      project_key: this.event.projectKey,
+      uuid: uuid,
+      page_view_uuid: pageViewUuid,
+      project_key: projectKey,
       duration: data.duration,
       entry_type: data.entryType,
       name: decodeURIComponent(data.name || "").substr(0, 255),

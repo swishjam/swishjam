@@ -15,7 +15,7 @@ module.exports = class PageLoadMetricEvent {
         FROM 
           performance_metrics 
         WHERE 
-          page_view_identifier = ${this.event.pageViewIdentifier} AND 
+          page_view_identifier = ${this.event.uuid} AND 
           metric_name = ${type}
       `)[0];
       // do all performance metrics only increase on 'updated' values...?
@@ -26,17 +26,14 @@ module.exports = class PageLoadMetricEvent {
             performance_metrics 
           SET ${this.db.format({ metric_value: value })} 
           WHERE
-            page_view_identifier = ${this.event.pageViewIdentifier} AND
+            page_view_identifier = ${this.event.uuid} AND
             metric_name = ${type}
         `;
       } else if(!existingMetric) {
         const attrs = {
-          uuid: this.event.uuid || this.event.uniqueIdentifier,
-          unique_identifier: this.event.uuid || this.event.uniqueIdentifier,
-          page_view_uuid: this.event.pageViewUuid || this.event.pageViewIdentifier,
-          page_view_identifier: this.event.pageViewUuid || this.event.pageViewIdentifier,
+          uuid: this.event.uuid,
+          page_view_uuid: this.event.pageViewUuid,
           site_id: this.event.siteId,
-          project_key: this.event.projectKey,
           metric_name: type,
           metric_value: value
         };

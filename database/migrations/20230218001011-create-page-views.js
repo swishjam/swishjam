@@ -9,8 +9,8 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      identifier: { type: Sequelize.STRING, unique: true },
-      site_id: { type: Sequelize.STRING },
+      uuid: { type: Sequelize.STRING, unique: true, allowNull: false },
+      project_key: { type: Sequelize.STRING, allowNull: false },
       page_view_ts: { type: Sequelize.DATE },
       page_left_at_ts: { type: Sequelize.DATE },
       navigation_type: { type: Sequelize.STRING },
@@ -43,7 +43,8 @@ module.exports = {
       created_at: { allowNull: false, type: Sequelize.DATE, defaultValue: Sequelize.fn('now') },
       updated_at: { allowNull: false, type: Sequelize.DATE, defaultValue: Sequelize.fn('now') }
     });
-    await queryInterface.addIndex('page_views', ['identifier']);
+    await queryInterface.addIndex('page_views', ['uuid']);
+    await queryInterface.addIndex('page_views', ['project_key']);
   },
   async down(queryInterface, Sequelize) {
     await queryInterface.dropTable('page_views');

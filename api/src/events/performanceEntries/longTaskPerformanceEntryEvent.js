@@ -33,10 +33,9 @@ module.exports = class LongTaskPerformanceEntryEvent {
     for(let i = 0; i < this.event.data.attribution.length; i++) {
       const taskAttributionData = this.event.data.attribution[i];
       const taskAttributionEvent = {
-        uuid: this.event.uuid ? `${this.event.uuid}-${i}` : `${this.event.uniqueIdentifier}-${i}`,
-        longTaskPerformanceEntryUuid: this.event.uuid || this.event.uniqueIdentifier,
-        pageViewUuid: this.event.pageViewUuid || this.event.pageViewIdentifier,
-        siteId: this.event.siteId,
+        uuid: `${this.event.uuid}-${i}`,
+        longTaskPerformanceEntryUuid: this.event.uuid,
+        pageViewUuid: this.event.pageViewUuid,
         projectKey: this.event.projectKey,
         data: taskAttributionData,
       };
