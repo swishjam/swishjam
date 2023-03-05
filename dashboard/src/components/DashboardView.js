@@ -7,11 +7,11 @@ import SnippetInstall from '@components/SnippetInstall';
 import WebVitalCard from './WebVitalCard';
 import { GetCWVData, GetCWVTimeSeriesData, GetNavigationPerformanceEntriesData } from '@lib/api';
 import { msToSeconds, cwvMetricBounds, calcCwvPercent } from '@lib/utils';
-import { CurrencyRupeeIcon, PlusIcon } from '@heroicons/react/20/solid'
+import { PlusIcon } from '@heroicons/react/20/solid'
+import LoadingSpinner from './LoadingSpinner';
 
 export default function DashboardView() {
-  const { initial, user, userOrg, projects, currentProject } = useAuth();
-  //console.log(initial, user, userOrg, allSites); 
+  const { projects, currentProject } = useAuth();
 
   const [lcp, setLCP] = useState({
     key: "LCP",
@@ -59,8 +59,8 @@ export default function DashboardView() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [slowPageNavigations, setSlowPageNavigations] = useState();
   
-  const getAndSetWebVitalMetric = async (projectId, cwvKey) => {
-    GetCWVData({ projectId, metric: cwvKey }).then(res => {
+  const getAndSetWebVitalMetric = async  cwvKey => {
+    GetCWVData({ metric: cwvKey }).then(res => {
       const pData = calcCwvPercent(res.average, cwvMetricBounds[cwvKey].good, cwvMetricBounds[cwvKey].medium );
       const currentCwv = { LCP: lcp, INP: inp, CLS: cls, FCP: fcp, FID: fid, TTFB: ttfb  }[cwvKey];
       const setStateMethod = { LCP: setLCP, INP: setINP, CLS: setCLS, FCP: setFCP, FID: setFID, TTFB: setTTFB }[cwvKey];      
@@ -70,37 +70,39 @@ export default function DashboardView() {
     })
   };
 
-  const getTimeseriesDataForMetric = (projectId, metric) => {
-    GetCWVTimeSeriesData({ projectId, metric }).then(chartData => {
+  const getTimeseriesDataForMetric = metric => {
+    GetCWVTimeSeriesData({ metric }).then(chartData => {
       const setStateMethod = { LCP: setLCP, INP: setINP, CLS: setCLS, FCP: setFCP, FID: setFID, TTFB: setTTFB }[metric];
       setStateMethod(prevState => ({ ...prevState, timeseriesData: chartData }));
     })
   }
 
-  const getSlowPageNavigations = projectId => {
-    GetNavigationPerformanceEntriesData({ projectId, metric: 'dom_interactive' }).then(res => {
+  const getSlowPageNavigations = () => {
+    GetNavigationPerformanceEntriesData({ metric: 'dom_interactive' }).then(res => {
       const formatted = res.records.map(item => ({ ...item, href: `/pages/${window.encodeURIComponent(item.name)}` }));
+      console.log(`GOT SLOW PAGE RESULTS?`, res);
       setSlowPageNavigations(formatted);
     })
   }
 
   useEffect(() => {
-    const projectId = currentProject?.project_id;
-    if (projectId) {
-      getAndSetWebVitalMetric(projectId, 'LCP');
-      getAndSetWebVitalMetric(projectId, 'INP');
-      getAndSetWebVitalMetric(projectId, 'CLS');
-      getAndSetWebVitalMetric(projectId, 'FCP');
-      getAndSetWebVitalMetric(projectId, 'FID');
-      getAndSetWebVitalMetric(projectId, 'TTFB');
-      getTimeseriesDataForMetric(projectId, 'LCP');
-      getTimeseriesDataForMetric(projectId, 'CLS');
-      getTimeseriesDataForMetric(projectId, 'INP');
-      getTimeseriesDataForMetric(projectId, 'FCP');
-      getTimeseriesDataForMetric(projectId, 'FID');
-      getTimeseriesDataForMetric(projectId, 'TTFB');
-      getSlowPageNavigations(projectId);
-    }  
+    if (currentProject) {
+      getAndSetWebVitalMetric('LCP');
+      getAndSetWebVitalMetric('INP');
+      getAndSetWebVitalMetric('CLS');
+      getAndSetWebVitalMetric('FCP');
+      getAndSetWebVitalMetric('FID');
+      getAndSetWebVitalMetric('TTFB');
+      getTimeseriesDataForMetric('LCP');
+      getTimeseriesDataForMetric('CLS');
+      getTimeseriesDataForMetric('INP');
+      getTimeseriesDataForMetric('FCP');
+      getTimeseriesDataForMetric('FID');
+      getTimeseriesDataForMetric('TTFB');
+      getSlowPageNavigations();
+    } else {
+      setSlowPageNavigations([]);
+    }
   }, []);
 
   if (!projects || projects?.length === 0) {
@@ -165,8 +167,10 @@ export default function DashboardView() {
             <Text><Bold>DOM Interactive</Bold></Text>
           </Flex>
           {slowPageNavigations === undefined ? 
-            (<Text>Loading...</Text>) :
-            (<BarList data={slowPageNavigations} valueFormatter={value => `${msToSeconds(value)} s`} marginTop='mt-4' color='blue' />)
+            (<LoadingSpinner />) : 
+              slowPageNavigations.length === 0 ? 
+                (<Text>No slow page navigations found.</Text>) :
+                (<BarList data={slowPageNavigations} valueFormatter={value => `${msToSeconds(value)} s`} marginTop='mt-4' color='blue' />)
           }
         </Card>
       </div>

@@ -66,7 +66,6 @@ export const AuthProvider = (props) => {
 
           const lsCurProject = await localStorage.getItem("currentProject")
           
-          console.log(lsCurProject) 
           if (lsCurProject) {
             setCurrentProject(JSON.parse(lsCurProject))  
           }

@@ -1,8 +1,10 @@
 'use client'
 import { useState, useEffect } from 'react';
+import { useAuth } from '@/components/AuthProvider';
 import AuthenticatedView from "@/components/AuthenticatedView";
+import SnippetInstall from '@/components/SnippetInstall';
 import { BarList, Card, Title } from '@tremor/react';
-import { GetUrlsForSiteId, GetResourcePerformanceEntries } from '@lib/api';
+import { GetUrlsForCurrentProject, GetResourcePerformanceEntries } from '@lib/api';
 import SearchableDropdownSelector from '@/components/SearchableDropdownSelector';
 import MultiSelectDropdown from '@/components/MultiSelectDropdown';
 import LoadingSpinner from '@/components/LoadingSpinner';
@@ -11,8 +13,9 @@ import { bytesToHumanFileSize } from '@/lib/utils';
 const RESOURCE_INITIATOR_OPTIONS = ['script', 'link', 'img', 'css', 'fetch', 'xmlhttprequest', 'other'];
 
 export default function Resources() {
+  const { currentProject } = useAuth();
   const [currentUrlHostAndPath, setCurrentUrlHostAndPath] = useState();
-  const [urlsForCurrentSite, setUrlsForCurrentSite] = useState();
+  const [urlsForCurrentProject, setUrlsForCurrentProject] = useState();
   const [resources, setResources] = useState();
   const [metric, setMetric] = useState('duration');
   const [resourceInitiatorTypes, setResourceInitiatorTypes] = useState(RESOURCE_INITIATOR_OPTIONS);
@@ -21,7 +24,6 @@ export default function Resources() {
     setCurrentUrlHostAndPath(urlHostAndPath);
     const metricColumnName = metric === 'duration' ? 'duration' : 'transfer_size';
     GetResourcePerformanceEntries({ 
-      siteId: 'sj-syv3hiuj0p51nks5', 
       urlHostAndPath, 
       metric: metricColumnName,
       initiatorTypes: resourceInitiatorTypes 
@@ -35,7 +37,6 @@ export default function Resources() {
     setMetric(metric);
     const metricColumnName = metric === 'duration' ? 'duration' : 'transfer_size';
     GetResourcePerformanceEntries({ 
-      siteId: 'sj-syv3hiuj0p51nks5', 
       urlHostAndPath: currentUrlHostAndPath, 
       metric: metricColumnName,
       initiatorTypes: resourceInitiatorTypes
@@ -49,7 +50,6 @@ export default function Resources() {
     setResourceInitiatorTypes(resourceInitiatorTypes);
     const metricColumnName = metric === 'duration' ? 'duration' : 'transfer_size';
     GetResourcePerformanceEntries({ 
-      siteId: 'sj-syv3hiuj0p51nks5', 
       urlHostAndPath: currentUrlHostAndPath, 
       metric: metricColumnName, 
       initiatorTypes: resourceInitiatorTypes 
@@ -68,9 +68,9 @@ export default function Resources() {
   }
 
   useEffect(() => {
-    GetUrlsForSiteId({ siteId: 'sj-syv3hiuj0p51nks5' }).then(urls => {
-      setUrlsForCurrentSite(urls.map(url => url.url_host_and_path));
-      updateViewForUrlHostAndPath(urls[0].url_host_and_path);
+    GetUrlsForCurrentProject().then(urls => {
+      setUrlsForCurrentProject(urls.map(url => url.url_host_and_path));
+      if(urls.length > 0) updateViewForUrlHostAndPath(urls[0].url_host_and_path);
     });
   }, []);
 
@@ -80,16 +80,18 @@ export default function Resources() {
         <h1 className="text-lg font-medium mt-8">Page Resources</h1>
 
         <div className="w-full my-6">
+        {urlsForCurrentProject === undefined ? <LoadingSpinner /> :
+          urlsForCurrentProject.length === 0 ? <SnippetInstall projectId={currentProject?.public_id} /> : 
           <Card>
             <div className="flex flex-row justify-between items-center mb-6">
               <Title>
                 {metric === 'duration' ? 'Slowest' : 'Largest'} resources on 
                 <div className='inline-flex'>
-                  {currentUrlHostAndPath ? <SearchableDropdownSelector options={urlsForCurrentSite} onSelect={updateViewForUrlHostAndPath} /> : <LoadingSpinner />}
+                  {currentUrlHostAndPath ? <SearchableDropdownSelector options={urlsForCurrentProject} onSelect={updateViewForUrlHostAndPath} /> : <LoadingSpinner />}
                 </div>
               </Title>
               <div>  
-                {urlsForCurrentSite ? (
+                {urlsForCurrentProject ? (
                   <>
                     <MultiSelectDropdown options={RESOURCE_INITIATOR_OPTIONS.map( type => ({ name: type, value: type }) )} 
                                           selectedOptions={resourceInitiatorTypes.map( type => ({ name: type, value: type }) )}
@@ -101,6 +103,7 @@ export default function Resources() {
             </div>
             {resources ? <BarList data={resources} valueFormatter={valueFormatter} /> : <LoadingSpinner />}
           </Card>
+          }
         </div>
       </main>
     </AuthenticatedView>

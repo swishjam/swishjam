@@ -2,7 +2,7 @@ import db from '@lib/db';
 
 export default class ResourcePerformanceEntries {
   static async getAll({ 
-    siteId, 
+    projectKey, 
     urlHostAndPath,
     startTs, 
     metric = 'duration',
@@ -20,7 +20,7 @@ export default class ResourcePerformanceEntries {
       JOIN
         page_views ON resource_performance_entries.page_view_identifier = page_views.identifier
       WHERE
-        page_views.site_id = $1 AND
+        page_views.project_key = $1 AND
         CONCAT(page_views.url_host, page_views.url_path) = $2 AND
         page_views.page_view_ts >= $3 AND
         resource_performance_entries.initiator_type IN (${initiatorTypes.map((_, i) => `$${i + 4}`).join(', ')})
@@ -31,11 +31,11 @@ export default class ResourcePerformanceEntries {
         value DESC
       LIMIT ${limit}
     `;
-    return (await db.query(query, [siteId, decodeURIComponent(urlHostAndPath), new Date(startTs), ...initiatorTypes])).rows;
-    // return (await db.query(query, [siteId, decodeURIComponent(urlHostAndPath), new Date(startTs)])).rows;
+    return (await db.query(query, [projectKey, decodeURIComponent(urlHostAndPath), new Date(startTs), ...initiatorTypes])).rows;
+    // return (await db.query(query, [projectKey, decodeURIComponent(urlHostAndPath), new Date(startTs)])).rows;
   }
 
-  static async getTimeseriesForMetric({ siteId, resourceName, metric, startTs }) {
+  static async getTimeseriesForMetric({ projectKey, resourceName, metric, startTs }) {
     const query = `
       SELECT
         resource_performance_entries.name AS name,
@@ -47,7 +47,7 @@ export default class ResourcePerformanceEntries {
       JOIN
         page_views ON resource_performance_entries.page_view_identifier = page_views.identifier
       WHERE
-        page_views.site_id = $1 AND
+        page_views.project_key = $1 AND
         resource_performance_entries.name = $2 AND
         page_views.page_view_ts >= $3 AND
         resource_performance_entries.${metric} IS NOT NULL AND
@@ -57,6 +57,6 @@ export default class ResourcePerformanceEntries {
       ORDER BY
         day, hour ASC
     `;
-    return (await db.query(query, [siteId, decodeURIComponent(resourceName), new Date(startTs)])).rows;
+    return (await db.query(query, [projectKey, decodeURIComponent(resourceName), new Date(startTs)])).rows;
   }
 }

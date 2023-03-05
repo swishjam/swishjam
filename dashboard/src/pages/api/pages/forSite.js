@@ -1,8 +1,12 @@
+import { runQueryIfUserHasAccess } from '@/lib/analyticQuerier';
 import Pages from '@/lib/data/pages';
 
 export default async (req, res) => {
   const defaultStartTs = Date.now() - 1000 * 60 * 60 * 24 * 14;
-  const { siteId, startTs = defaultStartTs } = req.query;
-  const urls = await Pages.getAllUrlsForSite({ siteId, startTs });
-  res.status(200).json({ urls });
+  const { projectKey, startTs = defaultStartTs } = req.query;
+  
+  return await runQueryIfUserHasAccess({ req, res, projectKey }, async () => {
+    const urls = await Pages.getAllUrlsForProject({ projectKey, startTs });
+    return res.status(200).json({ urls });
+  });
 }
