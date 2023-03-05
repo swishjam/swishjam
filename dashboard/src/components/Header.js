@@ -9,11 +9,15 @@ import { Bars3Icon, BellIcon, XMarkIcon } from '@heroicons/react/24/outline'
 import SiteSwitcher from '@components/SiteSwitcher';
 
 const navigation = [
-  { name: 'Web Vitals', href: '/', current: true },
-  { name: 'Page Resources', href: '/resources', current: false },
+  { name: 'Web Vitals', href: '/' },
+  { name: 'Page Resources', href: '/resources' },
   //{ name: 'Projects', href: '#', current: false },
   //{ name: 'Calendar', href: '#', current: false },
 ]
+
+function isCurrentPage (menuItemHref) {
+  return menuItemHref === window.location.pathname
+}
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(' ')
@@ -54,7 +58,7 @@ export default function Header() {
                       key={item.name}
                       href={item.href}
                       className={classNames(
-                        item.current
+                        isCurrentPage(item.href)
                           ? 'border-swishjam text-gray-900'
                           : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700',
                         'inline-flex items-center border-b-2 px-1 pt-1 text-sm font-medium'
