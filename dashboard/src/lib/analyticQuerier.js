@@ -1,7 +1,6 @@
 import { createServerSupabaseClient } from '@supabase/auth-helpers-nextjs';
 
 const noAccess = res => {
-  console.log('USER HAS NO ACCESS!!');
   return res.status(403).json({ error: 'Unauthorized' });
 }
 
@@ -23,7 +22,6 @@ export async function runQueryIfUserHasAccess({ req, res, projectKey }, callback
   const userHasAccess = projects.data.find(p => p.public_id === projectKey);
 
   if (userHasAccess) {
-    console.log('USER HAS ACCCESS!!');
     return await callback();
   } else {
     return noAccess(res);

@@ -86,7 +86,6 @@ export default function DashboardView() {
   }
 
   useEffect(() => {
-    console.log('CURRENT PROJECT', currentProject);
     if (currentProject) {
       getAndSetWebVitalMetric('LCP');
       getAndSetWebVitalMetric('INP');
@@ -104,7 +103,7 @@ export default function DashboardView() {
     } else {
       setSlowPageNavigations([]);
     }
-  }, []);
+  }, [currentProject]);
 
   if (!projects || projects?.length === 0) {
     return (

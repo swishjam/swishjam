@@ -72,7 +72,7 @@ export default function Resources() {
       setUrlsForCurrentProject(urls.map(url => url.url_host_and_path));
       if(urls.length > 0) updateViewForUrlHostAndPath(urls[0].url_host_and_path);
     });
-  }, []);
+  }, [currentProject]);
 
   return (
     <AuthenticatedView>
