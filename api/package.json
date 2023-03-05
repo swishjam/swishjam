@@ -1,0 +1,24 @@
+{
+  "name": "lambda-api",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "local": "node local/server.js",
+    "lambda-locally": "sam local invoke EventDataMessageConsumer --event data/events.json --parameter-overrides 'DatabaseHostname=performance-data-db.cytsjoeoway1.us-east-1.rds.amazonaws.com DatabaseName=performance_data DatabaseUsername=dbuser DatabasePassword=xc0b0QnuMyZ66jFYF4p0'",
+    "deploy": "sam build && sam deploy --capabilities CAPABILITY_NAMED_IAM",
+    "guided-deploy": "sam build && sam deploy --capabilities CAPABILITY_NAMED_IAM --guided",
+    "test": "jest --detectOpenHandles"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "aws-sdk": "^2.1324.0",
+    "device-detector-js": "^3.0.3",
+    "dotenv": "^16.0.3",
+    "postgres": "^3.3.3"
+  },
+  "devDependencies": {
+    "jest": "^29.4.3"
+  }
+}

@@ -1,0 +1,15 @@
+node_modules
+instrumentation/build
+instrumentation/cdn/build
+instrumentation/cdn/v*
+.DS_STORE
+.aws-sam
+.env
+.env.*
+samconfig.toml
+dashboard/.next
+dashboard/.next/**
+test.html
+api-cdk
+.github
+credentials.json
