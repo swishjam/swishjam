@@ -17,7 +17,7 @@ const SignUpSchema = Yup.object().shape({
 });
 
 const SignUp = () => {
-  const { initial, session, setUserOrg } = useAuth();
+  const { initial, session, setUserOrg, updateRegistering } = useAuth();
   const router = useRouter();
   const [ errorMsg, setErrorMsg ] = useState(null);
   const [ successMsg, setSuccessMsg ] = useState(null);
@@ -36,7 +36,7 @@ const SignUp = () => {
         email: formData.email,
         password: formData.password,
       });
-      const { user, session } = data;
+      const { user } = data;
 
       if (error) {
         throw error;

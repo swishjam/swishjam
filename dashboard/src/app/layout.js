@@ -7,9 +7,10 @@ import '@tremor/react/dist/esm/tremor.css';
 // do not cache this layout
 export const revalidate = 0;
 
-export default async function RootLayout({ children }) {
+export default async function RootLayout({ children, ...props}) {
   const supabase = createClient();
 
+  console.log(props)
   const {
     data: { session },
   } = await supabase.auth.getSession();

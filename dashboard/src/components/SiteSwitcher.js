@@ -15,15 +15,19 @@ function classNames(...classes) {
 }
 
 export default function SiteSwitcher(props) {
-  const { currentSite, setCurrentSite, userOrg, allSites } = useAuth();
+  const { currentProject, updateCurrentProject, userOrg, projects } = useAuth();
   const [ isDialogOpenSwitcher, setIsDialogOpenSwitcher ] = useState(false);
+
+  if(!currentProject || projects?.length === 0) {
+    return <></>
+  }
 
   return (
     <div {...props}>
       <Menu as="div" className="relative inline-block text-left">
         <div>
           <Menu.Button className="inline-flex w-full justify-center gap-x-1.5 rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
-            {currentSite?.url || <div className="mt-1"><LoadingSpinner size={4} /></div>} 
+            {currentProject?.name || <div className="mt-1"><LoadingSpinner size={4} /></div>} 
             <ChevronDownIcon className="-mr-1 h-5 w-5 text-gray-400 mt-1" aria-hidden="true" />
           </Menu.Button>
         </div>
@@ -39,11 +43,11 @@ export default function SiteSwitcher(props) {
         >
           <Menu.Items className="absolute right-0 z-10 mt-2 origin-top-right divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none cursor-pointer">
             <div className="py-1">
-              {allSites?.map((site) => (
-                <Menu.Item key={site.id}>
+              {projects?.map((project) => (
+                <Menu.Item key={project.id}>
                   {({ active }) => (
                     <div
-                      onClick={() => setCurrentSite(site)}
+                      onClick={() => updateCurrentProject(project)}
                       className={classNames(
                         active ? 'bg-gray-100 text-gray-900' : 'text-gray-700',
                         'truncate group flex items-center px-4 py-2 text-sm'
@@ -53,20 +57,20 @@ export default function SiteSwitcher(props) {
                         className="mr-3 h-5 w-5 text-gray-400 group-hover:text-gray-500"
                         aria-hidden="true"
                       />
-                      {site.url} 
+                      {project.name} 
                     </div>
                   )}
                 </Menu.Item>
               ))} 
             </div>
-            <div className="py-1">
-              <Menu.Item>
+            <div className="py-1 min-w-fit">
+              <Menu.Item className="min-w-fit">
                 <div
                   onClick={() => setIsDialogOpenSwitcher(true)}
-                  className={'group flex items-center px-4 py-2 text-sm hover:text-swishjam cursor-pointer'}
+                  className={'w-48 flex items-center px-4 py-2 text-sm hover:text-swishjam cursor-pointer'}
                 >
                   <PlusCircleIcon className="mr-3 h-5 w-5 text-gray-400 group-hover:text-swishjam" aria-hidden="true" />
-                  Add Site
+                  Add Project
                 </div>
               </Menu.Item>
             </div>
@@ -78,8 +82,7 @@ export default function SiteSwitcher(props) {
       <NewSiteDialog
         isOpen={isDialogOpenSwitcher}
         onClose={() => setIsDialogOpenSwitcher(false)}
-        onComplete={(newSite) => setIsDialogOpenSwitcher(false)}
-        organizationId={userOrg.id}
+        onComplete={(newProject) => setIsDialogOpenSwitcher(false)}
       />}
     </div>
   )

@@ -19,32 +19,60 @@ export const AuthProvider = (props) => {
   const [session, setSession] = useState(null);
   const [user, setUser] = useState(null);
   const [userOrg, setUserOrg] = useState(null);
-  const [allSites, setAllSites] = useState(null);
-  const [currentSite, setCurrentSite] = useState(null);
+  const [projects, setProjects] = useState([]);
+  const [currentProject, setCurrentProject] = useState(null);
   const router = useRouter();
   const { accessToken, ...rest } = props;
 
+  async function updateCurrentProject(curProject) {
+    //update the current project in local storage
+    if(curProject) {
+      try {
+        const lsCurProject = await localStorage.setItem("currentProject", JSON.stringify(curProject))
+        setCurrentProject(curProject)
+      } catch(err) {
+        console.error(err)
+      } 
+    } else {
+      console.error(err)
+    } 
+  }
+
   useEffect(() => {
-    console.log('does this load only once?');
     async function getCoreUserData(lUser) {
       try { 
         if (lUser) {
+          console.log(window.location.href);
+          if(window?.location?.href?.includes('register')) {
+            return
+          } 
+          //console.log(router.pathname);
+          console.log(lUser)
+          //const userDb = await supabase.from('users').select('*').eq('ud': lUser.id);
+          //if (userDb.error) { throw userDb.error } 
+          //setUser(userDb.data[0]);
+          //console.log(userDb)
+          
           const uO = await supabase.from('organization_users').select('*').eq('user_id', lUser.id)
           if (uO.error) { throw uO.error } 
         
           const org = await supabase.from('organizations').select('*').eq('id', uO.data[0].organization_id)
           if (org.error) { throw org.error } 
-          setUserOrg(org.data[0])  
+          setUserOrg(org.data[0])
         
-          const sites = await supabase.from('sites').select('*').eq('organization_id', org.data[0].id)
-          setAllSites(sites.data)
+          const loadedProjects = await supabase.from('projects').select('*').eq('organization_id', org.data[0].id)
+          console.log(loadedProjects)
+          setProjects(loadedProjects.data)
 
-          const lsCurSite = JSON.parse(await localStorage.getItem("currentSite")); 
-          if(!lsCurSite) {
-            setCurrentSite(sites.data[0]);
-            localStorage.setItem("currentSite", JSON.stringify(sites.data[0]));
-          } else {
-            setCurrentSite(lsCurSite);
+          const lsCurProject = await localStorage.getItem("currentProject")
+          
+          console.log(lsCurProject) 
+          if (lsCurProject) {
+            setCurrentProject(JSON.parse(lsCurProject))  
+          }
+          if(!lsCurProject && loadedProjects.data.length > 0) {
+            setCurrentProject(loadedProjects.data[0]);
+            localStorage.setItem("currentProject", JSON.stringify(loadedProjects.data[0]));
           }
         }
       } catch (error) {
@@ -68,7 +96,7 @@ export const AuthProvider = (props) => {
     const {
       data: { subscription: authListener },
     } = supabase.auth.onAuthStateChange((event, currentSession) => {
-     
+      
       console.log('Auth State Change', event, currentSession)
       
       if (currentSession?.access_token !== accessToken) {
@@ -79,9 +107,12 @@ export const AuthProvider = (props) => {
       setUser(currentSession?.user ?? null);
 
       if(event === EVENTS.SIGNED_OUT) {
+        setSession(null)
+        setUser(null)
         setUserOrg(null);
-        setAllSites(null);
-        setCurrentSite(null);
+        setProjects([]);
+        setCurrentProject(null);
+        localStorage.removeItem("currentProject");
       }
       // check if user is signed in and then try to pull the user's org, sites, & set site
       console.log(event) 
@@ -106,13 +137,13 @@ export const AuthProvider = (props) => {
       user,
       userOrg,
       setUserOrg,
-      currentSite,
-      setCurrentSite,
-      allSites,
-      setAllSites,
+      currentProject,
+      updateCurrentProject,
+      projects,
+      setProjects,
       signOut: () => supabase.auth.signOut(),
     };
-  }, [initial, session, user, userOrg, currentSite, allSites]);
+  }, [initial, session, user, userOrg, currentProject, projects]);
 
   return <AuthContext.Provider value={value} {...rest} />;
 };
