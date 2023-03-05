@@ -86,6 +86,7 @@ export default function DashboardView() {
   }
 
   useEffect(() => {
+    console.log('CURRENT PROJECT', currentProject);
     if (currentProject) {
       getAndSetWebVitalMetric('LCP');
       getAndSetWebVitalMetric('INP');

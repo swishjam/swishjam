@@ -13,7 +13,6 @@ export default async (req, res) => {
 
   return await runQueryIfUserHasAccess({ req, res, projectKey }, async () => {
     try {
-      if (!siteId) throw new Error('Missing `siteId` query param');
       const records = await ResourcePerformanceEntries.getAll({
         projectKey,
         startTs,

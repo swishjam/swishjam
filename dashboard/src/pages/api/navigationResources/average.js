@@ -1,4 +1,4 @@
-import { runQueryIfUserHasAccess } from '@/lib/data/queries';
+import { runQueryIfUserHasAccess } from '@/lib/analyticQuerier';
 import NavigationPerformanceEntries from '@/lib/data/navigationPerformanceEntries';
 
 export default async (req, res) => {

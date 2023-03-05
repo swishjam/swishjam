@@ -39,32 +39,24 @@ export const AuthProvider = (props) => {
   }
 
   useEffect(() => {
-    async function getCoreUserData(lUser) {
+    async function getCoreUserData(localUser) {
       try { 
-        if (lUser) {
-          //console.log(window.location.href);
+        if (localUser) {
           if(window?.location?.href?.includes('register')) {
             return
-          } 
-          //console.log(router.pathname);
-          console.log(lUser)
-          //const userDb = await supabase.from('users').select('*').eq('ud': lUser.id);
-          //if (userDb.error) { throw userDb.error } 
-          //setUser(userDb.data[0]);
-          //console.log(userDb)
+          }
           
-          const uO = await supabase.from('organization_users').select('*').eq('user_id', lUser.id)
-          if (uO.error) { throw uO.error } 
+          const orgUsers = await supabase.from('organization_users').select('*').eq('user_id', localUser.id)
+          if (orgUsers.error) { throw orgUsers.error } 
         
-          const org = await supabase.from('organizations').select('*').eq('id', uO.data[0].organization_id)
-          if (org.error) { throw org.error } 
-          setUserOrg(org.data[0])
+          const orgs = await supabase.from('organizations').select('*').eq('id', orgUsers.data[0].organization_id)
+          if (orgs.error) { throw orgs.error } 
+          setUserOrg(orgs.data[0])
         
-          const loadedProjects = await supabase.from('projects').select('*').eq('organization_id', org.data[0].id)
-          console.log(loadedProjects)
+          const loadedProjects = await supabase.from('projects').select('*').eq('organization_id', orgs.data[0].id)
           setProjects(loadedProjects.data)
 
-          const lsCurProject = await localStorage.getItem("currentProject")
+          const lsCurProject = localStorage.getItem("currentProject");
           
           if (lsCurProject) {
             setCurrentProject(JSON.parse(lsCurProject))  
