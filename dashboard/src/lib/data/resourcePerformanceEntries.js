@@ -18,7 +18,7 @@ export default class ResourcePerformanceEntries {
       FROM
         resource_performance_entries
       JOIN
-        page_views ON resource_performance_entries.page_view_identifier = page_views.identifier
+        page_views ON resource_performance_entries.page_view_uuid = page_views.uuid
       WHERE
         page_views.project_key = $1 AND
         CONCAT(page_views.url_host, page_views.url_path) = $2 AND
@@ -45,7 +45,7 @@ export default class ResourcePerformanceEntries {
       FROM
         resource_performance_entries
       JOIN
-        page_views ON resource_performance_entries.page_view_identifier = page_views.identifier
+        page_views ON resource_performance_entries.page_view_uuid = page_views.uuid
       WHERE
         page_views.project_key = $1 AND
         resource_performance_entries.name = $2 AND

@@ -9,7 +9,7 @@ export default class NavigationPerformanceEntries {
       FROM
         navigation_performance_entries
       JOIN
-        page_views ON navigation_performance_entries.page_view_identifier = page_views.identifier
+        page_views ON navigation_performance_entries.page_view_uuid = page_views.uuid
       WHERE
         page_views.project_key = $1 AND
         page_views.page_view_ts >= $2

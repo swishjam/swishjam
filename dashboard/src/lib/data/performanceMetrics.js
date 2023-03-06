@@ -11,7 +11,7 @@ export default class PerformanceMetricsData {
         FROM 
           performance_metrics 
         JOIN
-          page_views ON performance_metrics.page_view_identifier = page_views.identifier
+          page_views ON performance_metrics.page_view_uuid = page_views.uuid
         WHERE 
           page_views.project_key = $1 AND
           performance_metrics.metric_name = $2 AND 
@@ -31,7 +31,7 @@ export default class PerformanceMetricsData {
         FROM 
           performance_metrics 
         JOIN
-          page_views ON performance_metrics.page_view_identifier = page_views.identifier
+          page_views ON performance_metrics.page_view_uuid = page_views.uuid
         WHERE 
           page_views.project_key = $1 AND
           performance_metrics.metric_name = $2 AND 
@@ -72,7 +72,7 @@ export default class PerformanceMetricsData {
       FROM
         performance_metrics
       INNER JOIN
-        page_views ON performance_metrics.page_view_identifier = page_views.identifier
+        page_views ON performance_metrics.page_view_uuid = page_views.uuid
       WHERE
         performance_metrics.metric_name = $1 AND
         page_views.project_key = $2 AND
@@ -122,7 +122,7 @@ export default class PerformanceMetricsData {
       FROM
         performance_metrics
       LEFT JOIN 
-        page_views ON performance_metrics.page_view_identifier = page_views.identifier
+        page_views ON performance_metrics.page_view_uuid = page_views.uuid
       WHERE
         performance_metrics.project_key = $1 AND
         metric_name = $2 AND
@@ -146,7 +146,7 @@ export default class PerformanceMetricsData {
         FROM
           performance_metrics
         LEFT JOIN
-          page_views ON performance_metrics.page_view_identifier = page_views.identifier
+          page_views ON performance_metrics.page_view_uuid = page_views.uuid
         WHERE
           page_views.project_key = $1 AND
           metric_name = $2 AND
@@ -166,7 +166,7 @@ export default class PerformanceMetricsData {
         FROM
           performance_metrics
         LEFT JOIN
-          page_views ON performance_metrics.page_view_identifier = page_views.identifier
+          page_views ON performance_metrics.page_view_uuid = page_views.uuid
         WHERE
           page_views.project_key = $1 AND
           metric_name = $2 AND
