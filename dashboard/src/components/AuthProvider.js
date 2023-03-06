@@ -80,15 +80,12 @@ export const AuthProvider = (props) => {
       setUser(activeSession?.user ?? null);
       setInitial(false);
       getCoreUserData(activeSession?.user ?? null);
-      console.log('user is logged in when page loads') 
     }
     getActiveSession();
 
     const {
       data: { subscription: authListener },
     } = supabase.auth.onAuthStateChange((event, currentSession) => {
-      
-      console.log('Auth State Change', event, currentSession)
       
       if (currentSession?.access_token !== accessToken) {
         router.refresh();
