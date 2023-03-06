@@ -8,11 +8,6 @@ This project contains source code and supporting files for a serverless applicat
 - Amazon SQS
 - Amazon Lambda Functions
 
-
-- hello-world - Code for the application's Lambda function and Project Dockerfile.
-- events - Invocation events that you can use to invoke the function.
-- template.yaml - A template that defines the application's AWS resources.
-
 The application uses several AWS resources, including Lambda functions and an API Gateway API. These resources are defined in the `template.yaml` file in this project. You can update the template to add AWS resources through the same deployment process that updates your application code.
 
 ## Deploy the sample application
@@ -37,9 +32,17 @@ sam deploy --guided --capabilities 'CAPABILITY_NAMED_IAM'
 
 The first command will build a docker image from a Dockerfile and then the source of your application inside the Docker image. The second command will package and deploy your application to AWS, with a series of prompts:
 
-* **Stack Name**: The name of the stack to deploy to CloudFormation. This should be unique to your account and region, and a good starting point would be something matching your project name.
-* **AWS Region**: The AWS region you want to deploy your app to.
+* **Stack Name**: The name of the stack to deploy to CloudFormation. This should be unique to your account and region, and a good starting point would be something matching your project name. The default value is `swishjam-ingestion`.
+* **AWS Region**: The AWS region you want to deploy your app to. The default value is `us-east-1`.
 * **Confirm changes before deploy**: If set to yes, any change sets will be shown to you before execution for manual review. If set to no, the AWS SAM CLI will automatically deploy application changes.
+* **Parameter DatabaseName**: The name of your Postgres database performance data should be written to.
+* **Parameter DatabaseUsername**: The username to access your Postgres database.
+* **Parameter DatabasePassword**: The password to access your Postgres database.
+* **Parameter DatabaseHostname**: The hostname (URL) to access your Postgres database.
+* **Parameter DatabasePort**: The port your Postgres database is accessible at. Default is `5432`.
+* **Parameter RestApiName**: The name to create/update your AWS API Gateway under. The default is `swishjam-event-data-endpoint`.
+* **Parameter SqsQueueName**: The name to create/update your AWS SQS Queue under. The default is `swishjam-event-data-message-queue`.
+* **Parameter EventConsumerLambdaFunctionName**: The name to create/update your AWS Lambda function under. The default is `swishjam-event-data-sqs-message-consumer`.
 * **Allow SAM CLI IAM role creation**: Many AWS SAM templates, including this example, create AWS IAM roles required for the AWS Lambda function(s) included to access AWS services. By default, these are scoped down to minimum required permissions. To deploy an AWS CloudFormation stack which creates or modifies IAM roles, the `CAPABILITY_IAM` value for `capabilities` must be provided. If permission isn't provided through this prompt, to deploy this example you must explicitly pass `--capabilities CAPABILITY_IAM` to the `sam deploy` command.
 * **Save arguments to samconfig.toml**: If set to yes, your choices will be saved to a configuration file inside the project, so that in the future you can just re-run `sam deploy` without parameters to deploy changes to your application.
 
@@ -50,7 +53,7 @@ You can find your API Gateway Endpoint URL in the output values displayed after 
 Build your application with the `sam build` command.
 
 ```bash
-performance-instrumentation-api$ sam build
+sam build
 ```
 
 The SAM CLI builds a docker image from a Dockerfile and then installs dependencies defined in `hello-world/package.json` inside the docker image. The processed template file is saved in the `.aws-sam/build` folder.
@@ -61,14 +64,14 @@ Test a single function by invoking it directly with a test event. An event is a 
 Run functions locally and invoke them with the `sam local invoke` command.
 
 ```bash
-performance-instrumentation-api$ sam local invoke HelloWorldFunction --event events/event.json
+sam local invoke EventDataMessageConsumer --event events/event.json
 ```
 
 The SAM CLI can also emulate your application's API. Use the `sam local start-api` to run the API locally on port 3000.
 
 ```bash
-performance-instrumentation-api$ sam local start-api
-performance-instrumentation-api$ curl http://localhost:3000/
+sam local start-api
+curl http://localhost:3000/
 ```
 
 The SAM CLI reads the application template to determine the API's routes and the functions that they invoke. The `Events` property on each function's definition includes the route and method for each path.
@@ -102,21 +105,7 @@ You can find more information and examples about filtering Lambda function logs 
 Tests are defined in the `hello-world/tests` folder in this project. Use NPM to install the [Mocha test framework](https://mochajs.org/) and run unit tests from your local machine.
 
 ```bash
-performance-instrumentation-api$ cd hello-world
-hello-world$ npm install
-hello-world$ npm run test
+cd api
+npm install
+npm run test
 ```
-
-## Cleanup
-
-To delete the sample application that you created, use the AWS CLI. Assuming you used your project name for the stack name, you can run the following:
-
-```bash
-aws cloudformation delete-stack --stack-name performance-instrumentation-api
-```
-
-## Resources
-
-See the [AWS SAM developer guide](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/what-is-sam.html) for an introduction to SAM specification, the SAM CLI, and serverless application concepts.
-
-Next, you can use AWS Serverless Application Repository to deploy ready to use Apps that go beyond hello world samples and learn how authors developed their applications: [AWS Serverless Application Repository main page](https://aws.amazon.com/serverless/serverlessrepo/)
