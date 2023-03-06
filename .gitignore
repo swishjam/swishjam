@@ -13,3 +13,4 @@ test.html
 api-cdk
 .github
 credentials.json
+.vercel
