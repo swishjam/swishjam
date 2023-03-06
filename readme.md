@@ -10,7 +10,7 @@
 </div>
 
 ## Swishjam is a open-source toolset for people who care about beautiful web experiences.
-- Light-weight javascript capture of core web vitals, page load waterfalls, & more
+- Lightweight javascript capture of core web vitals, page load waterfalls, & more
 - [Coming soon] Page loading optimization script baked in
 - [Coming soon] Notifications & regression monitors
 - Drop us a message to discuss upcoming features
@@ -28,7 +28,7 @@ We want everyone to build awesome web experiences. We see Swishjam becoming a co
     └── README.md
 
 ### Setup 
-Each folder: api, database, instrumentation, and dashboard [coming soon] will have it's own installation instructions. Please read the installation in each folder to get you started. We recommend setup in the following order:
+Each folder: api, database, instrumentation, and dashboard [coming soon] will have its own installation instructions. Please read the installation in each folder to get you started. We recommend setup in the following order:
 
 1. Instrumentation
 2. Database
@@ -50,7 +50,7 @@ Swishjam.init({
 })
 ```
 
-That's it, Swishjam JS will now collect and send performance data to your specific Reporting URL. Here are the other options available to you when calling the `Swishjam.init` method:
+That's it. Swishjam JS will now collect and send performance data to your specific Reporting URL. Here are the other options available to you when calling the `Swishjam.init` method:
 ```js
 Swishjam.init({
   reportingUrl, // The API endpoint Swishjam will send data to (typically the API Gateway endpoint generated in the `/api` setup)
