@@ -11,7 +11,6 @@
 
 ## Swishjam is a open-source toolset for people who care about beautiful web experiences.
 - Light-weight javascript capture of core web vitals, page load waterfalls, & more
-- [Coming soon] Combine CrUX (Chrome UX Report) & you real user data to see page performance
 - [Coming soon] Page loading optimization script baked in
 - [Coming soon] Notifications & regression monitors
 - Drop us a message to discuss upcoming features
