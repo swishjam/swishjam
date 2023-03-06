@@ -7,7 +7,7 @@ import { HeroImg } from '@components/HeroImg';
 export default function SnippetInstall({ projectId }) {
   const [copyTxt, setCopyTxt] = useState('Copy');
   const cdnUrl = `https://cdn.swishjam.com/latest/src.js` 
-  const cdnApi = `https://api.useswishjam.com/events` 
+  const cdnApi = `https://api.swishjam.com/events` 
   const codeSnippet = `<script src="${cdnUrl}" swishjam-reporting-url="${cdnApi}" swishjam-public-api-key="${projectId}" swishjam-sample-rate="1.0" defer></script>` 
 
   return (
