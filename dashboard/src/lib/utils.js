@@ -25,51 +25,13 @@ export const calcCwvPercent = (val, good, medium) => {
 }
 
 export const cwvMetricBounds = {
-  FCP: {
-    good: 1_800,
-    medium: 3_000,
-  },
-  LCP: {
-    good: 2_500,
-    medium: 4_000,
-  },
-  CLS: {
-    good: 0.1,
-    medium: 0.25
-    
-  },
-  FID: {
-    good: 100,
-    medium: 300
-  },
-  TTFB: {
-    good: 800,
-    medium: 1_800
-  },
-  INP: {
-    good: 200,
-    medium: 500
-  }
+  FCP: { good: 1_800, medium: 3_000 },
+  LCP: { good: 2_500, medium: 4_000, },
+  CLS: { good: 0.1, medium: 0.25 },
+  FID: { good: 100, medium: 300 },
+  TTFB: { good: 800, medium: 1_800 },
+  INP: { good: 200, medium: 500 }
 };
-
-// export const bytesToHumanFileSize = (bytes, si = false, dp = 1) => {
-//   const thresh = si ? 1000 : 1024;
-
-//   if (Math.abs(bytes) < thresh) return parseFloat(bytes).toFixed(dp) + ' B';
-
-//   const units = si
-//     ? ['kB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB']
-//     : ['KiB', 'MiB', 'GiB', 'TiB', 'PiB', 'EiB', 'ZiB', 'YiB'];
-//   let u = -1;
-//   const r = 10 ** dp;
-
-//   do {
-//     bytes /= thresh;
-//     ++u;
-//   } while (Math.round(Math.abs(bytes) * r) / r >= thresh && u < units.length - 1);
-
-//   return bytes.toFixed(dp) + ' ' + units[u];
-// }
 
 export const bytesToHumanFileSize = (bytes, decimals = 2) => {
   const thresh = 1024;

@@ -9,6 +9,7 @@ import { GetCWVData, GetCWVTimeSeriesData, GetNavigationPerformanceEntriesData }
 import { msToSeconds, cwvMetricBounds, calcCwvPercent } from '@lib/utils';
 import { PlusIcon } from '@heroicons/react/20/solid'
 import LoadingSpinner from './LoadingSpinner';
+import LoadingFullScreen from './LoadingFullScreen';
 
 export default function DashboardView() {
   const { projects, currentProject } = useAuth();
@@ -58,6 +59,7 @@ export default function DashboardView() {
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [slowPageNavigations, setSlowPageNavigations] = useState();
+  const [isLoadingData, setIsLoadingData] = useState(true);
   
   const getAndSetWebVitalMetric = async  cwvKey => {
     GetCWVData({ metric: cwvKey }).then(res => {
@@ -74,13 +76,13 @@ export default function DashboardView() {
     GetCWVTimeSeriesData({ metric }).then(chartData => {
       const setStateMethod = { LCP: setLCP, INP: setINP, CLS: setCLS, FCP: setFCP, FID: setFID, TTFB: setTTFB }[metric];
       setStateMethod(prevState => ({ ...prevState, timeseriesData: chartData }));
+      setIsLoadingData(false)
     })
   }
 
   const getSlowPageNavigations = () => {
     GetNavigationPerformanceEntriesData({ metric: 'dom_interactive' }).then(res => {
       const formatted = res.records.map(item => ({ ...item, href: `/pages/${window.encodeURIComponent(item.name)}` }));
-      console.log(`GOT SLOW PAGE RESULTS?`, res);
       setSlowPageNavigations(formatted);
     })
   }
@@ -105,7 +107,14 @@ export default function DashboardView() {
     }
   }, [currentProject]);
 
-  if (!projects || projects?.length === 0) {
+  if(isLoadingData) {
+    return (
+      <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 ">
+        <h1 className="text-lg font-medium mt-8">Core Web Vitals {currentProject?.name && `for ${currentProject.name}`}</h1>
+        <LoadingFullScreen />
+      </main>
+    )
+  } else if (!projects || projects?.length === 0) {
     return (
       <div className="text-center mt-32">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="mx-auto h-12 w-12 text-gray-400">
@@ -133,10 +142,9 @@ export default function DashboardView() {
     )
   }
 
-
   return (
     <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 ">
-      <h1 className="text-lg font-medium mt-8">Real User Core Web Vitals For {currentProject?.name}</h1>
+      <h1 className="text-lg font-medium mt-8">Core Web Vitals for {currentProject.name}</h1>
 
       {!fcp.metric && currentProject?.public_id ?
       <div className="w-full my-6">

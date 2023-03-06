@@ -12,6 +12,18 @@ const CardLoading = () => (
   </div>
 )
 
+const areaChartValueFormatter = (value, metricUnits) => {
+  if (metricUnits === 's') {
+    return `${msToSeconds(value)} ${metricUnits}`;
+  } else {
+    try {
+      return parseFloat(value).toFixed(4);
+    } catch(err) {
+      return value;
+    }
+  }
+}
+
 export default function WebVitalCard({ title, accronym, metric, metricUnits, metricPercent, timeseriesData, bounds, shouldLinkToCwvDetails = true }, ...props) {
   return (
     <Card>
@@ -53,7 +65,7 @@ export default function WebVitalCard({ title, accronym, metric, metricUnits, met
                 colors={['blue']}
                 showLegend={false}
                 startEndOnly={true}
-                valueFormatter={value => metricUnits === 's' ? `${msToSeconds(value)} ${metricUnits}` : typeof value === Number ? parseFloat(value).toFixed(4) : ''}
+                  valueFormatter={value => areaChartValueFormatter(value, metricUnits)}
                 height="h-48"
                 marginTop="mt-10"
               />
