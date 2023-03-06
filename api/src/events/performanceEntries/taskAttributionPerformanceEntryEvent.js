@@ -13,8 +13,7 @@ module.exports = class TaskAttributionPerformanceEntryEvent {
     const { uuid, longTaskPerformanceEntryUuid, projectKey, pageViewUuid, data } = this.event;
     return {
       uuid: uuid,
-      longtask_uuid: longTaskPerformanceEntryUuid,
-      longtask_unique_identifier: longTaskPerformanceEntryUuid,
+      longtask_performance_entry_uuid: longTaskPerformanceEntryUuid,
       page_view_uuid: pageViewUuid,
       project_key: projectKey,
       duration: data.duration,

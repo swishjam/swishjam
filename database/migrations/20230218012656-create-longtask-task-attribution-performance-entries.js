@@ -10,7 +10,7 @@ module.exports = {
         type: Sequelize.INTEGER
       },
       uuid: { type: Sequelize.STRING, allowNull: false, unique: true },
-      long_task_performance_entry_uuid: { type: Sequelize.STRING, allowNull: false },
+      longtask_performance_entry_uuid: { type: Sequelize.STRING, allowNull: false },
       page_view_uuid: { type: Sequelize.STRING, allowNull: false },
       project_key: { type: Sequelize.STRING, allowNull: false },
       duration: { type: Sequelize.DECIMAL },
@@ -26,7 +26,7 @@ module.exports = {
     });
     await queryInterface.addIndex('longtask_task_attribution_performance_entries', ['uuid']);
     await queryInterface.addIndex('longtask_task_attribution_performance_entries', ['page_view_uuid']);
-    await queryInterface.addIndex('longtask_task_attribution_performance_entries', ['long_task_performance_entry_uuid']);
+    await queryInterface.addIndex('longtask_task_attribution_performance_entries', ['longtask_performance_entry_uuid']);
     await queryInterface.addIndex('longtask_task_attribution_performance_entries', ['project_key']);
   },
   async down(queryInterface, Sequelize) {
