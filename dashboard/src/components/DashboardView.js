@@ -12,7 +12,7 @@ import LoadingSpinner from './LoadingSpinner';
 import LoadingFullScreen from './LoadingFullScreen';
 
 export default function DashboardView() {
-  const { projects, currentProject } = useAuth();
+  const { initial: currentUserDataIsLoading, projects, currentProject } = useAuth();
 
   const [lcp, setLCP] = useState({
     key: "LCP",
@@ -59,10 +59,10 @@ export default function DashboardView() {
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [slowPageNavigations, setSlowPageNavigations] = useState();
-  const [isLoadingData, setIsLoadingData] = useState(true);
+  const [isLoadingPerformanceData, setisLoadingPerformanceData] = useState(true);
   
   const getAndSetWebVitalMetric = async  cwvKey => {
-    GetCWVData({ metric: cwvKey }).then(res => {
+    return GetCWVData({ metric: cwvKey }).then(res => {
       const pData = calcCwvPercent(res.average, cwvMetricBounds[cwvKey].good, cwvMetricBounds[cwvKey].medium );
       const currentCwv = { LCP: lcp, INP: inp, CLS: cls, FCP: fcp, FID: fid, TTFB: ttfb  }[cwvKey];
       const setStateMethod = { LCP: setLCP, INP: setINP, CLS: setCLS, FCP: setFCP, FID: setFID, TTFB: setTTFB }[cwvKey];      
@@ -73,41 +73,50 @@ export default function DashboardView() {
   };
 
   const getTimeseriesDataForMetric = metric => {
-    GetCWVTimeSeriesData({ metric }).then(chartData => {
+    return GetCWVTimeSeriesData({ metric }).then(chartData => {
       const setStateMethod = { LCP: setLCP, INP: setINP, CLS: setCLS, FCP: setFCP, FID: setFID, TTFB: setTTFB }[metric];
       setStateMethod(prevState => ({ ...prevState, timeseriesData: chartData }));
-      setIsLoadingData(false)
+      setisLoadingPerformanceData(false);
     })
   }
 
   const getSlowPageNavigations = () => {
-    GetNavigationPerformanceEntriesData({ metric: 'dom_interactive' }).then(res => {
+    return GetNavigationPerformanceEntriesData({ metric: 'dom_interactive' }).then(res => {
       const formatted = res.records.map(item => ({ ...item, href: `/pages/${window.encodeURIComponent(item.name)}` }));
       setSlowPageNavigations(formatted);
     })
   }
 
+  const getAnalyticDataForProject = async () => {
+    return Promise.all([
+      getAndSetWebVitalMetric('LCP'),
+      getAndSetWebVitalMetric('INP'),
+      getAndSetWebVitalMetric('CLS'),
+      getAndSetWebVitalMetric('FCP'),
+      getAndSetWebVitalMetric('FID'),
+      getAndSetWebVitalMetric('TTFB'),
+      getTimeseriesDataForMetric('LCP'),
+      getTimeseriesDataForMetric('CLS'),
+      getTimeseriesDataForMetric('INP'),
+      getTimeseriesDataForMetric('FCP'),
+      getTimeseriesDataForMetric('FID'),
+      getTimeseriesDataForMetric('TTFB'),
+      getSlowPageNavigations(),
+    ]);
+  }
+
   useEffect(() => {
-    if (currentProject) {
-      getAndSetWebVitalMetric('LCP');
-      getAndSetWebVitalMetric('INP');
-      getAndSetWebVitalMetric('CLS');
-      getAndSetWebVitalMetric('FCP');
-      getAndSetWebVitalMetric('FID');
-      getAndSetWebVitalMetric('TTFB');
-      getTimeseriesDataForMetric('LCP');
-      getTimeseriesDataForMetric('CLS');
-      getTimeseriesDataForMetric('INP');
-      getTimeseriesDataForMetric('FCP');
-      getTimeseriesDataForMetric('FID');
-      getTimeseriesDataForMetric('TTFB');
-      getSlowPageNavigations();
-    } else {
-      setSlowPageNavigations([]);
+    if(!currentUserDataIsLoading) {
+      if (currentProject) {
+        getAnalyticDataForProject().then(() => setisLoadingPerformanceData(false));
+      } else {
+        setSlowPageNavigations([]);
+        setisLoadingPerformanceData(false);
+      }
     }
   }, [currentProject]);
 
-  if(isLoadingData) {
+  if(isLoadingPerformanceData) {
     return (
       <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 ">
         <h1 className="text-lg font-medium mt-8">Core Web Vitals {currentProject?.name && `for ${currentProject.name}`}</h1>
@@ -140,48 +149,49 @@ export default function DashboardView() {
         </div>
       </div>
     )
+  } else {
+    return (
+      <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 ">
+        <h1 className="text-lg font-medium mt-8">Core Web Vitals for {currentProject.name}</h1>
+
+        {!isLoadingPerformanceData && !currentUserDataIsLoading && !fcp && currentProject?.public_id ?
+        <div className="w-full my-6">
+          <SnippetInstall projectId={currentProject?.public_id}/>     
+        </div>:null
+        }
+
+        <ColGrid numColsMd={2} numColsLg={3} gapX="gap-x-6" gapY="gap-y-6" marginTop="mt-6">
+          {[lcp, cls, inp, fcp, fid, ttfb].map(item => (
+            <WebVitalCard
+              key={item.key}
+              accronym={item.key}
+              title={item.title}
+              metric={item.metric}
+              metricUnits={item.metricUnits}
+              metricPercent={item.metricPercent}
+              bounds={item.bounds}
+              timeseriesData={item.timeseriesData}
+            />
+          ))}
+        </ColGrid>
+
+        <div className="w-full my-6">
+          <Card>
+            <Title>Slowest Page Navigations</Title>
+            <Flex marginTop="mt-4">
+              <Text><Bold>Page URL</Bold></Text>
+              <Text><Bold>DOM Interactive</Bold></Text>
+            </Flex>
+            {slowPageNavigations === undefined ? 
+              (<LoadingSpinner />) : 
+                slowPageNavigations.length === 0 ? 
+                  (<Text>No slow page navigations found.</Text>) :
+                  (<BarList data={slowPageNavigations} valueFormatter={value => `${msToSeconds(value)} s`} marginTop='mt-4' color='blue' />)
+            }
+          </Card>
+        </div>
+      </main>
+    );
   }
 
-  return (
-    <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 ">
-      <h1 className="text-lg font-medium mt-8">Core Web Vitals for {currentProject.name}</h1>
-
-      {!fcp.metric && currentProject?.public_id ?
-      <div className="w-full my-6">
-        <SnippetInstall projectId={currentProject?.public_id}/>     
-      </div>:null
-      }
-
-      <ColGrid numColsMd={2} numColsLg={3} gapX="gap-x-6" gapY="gap-y-6" marginTop="mt-6">
-        {[lcp, cls, inp, fcp, fid, ttfb].map(item => (
-          <WebVitalCard
-            key={item.key}
-            accronym={item.key}
-            title={item.title}
-            metric={item.metric}
-            metricUnits={item.metricUnits}
-            metricPercent={item.metricPercent}
-            bounds={item.bounds}
-            timeseriesData={item.timeseriesData}
-          />
-        ))}
-      </ColGrid>
-
-      <div className="w-full my-6">
-        <Card>
-          <Title>Slowest Page Navigations</Title>
-          <Flex marginTop="mt-4">
-            <Text><Bold>Page URL</Bold></Text>
-            <Text><Bold>DOM Interactive</Bold></Text>
-          </Flex>
-          {slowPageNavigations === undefined ? 
-            (<LoadingSpinner />) : 
-              slowPageNavigations.length === 0 ? 
-                (<Text>No slow page navigations found.</Text>) :
-                (<BarList data={slowPageNavigations} valueFormatter={value => `${msToSeconds(value)} s`} marginTop='mt-4' color='blue' />)
-          }
-        </Card>
-      </div>
-    </main>
-  );
 }
