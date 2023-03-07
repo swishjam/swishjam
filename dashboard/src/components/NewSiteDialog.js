@@ -74,7 +74,7 @@ export default function NewProjectDialog({ isOpen, onClose, onComplete}) {
                   </Dialog.Title>
                   <div className="mt-2">
                     <p className="text-sm text-gray-500">
-                      more copy goes here! Create a project to track your website performance.
+                      Create a project to track your website performance.
                     </p>
                   </div>
 

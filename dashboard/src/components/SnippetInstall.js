@@ -38,7 +38,7 @@ export default function SnippetInstall({ projectId }) {
               </li>
 
               <li>
-                <div className="relative pb-8">
+                <div className="relative pb-12">
                   <div className="relative flex space-x-3">
                     <div>
                       <span className="h-8 w-8 rounded-full bg-swishjam flex items-center justify-center ring-8 text-white ring-white">
@@ -62,7 +62,7 @@ export default function SnippetInstall({ projectId }) {
         <div className="h-full w-1/2 mb-6">
           {/* copy to clipboard here */}
           <div
-            className="relative bg-gray-50 !border rounded-xl p-4 pr-12 break-all font-medium text-gray-900 text-sm"
+            className="relative bg-gray-50 !border rounded-xl p-4 pb-12 pr-12 break-all font-medium text-gray-900 text-sm"
           >
             {codeSnippet}
             <CopyToClipboard text={codeSnippet} className="absolute px-2.5 py-0.5 bottom-2 right-2 !border rounded-lg bg-white inline-flex items-center gap-x-1.5 cursor-pointer hover:text-swishjam">
