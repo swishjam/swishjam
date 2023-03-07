@@ -15,11 +15,11 @@ export const formattedDate = dateString => {
 };
 
 export const calcCwvPercent = (val, good, medium) => {
-  const smallestGap = Math.min(good, medium-good);   
+  const smallestGap = Math.min(good, medium - good);   
   const total = medium + smallestGap;
 
   return {
-   percent: val/total * 100,
+   percent: Math.min(val/total * 100, 99),
    bounds: [ (good/total*100), ((medium-good)/total*100), (smallestGap/total*100) ]
   }
 }
