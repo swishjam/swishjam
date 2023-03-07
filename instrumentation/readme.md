@@ -1,10 +1,10 @@
-![Swishjam](https://useswishjam.com/readme.png)
+![Swishjam](https://swishjam.com/readme.png)
 
 <div align="center"><strong>Swishjam Instrumentation</strong></div>
 <div align="center">Dead Simple Open-Source Performance Tools</div>
 <br />
 <div align="center">
-<a href="https://useswishjam.com">Website</a> 
+<a href="https://swishjam.com">Website</a> 
 <span> · </span>
 <a href="https://github.com/swishjam/swishjam">GitHub</a> 
 </div>
