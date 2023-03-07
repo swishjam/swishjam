@@ -5,11 +5,18 @@ import { useAuth } from '@components/AuthProvider';
 import NewSiteDialog from '@components/NewSiteDialog';
 import SnippetInstall from '@components/SnippetInstall';
 import WebVitalCard from './WebVitalCard';
-import { GetCWVData, GetCWVTimeSeriesData, GetNavigationPerformanceEntriesData } from '@lib/api';
-import { msToSeconds, cwvMetricBounds, calcCwvPercent } from '@lib/utils';
 import { PlusIcon } from '@heroicons/react/20/solid'
 import LoadingSpinner from './LoadingSpinner';
 import LoadingFullScreen from './LoadingFullScreen';
+import HostUrlFilterer from './HostUrlFilterer';
+import { msToSeconds, cwvMetricBounds, calcCwvPercent } from '@lib/utils';
+import { 
+  GetCWVData, 
+  GetCWVTimeSeriesData, 
+  GetNavigationPerformanceEntriesData, 
+  GetUrlHostsForCurrentProject, 
+  // GetUrlPathsForCurrentProject 
+} from '@lib/api';
 
 export default function DashboardView() {
   const { initial: currentUserDataIsLoading, projects, currentProject } = useAuth();
@@ -58,13 +65,14 @@ export default function DashboardView() {
   });
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [slowPageNavigations, setSlowPageNavigations] = useState();
-  const [isLoadingPerformanceData, setisLoadingPerformanceData] = useState(true);
+  const [isLoadingPerformanceData, setIsLoadingPerformanceData] = useState(true);
+  const [hostUrlToFilterOn, setHostUrlToFilterOn] = useState();
+  const [hostUrlFilterOptions, setHostUrlFilterOptions] = useState();
   
-  const getAndSetWebVitalMetric = async  cwvKey => {
-    return GetCWVData({ metric: cwvKey }).then(res => {
+  const getAndSetWebVitalMetric = (cwvKey, urlHost) => {
+    return GetCWVData({ metric: cwvKey, urlHost }).then(res => {
       const pData = calcCwvPercent(res.average, cwvMetricBounds[cwvKey].good, cwvMetricBounds[cwvKey].medium );
-      const currentCwv = { LCP: lcp, INP: inp, CLS: cls, FCP: fcp, FID: fid, TTFB: ttfb  }[cwvKey];
+      const currentCwv = { LCP: lcp, INP: inp, CLS: cls, FCP: fcp, FID: fid, TTFB: ttfb }[cwvKey];
       const setStateMethod = { LCP: setLCP, INP: setINP, CLS: setCLS, FCP: setFCP, FID: setFID, TTFB: setTTFB }[cwvKey];      
       const metric = currentCwv.metricUnits === 's' ? msToSeconds(res.average) : 
                       currentCwv.metricUnits === 'ms' ? parseInt(res.average) : parseFloat(res.average).toFixed(4);
@@ -72,46 +80,54 @@ export default function DashboardView() {
     })
   };
 
-  const getTimeseriesDataForMetric = metric => {
-    return GetCWVTimeSeriesData({ metric }).then(chartData => {
+  const getTimeseriesDataForMetric = (metric, urlHost) => {
+    console.log(`Fetching timeseries data for ${urlHost}`)
+    return GetCWVTimeSeriesData({ metric, urlHost }).then(chartData => {
       const setStateMethod = { LCP: setLCP, INP: setINP, CLS: setCLS, FCP: setFCP, FID: setFID, TTFB: setTTFB }[metric];
       setStateMethod(prevState => ({ ...prevState, timeseriesData: chartData }));
-      setisLoadingPerformanceData(false);
+      setIsLoadingPerformanceData(false);
     })
   }
 
-  const getSlowPageNavigations = () => {
-    return GetNavigationPerformanceEntriesData({ metric: 'dom_interactive' }).then(res => {
-      const formatted = res.records.map(item => ({ ...item, href: `/pages/${window.encodeURIComponent(item.name)}` }));
-      setSlowPageNavigations(formatted);
-    })
+  const setupUrlHostFilter = () => {
+    return GetUrlHostsForCurrentProject().then(urlHosts => {
+      setHostUrlFilterOptions(urlHosts);
+      if (!hostUrlToFilterOn) {
+        const likelyMainHostUrl = urlHosts.find(urlHost => urlHost.includes('www.')) || 
+                                    urlHosts.find(urlHost => urlHost.includes('.com')) ||
+                                    urlHosts.find(urlHost => urlHost.includes('https://')) ||
+                                    urlHosts.find(urlHost => !urlHost.include('localhost')) ||
+                                    urlHosts[0];
+        setHostUrlToFilterOn(likelyMainHostUrl);
+      }
+    });
   }
 
-  const getAnalyticDataForProject = async () => {
+  const getAnalyticDataForProject = async urlHost => {
+    setIsLoadingPerformanceData(true);
     return Promise.all([
-      getAndSetWebVitalMetric('LCP'),
-      getAndSetWebVitalMetric('INP'),
-      getAndSetWebVitalMetric('CLS'),
-      getAndSetWebVitalMetric('FCP'),
-      getAndSetWebVitalMetric('FID'),
-      getAndSetWebVitalMetric('TTFB'),
-      getTimeseriesDataForMetric('LCP'),
-      getTimeseriesDataForMetric('CLS'),
-      getTimeseriesDataForMetric('INP'),
-      getTimeseriesDataForMetric('FCP'),
-      getTimeseriesDataForMetric('FID'),
-      getTimeseriesDataForMetric('TTFB'),
-      getSlowPageNavigations(),
-    ]);
+      getAndSetWebVitalMetric('LCP', urlHost),
+      getAndSetWebVitalMetric('INP', urlHost),
+      getAndSetWebVitalMetric('CLS', urlHost),
+      getAndSetWebVitalMetric('FCP', urlHost),
+      getAndSetWebVitalMetric('FID', urlHost),
+      getAndSetWebVitalMetric('TTFB', urlHost),
+      getTimeseriesDataForMetric('LCP', urlHost),
+      getTimeseriesDataForMetric('CLS', urlHost),
+      getTimeseriesDataForMetric('INP', urlHost),
+      getTimeseriesDataForMetric('FCP', urlHost),
+      getTimeseriesDataForMetric('FID', urlHost),
+      getTimeseriesDataForMetric('TTFB', urlHost),
+      // getSlowPageNavigations(),
+    ]).then(() => setIsLoadingPerformanceData(false))
   }
 
   useEffect(() => {
     if(!currentUserDataIsLoading) {
       if (currentProject) {
-        getAnalyticDataForProject().then(() => setisLoadingPerformanceData(false));
+        setupUrlHostFilter().then(() => getAnalyticDataForProject(hostUrlToFilterOn))
       } else {
-        setSlowPageNavigations([]);
-        setisLoadingPerformanceData(false);
+        setIsLoadingPerformanceData(false);
       }
     }
   }, [currentProject]);
@@ -119,7 +135,20 @@ export default function DashboardView() {
   if(isLoadingPerformanceData) {
     return (
       <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 ">
-        <h1 className="text-lg font-medium mt-8">Core Web Vitals {currentProject?.name && `for ${currentProject.name}`}</h1>
+        <div className='grid grid-cols-2 mt-8 flex items-center'>
+          <div>
+            <h1 className="text-lg font-medium">Core Web Vitals {currentProject?.name && `for ${currentProject.name}`}</h1>
+          </div>
+
+          <div className="w-full text-end">
+            {hostUrlFilterOptions && <HostUrlFilterer options={hostUrlFilterOptions}
+                                                        selectedHost={hostUrlToFilterOn || hostUrlFilterOptions[0]}
+                                                        onHostSelected={urlHost => {
+                                                          setHostUrlToFilterOn(urlHost);
+                                                          getAnalyticDataForProject(urlHost);
+                                                        }} />}
+          </div>
+        </div>
         <LoadingFullScreen />
       </main>
     )
@@ -144,7 +173,7 @@ export default function DashboardView() {
           <NewSiteDialog
             isOpen={isDialogOpen}
             onClose={() => setIsDialogOpen(false)} 
-            onComplete={(newProject) => {console.log(newProject); setIsDialogOpen(false);}}
+            onComplete={() => setIsDialogOpen(false)}
           />
         </div>
       </div>
@@ -152,12 +181,27 @@ export default function DashboardView() {
   } else {
     return (
       <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 ">
-        <h1 className="text-lg font-medium mt-8">Core Web Vitals for {currentProject.name}</h1>
+        <div className='grid grid-cols-2 mt-8 flex items-center'>
+          <div>
+            <h1 className="text-lg font-medium">Core Web Vitals for {currentProject.name}</h1>
+          </div>
+
+          <div className="w-full text-end">
+            <div>
+              {hostUrlFilterOptions && <HostUrlFilterer options={hostUrlFilterOptions} 
+                                                          selectedHost={hostUrlToFilterOn || hostUrlFilterOptions[0]}
+                                                          onHostSelected={urlHost => {
+                                                            setHostUrlToFilterOn(urlHost);
+                                                            getAnalyticDataForProject(urlHost);
+                                                          }} />}
+            </div>
+          </div>
+        </div>
 
         {!isLoadingPerformanceData && !currentUserDataIsLoading && !fcp && currentProject?.public_id ?
-        <div className="w-full my-6">
-          <SnippetInstall projectId={currentProject?.public_id}/>     
-        </div>:null
+          <div className="w-full my-6">
+            <SnippetInstall projectId={currentProject?.public_id}/>     
+          </div>:null
         }
 
         <ColGrid numColsMd={2} numColsLg={3} gapX="gap-x-6" gapY="gap-y-6" marginTop="mt-6">
@@ -175,7 +219,7 @@ export default function DashboardView() {
           ))}
         </ColGrid>
 
-        <div className="w-full my-6">
+        {/* <div className="w-full my-6">
           <Card>
             <Title>Slowest Page Navigations</Title>
             <Flex marginTop="mt-4">
@@ -189,7 +233,7 @@ export default function DashboardView() {
                   (<BarList data={slowPageNavigations} valueFormatter={value => `${msToSeconds(value)} s`} marginTop='mt-4' color='blue' />)
             }
           </Card>
-        </div>
+        </div> */}
       </main>
     );
   }
