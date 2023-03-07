@@ -41,11 +41,11 @@ export default class Pages {
         WHERE
           project_key = $1 AND
           page_view_ts >= $2 AND
-          url_host IN ($3)
+          url_host IN (${urlHosts.map(host => `\'${host}\'`).join(', ')})
         ORDER BY
           url_path
       `;
-      return (await db.query(query, [projectKey, new Date(startTs), urlHosts])).rows;
+      return (await db.query(query, [projectKey, new Date(startTs)])).rows;
     } else {
       const query = `
         SELECT

@@ -3,7 +3,8 @@ import db from '@lib/db';
 export default class ResourcePerformanceEntries {
   static async getAll({ 
     projectKey, 
-    urlHostAndPath,
+    urlPath,
+    urlHost,
     startTs, 
     metric = 'duration',
     limit = 50,
@@ -21,9 +22,10 @@ export default class ResourcePerformanceEntries {
         page_views ON resource_performance_entries.page_view_uuid = page_views.uuid
       WHERE
         page_views.project_key = $1 AND
-        CONCAT(page_views.url_host, page_views.url_path) = $2 AND
-        page_views.page_view_ts >= $3 AND
-        resource_performance_entries.initiator_type IN (${initiatorTypes.map((_, i) => `$${i + 4}`).join(', ')})
+        page_views.url_host = $2 AND
+        page_views.url_path = $3 AND
+        page_views.page_view_ts >= $4 AND
+        resource_performance_entries.initiator_type IN (${initiatorTypes.map(type => `\'${type}\'`).join(', ')})
       GROUP BY
         resource_performance_entries.name,
         resource_performance_entries.initiator_type
@@ -31,8 +33,9 @@ export default class ResourcePerformanceEntries {
         value DESC
       LIMIT ${limit}
     `;
-    return (await db.query(query, [projectKey, decodeURIComponent(urlHostAndPath), new Date(startTs), ...initiatorTypes])).rows;
-    // return (await db.query(query, [projectKey, decodeURIComponent(urlHostAndPath), new Date(startTs)])).rows;
+    console.log(query);
+    console.log([projectKey, urlHost, urlPath, new Date(startTs)]);
+    return (await db.query(query, [projectKey, urlHost, urlPath, new Date(startTs)])).rows;
   }
 
   static async getTimeseriesForMetric({ projectKey, resourceName, metric, startTs }) {
