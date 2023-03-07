@@ -66,8 +66,11 @@ export default function DashboardView() {
       const pData = calcCwvPercent(res.average, cwvMetricBounds[cwvKey].good, cwvMetricBounds[cwvKey].medium );
       const currentCwv = { LCP: lcp, INP: inp, CLS: cls, FCP: fcp, FID: fid, TTFB: ttfb  }[cwvKey];
       const setStateMethod = { LCP: setLCP, INP: setINP, CLS: setCLS, FCP: setFCP, FID: setFID, TTFB: setTTFB }[cwvKey];      
-      const metric = currentCwv.metricUnits === 's' ? msToSeconds(res.average) : 
-                      currentCwv.metricUnits === 'ms' ? parseInt(res.average) : parseFloat(res.average).toFixed(4);
+      let metric = null;  
+      if(res.average !== null) {
+        metric = currentCwv.metricUnits === 's' ? msToSeconds(res.average) : 
+          currentCwv.metricUnits === 'ms' ? parseInt(res.average) : parseFloat(res.average).toFixed(4);
+      }
       setStateMethod(prevState => ({ ...prevState, metric, bounds: pData.bounds, metricPercent: pData.percent }));
     })
   };
@@ -154,7 +157,7 @@ export default function DashboardView() {
       <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 ">
         <h1 className="text-lg font-medium mt-8">Core Web Vitals for {currentProject.name}</h1>
 
-        {!isLoadingPerformanceData && !currentUserDataIsLoading && !fcp && currentProject?.public_id ?
+        {!isLoadingPerformanceData && !currentUserDataIsLoading && !fcp.metric && currentProject?.public_id ?
         <div className="w-full my-6">
           <SnippetInstall projectId={currentProject?.public_id}/>     
         </div>:null
