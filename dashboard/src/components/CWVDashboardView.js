@@ -1,22 +1,16 @@
 'use client';
 import { useState, useEffect } from 'react';
-import { BarList, Card, ColGrid, Title, Flex, Text, Bold } from '@tremor/react';
+import { ColGrid } from '@tremor/react';
 import { useAuth } from '@components/AuthProvider';
 import NewSiteDialog from '@components/NewSiteDialog';
 import SnippetInstall from '@components/SnippetInstall';
 import WebVitalCard from './WebVitalCard';
 import { PlusIcon } from '@heroicons/react/20/solid'
-import LoadingSpinner from './LoadingSpinner';
 import LoadingFullScreen from './LoadingFullScreen';
 import HostUrlFilterer from './HostUrlFilterer';
 import { msToSeconds, cwvMetricBounds, calcCwvPercent } from '@lib/utils';
-import { 
-  GetCWVData, 
-  GetCWVTimeSeriesData, 
-  GetNavigationPerformanceEntriesData, 
-  GetUrlHostsForCurrentProject, 
-  // GetUrlPathsForCurrentProject 
-} from '@lib/api';
+import { PageUrlsApi } from '@/lib/api-client/page-urls';
+import { WebVitalsApi } from '@/lib/api-client/web-vitals';
 
 export default function DashboardView() {
   const { initial: currentUserDataIsLoading, projects, currentProject } = useAuth();
@@ -70,12 +64,13 @@ export default function DashboardView() {
   const [hostUrlFilterOptions, setHostUrlFilterOptions] = useState();
 
   const onUrlHostSelected = urlHost => {
+    localStorage.setItem('swishjamSelectedHostUrl', urlHost);
     setHostUrlToFilterOn(urlHost);
     getPerformanceDataForCurrentProject(urlHost);
   }
   
   const getAndSetWebVitalMetric = (cwvKey, urlHost) => {
-    return GetCWVData({ metric: cwvKey, urlHost }).then(res => {
+    return WebVitalsApi.average({ metric: cwvKey, urlHost }).then(res => {
       const pData = calcCwvPercent(res.average, cwvMetricBounds[cwvKey].good, cwvMetricBounds[cwvKey].medium );
       const currentCwv = { LCP: lcp, INP: inp, CLS: cls, FCP: fcp, FID: fid, TTFB: ttfb }[cwvKey];
       const setStateMethod = { LCP: setLCP, INP: setINP, CLS: setCLS, FCP: setFCP, FID: setFID, TTFB: setTTFB }[cwvKey];      
@@ -86,8 +81,7 @@ export default function DashboardView() {
   };
 
   const getTimeseriesDataForMetric = (metric, urlHost) => {
-    console.log(`Fetching timeseries data for ${urlHost}`)
-    return GetCWVTimeSeriesData({ metric, urlHost }).then(chartData => {
+    return WebVitalsApi.timeseries({ metric, urlHost }).then(chartData => {
       const setStateMethod = { LCP: setLCP, INP: setINP, CLS: setCLS, FCP: setFCP, FID: setFID, TTFB: setTTFB }[metric];
       setStateMethod(prevState => ({ ...prevState, timeseriesData: chartData }));
       setIsLoadingPerformanceData(false);
@@ -95,16 +89,22 @@ export default function DashboardView() {
   }
 
   const setupUrlHostFilter = () => {
-    return GetUrlHostsForCurrentProject().then(urlHosts => {
+    return PageUrlsApi.getUniqueHosts().then(urlHosts => {
       setHostUrlFilterOptions(urlHosts);
       if (!hostUrlToFilterOn) {
-        const likelyMainHostUrl = urlHosts.find(urlHost => urlHost.includes('www.')) || 
-                                    urlHosts.find(urlHost => urlHost.includes('.com')) ||
-                                    urlHosts.find(urlHost => urlHost.includes('https://')) ||
-                                    urlHosts.find(urlHost => !urlHost.include('localhost')) ||
-                                    urlHosts[0];
-        setHostUrlToFilterOn(likelyMainHostUrl);
-        onUrlHostSelected(likelyMainHostUrl);
+        let autoSelectedHostUrl;
+        const pastSelectedHostUrl = localStorage.getItem('swishjamSelectedHostUrl');
+        if(urlHosts.find(urlHost => urlHost === pastSelectedHostUrl)) {
+          autoSelectedHostUrl = pastSelectedHostUrl;
+        } else {
+          autoSelectedHostUrl = urlHosts.find(urlHost => urlHost.includes('www.')) || 
+                                  urlHosts.find(urlHost => urlHost.includes('.com')) ||
+                                  urlHosts.find(urlHost => urlHost.includes('https://')) ||
+                                  urlHosts.find(urlHost => !urlHost.include('localhost')) ||
+                                  urlHosts[0];
+        }
+        setHostUrlToFilterOn(autoSelectedHostUrl);
+        onUrlHostSelected(autoSelectedHostUrl);
       }
     });
   }
