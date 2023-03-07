@@ -8,7 +8,6 @@ export default async (req, res) => {
   return await runQueryIfUserHasAccess({ req, res, projectKey }, async () => {
     try {
       if (!metric) throw new Error('Missing `metric` query param');
-      console.log(`urlHost param?`, urlHost);
       const { average, numRecords } = await PerformanceMetricsData.getAverageMetric({ projectKey, metric, startTs, urlHost, urlPath });
       return res.status(200).json({ average, numRecords });
     } catch (err) {
