@@ -10,7 +10,7 @@ function tryToFindDefaultHost(urlHosts) {
     autoSelectedHostUrl = pastSelectedHostUrl;
   } else {
     autoSelectedHostUrl = urlHosts.find(urlHost => urlHost.includes('www.')) ||
-                            urlHosts.find(urlHost => urlHost.split('.').length === 2 && !urlHost.include('localhost')) ||
+                            urlHosts.find(urlHost => urlHost.split('.').length === 2 && !urlHost.includes('localhost')) ||
                             urlHosts.find(urlHost => urlHost.includes('.com')) ||
                             urlHosts.find(urlHost => urlHost.includes('https://')) ||
                             urlHosts.find(urlHost => !urlHost.include('localhost')) ||
