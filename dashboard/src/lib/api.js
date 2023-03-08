@@ -62,5 +62,13 @@ export const GetResourceMetricTimeseries = async data => {
 }
 
 export const GetUrlsForCurrentProject = async data => {
-  return (await get('/api/pages/forSite', data)).urls;
+  return (await get('/api/pages/forProject', data)).urls;
 }
+
+// export const GetUrlHostsForCurrentProject = async () => {
+//   return (await get('/api/pages/hosts')).results.map(result => result.url_host);
+// }
+
+// export const GetUrlPathsForCurrentProject = async (urlHosts = []) => {
+//   return (await get('/api/pages/paths', { urlHosts: JSON.stringify(urlHosts) })).results.map(result => result.url_path);
+// }

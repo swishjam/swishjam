@@ -3,7 +3,8 @@ import AuthenticatedView from '@/components/AuthenticatedView';
 import { BarList, Card, Title, Flex, Text, Bold, ColGrid } from '@tremor/react';
 import { useEffect, useState } from "react";
 import { msToSeconds } from "@/lib/utils";
-import { GetResourcePerformanceEntries, GetCWVData, GetCWVTimeSeriesData } from "@/lib/api";
+// import { GetResourcePerformanceEntries, GetCWVData, GetCWVTimeSeriesData } from "@/lib/api";
+import { WebVitalsApi } from '@/lib/api-client/web-vitals';
 import WebVitalCard from '@/components/WebVitalCard';
 import { cwvMetricBounds, calcCwvPercent } from '@/lib/utils';
 
@@ -20,7 +21,7 @@ export default function NavigationResource({ params }) {
   const [ttfb, setTTFB] = useState({ key: "TTFB", title: "Time to First Byte Average", metric: null, metricUnits: 's', timeseriesData: [{}] });
 
   const getAndSetWebVitalMetric = async (siteId, cwvKey) => {
-    GetCWVData({ siteId, metric: cwvKey, urlPath: encodedPath }).then(res => {
+    WebVitalsApi.average({ siteId, metric: cwvKey, urlPath: encodedPath }).then(res => {
       const pData = calcCwvPercent(res.average, cwvMetricBounds[cwvKey].good, cwvMetricBounds[cwvKey].medium);
       const currentCwv = { LCP: lcp, INP: inp, CLS: cls, FCP: fcp, FID: fid, TTFB: ttfb }[cwvKey];
       const setStateMethod = { LCP: setLCP, INP: setINP, CLS: setCLS, FCP: setFCP, FID: setFID, TTFB: setTTFB }[cwvKey];
@@ -32,7 +33,7 @@ export default function NavigationResource({ params }) {
   };
 
   const getTimeseriesDataForMetric = async (siteId, metric) => {
-    GetCWVTimeSeriesData({ siteId, metric, urlPath: encodedPath }).then(chartData => {
+    WebVitalsApi.timeseries({ siteId, metric, urlPath: encodedPath }).then(chartData => {
       const setStateMethod = { LCP: setLCP, INP: setINP, CLS: setCLS, FCP: setFCP, FID: setFID, TTFB: setTTFB }[metric];
       setStateMethod(prevState => ({ ...prevState, timeseriesData: chartData }));
     })

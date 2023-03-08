@@ -29,10 +29,11 @@ export default function WebVitalCard({ title, accronym, metric, metricUnits, met
     <Card>
       {metric === null ? (
         <>
-          {shouldLinkToCwvDetails ? 
+          {/* {shouldLinkToCwvDetails ? 
             <Link href={`/cwv/${accronym}`} className='hover:underline'><Text>{title}</Text></Link> :
             <Text>{title}</Text>
-          }
+          } */}
+          <Text>{title}</Text>
           <Flex justifyContent="justify-start" alignItems="items-baseline" spaceX="space-x-1">
             <Metric></Metric>
           </Flex>
@@ -40,10 +41,11 @@ export default function WebVitalCard({ title, accronym, metric, metricUnits, met
         </>
       ) : (
         <>
-            {shouldLinkToCwvDetails ?
+            {/* {shouldLinkToCwvDetails ?
               <Link href={`/cwv/${accronym}`} className='hover:underline'><Text>{title}</Text></Link> :
               <Text>{title}</Text>
-            }
+            } */}
+          <Text>{title}</Text>
           <Flex justifyContent="justify-start" alignItems="items-baseline" spaceX="space-x-1">
             <Metric>{metric}</Metric>
             <Text>{metricUnits}</Text>

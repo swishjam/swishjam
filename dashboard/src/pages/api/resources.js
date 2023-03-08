@@ -5,7 +5,8 @@ export default async (req, res) => {
   const defaultStartTs = Date.now() - 1000 * 60 * 60 * 24 * 7;
   const { 
     projectKey,
-    urlHostAndPath, 
+    urlHost, 
+    urlPath,
     metric = 'duration', 
     initiatorTypes = ['script', 'link', 'img', 'css', 'fetch', 'xmlhttprequest', 'other'],
     startTs = defaultStartTs 
@@ -18,7 +19,8 @@ export default async (req, res) => {
         startTs,
         metric,
         initiatorTypes: decodeURIComponent(initiatorTypes).split(','),
-        urlHostAndPath: decodeURIComponent(urlHostAndPath),
+        urlHost: urlHost,
+        urlPath: urlPath
       });
       res.status(200).json({ records });
     } catch (err) {
