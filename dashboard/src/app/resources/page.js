@@ -3,16 +3,26 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '@/components/AuthProvider';
 import AuthenticatedView from "@/components/AuthenticatedView";
 import SnippetInstall from '@/components/SnippetInstall';
-import { BarList, Card, Title, Text } from '@tremor/react';
+import { BarList, Card, Title } from '@tremor/react';
 import { PageUrlsApi } from '@/lib/api-client/page-urls';
 import { ResourcePerformanceEntriesApi } from '@/lib/api-client/resource-performance-entries';
-import SearchableDropdownSelector from '@/components/SearchableDropdownSelector';
 import MultiSelectDropdown from '@/components/MultiSelectDropdown';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import { bytesToHumanFileSize } from '@/lib/utils';
 import HostUrlFilterer from '@/components/HostUrlFilterer';
+import Dropdown from '@/components/Dropdown';
 
 const RESOURCE_INITIATOR_OPTIONS = ['script', 'link', 'img', 'css', 'fetch', 'xmlhttprequest', 'other'];
+
+const loadingSpinner = () => {
+  return (
+    <div className='flex'>
+      <div className='m-auto py-20'>
+        <LoadingSpinner size={8} />
+      </div>
+    </div>
+  )
+}
 
 export default function Resources() {
   const { currentProject } = useAuth();
@@ -24,43 +34,34 @@ export default function Resources() {
   const [metricToFilterOn, setMetricToFilterOn] = useState('duration');
   const [resourceInitiatorTypesToFilterOn, setResourceInitiatorTypesToFilterOn] = useState(RESOURCE_INITIATOR_OPTIONS);
   
+  const [resourceDataIsBeingFetched, setResourceDataIsBeingFetched] = useState(false);
   const [resources, setResources] = useState();
 
   const onUrlHostSelected = urlHost => {
-    localStorage.setItem('swishjamSelectedHostUrl', urlHost);
+    setResourceDataIsBeingFetched(true);
     setHostUrlToFilterOn(urlHost);
-    setUrlPathToFilterOn(null);
+    setUrlPathToFilterOn(undefined);
     PageUrlsApi.getUniquePaths({ urlHosts: [urlHost] }).then(urlPaths => {
       setPathsForCurrentProjectAndHost(urlPaths);
-      const urlPath = urlPaths[0];
+      const urlPath = urlPaths.find(path => path === '/') || urlPaths[0];
       if(urlPath) updateViewForHostAndPath({ urlHost, urlPath });
     });
   }
 
-  const setupUrlHostFilter = () => {
-    return PageUrlsApi.getUniqueHosts().then(urlHosts => {
-      setHostUrlFilterOptions(urlHosts);
-      if (!hostUrlToFilterOn) {
-        let autoSelectedHostUrl;
-        const pastSelectedHostUrl = localStorage.getItem('swishjamSelectedHostUrl');
-        if (urlHosts.find(urlHost => urlHost === pastSelectedHostUrl)) {
-          autoSelectedHostUrl = pastSelectedHostUrl;
-        } else {
-          autoSelectedHostUrl = urlHosts.find(urlHost => urlHost.includes('www.')) ||
-                                  urlHosts.find(urlHost => urlHost.includes('.com')) ||
-                                  urlHosts.find(urlHost => urlHost.includes('https://')) ||
-                                  urlHosts.find(urlHost => !urlHost.include('localhost')) ||
-                                  urlHosts[0];
-        }
-        onUrlHostSelected(autoSelectedHostUrl);
-      }
-    });
+  const initializeUrlHostFilter = () => {
+    setResourceDataIsBeingFetched(true);
+    setHostUrlFilterOptions(undefined);
+    setPathsForCurrentProjectAndHost(undefined);
+    setHostUrlToFilterOn(undefined);
+    setUrlPathToFilterOn(undefined);
+    return PageUrlsApi.getUniqueHosts().then(urlHosts => setHostUrlFilterOptions(urlHosts));
   }
 
   const fetchResourcesAndRenderView = ({ urlHost, urlPath, metric, initiatorTypes }) => {
+    setResourceDataIsBeingFetched(true);
     ResourcePerformanceEntriesApi.getAll({ urlHost, urlPath, metric, initiatorTypes }).then(resources => {
-      const formatted = resources.map(record => ({ ...record, href: `/resources/${encodeURIComponent(record.name)}` }))
-      setResources(formatted);
+      setResources(resources);
+      setResourceDataIsBeingFetched(false);
     });
   }
 
@@ -73,13 +74,23 @@ export default function Resources() {
   const updateViewForMetric = newMetric => {
     setMetricToFilterOn(newMetric);
     const metricColumnName = newMetric === 'duration' ? 'duration' : 'transfer_size';
-    fetchResourcesAndRenderView({ urlHost, urlPath, metric: metricColumnName, initiatorTypes: resourceInitiatorTypesToFilterOn });
+    fetchResourcesAndRenderView({ 
+      urlHost: hostUrlToFilterOn, 
+      urlPath: urlPathToFilterOn, 
+      metric: metricColumnName, 
+      initiatorTypes: resourceInitiatorTypesToFilterOn 
+    });
   }
 
   const updateViewForResourceInitiatorTypes = newResourceInitiatorTypesToFilterOn => {
     setResourceInitiatorTypesToFilterOn(newResourceInitiatorTypesToFilterOn);
     const metricColumnName = metricToFilterOn === 'duration' ? 'duration' : 'transfer_size';
-    fetchResourcesAndRenderView({ urlHost, urlPath, metric: metricColumnName, initiatorTypes: newResourceInitiatorTypesToFilterOn });
+    fetchResourcesAndRenderView({ 
+      urlHost: hostUrlToFilterOn,
+      urlPath: urlPathToFilterOn,
+      metric: metricColumnName, 
+      initiatorTypes: newResourceInitiatorTypesToFilterOn 
+    });
   }
 
   const valueFormatter = (value) => {
@@ -92,7 +103,7 @@ export default function Resources() {
 
   useEffect(() => {
     if (!currentProject) return;
-    setupUrlHostFilter();
+    initializeUrlHostFilter();
   }, [currentProject]);
 
   return (
@@ -103,38 +114,47 @@ export default function Resources() {
             <h1 className="text-lg font-medium">Page Resources</h1>
           </div>
           <div className='w-full text-end'>  
-            {hostUrlFilterOptions && <HostUrlFilterer options={hostUrlFilterOptions} 
-                                                        selectedHost={hostUrlToFilterOn} 
-                                                        onHostSelected={onUrlHostSelected} />}
+            {hostUrlFilterOptions && 
+              hostUrlFilterOptions.length > 0 && 
+              <HostUrlFilterer options={hostUrlFilterOptions} 
+                                  selectedHost={hostUrlToFilterOn} 
+                                  onHostSelected={onUrlHostSelected} />}
           </div>
         </div>
 
         <div className="w-full my-6">
-        {pathsForCurrentProjectAndHost === undefined ? <LoadingSpinner /> :
-            pathsForCurrentProjectAndHost.length === 0 ? <SnippetInstall projectId={currentProject?.public_id} /> : 
+        {hostUrlFilterOptions === undefined ? loadingSpinner() :
+            hostUrlFilterOptions.length === 0 ? <SnippetInstall projectId={currentProject?.public_id} /> : 
           <Card>
             <div className="flex flex-row justify-between items-center mb-6">
-              <Title>
-                {urlPathToFilterOn === 'duration' ? 'Slowest' : 'Largest'} resources on 
-                <div className='inline-flex'>
-                  {pathsForCurrentProjectAndHost ? <SearchableDropdownSelector options={pathsForCurrentProjectAndHost} 
-                                                                                onSelect={urlPath => updateViewForHostAndPath({ urlHost: hostUrlToFilterOn, urlPath })} /> : 
-                                                    <LoadingSpinner />}
+              <div>
+                <h2 className='inline text-gray-700 text-lg font-medium'>
+                  {metricToFilterOn === 'duration' ? 'Slowest' : 'Largest'} resources on 
+                </h2>
+                <div className='inline-flex ml-2'>
+                  {pathsForCurrentProjectAndHost && <Dropdown options={pathsForCurrentProjectAndHost} 
+                                                              selected={urlPathToFilterOn} 
+                                                              label={'URL path filter'}
+                                                              onSelect={urlPath => updateViewForHostAndPath({ urlHost: hostUrlToFilterOn, urlPath })} />}
                 </div>
-              </Title>
-              <div>  
-                {pathsForCurrentProjectAndHost ? (
-                  <>
-                    <MultiSelectDropdown options={RESOURCE_INITIATOR_OPTIONS.map( type => ({ name: type, value: type }) )} 
-                                          selectedOptions={resourceInitiatorTypesToFilterOn.map( type => ({ name: type, value: type }) )}
-                                          onChange={updateViewForResourceInitiatorTypes} />
-                    <SearchableDropdownSelector options={['duration', 'size']} onSelect={metric => updateViewForMetric(metric)} />
-                  </>
-                ) : <LoadingSpinner />}
+              </div>
+              <div>
+                <div className='inline-flex items-center'>
+                  {pathsForCurrentProjectAndHost && (
+                    <>
+                      <MultiSelectDropdown options={RESOURCE_INITIATOR_OPTIONS.map( type => ({ name: type, value: type }) )} 
+                                            selectedOptions={resourceInitiatorTypesToFilterOn.map( type => ({ name: type, value: type }) )}
+                                            onChange={updateViewForResourceInitiatorTypes} />
+                      <div className='ml-4'>
+                        <Dropdown options={['duration', 'size']} selected={metricToFilterOn} label={'Metric'} onSelect={metric => updateViewForMetric(metric)} />
+                      </div>
+                    </>
+                  )}
+                </div>
               </div>
             </div>
-            {resources === undefined ? <LoadingSpinner /> : 
-                resources.length === 0 ? <p className='text-center text-gray-700 text-sm'>No resources found for {hostUrlToFilterOn}{urlPathToFilterOn}</p> : 
+            {resourceDataIsBeingFetched ? loadingSpinner() : 
+                !resources || resources.length === 0 ? <p className='text-center text-gray-700 text-sm'>No resources found for {hostUrlToFilterOn}{urlPathToFilterOn}</p> : 
                   <BarList data={resources} valueFormatter={valueFormatter} />}
           </Card>
           }

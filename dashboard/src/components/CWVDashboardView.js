@@ -11,60 +11,28 @@ import HostUrlFilterer from './HostUrlFilterer';
 import { msToSeconds, cwvMetricBounds, calcCwvPercent } from '@lib/utils';
 import { PageUrlsApi } from '@/lib/api-client/page-urls';
 import { WebVitalsApi } from '@/lib/api-client/web-vitals';
+import LoadingSpinner from './LoadingSpinner';
+
+const initialCwvState = ({ key, title}) => ({ key, title, metric: null, metricUnits: key === 'CLS' ? null : 's', timeseriesData: [{}] })
 
 export default function DashboardView() {
   const { initial: currentUserDataIsLoading, projects, currentProject } = useAuth();
 
-  const [lcp, setLCP] = useState({
-    key: "LCP",
-    title: "Largest Contentful Paint Average",
-    metric: null,
-    metricUnits: 's',
-    timeseriesData: [{}]
-  });
-  const [inp, setINP] = useState({
-    key: "INP",
-    title: "Interaction to Next Paint Average",
-    metric: null,
-    metricUnits: 's',
-    timeseriesData: [{}]
-  });
-  const [cls, setCLS] = useState({
-    key: "CLS",
-    title: "Cumulative Layout Shift Average",
-    metric: null,
-    metricUnits: '',
-    timeseriesData: [{}]
-  });
-  const [fcp, setFCP] = useState({
-    key: "FCP",
-    title: "First Contentful Paint Average",
-    metric: null,
-    metricUnits: 's',
-    timeseriesData: [{}]
-  });
-  const [fid, setFID] = useState({
-    key: "FID",
-    title: "First Input Delay Average",
-    metric: null,
-    metricUnits: 's',
-    timeseriesData: [{}]
-  });
-  const [ttfb, setTTFB] = useState({
-    key: "TTFB",
-    title: "Time to First Byte Average",
-    metric: null,
-    metricUnits: 's',
-    timeseriesData: [{}]
-  });
+  const [lcp, setLCP] = useState(initialCwvState({ key: 'LCP', title: 'Largest Contentful Paint Average' }));
+  const [inp, setINP] = useState(initialCwvState({ key: 'INP', title: 'Interaction to Next Paint Average' }));
+  const [cls, setCLS] = useState(initialCwvState({ key: 'CLS', title: 'Cumulative Layout Shift Average' }));
+  const [fcp, setFCP] = useState(initialCwvState({ key: 'FCP', title: 'First Contentful Paint Average' }));
+  const [fid, setFID] = useState(initialCwvState({ key: 'FID', title: 'First Input Delay Average' }));
+  const [ttfb, setTTFB] = useState(initialCwvState({ key: 'TTFB', title: 'Time to First Byte Average' }));
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [isLoadingPerformanceData, setIsLoadingPerformanceData] = useState(true);
   const [hostUrlToFilterOn, setHostUrlToFilterOn] = useState();
   const [hostUrlFilterOptions, setHostUrlFilterOptions] = useState();
+  
+  const [isFetchingCwvData, setIsFetchingCwvData] = useState(true);
+  const [isFetchingHostUrlFilterOptions, setIsFetchingHostUrlFilterOptions] = useState(true);
 
   const onUrlHostSelected = urlHost => {
-    localStorage.setItem('swishjamSelectedHostUrl', urlHost);
     setHostUrlToFilterOn(urlHost);
     getPerformanceDataForCurrentProject(urlHost);
   }
@@ -84,33 +52,23 @@ export default function DashboardView() {
     return WebVitalsApi.timeseries({ metric, urlHost }).then(chartData => {
       const setStateMethod = { LCP: setLCP, INP: setINP, CLS: setCLS, FCP: setFCP, FID: setFID, TTFB: setTTFB }[metric];
       setStateMethod(prevState => ({ ...prevState, timeseriesData: chartData }));
-      setIsLoadingPerformanceData(false);
+      setIsFetchingCwvData(false);
     })
   }
 
   const setupUrlHostFilter = () => {
+    // setIsFetchingCwvData(true);
+    setIsFetchingHostUrlFilterOptions(true);
+    setHostUrlToFilterOn(undefined);
+    setHostUrlFilterOptions(undefined);
     return PageUrlsApi.getUniqueHosts().then(urlHosts => {
       setHostUrlFilterOptions(urlHosts);
-      if (!hostUrlToFilterOn) {
-        let autoSelectedHostUrl;
-        const pastSelectedHostUrl = localStorage.getItem('swishjamSelectedHostUrl');
-        if(urlHosts.find(urlHost => urlHost === pastSelectedHostUrl)) {
-          autoSelectedHostUrl = pastSelectedHostUrl;
-        } else {
-          autoSelectedHostUrl = urlHosts.find(urlHost => urlHost.includes('www.')) || 
-                                  urlHosts.find(urlHost => urlHost.includes('.com')) ||
-                                  urlHosts.find(urlHost => urlHost.includes('https://')) ||
-                                  urlHosts.find(urlHost => !urlHost.include('localhost')) ||
-                                  urlHosts[0];
-        }
-        setHostUrlToFilterOn(autoSelectedHostUrl);
-        onUrlHostSelected(autoSelectedHostUrl);
-      }
+      setIsFetchingHostUrlFilterOptions(false);
     });
   }
 
   const getPerformanceDataForCurrentProject = urlHost => {
-    setIsLoadingPerformanceData(true);
+    setIsFetchingCwvData(true);
     return Promise.all([
       getAndSetWebVitalMetric('LCP', urlHost),
       getAndSetWebVitalMetric('INP', urlHost),
@@ -124,7 +82,7 @@ export default function DashboardView() {
       getTimeseriesDataForMetric('FCP', urlHost),
       getTimeseriesDataForMetric('FID', urlHost),
       getTimeseriesDataForMetric('TTFB', urlHost),
-    ]).then(() => setIsLoadingPerformanceData(false))
+    ]).then(() => setIsFetchingCwvData(false))
   }
 
   useEffect(() => {
@@ -132,29 +90,18 @@ export default function DashboardView() {
       if (currentProject) {
         setupUrlHostFilter();
       } else {
-        setIsLoadingPerformanceData(false);
+        setIsFetchingCwvData(false);
+        setIsFetchingHostUrlFilterOptions(false);
       }
     }
   }, [currentProject]);
 
-  if(isLoadingPerformanceData) {
-    return (
-      <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mb-8 ">
-        <div className='grid grid-cols-2 mt-8 flex items-center'>
-          <div>
-            <h1 className="text-lg font-medium">Core Web Vitals {currentProject?.name && `for ${currentProject.name}`}</h1>
-          </div>
+  const shouldDisplayLoadingView = () => isFetchingCwvData || isFetchingHostUrlFilterOptions || currentUserDataIsLoading;
+  const shouldDisplayNewProjectView = () => !currentProject && !currentUserDataIsLoading;
+  const shouldDisplaySnippetInstallView = () => !currentUserDataIsLoading && currentProject && !isFetchingHostUrlFilterOptions && (!hostUrlFilterOptions || hostUrlFilterOptions.length === 0);
 
-          <div className="w-full text-end">
-            {hostUrlFilterOptions && <HostUrlFilterer options={hostUrlFilterOptions}
-                                                        selectedHost={hostUrlToFilterOn || hostUrlFilterOptions[0]}
-                                                        onHostSelected={onUrlHostSelected} />}
-          </div>
-        </div>
-        <LoadingFullScreen />
-      </main>
-    )
-  } else if (!projects || projects?.length === 0) {
+  
+  if (shouldDisplayNewProjectView()) {
     return (
       <div className="text-center mt-32">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="mx-auto h-12 w-12 text-gray-400">
@@ -180,6 +127,46 @@ export default function DashboardView() {
         </div>
       </div>
     )
+  } else if (shouldDisplaySnippetInstallView()) {
+    return (
+      <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mb-8">
+        <div className="w-full my-6">
+          <SnippetInstall projectId={currentProject?.public_id} />
+        </div>
+      </main>
+    )
+  } else if (shouldDisplayLoadingView()) {
+    return (
+      <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mb-8 ">
+        <div className='grid grid-cols-2 mt-8 flex items-center'>
+          <div>
+            <h1 className="text-lg font-medium">Core Web Vitals {currentProject?.name && `for ${currentProject.name}`}</h1>
+          </div>
+
+          <div className="w-full text-end">
+            {hostUrlFilterOptions &&
+              hostUrlFilterOptions.length > 0 &&
+              <HostUrlFilterer options={hostUrlFilterOptions}
+                selectedHost={hostUrlToFilterOn}
+                onHostSelected={onUrlHostSelected} />}
+          </div>
+        </div>
+        <ColGrid numColsMd={2} numColsLg={3} gapX="gap-x-6" gapY="gap-y-6" marginTop="mt-6">
+          {[lcp, cls, inp, fcp, fid, ttfb].map(item => (
+            <WebVitalCard
+              key={item.key}
+              accronym={item.key}
+              title={item.title}
+              metric={null}
+              metricUnits={item.metricUnits}
+              metricPercent={item.metricPercent}
+              bounds={item.bounds}
+              timeseriesData={item.timeseriesData}
+            />
+          ))}
+        </ColGrid>
+      </main>
+    )
   } else {
     return (
       <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mb-8">
@@ -190,21 +177,15 @@ export default function DashboardView() {
 
           <div className="w-full text-end">
             <div>
-              {hostUrlFilterOptions && <HostUrlFilterer options={hostUrlFilterOptions} 
-                                                          selectedHost={hostUrlToFilterOn || hostUrlFilterOptions[0]}
+              {hostUrlFilterOptions ? <HostUrlFilterer options={hostUrlFilterOptions} 
+                                                          selectedHost={hostUrlToFilterOn}
                                                           onHostSelected={urlHost => {
                                                             setHostUrlToFilterOn(urlHost);
                                                             getPerformanceDataForCurrentProject(urlHost);
-                                                          }} />}
+                                                          }} /> : <LoadingSpinner />}
             </div>
           </div>
         </div>
-
-        {!isLoadingPerformanceData && !currentUserDataIsLoading && !fcp && currentProject?.public_id ?
-          <div className="w-full my-6">
-            <SnippetInstall projectId={currentProject?.public_id}/>     
-          </div>:null
-        }
 
         <ColGrid numColsMd={2} numColsLg={3} gapX="gap-x-6" gapY="gap-y-6" marginTop="mt-6">
           {[lcp, cls, inp, fcp, fid, ttfb].map(item => (
@@ -220,22 +201,6 @@ export default function DashboardView() {
             />
           ))}
         </ColGrid>
-
-        {/* <div className="w-full my-6">
-          <Card>
-            <Title>Slowest Page Navigations</Title>
-            <Flex marginTop="mt-4">
-              <Text><Bold>Page URL</Bold></Text>
-              <Text><Bold>DOM Interactive</Bold></Text>
-            </Flex>
-            {slowPageNavigations === undefined ? 
-              (<LoadingSpinner />) : 
-                slowPageNavigations.length === 0 ? 
-                  (<Text>No slow page navigations found.</Text>) :
-                  (<BarList data={slowPageNavigations} valueFormatter={value => `${msToSeconds(value)} s`} marginTop='mt-4' color='blue' />)
-            }
-          </Card>
-        </div> */}
       </main>
     );
   }

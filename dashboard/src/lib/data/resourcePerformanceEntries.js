@@ -33,8 +33,6 @@ export default class ResourcePerformanceEntries {
         value DESC
       LIMIT ${limit}
     `;
-    console.log(query);
-    console.log([projectKey, urlHost, urlPath, new Date(startTs)]);
     return (await db.query(query, [projectKey, urlHost, urlPath, new Date(startTs)])).rows;
   }
 
