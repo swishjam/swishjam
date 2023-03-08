@@ -6,7 +6,6 @@ import NewSiteDialog from '@components/NewSiteDialog';
 import SnippetInstall from '@components/SnippetInstall';
 import WebVitalCard from './WebVitalCard';
 import { PlusIcon } from '@heroicons/react/20/solid'
-import LoadingFullScreen from './LoadingFullScreen';
 import HostUrlFilterer from './HostUrlFilterer';
 import { msToSeconds, cwvMetricBounds, calcCwvPercent } from '@lib/utils';
 import { PageUrlsApi } from '@/lib/api-client/page-urls';
@@ -15,7 +14,7 @@ import LoadingSpinner from './LoadingSpinner';
 
 const initialCwvState = ({ key, title}) => ({ key, title, metric: null, metricUnits: key === 'CLS' ? null : 's', timeseriesData: [{}] })
 
-export default function DashboardView() {
+export default function CwvDashboardView() {
   const { initial: currentUserDataIsLoading, projects, currentProject } = useAuth();
 
   const [lcp, setLCP] = useState(initialCwvState({ key: 'LCP', title: 'Largest Contentful Paint Average' }));

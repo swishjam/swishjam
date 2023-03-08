@@ -24,7 +24,7 @@ function classNames(...classes) {
 }
 
 export default function Header() {
-  const { signOut, user } = useAuth();
+  const { signOut, user, currentProject } = useAuth();
 
   async function handleSignOut() {
     const { error } = await signOut();
@@ -53,7 +53,7 @@ export default function Header() {
                   </Link>
                 </div>
                 <div className="hidden sm:-my-px sm:ml-6 sm:flex sm:space-x-8">
-                  {navigation.map((item) => (
+                  {currentProject ? navigation.map((item) => (
                     <a
                       key={item.name}
                       href={item.href}
@@ -67,7 +67,7 @@ export default function Header() {
                     >
                       {item.name}
                     </a>
-                  ))}
+                  )):null}
                 </div>
               </div>
               <div className="hidden sm:ml-6 sm:flex sm:items-center">
@@ -103,7 +103,14 @@ export default function Header() {
                     leaveFrom="transform opacity-100 scale-100"
                     leaveTo="transform opacity-0 scale-95"
                   >
-                    <Menu.Items className="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+                    <Menu.Items className="absolute right-0 z-10 mt-2 w-52 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+                      <Menu.Item>
+                        {({ active }) => (
+                          <div className="block px-4 py-2 text-sm text-gray-700">{user.email}</div> 
+                        )}
+                      </Menu.Item>
+                      
+                      
                       {userNavigation.map((item) => (
                         <Menu.Item key={item.name}>
                           {({ active }) => (
