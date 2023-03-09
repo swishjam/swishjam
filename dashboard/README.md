@@ -9,8 +9,16 @@ Under the hood, the Swishjam Dashboard is a NextJS application. To get started, 
 First, install packages:
 
 ```
-npm
+npm install
 ```
+
+Then, create a `.env.local` file with the following contents from `.example.env`.
+
+```
+touch .env.local
+```
+
+Then run the app, if everything is successful you should see a login page at `localhost:3000`
 
 ```bash
 npm run dev
