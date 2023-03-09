@@ -37,7 +37,7 @@ export default class ResourcePerformanceEntries {
         page_views.url_path = $3 AND
         page_views.page_view_ts >= $4
       GROUP BY
-        name, initiator_type
+        name, initiator_type, render_blocking_status
       ORDER BY
         average_start_time ASC
       LIMIT ${limit}
