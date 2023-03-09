@@ -114,7 +114,7 @@ export default function Resources() {
                         { metric: 'First Contentful Paint', bgClass: 'bg-green-600' },
                       ].map(legendItem => {
                         return (
-                          <div className='flex items-center'>
+                          <div className='flex items-center' key={legendItem.metric}>
                             <div className={`inline-block mr-1 h-3 w-3 rounded ${legendItem.bgClass}`} />
                             <span className='text-gray-700 text-sm'>{legendItem.metric}</span>
                           </div>
@@ -130,7 +130,7 @@ export default function Resources() {
                         { metric: 'Fetch/HTTP Request', bgClass: 'bg-purple-300' },
                       ].map(legendItem => {
                         return (
-                          <div className='flex items-center'>
+                          <div className='flex items-center' key={legendItem.metric}>
                             <div className={`inline-block mr-1 h-3 w-3 rounded ${legendItem.bgClass}`} />
                             <span className='text-gray-700 text-sm'>{legendItem.metric}</span>
                           </div>

@@ -1,4 +1,5 @@
 import { CodeBracketIcon, CodeBracketSquareIcon, PaintBrushIcon, CameraIcon, ArrowsRightLeftIcon } from "@heroicons/react/20/solid"
+import { usePopperTooltip } from 'react-popper-tooltip';
 
 const RESOURCE_TYPE_ICON_DICT = {
   'script': <CodeBracketIcon className="h-4 w-4 text-gray-700 inline-block" aria-hidden="true" />,
@@ -13,11 +14,25 @@ const RESOURCE_TYPE_ICON_DICT = {
 }
 
 export default function WaterfallRowName({ resource, index }) {
+  const { getArrowProps, getTooltipProps, setTooltipRef, setTriggerRef, visible } = usePopperTooltip({ followCursor: true, trigger: 'hover' });
+
   return (
-    <div className='flex items-center p-2'>
+    <div className='flex items-center' ref={setTriggerRef}>
       <span className='mr-1'>{index + 1} </span>
-      <span className='inline-block mr-1'>{RESOURCE_TYPE_ICON_DICT[resource.initiator_type] || resource.initiator_type}</span>
-      <span>{resource.name}</span>
+      {resource.initiator_type === 'img' ? 
+        (<img src={resource.name} className='h-4 w-4 mr-1' />) : 
+        (<span className='inline-block mr-1'>{RESOURCE_TYPE_ICON_DICT[resource.initiator_type] || resource.initiator_type}</span>)
+      }
+      <span className='truncate cursor-default'>{resource.name}</span>
+      {visible && (
+        <div ref={setTooltipRef} {...getTooltipProps({ className: 'tooltip-container' })}>
+          <div {...getArrowProps({ className: 'tooltip-arrow' })} />
+          <div className='tooltip-content text-center'>
+            <span>{resource.name}</span>
+            {resource.initiator_type === 'img' && <img src={resource.name} className='h-24 w-24 m-auto' />}
+          </div>
+        </div>
+      )}
     </div>
   )
 }
