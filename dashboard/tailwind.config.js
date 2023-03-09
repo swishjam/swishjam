@@ -43,7 +43,17 @@ module.exports = {
       },
       colors: {
         swishjam: {
-          ...Tokens.colors,
+          DEFAULT: Tokens.colors.default.base,
+          dark: Tokens.colors.dark.base,
+          yellow: Tokens.colors.yellow.base,
+          orange: Tokens.colors.orange.base,
+          purple: Tokens.colors.purple.base,
+          red: Tokens.colors.red.base,
+          blue: Tokens.colors.blue.base,
+          green: Tokens.colors.green.base,
+          'off-white':  Tokens.colors['off-white'].base,
+          'dark-blue': Tokens.colors['dark-blue'].base,
+          'blue-gray': Tokens.colors['blue-gray'].base,
         },
       },
     },
