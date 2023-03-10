@@ -4,15 +4,17 @@ import { ColGrid } from '@tremor/react';
 import { useAuth } from '@components/AuthProvider';
 import NewSiteDialog from '@components/NewSiteDialog';
 import SnippetInstall from '@components/SnippetInstall';
-import WebVitalCard from './WebVitalCard';
+import ExperienceScoreCard from '@components/ExperienceScoreCard';
+import WebVitalCard from '@components/WebVitalCard';
 import { PlusIcon } from '@heroicons/react/20/solid'
 import HostUrlFilterer from './HostUrlFilterer';
-import { msToSeconds, cwvMetricBounds, calcCwvPercent } from '@lib/utils';
+import { msToSeconds } from '@lib/utils';
+import { cwvMetricBounds, calcCwvPercent, calcCwvMetric } from '@lib/cwvCalculations';
 import { PageUrlsApi } from '@/lib/api-client/page-urls';
 import { WebVitalsApi } from '@/lib/api-client/web-vitals';
 import LoadingSpinner from './LoadingSpinner';
 
-const initialCwvState = ({ key, title}) => ({ key, title, metric: null, metricUnits: key === 'CLS' ? null : 's', timeseriesData: [{}] })
+const initialCwvState = ({ key, title}) => ({ key, title, metric: null, timeseriesData: [{}] })
 
 export default function CwvDashboardView() {
   const { initial: currentUserDataIsLoading, projects, currentProject } = useAuth();
@@ -38,12 +40,16 @@ export default function CwvDashboardView() {
   
   const getAndSetWebVitalMetric = (cwvKey, urlHost) => {
     return WebVitalsApi.average({ metric: cwvKey, urlHost }).then(res => {
-      const pData = calcCwvPercent(res.average, cwvMetricBounds[cwvKey].good, cwvMetricBounds[cwvKey].medium );
+      console.log('cwvKey', cwvKey) 
+      console.log('WebVitals', res)
+      
+      const metric = calcCwvMetric(res.average, cwvKey);
+      console.log('metric', metric)
+      //const pData = calcCwvPercent(res.average, cwvMetricBounds[cwvKey].good, cwvMetricBounds[cwvKey].medium );
       const currentCwv = { LCP: lcp, INP: inp, CLS: cls, FCP: fcp, FID: fid, TTFB: ttfb }[cwvKey];
       const setStateMethod = { LCP: setLCP, INP: setINP, CLS: setCLS, FCP: setFCP, FID: setFID, TTFB: setTTFB }[cwvKey];      
-      const metric = currentCwv.metricUnits === 's' ? msToSeconds(res.average) : 
-                      currentCwv.metricUnits === 'ms' ? parseInt(res.average) : parseFloat(res.average).toFixed(4);
-      setStateMethod(prevState => ({ ...prevState, metric, bounds: pData.bounds, metricPercent: pData.percent }));
+      //, bounds: pData.bounds, metricPercent: pData.percent
+      setStateMethod(prevState => ({ ...prevState, metric }));
     })
   };
 
@@ -151,7 +157,7 @@ export default function CwvDashboardView() {
           </div>
         </div>
         <ColGrid numColsMd={2} numColsLg={3} gapX="gap-x-6" gapY="gap-y-6" marginTop="mt-6">
-          {[lcp, cls, inp, fcp, fid, ttfb].map(item => (
+          {/*[lcp, cls, inp, fcp, fid, ttfb].map(item => (
             <WebVitalCard
               key={item.key}
               accronym={item.key}
@@ -162,13 +168,14 @@ export default function CwvDashboardView() {
               bounds={item.bounds}
               timeseriesData={item.timeseriesData}
             />
-          ))}
+          ))*/}
         </ColGrid>
       </main>
     )
   } else {
     return (
       <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mb-8">
+        
         <div className='grid grid-cols-2 mt-8 flex items-center'>
           <div>
             <h1 className="text-lg font-medium">Core Web Vitals for {currentProject.name}</h1>
@@ -186,6 +193,10 @@ export default function CwvDashboardView() {
           </div>
         </div>
 
+        <div className='mt-8 flex items-center'>
+          <ExperienceScoreCard />
+        </div>
+
         <ColGrid numColsMd={2} numColsLg={3} gapX="gap-x-6" gapY="gap-y-6" marginTop="mt-6">
           {[lcp, cls, inp, fcp, fid, ttfb].map(item => (
             <WebVitalCard
@@ -193,9 +204,6 @@ export default function CwvDashboardView() {
               accronym={item.key}
               title={item.title}
               metric={item.metric}
-              metricUnits={item.metricUnits}
-              metricPercent={item.metricPercent}
-              bounds={item.bounds}
               timeseriesData={item.timeseriesData}
             />
           ))}

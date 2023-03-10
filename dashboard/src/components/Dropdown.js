@@ -27,8 +27,8 @@ export default function Dropdown({ dropdownIcon, label, options, selected, onSel
                     leaveFrom="transform opacity-100 scale-100"
                     leaveTo="transform opacity-0 scale-95"
         >
-          <Menu.Items className="absolute min-w-full right-0 z-10 mt-2 origin-top-right divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none cursor-pointer">
-            <div className="py-1">
+          <Menu.Items className="overflow-hidden absolute min-w-full right-0 z-10 mt-2 origin-top-right divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none cursor-pointer">
+            <div className="pb-1">
               {label && (
                 <Menu.Item disabled={true}>
                   <div className="bg-gray-50 px-4 py-2 text-sm text-gray-500 border-b cursor-default">{label}</div>
