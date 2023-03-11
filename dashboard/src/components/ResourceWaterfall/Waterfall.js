@@ -2,7 +2,30 @@ import WaterfallRowName from './WaterfallRowName';
 import WaterfallRowSize from './WaterfallRowSize';
 import WaterfallRowVisual from './WaterfallRowVisual';
 import WaterfallOverlay from './WaterfallOverlay';
-import WaterfallSkeleton from './WaterfallSkeleton';
+import WaterfallRowMetadata from './WaterfallRowMetadata';
+
+const deDupLCPEntries = lcpEntries => {
+  const filteredLCPEntriesMap = {};
+  lcpEntries.forEach(lcpEntry => {
+    try {
+      const parsedLCPEntryUrl = new URL(lcpEntry.url);
+      const strippedQueryParamLCPEntry = `${parsedLCPEntryUrl.origin}${parsedLCPEntryUrl.pathname}`;
+      const existingLCPEntry = filteredLCPEntriesMap[strippedQueryParamLCPEntry];
+      if (existingLCPEntry) {
+        existingLCPEntry.average_start_time = (parseFloat(existingLCPEntry.average_start_time) + parseFloat(lcpEntry.average_start_time)) / 2;
+        existingLCPEntry.average_render_time = (parseFloat(existingLCPEntry.average_render_time) + parseFloat(lcpEntry.average_render_time)) / 2;
+        existingLCPEntry.average_load_time = (parseFloat(existingLCPEntry.average_load_time) + parseFloat(lcpEntry.average_load_time)) / 2;
+        existingLCPEntry.average_size = (parseFloat(existingLCPEntry.average_size) + parseFloat(lcpEntry.average_size)) / 2;
+        existingLCPEntry.count = parseInt(existingLCPEntry.count) + parseInt(lcpEntry.count);
+      } else {
+        filteredLCPEntriesMap[strippedQueryParamLCPEntry] = lcpEntry;
+      }
+    } catch(err) {
+      filteredLCPEntriesMap[lcpEntry.url] = lcpEntry;
+    }
+  })
+  return Object.values(filteredLCPEntriesMap);
+}
 
 const deDupAndFormatResources = resources => {
   const filteredResourcesMap = {};
@@ -13,6 +36,8 @@ const deDupAndFormatResources = resources => {
       const strippedQueryParamResource = `${parsedResourceUrl.origin}${parsedResourceUrl.pathname}`;
       const existingResource = filteredResourcesMap[strippedQueryParamResource];
       if (existingResource && existingResource.initiator_type === resource.initiator_type) {
+        existingResource.render_blocking_count = parseFloat(existingResource.render_blocking_count || 0) + parseFloat(resource.render_blocking_count || 0);
+        existingResource.non_render_blocking_count = parseFloat(existingResource.non_render_blocking_count || 0) + parseFloat(resource.non_render_blocking_count || 0);
         existingResource.average_start_time = (parseFloat(existingResource.average_start_time) + parseFloat(resource.average_start_time)) / 2;
         existingResource.average_duration = (parseFloat(existingResource.average_duration) + parseFloat(resource.average_duration)) / 2;
         existingResource.average_transfer_size = (parseFloat(existingResource.average_transfer_size) + parseFloat(resource.average_transfer_size)) / 2;
@@ -24,7 +49,7 @@ const deDupAndFormatResources = resources => {
         existingResource.average_request_start = (parseFloat(existingResource.average_request_start) + parseFloat(resource.average_request_start)) / 2;
         existingResource.average_response_start = (parseFloat(existingResource.average_response_start) + parseFloat(resource.average_response_start)) / 2;
         existingResource.average_response_end = (parseFloat(existingResource.average_response_end) + parseFloat(resource.average_response_end)) / 2;
-        existingResource.count += parseInt(resource.count);
+        existingResource.count = parseInt(existingResource.count) + parseInt(resource.count);
         if (existingResource.average_response_end > maxTs) maxTs = existingResource.average_response_end;
       } else {
         filteredResourcesMap[strippedQueryParamResource] = resource;
@@ -37,8 +62,9 @@ const deDupAndFormatResources = resources => {
 
 const MAX_PERF_ENTRY_START_TIME = 20_000;
 
-export default function Waterfall({ resources, performanceMetricsAverages, navigationPerformanceEntriesAverages }) {
+export default function Waterfall({ resources, performanceMetricsAverages, navigationPerformanceEntriesAverages, largestContentfulPaintEntriesAverages }) {
   const { resources: formattedResources, maxTimestamp: largestResourceEndTime } = deDupAndFormatResources(resources);
+  const deDupedLCPEntries = deDupLCPEntries(largestContentfulPaintEntriesAverages);
   const maxTimestamp = Math.min(
     10_000,
     Math.max(
@@ -49,7 +75,7 @@ export default function Waterfall({ resources, performanceMetricsAverages, navig
      (navigationPerformanceEntriesAverages || {}).average_load_event_end,
      largestResourceEndTime || 0
    ) + 100
-  )
+  );
 
   const sortedResources = formattedResources.sort((a, b) => parseFloat(a.average_start_time) - parseFloat(b.average_start_time));
   if (navigationPerformanceEntriesAverages && navigationPerformanceEntriesAverages.average_response_end) {
@@ -98,7 +124,7 @@ export default function Waterfall({ resources, performanceMetricsAverages, navig
             )
           })}
         </div>
-        <div className='w-[10%] border-gray-300 truncate text-sm text-gray-700 inline-block'>
+        <div className='w-[7.5%] border-gray-300 truncate text-sm text-gray-700 inline-block'>
           <div className='block h-5 border-l border-gray-200 pl-2'>Size</div>
           {sortedResources.map((resource, i) => {
             return (
@@ -108,7 +134,17 @@ export default function Waterfall({ resources, performanceMetricsAverages, navig
             )
           })}
         </div>
-        <div className='w-[65%] border-gray-300 text-sm text-gray-700 inline-block relative overflow-x-scroll'>
+        <div className='w-[7.5%] border-gray-300 truncate text-sm text-gray-700 inline-block'>
+          <div className='block h-5'></div>
+          {sortedResources.map((resource, i) => {
+            return (
+              <div className={`flex items-center h-10 p-2 border-r border-l border-gray-200 ${i % 2 === 0 ? 'bg-gray-100' : ''}`} key={i}>
+                <WaterfallRowMetadata resource={resource} largestContentfulPaintEntriesAverages={deDupedLCPEntries} index={i} />
+              </div>
+            )
+          })}
+        </div>
+        <div className='w-[60%] border-gray-300 text-sm text-gray-700 inline-block relative overflow-x-scroll'>
           <div className='min-w-[100%] block h-5'>
             {timeMarkers}
           </div>
