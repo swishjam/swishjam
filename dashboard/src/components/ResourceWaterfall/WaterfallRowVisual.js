@@ -28,8 +28,8 @@ export default function WaterfallRowVisual({ resource, maxTimestamp }) {
     }} />);
   }
 
-  const bgColor = RESOURCE_TYPE_COLOR_DICT[resource.initiator_type][0];
-  const bgHoverColor = RESOURCE_TYPE_COLOR_DICT[resource.initiator_type][1];
+  const bgColor = RESOURCE_TYPE_COLOR_DICT[resource.initiator_type] && RESOURCE_TYPE_COLOR_DICT[resource.initiator_type][0];
+  const bgHoverColor = RESOURCE_TYPE_COLOR_DICT[resource.initiator_type] && RESOURCE_TYPE_COLOR_DICT[resource.initiator_type][1];
 
   return(
     <div className='min-w-[100%] h-full'>
