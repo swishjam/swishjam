@@ -6,16 +6,27 @@ export default class ResourcePerformanceEntries {
     urlPath,
     urlHost,
     startTs, 
-    metric = 'duration',
-    limit = 50,
-    initiatorTypes = ['script', 'xmlhttprequest', 'img', 'link', 'fetch', 'css', 'other'] 
+    // metric = 'duration',
+    // initiatorTypes,
+    limit = 150,
   }) {
     const query = `
       SELECT
         resource_performance_entries.name AS name,
         resource_performance_entries.initiator_type,
+        resource_performance_entries.render_blocking_status,
         COUNT(resource_performance_entries.name) AS count,
-        AVG(${metric}) AS value
+        AVG(resource_performance_entries.start_time) AS average_start_time,
+        AVG(resource_performance_entries.domain_lookup_start) AS average_domain_lookup_start,
+        AVG(resource_performance_entries.domain_lookup_end) AS average_domain_lookup_end,
+        AVG(resource_performance_entries.connect_start) AS average_connect_start,
+        AVG(resource_performance_entries.connect_end) AS average_connect_end,
+        AVG(resource_performance_entries.secure_connection_start) AS average_secure_connection_start,
+        AVG(resource_performance_entries.request_start) AS average_request_start,
+        AVG(resource_performance_entries.response_start) AS average_response_start,
+        AVG(resource_performance_entries.response_end) AS average_response_end,
+        AVG(resource_performance_entries.duration) AS average_duration,
+        AVG(resource_performance_entries.transfer_size) AS average_transfer_size
       FROM
         resource_performance_entries
       JOIN
@@ -24,13 +35,11 @@ export default class ResourcePerformanceEntries {
         page_views.project_key = $1 AND
         page_views.url_host = $2 AND
         page_views.url_path = $3 AND
-        page_views.page_view_ts >= $4 AND
-        resource_performance_entries.initiator_type IN (${initiatorTypes.map(type => `\'${type}\'`).join(', ')})
+        page_views.page_view_ts >= $4
       GROUP BY
-        resource_performance_entries.name,
-        resource_performance_entries.initiator_type
+        name, initiator_type, render_blocking_status
       ORDER BY
-        value DESC
+        average_start_time ASC
       LIMIT ${limit}
     `;
     return (await db.query(query, [projectKey, urlHost, urlPath, new Date(startTs)])).rows;
