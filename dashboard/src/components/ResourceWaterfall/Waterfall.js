@@ -41,7 +41,10 @@ export default function Waterfall({ resources, performanceMetricsAverages, navig
   const { resources: formattedResources, maxTimestamp: largestResourceEndTime } = deDupAndFormatResources(resources);
   const maxTimestamp = Math.max(
     ...(performanceMetricsAverages || []).map(metric => parseFloat(metric.average)),
-    ...Object.values(navigationPerformanceEntriesAverages || {}).filter(val => !isNaN(parseFloat(val))),
+    (navigationPerformanceEntriesAverages || {}).average_dom_complete,
+    (navigationPerformanceEntriesAverages || {}).average_dom_interactive,
+    (navigationPerformanceEntriesAverages || {}).average_dom_content_loaded_event_end,
+    (navigationPerformanceEntriesAverages || {}).average_load_event_end,
     largestResourceEndTime || 0
   ) + 100;
 

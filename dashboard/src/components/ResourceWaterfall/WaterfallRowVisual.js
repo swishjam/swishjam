@@ -14,6 +14,7 @@ const RESOURCE_TYPE_COLOR_DICT = {
   'beacon': ['bg-purple-300', 'hover:bg-purple-400'],
   'iframe': ['bg-gray-300', 'hover:bg-gray-400'],
   'other': ['bg-gray-300', 'hover:bg-gray-400'],
+  'video': ['bg-fuchsia-400', 'hover:bg-fuchsia-500'],
 };
 
 export default function WaterfallRowVisual({ resource, maxTimestamp }) {
