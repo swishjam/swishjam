@@ -1,8 +1,8 @@
 import WaterfallRowName from './WaterfallRowName';
 import WaterfallRowSize from './WaterfallRowSize';
 import WaterfallRowVisual from './WaterfallRowVisual';
-import { usePopperTooltip } from 'react-popper-tooltip';
-import 'react-popper-tooltip/dist/styles.css';
+import WaterfallOverlay from './WaterfallOverlay';
+import WaterfallSkeleton from './WaterfallSkeleton';
 
 const deDupAndFormatResources = resources => {
   const filteredResourcesMap = {};
@@ -24,7 +24,7 @@ const deDupAndFormatResources = resources => {
         existingResource.average_request_start = (parseFloat(existingResource.average_request_start) + parseFloat(resource.average_request_start)) / 2;
         existingResource.average_response_start = (parseFloat(existingResource.average_response_start) + parseFloat(resource.average_response_start)) / 2;
         existingResource.average_response_end = (parseFloat(existingResource.average_response_end) + parseFloat(resource.average_response_end)) / 2;
-        existingResource.count += resource.count;
+        existingResource.count += parseInt(resource.count);
         if (existingResource.average_response_end > maxTs) maxTs = existingResource.average_response_end;
       } else {
         filteredResourcesMap[strippedQueryParamResource] = resource;
@@ -32,23 +32,46 @@ const deDupAndFormatResources = resources => {
       }
     }
   });
-  return {
-    maxTimestamp: maxTs,
-    resources: Object.values(filteredResourcesMap)
-  };
+  return { maxTimestamp: maxTs, resources: Object.values(filteredResourcesMap) };
 }
 
 const MAX_PERF_ENTRY_START_TIME = 20_000;
 
-export default function Waterfall({ resources, performanceMetricsAverages }) {
-  // const { getArrowProps, getTooltipProps, setTooltipRef, setTriggerRef, visible } = usePopperTooltip({ followCursor: false, trigger: 'hover' });
-  const { resources: formattedResources, maxTimestamp } = deDupAndFormatResources(resources);
+export default function Waterfall({ resources, performanceMetricsAverages, navigationPerformanceEntriesAverages }) {
+  const { resources: formattedResources, maxTimestamp: largestResourceEndTime } = deDupAndFormatResources(resources);
+  const maxTimestamp = Math.max(
+    ...(performanceMetricsAverages || []).map(metric => parseFloat(metric.average)),
+    ...Object.values(navigationPerformanceEntriesAverages || {}).filter(val => !isNaN(parseFloat(val))),
+    largestResourceEndTime || 0
+  ) + 100;
+
   const sortedResources = formattedResources.sort((a, b) => parseFloat(a.average_start_time) - parseFloat(b.average_start_time));
+  if (navigationPerformanceEntriesAverages && navigationPerformanceEntriesAverages.average_response_end) {
+    sortedResources.unshift({
+      name: navigationPerformanceEntriesAverages.name,
+      initiator_type: 'navigation',
+      average_duration: parseFloat(navigationPerformanceEntriesAverages.average_duration || 0),
+      average_fetch_start: parseFloat(navigationPerformanceEntriesAverages.average_fetch_start || 0),
+      average_start_time: parseFloat(navigationPerformanceEntriesAverages.average_start_time || 0),
+      average_domain_lookup_start: parseFloat(navigationPerformanceEntriesAverages.average_domain_lookup_start || 0),
+      average_domain_lookup_end: parseFloat(navigationPerformanceEntriesAverages.average_domain_lookup_end || 0),
+      average_connect_start: parseFloat(navigationPerformanceEntriesAverages.average_connect_start || 0),
+      average_connect_end: parseFloat(navigationPerformanceEntriesAverages.average_connect_end || 0),
+      average_secure_connection_start: parseFloat(navigationPerformanceEntriesAverages.average_secure_connection_start || 0),
+      average_request_start: parseFloat(navigationPerformanceEntriesAverages.average_request_start || 0),
+      average_response_start: parseFloat(navigationPerformanceEntriesAverages.average_response_start || 0),
+      average_response_end: parseFloat(navigationPerformanceEntriesAverages.average_response_end || 0),
+      average_transfer_size: parseFloat(navigationPerformanceEntriesAverages.average_transfer_size || 0),
+    });
+  }
+  
   const tickIndicatorEverMs = maxTimestamp > 5_000 ? 1_000 : 500;
 
   let timeMarkers = [<div className='inline-block text-gray-400 border-r h-full' style={{ width: '0%' }} />];
   while (timeMarkers.length * tickIndicatorEverMs < maxTimestamp) {
-    const formattedTime = timeMarkers.length * tickIndicatorEverMs >= 1_000 ? `${(timeMarkers.length * tickIndicatorEverMs) / 1_000} s` : `${timeMarkers.length * tickIndicatorEverMs} ms`;
+    const formattedTime = timeMarkers.length * tickIndicatorEverMs >= 1_000 ? 
+                            `${(timeMarkers.length * tickIndicatorEverMs) / 1_000} s` : 
+                            `${timeMarkers.length * tickIndicatorEverMs} ms`;
     timeMarkers.push(
       <div className='text-end inline-block text-gray-400 text-sm border-r h-full' style={{ width: `${(tickIndicatorEverMs / maxTimestamp) * 100}%` }}>
         {formattedTime}
@@ -56,20 +79,11 @@ export default function Waterfall({ resources, performanceMetricsAverages }) {
     )
   }
 
-  // const performanceTicks = performanceMetricsAverages.filter(metric => ['LCP', 'FCP', 'TTFB'].includes(metric.name)).map(metric => {
-  //   const borderColor = { LCP: 'border-red-700', FCP: 'border-green-700', TTFB: 'border-blue-700' }[metric.name];
-  //   return (
-  //     <div className={`absolute top-0 left-0 border-r-4 z-10 h-full ${borderColor}`} 
-  //           key={metric.name}
-  //           style={{ width: `${(parseFloat(metric.average) / maxTimestamp) * 100}%` }} />
-  //   )
-  // })
-
   return (
     <div className='w-full p-2 m-2'>
       <div className='flex'>
-        <div className='w-[25%] border-gray-300 truncate text-sm text-gray-700 inline-block text-center'>
-          <div className='block h-5'>Resource</div>
+        <div className='w-[25%] border-gray-200 truncate text-sm text-gray-700 inline-block rounded-lg'>
+          <div className='block h-5 border-l border-gray-200 pl-2'>Resource</div>
           {sortedResources.map((resource, i) => {
             return (
               <div className={`flex items-center h-10 p-2 ${i % 2 === 0 ? 'bg-gray-100' : ''}`} key={i}>
@@ -78,23 +92,24 @@ export default function Waterfall({ resources, performanceMetricsAverages }) {
             )
           })}
         </div>
-        <div className='w-[10%] border-gray-300 truncate text-sm text-gray-700 inline-block text-center'>
-          <div className='block h-5'>Size</div>
+        <div className='w-[10%] border-gray-300 truncate text-sm text-gray-700 inline-block'>
+          <div className='block h-5 border-l border-gray-200 pl-2'>Size</div>
           {sortedResources.map((resource, i) => {
             return (
-              <div className={`flex items-center h-10 p-2 ${i % 2 === 0 ? 'bg-gray-100' : ''}`} key={i}>
+              <div className={`flex items-center h-10 p-2 border-r border-l border-gray-200 ${i % 2 === 0 ? 'bg-gray-100' : ''}`} key={i}>
                 <WaterfallRowSize resource={resource} index={i} />
               </div>
             )
           })}
         </div>
-        <div className='w-[65%] border-gray-300 text-sm text-gray-700 inline-block overflow-x-scroll'>
-          <div className='block h-5'>
+        <div className='w-[65%] border-gray-300 text-sm text-gray-700 inline-block relative overflow-x-scroll'>
+          <div className='min-w-[100%] block h-5'>
             {timeMarkers}
           </div>
+          <WaterfallOverlay performanceMetrics={performanceMetricsAverages} navigationPerformanceEntriesAverages={navigationPerformanceEntriesAverages} maxTimestamp={maxTimestamp} />
           {sortedResources.map((resource, i) => {
             return (
-              <div className={`flex items-center min-w-[100%] h-10 p-2 ${i % 2 === 0 ? 'bg-gray-100' : ''}`} key={i}>
+              <div className={`flex items-center min-w-[100%] h-10 py-2 ${i % 2 === 0 ? 'bg-gray-100' : ''}`} key={i}>
                 <WaterfallRowVisual resource={resource} index={i} maxTimestamp={maxTimestamp} />
               </div>
             )

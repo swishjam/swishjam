@@ -34,7 +34,7 @@ export const cwvMetricBounds = {
 };
 
 export const bytesToHumanFileSize = (bytes, decimals = 2) => {
-  const thresh = 1024;
+  const thresh = 1_000;
 
   if (Math.abs(bytes) < thresh) return Math.round(Math.abs(bytes)) + ' B';
 

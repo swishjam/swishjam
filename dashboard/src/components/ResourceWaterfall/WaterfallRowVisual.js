@@ -4,18 +4,19 @@ import { usePopperTooltip } from 'react-popper-tooltip';
 import 'react-popper-tooltip/dist/styles.css';
 
 const RESOURCE_TYPE_COLOR_DICT = {
-  'script': 'bg-blue-300',
-  'link': 'bg-green-300',
-  'css': 'bg-green-300',
-  'img': 'bg-yellow-300',
-  'fetch': 'bg-purple-300',
-  'xmlhttprequest': 'bg-purple-300',
-  'beacon': 'bg-purple-300',
-  'iframe': 'bg-gray-300',
-  'other': 'bg-gray-300',
+  'navigation': ['bg-blue-600', 'hover:bg-blue-700'],
+  'script': ['bg-blue-300', 'hover:bg-blue-400'],
+  'link': ['bg-green-300', 'hover:bg-green-400'],
+  'css': ['bg-green-300', 'hover:bg-green-400'],
+  'img': ['bg-yellow-300', 'hover:bg-yellow-400'],
+  'fetch': ['bg-purple-300', 'hover:bg-purple-400'],
+  'xmlhttprequest': ['bg-purple-300', 'hover:bg-purple-400'],
+  'beacon': ['bg-purple-300', 'hover:bg-purple-400'],
+  'iframe': ['bg-gray-300', 'hover:bg-gray-400'],
+  'other': ['bg-gray-300', 'hover:bg-gray-400'],
 };
 
-export default function WaterfallRowVisual({ resource, maxTimestamp, performanceTicks }) {
+export default function WaterfallRowVisual({ resource, maxTimestamp }) {
   const { getArrowProps, getTooltipProps, setTooltipRef, setTriggerRef, visible } = usePopperTooltip({ followCursor: false, trigger: 'hover' });
   const tickIndicatorMs = 1_000;
 
@@ -27,11 +28,14 @@ export default function WaterfallRowVisual({ resource, maxTimestamp, performance
     }} />);
   }
 
+  const bgColor = RESOURCE_TYPE_COLOR_DICT[resource.initiator_type][0];
+  const bgHoverColor = RESOURCE_TYPE_COLOR_DICT[resource.initiator_type][1];
+
   return(
     <div className='min-w-[100%] h-full'>
-      <div className={`${RESOURCE_TYPE_COLOR_DICT[resource.initiator_type]} z-10 rounded h-full`} ref={setTriggerRef} style={{
+      <div className={`${bgColor} z-10 rounded h-full ${bgHoverColor}`} ref={setTriggerRef} style={{
         marginLeft: `${(resource.average_start_time / maxTimestamp) * 100}%`,
-        width: `${(resource.average_duration / maxTimestamp) * 100}%`
+        width: `${((resource.average_response_end - resource.average_start_time) / maxTimestamp) * 100}%`
       }}></div>
       {visible && (
         <div ref={setTooltipRef} {...getTooltipProps({ className: 'tooltip-container max-w-[50%] z-20' })}>
