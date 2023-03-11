@@ -10,19 +10,6 @@ import { usePopperTooltip } from 'react-popper-tooltip';
 import 'react-popper-tooltip/dist/styles.css';
 import { useRef } from "react";
 
-const RESOURCE_COLOR_DICT = {
-  'navigation': 'blue-600',
-  'script': 'blue-300',
-  'link': 'green-300',
-  'css': 'green-300',
-  'img': 'yellow-300',
-  'fetch': 'purple-300',
-  'xmlhttprequest': 'purple-300',
-  'beacon': 'purple-300',
-  'iframe': 'gray-300',
-  'other': 'gray-300',
-};
-
 const RESOURCE_TYPE_ICON_DICT = {
   'navigation': <DocumentTextIcon className={`text-blue-600 h-5 w-4 mr-1 inline-block`} aria-hidden="true" />,
   'script': (

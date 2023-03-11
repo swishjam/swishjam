@@ -43,8 +43,8 @@ export default function WaterfallRowVisual({ resource, maxTimestamp }) {
           <div className='text-sm text-gray-700'>
             <div className='flex items-center p-4'>
               <div>
-                <span className='block'>{resource.initiator_type}</span>
                 <span className='block'>{resource.name}</span>
+                <span className='block'>Resource type: {resource.initiator_type}</span>
                 <span className='block'>Average start_time {parseFloat(resource.average_start_time).toFixed(2)} ms</span>
                 <span className='block'>Average domain_lookup_start {parseFloat(resource.average_domain_lookup_start).toFixed(2)} ms</span>
                 <span className='block'>Average domain_lookup_end {parseFloat(resource.average_domain_lookup_end).toFixed(2)} ms</span>

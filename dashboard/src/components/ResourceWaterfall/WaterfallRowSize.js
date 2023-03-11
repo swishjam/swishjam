@@ -3,7 +3,7 @@ import { ExclamationTriangleIcon } from '@heroicons/react/24/outline';
 import { usePopperTooltip } from 'react-popper-tooltip';
 
 const LARGE_RESOURCE_SIZE_MAP = {
-  'img': 500_000, // 100 kB
+  'img': 500_000,
   'script': 100_000,
   'stylesheet': 100_000,
   'font': 100_000,

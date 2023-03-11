@@ -9,7 +9,7 @@ export default function PerformanceMetricIndicator({ metric, maxTimestamp }) {
     'TTFB': 'bg-blue-700',
     'DOM Complete': 'bg-purple-700',
     'DOM Content Loaded': 'bg-orange-300',
-    'DOM Interactive': 'bg-pink-400	',
+    'DOM Interactive': 'bg-pink-400',
     'Load': 'bg-yellow-700'
   }[metric.name];
 
