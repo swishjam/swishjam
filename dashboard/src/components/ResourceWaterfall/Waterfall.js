@@ -39,14 +39,17 @@ const MAX_PERF_ENTRY_START_TIME = 20_000;
 
 export default function Waterfall({ resources, performanceMetricsAverages, navigationPerformanceEntriesAverages }) {
   const { resources: formattedResources, maxTimestamp: largestResourceEndTime } = deDupAndFormatResources(resources);
-  const maxTimestamp = Math.max(
-    ...(performanceMetricsAverages || []).map(metric => parseFloat(metric.average)),
-    (navigationPerformanceEntriesAverages || {}).average_dom_complete,
-    (navigationPerformanceEntriesAverages || {}).average_dom_interactive,
-    (navigationPerformanceEntriesAverages || {}).average_dom_content_loaded_event_end,
-    (navigationPerformanceEntriesAverages || {}).average_load_event_end,
-    largestResourceEndTime || 0
-  ) + 100;
+  const maxTimestamp = Math.min(
+    10_000,
+    Math.max(
+     ...(performanceMetricsAverages || []).map(metric => parseFloat(metric.average)),
+     (navigationPerformanceEntriesAverages || {}).average_dom_complete,
+     (navigationPerformanceEntriesAverages || {}).average_dom_interactive,
+     (navigationPerformanceEntriesAverages || {}).average_dom_content_loaded_event_end,
+     (navigationPerformanceEntriesAverages || {}).average_load_event_end,
+     largestResourceEndTime || 0
+   ) + 100
+  )
 
   const sortedResources = formattedResources.sort((a, b) => parseFloat(a.average_start_time) - parseFloat(b.average_start_time));
   if (navigationPerformanceEntriesAverages && navigationPerformanceEntriesAverages.average_response_end) {
