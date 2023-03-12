@@ -12,6 +12,7 @@ import Dropdown from '@/components/Dropdown';
 import Waterfall from '@/components/ResourceWaterfall/Waterfall';
 import WaterfallSkeleton from '@/components/ResourceWaterfall/WaterfallSkeleton';
 import NavigationPerformanceEntriesApi from '@/lib/api-client/navigation-performance-entries';
+import { LargestContentfulPaintEntriesApi } from '@/lib/api-client/largest-contentful-paint-entries';
 
 const loadingSpinner = () => {
   return (
@@ -34,6 +35,7 @@ export default function Resources() {
   const [resources, setResources] = useState();
   const [navigationPerformanceEntriesAverages, setNavigationPerformanceEntriesAverages] = useState();
   const [performanceMetricsAverages, setPerformanceMetricsAverages] = useState();
+  const [largestContentfulPaintEntriesAverages, setLargestContentfulPaintEntriesAverages] = useState();
 
   const onUrlHostSelected = urlHost => {
     setHostUrlToFilterOn(urlHost);
@@ -63,10 +65,12 @@ export default function Resources() {
     setUrlPathToFilterOn(urlPath);
     setNavigationPerformanceEntriesAverages(undefined);
     setPerformanceMetricsAverages(undefined);
+    setLargestContentfulPaintEntriesAverages(undefined);
     setResources(undefined);
     ResourcePerformanceEntriesApi.getAll({ urlHost, urlPath }).then(setResources);
     PerformanceMetricsApi.getAllAverages({ urlHost, urlPath }).then(setPerformanceMetricsAverages);
     NavigationPerformanceEntriesApi.getAverages({ urlHost, urlPath }).then(setNavigationPerformanceEntriesAverages);
+    LargestContentfulPaintEntriesApi.getDistinctEntries({ urlHost, urlPath }).then(setLargestContentfulPaintEntriesAverages);
   }
 
   useEffect(() => {
@@ -114,6 +118,13 @@ export default function Resources() {
     </div>
   </>
 
+  const hasAllData = () => {
+    return largestContentfulPaintEntriesAverages !== undefined && 
+            navigationPerformanceEntriesAverages !== undefined && 
+            performanceMetricsAverages !== undefined && 
+            resources !== undefined;
+  }
+
   return (
     <AuthenticatedView>
       <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mt-8">
@@ -149,12 +160,11 @@ export default function Resources() {
                 </div>
                 {waterfallLegend}
               </div>
-              {performanceMetricsAverages === undefined || 
-                navigationPerformanceEntriesAverages === undefined  || 
-                resources === undefined ? <WaterfallSkeleton /> :
+              {!hasAllData() ? <WaterfallSkeleton /> :
                   resources?.length > 0 ? <Waterfall resources={resources} 
                                                       performanceMetricsAverages={performanceMetricsAverages} 
-                                                      navigationPerformanceEntriesAverages={navigationPerformanceEntriesAverages} /> :
+                                                      navigationPerformanceEntriesAverages={navigationPerformanceEntriesAverages} 
+                                                      largestContentfulPaintEntriesAverages={largestContentfulPaintEntriesAverages} /> :
                     <p className='text-center text-gray-700 text-sm'>No resources found for {hostUrlToFilterOn}{urlPathToFilterOn}</p>
                 }
             </div>
