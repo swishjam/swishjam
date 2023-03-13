@@ -22,7 +22,10 @@ const resScore = (score) => {
 }
 
 const calculateTimeseries = (lcp, cls, fcp, fid) => {
-  if(lcp.timeseriesData && cls.timeseriesData && fcp.timeseriesData && fid.timeseriesData) {
+  
+  console.log('calculateTimeseries', lcp, cls, fcp, fid)
+  
+  if(lcp.timeseriesData.length > 1 && cls.timeseriesData.length > 1 && fcp.timeseriesData.length > 1 && fid.timeseriesData.length > 1) {
     console.log('ata lcp', lcp)
     console.log('ata fcp', fcp)
     console.log('ata cls', cls)
@@ -76,7 +79,6 @@ const calculateTimeseries = (lcp, cls, fcp, fid) => {
     console.log(finalTimeseriesArr); 
     // convert to Array and filter out counts less than 4 to remove shitty data
 
- 
 
 /*const mostTdp  = Math.max(lcp.timeseriesData.length ,
       cls.timeseriesData.length, fcp.timeseriesData.length, fid.timeseriesData.length);
