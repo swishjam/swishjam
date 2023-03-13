@@ -1,0 +1,162 @@
+{
+	"tokens": {
+		"colorData": [
+			{
+				"name": "DEFAULT",
+				"baseColor": "#7487F7",
+				"variants": {
+					"500": "#7487F7"
+				}
+			},
+			{
+				"name": "Dark",
+				"baseColor": "#46518f",
+				"variants": {
+					"500": "#46518f"
+				}
+			},
+			{
+				"name": "Yellow",
+				"baseColor": "#FAD831",
+				"variants": {
+					"500": "#FAD831"
+				}
+			},
+			{
+				"name": "Orange",
+				"baseColor": "#EF7136",
+				"variants": {
+					"500": "#EF7136"
+				}
+			},
+			{
+				"name": "Purple",
+				"baseColor": "#A343BA",
+				"variants": {
+					"500": "#A343BA"
+				}
+			},
+			{
+				"name": "Red",
+				"baseColor": "#CE776B",
+				"variants": {
+					"500": "#CE776B"
+				}
+			},
+			{
+				"name": "Blue",
+				"baseColor": "#97CCF0",
+				"variants": {
+					"500": "#97CCF0"
+				}
+			},
+			{
+				"name": "Green",
+				"baseColor": "#99EEBB",
+				"variants": {
+					"500": "#99EEBB"
+				}
+			},
+			{
+				"name": "Off White",
+				"baseColor": "#FFFDF2",
+				"variants": {
+					"500": "#FFFDF2"
+				}
+			},
+			{
+				"name": "Dark Blue",
+				"baseColor": "#1F2D37",
+				"variants": {
+					"500": "#1F2D37"
+				}
+			},
+			{
+				"name": "Blue Gray",
+				"baseColor": "#394150",
+				"variants": {
+					"500": "#394150"
+				}
+			}
+		],
+		"typography": {
+			"fontSizes": [
+				{
+					"value": 0.875,
+					"unit": "rem",
+					"name": "sm"
+				},
+				{
+					"value": 1.4,
+					"unit": "rem",
+					"name": "lg"
+				},
+				{
+					"name": "xs",
+					"value": 0.75,
+					"unit": "rem"
+				},
+				{
+					"name": "base",
+					"value": 1,
+					"unit": "rem"
+				},
+				{
+					"name": "lg",
+					"value": 1.125,
+					"unit": "rem"
+				},
+				{
+					"name": "xl",
+					"value": 1.25,
+					"unit": "rem"
+				},
+				{
+					"name": "2xl",
+					"value": 1.5,
+					"unit": "rem"
+				},
+				{
+					"name": "3xl",
+					"value": 2,
+					"unit": "rem"
+				},
+				{
+					"name": "4xl",
+					"value": 2.5,
+					"unit": "rem"
+				},
+				{
+					"name": "5xl",
+					"value": 3,
+					"unit": "rem"
+				},
+				{
+					"name": "6xl",
+					"value": 3.75,
+					"unit": "rem"
+				},
+				{
+					"name": "7xl",
+					"value": 4.5,
+					"unit": "rem"
+				},
+				{
+					"name": "8xl",
+					"value": 6,
+					"unit": "rem"
+				},
+				{
+					"name": "9xl",
+					"value": 8,
+					"unit": "rem"
+				}
+			]
+		}
+	},
+	"__internal__": {
+		"migrations": {
+			"version": "0.0.3"
+		}
+	}
+}
