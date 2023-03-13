@@ -5,55 +5,114 @@ import { Card, LineChart, AreaChart } from "@tremor/react";
 import LoadingSpinner from '@components/LoadingSpinner';
 import Link from 'next/link';
 
-const chartData = [
-  {
-    year: 1951,
-    "Population growth rate": 1.74,
-  },
-  {
-    year: 1952,
-    "Population growth rate": 1.93,
-  },
-  {
-    year: 1953,
-    "Population growth rate": 1.9,
-  },
-  {
-    year: 1954,
-    "Population growth rate": 1.98,
-  },
-  {
-    year: 1955,
-    "Population growth rate": 2,
-  },
-];
-
-const cities = [
-  {
-      name: 'Potenital Improvement Area',
-      sales: 10,
-  },
-  {
-      name: 'Experience Score',
-      sales: 90,
-  },
-];
-
 const dataFormatter = (number) =>
   `${Intl.NumberFormat("us").format(number).toString()}%`;
 
-const data = [
-  { name: 'Bunk', value: 10 },
-  { name: 'Exp Score', value: 90 },
-];
-const COLORS = ['#f1f5f9', '#99EEBB'];
+const resScore = (score) => {
+  return [
+    {
+        name: 'Potenital Improvement Area',
+        value: 100 - score,
+    },
+    {
+        name: 'Experience Score',
+        value: score,
+    },
+  ]
+}
+
+const calculateTimeseries = (lcp, cls, fcp, fid) => {
+  if(lcp.timeseriesData && cls.timeseriesData && fcp.timeseriesData && fid.timeseriesData) {
+    console.log('ata lcp', lcp)
+    console.log('ata fcp', fcp)
+    console.log('ata cls', cls)
+    console.log('ata fid', fid)
+    const allTimeseriesArr = [
+      ...lcp.timeseriesData,
+      ...cls.timeseriesData,
+      ...fcp.timeseriesData,
+      ...fid.timeseriesData,
+    ]; 
+    console.log('ataTimeseries', allTimeseriesArr)
+    let timeSeriesLookup = {};
+    allTimeseriesArr.map( ata => {
+      let count = 1;
+      if(timeSeriesLookup[ata.timestamp]?.count) {
+        count = timeSeriesLookup[ata.timestamp].count++ 
+      } 
+      // calc total REX
+      //timeSeriesLookup[ata.timestamp]
+      let score = 0; 
+      console.log('ata', ata)
+      if(timeSeriesLookup.score) {
+         
+         score = timeSeriesLookup.score + ata.metric.weightedScore
+      } else {
+        score = ata.metric.weightedScore
+      }
+
+      if(timeSeriesLookup[ata.timestamp]) {
+        timeSeriesLookup[ata.timestamp] = {
+          ...timeSerieslookup[ata.timestamp],
+          [ata.metric.key]:ata.metric,
+          count,
+          score
+        }
+      } else {
+        timeSeriesLookup[ata.timestamp] = {
+          [ata.metric.key]:ata.metric,
+          count,
+          score
+        }
+      } 
+    })
+
+    let finalTimeseriesArr = [];
+    for (const [key, value] of Object.entries(timeSeriesLookup)) {
+      console.log(`${key}: ${value}`);
+      finalTimeseriesArr.push(value)
+    }
+    
+    console.log(finalTimeseriesArr); 
+    // convert to Array and filter out counts less than 4 to remove shitty data
+
+ 
+
+/*const mostTdp  = Math.max(lcp.timeseriesData.length ,
+      cls.timeseriesData.length, fcp.timeseriesData.length, fid.timeseriesData.length);
+    const leastTdp  = Math.min(lcp.timeseriesData.length ,
+      cls.timeseriesData.length, fcp.timeseriesData.length, fid.timeseriesData.length);
+    const smallestTimeseries = arrMetrics.find(metr => metr.timeseriesData.length === leastTdp); 
+    //lcpFromatted = lcp.timeseriesData.map( ts => {return {...ts, lcp.}})
+    console.log('least tdp', leastTdp);
+    console.log('smallestTimeseries tdp', smallestTimeseries);
+    */
+    // find matching datew in the timseries data to the smallestTimeseries
+    //smallestTimeseries.timeseriesData.map( d => {
+    //})
+    
+    /*v.map( ata => {
+      lookup[ata.timestamp] = {...lookup[ata.timestamp], [ata.metric.key]:ata.metric}  
+    })*/ 
+    
+    // {
+    //  timestamp: ''.
+    //  expScore: lcp.weighted + cls.weighted + fcp.weighted + fid.weighted. 
+    //}
+    //}
+     
+
+
+    return 1
+  }
+  return null 
+}
 
 const renderActiveShape = (props) => {
-  
-  const { cx, cy, midAngle, innerRadius, outerRadius, startAngle, endAngle, fill, payload, percent, value } = props;
+  const { cx, cy, innerRadius, outerRadius, startAngle, endAngle, fill, payload } = props;
   return (
     <g>
-      <text className="text-5xl" x={cx} y={cy} dy={16} textAnchor="middle" fill={'#99EEBB'} scaletofit="true">
+      <text className="text-5xl" x={cx} y={cy} dy={16} textAnchor="middle" fill={fill}>
         {payload.value}
       </text>
       <Sector
@@ -69,10 +128,6 @@ const renderActiveShape = (props) => {
   );
 };
 
-const valueFormatter = (number) => (
-  `${number}`
-);
-
 const CardLoading = () => (   
   <div className='flex'>
     <div className='m-auto py-20'>
@@ -81,21 +136,33 @@ const CardLoading = () => (
   </div>
 )
 
-// {  }, ...props
-            /*<Metric>12,699</Metric> 
-            <Text>asdfasdf</Text> 
-            <DonutChart
-              data={cities}
-              category="sales"
-              dataKey="name"
-              valueFormatter={valueFormatter}
-              marginTop="mt-6"
-              colors={["slate", "emerald"]}
-            />*/
-      //<Title>Swishjam's Real User Experience Score</Title>
-       // <Flex justifyContent="justify-center" alignItems="items-baseline" spaceX="space-x-1 pt-6">
-        //</Flex>
-export default function ExperienceScoreCard() {
+const calcTimeseries = () => {
+  
+} 
+
+export default function ExperienceScoreCard({ lcp, cls, fcp, fid, pageViews }) {
+
+  if(!lcp?.metric) {
+    return (
+      <Card>
+        <CardLoading />
+      </Card> 
+    )
+  }
+
+  const experienceScore=(1*(lcp?.metric?.weightedScore+fid?.metric?.weightedScore+
+    cls?.metric?.weightedScore+fcp?.metric?.weightedScore))
+  const data = resScore(Math.ceil(experienceScore)); 
+  const COLORS = ['#f1f5f9', (experienceScore >= 90 ? '#10b981': (experienceScore >= 50 ? '#eab308': '#f43f5e'))];
+  //const chartData =  
+  //console.log(experienceScore); 
+  //console.log(data); 
+  //console.log(lcp)
+  console.log(fcp)
+  console.log(cls)
+  console.log(lcp)
+  console.log(fid)
+  console.log(calculateTimeseries(lcp, cls, fcp, fid))
   return (
     <Card >
         
@@ -124,12 +191,12 @@ export default function ExperienceScoreCard() {
             <div
               className="text-swishjam mx-auto text-center min-w-fit rounded-full bg-white py-2.5 px-4 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 "
             >
-            35,654 Page Views
+            {pageViews?.toLocaleString()} Page Views
             </div>
           </div> 
         </div>
         <div className="w-2/3 flex">
-          <AreaChart
+          {/*<AreaChart
             data={chartData}
             dataKey="year"
             categories={['Population growth rate']}
@@ -139,7 +206,7 @@ export default function ExperienceScoreCard() {
             marginTop="mt-12"
             valueFormatter={dataFormatter}
             yAxisWidth="w-10"
-          />
+          />*/}
         </div>
       </div>
 

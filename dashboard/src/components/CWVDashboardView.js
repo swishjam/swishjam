@@ -56,7 +56,14 @@ export default function CwvDashboardView() {
   const getTimeseriesDataForMetric = (metric, urlHost) => {
     return WebVitalsApi.timeseries({ metric, urlHost }).then(chartData => {
       const setStateMethod = { LCP: setLCP, INP: setINP, CLS: setCLS, FCP: setFCP, FID: setFID, TTFB: setTTFB }[metric];
-      setStateMethod(prevState => ({ ...prevState, timeseriesData: chartData }));
+      //console.log('metric chartData', metric)
+      //console.log('chartData', chartData)
+      //const metric = calcCwvMetric(res.average, cwvKey);
+      const chartDataMod = chartData.map(
+        d => ({ ...d, metric: calcCwvMetric(d.p90, metric) })
+      ); 
+      //console.log('chartDataMod', chartDataMod)
+      setStateMethod(prevState => ({ ...prevState, timeseriesData: chartDataMod }));
       setIsFetchingCwvData(false);
     })
   }
@@ -149,26 +156,23 @@ export default function CwvDashboardView() {
           </div>
 
           <div className="w-full text-end">
-            {hostUrlFilterOptions &&
+            {/*hostUrlFilterOptions &&
               hostUrlFilterOptions.length > 0 &&
               <HostUrlFilterer options={hostUrlFilterOptions}
                 selectedHost={hostUrlToFilterOn}
-                onHostSelected={onUrlHostSelected} />}
+                onHostSelected={onUrlHostSelected} />*/}
           </div>
         </div>
         <ColGrid numColsMd={2} numColsLg={3} gapX="gap-x-6" gapY="gap-y-6" marginTop="mt-6">
-          {/*[lcp, cls, inp, fcp, fid, ttfb].map(item => (
+          {[lcp, cls, inp, fcp, fid, ttfb].map(item => (
             <WebVitalCard
               key={item.key}
               accronym={item.key}
               title={item.title}
               metric={null}
-              metricUnits={item.metricUnits}
-              metricPercent={item.metricPercent}
-              bounds={item.bounds}
               timeseriesData={item.timeseriesData}
             />
-          ))*/}
+          ))}
         </ColGrid>
       </main>
     )
@@ -194,7 +198,14 @@ export default function CwvDashboardView() {
         </div>
 
         <div className='mt-8 flex items-center'>
-          <ExperienceScoreCard />
+          {/*JSON.stringify(lcp)*/}
+          <ExperienceScoreCard
+            lcp={lcp}
+            cls={cls}
+            fcp={fcp}
+            fid={fid}           
+            pageViews={35687}
+          />
         </div>
 
         <ColGrid numColsMd={2} numColsLg={3} gapX="gap-x-6" gapY="gap-y-6" marginTop="mt-6">

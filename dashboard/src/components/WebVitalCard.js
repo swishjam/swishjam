@@ -44,18 +44,15 @@ const calcLocationOnBar = (score) => {
     let x = 100 - score;
     return (33*x)/10 
   } 
-
   if(score >= 50 && score < 90) {
     // LOL this isn't that smart but it works 
     return score-22
   }
-  
   if(score < 50) {
     // LOL this isn't that smart but it works 
     let s = 100 - score + 22;  
     return s > 100 ? 100: s;  
   }
-
   return 0;
 }
 
@@ -85,7 +82,9 @@ export default function WebVitalCard({ title, accronym, metric, timeseriesData, 
             {title}
           </dt>
           <Flex justifyContent="justify-start" alignItems="items-baseline" spaceX="space-x-1">
-            <Metric>{metricFormatter(metric.value, metric.metricScoring.displayUnits)}</Metric>
+            <Metric color={metric.rating == 'pass' ?  'emerald': (metric.rating == 'average' ? 'yellow':'rose')}>
+              {metricFormatter(metric.value, metric.metricScoring.displayUnits)}
+            </Metric>
             <Text>{metric.metricScoring.displayUnits}</Text>
           </Flex>
           <CategoryBar
@@ -96,7 +95,7 @@ export default function WebVitalCard({ title, accronym, metric, timeseriesData, 
             showLabels={false}
             marginTop="mt-5"
           />
-          {/*timeseriesData === undefined ?
+          {timeseriesData === undefined ?
             <CardLoading /> : timeseriesData.length > 0 ? (
               <AreaChart
                 data={timeseriesData}
@@ -105,7 +104,7 @@ export default function WebVitalCard({ title, accronym, metric, timeseriesData, 
                 colors={['blue']}
                 showLegend={false}
                 startEndOnly={true}
-                valueFormatter={value => metricFormatter(value, metricUnits)}
+                valueFormatter={value => metricFormatter(value)}
                 height="h-48"
                 marginTop="mt-10"
               />
@@ -114,7 +113,7 @@ export default function WebVitalCard({ title, accronym, metric, timeseriesData, 
                 <Text>No data available for timeframe</Text>
               </div>
             )
-            */}
+          }
         </>
       )}
     </Card>
