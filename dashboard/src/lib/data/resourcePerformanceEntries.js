@@ -11,30 +11,30 @@ export default class ResourcePerformanceEntries {
   }) {
     const query = `
       SELECT
-        CONCAT(resource_performance_entries.name_to_url_host, resource_performance_entries.name_to_url_path) AS name,
-        resource_performance_entries.initiator_type,
-        resource_performance_entries.render_blocking_status,
-        COUNT(resource_performance_entries.name) AS count,
-        AVG(resource_performance_entries.start_time) AS average_start_time,
-        AVG(resource_performance_entries.domain_lookup_start) AS average_domain_lookup_start,
-        AVG(resource_performance_entries.domain_lookup_end) AS average_domain_lookup_end,
-        AVG(resource_performance_entries.connect_start) AS average_connect_start,
-        AVG(resource_performance_entries.connect_end) AS average_connect_end,
-        AVG(resource_performance_entries.secure_connection_start) AS average_secure_connection_start,
-        AVG(resource_performance_entries.request_start) AS average_request_start,
-        AVG(resource_performance_entries.response_start) AS average_response_start,
-        AVG(resource_performance_entries.response_end) AS average_response_end,
-        AVG(resource_performance_entries.duration) AS average_duration,
-        AVG(resource_performance_entries.transfer_size) AS average_transfer_size
+        CONCAT(rpe.name_to_url_host, rpe.name_to_url_path) AS name,
+        rpe.initiator_type,
+        rpe.render_blocking_status,
+        COUNT(rpe.name) AS count,
+        AVG(rpe.start_time) AS average_start_time,
+        AVG(rpe.domain_lookup_start) AS average_domain_lookup_start,
+        AVG(rpe.domain_lookup_end) AS average_domain_lookup_end,
+        AVG(rpe.connect_start) AS average_connect_start,
+        AVG(rpe.connect_end) AS average_connect_end,
+        AVG(rpe.secure_connection_start) AS average_secure_connection_start,
+        AVG(rpe.request_start) AS average_request_start,
+        AVG(rpe.response_start) AS average_response_start,
+        AVG(rpe.response_end) AS average_response_end,
+        AVG(rpe.duration) AS average_duration,
+        AVG(rpe.transfer_size) AS average_transfer_size
       FROM
-        resource_performance_entries
+        rseource_performance_entries as rpe
       JOIN
-        page_views ON resource_performance_entries.page_view_uuid = page_views.uuid
+        page_views AS pv ON rpe.page_view_uuid = page_views.uuid
       WHERE
-        page_views.project_key = $1 AND
-        page_views.url_host = $2 AND
-        page_views.url_path = $3 AND
-        page_views.page_view_ts >= $4
+        pv.project_key = $1 AND
+        pv.url_host = $2 AND
+        pv.url_path = $3 AND
+        pv.page_view_ts >= $4
       GROUP BY
         name_to_url_host, name_to_url_path, initiator_type, render_blocking_status
       HAVING
@@ -49,20 +49,20 @@ export default class ResourcePerformanceEntries {
   static async getTimeseriesForMetric({ projectKey, resourceName, metric, startTs }) {
     const query = `
       SELECT
-        resource_performance_entries.name AS name,
+        rpe.name AS name,
         AVG(${metric}) AS metric,
-        date_trunc('hour', page_views.page_view_ts) AS hour,
-        date_trunc('day', page_views.page_view_ts) AS day
+        date_trunc('hour', pv.page_view_ts) AS hour,
+        date_trunc('day', pv.page_view_ts) AS day
       FROM
-        resource_performance_entries
+        rseource_performance_entries  AS rpe
       JOIN
-        page_views ON resource_performance_entries.page_view_uuid = page_views.uuid
+        page_views AS pv ON rpe.page_view_uuid = page_views.uuid
       WHERE
-        page_views.project_key = $1 AND
-        resource_performance_entries.name = $2 AND
-        page_views.page_view_ts >= $3 AND
-        resource_performance_entries.${metric} IS NOT NULL AND
-        resource_performance_entries.${metric} > 0
+        pv.project_key = $1 AND
+        rpe.name = $2 AND
+        pv.page_view_ts >= $3 AND
+        rpe.${metric} IS NOT NULL AND
+        rpe.${metric} > 0
       GROUP BY
         day, hour, name
       ORDER BY
