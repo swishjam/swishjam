@@ -3,6 +3,7 @@ import WaterfallRowSize from './WaterfallRowSize';
 import WaterfallRowVisual from './WaterfallRowVisual';
 import WaterfallOverlay from './WaterfallOverlay';
 import WaterfallRowMetadata from './WaterfallRowMetadata';
+import { formattedMsOrSeconds } from '@lib/utils';
 
 const deDupLCPEntries = lcpEntries => {
   const filteredLCPEntriesMap = {};
@@ -114,7 +115,7 @@ export default function Waterfall({ resources, performanceMetricsAverages, navig
   return (
     <div className='w-full p-2 m-2'>
       <div className='flex'>
-        <div className='w-[25%] border-gray-200 truncate text-sm text-gray-700 inline-block rounded-lg'>
+        <div className='w-[20%] border-gray-200 truncate text-sm text-gray-700 inline-block rounded-lg'>
           <div className='block h-5 border-l border-gray-200 pl-2'>Resource</div>
           {sortedResources.map((resource, i) => {
             return (
@@ -135,6 +136,16 @@ export default function Waterfall({ resources, performanceMetricsAverages, navig
           })}
         </div>
         <div className='w-[7.5%] border-gray-300 truncate text-sm text-gray-700 inline-block'>
+          <div className='block h-5 border-l border-gray-200 pl-2'>Time</div>
+          {sortedResources.map((resource, i) => {
+            return (
+              <div className={`flex items-center h-10 p-2 border-r border-l border-gray-200 ${i % 2 === 0 ? 'bg-gray-100' : ''}`} key={i}>
+                {formattedMsOrSeconds(resource.average_response_end - resource.average_start_time)}
+              </div>
+            )
+          })}
+        </div>
+        <div className='w-[8%] border-gray-300 truncate text-sm text-gray-700 inline-block'>
           <div className='block h-5'></div>
           {sortedResources.map((resource, i) => {
             return (
@@ -144,7 +155,7 @@ export default function Waterfall({ resources, performanceMetricsAverages, navig
             )
           })}
         </div>
-        <div className='w-[60%] border-gray-300 text-sm text-gray-700 inline-block relative overflow-x-scroll'>
+        <div className='w-[57%] border-gray-300 text-sm text-gray-700 inline-block relative overflow-x-scroll'>
           <div className='min-w-[100%] block h-5'>
             {timeMarkers}
           </div>
