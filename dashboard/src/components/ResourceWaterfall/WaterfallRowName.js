@@ -59,15 +59,15 @@ export default function WaterfallRowName({ resource, index }) {
   const nameContainerEl = useRef();
 
   const expandDisplay = e => {
-    nameContainerEl.current.classList.add('absolute', 'z-30', 'bg-white', 'rounded', 'border', 'border-gray-100');
+    nameContainerEl.current.classList.add('absolute', 'z-30', 'bg-white', 'rounded', 'border', 'border-gray-100', 'w-fit', 'pr-2');
   }
 
   const collapseDisplay = e => {
-    nameContainerEl.current.classList.remove('absolute', 'z-30', 'bg-white', 'rounded', 'border', 'border-gray-100');
+    nameContainerEl.current.classList.remove('absolute', 'z-30', 'bg-white', 'rounded', 'border', 'border-gray-100', 'w-fit', 'pr-2');
   }
 
   return (
-    <div className='flex items-center' ref={nameContainerEl} onMouseOver={expandDisplay} onMouseOut={collapseDisplay}>
+    <div className='flex items-center w-full' ref={nameContainerEl} onMouseOver={expandDisplay} onMouseOut={collapseDisplay}>
       <span className='mr-1'>{index + 1} </span>
       {resource.initiator_type === 'img' ? 
         (

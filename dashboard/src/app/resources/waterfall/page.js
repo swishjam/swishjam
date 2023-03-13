@@ -3,16 +3,19 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '@/components/AuthProvider';
 import AuthenticatedView from "@/components/AuthenticatedView";
 import SnippetInstall from '@/components/SnippetInstall';
+
 import { PageUrlsApi } from '@/lib/api-client/page-urls';
 import { ResourcePerformanceEntriesApi } from '@/lib/api-client/resource-performance-entries';
 import { PerformanceMetricsApi } from '@/lib/api-client/performance-metrics';
+import { NavigationPerformanceEntriesApi } from '@/lib/api-client/navigation-performance-entries';
+import { LargestContentfulPaintEntriesApi } from '@/lib/api-client/largest-contentful-paint-entries';
+import { PageViewsAPI } from '@/lib/api-client/page-views';
+
 import LoadingSpinner from '@/components/LoadingSpinner';
 import HostUrlFilterer from '@/components/HostUrlFilterer';
 import Dropdown from '@/components/Dropdown';
 import Waterfall from '@/components/ResourceWaterfall/Waterfall';
 import WaterfallSkeleton from '@/components/ResourceWaterfall/WaterfallSkeleton';
-import NavigationPerformanceEntriesApi from '@/lib/api-client/navigation-performance-entries';
-import { LargestContentfulPaintEntriesApi } from '@/lib/api-client/largest-contentful-paint-entries';
 
 const loadingSpinner = () => {
   return (
@@ -32,17 +35,25 @@ export default function Resources() {
   const [hostUrlToFilterOn, setHostUrlToFilterOn] = useState();
   const [urlPathToFilterOn, setUrlPathToFilterOn] = useState();
 
+  const [numPageViews, setNumPageViews] = useState();
+
   const [resources, setResources] = useState();
   const [navigationPerformanceEntriesAverages, setNavigationPerformanceEntriesAverages] = useState();
   const [performanceMetricsAverages, setPerformanceMetricsAverages] = useState();
   const [largestContentfulPaintEntriesAverages, setLargestContentfulPaintEntriesAverages] = useState();
 
+  const resetData = () => {
+    setNavigationPerformanceEntriesAverages(undefined);
+    setPerformanceMetricsAverages(undefined);
+    setLargestContentfulPaintEntriesAverages(undefined);
+    setResources(undefined);
+    setNumPageViews(undefined);
+  }
+
   const onUrlHostSelected = urlHost => {
     setHostUrlToFilterOn(urlHost);
     setUrlPathToFilterOn(undefined);
-    setNavigationPerformanceEntriesAverages(undefined);
-    setPerformanceMetricsAverages(undefined);
-    setResources(undefined);
+    resetData();
     PageUrlsApi.getUniquePaths({ urlHosts: [urlHost] }).then(urlPaths => {
       setPathsForCurrentProjectAndHost(urlPaths);
       const urlPath = urlPaths.find(path => path === '/') || urlPaths[0];
@@ -55,22 +66,18 @@ export default function Resources() {
     setPathsForCurrentProjectAndHost(undefined);
     setHostUrlToFilterOn(undefined);
     setUrlPathToFilterOn(undefined);
-    setNavigationPerformanceEntriesAverages(undefined);
-    setPerformanceMetricsAverages(undefined);
-    setResources(undefined);
+    resetData();
     return PageUrlsApi.getUniqueHosts().then(urlHosts => setHostUrlFilterOptions(urlHosts));
   }
 
   const updateViewForHostAndPath = ({ urlPath, urlHost }) => {
     setUrlPathToFilterOn(urlPath);
-    setNavigationPerformanceEntriesAverages(undefined);
-    setPerformanceMetricsAverages(undefined);
-    setLargestContentfulPaintEntriesAverages(undefined);
-    setResources(undefined);
+    resetData();
     ResourcePerformanceEntriesApi.getAll({ urlHost, urlPath }).then(setResources);
     PerformanceMetricsApi.getAllAverages({ urlHost, urlPath }).then(setPerformanceMetricsAverages);
     NavigationPerformanceEntriesApi.getAverages({ urlHost, urlPath }).then(setNavigationPerformanceEntriesAverages);
     LargestContentfulPaintEntriesApi.getDistinctEntries({ urlHost, urlPath }).then(setLargestContentfulPaintEntriesAverages);
+    PageViewsAPI.getCount({ urlHost, urlPath }).then(setNumPageViews);
   }
 
   useEffect(() => {
@@ -81,7 +88,7 @@ export default function Resources() {
   const waterfallLegend = <>
     <div className='flex text-end float-end mb-5 w-fit rounded border border-gray-300 p-3 right-0'>
       <div className='mr-4 text-left'>
-        <span className='text-gray-900 text-sm'>Page load metrics legend:</span>
+        <span className='text-gray-900 text-sm'>Page load metrics:</span>
         {[
           { metric: 'Largest Contenful Paint', bgClass: 'bg-red-700' },
           { metric: 'Time to First Byte', bgClass: 'bg-blue-600' },
@@ -100,7 +107,7 @@ export default function Resources() {
         })}
       </div>
       <div className='text-left'>
-        <span className='text-gray-900 text-sm'>Page resource legend:</span>
+        <span className='text-gray-900 text-sm'>Page resources:</span>
         {[
           { metric: 'Javascript Resource', bgClass: 'bg-blue-300' },
           { metric: 'Stylesheet Resource', bgClass: 'bg-green-300' },
@@ -118,7 +125,7 @@ export default function Resources() {
     </div>
   </>
 
-  const hasAllData = () => {
+  const hasAllWaterfallData = () => {
     return largestContentfulPaintEntriesAverages !== undefined && 
             navigationPerformanceEntriesAverages !== undefined && 
             performanceMetricsAverages !== undefined && 
@@ -145,22 +152,32 @@ export default function Resources() {
           {hostUrlFilterOptions === undefined ? loadingSpinner() :
             hostUrlFilterOptions.length === 0 ? <SnippetInstall projectId={currentProject?.public_id} /> :
             <div className='rounded-lg border border-gray-200 p-4'>
-              <div className="flex flex-row justify-between mb-6">
+              <div className="flex flex-row items-center justify-between mb-6">
                 <div>
-                  <h2 className='inline text-gray-700 text-lg font-medium'>
-                    Resource waterfall for
-                  </h2>
-                  <div className='inline-flex ml-2'>
-                    {pathsForCurrentProjectAndHost && <Dropdown options={pathsForCurrentProjectAndHost}
-                                                                  selected={urlPathToFilterOn}
-                                                                  label={'URL path filter'}
-                                                                  direction='right'
-                                                                  onSelect={urlPath => updateViewForHostAndPath({ urlHost: hostUrlToFilterOn, urlPath })} />}
+                  <div className='block'>
+                    <h2 className='inline text-gray-700 text-lg font-medium'>
+                      Resource waterfall for
+                    </h2>
+                    <div className='inline-flex ml-2'>
+                      {pathsForCurrentProjectAndHost && <Dropdown options={pathsForCurrentProjectAndHost}
+                                                                    selected={urlPathToFilterOn}
+                                                                    label={'URL path filter'}
+                                                                    direction='right'
+                                                                    onSelect={urlPath => updateViewForHostAndPath({ urlHost: hostUrlToFilterOn, urlPath })} />}
+                    </div>
+                  </div>
+                  <div className='block'>
+                    <h3 className='text-gray-700 text-sm'>
+                      Based on {numPageViews === undefined ? 
+                                  (<div className='animate-pulse inline-block w-4 h-4' style={{ marginBottom: '-2px' }}>
+                                    <div className='rounded bg-slate-200 w-full h-full'></div>
+                                  </div>) : numPageViews} page views over the last 7 days.
+                    </h3>
                   </div>
                 </div>
                 {waterfallLegend}
               </div>
-              {!hasAllData() ? <WaterfallSkeleton /> :
+              {!hasAllWaterfallData() ? <WaterfallSkeleton /> :
                   resources?.length > 0 ? <Waterfall resources={resources} 
                                                       performanceMetricsAverages={performanceMetricsAverages} 
                                                       navigationPerformanceEntriesAverages={navigationPerformanceEntriesAverages} 

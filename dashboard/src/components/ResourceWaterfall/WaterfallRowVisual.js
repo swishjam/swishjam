@@ -1,4 +1,3 @@
-import { bytesToHumanFileSize } from '@/lib/utils';
 import 'react-popper-tooltip/dist/styles.css';
 import { usePopperTooltip } from 'react-popper-tooltip';
 import 'react-popper-tooltip/dist/styles.css';
@@ -39,24 +38,67 @@ export default function WaterfallRowVisual({ resource, maxTimestamp }) {
         width: `${((resource.average_response_end - resource.average_start_time) / maxTimestamp) * 100}%`
       }}></div>
       {visible && (
-        <div ref={setTooltipRef} {...getTooltipProps({ className: 'tooltip-container max-w-[50%] z-20' })}>
+        <div ref={setTooltipRef} {...getTooltipProps({ className: 'tooltip-container max-w-[70%] z-20' })}>
           <div className='tooltip-arrow' {...getArrowProps({ className: 'tooltip-arrow' })} />
           <div className='text-sm text-gray-700'>
             <div className='flex items-center p-4'>
               <div>
-                <span className='block'>{resource.name}</span>
-                <span className='block'>Resource type: {resource.initiator_type}</span>
-                <span className='block'>Average start_time {parseFloat(resource.average_start_time).toFixed(2)} ms</span>
-                <span className='block'>Average domain_lookup_start {parseFloat(resource.average_domain_lookup_start).toFixed(2)} ms</span>
-                <span className='block'>Average domain_lookup_end {parseFloat(resource.average_domain_lookup_end).toFixed(2)} ms</span>
-                <span className='block'>Average connect_start {parseFloat(resource.average_connect_start).toFixed(2)} ms</span>
-                <span className='block'>Average connect_end {parseFloat(resource.average_connect_end).toFixed(2)} ms</span>
-                <span className='block'>Average secure_connection_start {parseFloat(resource.average_secure_connection_start).toFixed(2)} ms</span>
-                <span className='block'>Average request_start {parseFloat(resource.average_request_start).toFixed(2)} ms</span>
-                <span className='block'>Average response_start {parseFloat(resource.average_response_start).toFixed(2)} ms</span>
-                <span className='block'>Average response_end {parseFloat(resource.average_response_end).toFixed(2)} ms</span>
-                <span className='block'>Average duration {parseFloat(resource.average_duration).toFixed(2)} ms</span>
-                <span className='block'>Average transfer_size {bytesToHumanFileSize(resource.average_transfer_size)}</span>
+                <table class='table-auto'>
+                  <tbody>
+                    <tr>
+                      <td className='p-2 text-gray-500'>Name</td>
+                      <td>{resource.name}</td>
+                    </tr>
+                    <tr>
+                      <td className='p-2 text-gray-500'>Resource type</td>
+                      <td>{resource.initiator_type}</td>
+                    </tr>
+                    <tr>
+                      <td className='p-2 text-gray-500'>Average <span class='italic'>start_time</span></td>
+                      <td>{parseFloat(resource.average_start_time).toFixed(2)} ms</td>
+                    </tr>
+                    <tr>
+                      <td className='p-2 text-gray-500'>Average <span class='italic'>domain_lookup_start</span></td>
+                      <td>{parseFloat(resource.average_domain_lookup_start).toFixed(2)} ms</td>
+                    </tr>
+                    <tr>
+                      <td className='p-2 text-gray-500'>Average <span class='italic'>domain_lookup_end</span></td>
+                      <td>{parseFloat(resource.average_domain_lookup_end).toFixed(2)} ms</td>
+                    </tr>
+                    <tr>
+                      <td className='p-2 text-gray-500'>Average <span class='italic'>connect_start</span></td>
+                      <td>{parseFloat(resource.average_connect_start).toFixed(2)} ms</td>
+                    </tr>
+                    <tr>
+                      <td className='p-2 text-gray-500'>Average <span class='italic'>connect_end</span></td>
+                      <td>{parseFloat(resource.average_connect_end).toFixed(2)} ms</td>
+                    </tr>
+                    <tr>
+                      <td className='p-2 text-gray-500'>Average <span class='italic'>secure_connection_start</span></td>
+                      <td>{parseFloat(resource.average_secure_connection_start).toFixed(2)} ms</td>
+                    </tr>
+                    <tr>
+                      <td className='p-2 text-gray-500'>Average <span class='italic'>request_start</span></td>
+                      <td>{parseFloat(resource.average_request_start).toFixed(2)} ms</td>
+                    </tr>
+                    <tr>
+                      <td className='p-2 text-gray-500'>Average <span class='italic'>response_start</span></td>
+                      <td>{parseFloat(resource.average_response_start).toFixed(2)} ms</td>
+                    </tr>
+                    <tr>
+                      <td className='p-2 text-gray-500'>Average <span class='italic'>response_end</span></td>
+                      <td>{parseFloat(resource.average_response_end).toFixed(2)} ms</td>
+                    </tr>
+                    <tr>
+                      <td className='p-2 text-gray-500'>Average <span class='italic'>duration</span></td>
+                      <td>{parseFloat(resource.average_duration).toFixed(2)} ms</td>
+                    </tr>
+                    <tr>
+                      <td className='p-2 text-gray-500'>Average <span class='italic'>transfer_size</span></td>
+                      <td>{parseFloat(resource.average_transfer_size).toFixed(2)} bytes</td>
+                    </tr>
+                  </tbody>
+                </table>
               </div>
             </div>
           </div>
