@@ -6,13 +6,12 @@ export default class ResourcePerformanceEntries {
     urlPath,
     urlHost,
     startTs, 
-    // metric = 'duration',
-    // initiatorTypes,
     limit = 150,
+    minimumOccurrences = 10,
   }) {
     const query = `
       SELECT
-        resource_performance_entries.name AS name,
+        CONCAT(resource_performance_entries.name_to_url_host, resource_performance_entries.name_to_url_path) AS name,
         resource_performance_entries.initiator_type,
         resource_performance_entries.render_blocking_status,
         COUNT(resource_performance_entries.name) AS count,
@@ -37,7 +36,9 @@ export default class ResourcePerformanceEntries {
         page_views.url_path = $3 AND
         page_views.page_view_ts >= $4
       GROUP BY
-        name, initiator_type, render_blocking_status
+        name_to_url_host, name_to_url_path, initiator_type, render_blocking_status
+      HAVING
+        COUNT(name) >= ${minimumOccurrences}
       ORDER BY
         average_start_time ASC
       LIMIT ${limit}
