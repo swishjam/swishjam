@@ -1,4 +1,5 @@
 const postgres = require('postgres');
+require('dotenv').config();
 
 module.exports = class DB {
   constructor() {

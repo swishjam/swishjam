@@ -61,7 +61,9 @@ class ReportingHandler {
       console.log('Reporting data to mock API', body);
     } else if (navigator.sendBeacon) {
       const blob = new Blob([JSON.stringify(body)], {});
-      navigator.sendBeacon(this.reportingUrl, blob);
+      try {
+        window.navigator.sendBeacon(this.reportingUrl, blob);
+      } catch(err) {}
     } else {
       const xhr = new XMLHttpRequest();
       xhr.open('POST', this.reportingUrl);
