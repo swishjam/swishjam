@@ -91,7 +91,7 @@ export default function WebVitalCard({ title, accronym, metric, timeseriesData, 
             categoryPercentageValues={[33,34,33]}
             colors={['emerald', 'yellow', 'rose']}
             percentageValue={calcLocationOnBar(metric.score)}
-            tooltip={metricFormatterPlusUnits(metric.value, metric.metricScoring.displayUnits)}
+            tooltip={metricFormatterPlusUnits(metric.value, metric.metricScoring.displayUnits || '')}
             showLabels={false}
             marginTop="mt-5"
           />
@@ -100,7 +100,7 @@ export default function WebVitalCard({ title, accronym, metric, timeseriesData, 
               <AreaChart
                 data={timeseriesData}
                 dataKey="timestamp"
-                categories={['p90']}
+                categories={['p75']}
                 colors={['blue']}
                 showLegend={false}
                 startEndOnly={true}

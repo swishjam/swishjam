@@ -52,7 +52,7 @@
 //                 <AreaChart
 //                   data={timeseriesData}
 //                   dataKey="timestamp"
-//                   categories={['p90']}
+//                   categories={['p75']}
 //                   colors={['blue']}
 //                   showLegend={false}
 //                   startEndOnly={true}

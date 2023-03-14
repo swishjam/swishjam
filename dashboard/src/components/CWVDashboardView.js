@@ -20,12 +20,12 @@ const initialCwvState = ({ key, title}) => ({ key, title, metric: null, timeseri
 export default function CwvDashboardView() {
   const { initial: currentUserDataIsLoading, projects, currentProject } = useAuth();
 
-  const [lcp, setLCP] = useState(initialCwvState({ key: 'LCP', title: 'Largest Contentful Paint Average' }));
-  const [inp, setINP] = useState(initialCwvState({ key: 'INP', title: 'Interaction to Next Paint Average' }));
-  const [cls, setCLS] = useState(initialCwvState({ key: 'CLS', title: 'Cumulative Layout Shift Average' }));
-  const [fcp, setFCP] = useState(initialCwvState({ key: 'FCP', title: 'First Contentful Paint Average' }));
-  const [fid, setFID] = useState(initialCwvState({ key: 'FID', title: 'First Input Delay Average' }));
-  const [ttfb, setTTFB] = useState(initialCwvState({ key: 'TTFB', title: 'Time to First Byte Average' }));
+  const [lcp, setLCP] = useState(initialCwvState({ key: 'LCP', title: 'Largest Contentful Paint P75' }));
+  const [inp, setINP] = useState(initialCwvState({ key: 'INP', title: 'Interaction to Next Paint P75' }));
+  const [cls, setCLS] = useState(initialCwvState({ key: 'CLS', title: 'Cumulative Layout Shift P75' }));
+  const [fcp, setFCP] = useState(initialCwvState({ key: 'FCP', title: 'First Contentful Paint P75' }));
+  const [fid, setFID] = useState(initialCwvState({ key: 'FID', title: 'First Input Delay P75' }));
+  const [ttfb, setTTFB] = useState(initialCwvState({ key: 'TTFB', title: 'Time to First Byte P75' }));
   const [ numPageViews, setNumPageViews ] = useState(0);
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -34,16 +34,10 @@ export default function CwvDashboardView() {
   
   const [isFetchingCwvData, setIsFetchingCwvData] = useState(true);
   const [isFetchingHostUrlFilterOptions, setIsFetchingHostUrlFilterOptions] = useState(true);
-
-  const onUrlHostSelected = urlHost => {
-    setHostUrlToFilterOn(urlHost);
-    getPerformanceDataForCurrentProject(urlHost);
-  }
   
   const getAndSetWebVitalMetric = (cwvKey, urlHost) => {
-    return WebVitalsApi.average({ metric: cwvKey, urlHost }).then(res => {
-      const metric = calcCwvMetric(res.average, cwvKey);
-      const currentCwv = { LCP: lcp, INP: inp, CLS: cls, FCP: fcp, FID: fid, TTFB: ttfb }[cwvKey];
+    return WebVitalsApi.getPercentileForMetric({ metric: cwvKey, urlHost, percentile: 0.75 }).then(res => {
+      const metric = calcCwvMetric(res.percentile_result, cwvKey);
       const setStateMethod = { LCP: setLCP, INP: setINP, CLS: setCLS, FCP: setFCP, FID: setFID, TTFB: setTTFB }[cwvKey];      
       setStateMethod(prevState => ({ ...prevState, metric }));
     })
@@ -53,7 +47,7 @@ export default function CwvDashboardView() {
     return WebVitalsApi.timeseries({ metric, urlHost }).then(chartData => {
       const setStateMethod = { LCP: setLCP, INP: setINP, CLS: setCLS, FCP: setFCP, FID: setFID, TTFB: setTTFB }[metric];
       const chartDataMod = chartData.map(
-        d => ({ ...d, metric: calcCwvMetric(d.p90, metric) })
+        d => ({ ...d, metric: calcCwvMetric(d.p75, metric) })
       ); 
       setStateMethod(prevState => ({ ...prevState, timeseriesData: chartDataMod }));
       setIsFetchingCwvData(false);

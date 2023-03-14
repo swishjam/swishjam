@@ -54,7 +54,7 @@ export default class PerformanceMetricsData {
     const query = `
       SELECT
         COUNT(*) AS num_records,
-        PERCENTILE_CONT(${percentile}) WITHIN GROUP (ORDER BY metric_value) AS percentile_result
+        PERCENTILE_CONT(${percentile}) WITHIN GROUP (ORDER BY metric_value ASC) AS percentile_result
       FROM
         performance_metrics
       WHERE
@@ -62,11 +62,7 @@ export default class PerformanceMetricsData {
         metric_name = $2 AND
         created_at >= $3
     `;
-    const results = await db.query(query, [projectKey, metric, new Date(startTs)]);
-    return {
-      numRecords: results.rows[0].num_records,
-      percentileResult: results.rows[0].percentile_result
-    };
+    return (await db.query(query, [projectKey, metric, new Date(startTs)])).rows[0];
   }
 
   static async getAveragesGroupedByPages({ projectKey, metric, startTs }) {
