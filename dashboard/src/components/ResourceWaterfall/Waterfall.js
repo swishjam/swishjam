@@ -22,8 +22,7 @@ const deDupLCPEntries = lcpEntries => {
         filteredLCPEntriesMap[strippedQueryParamLCPEntry] = lcpEntry;
       }
     } catch (err) {
-      // we only care about the LCP entries with URLs
-      // filteredLCPEntriesMap[lcpEntry.url] = lcpEntry;
+      filteredLCPEntriesMap[lcpEntry.url] = lcpEntry;
     }
   })
   return Object.values(filteredLCPEntriesMap);
