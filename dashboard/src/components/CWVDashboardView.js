@@ -25,6 +25,7 @@ export default function CwvDashboardView() {
   const [fcp, setFCP] = useState(initialCwvState({ key: 'FCP', title: 'First Contentful Paint Average' }));
   const [fid, setFID] = useState(initialCwvState({ key: 'FID', title: 'First Input Delay Average' }));
   const [ttfb, setTTFB] = useState(initialCwvState({ key: 'TTFB', title: 'Time to First Byte Average' }));
+  const [ numPageViews, setNumPageViews ] = useState(0);
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [hostUrlToFilterOn, setHostUrlToFilterOn] = useState();
@@ -81,6 +82,7 @@ export default function CwvDashboardView() {
 
   const getPerformanceDataForCurrentProject = urlHost => {
     setIsFetchingCwvData(true);
+    //PageViewsAPI.getCount({ urlHost, '/' }).then(setNumPageViews); 
     return Promise.all([
       getAndSetWebVitalMetric('LCP', urlHost),
       getAndSetWebVitalMetric('INP', urlHost),
@@ -204,7 +206,7 @@ export default function CwvDashboardView() {
             cls={cls}
             fcp={fcp}
             fid={fid}           
-            pageViews={35687}
+            pageViews={numPageViews}
           />
         </div>
 

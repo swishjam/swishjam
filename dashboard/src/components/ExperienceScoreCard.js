@@ -113,8 +113,9 @@ export default function ExperienceScoreCard({ lcp, cls, fcp, fid, pageViews }) {
 
   const experienceScore=(1*(lcp?.metric?.weightedScore+fid?.metric?.weightedScore+
     cls?.metric?.weightedScore+fcp?.metric?.weightedScore))
-  const data = resScore(Math.ceil(experienceScore)); 
-  const COLORS = ['#f1f5f9', (experienceScore >= 90 ? '#10b981': (experienceScore >= 50 ? '#eab308': '#f43f5e'))];
+  const roundedScore = Math.ceil(experienceScore)
+  const data = resScore(roundedScore); 
+  const COLORS = ['#f1f5f9', (roundedScore >= 90 ? '#10b981': (roundedScore >= 50 ? '#eab308': '#f43f5e'))];
   
   return (
     <Card >
