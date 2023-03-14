@@ -9,7 +9,6 @@ export class WebVitalsApi extends API {
   static async timeseries(params) {
     const { results } = await API.get('/api/cwv/timeseries', params);
     return results.map(result => {
-      console.log(result) 
       return {
         timestamp: formattedDate(result.hour),
         p90: parseFloat(result.percentile_result || 0),

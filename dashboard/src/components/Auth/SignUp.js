@@ -46,25 +46,21 @@ const SignUp = () => {
           .from('users')
           .insert({ id: user.id, email: user.email })
         if(newUser.error) { throw newUser.error }
-        //console.log('New User:', newUser)
 
         const newOrg = await supabase
           .from('organizations')
           .insert({ name: formData.company, owner_uuid: user.id })
           .select()
         if(newOrg.error) { throw newOrg.error }
-        // console.log('New Org Created:', newOrg)
 
         const newOrgConnection = await supabase
           .from('organization_users')
           .insert({ organization_id: newOrg.data[0].id, user_id: user.id })
         if(newOrgConnection.error) { throw newOrg.error }
-        // console.log('New Org Connection:', newOrgConnection)
 
         // Send to auth provider
         setUserOrg(newOrg.data[0]);
         
-        console.log('Created Acount, Created Org, Created Org Connection, & Redirecting to Dashboard')
         // Forward user to dashboard 
         router.push('/')
       }

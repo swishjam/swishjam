@@ -63,7 +63,6 @@ const calculateTimeseries = (lcp, cls, fcp, fid) => {
     }
     
     const filteredFinalTimeseries = finalTimeseriesArr.filter ( i => i.count >= 4 ) 
-    // console.log('filteredFinalTimeseries', filteredFinalTimeseries)
     return filteredFinalTimeseries
   }
   return [] 
@@ -123,7 +122,7 @@ export default function ExperienceScoreCard({ lcp, cls, fcp, fid, pageViews }) {
       <div className='flex'>
         <div className="w-1/3 flex flex-col pr-4">
           <h2 className="text-center text-lg font-normal text-gray-900">Swishjam's Real User Experience Score</h2>
-          <PieChart width={200} height={200} onMouseEnter={() => console.log('entered')} className="mx-auto" >
+          <PieChart width={200} height={200} className="mx-auto">
             <Pie
               data={data}
               cx={'50%'}

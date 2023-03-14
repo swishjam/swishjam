@@ -11,6 +11,7 @@ import HostUrlFilterer from './HostUrlFilterer';
 import { msToSeconds } from '@lib/utils';
 import { cwvMetricBounds, calcCwvPercent, calcCwvMetric } from '@lib/cwvCalculations';
 import { PageUrlsApi } from '@/lib/api-client/page-urls';
+import { PageViewsAPI } from '@/lib/api-client/page-views';
 import { WebVitalsApi } from '@/lib/api-client/web-vitals';
 import LoadingSpinner from './LoadingSpinner';
 
@@ -41,15 +42,9 @@ export default function CwvDashboardView() {
   
   const getAndSetWebVitalMetric = (cwvKey, urlHost) => {
     return WebVitalsApi.average({ metric: cwvKey, urlHost }).then(res => {
-      console.log('cwvKey', cwvKey) 
-      console.log('WebVitals', res)
-      
       const metric = calcCwvMetric(res.average, cwvKey);
-      console.log('metric', metric)
-      //const pData = calcCwvPercent(res.average, cwvMetricBounds[cwvKey].good, cwvMetricBounds[cwvKey].medium );
       const currentCwv = { LCP: lcp, INP: inp, CLS: cls, FCP: fcp, FID: fid, TTFB: ttfb }[cwvKey];
       const setStateMethod = { LCP: setLCP, INP: setINP, CLS: setCLS, FCP: setFCP, FID: setFID, TTFB: setTTFB }[cwvKey];      
-      //, bounds: pData.bounds, metricPercent: pData.percent
       setStateMethod(prevState => ({ ...prevState, metric }));
     })
   };
@@ -57,20 +52,15 @@ export default function CwvDashboardView() {
   const getTimeseriesDataForMetric = (metric, urlHost) => {
     return WebVitalsApi.timeseries({ metric, urlHost }).then(chartData => {
       const setStateMethod = { LCP: setLCP, INP: setINP, CLS: setCLS, FCP: setFCP, FID: setFID, TTFB: setTTFB }[metric];
-      //console.log('metric chartData', metric)
-      //console.log('chartData', chartData)
-      //const metric = calcCwvMetric(res.average, cwvKey);
       const chartDataMod = chartData.map(
         d => ({ ...d, metric: calcCwvMetric(d.p90, metric) })
       ); 
-      //console.log('chartDataMod', chartDataMod)
       setStateMethod(prevState => ({ ...prevState, timeseriesData: chartDataMod }));
       setIsFetchingCwvData(false);
     })
   }
 
   const setupUrlHostFilter = () => {
-    // setIsFetchingCwvData(true);
     setIsFetchingHostUrlFilterOptions(true);
     setHostUrlToFilterOn(undefined);
     setHostUrlFilterOptions(undefined);
@@ -82,7 +72,7 @@ export default function CwvDashboardView() {
 
   const getPerformanceDataForCurrentProject = urlHost => {
     setIsFetchingCwvData(true);
-    //PageViewsAPI.getCount({ urlHost, '/' }).then(setNumPageViews); 
+    PageViewsAPI.getCount({ urlHost, urlPath: '/' }).then(setNumPageViews); 
     return Promise.all([
       getAndSetWebVitalMetric('LCP', urlHost),
       getAndSetWebVitalMetric('INP', urlHost),

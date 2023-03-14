@@ -1,4 +1,3 @@
-
 // Scoring Curves from https://github.com/paulirish/lh-scorecalc/blob/master/script/metrics.js
 //Mobile Speed Index only for synethic  SI: {weight: 0.10, median: 5800, p10: 3387},
 //Mobile Total blocking time for Snythetics TBT: {weight: 0.30, median: 600,  p10: 200},
@@ -145,8 +144,6 @@ function determineMinMax(metricScoring) {
   };
 }
 
-
-
 export const calcCwvMetric = (value, key, curve = 'desktop') => {
   
   // curve potentionally can be 'mobile' or 'desktop' 
@@ -156,7 +153,6 @@ export const calcCwvMetric = (value, key, curve = 'desktop') => {
   const { min, max, step } = determineMinMax(metricScoring);
   const computedValue = Math.ceil(QUANTILE_AT_VALUE(metricScoring, value) * 100)
   const score = Math.max(Math.min(computedValue, max), min);
-  //console.log('The score is', score)
 
   return {
     key,
