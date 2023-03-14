@@ -54,7 +54,7 @@ class ReportingHandler {
     const body = { 
       siteId: this.publicApiKey, 
       projectKey: this.publicApiKey, 
-      originatingUrl: window.location.href, 
+      originatingUrl: window.encodeURIComponent(window.location.href), 
       data: this.dataToReport 
     };
     if (this.mockApiCalls) {
