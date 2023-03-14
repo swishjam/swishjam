@@ -54,10 +54,12 @@ export const bytesToHumanFileSize = (bytes, decimals = 2) => {
 
 export const resourceTypeToHumanName = initiatorType => {
   switch (initiatorType) {
+    case 'navigation':
+      return 'Navigation';
     case 'img':
       return 'Image';
     case 'script':
-      return 'Script';
+      return 'JavaScript';
     case 'link':
       return 'Stylesheet';
     case 'font':

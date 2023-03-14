@@ -6,6 +6,7 @@ import {
   DocumentTextIcon,
   PaintBrushIcon, 
 } from "@heroicons/react/20/solid"
+import { resourceTypeToHumanName } from "@lib/utils";
 import { usePopperTooltip } from 'react-popper-tooltip';
 import 'react-popper-tooltip/dist/styles.css';
 import { useRef } from "react";
@@ -63,11 +64,11 @@ export default function WaterfallRowName({ resource, index }) {
   const { getArrowProps, getTooltipProps, setTooltipRef, setTriggerRef, visible } = usePopperTooltip({ followCursor: false, trigger: 'hover' });
   const nameContainerEl = useRef();
 
-  const expandDisplay = e => {
+  const expandDisplay = _e => {
     nameContainerEl.current.classList.add('absolute', 'z-30', 'bg-white', 'rounded', 'border', 'border-gray-100', 'w-fit', 'pr-2');
   }
 
-  const collapseDisplay = e => {
+  const collapseDisplay = _e => {
     nameContainerEl.current.classList.remove('absolute', 'z-30', 'bg-white', 'rounded', 'border', 'border-gray-100', 'w-fit', 'pr-2');
   }
 
@@ -88,7 +89,21 @@ export default function WaterfallRowName({ resource, index }) {
             )}
           </>
         ) : 
-        (<>{RESOURCE_TYPE_ICON_DICT[resource.initiator_type] || resource.initiator_type}</>)
+        (
+          <>
+            <span ref={setTriggerRef}>
+              {RESOURCE_TYPE_ICON_DICT[resource.initiator_type] || resource.initiator_type}
+            </span>
+            {visible && (
+              <>
+                <div ref={setTooltipRef} {...getTooltipProps({ className: 'tooltip-container' })}>
+                  {resourceTypeToHumanName(resource.initiator_type)} request.
+                  <div {...getArrowProps({ className: 'tooltip-arrow' })} />
+                </div>
+              </>
+            )}
+          </>
+        )
       }
       <span className='truncate cursor-default'>{resource.name}</span>
     </div>
