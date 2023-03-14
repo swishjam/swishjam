@@ -6,20 +6,14 @@ export default class ResourcePerformanceEntries {
     urlPath,
     urlHost,
     startTs, 
-    // metric = 'duration',
-    // initiatorTypes,
     limit = 150,
+    minimumOccurrences = 10,
   }) {
     const query = `
       SELECT
-        rpe.name AS name,
+        CONCAT(rpe.name_to_url_host, rpe.name_to_url_path) AS name,
         rpe.initiator_type,
-        SUM(
-          CASE rpe.render_blocking_status WHEN 'blocking' THEN 1 ELSE 0 END
-        ) as render_blocking_count,
-        SUM(
-          CASE rpe.render_blocking_status WHEN 'non-blocking' THEN 1 ELSE 0 END
-        ) as non_render_blocking_count,
+        rpe.render_blocking_status,
         COUNT(rpe.name) AS count,
         AVG(rpe.start_time) AS average_start_time,
         AVG(rpe.domain_lookup_start) AS average_domain_lookup_start,
@@ -35,14 +29,16 @@ export default class ResourcePerformanceEntries {
       FROM
         resource_performance_entries as rpe
       JOIN
-        page_views ON rpe.page_view_uuid = page_views.uuid
+        page_views AS pv ON rpe.page_view_uuid = pv.uuid
       WHERE
-        page_views.project_key = $1 AND
-        page_views.url_host = $2 AND
-        page_views.url_path = $3 AND
-        page_views.page_view_ts >= $4
+        pv.project_key = $1 AND
+        pv.url_host = $2 AND
+        pv.url_path = $3 AND
+        pv.page_view_ts >= $4
       GROUP BY
-        name, initiator_type, render_blocking_status
+        name_to_url_host, name_to_url_path, initiator_type, render_blocking_status
+      HAVING
+        COUNT(name) >= ${minimumOccurrences}
       ORDER BY
         average_start_time ASC
       LIMIT ${limit}
@@ -53,18 +49,18 @@ export default class ResourcePerformanceEntries {
   static async getTimeseriesForMetric({ projectKey, resourceName, metric, startTs }) {
     const query = `
       SELECT
-        resource_performance_entries.name AS name,
+        rpe.name AS name,
         AVG(${metric}) AS metric,
-        date_trunc('hour', page_views.page_view_ts) AS hour,
-        date_trunc('day', page_views.page_view_ts) AS day
+        date_trunc('hour', pv.page_view_ts) AS hour,
+        date_trunc('day', pv.page_view_ts) AS day
       FROM
-        rpe
+        resource_performance_entries  AS rpe
       JOIN
-        page_views AS rpe ON rpe.page_view_uuid = page_views.uuid
+        page_views AS pv ON rpe.page_view_uuid = pv.uuid
       WHERE
-        page_views.project_key = $1 AND
+        pv.project_key = $1 AND
         rpe.name = $2 AND
-        page_views.page_view_ts >= $3 AND
+        pv.page_view_ts >= $3 AND
         rpe.${metric} IS NOT NULL AND
         rpe.${metric} > 0
       GROUP BY

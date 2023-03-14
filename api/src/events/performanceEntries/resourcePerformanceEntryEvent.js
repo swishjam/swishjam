@@ -16,6 +16,9 @@ module.exports = class ResourcePerformanceEntryEvent {
       page_view_uuid: pageViewUuid,
       project_key: projectKey,
       name: decodeURIComponent(data.name || "").substr(0, 255),
+      name_to_url_host: this._safeUrl(data.name).host,
+      name_to_url_path: this._safeUrl(data.name).pathname,
+      name_to_url_query: this._safeUrl(data.name).search,
       entry_type: data.entryType,
       start_time: data.startTime,
       duration: data.duration,
@@ -37,6 +40,14 @@ module.exports = class ResourcePerformanceEntryEvent {
       encoded_body_size: data.encodedBodySize,
       decoded_body_size: data.decodedBodySize,
       // response_status: data.responseStatus
+    }
+  }
+
+  _safeUrl(name) {
+    try {
+      return new URL(name);
+    } catch(err) {
+      return {};
     }
   }
 }
