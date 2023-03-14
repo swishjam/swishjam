@@ -145,7 +145,7 @@ export default class PerformanceMetricsData {
     if(urlPath) {
       const query = `
         SELECT
-          PERCENTILE_CONT(${percentile}) WITHIN GROUP (ORDER BY metric_value) AS percentile_result,
+          PERCENTILE_CONT(${percentile}) WITHIN GROUP (ORDER BY metric_value ASC) AS percentile_result,
           date_trunc('hour', page_views.page_view_ts) AS hour,
           date_trunc('day', page_views.page_view_ts) AS day
         FROM
