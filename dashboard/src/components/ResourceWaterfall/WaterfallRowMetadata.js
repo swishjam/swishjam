@@ -18,7 +18,7 @@ export default function WaterfallRowMetadata({ resource, largestContentfulPaintE
 
   return (
     <div className='cursor-default'>
-      {parseInt(resource.render_blocking_count || 0) > 0 && <RenderBlockingIndicator />}
+      {resource.render_blocking_status === 'blocking' && <RenderBlockingIndicator />}
       {largestPaintEntryForResource && <LCPIndicator isMostCommonLcp={isMostCommonLcp} />}
     </div>
   )

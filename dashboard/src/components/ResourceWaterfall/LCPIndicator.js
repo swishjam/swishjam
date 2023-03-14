@@ -1,4 +1,5 @@
 import { usePopperTooltip } from 'react-popper-tooltip';
+import { StarIcon } from '@heroicons/react/24/outline';
 
 export default function LCPIndicator({ isMostCommonLcp }) {
   const { getArrowProps, getTooltipProps, setTooltipRef, setTriggerRef, visible } = usePopperTooltip({ trigger: 'hover' });
@@ -6,6 +7,7 @@ export default function LCPIndicator({ isMostCommonLcp }) {
   return (
     <>
       <span ref={setTriggerRef} className="inline-flex items-center rounded bg-yellow-100 px-2 py-0.5 text-xs font-medium text-yellow-800">
+        {isMostCommonLcp && <StarIcon className="h-3 w-3 mr-1" />}
         LCP
       </span>
         {visible && (

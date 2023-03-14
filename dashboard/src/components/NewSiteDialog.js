@@ -18,7 +18,6 @@ export default function NewProjectDialog({ isOpen, onClose, onComplete}) {
   const { user, userOrg, projects, setProjects, updateCurrentProject } = useAuth();
 
   const createProject = async (formData, { resetForm }) => {
-    console.log(formData) 
     setLoading(true);
     const newProject = await supabase.from('projects').insert({
       name: formData.name,

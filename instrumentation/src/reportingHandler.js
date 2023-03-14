@@ -62,6 +62,7 @@ class ReportingHandler {
     } else if (navigator.sendBeacon) {
       const blob = new Blob([JSON.stringify(body)], {});
       try {
+        // TODO: we're swallowing errors here. JSON stringifying causes circular dependency errors when DOM nodes are in the data.
         window.navigator.sendBeacon(this.reportingUrl, blob);
       } catch(err) {}
     } else {

@@ -27,6 +27,8 @@ export default function Dropdown({ direction = 'left', dropdownIcon, label, opti
                     leaveFrom="transform opacity-100 scale-100"
                     leaveTo="transform opacity-0 scale-95"
         >
+          {/*<Menu.Items className="overflow-hidden absolute min-w-full right-0 z-10 mt-2 origin-top-right divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none cursor-pointer">
+  <div className="pb-1">*/}
           <Menu.Items className={`absolute min-w-full ${directionClass} z-30 mt-2 origin-top-right divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none cursor-pointer`}>
             <div className="py-1">
               {label && (

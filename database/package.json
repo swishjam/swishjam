@@ -2,10 +2,13 @@
   "dependencies": {
     "dotenv": "^16.0.3",
     "pg": "^8.9.0",
+    "postgres": "^3.3.4",
     "sequelize": "^6.28.0"
   },
   "scripts": {
     "g": "npx sequelize-cli migration:generate",
-    "db:m": "npx sequelize-cli db:migrate"
+    "db:m": "npx sequelize-cli db:migrate",
+    "data:m": "node -e 'require(\"./backfills/1678731674878-backfill-resource-performance-entries-name-to-urls.js\").run()'"
   }
 }
+

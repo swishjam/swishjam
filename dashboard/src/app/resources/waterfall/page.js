@@ -73,11 +73,14 @@ export default function Resources() {
   const updateViewForHostAndPath = ({ urlPath, urlHost }) => {
     setUrlPathToFilterOn(urlPath);
     resetData();
-    ResourcePerformanceEntriesApi.getAll({ urlHost, urlPath }).then(setResources);
-    PerformanceMetricsApi.getAllAverages({ urlHost, urlPath }).then(setPerformanceMetricsAverages);
-    NavigationPerformanceEntriesApi.getAverages({ urlHost, urlPath }).then(setNavigationPerformanceEntriesAverages);
-    LargestContentfulPaintEntriesApi.getDistinctEntries({ urlHost, urlPath }).then(setLargestContentfulPaintEntriesAverages);
-    PageViewsAPI.getCount({ urlHost, urlPath }).then(setNumPageViews);
+    PageViewsAPI.getCount({ urlHost, urlPath }).then(numPageViews => {
+      setNumPageViews(numPageViews);
+      const minimumOccurrences = parseFloat(numPageViews) * 0.1; // resource must be present in 10% of page views
+      ResourcePerformanceEntriesApi.getAll({ urlHost, urlPath, minimumOccurrences }).then(setResources);
+      PerformanceMetricsApi.getAllAverages({ urlHost, urlPath }).then(setPerformanceMetricsAverages);
+      NavigationPerformanceEntriesApi.getAverages({ urlHost, urlPath }).then(setNavigationPerformanceEntriesAverages);
+      LargestContentfulPaintEntriesApi.getDistinctEntries({ urlHost, urlPath }).then(setLargestContentfulPaintEntriesAverages);
+    });
   }
 
   useEffect(() => {
