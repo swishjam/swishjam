@@ -25,6 +25,7 @@
     "react-copy-to-clipboard": "^5.1.0",
     "react-dom": "^18.2.0",
     "recharts": "^2.4.3",
+    "react-popper-tooltip": "^4.4.2",
     "yup": "^0.32.11"
   },
   "devDependencies": {

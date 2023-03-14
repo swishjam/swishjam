@@ -29,6 +29,8 @@ export {
   msToSeconds,
 }
 
+export const formattedMsOrSeconds = ms => parseFloat(ms) > 999 ? `${msToSeconds(ms)} s` : `${ms.toFixed(2)} ms`;
+
 export const formattedDate = dateString => {
   const d = new Date(dateString);
   const date = d.toLocaleDateString('en-US', { month: '2-digit', day: '2-digit' });
@@ -37,9 +39,9 @@ export const formattedDate = dateString => {
 };
 
 export const bytesToHumanFileSize = (bytes, decimals = 2) => {
-  const thresh = 1024;
+  const thresh = 1_000;
 
-  if (Math.abs(bytes) < thresh) return bytes + ' B';
+  if (Math.abs(bytes) < thresh) return Math.round(Math.abs(bytes)) + ' B';
 
   const units = ['kB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
   let u = -1;
@@ -51,4 +53,31 @@ export const bytesToHumanFileSize = (bytes, decimals = 2) => {
   } while (Math.round(Math.abs(bytes) * r) / r >= thresh && u < units.length - 1);
 
   return bytes.toFixed(decimals) + ' ' + units[u];
+}
+
+export const resourceTypeToHumanName = initiatorType => {
+  switch (initiatorType) {
+    case 'img':
+      return 'Image';
+    case 'script':
+      return 'Script';
+    case 'link':
+      return 'Stylesheet';
+    case 'font':
+      return 'Font';
+    case 'media':
+      return 'Media';
+    case 'xmlhttprequest':
+      return 'XHR';
+    case 'fetch':
+      return 'Fetch';
+    case 'beacon':
+      return 'Beacon';
+    case 'document':
+      return 'Document';
+    case 'other':
+      return 'Other';
+    default:
+      return initiatorType;
+  }
 }

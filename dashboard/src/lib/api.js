@@ -39,10 +39,6 @@ export const GetCWVTimeSeriesData = async params => {
   }
 }
 
-export const GetNavigationPerformanceEntriesData = async data => {
-  return await get('/api/navigationResources/average', data);
-}
-
 export const GetResourcePerformanceEntries = async data => {
   return await get(`/api/resources`, data);
 }

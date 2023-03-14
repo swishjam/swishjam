@@ -2,6 +2,28 @@ import db from '@lib/db';
 import { cwvMetricBounds } from '@/lib/cwvCalculations';
 
 export default class PerformanceMetricsData {
+  static async getAveragesForAllMetrics({ projectKey, urlPath, urlHost, startTs }) {
+    const query = `
+      SELECT
+        performance_metrics.metric_name AS name,
+        AVG(performance_metrics.metric_value) AS average,
+        COUNT(*) AS num_records
+      FROM
+        performance_metrics
+      JOIN
+        page_views ON performance_metrics.page_view_uuid = page_views.uuid
+      WHERE
+        page_views.project_key = $1 AND
+        page_views.url_host = $2 AND
+        page_views.url_path = $3 AND
+        page_views.page_view_ts >= $4
+      GROUP BY
+        performance_metrics.metric_name
+    `;
+    const queryOptions = [projectKey, urlHost, urlPath, new Date(startTs)];
+    return (await db.query(query, queryOptions)).rows;
+  }
+
   static async getAverageMetric({ projectKey, metric, startTs, urlPath, urlHost }) {
     let query = `
       SELECT 
