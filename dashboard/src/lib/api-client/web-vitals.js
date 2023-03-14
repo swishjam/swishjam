@@ -6,12 +6,16 @@ export class WebVitalsApi extends API {
     return await API.get('/api/cwv/average', data);
   }
 
+  static async getPercentileForMetric(data) {
+    return await API.get('/api/cwv/percentile', data);
+  }
+
   static async timeseries(params) {
     const { results } = await API.get('/api/cwv/timeseries', params);
     return results.map(result => {
       return {
         timestamp: formattedDate(result.hour),
-        p90: parseFloat(result.percentile_result || 0),
+        p75: parseFloat(result.percentile_result || 0),
       }
     });
   }
