@@ -3,7 +3,7 @@ import { Card, Metric, Text, Flex, CategoryBar, AreaChart } from '@tremor/react'
 import { LcpIcon, InpIcon, ClsIcon, FidIcon, FcpIcon, TtfbIcon } from '@components/WebVitalIcons';
 import LoadingSpinner from '@components/LoadingSpinner';
 import { msToSeconds, metricFormatter, metricFormatterPlusUnits } from '@lib/utils';
-import Link from 'next/link';
+//import Link from 'next/link';
 
 const CardLoading = () => (   
   <div className='flex'>
