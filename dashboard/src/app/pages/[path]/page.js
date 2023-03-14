@@ -3,10 +3,10 @@ import AuthenticatedView from '@/components/AuthenticatedView';
 import { BarList, Card, Title, Flex, Text, Bold, ColGrid } from '@tremor/react';
 import { useEffect, useState } from "react";
 import { msToSeconds } from "@/lib/utils";
+import { cwvMetricBounds, calcCwvPercent } from '@/lib/cwvCalculations';
 // import { GetResourcePerformanceEntries, GetCWVData, GetCWVTimeSeriesData } from "@/lib/api";
 import { WebVitalsApi } from '@/lib/api-client/web-vitals';
 import WebVitalCard from '@/components/WebVitalCard';
-import { cwvMetricBounds, calcCwvPercent } from '@/lib/utils';
 
 export default function NavigationResource({ params }) {
   const { path: encodedPath } = params;

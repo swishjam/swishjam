@@ -1,5 +1,5 @@
 import db from '@lib/db';
-import { cwvMetricBounds } from '@/lib/utils';
+import { cwvMetricBounds } from '@/lib/cwvCalculations';
 
 export default class PerformanceMetricsData {
   static async getAveragesForAllMetrics({ projectKey, urlPath, urlHost, startTs }) {
