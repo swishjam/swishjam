@@ -1,6 +1,6 @@
 import { 
   ArrowsRightLeftIcon,
-  CameraIcon,  
+  VideoCameraIcon,
   CodeBracketIcon, 
   CodeBracketSquareIcon, 
   DocumentTextIcon,
@@ -47,6 +47,11 @@ const RESOURCE_TYPE_ICON_DICT = {
       <CodeBracketSquareIcon className={`text-gray-300 inline-block`} aria-hidden="true" />
     </span>
   ),
+  'video': (
+    <span className='inline-block mr-1 rounded flex border-2 border-gray-300 h-5 w-5' style={{ padding: '1px' }}>
+      <VideoCameraIcon className={`text-gray-300 inline-block`} aria-hidden="true" />
+    </span>
+  ),
   'other': (
     <span className='inline-block mr-1 rounded flex border-2 border-gray-300 h-5 w-5' style={{ padding: '1px' }}>
       <ArrowsRightLeftIcon className={`text-gray-300 inline-block`} aria-hidden="true" />
@@ -72,11 +77,11 @@ export default function WaterfallRowName({ resource, index }) {
       {resource.initiator_type === 'img' ? 
         (
           <>
-            <img src={resource.name} ref={setTriggerRef} className='h-3 w-3 mr-1' />
+            <img src={`https://${resource.name}`} ref={setTriggerRef} className='h-3 w-3 mr-1' />
             {visible && (
               <>
                 <div ref={setTooltipRef} {...getTooltipProps({ className: 'tooltip-container' })}>
-                  <img src={resource.name} className='w-80' />
+                  <img src={`https://${resource.name}`} className='w-80' />
                   <div {...getArrowProps({ className: 'tooltip-arrow' })} />
                 </div>
               </>

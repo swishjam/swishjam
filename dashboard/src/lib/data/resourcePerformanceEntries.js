@@ -27,9 +27,9 @@ export default class ResourcePerformanceEntries {
         AVG(rpe.duration) AS average_duration,
         AVG(rpe.transfer_size) AS average_transfer_size
       FROM
-        rseource_performance_entries as rpe
+        resource_performance_entries as rpe
       JOIN
-        page_views AS pv ON rpe.page_view_uuid = page_views.uuid
+        page_views AS pv ON rpe.page_view_uuid = pv.uuid
       WHERE
         pv.project_key = $1 AND
         pv.url_host = $2 AND
@@ -54,9 +54,9 @@ export default class ResourcePerformanceEntries {
         date_trunc('hour', pv.page_view_ts) AS hour,
         date_trunc('day', pv.page_view_ts) AS day
       FROM
-        rseource_performance_entries  AS rpe
+        resource_performance_entries  AS rpe
       JOIN
-        page_views AS pv ON rpe.page_view_uuid = page_views.uuid
+        page_views AS pv ON rpe.page_view_uuid = pv.uuid
       WHERE
         pv.project_key = $1 AND
         rpe.name = $2 AND

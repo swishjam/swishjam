@@ -7,7 +7,7 @@ export const fetcher = (url) => fetch(url).then((res) => res.json());
 
 export const msToSeconds = (ms) => (ms / 1000).toFixed(2);
 
-export const formattedMsOrSeconds = ms => parseFloat(ms) > 999 ? `${msToSeconds(ms)} s` : `${ms.toFixed(2)} ms`;
+export const formattedMsOrSeconds = ms => parseFloat(ms) > 999 ? `${msToSeconds(parseFloat(ms))} s` : `${parseFloat(ms).toFixed(2)} ms`;
 
 export const formattedDate = dateString => {
   const d = new Date(dateString);

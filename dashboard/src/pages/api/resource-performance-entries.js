@@ -7,19 +7,18 @@ export default async (req, res) => {
     projectKey,
     urlHost, 
     urlPath,
-    metric = 'duration', 
-    // initiatorTypes = ['script', 'link', 'img', 'css', 'fetch', 'xmlhttprequest', 'other'],
+    minimumOccurrences = 10,
+    limit = 150,
     startTs = defaultStartTs 
   } = req.query;
 
   return await runQueryIfUserHasAccess({ req, res, projectKey }, async () => {
-    // initiatorTypes = initiatorTypes || ['script', 'xmlhttprequest', 'img', 'link', 'fetch', 'css', 'other'];
     try {
       const records = await ResourcePerformanceEntries.getAll({
         projectKey,
         startTs,
-        // metric,
-        // initiatorTypes: decodeURIComponent(initiatorTypes).split(','),
+        minimumOccurrences: parseInt(minimumOccurrences),
+        limit: parseInt(limit),
         urlHost: urlHost,
         urlPath: urlPath
       });
