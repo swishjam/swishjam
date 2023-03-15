@@ -1,7 +1,7 @@
 {
-  "name": "nextjs-supabase-auth",
-  "version": "1.0.1",
-  "author": "Mykhaylo Ryechkin",
+  "name": "swishjam-dashboard",
+  "version": "1.0.0",
+  "author": "Swishjam",
   "license": "MIT",
   "scripts": {
     "dev": "next dev",
@@ -34,6 +34,7 @@
     "autoprefixer": "^10.4.13",
     "eslint": "^8.31.0",
     "eslint-config-acme": "^2.0.0",
+    "mirrorful": "^4.0.0",
     "postcss": "^8.4.20",
     "prettier": "^2.8.1",
     "prettier-plugin-tailwindcss": "^0.2.1",
