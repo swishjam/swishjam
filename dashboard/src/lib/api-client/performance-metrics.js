@@ -5,4 +5,9 @@ export class PerformanceMetricsApi extends API {
     const { records } = await API.get('/api/performance-metrics/all-averages', data);
     return records;
   }
+
+  static async getAllMetricsPercentiles(data) {
+    const { records } = await API.get('/api/performance-metrics/percentiles', data);
+    return records;
+  }
 }

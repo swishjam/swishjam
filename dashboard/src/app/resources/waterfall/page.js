@@ -38,14 +38,14 @@ export default function Resources() {
   const [numPageViews, setNumPageViews] = useState();
 
   const [resources, setResources] = useState();
-  const [navigationPerformanceEntriesAverages, setNavigationPerformanceEntriesAverages] = useState();
-  const [performanceMetricsAverages, setPerformanceMetricsAverages] = useState();
-  const [largestContentfulPaintEntriesAverages, setLargestContentfulPaintEntriesAverages] = useState();
+  const [navigationPerformanceEntries, setNavigationPerformanceEntries] = useState();
+  const [performanceMetricsValues, setPerformanceMetricsValues] = useState();
+  const [largestContentfulPaintEntries, setLargestContentfulPaintEntries] = useState();
 
   const resetData = () => {
-    setNavigationPerformanceEntriesAverages(undefined);
-    setPerformanceMetricsAverages(undefined);
-    setLargestContentfulPaintEntriesAverages(undefined);
+    setNavigationPerformanceEntries(undefined);
+    setPerformanceMetricsValues(undefined);
+    setLargestContentfulPaintEntries(undefined);
     setResources(undefined);
     setNumPageViews(undefined);
   }
@@ -77,9 +77,9 @@ export default function Resources() {
       setNumPageViews(numPageViews);
       const minimumOccurrences = parseFloat(numPageViews) * 0.1; // resource must be present in 10% of page views
       ResourcePerformanceEntriesApi.getAll({ urlHost, urlPath, minimumOccurrences }).then(setResources);
-      PerformanceMetricsApi.getAllAverages({ urlHost, urlPath }).then(setPerformanceMetricsAverages);
-      NavigationPerformanceEntriesApi.getAverages({ urlHost, urlPath }).then(setNavigationPerformanceEntriesAverages);
-      LargestContentfulPaintEntriesApi.getDistinctEntries({ urlHost, urlPath }).then(setLargestContentfulPaintEntriesAverages);
+      PerformanceMetricsApi.getAllMetricsPercentiles({ urlHost, urlPath }).then(setPerformanceMetricsValues);
+      NavigationPerformanceEntriesApi.getPercentiles({ urlHost, urlPath }).then(setNavigationPerformanceEntries);
+      LargestContentfulPaintEntriesApi.getPercentiles({ urlHost, urlPath }).then(setLargestContentfulPaintEntries);
     });
   }
 
@@ -129,9 +129,9 @@ export default function Resources() {
   </>
 
   const hasAllWaterfallData = () => {
-    return largestContentfulPaintEntriesAverages !== undefined && 
-            navigationPerformanceEntriesAverages !== undefined && 
-            performanceMetricsAverages !== undefined && 
+    return largestContentfulPaintEntries !== undefined && 
+            navigationPerformanceEntries !== undefined && 
+            performanceMetricsValues !== undefined && 
             resources !== undefined;
   }
 
@@ -182,9 +182,9 @@ export default function Resources() {
               </div>
               {!hasAllWaterfallData() ? <WaterfallSkeleton /> :
                   resources?.length > 0 ? <Waterfall resources={resources} 
-                                                      performanceMetricsAverages={performanceMetricsAverages} 
-                                                      navigationPerformanceEntriesAverages={navigationPerformanceEntriesAverages} 
-                                                      largestContentfulPaintEntriesAverages={largestContentfulPaintEntriesAverages} /> :
+                                                      performanceMetricsValues={performanceMetricsValues} 
+                                                      navigationPerformanceEntries={navigationPerformanceEntries} 
+                                                      largestContentfulPaintEntries={largestContentfulPaintEntries} /> :
                     <p className='text-center text-gray-700 text-sm'>No resources found for {hostUrlToFilterOn}{urlPathToFilterOn}</p>
                 }
             </div>

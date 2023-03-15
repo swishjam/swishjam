@@ -14,25 +14,14 @@ const CardLoading = () => (
 )
 
 const CardIcon = (iconType) => {
-  if(iconType === 'LCP') {
-    return <LcpIcon />
-  }  
-  if(iconType === 'INP') {    
-    return <InpIcon />
-  }
-  if(iconType === 'CLS') {    
-    return <ClsIcon />
-  }
-  if(iconType === 'FID') {    
-    return <FidIcon />
-  }
-  if(iconType === 'FCP') {    
-    return <FcpIcon />
-  }
-  if(iconType === 'TTFB') {    
-    return <TtfbIcon />
-  }
-  return (<></>)
+  return {
+    LCP: <LcpIcon />,
+    INP: <InpIcon />,
+    CLS: <ClsIcon />,
+    FID: <FidIcon />,
+    FCP: <FcpIcon />,
+    TTFB: <TtfbIcon />
+  }[iconType] || <></>;
 }
 
 const calcLocationOnBar = (score) => {
@@ -56,15 +45,11 @@ const calcLocationOnBar = (score) => {
   return 0;
 }
 
-export default function WebVitalCard({ title, accronym, metric, timeseriesData, shouldLinkToCwvDetails = true }, ...props) {
+export default function WebVitalCard({ title, accronym, metric, timeseriesData }, ...props) {
   return (
     <Card>
       {metric === null ? (
         <>
-          {/* {shouldLinkToCwvDetails ? 
-            <Link href={`/cwv/${accronym}`} className='hover:underline'><Text>{title}</Text></Link> :
-            <Text>{title}</Text>
-          } */}
           <Text>{title}</Text>
           <Flex justifyContent="justify-start" alignItems="items-baseline" spaceX="space-x-1">
             <Metric></Metric>
@@ -73,10 +58,6 @@ export default function WebVitalCard({ title, accronym, metric, timeseriesData, 
         </>
       ) : (
         <>
-          {/* {shouldLinkToCwvDetails ?
-            <Link href={`/cwv/${accronym}`} className='hover:underline'><Text>{title}</Text></Link> :
-            <Text>{title}</Text>
-          } */}
           <dt className="flex items-center gap-x-3 text-base leading-7 text-gray-900">
             {CardIcon(accronym)}
             {title}
@@ -119,3 +100,4 @@ export default function WebVitalCard({ title, accronym, metric, timeseriesData, 
     </Card>
   );
 }
+
