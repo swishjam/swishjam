@@ -28,45 +28,25 @@ const deDupLCPEntries = lcpEntries => {
   return Object.values(filteredLCPEntriesMap);
 }
 
-export default function Waterfall({ resources, performanceMetricsAverages, navigationPerformanceEntriesAverages, largestContentfulPaintEntriesAverages }) {
-  const deDupedLCPEntries = deDupLCPEntries(largestContentfulPaintEntriesAverages);
-  const largestResourceEndTime = Math.max(...resources.map(resource => parseFloat(resource.average_response_end)));
+export default function Waterfall({ resources, performanceMetricsValues, navigationPerformanceEntries, largestContentfulPaintEntries }) {
+  const deDupedLCPEntries = deDupLCPEntries(largestContentfulPaintEntries);
+  const largestResourceEndTime = Math.max(...resources.map(resource => parseFloat(resource.response_end)));
 
-  const MAX_ALLOWED_TIMESTAMP = 20_000;
+  const MAX_ALLOWED_TIMESTAMP = 40_000;
   const maxTimestamp = Math.min(
     MAX_ALLOWED_TIMESTAMP,
     Math.max(
-      ...(performanceMetricsAverages || []).map(metric => parseFloat(metric.average)),
-      (navigationPerformanceEntriesAverages || {}).average_dom_complete,
-      (navigationPerformanceEntriesAverages || {}).average_dom_interactive,
-      (navigationPerformanceEntriesAverages || {}).average_dom_content_loaded_event_end,
-      (navigationPerformanceEntriesAverages || {}).average_load_event_end,
+      ...(performanceMetricsValues || []).map(metric => parseFloat(metric.value)),
+      (navigationPerformanceEntries || {}).dom_complete,
+      (navigationPerformanceEntries || {}).dom_interactive,
+      (navigationPerformanceEntries || {}).dom_content_loaded_event_end,
+      (navigationPerformanceEntries || {}).load_event_end,
       largestResourceEndTime || 0
     ) + 100
   );
 
-  if (
-    resources[0] &&
-      resources[0].initiator_type !== 'navigation' && 
-      navigationPerformanceEntriesAverages && 
-      navigationPerformanceEntriesAverages.average_response_end
-    ) {
-    resources.unshift({
-      name: navigationPerformanceEntriesAverages.name,
-      initiator_type: 'navigation',
-      average_duration: parseFloat(navigationPerformanceEntriesAverages.average_duration || 0),
-      average_fetch_start: parseFloat(navigationPerformanceEntriesAverages.average_fetch_start || 0),
-      average_start_time: parseFloat(navigationPerformanceEntriesAverages.average_start_time || 0),
-      average_domain_lookup_start: parseFloat(navigationPerformanceEntriesAverages.average_domain_lookup_start || 0),
-      average_domain_lookup_end: parseFloat(navigationPerformanceEntriesAverages.average_domain_lookup_end || 0),
-      average_connect_start: parseFloat(navigationPerformanceEntriesAverages.average_connect_start || 0),
-      average_connect_end: parseFloat(navigationPerformanceEntriesAverages.average_connect_end || 0),
-      average_secure_connection_start: parseFloat(navigationPerformanceEntriesAverages.average_secure_connection_start || 0),
-      average_request_start: parseFloat(navigationPerformanceEntriesAverages.average_request_start || 0),
-      average_response_start: parseFloat(navigationPerformanceEntriesAverages.average_response_start || 0),
-      average_response_end: parseFloat(navigationPerformanceEntriesAverages.average_response_end || 0),
-      average_transfer_size: parseFloat(navigationPerformanceEntriesAverages.average_transfer_size || 0),
-    });
+  if (resources[0] && resources[0].initiator_type !== 'navigation' && navigationPerformanceEntries?.response_end) {
+    resources.unshift({ ...navigationPerformanceEntries, name: navigationPerformanceEntries.name, initiator_type: 'navigation' });
   }
   
   const TIMESTAMP_EVERY_MS = 500;
@@ -110,7 +90,7 @@ export default function Waterfall({ resources, performanceMetricsAverages, navig
           {resources.map((resource, i) => {
             return (
               <div className={`flex items-center h-10 p-2 border-r border-l border-gray-200 ${i % 2 === 0 ? 'bg-gray-100' : ''}`} key={i}>
-                {formattedMsOrSeconds(resource.average_response_end - resource.average_start_time)}
+                {formattedMsOrSeconds(resource.response_end - resource.start_time)}
               </div>
             )
           })}
@@ -120,7 +100,7 @@ export default function Waterfall({ resources, performanceMetricsAverages, navig
           {resources.map((resource, i) => {
             return (
               <div className={`flex items-center h-10 p-2 border-r border-l border-gray-200 ${i % 2 === 0 ? 'bg-gray-100' : ''}`} key={i}>
-                <WaterfallRowMetadata resource={resource} largestContentfulPaintEntriesAverages={deDupedLCPEntries} index={i} />
+                <WaterfallRowMetadata resource={resource} largestContentfulPaintEntries={deDupedLCPEntries} index={i} />
               </div>
             )
           })}
@@ -129,7 +109,7 @@ export default function Waterfall({ resources, performanceMetricsAverages, navig
           <div className='block h-5' style={{ width: `${timeMarkers.length * TIMESTAMP_EVERY_MS * PIXELS_PER_MS}px` }}>
             {timeMarkers}
           </div>
-          <WaterfallOverlay performanceMetrics={performanceMetricsAverages} navigationPerformanceEntriesAverages={navigationPerformanceEntriesAverages} maxTimestamp={maxTimestamp} />
+          <WaterfallOverlay performanceMetrics={performanceMetricsValues} navigationPerformanceEntries={navigationPerformanceEntries} />
           {resources.map((resource, i) => {
             return (
               <div className={`flex items-center min-w-[100%] h-10 py-2 ${i % 2 === 0 ? 'bg-gray-100' : ''}`} 

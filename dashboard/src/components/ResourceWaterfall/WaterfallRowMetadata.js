@@ -10,9 +10,9 @@ const sanitizedResourceUrl = url => {
   }
 };
 
-export default function WaterfallRowMetadata({ resource, largestContentfulPaintEntriesAverages }) {
-  const largestPaintEntryForResource = largestContentfulPaintEntriesAverages.find(entry => sanitizedResourceUrl(entry.url) === sanitizedResourceUrl(resource.name));
-  const sortedLargestPaintEntries = largestContentfulPaintEntriesAverages.sort((a, b) => parseInt(b.count) - parseInt(a.count));
+export default function WaterfallRowMetadata({ resource, largestContentfulPaintEntries }) {
+  const largestPaintEntryForResource = largestContentfulPaintEntries.find(entry => sanitizedResourceUrl(entry.url) === sanitizedResourceUrl(resource.name));
+  const sortedLargestPaintEntries = largestContentfulPaintEntries.sort((a, b) => parseInt(b.count) - parseInt(a.count));
   const isMostCommonLcp = largestPaintEntryForResource && 
                             sanitizedResourceUrl(sortedLargestPaintEntries[0].url) === sanitizedResourceUrl(largestPaintEntryForResource.url);
 

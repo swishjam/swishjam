@@ -18,15 +18,15 @@ import LoadingSpinner from './LoadingSpinner';
 const initialCwvState = ({ key, title}) => ({ key, title, metric: null, timeseriesData: [{}] })
 
 export default function CwvDashboardView() {
-  const { initial: currentUserDataIsLoading, projects, currentProject } = useAuth();
+  const { initial: currentUserDataIsLoading, currentProject } = useAuth();
 
-  const [lcp, setLCP] = useState(initialCwvState({ key: 'LCP', title: 'Largest Contentful Paint P75' }));
-  const [inp, setINP] = useState(initialCwvState({ key: 'INP', title: 'Interaction to Next Paint P75' }));
-  const [cls, setCLS] = useState(initialCwvState({ key: 'CLS', title: 'Cumulative Layout Shift P75' }));
-  const [fcp, setFCP] = useState(initialCwvState({ key: 'FCP', title: 'First Contentful Paint P75' }));
-  const [fid, setFID] = useState(initialCwvState({ key: 'FID', title: 'First Input Delay P75' }));
-  const [ttfb, setTTFB] = useState(initialCwvState({ key: 'TTFB', title: 'Time to First Byte P75' }));
-  const [ numPageViews, setNumPageViews ] = useState(0);
+  const [lcp, setLCP] = useState(initialCwvState({ key: 'LCP', title: 'Largest Contentful Paint' }));
+  const [inp, setINP] = useState(initialCwvState({ key: 'INP', title: 'Interaction to Next Paint' }));
+  const [cls, setCLS] = useState(initialCwvState({ key: 'CLS', title: 'Cumulative Layout Shift' }));
+  const [fcp, setFCP] = useState(initialCwvState({ key: 'FCP', title: 'First Contentful Paint' }));
+  const [fid, setFID] = useState(initialCwvState({ key: 'FID', title: 'First Input Delay' }));
+  const [ttfb, setTTFB] = useState(initialCwvState({ key: 'TTFB', title: 'Time to First Byte' }));
+  const [numPageViews, setNumPageViews] = useState(0);
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [hostUrlToFilterOn, setHostUrlToFilterOn] = useState();
@@ -46,9 +46,7 @@ export default function CwvDashboardView() {
   const getTimeseriesDataForMetric = (metric, urlHost) => {
     return WebVitalsApi.timeseries({ metric, urlHost }).then(chartData => {
       const setStateMethod = { LCP: setLCP, INP: setINP, CLS: setCLS, FCP: setFCP, FID: setFID, TTFB: setTTFB }[metric];
-      const chartDataMod = chartData.map(
-        d => ({ ...d, metric: calcCwvMetric(d.p75, metric) })
-      ); 
+      const chartDataMod = chartData.map(d => ({ ...d, metric: calcCwvMetric(d.p75, metric) })); 
       setStateMethod(prevState => ({ ...prevState, timeseriesData: chartDataMod }));
       setIsFetchingCwvData(false);
     })

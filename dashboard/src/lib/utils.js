@@ -9,9 +9,9 @@ const msToSeconds = (ms) => (ms / 1000).toFixed(2);
 
 const metricFormatter = (value, metricUnits) => {
   if (metricUnits === 's') {
-    return `${msToSeconds(value)}`;
+    return `${msToSeconds(value)} s`;
   } else  if (metricUnits === 'ms') {
-    return `${value}`; 
+    return `${value} ms`; 
   } else {
     try {
       return parseFloat(value).toFixed(4);
@@ -29,7 +29,7 @@ export {
   msToSeconds,
 }
 
-export const formattedMsOrSeconds = ms => parseFloat(ms) > 999 ? `${msToSeconds(parseFloat(ms))} s` : `${parseFloat(ms).toFixed(2)} ms`;
+export const formattedMsOrSeconds = ms => parseFloat(ms) > 999 ? `${msToSeconds(parseFloat(ms))} s` : `${parseFloat(ms).toFixed(0)} ms`;
 
 export const formattedDate = dateString => {
   const d = new Date(dateString);
@@ -53,6 +53,25 @@ export const bytesToHumanFileSize = (bytes, decimals = 2) => {
   } while (Math.round(Math.abs(bytes) * r) / r >= thresh && u < units.length - 1);
 
   return bytes.toFixed(decimals) + ' ' + units[u];
+}
+
+export const calculatedResourceTimings = resourceTimings => {
+  return {
+    waiting: resourceTimings.domain_lookup_start ? resourceTimings.domain_lookup_start - resourceTimings.start_time : 0,
+    dns: resourceTimings.domain_lookup_end ? resourceTimings.domain_lookup_end - resourceTimings.domain_lookup_start : 0,
+    tcp: resourceTimings.secure_connection_start ? resourceTimings.secure_connection_start - resourceTimings.connect_start : 0,
+    tls: resourceTimings.secure_connection_start ? resourceTimings.connect_end - resourceTimings.secure_connection_start : 0,
+    ssl: resourceTimings.secure_connection_start ? resourceTimings.request_start - resourceTimings.secure_connection_start : 0,
+    request: resourceTimings.request_start ? resourceTimings.response_start - resourceTimings.request_start : 0,
+    response: resourceTimings.response_start ? resourceTimings.response_end - resourceTimings.response_start : 0,
+    entire: resourceTimings.response_end - resourceTimings.start_time,
+    
+    redirect: resourceTimings.redirect_end - resourceTimings.redirect_start,
+    fetch: resourceTimings.response_end - resourceTimings.fetch_start,
+    serviceWorker: resourceTimings.fetch_start - resourceTimings.worker_start,
+    wasCompressed: resourceTimings.encoded_body_size !== resourceTimings.decoded_body_size,
+    wasLocallyCached: resourceTimings.transfer_size === 0,
+  }
 }
 
 export const resourceTypeToHumanName = initiatorType => {

@@ -12,7 +12,7 @@ const LARGE_RESOURCE_SIZE_MAP = {
 
 export default function WaterfallRowSize({ resource }) {
   const { getArrowProps, getTooltipProps, setTooltipRef, setTriggerRef, visible } = usePopperTooltip({ followCursor: false, trigger: 'hover' });
-  const isLarge = LARGE_RESOURCE_SIZE_MAP[resource.initiator_type] && resource.average_transfer_size > LARGE_RESOURCE_SIZE_MAP[resource.initiator_type];
+  const isLarge = LARGE_RESOURCE_SIZE_MAP[resource.initiator_type] && resource.average_encoded_body_size > LARGE_RESOURCE_SIZE_MAP[resource.initiator_type];
 
   return (
     <div className='cursor-default'>
@@ -20,7 +20,7 @@ export default function WaterfallRowSize({ resource }) {
         <div ref={setTriggerRef}>
           <ExclamationTriangleIcon className='text-red-600 mr-1 h-4 w-4 inline' style={{ display: 'inline' }}/>
           <span className='text-red-600'>
-            {bytesToHumanFileSize(resource.average_transfer_size)}
+            {bytesToHumanFileSize(resource.encoded_body_size)}
           </span>
           {visible && (
             <div ref={setTooltipRef} {...getTooltipProps({ className: 'tooltip-container' })}>
@@ -31,7 +31,7 @@ export default function WaterfallRowSize({ resource }) {
             </div>
           )}
         </div>
-      ) : bytesToHumanFileSize(resource.average_transfer_size)}
+      ) : bytesToHumanFileSize(resource.encoded_body_size)}
     </div>
   )
 }

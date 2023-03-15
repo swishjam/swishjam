@@ -6,6 +6,7 @@ export default class ResourcePerformanceEntries {
     urlPath,
     urlHost,
     startTs, 
+    percentile = 0.75,
     limit = 150,
     minimumOccurrences = 10,
   }) {
@@ -14,18 +15,24 @@ export default class ResourcePerformanceEntries {
         CONCAT(rpe.name_to_url_host, rpe.name_to_url_path) AS name,
         rpe.initiator_type,
         rpe.render_blocking_status,
-        COUNT(rpe.name) AS count,
-        AVG(rpe.start_time) AS average_start_time,
-        AVG(rpe.domain_lookup_start) AS average_domain_lookup_start,
-        AVG(rpe.domain_lookup_end) AS average_domain_lookup_end,
-        AVG(rpe.connect_start) AS average_connect_start,
-        AVG(rpe.connect_end) AS average_connect_end,
-        AVG(rpe.secure_connection_start) AS average_secure_connection_start,
-        AVG(rpe.request_start) AS average_request_start,
-        AVG(rpe.response_start) AS average_response_start,
-        AVG(rpe.response_end) AS average_response_end,
-        AVG(rpe.duration) AS average_duration,
-        AVG(rpe.transfer_size) AS average_transfer_size
+        COUNT(rpe.name) AS total_count,
+        PERCENTILE_CONT(${percentile}) WITHIN GROUP (ORDER BY rpe.start_time ASC) AS start_time,
+        PERCENTILE_CONT(${percentile}) WITHIN GROUP (ORDER BY rpe.domain_lookup_start ASC) AS domain_lookup_start,
+        PERCENTILE_CONT(${percentile}) WITHIN GROUP (ORDER BY rpe.domain_lookup_end ASC) AS domain_lookup_end,
+        PERCENTILE_CONT(${percentile}) WITHIN GROUP (ORDER BY rpe.connect_start ASC) AS connect_start,
+        PERCENTILE_CONT(${percentile}) WITHIN GROUP (ORDER BY rpe.connect_end ASC) AS connect_end,
+        PERCENTILE_CONT(${percentile}) WITHIN GROUP (ORDER BY rpe.secure_connection_start ASC) AS secure_connection_start,
+        PERCENTILE_CONT(${percentile}) WITHIN GROUP (ORDER BY rpe.request_start ASC) AS request_start,
+        PERCENTILE_CONT(${percentile}) WITHIN GROUP (ORDER BY rpe.response_start ASC) AS response_start,
+        PERCENTILE_CONT(${percentile}) WITHIN GROUP (ORDER BY rpe.response_end ASC) AS response_end,
+        PERCENTILE_CONT(${percentile}) WITHIN GROUP (ORDER BY rpe.duration ASC) AS duration,
+        PERCENTILE_CONT(${percentile}) WITHIN GROUP (ORDER BY rpe.transfer_size ASC) AS transfer_size,
+        PERCENTILE_CONT(${percentile}) WITHIN GROUP (ORDER BY rpe.decoded_body_size ASC) AS decoded_body_size,
+        PERCENTILE_CONT(${percentile}) WITHIN GROUP (ORDER BY rpe.encoded_body_size ASC) AS encoded_body_size,
+        SUM(CASE WHEN rpe.transfer_size = 0 THEN 1 ELSE 0 END) AS local_cache_hit_count,
+        SUM(CASE WHEN rpe.transfer_size > 0 THEN 1 ELSE 0 END) AS local_cache_miss_count,
+        SUM(CASE WHEN rpe.encoded_body_size != rpe.decoded_body_size THEN 1 ELSE 0 END) AS compressed_count,
+        SUM(CASE WHEN rpe.encoded_body_size != rpe.decoded_body_size THEN 0 ELSE 1 END) AS not_compressed_count
       FROM
         resource_performance_entries as rpe
       JOIN
@@ -40,7 +47,7 @@ export default class ResourcePerformanceEntries {
       HAVING
         COUNT(name) >= ${minimumOccurrences}
       ORDER BY
-        average_start_time ASC
+        start_time ASC
       LIMIT ${limit}
     `;
     return (await db.query(query, [projectKey, urlHost, urlPath, new Date(startTs)])).rows;
