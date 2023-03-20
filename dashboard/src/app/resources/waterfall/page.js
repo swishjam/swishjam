@@ -109,22 +109,6 @@ export default function Resources() {
           )
         })}
       </div>
-      <div className='text-left'>
-        <span className='text-gray-900 text-sm'>Page resources:</span>
-        {[
-          { metric: 'Javascript Resource', bgClass: 'bg-blue-300' },
-          { metric: 'Stylesheet Resource', bgClass: 'bg-green-300' },
-          { metric: 'Image Resource', bgClass: 'bg-yellow-300' },
-          { metric: 'Fetch/HTTP Request', bgClass: 'bg-purple-300' },
-        ].map(legendItem => {
-          return (
-            <div className='flex items-center' key={legendItem.metric}>
-              <div className={`inline-block mr-1 h-3 w-3 rounded ${legendItem.bgClass}`} />
-              <span className='text-gray-700 text-sm'>{legendItem.metric}</span>
-            </div>
-          )
-        })}
-      </div>
     </div>
   </>
 

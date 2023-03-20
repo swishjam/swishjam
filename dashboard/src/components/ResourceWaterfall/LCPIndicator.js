@@ -15,7 +15,7 @@ export default function LCPIndicator({ isMostCommonLcp }) {
             <div className='tooltip-arrow' {...getArrowProps({ className: 'tooltip-arrow' })} />
             <div className="text-sm text-gray-900">
               {isMostCommonLcp ? (
-                <>The most common Largest Contentful Paint resource on this page.</>
+              <>The most common Largest Contentful Paint resource on this page.</>
               ) : (
                 <>Sometimes the Largest Contentful Paint resource on this page, but is not the most common.</>
               )}

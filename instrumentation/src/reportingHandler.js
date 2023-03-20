@@ -60,17 +60,20 @@ class ReportingHandler {
     if (this.mockApiCalls) {
       console.log('Reporting data to mock API', body);
     } else if (navigator.sendBeacon) {
-      const blob = new Blob([JSON.stringify(body)], {});
       try {
         // TODO: we're swallowing errors here. JSON stringifying causes circular dependency errors when DOM nodes are in the data.
+        const blob = new Blob([JSON.stringify(body)], {});
         window.navigator.sendBeacon(this.reportingUrl, blob);
       } catch(err) {}
     } else {
-      const xhr = new XMLHttpRequest();
-      xhr.open('POST', this.reportingUrl);
-      xhr.setRequestHeader('Content-Type', 'application/json');
-      xhr.setRequestHeader('Access-Control-Allow-Origin', '*');
-      xhr.send(JSON.stringify(body));
+      try {
+        // TODO: we're swallowing errors here. JSON stringifying causes circular dependency errors when DOM nodes are in the data.
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', this.reportingUrl);
+        xhr.setRequestHeader('Content-Type', 'application/json');
+        xhr.setRequestHeader('Access-Control-Allow-Origin', '*');
+        xhr.send(JSON.stringify(body));
+      } catch(err) {}
     }
     this.dataToReport = [];
   }

@@ -18,10 +18,17 @@ export default function PerformanceMetricIndicator({ metric }) {
 
   return (
     <>
-      <div className={`absolute top-0 z-10 h-full`}
+      <div className={`absolute top-0 z-10`}
             key={metric.name}
             ref={setTriggerRef}
-            style={{ marginLeft: `${(parseFloat(metric.value) * PIXELS_PER_MS) - 3}px`, borderWidth: '2px', borderStyle: 'dashed', borderColor: borderColor }} />
+            style={{ 
+              marginLeft: `${(parseFloat(metric.value) * PIXELS_PER_MS) - 3}px`, 
+              borderWidth: '1.5px', 
+              borderStyle: 'dashed', 
+              height: `calc(100% - 1.4rem)`,
+              marginTop: '1.4rem',
+              borderColor: borderColor,
+            }} />
         {visible && (
           <div className='absolute top-0 left-0 z-20' ref={setTooltipRef} {...getTooltipProps()}>
             <div className='bg-white rounded shadow-lg p-2'>
