@@ -68,8 +68,8 @@ export default function Waterfall({ resources, performanceMetricsValues, navigat
       <div className='flex justify-between mb-2'>
         <RequestColorIndicator title='Waiting' bgColor='bg-gray-300'/>
         <RequestColorIndicator title='DNS Lookup' bgColor='bg-teal-700' />
-        <RequestColorIndicator title='Connection' bgColor='bg-orange-500' />
-        <RequestColorIndicator title='SSL Handshake' bgColor='bg-purple-500' />
+        <RequestColorIndicator title='TCP' bgColor='bg-orange-500' />
+        <RequestColorIndicator title='TLS' bgColor='bg-purple-500' />
         <RequestColorIndicator title='Request' bgColor='bg-blue-500' />
         <RequestColorIndicator title='Response' bgColor='bg-red-400' />
       </div>

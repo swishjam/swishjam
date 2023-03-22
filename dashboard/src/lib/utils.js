@@ -57,17 +57,25 @@ export const bytesToHumanFileSize = (bytes, decimals = 2) => {
 
 export const calculatedResourceTimings = resourceTimings => {
   return {
+    waiting: resourceTimings.connect_end && resourceTimings.connect_end === resourceTimings.fetch_start ? resourceTimings.request_start - resourceTimings.connect_end : 
+                resourceTimings.domain_lookup_end ? resourceTimings.domain_lookup_start - resourceTimings.fetch_start : 0,
+
     waiting: resourceTimings.domain_lookup_start ? resourceTimings.domain_lookup_start - resourceTimings.start_time : 0,
+    redirect: resourceTimings.redirect_end ? resourceTimings.redirect_end - resourceTimings.redirect_start : 0,
     dns: resourceTimings.domain_lookup_end ? resourceTimings.domain_lookup_end - resourceTimings.domain_lookup_start : 0,
+
     tcp: resourceTimings.secure_connection_start ? resourceTimings.secure_connection_start - resourceTimings.connect_start : 0,
-    tls: resourceTimings.secure_connection_start ? resourceTimings.connect_end - resourceTimings.secure_connection_start : 0,
-    ssl: resourceTimings.secure_connection_start ? resourceTimings.request_start - resourceTimings.secure_connection_start : 0,
+    tls: resourceTimings.secure_connection_start ? resourceTimings.request_start - resourceTimings.secure_connection_start : 0,
+
+    initialConnection: resourceTimings.connect_end ? resourceTimings.connect_end - resourceTimings.connect_start : 0,
+    // ssl: resourceTimings.secure_connection_start ? resourceTimings.request_start - resourceTimings.secure_connection_start : 0,
+
     request: resourceTimings.request_start ? resourceTimings.response_start - resourceTimings.request_start : 0,
     response: resourceTimings.response_start ? resourceTimings.response_end - resourceTimings.response_start : 0,
     entire: resourceTimings.response_end - resourceTimings.start_time,
-    
-    redirect: resourceTimings.redirect_end - resourceTimings.redirect_start,
-    fetch: resourceTimings.response_end - resourceTimings.fetch_start,
+    // waiting + redirect + dns + tcp + tls + ssl + request + response;
+    // waiting + redirect + dns + initialConnection + request + response;
+
     serviceWorker: resourceTimings.fetch_start - resourceTimings.worker_start,
     wasCompressed: resourceTimings.encoded_body_size !== resourceTimings.decoded_body_size,
     wasLocallyCached: resourceTimings.transfer_size === 0,

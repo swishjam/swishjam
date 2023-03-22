@@ -7,7 +7,7 @@ const REQUEST_LIFE_CYCLE_COLOR_DICT = {
   waiting: ['bg-gray-300', 'bg-gray-400'],
   dns: ['bg-teal-700', 'bg-teal-800'],
   tcp: ['bg-orange-500', 'bg-orange-600'],
-  ssl: ['bg-purple-500', 'bg-purple-600'],
+  tls: ['bg-purple-500', 'bg-purple-600'],
   request: ['bg-blue-500', 'bg-blue-600'],
   response: ['bg-red-400', 'bg-red-500'],
 }
@@ -46,8 +46,8 @@ export default function WaterfallRowVisual({ resource, maxTimestamp }) {
                   style={{ width: `${timings.dns * PIXELS_PER_MS}px` }} />
             <div className={`h-[40%] animate-[all] inline-block ${isBeingHovered ? REQUEST_LIFE_CYCLE_COLOR_DICT.tcp[1] : REQUEST_LIFE_CYCLE_COLOR_DICT.tcp[0]}`} 
                   style={{ width: `${(timings.tcp + timings.tls) * PIXELS_PER_MS}px` }} />
-            <div className={`h-[40%] animate-[all] inline-block ${isBeingHovered ? REQUEST_LIFE_CYCLE_COLOR_DICT.ssl[1] : REQUEST_LIFE_CYCLE_COLOR_DICT.ssl[0]}`} 
-                  style={{ width: `${timings.ssl * PIXELS_PER_MS}px` }} />
+            <div className={`h-[40%] animate-[all] inline-block ${isBeingHovered ? REQUEST_LIFE_CYCLE_COLOR_DICT.tls[1] : REQUEST_LIFE_CYCLE_COLOR_DICT.tls[0]}`} 
+                  style={{ width: `${timings.tls * PIXELS_PER_MS}px` }} />
             <div className={`h-[100%] animate-[all] inline-block ${isBeingHovered ? REQUEST_LIFE_CYCLE_COLOR_DICT.request[1] : REQUEST_LIFE_CYCLE_COLOR_DICT.request[0]}`} 
                   style={{ width: `${timings.request * PIXELS_PER_MS}px` }} />
             <div className={`h-[100%] animate-[all] inline-block ${isBeingHovered ? REQUEST_LIFE_CYCLE_COLOR_DICT.response[1] : REQUEST_LIFE_CYCLE_COLOR_DICT.response[0]}`} 
@@ -96,28 +96,28 @@ export default function WaterfallRowVisual({ resource, maxTimestamp }) {
                         <tr>
                           <td className='p-2 text-gray-500 flex items-center'>
                             <div className={`rounded h-4 w-4 inline-block mr-1 ${REQUEST_LIFE_CYCLE_COLOR_DICT.tcp[0]}`}></div>
-                            <span class='italic'>Connection</span>
+                            <span class='italic'>TCP</span>
                           </td>
                           <td>{formattedMsOrSeconds(timings.tcp)}</td>
                         </tr>
                         <tr>
                           <td className='p-2 text-gray-500 flex items-center'>
-                            <div className={`rounded h-4 w-4 inline-block mr-1 ${REQUEST_LIFE_CYCLE_COLOR_DICT.ssl[0]}`}></div>
-                            <span class='italic'>SSL Handshake</span>
+                            <div className={`rounded h-4 w-4 inline-block mr-1 ${REQUEST_LIFE_CYCLE_COLOR_DICT.tls[0]}`}></div>
+                            <span class='italic'>TLS</span>
                           </td>
-                          <td>{formattedMsOrSeconds(timings.ssl)}</td>
+                          <td>{formattedMsOrSeconds(timings.tls)}</td>
                         </tr>
                         <tr>
                           <td className='p-2 text-gray-500 flex items-center'>
                             <div className={`rounded h-4 w-4 inline-block mr-1 ${REQUEST_LIFE_CYCLE_COLOR_DICT.request[0]}`}></div>
-                            <span class='italic'>Request time</span>
+                            <span class='italic'>Request</span>
                           </td>
                           <td>{formattedMsOrSeconds(timings.request)}</td>
                         </tr>
                         <tr>
                           <td className='p-2 text-gray-500 flex items-center'>
                             <div className={`rounded h-4 w-4 inline-block mr-1 ${REQUEST_LIFE_CYCLE_COLOR_DICT.response[0]}`}></div>
-                            <span class='italic'>Download time</span>
+                            <span class='italic'>Download</span>
                           </td>
                           <td>{formattedMsOrSeconds(timings.response)}</td>
                         </tr>
