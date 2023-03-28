@@ -36,7 +36,8 @@ export default function CwvDashboardView() {
   const [isFetchingHostUrlFilterOptions, setIsFetchingHostUrlFilterOptions] = useState(true);
   
   const getAndSetWebVitalMetric = (cwvKey, urlHost) => {
-    return WebVitalsApi.getPercentileForMetric({ metric: cwvKey, urlHost, percentile: 0.75 }).then(res => {
+    return WebVitalsApi.getPercentileForMetric({ metric: cwvKey, urlHost: urlHost+'/blog', percentile: 0.75 }).then(res => {
+      console.log(res)
       const metric = calcCwvMetric(res.percentile_result, cwvKey);
       const setStateMethod = { LCP: setLCP, INP: setINP, CLS: setCLS, FCP: setFCP, FID: setFID, TTFB: setTTFB }[cwvKey];      
       setStateMethod(prevState => ({ ...prevState, metric }));

@@ -162,17 +162,4 @@ export const calcCwvMetric = (value, key, curve = 'desktop') => {
     score: score,
     weightedScore: score*metricScoring.weight
   };
-  /*
-  const metricsData = Object.keys(scoring).map(id => {
-    const metricScoring = scoring[id];
-    return {
-      id,
-      metricScoring,
-      rating: calculateRating(values[id]),
-      value: values[id],
-      score: Math.ceil(QUANTILE_AT_VALUE(metricScoring, values[id]) * 100),
-      weightedScore: Math.ceil((QUANTILE_AT_VALUE(metricScoring, values[id]) * 100)* metricScoring.weight)
-    };
-  });
-  */
 }
