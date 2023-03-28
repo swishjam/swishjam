@@ -10,6 +10,7 @@ import { resourceTypeToHumanName } from "@lib/utils";
 import { usePopperTooltip } from 'react-popper-tooltip';
 import 'react-popper-tooltip/dist/styles.css';
 import { useRef } from "react";
+import Link from "next/link";
 
 const RESOURCE_TYPE_ICON_DICT = {
   'navigation': <DocumentTextIcon className={`text-blue-600 h-5 w-4 mr-1 inline-block`} aria-hidden="true" />,
@@ -72,17 +73,26 @@ export default function WaterfallRowName({ resource, index }) {
     nameContainerEl.current.classList.remove('absolute', 'z-30', 'bg-white', 'rounded', 'border', 'border-gray-100', 'w-fit', 'pr-2');
   }
 
+  const friendlyResourceName = () => {
+    try {
+      const url = new URL(resource.name);
+      return `${url.hostname}${url.pathname}`;
+    } catch(err) {
+      return resource.name;
+    }
+  }
+
   return (
     <div className='flex items-center w-full' ref={nameContainerEl} onMouseOver={expandDisplay} onMouseOut={collapseDisplay}>
       <span className='mr-1'>{index + 1} </span>
       {resource.initiator_type === 'img' ? 
         (
           <>
-            <img src={`https://${resource.name}`} ref={setTriggerRef} className='h-3 w-3 mr-1' />
+            <img src={resource.name} ref={setTriggerRef} className='h-3 w-3 mr-1' />
             {visible && (
               <>
                 <div ref={setTooltipRef} {...getTooltipProps({ className: 'tooltip-container' })}>
-                  <img src={`https://${resource.name}`} className='w-80' />
+                  <img src={resource.name} className='w-80' />
                   <div {...getArrowProps({ className: 'tooltip-arrow' })} />
                 </div>
               </>
@@ -105,7 +115,13 @@ export default function WaterfallRowName({ resource, index }) {
           </>
         )
       }
-      <span className='truncate cursor-default'>{resource.name}</span>
+      <span className='truncate cursor-default'>
+        {resource.initiator_type === 'navigation' ? friendlyResourceName() : (
+                                                      <Link href={`/resources/${encodeURIComponent(resource.name)}`} target='_blank'>
+                                                        {friendlyResourceName()}
+                                                      </Link>
+                                                    )}
+      </span>
     </div>
   )
 }
