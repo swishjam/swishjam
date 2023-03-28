@@ -45,6 +45,8 @@ const TableRowHeader = ({title, desc}) => {
 }
 
 const CwvBadge = ({metric, cwv}) => {
+  if(!metric) {return <></>} 
+  
   const metricScore = calcCwvMetric(metric, cwv);
   let colorBg = 'bg-red-100';; 
   let colorText = 'text-red-800';
