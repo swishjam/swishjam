@@ -2,7 +2,7 @@
 
 import { useState, Fragment } from 'react';
 import { Menu, Transition } from '@headlessui/react';
-import { CheckCircleIcon, CheckIcon, ChevronDownIcon } from '@heroicons/react/20/solid';
+import { CheckIcon, ChevronDownIcon } from '@heroicons/react/20/solid';
 
 const classNames = (...classes) => classes.filter(Boolean).join(' ');
 
@@ -27,45 +27,41 @@ export default function Dropdown({ direction = 'left', dropdownIcon, label, opti
                     leaveFrom="transform opacity-100 scale-100"
                     leaveTo="transform opacity-0 scale-95"
         >
-          {/*<Menu.Items className="overflow-hidden absolute min-w-full right-0 z-10 mt-2 origin-top-right divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none cursor-pointer">
-  <div className="pb-1">*/}
           <Menu.Items className={`absolute min-w-full ${directionClass} z-30 mt-2 origin-top-right divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none cursor-pointer`}>
-            <div className="py-1">
-              {label && (
-                <Menu.Item disabled={true}>
-                  <div className="bg-gray-50 px-4 py-2 text-sm text-gray-500 border-b cursor-default">{label}</div>
-                </Menu.Item>
-              )}
-              {options.map(option => {
-                const isSelectedOption = option === selectedOption;
-                return (
-                  <Menu.Item key={option}>
-                    {({ active }) => (
-                      <div
-                        onClick={() => {
-                          if (isSelectedOption) return;
-                          setSelectedOption(option);
-                          onSelect(option);
-                        }}
-                        className={classNames(
-                          isSelectedOption ? 'bg-blue-100 text-gray-900' : active ? 'bg-gray-100 text-gray-900' : 'text-gray-700',
-                          `truncate group flex items-center px-4 py-2 text-sm relative`
-                        )}
-                      >
-                        {isSelectedOption && 
-                          <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-blue-600">
-                            <CheckIcon className="h-5 w-5" aria-hidden="true" />
-                          </span>
-                        }
-                        <span className='pl-10'>
-                          {option}
+            {label && (
+              <Menu.Item disabled={true}>
+                <div className="bg-gray-50 px-4 py-2 text-sm text-gray-500 border-b cursor-default">{label}</div>
+              </Menu.Item>
+            )}
+            {options.map(option => {
+              const isSelectedOption = option === selectedOption;
+              return (
+                <Menu.Item key={option}>
+                  {({ active }) => (
+                    <div
+                      onClick={() => {
+                        if (isSelectedOption) return;
+                        setSelectedOption(option);
+                        onSelect(option);
+                      }}
+                      className={classNames(
+                        isSelectedOption ? 'bg-blue-100 text-gray-900' : active ? 'bg-gray-100 text-gray-900' : 'text-gray-700',
+                        `truncate group flex items-center px-4 py-2 text-sm relative`
+                      )}
+                    >
+                      {isSelectedOption && 
+                        <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-blue-600">
+                          <CheckIcon className="h-5 w-5" aria-hidden="true" />
                         </span>
-                      </div>
-                    )}
-                  </Menu.Item>
-                )
-              })}
-            </div>
+                      }
+                      <span className='pl-10'>
+                        {option}
+                      </span>
+                    </div>
+                  )}
+                </Menu.Item>
+              )
+            })}
           </Menu.Items>
         </Transition>
       </Menu>

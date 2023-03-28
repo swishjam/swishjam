@@ -4,7 +4,7 @@ export default class NavigationPerformanceEntries {
   static async getPercentilesForUrlHostAndPath({ projectKey, startTs, urlHost, urlPath, percentile }) {
     const query = `
       SELECT
-        CONCAT(page_views.url_host, page_views.url_path) AS name,
+        name,
         PERCENTILE_CONT(${percentile}) WITHIN GROUP (ORDER BY start_time ASC) AS start_time,
         PERCENTILE_CONT(${percentile}) WITHIN GROUP (ORDER BY duration ASC) AS duration,
         PERCENTILE_CONT(${percentile}) WITHIN GROUP (ORDER BY dom_complete ASC) AS dom_complete,
@@ -46,7 +46,7 @@ export default class NavigationPerformanceEntries {
         page_views.url_host = $3 AND
         page_views.url_path = $4
       GROUP BY
-        page_views.url_host, page_views.url_path
+        name
     `;
     return (await db.query(query, [projectKey, new Date(startTs), urlHost, urlPath])).rows;
   }
@@ -54,7 +54,7 @@ export default class NavigationPerformanceEntries {
   static async getAveragesForUrlHostAndPath({ projectKey, startTs, urlHost, urlPath }) {
     const query = `
       SELECT
-        CONCAT(page_views.url_host, page_views.url_path) AS name,
+        name,
         AVG(duration) AS duration,
         AVG(dom_complete) AS dom_complete,
         AVG(dom_content_loaded_event_end) AS dom_content_loaded_event_end,
@@ -80,7 +80,7 @@ export default class NavigationPerformanceEntries {
         AVG(secure_connection_start) AS secure_connection_start,
         AVG(transfer_size) AS transfer_size
       FROM
-        navigation_performance_entries
+        navigation_performance_entries AS npe
       JOIN
         page_views ON navigation_performance_entries.page_view_uuid = page_views.uuid
       WHERE
@@ -89,7 +89,7 @@ export default class NavigationPerformanceEntries {
         page_views.url_host = $3 AND
         page_views.url_path = $4
       GROUP BY
-        page_views.url_host, page_views.url_path
+        npe.name
     `;
     return (await db.query(query, [projectKey, new Date(startTs), urlHost, urlPath])).rows;
   }

@@ -1,6 +1,79 @@
 import db from '@lib/db';
 
 export default class ResourcePerformanceEntries {
+  static async getTimeSeriesForUrl({ projectKey, url, startTs, percentile = 0.75 }) {
+    const query = `
+      SELECT
+        name,
+        initiator_type,
+        COUNT(name) AS total_count,
+        date_trunc('hour', page_views.page_view_ts) AS hour,
+        date_trunc('day', page_views.page_view_ts) AS day,
+        PERCENTILE_CONT(${percentile}) WITHIN GROUP (ORDER BY start_time ASC) AS start_time,
+        PERCENTILE_CONT(${percentile}) WITHIN GROUP (ORDER BY domain_lookup_start ASC) AS domain_lookup_start,
+        PERCENTILE_CONT(${percentile}) WITHIN GROUP (ORDER BY domain_lookup_end ASC) AS domain_lookup_end,
+        PERCENTILE_CONT(${percentile}) WITHIN GROUP (ORDER BY connect_start ASC) AS connect_start,
+        PERCENTILE_CONT(${percentile}) WITHIN GROUP (ORDER BY connect_end ASC) AS connect_end,
+        PERCENTILE_CONT(${percentile}) WITHIN GROUP (ORDER BY secure_connection_start ASC) AS secure_connection_start,
+        PERCENTILE_CONT(${percentile}) WITHIN GROUP (ORDER BY request_start ASC) AS request_start,
+        PERCENTILE_CONT(${percentile}) WITHIN GROUP (ORDER BY response_start ASC) AS response_start,
+        PERCENTILE_CONT(${percentile}) WITHIN GROUP (ORDER BY response_end ASC) AS response_end,
+        PERCENTILE_CONT(${percentile}) WITHIN GROUP (ORDER BY duration ASC) AS duration,
+        PERCENTILE_CONT(${percentile}) WITHIN GROUP (ORDER BY transfer_size ASC) AS transfer_size,
+        PERCENTILE_CONT(${percentile}) WITHIN GROUP (ORDER BY decoded_body_size ASC) AS decoded_body_size,
+        PERCENTILE_CONT(${percentile}) WITHIN GROUP (ORDER BY encoded_body_size ASC) AS encoded_body_size,
+        PERCENTILE_CONT(${percentile}) WITHIN GROUP (ORDER BY redirect_start ASC) AS redirect_start,
+        PERCENTILE_CONT(${percentile}) WITHIN GROUP (ORDER BY redirect_end ASC) AS redirect_end
+      FROM
+        resource_performance_entries
+      JOIN
+        page_views ON resource_performance_entries.page_view_uuid = page_views.uuid
+      WHERE
+        page_views.project_key = $1 AND
+        name = $2 AND
+        page_views.page_view_ts >= $3
+      GROUP BY
+        name, initiator_type, hour, day
+      ORDER BY
+        day, hour
+    `;
+    return (await db.query(query, [projectKey, decodeURIComponent(url), new Date(startTs)])).rows;
+  }
+
+  static async getMetricsForUrl({ projectKey, url, startTs, percentile = 0.75 }) {
+    const query = `
+      SELECT
+        name,
+        COUNT(name) AS total_count,
+        PERCENTILE_CONT(${percentile}) WITHIN GROUP (ORDER BY start_time ASC) AS start_time,
+        PERCENTILE_CONT(${percentile}) WITHIN GROUP (ORDER BY domain_lookup_start ASC) AS domain_lookup_start,
+        PERCENTILE_CONT(${percentile}) WITHIN GROUP (ORDER BY domain_lookup_end ASC) AS domain_lookup_end,
+        PERCENTILE_CONT(${percentile}) WITHIN GROUP (ORDER BY connect_start ASC) AS connect_start,
+        PERCENTILE_CONT(${percentile}) WITHIN GROUP (ORDER BY connect_end ASC) AS connect_end,
+        PERCENTILE_CONT(${percentile}) WITHIN GROUP (ORDER BY secure_connection_start ASC) AS secure_connection_start,
+        PERCENTILE_CONT(${percentile}) WITHIN GROUP (ORDER BY request_start ASC) AS request_start,
+        PERCENTILE_CONT(${percentile}) WITHIN GROUP (ORDER BY response_start ASC) AS response_start,
+        PERCENTILE_CONT(${percentile}) WITHIN GROUP (ORDER BY response_end ASC) AS response_end,
+        PERCENTILE_CONT(${percentile}) WITHIN GROUP (ORDER BY duration ASC) AS duration,
+        PERCENTILE_CONT(${percentile}) WITHIN GROUP (ORDER BY transfer_size ASC) AS transfer_size,
+        PERCENTILE_CONT(${percentile}) WITHIN GROUP (ORDER BY decoded_body_size ASC) AS decoded_body_size,
+        PERCENTILE_CONT(${percentile}) WITHIN GROUP (ORDER BY encoded_body_size ASC) AS encoded_body_size,
+        PERCENTILE_CONT(${percentile}) WITHIN GROUP (ORDER BY redirect_start ASC) AS redirect_start,
+        PERCENTILE_CONT(${percentile}) WITHIN GROUP (ORDER BY redirect_end ASC) AS redirect_end
+      FROM
+        resource_performance_entries
+      JOIN
+        page_views ON resource_performance_entries.page_view_uuid = page_views.uuid
+      WHERE
+        page_views.project_key = $1 AND
+        name = $2 AND
+        page_views.page_view_ts >= $3
+      GROUP BY
+        name
+    `;
+    return (await db.query(query, [projectKey, decodeURIComponent(url), new Date(startTs)])).rows[0];
+  }
+
   static async getAll({ 
     projectKey, 
     urlPath,
@@ -12,8 +85,7 @@ export default class ResourcePerformanceEntries {
   }) {
     const query = `
       SELECT
-        CONCAT(rpe.name_to_url_host, rpe.name_to_url_path) AS name,
-        rpe.initiator_type,
+        name,
         rpe.render_blocking_status,
         COUNT(rpe.name) AS total_count,
         PERCENTILE_CONT(${percentile}) WITHIN GROUP (ORDER BY rpe.start_time ASC) AS start_time,
@@ -43,7 +115,7 @@ export default class ResourcePerformanceEntries {
         pv.url_path = $3 AND
         pv.page_view_ts >= $4
       GROUP BY
-        name_to_url_host, name_to_url_path, initiator_type, render_blocking_status
+        name, initiator_type, render_blocking_status
       HAVING
         COUNT(name) >= ${minimumOccurrences}
       ORDER BY

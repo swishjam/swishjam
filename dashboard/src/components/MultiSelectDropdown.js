@@ -2,7 +2,7 @@ import { useState, Fragment } from 'react'
 import { Listbox, Transition } from '@headlessui/react'
 import { CheckIcon, ChevronDownIcon } from '@heroicons/react/20/solid'
 
-export default function MultiSelectDropdown({ selectedOptions, options, onChange }) {
+export default function MultiSelectDropdown({ selectedOptions, label, options, onChange }) {
   const [currentlySelectedOptions, setCurrentlySelectedOptions] = useState(selectedOptions)
 
   const onChangeHandler = newSelectedOptions => {
@@ -20,7 +20,7 @@ export default function MultiSelectDropdown({ selectedOptions, options, onChange
         <Transition as={Fragment} leave="transition ease-in duration-100" leaveFrom="opacity-100" leaveTo="opacity-0">
           <Listbox.Options className="absolute min-w-full z-10 mt-1 right-0 overflow-auto rounded-md bg-white text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
             <Listbox.Option key='none' value={'none'} disabled={true} className={'relative cursor-default select-none py-2 px-4 text-gray-500 bg-gray-100'} >
-              <span>Select resource types</span>
+              <span>{label}</span>
             </Listbox.Option>
             {options.map(option => (
               <Listbox.Option 
