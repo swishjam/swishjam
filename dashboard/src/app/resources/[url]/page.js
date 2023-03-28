@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import AuthenticatedView from "@/components/AuthenticatedView";
 import { ResourcePerformanceEntriesApi } from "@/lib/api-client/resource-performance-entries";
-import { calculatedResourceTimings } from "@/lib/utils";
+import { calculatedResourceTimings, formattedDate, bytesToHumanFileSize, formattedMsOrSeconds } from "@/lib/utils";
 import { AreaChart } from "@tremor/react";
 import MultiSelectDropdown from "@/components/MultiSelectDropdown";
 import Dropdown from "@/components/Dropdown";
@@ -15,16 +15,7 @@ import {
   CodeBracketSquareIcon, 
   DocumentTextIcon,
   PaintBrushIcon, 
-} from "@heroicons/react/20/solid"
-
-const msFormatter = ms => {
-  const parsedMs = parseFloat(ms);
-  if (parsedMs < 1000) {
-    return `${parsedMs.toFixed(2)} ms`;
-  } else {
-    return `${(parsedMs / 1000).toFixed(2)} s`;
-  }
-}
+} from "@heroicons/react/20/solid";
 
 const METRICS_DROPDOWN_OPTIONS = [
   { name: 'Waiting Duration', value: 'waitingDuration' },
@@ -35,7 +26,8 @@ const METRICS_DROPDOWN_OPTIONS = [
   { name: 'Initial Connection Duration', value: 'initialConnectionDuration' },
   { name: 'Time to First Byte Duration', value: 'timeToFirstByteDuration' },
   { name: 'Download Duration', value: 'downloadDuration' },
-  { name: 'Fetch Duration', value: 'fetchDuration' },
+  { name: 'Total Duration', value: 'fetchDuration' },
+  { name: 'Transfer Size', value: 'transferSize' },
 ];
 
 const RESOURCE_TYPE_ICON_DICT = {
@@ -51,6 +43,21 @@ const RESOURCE_TYPE_ICON_DICT = {
   'other': <ArrowsRightLeftIcon className='h-4 w-4 inline mr-2' aria-hidden="true" />,
 }
 
+const metricDataDiv = (metricName, metricValue, formatter = formattedMsOrSeconds) => {
+  return (
+    <div className="col-span-1">
+      <div className='w-full border rounded-md border-gray-400 p-4 m-1 flex items-center justify-center'>
+        <div className='text-center'>
+          <span className='block text-sm'>{metricName}</span>
+          {typeof metricValue === 'number' ? 
+                  <span className='block text-2xl font-md'>{formatter(metricValue)}</span> : 
+                  <div className='h-6 w-12 animate-pulse bg-gray-300 rounded-md m-auto mt-2' />}
+        </div>
+      </div>
+    </div>
+  )
+}
+
 export default function Resource({ params }) {
   const { url: encodedResourceUrl } = params;
   const resourceUrl = decodeURIComponent(encodedResourceUrl);
@@ -59,18 +66,18 @@ export default function Resource({ params }) {
   const [metricPercentile, setMetricPercentile] = useState('P75');
   const [metricsToChart, setMetricsToChart] = useState(['fetchDuration']);
   const [timeseriesData, setTimeseriesData] = useState();
+  const [metricsData, setMetricsData] = useState({});
 
   const parsedMetricPercentile = parseInt(metricPercentile.replace('P', '')) / 100;
 
-  useEffect(() => {
-    ResourcePerformanceEntriesApi.getTimeseriesData({ url: resourceUrl, percentile: parsedMetricPercentile }).then(timeseriesData => {
+  const getTimeseriesData = async () => {
+    return ResourcePerformanceEntriesApi.getTimeseriesData({ url: resourceUrl, percentile: parsedMetricPercentile }).then(timeseriesData => {
       setResourceType(timeseriesData[0] && timeseriesData[0].initiator_type);
       const formattedTimeseriesData = timeseriesData.map(entry => {
         const timings = calculatedResourceTimings(entry);
         return {
           name: entry.name,
-          hour: entry.hour,
-          day: entry.day,
+          date: formattedDate(entry.hour),
           waitingDuration: timings.waiting,
           redirectDuration: timings.redirect,
           dnsLookupDuration: timings.dns,
@@ -80,10 +87,34 @@ export default function Resource({ params }) {
           timeToFirstByteDuration: timings.request,
           downloadDuration: timings.response,
           fetchDuration: timings.entire,
+          transferSize: entry.transfer_size,
         }
       })
       setTimeseriesData(formattedTimeseriesData);
     });
+  };
+
+  const getMetricData = async () => {
+    return ResourcePerformanceEntriesApi.getMetricsData({ url: resourceUrl, percentile: parsedMetricPercentile }).then(metricData => {
+      const timings = calculatedResourceTimings(metricData);
+      setMetricsData({
+        waitingDuration: timings.waiting,
+        redirectDuration: timings.redirect,
+        dnsLookupDuration: timings.dns,
+        tcpDuration: timings.tcp,
+        tlsDuration: timings.tls,
+        initialConnectionDuration: timings.initialConnection,
+        timeToFirstByteDuration: timings.request,
+        downloadDuration: timings.response,
+        fetchDuration: timings.entire,
+        transferSize: metricData.transfer_size,
+      })
+    })
+  };
+
+  useEffect(() => {
+    getTimeseriesData();
+    getMetricData();
   }, [metricPercentile]);
 
   return (
@@ -104,50 +135,42 @@ export default function Resource({ params }) {
                 selected={metricPercentile}
                 onSelect={percentile => {
                   setTimeseriesData(undefined);
+                  setMetricsData({});
                   setMetricPercentile(percentile);
                 }} />
             </div>
           </div>
         </div>
         <div className='w-full grid grid-cols-4 gap-4 mt-8'>
-          <div className="col-span-1">
-            <div className='w-full border rounded-md border-gray-400 p-4 m-1 flex items-center justify-center'>
-              Fetch Duration
-            </div>
-          </div>
-          <div className="col-span-1">
-            <div className='w-full border rounded-md border-gray-400 p-4 m-1 flex items-center justify-center'>
-              Time to First Byte
-            </div>
-          </div>
-          <div className="col-span-1">
-            <div className='w-full border rounded-md border-gray-400 p-4 m-1 flex items-center justify-center'>
-              Download Time
-            </div>
-          </div>
-          <div className="col-span-1">
-            <div className='w-full border rounded-md border-gray-400 p-4 m-1 flex items-center justify-center'>
-              Initial Connection Duration
-            </div>
-          </div>
+          {metricDataDiv('Total Duration', metricsData.fetchDuration)}
+          {metricDataDiv('Time to First Byte', metricsData.timeToFirstByteDuration)}
+          {metricDataDiv('Download Time', metricsData.downloadDuration)}
+          {metricDataDiv('Initial Connection Time', metricsData.initialConnectionDuration)}
+        </div>
+        <div className='w-full grid grid-cols-5 gap-4'>
+          {metricDataDiv('Redirect Duration', metricsData.redirectDuration)}
+          {metricDataDiv('DNS Lookup Duration', metricsData.dnsLookupDuration)}
+          {metricDataDiv('TLS Duration', metricsData.tlsDuration)}
+          {metricDataDiv('TCP Duration', metricsData.tcpDuration)}
+          {metricDataDiv('Transfer Size', metricsData.transferSize, bytesToHumanFileSize)}
         </div>
         <div className='w-full border rounded-md border-gray-400 p-4 mt-10'>
           <div className='w-full flex justify-end'>
             <div className='w-fit'>
               <MultiSelectDropdown label='Metrics to chart'
                                     onChange={setMetricsToChart} 
-                                    selectedOptions={[{ name: 'Fetch Duration', value: 'fetchDuration' }]} 
+                                    selectedOptions={[{ name: 'Total Duration', value: 'fetchDuration' }]} 
                                     options={METRICS_DROPDOWN_OPTIONS} />
             </div>
           </div>
           {timeseriesData ? <AreaChart
                                   data={timeseriesData}
-                                  dataKey="hour"
+                                  dataKey="date"
                                   categories={metricsToChart}
                                   // colors={['blue']}
                                   showLegend={true}
                                   startEndOnly={false}
-                                  valueFormatter={msFormatter}
+                                  valueFormatter={formattedMsOrSeconds}
                                   height="h-72"
                                   marginTop="mt-10"
                                 /> : (

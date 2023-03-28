@@ -8,7 +8,7 @@ export default async (req, res) => {
   return await runQueryIfUserHasAccess({ req, res, projectKey }, async () => {
     try {
       const url = decodeURIComponent(encodedUrl);
-      const records = await ResourcePerformanceEntries.getPercentilesForUrl({ projectKey, url, startTs, percentile: parseFloat(percentile) });
+      const records = await ResourcePerformanceEntries.getMetricsForUrl({ projectKey, url, startTs, percentile: parseFloat(percentile) });
       res.status(200).json(records);
     } catch (err) {
       console.error(err);

@@ -40,11 +40,10 @@ export default class ResourcePerformanceEntries {
     return (await db.query(query, [projectKey, decodeURIComponent(url), new Date(startTs)])).rows;
   }
 
-  static async getPercentilesForUrl({ projectKey, url, startTs, percentile = 0.75 }) {
+  static async getMetricsForUrl({ projectKey, url, startTs, percentile = 0.75 }) {
     const query = `
       SELECT
         name,
-        initiator_type,
         COUNT(name) AS total_count,
         PERCENTILE_CONT(${percentile}) WITHIN GROUP (ORDER BY start_time ASC) AS start_time,
         PERCENTILE_CONT(${percentile}) WITHIN GROUP (ORDER BY domain_lookup_start ASC) AS domain_lookup_start,
@@ -72,7 +71,7 @@ export default class ResourcePerformanceEntries {
       GROUP BY
         name
     `;
-    return (await db.query(query, [projectKey, decodeURIComponent(url), new Date(startTs)])).rows;
+    return (await db.query(query, [projectKey, decodeURIComponent(url), new Date(startTs)])).rows[0];
   }
 
   static async getAll({ 

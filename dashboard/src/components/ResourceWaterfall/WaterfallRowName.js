@@ -116,9 +116,11 @@ export default function WaterfallRowName({ resource, index }) {
         )
       }
       <span className='truncate cursor-default'>
-        <Link href={`/resources/${encodeURIComponent(resource.name)}`} target='_blank'>
-          {friendlyResourceName()}
-        </Link> 
+        {resource.initiator_type === 'navigation' ? friendlyResourceName() : (
+                                                      <Link href={`/resources/${encodeURIComponent(resource.name)}`} target='_blank'>
+                                                        {friendlyResourceName()}
+                                                      </Link>
+                                                    )}
       </span>
     </div>
   )
