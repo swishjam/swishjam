@@ -6,12 +6,13 @@ export const sleep = (ms) =>
 export const fetcher = (url) => fetch(url).then((res) => res.json());
 
 const msToSeconds = (ms) => (ms / 1000).toFixed(2);
+export const formattedMsOrSeconds = ms => parseFloat(ms) > 999 ? `${msToSeconds(parseFloat(ms))} s` : `${parseFloat(ms).toFixed(0)} ms`;
 
-const metricFormatter = (value, metricUnits) => {
+const metricFormatter = (value = 0, metricUnits) => {
   if (metricUnits === 's') {
-    return `${msToSeconds(value)} s`;
+    return `${msToSeconds(value)}`;
   } else  if (metricUnits === 'ms') {
-    return `${value} ms`; 
+    return `${value}`; 
   } else {
     try {
       return parseFloat(value).toFixed(4);
@@ -28,8 +29,6 @@ export {
   metricFormatterPlusUnits,
   msToSeconds,
 }
-
-export const formattedMsOrSeconds = ms => parseFloat(ms) > 999 ? `${msToSeconds(parseFloat(ms))} s` : `${parseFloat(ms).toFixed(0)} ms`;
 
 export const formattedDate = dateString => {
   const d = new Date(dateString);

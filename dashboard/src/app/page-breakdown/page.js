@@ -12,6 +12,7 @@ import { PageViewsAPI } from '@/lib/api-client/page-views';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import HostUrlFilterer from '@/components/HostUrlFilterer';
 import { calcCwvMetric } from '@/lib/cwvCalculations';
+import { metricFormatterPlusUnits } from '@lib/utils';
 
 const loadingSpinner = () => {
   return (
@@ -57,7 +58,7 @@ const CwvBadge = ({metric, cwv}) => {
   }
   return (
     <span className={`inline-flex rounded-full ${colorBg} ${colorText} px-2 text-xs font-semibold leading-5`}>
-      {metric || '-'}{metric && metricScore.metricScoring.displayUnits}
+      {metricFormatterPlusUnits(metric, metricScore.metricScoring.displayUnits || '')} 
     </span> 
   );
 }
@@ -66,7 +67,7 @@ const TableData = ({ data = []}) => {
   
   const getMetric = (metrics, key) => {
     const metric = metrics.find(m => m.name.toLowerCase() === key.toLowerCase());
-    if (metric) return metric.value.toFixed(2).toLocaleString();
+    if (metric) return metric.value
     return undefined;
   }
   
