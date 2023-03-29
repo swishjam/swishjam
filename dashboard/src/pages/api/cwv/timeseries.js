@@ -12,9 +12,11 @@ export default async (req, res) => {
     startTs = defaultStartTs 
   } = req.query;
 
+  
   return await runQueryIfUserHasAccess({ req, res, projectKey }, async () => {
     try {
       if (!metric) throw new Error('Missing `metric` query param');
+      if (!urlHost) throw new Error('Missing `urlHost` query param');
       const results = await PerformanceMetricsData.getPercentileTimeseriesDataForMetric({ 
         projectKey, 
         metric, 

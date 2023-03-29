@@ -12,7 +12,7 @@ import { LargestContentfulPaintEntriesApi } from '@/lib/api-client/largest-conte
 import { PageViewsAPI } from '@/lib/api-client/page-views';
 
 import LoadingSpinner from '@/components/LoadingSpinner';
-import HostUrlFilterer from '@/components/HostUrlFilterer';
+import HostUrlFilterer from '@/components/Filters/HostUrlFilterer';
 import Dropdown from '@/components/Dropdown';
 import Waterfall from '@/components/ResourceWaterfall/Waterfall';
 import WaterfallSkeleton from '@/components/ResourceWaterfall/WaterfallSkeleton';

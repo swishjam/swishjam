@@ -9,7 +9,7 @@ import { ResourcePerformanceEntriesApi } from '@/lib/api-client/resource-perform
 import MultiSelectDropdown from '@/components/MultiSelectDropdown';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import { bytesToHumanFileSize } from '@/lib/utils';
-import HostUrlFilterer from '@/components/HostUrlFilterer';
+import HostUrlFilterer from '@/components/Filters/HostUrlFilterer';
 import Dropdown from '@/components/Dropdown';
 
 const RESOURCE_INITIATOR_OPTIONS = ['script', 'link', 'img', 'css', 'fetch', 'xmlhttprequest', 'other'];

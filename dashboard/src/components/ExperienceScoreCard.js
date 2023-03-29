@@ -1,9 +1,8 @@
 'use client';
-import React, { PureComponent } from 'react';
-import { PieChart, Pie, Sector, Cell, ResponsiveContainer, text } from 'recharts';
-import { Card, LineChart, AreaChart } from "@tremor/react";
+// import React, { PureComponent } from 'react';
+import { PieChart, Pie, Sector, Cell } from 'recharts';
+import { Card, AreaChart } from "@tremor/react";
 import LoadingSpinner from '@components/LoadingSpinner';
-import Link from 'next/link';
 
 const resScore = (score) => {
   return [
@@ -96,10 +95,6 @@ const CardLoading = () => (
   </div>
 )
 
-const calcTimeseries = () => {
-  
-} 
-
 export default function ExperienceScoreCard({ lcp, cls, fcp, fid, pageViews }) {
 
   if(!lcp?.metric) {
@@ -117,7 +112,7 @@ export default function ExperienceScoreCard({ lcp, cls, fcp, fid, pageViews }) {
   const COLORS = ['#f1f5f9', (roundedScore >= 90 ? '#10b981': (roundedScore >= 50 ? '#eab308': '#f43f5e'))];
   
   return (
-    <Card >
+    <Card>
         
       <div className='flex'>
         <div className="w-1/3 flex flex-col pr-4">

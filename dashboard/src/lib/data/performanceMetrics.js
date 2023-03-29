@@ -72,19 +72,23 @@ export default class PerformanceMetricsData {
     return { numRecords: results.rows[0].num_records, average: results.rows[0].average };
   }
 
-  static async getPercentileMetric({ projectKey, metric, percentile = 0.75, startTs }) {
+  static async getPercentileMetric({ projectKey, metric, urlHost, urlPath, percentile = 0.75, startTs }) {
     const query = `
       SELECT
         COUNT(*) AS num_records,
         PERCENTILE_CONT(${percentile}) WITHIN GROUP (ORDER BY metric_value) AS percentile_result
       FROM
         performance_metrics
+      JOIN
+        page_views ON performance_metrics.page_view_uuid = page_views.uuid
       WHERE
-        project_key = $1 AND
-        metric_name = $2 AND
-        created_at >= $3
+        page_views.project_key = $1 AND
+        performance_metrics.metric_name = $2 AND
+        page_views.page_view_ts >= $3 AND
+        page_views.url_host = $4 AND
+        page_views.url_path = $5
     `;
-    return (await db.query(query, [projectKey, metric, new Date(startTs)])).rows[0];
+    return (await db.query(query, [projectKey, metric, new Date(startTs), urlHost, urlPath])).rows[0];
   }
 
   static async getAveragesGroupedByPages({ projectKey, metric, startTs }) {
