@@ -109,11 +109,11 @@ export default function ExperienceScoreCard({ lcp, cls, fcp, fid, pageViews }) {
     cls?.metric?.weightedScore+fcp?.metric?.weightedScore))
   const roundedScore = Math.ceil(experienceScore)
   const data = resScore(roundedScore); 
+  const timeseriesData = calculateTimeseries(lcp, cls, fcp, fid);
   const COLORS = ['#f1f5f9', (roundedScore >= 90 ? '#10b981': (roundedScore >= 50 ? '#eab308': '#f43f5e'))];
   
   return (
     <Card>
-        
       <div className='flex'>
         <div className="w-1/3 flex flex-col pr-4">
           <h2 className="text-center text-lg font-normal text-gray-900">Swishjam's Real User Experience Score</h2>
@@ -136,26 +136,24 @@ export default function ExperienceScoreCard({ lcp, cls, fcp, fid, pageViews }) {
             </Pie>
           </PieChart>
           <div className="flex mt-6">
-            <div
-              className="text-swishjam mx-auto text-center min-w-fit rounded-full bg-white py-2.5 px-4 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 "
-            >
-            {pageViews?.toLocaleString()} Page Views
+            <div className="text-swishjam mx-auto text-center min-w-fit rounded-full bg-white py-2.5 px-4 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300">
+              {pageViews?.toLocaleString()} Page Views
             </div>
           </div> 
         </div>
-        <div className="w-2/3 flex">
-          {calculateTimeseries(lcp, cls, fcp, fid).length > 0 ?
-          <AreaChart
-            data={calculateTimeseries(lcp, cls, fcp, fid)}
-            dataKey="date"
-            categories={['score']}
-            colors={['blue']}
-            showLegend={false}
-            startEndOnly={true}
-            marginTop="mt-12"
-            valueFormatter={d => d.toLocaleString()}
-            yAxisWidth="w-10"
-          />:<CardLoading />}
+        <div className="w-2/3 flex items-center justify-center">
+          {timeseriesData.length > 0 ?
+            <AreaChart
+              data={timeseriesData}
+              dataKey="date"
+              categories={['score']}
+              colors={['blue']}
+              showLegend={false}
+              startEndOnly={true}
+              marginTop="mt-12"
+              valueFormatter={d => d.toLocaleString()}
+              yAxisWidth="w-10"
+            /> : <CardLoading />}
         </div>
       </div>
     </Card>

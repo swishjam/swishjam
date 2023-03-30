@@ -18,15 +18,16 @@ function tryToFindDefaultPath(urlPaths) {
   return autoSelectedPathUrl;
 }
 
-export default function PathUrlFilterer({ urlHost, onPathSelected }) {
+export default function PathUrlFilterer({ urlHost, onPathSelected, includeAllPathsSelection = false }) {
   const { currentProject } = useAuth();
   const [filterOptions, setFilterOptions] = useState();
   const [selectedOption, setSelectedOption] = useState();
 
   useEffect(() => {
-    if (currentProject) {
+    if (currentProject && urlHost) {
       setFilterOptions(undefined);
       PageUrlsApi.getUniquePaths({ urlHost }).then(urlPaths => {
+        if (includeAllPathsSelection) urlPaths.unshift('All Paths');
         setFilterOptions(urlPaths);
         const defaultPath = tryToFindDefaultPath(urlPaths);
         if (defaultPath) {
@@ -45,15 +46,15 @@ export default function PathUrlFilterer({ urlHost, onPathSelected }) {
 
   return (
     <>
-      {filterOptions ? <Dropdown options={filterOptions}
-                                    selected={selectedOption}
-                                    onSelect={onDropdownSelection}
-                                    dropdownIcon={<FunnelIcon className="h-5 w-5 text-gray-400" aria-hidden="true" />}
-                                    label={'Path URL filter'} /> : (
-                                    <div className='flex items-center'>
-                                      <div className='h-8 w-12 animate-pulse bg-gray-100 border-gray-400 rounded' />
-                                    </div>
-                                    )}
+      {filterOptions && urlHost ? <Dropdown options={filterOptions}
+                                              selected={selectedOption}
+                                              onSelect={onDropdownSelection}
+                                              dropdownIcon={<FunnelIcon className="h-5 w-5 text-gray-400" aria-hidden="true" />}
+                                              label={'Path URL filter'} /> : (
+                                              <div className='flex items-center'>
+                                                <div className='h-10 w-20 animate-pulse bg-gray-50 border border-gray-400 rounded-md' />
+                                              </div>
+                                              )}
 
     </>
   )

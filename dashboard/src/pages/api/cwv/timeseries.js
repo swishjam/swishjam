@@ -3,14 +3,7 @@ import PerformanceMetricsData from '@lib/data/performanceMetrics';
 
 export default async (req, res) => {
   const defaultStartTs = Date.now() - 1000 * 60 * 60 * 24 * 7;
-  const { 
-    projectKey, 
-    metric, 
-    urlHost, 
-    urlPath, 
-    percentile = 0.75, 
-    startTs = defaultStartTs 
-  } = req.query;
+  const { projectKey, metric, urlHost, urlPath, percentile = 0.75, startTs = defaultStartTs } = req.query;
 
   
   return await runQueryIfUserHasAccess({ req, res, projectKey }, async () => {

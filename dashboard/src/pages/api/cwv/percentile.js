@@ -7,10 +7,7 @@ export default async (req, res) => {
 
   return runQueryIfUserHasAccess({ req, res, projectKey }, async () => {
     try {
-      if (!metric) throw new Error('Missing `metric` query param');
-      if (!urlHost) throw new Error('Missing `url_host` query param');
-      if (!urlPath) throw new Error('Missing `url_path` query param');
-      const result = await PerformanceMetricsData.getPercentileMetric({ projectKey, metric, urlHost, urlPath, percentile: parseFloat(percentile), startTs });
+      const result = await PerformanceMetricsData.getPercentileForMetric({ projectKey, metric, urlHost, urlPath, percentile: parseFloat(percentile), startTs });
       return res.status(200).json({ ...result });
     } catch(err) {
       console.error(err);

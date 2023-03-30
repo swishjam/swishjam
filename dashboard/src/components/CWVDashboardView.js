@@ -14,7 +14,7 @@ import PathUrlFilterer from './Filters/PathUrlFilterer';
 const initialCwvState = ({ key, title}) => ({ key, title, metric: null, timeseriesData: [{}] })
 
 export default function CwvDashboardView() {
-  const { initial: currentUserDataIsLoading, currentProject } = useAuth();
+  const { currentProject } = useAuth();
 
   const [lcp, setLCP] = useState(initialCwvState({ key: 'LCP', title: 'Largest Contentful Paint' }));
   const [inp, setINP] = useState(initialCwvState({ key: 'INP', title: 'Interaction to Next Paint' }));
@@ -25,13 +25,21 @@ export default function CwvDashboardView() {
   const [numPageViews, setNumPageViews] = useState();
 
   const [hostUrlToFilterOn, setHostUrlToFilterOn] = useState();
-  const [urlPathToFilterOn, setUrlPathToFilterOn] = useState();
-  
-  const [isFetchingCwvData, setIsFetchingCwvData] = useState(true);
   const [hasNoData, setHasNoData] = useState();
+
+  const resetDashboardData = () => {
+    setLCP(initialCwvState({ key: 'LCP', title: 'Largest Contentful Paint' }));
+    setINP(initialCwvState({ key: 'INP', title: 'Interaction to Next Paint' }));
+    setCLS(initialCwvState({ key: 'CLS', title: 'Cumulative Layout Shift' }));
+    setFCP(initialCwvState({ key: 'FCP', title: 'First Contentful Paint' }));
+    setFID(initialCwvState({ key: 'FID', title: 'First Input Delay' }));
+    setTTFB(initialCwvState({ key: 'TTFB', title: 'Time to First Byte' }));
+  }
   
   const getAndSetWebVitalMetric = async ({ metric, urlHost, urlPath }) => {
-    return WebVitalsApi.getPercentileForMetric({ metric, urlHost, urlPath, percentile: 0.75 }).then(res => {
+    const params = { metric, urlHost, urlPath, percentile: 0.75 };
+    if (urlPath === 'All Paths' || !urlPath) delete params.urlPath;
+    return WebVitalsApi.getPercentileForMetric(params).then(res => {
       const cwv = calcCwvMetric(res.percentile_result, metric);
       const setStateMethod = { LCP: setLCP, INP: setINP, CLS: setCLS, FCP: setFCP, FID: setFID, TTFB: setTTFB }[metric];
       setStateMethod(prevState => ({ ...prevState, metric: cwv }));
@@ -39,17 +47,20 @@ export default function CwvDashboardView() {
   };
 
   const getTimeseriesDataForMetric = async ({ metric, urlHost, urlPath }) => {
-    return WebVitalsApi.timeseries({ metric, urlHost, urlPath, percentile: 0.75 }).then(chartData => {
+    const params = { metric, urlHost, urlPath, percentile: 0.75 };
+    if (urlPath === 'All Paths' || !urlPath) delete params.urlPath;
+    return WebVitalsApi.timeseries(params).then(chartData => {
       const setStateMethod = { LCP: setLCP, INP: setINP, CLS: setCLS, FCP: setFCP, FID: setFID, TTFB: setTTFB }[metric];
       const chartDataMod = chartData.map(d => ({ ...d, metric: calcCwvMetric(d.p75, metric) })); 
       setStateMethod(prevState => ({ ...prevState, timeseriesData: chartDataMod }));
-      setIsFetchingCwvData(false);
     })
   }
 
   const getDashboardDataForUrlHostAndPath = async (urlHost, urlPath) => {
-    setIsFetchingCwvData(true);
-    PageViewsAPI.getCount({ urlHost, urlPath }).then(setNumPageViews); 
+    resetDashboardData();
+    const params = { urlHost, urlPath };
+    if (urlPath === 'All Paths' || !urlPath) delete params.urlPath;
+    PageViewsAPI.getCount(params).then(setNumPageViews); 
     return Promise.all([
       getAndSetWebVitalMetric({ metric: 'LCP', urlHost, urlPath }),
       getAndSetWebVitalMetric({ metric: 'INP', urlHost, urlPath }),
@@ -63,7 +74,7 @@ export default function CwvDashboardView() {
       getTimeseriesDataForMetric({ metric: 'FCP', urlHost, urlPath }),
       getTimeseriesDataForMetric({ metric: 'FID', urlHost, urlPath }),
       getTimeseriesDataForMetric({ metric: 'TTFB', urlHost, urlPath }),
-    ]).then(() => setIsFetchingCwvData(false))
+    ])
   }
 
   if (hasNoData) {
@@ -72,33 +83,6 @@ export default function CwvDashboardView() {
         <div className="w-full my-6">
           <SnippetInstall projectId={currentProject?.public_id} />
         </div>
-      </main>
-    )
-  } else if (isFetchingCwvData) {
-    return (
-      <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mb-8 ">
-        <div className='grid grid-cols-2 mt-8 flex items-center'>
-          <div>
-            <h1 className="text-lg font-medium">Core Web Vitals for {currentProject.name}</h1>
-          </div>
-
-          <div className="w-full flex items-center justify-end">
-            <HostUrlFilterer onHostSelected={setHostUrlToFilterOn} onNoHostsFound={() => setHasNoData(false) } />
-            <div className='inline-block ml-2'>
-              {hostUrlToFilterOn && <PathUrlFilterer urlHost={hostUrlToFilterOn}
-                                                      onPathSelected={urlPath => {
-                                                        setUrlPathToFilterOn(urlPath)
-                                                        getDashboardDataForUrlHostAndPath(hostUrlToFilterOn, urlPath)
-                                                      }} />}
-            </div>
-          </div>
-        </div>
-
-        <ColGrid numColsMd={2} numColsLg={3} gapX="gap-x-6" gapY="gap-y-6" marginTop="mt-6">
-          {[lcp, cls, inp, fcp, fid, ttfb].map(item => (
-            <WebVitalCard key={item.key} accronym={item.key} title={item.title} metric={null} timeseriesData={item.timeseriesData} />
-          ))}
-        </ColGrid>
       </main>
     )
   } else {
@@ -111,37 +95,26 @@ export default function CwvDashboardView() {
           </div>
 
           <div className="w-full flex items-center justify-end">
-            <HostUrlFilterer onHostSelected={setHostUrlToFilterOn} />
+            <HostUrlFilterer onNoHostsFound={() => setHasNoData(true)}
+                              onHostSelected={hostUrl => {
+                                                resetDashboardData();
+                                                setHostUrlToFilterOn(hostUrl);
+                                              }} />
             <div className='inline-block ml-2'>
-              {hostUrlToFilterOn && <PathUrlFilterer urlHost={hostUrlToFilterOn} 
-                                                      onPathSelected={urlPath => {
-                                                        setUrlPathToFilterOn(urlPath)
-                                                        getDashboardDataForUrlHostAndPath(hostUrlToFilterOn, urlPath)
-                                                      }} />}
+              <PathUrlFilterer urlHost={hostUrlToFilterOn} 
+                                includeAllPathsSelection={true}
+                                onPathSelected={urlPath => getDashboardDataForUrlHostAndPath(hostUrlToFilterOn, urlPath)} />
             </div>
           </div>
         </div>
 
         <div className='mt-8 flex items-center'>
-          {/*JSON.stringify(lcp)*/}
-          <ExperienceScoreCard
-            lcp={lcp}
-            cls={cls}
-            fcp={fcp}
-            fid={fid}           
-            pageViews={numPageViews}
-          />
+          <ExperienceScoreCard lcp={lcp} cls={cls} fcp={fcp} fid={fid} pageViews={numPageViews} />
         </div>
 
         <ColGrid numColsMd={2} numColsLg={3} gapX="gap-x-6" gapY="gap-y-6" marginTop="mt-6">
           {[lcp, cls, inp, fcp, fid, ttfb].map(item => (
-            <WebVitalCard
-              key={item.key}
-              accronym={item.key}
-              title={item.title}
-              metric={item.metric}
-              timeseriesData={item.timeseriesData}
-            />
+            <WebVitalCard key={item.key} accronym={item.key} title={item.title} metric={item.metric} timeseriesData={item.timeseriesData} />
           ))}
         </ColGrid>
       </main>
