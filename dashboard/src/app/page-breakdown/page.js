@@ -5,7 +5,7 @@ import 'react-popper-tooltip/dist/styles.css';
 
 import { useAuth } from '@/components/AuthProvider';
 import AuthenticatedView from "@/components/AuthenticatedView";
-import SnippetInstall from '@/components/SnippetInstall';
+import SnippetInstall from '@/components/SnippetInstall/SnippetInstall';
 import { PageUrlsApi } from '@/lib/api-client/page-urls';
 import { PerformanceMetricsApi } from '@/lib/api-client/performance-metrics';
 import { PageViewsAPI } from '@/lib/api-client/page-views';
