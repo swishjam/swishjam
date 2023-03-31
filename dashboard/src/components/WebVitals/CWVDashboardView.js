@@ -2,10 +2,10 @@
 import { useState } from 'react';
 import { ColGrid } from '@tremor/react';
 import { useAuth } from '@components/AuthProvider';
-import SnippetInstall from '@components/SnippetInstall';
+import SnippetInstall from '@components/SnippetInstall/SnippetInstall';
 import ExperienceScoreCard from '@/components/WebVitals/ExperienceScoreCard';
 import WebVitalCard from '@/components/WebVitals/WebVitalCard';
-import HostUrlFilterer from '../Filters/HostUrlFilterer';
+import HostUrlFilterer from '@components/Filters/HostUrlFilterer';
 import { calcCwvMetric } from '@lib/cwvCalculations';
 import { PageViewsAPI } from '@/lib/api-client/page-views';
 import { WebVitalsApi } from '@/lib/api-client/web-vitals';

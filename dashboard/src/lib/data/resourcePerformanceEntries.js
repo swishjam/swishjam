@@ -87,6 +87,7 @@ export default class ResourcePerformanceEntries {
       SELECT
         name,
         rpe.render_blocking_status,
+        rpe.initiator_type,
         COUNT(rpe.name) AS total_count,
         PERCENTILE_CONT(${percentile}) WITHIN GROUP (ORDER BY rpe.start_time ASC) AS start_time,
         PERCENTILE_CONT(${percentile}) WITHIN GROUP (ORDER BY rpe.domain_lookup_start ASC) AS domain_lookup_start,
