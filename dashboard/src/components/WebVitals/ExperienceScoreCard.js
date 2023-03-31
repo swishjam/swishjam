@@ -90,8 +90,6 @@ export default function ExperienceScoreCard({ timeseriesData, metricPercentiles,
   const data = resScore(roundedScore); 
   const experienceScoreTimeseriesData = calculateTimeseries(timeseriesData);
   const COLORS = ['#f1f5f9', (roundedScore >= 90 ? '#10b981': (roundedScore >= 50 ? '#eab308': '#f43f5e'))];
-  console.log('original timeseriesData: ', timeseriesData);
-  console.log('experienceScoreTimeseriesData: ', experienceScoreTimeseriesData);
   
   return (
     <Card>
