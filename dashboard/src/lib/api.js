@@ -31,7 +31,7 @@ export const GetCWVTimeSeriesData = async params => {
     return data.results.map(result => {
       return {
         timestamp: formattedDate(result.hour),
-        p75: parseFloat(result.percentile_result || 0),
+        p75: parseFloat(result.value || 0),
       }
     });
   } catch (e) {

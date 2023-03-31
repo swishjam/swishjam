@@ -31,7 +31,7 @@ export default class PerformanceMetricsData {
       const query = `
         SELECT
           CAST(COUNT(*) AS int) AS num_records,
-          PERCENTILE_CONT(${percentile}) WITHIN GROUP (ORDER BY metric_value) AS percentile_result
+          CAST(PERCENTILE_CONT(${percentile}) WITHIN GROUP (ORDER BY metric_value) AS float) AS value
         FROM
           performance_metrics
         JOIN
@@ -48,7 +48,7 @@ export default class PerformanceMetricsData {
       const query = `
         SELECT
           CAST(COUNT(*) AS int) AS num_records,
-          PERCENTILE_CONT(${percentile}) WITHIN GROUP (ORDER BY metric_value) AS percentile_result
+          CAST(PERCENTILE_CONT(${percentile}) WITHIN GROUP (ORDER BY metric_value) AS float) AS value
         FROM
           performance_metrics
         JOIN
@@ -64,12 +64,14 @@ export default class PerformanceMetricsData {
   }
 
   static async getPercentileTimeseriesDataForMetric({ projectKey, metric, startTs, urlHost, urlPath, percentile = 0.75 }) {
+    if (!projectKey) throw new Error('Missing required parameter: `projectKey`');
     if (!urlHost) throw new Error('Missing required parameter: `urlHost`');
+    if (!metric) throw new Error('Missing required parameter: `metric`');
     if (urlPath) {
       const query = `
         SELECT
-          PERCENTILE_CONT(${percentile}) WITHIN GROUP (ORDER BY metric_value) AS percentile_result,
-          date_trunc('day', page_views.page_view_ts) AS day
+          CAST(PERCENTILE_CONT(${percentile}) WITHIN GROUP (ORDER BY metric_value) AS float) AS value,
+          date_trunc('day', page_views.page_view_ts) AS date
         FROM
           performance_metrics
         LEFT JOIN
@@ -81,15 +83,15 @@ export default class PerformanceMetricsData {
           page_views.url_path = $4 AND
           page_views.url_host = $5
         GROUP BY
-          day
+          date
       `;
       const results = await db.query(query, [projectKey, metric, new Date(startTs), decodeURIComponent(urlPath), decodeURIComponent(urlHost)]);
       return results.rows;
     } else {
       const query = `
         SELECT
-          PERCENTILE_CONT(${percentile}) WITHIN GROUP (ORDER BY metric_value) AS percentile_result,
-          date_trunc('day', page_views.page_view_ts) AS day
+          PERCENTILE_CONT(${percentile}) WITHIN GROUP (ORDER BY metric_value) AS value,
+          date_trunc('day', page_views.page_view_ts) AS date
         FROM
           performance_metrics
         LEFT JOIN
@@ -100,14 +102,14 @@ export default class PerformanceMetricsData {
           page_views.page_view_ts >= $3 AND
           page_views.url_host = $4
         GROUP BY
-          day
+          date
       `;
       const results = await db.query(query, [projectKey, metric, new Date(startTs), decodeURIComponent(urlHost)]);
       return results.rows;
     }
   };
 
-  static async getTimeseriesgoodNeedsWorkBadChartDataDataForMetric({ projectKey, metric, urlHost, urlPath, startTs }) {
+  static async getGoodNeedsImprovementChartDataDataForMetric({ projectKey, metric, urlHost, urlPath, startTs }) {
     if (!cwvMetricBounds[metric]) throw new Error(`Invalid metric: ${metric}`);
     if (!urlHost) throw new Error(`Missing required parameter: \`urlHost\``);
     if (urlPath) {
@@ -126,7 +128,7 @@ export default class PerformanceMetricsData {
                 metric_value <= ${cwvMetricBounds[metric].medium} 
               THEN 1 END
             )
-          AS int) AS num_needs_work_records,
+          AS int) AS num_needs_improvement_records,
           CAST(
             COUNT(CASE WHEN metric_value > ${cwvMetricBounds[metric].medium} THEN 1 END) 
           AS int) AS num_bad_records
@@ -162,7 +164,7 @@ export default class PerformanceMetricsData {
                 metric_value <= ${cwvMetricBounds[metric].medium} 
               THEN 1 END
             )
-          AS int) AS num_needs_work_records,
+          AS int) AS num_needs_improvement_records,
           CAST(
             COUNT(CASE WHEN metric_value > ${cwvMetricBounds[metric].medium} THEN 1 END) 
           AS int) AS num_bad_records

@@ -18,10 +18,12 @@ export default function MetricGauge({ accronym, percentileValue }) {
         showLabels={false}
       />
       <div className='block'>
-        <div className='inline-block text-end text-xs text-gray-400' style={{ width: `${((cwvBounds.good / totalSize) * 100) + 5}%` }}>
+        <div className='inline-block text-xs text-gray-400 text-center' 
+              style={{ width: `${((cwvBounds.good / totalSize) + ((cwvBounds.medium / totalSize) / 2)) * 100}%` }}>
           {accronym === 'CLS' ? parseFloat(cwvBounds.good).toFixed(2) : formattedMsOrSeconds(cwvBounds.good)}
         </div>
-        <div className='inline-block text-end text-xs text-gray-400' style={{ width: `${((cwvBounds.medium / totalSize) * 100) + 5}%` }}>
+        <div className='inline-block text-xs text-gray-400 text-center' 
+              style={{ width: `${((cwvBounds.good / totalSize) + ((cwvBounds.medium / totalSize) / 2)) * 100}%` }}>
           {accronym === 'CLS' ? parseFloat(cwvBounds.medium).toFixed(2) : formattedMsOrSeconds(cwvBounds.medium)}
         </div>
       </div>

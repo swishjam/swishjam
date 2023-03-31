@@ -9,7 +9,7 @@ export default async (req, res) => {
   return await runQueryIfUserHasAccess({ req, res, projectKey }, async () => {
     try {
       const sqlQueries = JSON.parse(metrics || '[]').map(
-        metric => PerformanceMetricsData.getTimeseriesgoodNeedsWorkBadChartDataDataForMetric({ projectKey, metric, urlHost, urlPath, startTs })
+        metric => PerformanceMetricsData.getGoodNeedsImprovementChartDataDataForMetric({ projectKey, metric, urlHost, urlPath, startTs })
       );
       const results = await Promise.all(sqlQueries);
       const resultsByMetric = results.reduce((acc, result, i) => {

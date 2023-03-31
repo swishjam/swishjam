@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { ColGrid } from '@tremor/react';
 import { useAuth } from '@components/AuthProvider';
 import SnippetInstall from '@components/SnippetInstall';
-import ExperienceScoreCard from '@components/ExperienceScoreCard';
+import ExperienceScoreCard from '@/components/WebVitals/ExperienceScoreCard';
 import WebVitalCard from '@/components/WebVitals/WebVitalCard';
 import HostUrlFilterer from '../Filters/HostUrlFilterer';
 import { calcCwvMetric } from '@lib/cwvCalculations';
@@ -16,6 +16,7 @@ export default function CwvDashboardView() {
 
   const [cwvBarChartData, setCwvBarChartData] = useState({});
   const [cwvPercentileData, setCwvPercentileData] = useState({});
+  const [experienceScoreTimeseriesData, setExperienceScoreTimeseriesData] = useState();
   const [numPageViews, setNumPageViews] = useState();
 
   const [hostUrlToFilterOn, setHostUrlToFilterOn] = useState();
@@ -24,6 +25,20 @@ export default function CwvDashboardView() {
   const resetDashboardData = () => {
     setCwvBarChartData({});
     setCwvPercentileData({});
+    setExperienceScoreTimeseriesData();
+    setNumPageViews();
+  }
+
+  const getAndSetExperienceScoreTimeseriesData = async ({ urlHost, urlPath }) => {
+    const params = { urlHost, urlPath, metrics: JSON.stringify(['LCP', 'INP', 'CLS', 'FCP', 'FID', 'TTFB']) };
+    if (urlPath === 'All Paths' || !urlPath) delete params.urlPath;
+    return WebVitalsApi.getTimeseriesData(params).then(data => {
+      let dataWithExperienceScores = {};
+      Object.keys(data).forEach(key => {
+        dataWithExperienceScores[key] = data[key].map(record => ({ ...record, ...calcCwvMetric(record.value, key) }));
+      });
+      setExperienceScoreTimeseriesData(dataWithExperienceScores);
+    });
   }
   
   const getAndSetWebVitalPercentiles = async ({ urlHost, urlPath }) => {
@@ -32,18 +47,26 @@ export default function CwvDashboardView() {
     return WebVitalsApi.getPercentileForMetrics(params).then(setCwvPercentileData);
   };
 
-  const getBarChartsData = async ({ urlHost, urlPath }) => {
+  const getAndSetBarChartsData = async ({ urlHost, urlPath }) => {
     const params = { urlHost, urlPath, metrics: JSON.stringify(['LCP', 'INP', 'CLS', 'FCP', 'FID', 'TTFB']) };
     if (urlPath === 'All Paths' || !urlPath) delete params.urlPath;
-    return WebVitalsApi.goodNeedsWorkBadChartData(params).then(setCwvBarChartData);
+    return WebVitalsApi.getGoodNeedsImprovementChartData(params).then(setCwvBarChartData);
+  }
+
+  const getAndSetNumPageViews = async ({ urlHost, urlPath }) => {
+    const params = { urlHost, urlPath };
+    if (urlPath === 'All Paths' || !urlPath) delete params.urlPath;
+    return PageViewsAPI.getCount(params).then(setNumPageViews);
   }
 
   const getDashboardDataForUrlHostAndPath = async (urlHost, urlPath) => {
     resetDashboardData();
-    const params = { urlHost, urlPath };
-    if (urlPath === 'All Paths' || !urlPath) delete params.urlPath;
-    PageViewsAPI.getCount(params).then(setNumPageViews); 
-    return Promise.all([ getBarChartsData({ urlHost, urlPath }), getAndSetWebVitalPercentiles({ urlHost, urlPath }) ]);
+    return Promise.all([ 
+      getAndSetNumPageViews({ urlHost, urlPath }),
+      getAndSetBarChartsData({ urlHost, urlPath }), 
+      getAndSetWebVitalPercentiles({ urlHost, urlPath }),
+      getAndSetExperienceScoreTimeseriesData({ urlHost, urlPath })
+    ]);
   }
 
   if (hasNoData) {
@@ -78,49 +101,49 @@ export default function CwvDashboardView() {
         </div>
 
         <div className='mt-8 flex items-center'>
-          {/* <ExperienceScoreCard lcp={lcp} cls={cls} fcp={fcp} fid={fid} pageViews={numPageViews} /> */}
+          <ExperienceScoreCard timeseriesData={experienceScoreTimeseriesData} metricPercentiles={cwvPercentileData} numPageViews={numPageViews} />
         </div>
 
         <ColGrid numColsMd={2} numColsLg={3} gapX="gap-x-6" gapY="gap-y-6" marginTop="mt-6">
           <WebVitalCard 
             accronym='LCP' 
             title='Largest Contentful Paint' 
-            percentileValue={cwvPercentileData.LCP?.percentile_result} 
+            percentileValue={cwvPercentileData.LCP?.value} 
             numRecordsInPercentileCalculation={cwvPercentileData.LCP?.num_records}
             barChartData={cwvBarChartData.LCP} 
           />
           <WebVitalCard 
             accronym='CLS' 
             title='Cumulative Layout Shift' 
-            percentileValue={cwvPercentileData.CLS?.percentile_result} 
+            percentileValue={cwvPercentileData.CLS?.value} 
             numRecordsInPercentileCalculation={cwvPercentileData.CLS?.num_records}
             barChartData={cwvBarChartData.CLS} 
           />
           <WebVitalCard 
             accronym='INP' 
             title='Input to Next Paint' 
-            percentileValue={cwvPercentileData.INP?.percentile_result} 
+            percentileValue={cwvPercentileData.INP?.value} 
             numRecordsInPercentileCalculation={cwvPercentileData.INP?.num_records}
             barChartData={cwvBarChartData.INP} 
           />
           <WebVitalCard 
             accronym='FCP' 
             title='First Contentful Paint' 
-            percentileValue={cwvPercentileData.FCP?.percentile_result} 
+            percentileValue={cwvPercentileData.FCP?.value} 
             numRecordsInPercentileCalculation={cwvPercentileData.FCP?.num_records}
             barChartData={cwvBarChartData.FCP} 
           />
           <WebVitalCard 
             accronym='FID' 
             title='First Input Delay' 
-            percentileValue={cwvPercentileData.FID?.percentile_result} 
+            percentileValue={cwvPercentileData.FID?.value} 
             numRecordsInPercentileCalculation={cwvPercentileData.FID?.num_records}
             barChartData={cwvBarChartData.FID} 
           />
           <WebVitalCard 
             accronym='TTFB' 
             title='Time to First Byte' 
-            percentileValue={cwvPercentileData.TTFB?.percentile_result} 
+            percentileValue={cwvPercentileData.TTFB?.value} 
             numRecordsInPercentileCalculation={cwvPercentileData.TTFB?.num_records}
             barChartData={cwvBarChartData.TTFB} 
           />

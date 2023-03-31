@@ -21,7 +21,7 @@ export default function WebVitalCard({ title, accronym, percentileValue, numReco
     return ({
       date: data.date,
       'Good': parseFloat(data.percentGood).toFixed(2),
-      'Needs Work': parseFloat(data.percentNeedsWork).toFixed(2),
+      'Needs Improvement': parseFloat(data.percentNeedsImprovement).toFixed(2),
       'Bad': parseFloat(data.percentBad).toFixed(2),
     })
   });
@@ -53,10 +53,10 @@ export default function WebVitalCard({ title, accronym, percentileValue, numReco
               <BarChart
                 data={formattedBarChartData}
                 dataKey="date"
-                categories={['Good', 'Needs Work', 'Bad']}
+                categories={['Good', 'Needs Improvement', 'Bad']}
                 colors={['green', 'yellow', 'red']}
                 showLegend={false}
-                startEndOnly={false}
+                startEndOnly={true}
                 valueFormatter={value => `${value}%`}
                 height="h-48"
                 marginTop="mt-4"
