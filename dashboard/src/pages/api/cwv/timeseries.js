@@ -10,14 +10,22 @@ export default async (req, res) => {
     try {
       if (!metric) throw new Error('Missing `metric` query param');
       if (!urlHost) throw new Error('Missing `urlHost` query param');
-      const results = await PerformanceMetricsData.getPercentileTimeseriesDataForMetric({ 
-        projectKey, 
-        metric, 
-        urlHost, 
+      const results = await PerformanceMetricsData.getTimeseriesgoodNeedsWorkBadChartDataDataForMetric({
+        projectKey,
+        metric,
+        urlHost,
         urlPath,
-        percentile: parseFloat(percentile), 
+        // percentile: parseFloat(percentile),
         startTs
       });
+      // const results = await PerformanceMetricsData.getPercentileTimeseriesDataForMetric({ 
+      //   projectKey, 
+      //   metric, 
+      //   urlHost, 
+      //   urlPath,
+      //   percentile: parseFloat(percentile), 
+      //   startTs
+      // });
       return res.status(200).json({ results });
     } catch (err) {
       console.error(err);

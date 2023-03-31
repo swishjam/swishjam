@@ -145,7 +145,6 @@ function determineMinMax(metricScoring) {
 }
 
 export const calcCwvMetric = (value, key, curve = 'desktop') => {
-  
   // curve potentionally can be 'mobile' or 'desktop' 
   const scoring = scoringCurves[curve];
   const metricScoring = scoring[key];

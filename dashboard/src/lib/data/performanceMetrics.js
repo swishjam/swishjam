@@ -1,5 +1,5 @@
 import db from '@lib/db';
-// import { cwvMetricBounds } from '@/lib/cwvCalculations';
+import { cwvMetricBounds } from '@/lib/cwvCalculations';
 
 export default class PerformanceMetricsData {
   static async getPercentilesForAllMetrics({ projectKey, urlHost, urlPath, startTs, percentile }) {
@@ -30,7 +30,7 @@ export default class PerformanceMetricsData {
     if (urlPath) {
       const query = `
         SELECT
-          COUNT(*) AS num_records,
+          CAST(COUNT(*) AS int) AS num_records,
           PERCENTILE_CONT(${percentile}) WITHIN GROUP (ORDER BY metric_value) AS percentile_result
         FROM
           performance_metrics
@@ -47,7 +47,7 @@ export default class PerformanceMetricsData {
     } else {
       const query = `
         SELECT
-          COUNT(*) AS num_records,
+          CAST(COUNT(*) AS int) AS num_records,
           PERCENTILE_CONT(${percentile}) WITHIN GROUP (ORDER BY metric_value) AS percentile_result
         FROM
           performance_metrics
@@ -69,7 +69,6 @@ export default class PerformanceMetricsData {
       const query = `
         SELECT
           PERCENTILE_CONT(${percentile}) WITHIN GROUP (ORDER BY metric_value) AS percentile_result,
-          date_trunc('hour', page_views.page_view_ts) AS hour,
           date_trunc('day', page_views.page_view_ts) AS day
         FROM
           performance_metrics
@@ -82,7 +81,7 @@ export default class PerformanceMetricsData {
           page_views.url_path = $4 AND
           page_views.url_host = $5
         GROUP BY
-          day, hour
+          day
       `;
       const results = await db.query(query, [projectKey, metric, new Date(startTs), decodeURIComponent(urlPath), decodeURIComponent(urlHost)]);
       return results.rows;
@@ -90,7 +89,6 @@ export default class PerformanceMetricsData {
       const query = `
         SELECT
           PERCENTILE_CONT(${percentile}) WITHIN GROUP (ORDER BY metric_value) AS percentile_result,
-          date_trunc('hour', page_views.page_view_ts) AS hour,
           date_trunc('day', page_views.page_view_ts) AS day
         FROM
           performance_metrics
@@ -102,130 +100,87 @@ export default class PerformanceMetricsData {
           page_views.page_view_ts >= $3 AND
           page_views.url_host = $4
         GROUP BY
-          day, hour
+          day
       `;
       const results = await db.query(query, [projectKey, metric, new Date(startTs), decodeURIComponent(urlHost)]);
       return results.rows;
     }
   };
 
-  // static async getAveragesForAllMetrics({ projectKey, urlPath, urlHost, startTs }) {
-  //   const query = `
-  //     SELECT
-  //       performance_metrics.metric_name AS name,
-  //       PERCENTILE_CONT(0.75) WITHIN GROUP (ORDER BY performance_metrics.metric_value ASC) AS average,
-  //       COUNT(*) AS num_records
-  //     FROM
-  //       performance_metrics
-  //     JOIN
-  //       page_views ON performance_metrics.page_view_uuid = page_views.uuid
-  //     WHERE
-  //       page_views.project_key = $1 AND
-  //       page_views.url_host = $2 AND
-  //       page_views.url_path = $3 AND
-  //       page_views.page_view_ts >= $4
-  //     GROUP BY
-  //       performance_metrics.metric_name
-  //   `;
-  //   const queryOptions = [projectKey, urlHost, urlPath, new Date(startTs)];
-  //   return (await db.query(query, queryOptions)).rows;
-  // }
-  //
-  // static async getAverageMetric({ projectKey, metric, startTs, urlPath, urlHost }) {
-  //   let query = `
-  //     SELECT 
-  //       COUNT(*) AS num_records,
-  //       AVG(metric_value) AS average
-  //     FROM 
-  //       performance_metrics 
-  //     JOIN
-  //       page_views ON performance_metrics.page_view_uuid = page_views.uuid
-  //     WHERE 
-  //       page_views.project_key = $1 AND
-  //       performance_metrics.metric_name = $2 AND 
-  //       page_views.page_view_ts >= $3 
-  //   `;
-  //   let queryOptions = [projectKey, metric, new Date(startTs)];
-  //   if(urlPath) {
-  //     query += ` AND page_views.url_path = $4`;
-  //     queryOptions.push(decodeURIComponent(urlPath))
-  //   } else if(urlHost) {
-  //     query += ` AND page_views.url_host = $4`;
-  //     queryOptions.push(decodeURIComponent(urlHost))
-  //   }
-  //   const results = await db.query(query, queryOptions);
-  //   return { numRecords: results.rows[0].num_records, average: results.rows[0].average };
-  // }
-  //
-  // static async getAveragesGroupedByPages({ projectKey, metric, startTs }) {
-  //   const query = `
-  //     SELECT
-  //       page_views.url_path as name,
-  //       AVG(metric_value) AS value
-  //     FROM
-  //       performance_metrics
-  //     INNER JOIN
-  //       page_views ON performance_metrics.page_view_uuid = page_views.uuid
-  //     WHERE
-  //       performance_metrics.metric_name = $1 AND
-  //       page_views.project_key = $2 AND
-  //       page_views.page_view_ts >= $3
-  //     GROUP BY
-  //       name
-  //     ORDER BY
-  //       value DESC
-  //   `;
-  //   const results = await db.query(query, [metric, projectKey, new Date(startTs)]);
-  //   return results.rows;
-  // };
-  //
-  // static async getTimeseriesGoodNeedsWorkBadDataForMetric({ projectKey, metric, startTs }) {
-  //   const metricToUpperBoundsDict = cwvMetricBounds;
-  //   if (!metricToUpperBoundsDict[metric]) throw new Error(`Invalid metric: ${metric}`);
-  //   const query = `
-  //     SELECT
-  //       date_trunc('hour', page_views.page_view_ts) AS hour,
-  //       date_trunc('day', page_views.page_view_ts) AS day,
-  //       COUNT(*) AS num_records,
-  //       COUNT(CASE WHEN metric_value <= ${metricToUpperBoundsDict[metric].good} THEN 1 END) AS num_good_records,
-  //       100.0 * (
-  //         (COUNT(CASE WHEN metric_value <= ${metricToUpperBoundsDict[metric].good} THEN 1 END)) / 
-  //         (COUNT(*))
-  //       ) AS percent_good_records,
-  //       COUNT(
-  //         CASE WHEN 
-  //           metric_value > ${metricToUpperBoundsDict[metric].good} AND 
-  //           metric_value <= ${metricToUpperBoundsDict[metric].medium} 
-  //         THEN 1 END
-  //       ) AS num_medium_records,
-  //       100.0 * (
-  //         (COUNT(
-  //           CASE WHEN 
-  //             metric_value > ${metricToUpperBoundsDict[metric].good} AND 
-  //             metric_value <= ${metricToUpperBoundsDict[metric].medium} 
-  //           THEN 1 END)
-  //         ) / 
-  //         (COUNT(*))
-  //       ) AS percent_medium_records,
-  //       COUNT(CASE WHEN metric_value > ${metricToUpperBoundsDict[metric].medium} THEN 1 END) AS num_bad_records,
-  //       100.0 * (
-  //         (COUNT(CASE WHEN metric_value > ${metricToUpperBoundsDict[metric].medium} THEN 1 END)) / 
-  //         (COUNT(*))
-  //       ) AS percent_bad_records
-  //     FROM
-  //       performance_metrics
-  //     LEFT JOIN 
-  //       page_views ON performance_metrics.page_view_uuid = page_views.uuid
-  //     WHERE
-  //       performance_metrics.project_key = $1 AND
-  //       metric_name = $2 AND
-  //       page_views.page_view_ts >= $3
-  //     GROUP BY
-  //       day, hour
-  //     ORDER BY
-  //       day, hour
-  //   `;
-  //   const results = await db.query(query, [projectKey, metric, new Date(startTs)]);
-  //   return results.rows;
-  // };
+  static async getTimeseriesgoodNeedsWorkBadChartDataDataForMetric({ projectKey, metric, urlHost, urlPath, startTs }) {
+    if (!cwvMetricBounds[metric]) throw new Error(`Invalid metric: ${metric}`);
+    if (!urlHost) throw new Error(`Missing required parameter: \`urlHost\``);
+    if (urlPath) {
+      const query = `
+        SELECT
+          metric_name,
+          date_trunc('day', page_views.page_view_ts) AS date,
+          CAST(COUNT(*) AS int) AS total_num_records,
+          CAST(
+            COUNT(CASE WHEN metric_value <= ${cwvMetricBounds[metric].good} THEN 1 END)
+          AS int) AS num_good_records,
+          CAST(
+            COUNT(
+              CASE WHEN 
+                metric_value > ${cwvMetricBounds[metric].good} AND 
+                metric_value <= ${cwvMetricBounds[metric].medium} 
+              THEN 1 END
+            )
+          AS int) AS num_needs_work_records,
+          CAST(
+            COUNT(CASE WHEN metric_value > ${cwvMetricBounds[metric].medium} THEN 1 END) 
+          AS int) AS num_bad_records
+        FROM
+          performance_metrics
+        LEFT JOIN 
+          page_views ON performance_metrics.page_view_uuid = page_views.uuid
+        WHERE
+          performance_metrics.project_key = $1 AND
+          metric_name = $2 AND
+          page_views.page_view_ts >= $3 AND
+          page_views.url_host = $4 AND
+          page_views.url_path = $5
+        GROUP BY
+          date, metric_name
+        ORDER BY
+          date
+    `;
+      return (await db.query(query, [projectKey, metric, new Date(startTs), decodeURIComponent(urlHost), decodeURIComponent(urlPath)])).rows;
+    } else {
+      const query = `
+        SELECT
+          metric_name,
+          date_trunc('day', page_views.page_view_ts) AS date,
+          CAST(COUNT(*) AS int) AS total_num_records,
+          CAST(
+            COUNT(CASE WHEN metric_value <= ${cwvMetricBounds[metric].good} THEN 1 END)
+          AS int) AS num_good_records,
+          CAST(
+            COUNT(
+              CASE WHEN 
+                metric_value > ${cwvMetricBounds[metric].good} AND 
+                metric_value <= ${cwvMetricBounds[metric].medium} 
+              THEN 1 END
+            )
+          AS int) AS num_needs_work_records,
+          CAST(
+            COUNT(CASE WHEN metric_value > ${cwvMetricBounds[metric].medium} THEN 1 END) 
+          AS int) AS num_bad_records
+        FROM
+          performance_metrics
+        LEFT JOIN 
+          page_views ON performance_metrics.page_view_uuid = page_views.uuid
+        WHERE
+          performance_metrics.project_key = $1 AND
+          metric_name = $2 AND
+          page_views.page_view_ts >= $3 AND
+          page_views.url_host = $4
+        GROUP BY
+          date, metric_name
+        ORDER BY
+          date
+    `;
+      return (await db.query(query, [projectKey, metric, new Date(startTs), decodeURIComponent(urlHost)])).rows;
+    }
+  };
 }
