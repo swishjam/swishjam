@@ -6,17 +6,37 @@ export class WebVitalsApi extends API {
     return await API.get('/api/cwv/average', data);
   }
 
-  static async getPercentileForMetric(data) {
+  static async getPercentileForMetrics(data) {
     return await API.get('/api/cwv/percentile', data);
   }
 
-  static async timeseries(params) {
-    const { results } = await API.get('/api/cwv/timeseries', params);
-    return results.map(result => {
-      return {
-        timestamp: formattedDate(result.hour),
-        p75: parseFloat(result.percentile_result || 0),
-      }
+  static async getGoodNeedsImprovementChartData(data) {
+    const { results } = await API.get('/api/cwv/good-needs-improvement-bad', data);
+    let formattedResults = {};
+    Object.keys(results).forEach(metricKey => {
+      formattedResults[metricKey] = results[metricKey].map(datapoint => ({
+        date: formattedDate(datapoint.date, { includeTime: false }),
+        total: parseInt(datapoint.total_num_records),
+        numGood: parseInt(datapoint.num_good_records || 0),
+        percentGood: (parseInt(datapoint.num_good_records || 0) / parseInt(datapoint.total_num_records)) * 100,
+        numNeedsImprovement: parseInt(datapoint.num_needs_improvement_records || 0),
+        percentNeedsImprovement: (parseInt(datapoint.num_needs_improvement_records || 0) / parseInt(datapoint.total_num_records)) * 100,
+        numBad: parseInt(datapoint.num_bad_records || 0),
+        percentBad: (parseInt(datapoint.num_bad_records || 0) / parseInt(datapoint.total_num_records)) * 100,
+      }));
     });
+    return formattedResults;
+  }
+
+  static async getTimeseriesData(params) {
+    const { results } = await API.get('/api/cwv/timeseries', params);
+    let formattedResults = {};
+    Object.keys(results).forEach(metricKey => {
+      formattedResults[metricKey] = results[metricKey].map(datapoint => ({
+        date: formattedDate(datapoint.date, { includeTime: false }),
+        value: parseFloat(datapoint.value),
+      }));
+    });
+    return formattedResults;
   }
 }

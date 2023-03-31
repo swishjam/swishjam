@@ -1,4 +1,4 @@
-import CwvDashboardView from '@/components/CWVDashboardView';
+import CwvDashboardView from '@/components/WebVitals/CWVDashboardView';
 import AuthenticatedView from '@/components/AuthenticatedView';
 
 export default function Home() {

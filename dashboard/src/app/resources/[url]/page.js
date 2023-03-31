@@ -154,7 +154,7 @@ export default function Resource({ params }) {
           {metricDataDiv('TCP Duration', metricsData.tcpDuration)}
           {metricDataDiv('Transfer Size', metricsData.transferSize, bytesToHumanFileSize)}
         </div>
-        <div className='w-full border rounded-md border-gray-400 p-4 mt-10'>
+        <div className='w-full border rounded-md border-gray-400 p-4 mt-2'>
           <div className='w-full flex justify-end'>
             <div className='w-fit'>
               <MultiSelectDropdown label='Metrics to chart'

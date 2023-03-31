@@ -28,7 +28,7 @@ export const AuthProvider = (props) => {
     //update the current project in local storage
     if(curProject) {
       try {
-        const lsCurProject = await localStorage.setItem("currentProject", JSON.stringify(curProject))
+        localStorage.setItem("currentProject", JSON.stringify(curProject))
         setCurrentProject(curProject)
       } catch(err) {
         console.error(err)
@@ -73,9 +73,7 @@ export const AuthProvider = (props) => {
     }
 
     async function getActiveSession() {
-      const {
-        data: { session: activeSession },
-      } = await supabase.auth.getSession();
+      const { data: { session: activeSession }} = await supabase.auth.getSession();
       setSession(activeSession);
       setUser(activeSession?.user ?? null);
       setInitial(false);
@@ -103,7 +101,6 @@ export const AuthProvider = (props) => {
         localStorage.removeItem("currentProject");
       }
       // check if user is signed in and then try to pull the user's org, sites, & set site
-      console.log(event) 
       if(event === EVENTS.SIGNED_IN) {
         if(currentSession?.user) {
           getCoreUserData(currentSession.user);

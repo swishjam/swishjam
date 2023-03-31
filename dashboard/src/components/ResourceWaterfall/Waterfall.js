@@ -4,7 +4,6 @@ import WaterfallRowVisual from './WaterfallRowVisual';
 import WaterfallOverlay from './WaterfallOverlay';
 import WaterfallRowMetadata from './WaterfallRowMetadata';
 import { formattedMsOrSeconds } from '@/lib/utils';
-import RequestColorIndicator from './RequestColorIndicator';
 
 const deDupLCPEntries = lcpEntries => {
   const filteredLCPEntriesMap = {};
@@ -65,14 +64,6 @@ export default function Waterfall({ resources, performanceMetricsValues, navigat
 
   return (
     <div className='w-full p-2 m-2'>
-      <div className='flex justify-between mb-2'>
-        <RequestColorIndicator title='Waiting' bgColor='bg-gray-300'/>
-        <RequestColorIndicator title='DNS Lookup' bgColor='bg-teal-700' />
-        <RequestColorIndicator title='TCP' bgColor='bg-orange-500' />
-        <RequestColorIndicator title='TLS' bgColor='bg-purple-500' />
-        <RequestColorIndicator title='Request' bgColor='bg-blue-500' />
-        <RequestColorIndicator title='Response' bgColor='bg-red-400' />
-      </div>
       <div className='flex'>
         <div className='w-[20%] border-gray-200 truncate text-sm text-gray-700 inline-block rounded-lg'>
           <div className='block h-5 border-l border-gray-200 pl-2'>Resource</div>

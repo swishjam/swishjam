@@ -10,7 +10,7 @@ import { PageUrlsApi } from '@/lib/api-client/page-urls';
 import { PerformanceMetricsApi } from '@/lib/api-client/performance-metrics';
 import { PageViewsAPI } from '@/lib/api-client/page-views';
 import LoadingSpinner from '@/components/LoadingSpinner';
-import HostUrlFilterer from '@/components/HostUrlFilterer';
+import HostUrlFilterer from '@/components/Filters/HostUrlFilterer';
 import { calcCwvMetric } from '@/lib/cwvCalculations';
 import { metricFormatterPlusUnits } from '@lib/utils';
 
@@ -66,7 +66,6 @@ const CwvBadge = ({metric, cwv}) => {
 }
 
 const TableData = ({ data = []}) => {
-  
   const getMetric = (metrics, key) => {
     const metric = metrics.find(m => m.name.toLowerCase() === key.toLowerCase());
     if (metric) return metric.value
@@ -129,37 +128,30 @@ const TableData = ({ data = []}) => {
   )
 }
 
+const SkeletonTable = () => {
+  return (
+    <>
+      <TableData data={[]} />
+      {Array.from({ length: 10 }).map((_, i) => <div className={`h-12 w-full animate-pulse rounded ${i % 2 === 0 ? 'bg-gray-200' : 'bg-gray-50'}`} /> )}
+    </>
+  )
+}
+
 export default function PageBreakdown() {
   const { currentProject } = useAuth();
-  const [ hostUrlFilterOptions, setHostUrlFilterOptions ] = useState();
   const [ urlPathsData, setUrlPathsData ] = useState();
-  const [ hostUrlToFilterOn, setHostUrlToFilterOn ] = useState();
   const [ urlPaths, setUrlPaths ] = useState();
 
-  const resetData = () => {
-    setUrlPathsData(undefined);
-  }
-
   const onUrlHostSelected = urlHost => {
-    setHostUrlToFilterOn(urlHost);
-    resetData();
+    setUrlPathsData(undefined);
     PageUrlsApi.getUniquePaths({ urlHosts: [urlHost] }).then(urlPaths => {
       setUrlPaths(urlPaths);
       if (urlPaths) updateViewForHostAndPaths({ urlHost, urlPaths });
     });
   }
 
-  const initializeUrlHostFilter = () => {
-    setHostUrlFilterOptions(undefined);
-    setUrlPaths(undefined);
-    setHostUrlToFilterOn(undefined);
-    setUrlPathsData(undefined);
-    resetData();
-    return PageUrlsApi.getUniqueHosts().then(urlHosts => setHostUrlFilterOptions(urlHosts));
-  }
-
   const updateViewForHostAndPaths = async ({ urlPaths, urlHost }) => {
-    resetData();
+    setUrlPathsData(undefined);
    
     let urlsPageViews = urlPaths.map(urlPath => {
       return PageViewsAPI.getCount({ urlHost, urlPath });
@@ -182,11 +174,6 @@ export default function PageBreakdown() {
     setUrlPathsData(upd);
   }
 
-  useEffect(() => {
-    if (!currentProject) return;
-    initializeUrlHostFilter();
-  }, [currentProject]);
-
   return (
     <AuthenticatedView>
       <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mt-8">
@@ -194,21 +181,25 @@ export default function PageBreakdown() {
           <div>
             <h1 className="text-lg font-medium">Page Performance Breakdown</h1>
           </div>
-          <div className='w-full text-end'>
-            {hostUrlFilterOptions &&
-              hostUrlFilterOptions.length > 0 &&
-              <HostUrlFilterer options={hostUrlFilterOptions}
-                                selectedHost={hostUrlToFilterOn}
-                                onHostSelected={onUrlHostSelected} />}
+          <div className='flex justify-end'>
+            {<HostUrlFilterer onHostSelected={onUrlHostSelected} onNoHostsFound={() => {}} />}
           </div>
         </div>
 
         <div className="w-full my-6">
-          {hostUrlFilterOptions === undefined ? loadingSpinner() :
-            hostUrlFilterOptions.length === 0 ? <SnippetInstall projectId={currentProject?.public_id} /> :
-            <div className='rounded-lg border border-gray-200 p-4'>
-              <TableData data={urlPathsData}/>
-            </div>
+          {urlPathsData === undefined 
+              ? (
+                <div className='rounded-lg border border-gray-200 p-4'>
+                  <SkeletonTable />
+                </div>
+              )
+              : urlPaths.length === 0 
+                ? <SnippetInstall projectId={currentProject?.public_id} /> 
+                : (
+                  <div className='rounded-lg border border-gray-200 p-4'>
+                    <TableData data={urlPathsData}/>
+                  </div>
+                )
           }
         </div>
       </main>

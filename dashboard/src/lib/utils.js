@@ -6,7 +6,6 @@ export const sleep = (ms) =>
 export const fetcher = (url) => fetch(url).then((res) => res.json());
 
 const msToSeconds = (ms) => (ms / 1000).toFixed(2);
-export const formattedMsOrSeconds = ms => parseFloat(ms) > 999 ? `${msToSeconds(parseFloat(ms))} s` : `${parseFloat(ms).toFixed(0)} ms`;
 
 const metricFormatter = (value = 0, metricUnits) => {
   if (metricUnits === 's') {
@@ -30,11 +29,18 @@ export {
   msToSeconds,
 }
 
-export const formattedDate = dateString => {
+export const formattedMsOrSeconds = ms => parseFloat(ms) > 999 ? `${msToSeconds(parseFloat(ms))} s` : `${parseFloat(ms).toFixed(0)} ms`;
+
+export const formattedDate = (dateString, opts = {}) => {
+  opts.includeTime = typeof opts.includeTime === 'boolean' ? opts.includeTime : true;
   const d = new Date(dateString);
   const date = d.toLocaleDateString('en-US', { month: '2-digit', day: '2-digit' });
-  const time = d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
-  return `${date} ${time}`;
+  if(opts.includeTime) {
+    const time = d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+    return `${date} ${time}`;
+  } else {
+    return date;
+  }
 };
 
 export const bytesToHumanFileSize = (bytes, decimals = 2) => {
