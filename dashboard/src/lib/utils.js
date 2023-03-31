@@ -7,11 +7,11 @@ export const fetcher = (url) => fetch(url).then((res) => res.json());
 
 const msToSeconds = (ms) => (ms / 1000).toFixed(2);
 
-const metricFormatter = (value, metricUnits) => {
+const metricFormatter = (value = 0, metricUnits) => {
   if (metricUnits === 's') {
-    return `${msToSeconds(value)} s`;
+    return `${msToSeconds(value)}`;
   } else  if (metricUnits === 'ms') {
-    return `${value} ms`; 
+    return `${value}`; 
   } else {
     try {
       return parseFloat(value).toFixed(4);

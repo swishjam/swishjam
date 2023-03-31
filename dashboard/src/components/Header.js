@@ -10,7 +10,8 @@ import SiteSwitcher from '@components/SiteSwitcher';
 
 const navigation = [
   { name: 'Web Vitals', href: '/' },
-  { name: 'Page Resources', href: '/waterfall' },
+  { name: 'Resource Waterfall', href: '/waterfall' },
+  { name: 'Page Breakdown', href: '/page-breakdown' },
   //{ name: 'Projects', href: '#', current: false },
   //{ name: 'Calendar', href: '#', current: false },
 ]
