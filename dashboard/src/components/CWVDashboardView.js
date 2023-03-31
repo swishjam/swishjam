@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { ColGrid } from '@tremor/react';
 import { useAuth } from '@components/AuthProvider';
 import NewSiteDialog from '@components/NewSiteDialog';
-import SnippetInstall from '@components/SnippetInstall';
+import SnippetInstall from '@/components/SnippetInstall/SnippetInstall';
 import ExperienceScoreCard from '@components/ExperienceScoreCard';
 import WebVitalCard from '@components/WebVitalCard';
 import { PlusIcon } from '@heroicons/react/20/solid'
