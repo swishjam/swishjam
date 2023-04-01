@@ -39,13 +39,41 @@ module.exports = class ResourcePerformanceEntryEvent {
       transfer_size: data.transferSize,
       encoded_body_size: data.encodedBodySize,
       decoded_body_size: data.decodedBodySize,
-      // response_status: data.responseStatus
+      next_hop_protocol: data.nextHopProtocol,
+      ...this._computedDurations(data)
+    }
+  }
+
+  _computedDurations(requestTiming) {
+    const hasDetailedTiming = requestTiming.responseStart > 0;
+    if (hasDetailedTiming) {
+      const firstTime = requestTiming.domainLookupStart || requestTiming.secureConnectionStart || requestTiming.requestStart || requestTiming.fetchStart;
+      const waiting_duration = firstTime - requestTiming.fetchStart;
+      const redirect_duration = requestTiming.redirectEnd - requestTiming.redirectStart;
+      // const service_worker_duration = requestTiming.responseEnd - (requestTiming.workerStart || requestTiming.responseEnd);
+      const dns_lookup_duration = requestTiming.domainLookupEnd - requestTiming.domainLookupStart;
+      const tcp_duration = requestTiming.secureConnectionStart - requestTiming.connectStart;
+      const ssl_duration = requestTiming.connectEnd - requestTiming.secureConnectionStart;
+      const request_duration = requestTiming.responseStart - requestTiming.requestStart;
+      const response_duration = requestTiming.responseEnd - requestTiming.responseStart;
+      return {
+        waiting_duration, 
+        redirect_duration, 
+        // service_worker_duration, 
+        dns_lookup_duration, 
+        tcp_duration, 
+        ssl_duration, 
+        request_duration, 
+        response_duration, 
+      };
+    } else {
+      return {}
     }
   }
 
   _safeUrl(name) {
     try {
-      return new URL(name);
+      return new URL(decodeURIComponent(name));
     } catch(err) {
       return {};
     }
