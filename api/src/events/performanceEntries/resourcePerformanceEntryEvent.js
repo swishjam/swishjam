@@ -39,13 +39,38 @@ module.exports = class ResourcePerformanceEntryEvent {
       transfer_size: data.transferSize,
       encoded_body_size: data.encodedBodySize,
       decoded_body_size: data.decodedBodySize,
-      // response_status: data.responseStatus
+      next_hop_protocol: data.nextHopProtocol,
+      ...this._computedDurations(data)
+    }
+  }
+
+  _computedDurations(requestTiming) {
+    const hasDetailedTiming = parseFloat(requestTiming.responseStart) > 0;
+    if (hasDetailedTiming) {
+      const redirect_duration = parseFloat(requestTiming.redirectEnd) - parseFloat(requestTiming.redirectStart);
+      const dns_lookup_duration = parseFloat(requestTiming.domainLookupEnd) - parseFloat(requestTiming.domainLookupStart);
+      const tcp_duration = (parseFloat(requestTiming.secureConnectionStart || 0) || parseFloat(requestTiming.connectStart)) - parseFloat(requestTiming.connectStart);
+      const ssl_duration = parseFloat(requestTiming.connectEnd) - parseFloat(requestTiming.secureConnectionStart);
+      const request_duration = parseFloat(requestTiming.responseStart) - parseFloat(requestTiming.requestStart);
+      const response_duration = parseFloat(requestTiming.responseEnd) - parseFloat(requestTiming.responseStart);
+
+      const firstTime = dns_lookup_duration > 0 
+                          ? parseFloat(requestTiming.domainLookupStart || 0) 
+                          : tcp_duration > 0
+                            ? parseFloat(requestTiming.connectStart || 0) || parseFloat(requestTiming.secureConnectionStart || 0)
+                            : ssl_duration > 0 
+                              ? parseFloat(requestTiming.connectEnd || 0)
+                              : parseFloat(requestTiming.requestStart || 0) || parseFloat(requestTiming.fetchStart || 0);
+      const waiting_duration = firstTime - parseFloat(requestTiming.fetchStart);
+      return { waiting_duration, redirect_duration, dns_lookup_duration, tcp_duration, ssl_duration, request_duration, response_duration };
+    } else {
+      return {}
     }
   }
 
   _safeUrl(name) {
     try {
-      return new URL(name);
+      return new URL(decodeURIComponent(name));
     } catch(err) {
       return {};
     }

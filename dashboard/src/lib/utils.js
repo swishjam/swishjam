@@ -1,10 +1,3 @@
-export const sleep = (ms) =>
-  new Promise((resolve) => {
-    setTimeout(resolve, ms);
-  });
-
-export const fetcher = (url) => fetch(url).then((res) => res.json());
-
 const msToSeconds = (ms) => (ms / 1000).toFixed(2);
 
 const metricFormatter = (value = 0, metricUnits) => {

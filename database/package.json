@@ -8,7 +8,6 @@
   "scripts": {
     "g": "npx sequelize-cli migration:generate",
     "db:m": "npx sequelize-cli db:migrate",
-    "data:m": "node -e 'require(\"./backfills/1678731674878-backfill-resource-performance-entries-name-to-urls.js\").run()'"
+    "data:m": "node -e 'require(\"./backfills/1680323399457-resource-durations.js\").run()'"
   }
 }
-
