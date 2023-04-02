@@ -45,27 +45,24 @@ module.exports = class ResourcePerformanceEntryEvent {
   }
 
   _computedDurations(requestTiming) {
-    const hasDetailedTiming = requestTiming.responseStart > 0;
+    const hasDetailedTiming = parseFloat(requestTiming.responseStart) > 0;
     if (hasDetailedTiming) {
-      const firstTime = requestTiming.domainLookupStart || requestTiming.secureConnectionStart || requestTiming.requestStart || requestTiming.fetchStart;
-      const waiting_duration = firstTime - requestTiming.fetchStart;
-      const redirect_duration = requestTiming.redirectEnd - requestTiming.redirectStart;
-      // const service_worker_duration = requestTiming.responseEnd - (requestTiming.workerStart || requestTiming.responseEnd);
-      const dns_lookup_duration = requestTiming.domainLookupEnd - requestTiming.domainLookupStart;
-      const tcp_duration = requestTiming.secureConnectionStart - requestTiming.connectStart;
-      const ssl_duration = requestTiming.connectEnd - requestTiming.secureConnectionStart;
-      const request_duration = requestTiming.responseStart - requestTiming.requestStart;
-      const response_duration = requestTiming.responseEnd - requestTiming.responseStart;
-      return {
-        waiting_duration, 
-        redirect_duration, 
-        // service_worker_duration, 
-        dns_lookup_duration, 
-        tcp_duration, 
-        ssl_duration, 
-        request_duration, 
-        response_duration, 
-      };
+      const redirect_duration = parseFloat(requestTiming.redirectEnd) - parseFloat(requestTiming.redirectStart);
+      const dns_lookup_duration = parseFloat(requestTiming.domainLookupEnd) - parseFloat(requestTiming.domainLookupStart);
+      const tcp_duration = (parseFloat(requestTiming.secureConnectionStart || 0) || parseFloat(requestTiming.connectStart)) - parseFloat(requestTiming.connectStart);
+      const ssl_duration = parseFloat(requestTiming.connectEnd) - parseFloat(requestTiming.secureConnectionStart);
+      const request_duration = parseFloat(requestTiming.responseStart) - parseFloat(requestTiming.requestStart);
+      const response_duration = parseFloat(requestTiming.responseEnd) - parseFloat(requestTiming.responseStart);
+
+      const firstTime = dns_lookup_duration > 0 
+                          ? parseFloat(requestTiming.domainLookupStart || 0) 
+                          : tcp_duration > 0
+                            ? parseFloat(requestTiming.connectStart || 0) || parseFloat(requestTiming.secureConnectionStart || 0)
+                            : ssl_duration > 0 
+                              ? parseFloat(requestTiming.connectEnd || 0)
+                              : parseFloat(requestTiming.requestStart || 0) || parseFloat(requestTiming.fetchStart || 0);
+      const waiting_duration = firstTime - parseFloat(requestTiming.fetchStart);
+      return { waiting_duration, redirect_duration, dns_lookup_duration, tcp_duration, ssl_duration, request_duration, response_duration };
     } else {
       return {}
     }
