@@ -36,22 +36,22 @@ export default function WaterfallRowVisual({ resource, maxTimestamp }) {
             onMouseOut={() => setIsBeingHovered(false)}
             style={{
               marginLeft: `${(resource.start_time * PIXELS_PER_MS)}px`,
-              width: `${timings.entire * PIXELS_PER_MS}px`
+              // width: `${timings.entire * PIXELS_PER_MS}px`
             }}>
         {timings.request ? (
           <>
             <div className={`h-[40%] animate-[all] inline-block ${isBeingHovered ? REQUEST_LIFE_CYCLE_COLOR_DICT.waiting[1] : REQUEST_LIFE_CYCLE_COLOR_DICT.waiting[0]}`} 
-                  style={{ width: `${timings.waiting * PIXELS_PER_MS}px` }} />
+                  style={{ width: `${resource.waiting_duration * PIXELS_PER_MS}px` }} />
             <div className={`h-[40%] animate-[all] inline-block ${isBeingHovered ? REQUEST_LIFE_CYCLE_COLOR_DICT.dns[1] : REQUEST_LIFE_CYCLE_COLOR_DICT.dns[0]}`} 
-                  style={{ width: `${timings.dns * PIXELS_PER_MS}px` }} />
+                  style={{ width: `${resource.dns_lookup_duration * PIXELS_PER_MS}px` }} />
             <div className={`h-[40%] animate-[all] inline-block ${isBeingHovered ? REQUEST_LIFE_CYCLE_COLOR_DICT.tcp[1] : REQUEST_LIFE_CYCLE_COLOR_DICT.tcp[0]}`} 
-                  style={{ width: `${(timings.tcp + timings.tls) * PIXELS_PER_MS}px` }} />
+                  style={{ width: `${(resource.tcp_duration + timings.tls) * PIXELS_PER_MS}px` }} />
             <div className={`h-[40%] animate-[all] inline-block ${isBeingHovered ? REQUEST_LIFE_CYCLE_COLOR_DICT.tls[1] : REQUEST_LIFE_CYCLE_COLOR_DICT.tls[0]}`} 
-                  style={{ width: `${timings.tls * PIXELS_PER_MS}px` }} />
+                  style={{ width: `${resource.ssl_duration * PIXELS_PER_MS}px` }} />
             <div className={`h-[100%] animate-[all] inline-block ${isBeingHovered ? REQUEST_LIFE_CYCLE_COLOR_DICT.request[1] : REQUEST_LIFE_CYCLE_COLOR_DICT.request[0]}`} 
-                  style={{ width: `${timings.request * PIXELS_PER_MS}px` }} />
+                  style={{ width: `${resource.request_duration * PIXELS_PER_MS}px` }} />
             <div className={`h-[100%] animate-[all] inline-block ${isBeingHovered ? REQUEST_LIFE_CYCLE_COLOR_DICT.response[1] : REQUEST_LIFE_CYCLE_COLOR_DICT.response[0]}`} 
-                  style={{ width: `${timings.response * PIXELS_PER_MS}px` }} />
+                  style={{ width: `${resource.response_duration * PIXELS_PER_MS}px` }} />
           </>
         ) : (
           <>
