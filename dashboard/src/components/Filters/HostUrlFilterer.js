@@ -27,7 +27,6 @@ export default function HostUrlFilterer({ onHostSelected, onNoHostsFound }) {
   const [selectedOption, setSelectedOption] = useState();
 
   useEffect(() => {
-    console.log('Project cfhanged???', currentProject);
     if (currentProject) {
       setFilterOptions();
       setSelectedOption();
@@ -42,7 +41,7 @@ export default function HostUrlFilterer({ onHostSelected, onNoHostsFound }) {
         }
       });
     }
-  }, [currentProject]);
+  }, [currentProject?.key]);
 
   const onDropdownSelection = option => {
     localStorage.setItem('swishjamSelectedHostUrl', option);

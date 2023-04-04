@@ -36,7 +36,7 @@ export default function PathUrlFilterer({ urlHost, onPathSelected, includeAllPat
         }
       });
     }
-  }, [currentProject, urlHost]);
+  }, [currentProject?.key, urlHost]);
 
   const onDropdownSelection = option => {
     localStorage.setItem('swishjamSelectedPathUrl', option);
