@@ -36,9 +36,12 @@ export default function WaterfallRowVisual({ resource, maxTimestamp }) {
             onMouseOut={() => setIsBeingHovered(false)}
             style={{
               marginLeft: `${(resource.start_time * PIXELS_PER_MS)}px`,
-              // width: `${timings.entire * PIXELS_PER_MS}px`
+              width: `${(resource.request_duration 
+                            ? resource.waiting_duration + resource.dns_lookup_duration + resource.tcp_duration + resource.ssl_duration + resource.request_duration + resource.response_duration
+                            : resource.duration) 
+                            * PIXELS_PER_MS}px`
             }}>
-        {timings.request ? (
+        {resource.request_duration ? (
           <>
             <div className={`h-[40%] animate-[all] inline-block ${isBeingHovered ? REQUEST_LIFE_CYCLE_COLOR_DICT.waiting[1] : REQUEST_LIFE_CYCLE_COLOR_DICT.waiting[0]}`} 
                   style={{ width: `${resource.waiting_duration * PIXELS_PER_MS}px` }} />
@@ -56,7 +59,7 @@ export default function WaterfallRowVisual({ resource, maxTimestamp }) {
         ) : (
           <>
             <div className={`h-[100%] animate-[all] inline-block ${isBeingHovered ? REQUEST_LIFE_CYCLE_COLOR_DICT.request[1] : REQUEST_LIFE_CYCLE_COLOR_DICT.request[0]}`} 
-                  style={{ width: `${timings.entire * PIXELS_PER_MS}px` }} />
+                  style={{ width: `${resource.duration * PIXELS_PER_MS}px` }} />
           </>
         )}
       </div>
@@ -74,58 +77,66 @@ export default function WaterfallRowVisual({ resource, maxTimestamp }) {
                       <td>{resource.name}</td>
                     </tr>
                     <tr>
+                      <td className='p-2 text-gray-500'>Total occurrences</td>
+                      <td>{resource.total_count}</td>
+                    </tr>
+                    <tr>
                       <td className='p-2 text-gray-500'>Resource type</td>
                       <td>{resource.initiator_type}</td>
                     </tr>
-                    {timings.request ? (
+                    <tr>
+                      <td className='p-2 text-gray-500'>Start time</td>
+                      <td>{formattedMsOrSeconds(resource.start_time)}</td>
+                    </tr>
+                    {resource.response_duration ? (
                       <>
                         <tr>
                           <td className='p-2 text-gray-500 flex items-center'>
                             <div className={`rounded h-4 w-4 inline-block mr-1 ${REQUEST_LIFE_CYCLE_COLOR_DICT.waiting[0]}`}></div>
                             <span class='italic'>Waiting</span>
                           </td>
-                          <td>{formattedMsOrSeconds(timings.waiting)}</td>
+                          <td>{formattedMsOrSeconds(resource.waiting_duration)}</td>
                         </tr>
                         <tr>
                           <td className='p-2 text-gray-500 flex items-center'>
                             <div className={`rounded h-4 w-4 inline-block mr-1 ${REQUEST_LIFE_CYCLE_COLOR_DICT.dns[0]}`}></div>
                             <span class='italic'>DNS Lookup</span>
                           </td>
-                          <td>{formattedMsOrSeconds(timings.dns)}</td>
+                          <td>{formattedMsOrSeconds(resource.dns_lookup_duration)}</td>
                         </tr>
                         <tr>
                           <td className='p-2 text-gray-500 flex items-center'>
                             <div className={`rounded h-4 w-4 inline-block mr-1 ${REQUEST_LIFE_CYCLE_COLOR_DICT.tcp[0]}`}></div>
                             <span class='italic'>TCP</span>
                           </td>
-                          <td>{formattedMsOrSeconds(timings.tcp)}</td>
+                          <td>{formattedMsOrSeconds(resource.tcp_duration)}</td>
                         </tr>
                         <tr>
                           <td className='p-2 text-gray-500 flex items-center'>
                             <div className={`rounded h-4 w-4 inline-block mr-1 ${REQUEST_LIFE_CYCLE_COLOR_DICT.tls[0]}`}></div>
-                            <span class='italic'>TLS</span>
+                            <span class='italic'>SSL</span>
                           </td>
-                          <td>{formattedMsOrSeconds(timings.tls)}</td>
+                          <td>{formattedMsOrSeconds(resource.ssl_duration)}</td>
                         </tr>
                         <tr>
                           <td className='p-2 text-gray-500 flex items-center'>
                             <div className={`rounded h-4 w-4 inline-block mr-1 ${REQUEST_LIFE_CYCLE_COLOR_DICT.request[0]}`}></div>
                             <span class='italic'>Request</span>
                           </td>
-                          <td>{formattedMsOrSeconds(timings.request)}</td>
+                          <td>{formattedMsOrSeconds(resource.request_duration)}</td>
                         </tr>
                         <tr>
                           <td className='p-2 text-gray-500 flex items-center'>
                             <div className={`rounded h-4 w-4 inline-block mr-1 ${REQUEST_LIFE_CYCLE_COLOR_DICT.response[0]}`}></div>
                             <span class='italic'>Download</span>
                           </td>
-                          <td>{formattedMsOrSeconds(timings.response)}</td>
+                          <td>{formattedMsOrSeconds(resource.response_duration)}</td>
                         </tr>
                         <tr>
-                          <td className='p-2 text-gray-500 flex items-center'>
-                            <span class='bold'>Total</span>
+                          <td className='p-2 text-gray-500 font-semibold flex items-center'>
+                            <span class='italic'>Total Duration</span>
                           </td>
-                          <td>{formattedMsOrSeconds(timings.entire)}</td>
+                          <td>{formattedMsOrSeconds(resource.waiting_duration + resource.dns_lookup_duration + resource.tcp_duration + resource.ssl_duration + resource.request_duration + resource.response_duration)}</td>
                         </tr>
                       </>
                     ) : (
@@ -134,7 +145,7 @@ export default function WaterfallRowVisual({ resource, maxTimestamp }) {
                           <div className={`h-4 w-4 inline-block mr-1 ${REQUEST_LIFE_CYCLE_COLOR_DICT.request[0]}`}></div>
                           <span class='italic'>Network time</span>
                         </td>
-                        <td>{formattedMsOrSeconds(timings.entire)}</td>
+                        <td>{formattedMsOrSeconds(resource.duration)}</td>
                       </tr>
                     )}
                   </tbody>

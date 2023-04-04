@@ -27,7 +27,10 @@ export default function HostUrlFilterer({ onHostSelected, onNoHostsFound }) {
   const [selectedOption, setSelectedOption] = useState();
 
   useEffect(() => {
+    console.log('Project cfhanged???', currentProject);
     if (currentProject) {
+      setFilterOptions();
+      setSelectedOption();
       PageUrlsApi.getUniqueHosts().then(urlHosts => {
         setFilterOptions(urlHosts);
         const defaultHost = tryToFindDefaultHost(urlHosts);

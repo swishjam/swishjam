@@ -88,21 +88,9 @@ export default class ResourcePerformanceEntries {
         name,
         rpe.render_blocking_status,
         rpe.initiator_type,
-        COUNT(rpe.name) AS total_count,
+        CAST(COUNT(rpe.name) AS int) AS total_count,
         PERCENTILE_CONT(${percentile}) WITHIN GROUP (ORDER BY rpe.start_time ASC) AS start_time,
-        PERCENTILE_CONT(${percentile}) WITHIN GROUP (ORDER BY rpe.domain_lookup_start ASC) AS domain_lookup_start,
-        PERCENTILE_CONT(${percentile}) WITHIN GROUP (ORDER BY rpe.domain_lookup_end ASC) AS domain_lookup_end,
-        PERCENTILE_CONT(${percentile}) WITHIN GROUP (ORDER BY rpe.connect_start ASC) AS connect_start,
-        PERCENTILE_CONT(${percentile}) WITHIN GROUP (ORDER BY rpe.connect_end ASC) AS connect_end,
-        PERCENTILE_CONT(${percentile}) WITHIN GROUP (ORDER BY rpe.secure_connection_start ASC) AS secure_connection_start,
-        PERCENTILE_CONT(${percentile}) WITHIN GROUP (ORDER BY rpe.request_start ASC) AS request_start,
-        PERCENTILE_CONT(${percentile}) WITHIN GROUP (ORDER BY rpe.response_start ASC) AS response_start,
-        PERCENTILE_CONT(${percentile}) WITHIN GROUP (ORDER BY rpe.response_end ASC) AS response_end,
         PERCENTILE_CONT(${percentile}) WITHIN GROUP (ORDER BY rpe.duration ASC) AS duration,
-        PERCENTILE_CONT(${percentile}) WITHIN GROUP (ORDER BY rpe.transfer_size ASC) AS transfer_size,
-        PERCENTILE_CONT(${percentile}) WITHIN GROUP (ORDER BY rpe.decoded_body_size ASC) AS decoded_body_size,
-        PERCENTILE_CONT(${percentile}) WITHIN GROUP (ORDER BY rpe.encoded_body_size ASC) AS encoded_body_size,
-        
         PERCENTILE_CONT(${percentile}) WITHIN GROUP (ORDER BY rpe.waiting_duration ASC) AS waiting_duration,
         PERCENTILE_CONT(${percentile}) WITHIN GROUP (ORDER BY rpe.redirect_duration ASC) AS redirect_duration,
         PERCENTILE_CONT(${percentile}) WITHIN GROUP (ORDER BY rpe.dns_lookup_duration ASC) AS dns_lookup_duration,
@@ -110,11 +98,14 @@ export default class ResourcePerformanceEntries {
         PERCENTILE_CONT(${percentile}) WITHIN GROUP (ORDER BY rpe.ssl_duration ASC) AS ssl_duration,
         PERCENTILE_CONT(${percentile}) WITHIN GROUP (ORDER BY rpe.request_duration ASC) AS request_duration,
         PERCENTILE_CONT(${percentile}) WITHIN GROUP (ORDER BY rpe.response_duration ASC) AS response_duration,
+        PERCENTILE_CONT(${percentile}) WITHIN GROUP (ORDER BY rpe.transfer_size ASC) AS transfer_size,
+        PERCENTILE_CONT(${percentile}) WITHIN GROUP (ORDER BY rpe.decoded_body_size ASC) AS decoded_body_size,
+        PERCENTILE_CONT(${percentile}) WITHIN GROUP (ORDER BY rpe.encoded_body_size ASC) AS encoded_body_size,
 
-        SUM(CASE WHEN rpe.transfer_size = 0 THEN 1 ELSE 0 END) AS local_cache_hit_count,
-        SUM(CASE WHEN rpe.transfer_size > 0 THEN 1 ELSE 0 END) AS local_cache_miss_count,
-        SUM(CASE WHEN rpe.encoded_body_size != rpe.decoded_body_size THEN 1 ELSE 0 END) AS compressed_count,
-        SUM(CASE WHEN rpe.encoded_body_size != rpe.decoded_body_size THEN 0 ELSE 1 END) AS not_compressed_count
+        CAST(SUM(CASE WHEN rpe.transfer_size = 0 THEN 1 ELSE 0 END) AS int) AS local_cache_hit_count,
+        CAST(SUM(CASE WHEN rpe.transfer_size > 0 THEN 1 ELSE 0 END) AS int) AS local_cache_miss_count,
+        CAST(SUM(CASE WHEN rpe.encoded_body_size != rpe.decoded_body_size THEN 1 ELSE 0 END) AS int) AS compressed_count,
+        CAST(SUM(CASE WHEN rpe.encoded_body_size != rpe.decoded_body_size THEN 0 ELSE 1 END) AS int) AS not_compressed_count
       FROM
         resource_performance_entries as rpe
       JOIN

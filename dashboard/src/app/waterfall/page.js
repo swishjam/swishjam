@@ -16,6 +16,7 @@ import Waterfall from '@/components/ResourceWaterfall/Waterfall';
 import WaterfallSkeleton from '@/components/ResourceWaterfall/WaterfallSkeleton';
 import PathUrlFilterer from '@/components/Filters/PathUrlFilterer';
 import Legend from '@/components/ResourceWaterfall/Legend';
+import Dropdown from '@/components/Dropdown';
 
 const loadingSpinner = () => {
   return (
@@ -31,6 +32,7 @@ export default function Resources() {
   const { currentProject } = useAuth();
 
   const [hostUrlToFilterOn, setHostUrlToFilterOn] = useState();
+  const [pathUrlToFilterOn, setPathUrlToFilterOn] = useState();
   const [hasData, setHasData] = useState();
   
   const [resources, setResources] = useState();
@@ -38,6 +40,7 @@ export default function Resources() {
   const [performanceMetricsValues, setPerformanceMetricsValues] = useState();
   const [largestContentfulPaintEntries, setLargestContentfulPaintEntries] = useState();
   const [numPageViews, setNumPageViews] = useState();
+  const [percentile, setPercentile] = useState('P75');
   
   const resetData = () => {
     setNavigationPerformanceEntries(undefined);
@@ -47,15 +50,21 @@ export default function Resources() {
     setNumPageViews(undefined);
   }
 
-  const updateViewForHostAndPath = ({ urlPath, urlHost }) => {
+  const updateViewForHostAndPath = ({ urlPath, urlHost, percentile }) => {
     resetData();
     PageViewsAPI.getCount({ urlHost, urlPath }).then(numPageViews => {
       setNumPageViews(numPageViews);
-      const minimumOccurrences = parseFloat(numPageViews) * 0.1; // resource must be present in 10% of page views
-      ResourcePerformanceEntriesApi.getAll({ urlHost, urlPath, minimumOccurrences }).then(setResources);
-      PerformanceMetricsApi.getAllMetricsPercentiles({ urlHost, urlPath }).then(setPerformanceMetricsValues);
-      NavigationPerformanceEntriesApi.getPercentiles({ urlHost, urlPath }).then(setNavigationPerformanceEntries);
-      LargestContentfulPaintEntriesApi.getPercentiles({ urlHost, urlPath }).then(setLargestContentfulPaintEntries);
+      const parsedPercentile = parseInt(percentile.replace('P', '')) / 100;
+      console.log(`Getting data for ${urlHost} ${urlPath} and ${parsedPercentile} percentile`)
+      ResourcePerformanceEntriesApi.getAll({ 
+        urlHost, 
+        urlPath, 
+        minimumOccurrences: parseFloat(numPageViews) * 0.1, 
+        percentile: parsedPercentile 
+      }).then(setResources);
+      PerformanceMetricsApi.getAllMetricsPercentiles({ urlHost, urlPath, percentile: parsedPercentile }).then(setPerformanceMetricsValues);
+      NavigationPerformanceEntriesApi.getPercentiles({ urlHost, urlPath, percentile: parsedPercentile }).then(setNavigationPerformanceEntries);
+      LargestContentfulPaintEntriesApi.getPercentiles({ urlHost, urlPath, percentile: parsedPercentile }).then(setLargestContentfulPaintEntries);
     });
   }
 
@@ -88,7 +97,20 @@ export default function Resources() {
             <div className='ml-2 inline-block'>
               {<PathUrlFilterer 
                   urlHost={hostUrlToFilterOn} 
-                  onPathSelected={urlPath => updateViewForHostAndPath({ urlHost: hostUrlToFilterOn, urlPath }) } 
+                  onPathSelected={urlPath => {
+                    setPathUrlToFilterOn(urlPath);
+                    updateViewForHostAndPath({ urlHost: hostUrlToFilterOn, urlPath, percentile }) 
+                  }} 
+                />}
+            </div>
+            <div className='ml-2 inline-block'>
+              {<Dropdown label='Aggregation method' 
+                          options={['P99', 'P90', 'P75', 'P50']} 
+                          selected={percentile}
+                          onSelect={val => {
+                            setPercentile(val);
+                            updateViewForHostAndPath({ urlHost: hostUrlToFilterOn, urlPath: pathUrlToFilterOn, percentile: val });
+                          }}
                 />}
             </div>
           </div>
