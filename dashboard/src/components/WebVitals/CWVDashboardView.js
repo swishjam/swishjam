@@ -119,9 +119,16 @@ export default function CwvDashboardView() {
             numRecordsInPercentileCalculation={cwvPercentileData.CLS?.num_records}
             barChartData={cwvBarChartData.CLS} 
           />
+          <WebVitalCard
+            accronym='FID'
+            title='First Input Delay'
+            percentileValue={cwvPercentileData.FID?.value}
+            numRecordsInPercentileCalculation={cwvPercentileData.FID?.num_records}
+            barChartData={cwvBarChartData.FID}
+          />
           <WebVitalCard 
             accronym='INP' 
-            title='Input to Next Paint' 
+            title='Interaction to Next Paint' 
             percentileValue={cwvPercentileData.INP?.value} 
             numRecordsInPercentileCalculation={cwvPercentileData.INP?.num_records}
             barChartData={cwvBarChartData.INP} 
@@ -132,13 +139,6 @@ export default function CwvDashboardView() {
             percentileValue={cwvPercentileData.FCP?.value} 
             numRecordsInPercentileCalculation={cwvPercentileData.FCP?.num_records}
             barChartData={cwvBarChartData.FCP} 
-          />
-          <WebVitalCard 
-            accronym='FID' 
-            title='First Input Delay' 
-            percentileValue={cwvPercentileData.FID?.value} 
-            numRecordsInPercentileCalculation={cwvPercentileData.FID?.num_records}
-            barChartData={cwvBarChartData.FID} 
           />
           <WebVitalCard 
             accronym='TTFB' 
