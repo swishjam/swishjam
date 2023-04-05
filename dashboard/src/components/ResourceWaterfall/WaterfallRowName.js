@@ -82,7 +82,6 @@ export default function WaterfallRowName({ resource, index }) {
     }
   }
 
-  console.log(resource)
   return (
     <div className='flex items-center w-full' ref={nameContainerEl} onMouseOver={expandDisplay} onMouseOut={collapseDisplay}>
       <span className='mr-1'>{index + 1} </span>

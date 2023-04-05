@@ -28,6 +28,8 @@ export default function HostUrlFilterer({ onHostSelected, onNoHostsFound }) {
 
   useEffect(() => {
     if (currentProject) {
+      setFilterOptions();
+      setSelectedOption();
       PageUrlsApi.getUniqueHosts().then(urlHosts => {
         setFilterOptions(urlHosts);
         const defaultHost = tryToFindDefaultHost(urlHosts);
@@ -39,7 +41,7 @@ export default function HostUrlFilterer({ onHostSelected, onNoHostsFound }) {
         }
       });
     }
-  }, [currentProject]);
+  }, [currentProject?.key]);
 
   const onDropdownSelection = option => {
     localStorage.setItem('swishjamSelectedHostUrl', option);
