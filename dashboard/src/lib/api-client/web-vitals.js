@@ -10,6 +10,18 @@ export class WebVitalsApi extends API {
     return await API.get('/api/cwv/percentile', data);
   }
 
+  static async getMetricsByDeviceType(data) {
+    return await API.get('/api/cwv/by-device', data);
+  }
+
+  static async getMetricsByConnectionType(data) {
+    return await API.get('/api/cwv/by-connection-type', data);
+  }
+
+  static async getMetricsByBrowser(data) {
+    return await API.get('/api/cwv/by-browser', data);
+  }
+
   static async getGoodNeedsImprovementChartData(data) {
     const { results } = await API.get('/api/cwv/good-needs-improvement-bad', data);
     let formattedResults = {};

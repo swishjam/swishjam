@@ -8,14 +8,45 @@ import LoadingSpinner from '@/components/LoadingSpinner';
 import HostUrlFilterer from '@/components/Filters/HostUrlFilterer';
 import { calcCwvMetric } from '@/lib/cwvCalculations';
 import { metricFormatterPlusUnits } from '@lib/utils';
+import { WebVitalsApi } from '@/lib/api-client/web-vitals';
+
+const formatDemographicData = (results, metricName) => {
+  let formattedData = {}
+  results.metrics.forEach(demographicData => {
+    formattedData[demographicData[metricName]] = formattedData[demographicData[metricName]] || {};
+    formattedData[demographicData[metricName]][demographicData.metric] = {
+      value: demographicData.value,
+      numRecords: demographicData.num_records,
+    }
+  });
+  results.totalCount.forEach(countData => {
+    formattedData[countData[metricName]] = formattedData[countData[metricName]] || {};
+    formattedData[countData[metricName]].totalCount = countData.count;
+  });
+  return formattedData;
+}
 
 export default function VisitorDemographics() {
   const { currentProject } = useAuth();
   const [ urlPathsData, setUrlPathsData ] = useState();
   const [ urlPaths, setUrlPaths ] = useState([1]);
+  const [ demographicData, setDemographicData ] = useState();
+
+  const getAndSetDemographicData = async ({ urlHost }) => {
+    const [byBrowser, byDeviceType] = await Promise.all([
+      WebVitalsApi.getMetricsByBrowser({ urlHost }),
+      WebVitalsApi.getMetricsByDeviceType({ urlHost }),
+      // WebVitalsApi.getMetricsByConnectionType({ urlHost }),
+    ]);
+    setDemographicData({
+      browser: formatDemographicData(byBrowser, 'browser_name'),
+      deviceType: formatDemographicData(byDeviceType, 'device_type'),
+    });
+  }
 
   const onUrlHostSelected = urlHost => {
     setUrlPathsData(['1']);
+    getAndSetDemographicData({ urlHost });
   }
 
   return (
@@ -48,12 +79,15 @@ export default function VisitorDemographics() {
               : urlPaths.length === 0 
                 ? <SnippetInstall projectId={currentProject?.public_id} /> 
                 : (
-                <div className='grid grid-cols-3 gap-6'>
-                  <DemographicsCard title="Devices" />
-                  <DemographicsCard title="Connection Types" />
-                  <DemographicsCard title="Browsers" />
-                </div>
-              )
+                  <>
+                    <div className='grid grid-cols-3 gap-6'>
+                      <DemographicsCard title="Devices" />
+                      <DemographicsCard title="Connection Types" />
+                      <DemographicsCard title="Browsers" />
+                    </div>
+                    {demographicData && JSON.stringify(demographicData)}
+                  </>
+                )
           }
         </div>
 
