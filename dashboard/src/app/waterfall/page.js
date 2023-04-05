@@ -55,7 +55,6 @@ export default function Resources() {
     PageViewsAPI.getCount({ urlHost, urlPath }).then(numPageViews => {
       setNumPageViews(numPageViews);
       const parsedPercentile = parseInt(percentile.replace('P', '')) / 100;
-      console.log(`Getting data for ${urlHost} ${urlPath} and ${parsedPercentile} percentile`)
       ResourcePerformanceEntriesApi.getAll({ 
         urlHost, 
         urlPath, 

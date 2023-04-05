@@ -18,16 +18,17 @@ import {
 } from "@heroicons/react/20/solid";
 
 const METRICS_DROPDOWN_OPTIONS = [
-  { name: 'Waiting Duration', value: 'waitingDuration' },
-  { name: 'Redirect Duration', value: 'redirectDuration' },
-  { name: 'DNS Lookup Duration', value: 'dnsLookupDuration' },
-  { name: 'TCP Connection Duration', value: 'tcpDuration' },
-  { name: 'TLS Connection Duration', value: 'tlsDuration' },
-  { name: 'Initial Connection Duration', value: 'initialConnectionDuration' },
-  { name: 'Time to First Byte Duration', value: 'timeToFirstByteDuration' },
-  { name: 'Download Duration', value: 'downloadDuration' },
-  { name: 'Total Duration', value: 'fetchDuration' },
-  { name: 'Transfer Size', value: 'transferSize' },
+  { name: 'Waiting Duration', value: 'waiting_duration' },
+  { name: 'Redirect Duration', value: 'redirect_duration' },
+  { name: 'DNS Lookup Duration', value: 'dns_lookup_duration' },
+  { name: 'TCP Duration', value: 'tcp_duration' },
+  { name: 'SSL Duration', value: 'ssl_duration' },
+  // { name: 'Initial Connection Duration', value: 'initialConnectionDuration' },
+  { name: 'Time to First Byte Duration', value: 'time_to_first_byte_duration' },
+  { name: 'Request Duration', value: 'request_duration' },
+  { name: 'Download Duration', value: 'download_duration' },
+  { name: 'Total Duration', value: 'duration' },
+  { name: 'Transfer Size', value: 'transfer_size' },
 ];
 
 const RESOURCE_TYPE_ICON_DICT = {
@@ -43,19 +44,41 @@ const RESOURCE_TYPE_ICON_DICT = {
   'other': <ArrowsRightLeftIcon className='h-4 w-4 inline mr-2' aria-hidden="true" />,
 }
 
-const metricDataDiv = (metricName, metricValue, formatter = formattedMsOrSeconds) => {
+const MetricDataDiv = (metricName, metricValue, formatter = formattedMsOrSeconds) => {
   return (
-    <div className="col-span-1">
-      <div className='w-full border rounded-md border-gray-400 p-4 m-1 flex items-center justify-center'>
+    <div className="col-span-1 p-2">
+      <div className='w-full h-full border rounded-md border-gray-400 p-4 m-1 flex items-center justify-center'>
         <div className='text-center'>
           <span className='block text-sm'>{metricName}</span>
-          {typeof metricValue === 'number' ? 
-                  <span className='block text-2xl font-md'>{formatter(metricValue)}</span> : 
-                  <div className='h-6 w-12 animate-pulse bg-gray-300 rounded-md m-auto mt-2' />}
+          {typeof metricValue === 'number' 
+                    ? <span className='block text-2xl font-md'>{formatter(metricValue)}</span> 
+                    : typeof metricValue === 'string' 
+                      ? <span className='block text-sm text-gray-700'>{metricValue}</span> 
+                      : <div className='h-6 w-12 animate-pulse bg-gray-300 rounded-md m-auto mt-2' />}
         </div>
       </div>
     </div>
   )
+}
+
+const formattedResource = resource => {
+  return {
+    date: formattedDate(resource.hour),
+    ...resource,
+    time_to_first_byte_duration: resource.waiting_duration +
+                                  resource.dns_lookup_duration +
+                                  resource.tcp_duration +
+                                  resource.ssl_duration +
+                                  resource.request_duration,
+    duration: resource.request_duration
+                ? resource.waiting_duration +
+                  resource.dns_lookup_duration +
+                  resource.tcp_duration +
+                  resource.ssl_duration +
+                  resource.request_duration +
+                  resource.response_duration
+                : resource.duration,
+  }
 }
 
 export default function Resource({ params }) {
@@ -64,7 +87,7 @@ export default function Resource({ params }) {
 
   const [resourceType, setResourceType] = useState();
   const [metricPercentile, setMetricPercentile] = useState('P75');
-  const [metricsToChart, setMetricsToChart] = useState(['fetchDuration']);
+  const [metricsToChart, setMetricsToChart] = useState(['duration']);
   const [timeseriesData, setTimeseriesData] = useState();
   const [metricsData, setMetricsData] = useState({});
 
@@ -73,42 +96,14 @@ export default function Resource({ params }) {
   const getTimeseriesData = async () => {
     return ResourcePerformanceEntriesApi.getTimeseriesData({ url: resourceUrl, percentile: parsedMetricPercentile }).then(timeseriesData => {
       setResourceType(timeseriesData[0] && timeseriesData[0].initiator_type);
-      const formattedTimeseriesData = timeseriesData.map(entry => {
-        const timings = calculatedResourceTimings(entry);
-        return {
-          name: entry.name,
-          date: formattedDate(entry.hour),
-          waitingDuration: timings.waiting,
-          redirectDuration: timings.redirect,
-          dnsLookupDuration: timings.dns,
-          tcpDuration: timings.tcp,
-          tlsDuration: timings.tls,
-          initialConnectionDuration: timings.initialConnection,
-          timeToFirstByteDuration: timings.request,
-          downloadDuration: timings.response,
-          fetchDuration: timings.entire,
-          transferSize: entry.transfer_size,
-        }
-      })
+      const formattedTimeseriesData = timeseriesData.map(entry => formattedResource(entry));
       setTimeseriesData(formattedTimeseriesData);
     });
   };
 
   const getMetricData = async () => {
-    return ResourcePerformanceEntriesApi.getMetricsData({ url: resourceUrl, percentile: parsedMetricPercentile }).then(metricData => {
-      const timings = calculatedResourceTimings(metricData);
-      setMetricsData({
-        waitingDuration: timings.waiting,
-        redirectDuration: timings.redirect,
-        dnsLookupDuration: timings.dns,
-        tcpDuration: timings.tcp,
-        tlsDuration: timings.tls,
-        initialConnectionDuration: timings.initialConnection,
-        timeToFirstByteDuration: timings.request,
-        downloadDuration: timings.response,
-        fetchDuration: timings.entire,
-        transferSize: metricData.transfer_size,
-      })
+    return ResourcePerformanceEntriesApi.getMetricsData({ url: resourceUrl, percentile: parsedMetricPercentile }).then(resourceData => {
+      setMetricsData(formattedResource(resourceData))
     })
   };
 
@@ -142,24 +137,48 @@ export default function Resource({ params }) {
           </div>
         </div>
         <div className='w-full grid grid-cols-4 gap-4 mt-8'>
-          {metricDataDiv('Total Duration', metricsData.fetchDuration)}
-          {metricDataDiv('Time to First Byte', metricsData.timeToFirstByteDuration)}
-          {metricDataDiv('Download Time', metricsData.downloadDuration)}
-          {metricDataDiv('Initial Connection Time', metricsData.initialConnectionDuration)}
+          {MetricDataDiv('Total Duration', metricsData.duration)}
+          {MetricDataDiv('Waiting Duration', Object.keys(metricsData).length > 0 
+                                                  ? metricsData.request_duration 
+                                                    ? metricsData.waiting_duration : '--' 
+                                                    : null)}
+          {MetricDataDiv('Request Duration', Object.keys(metricsData).length > 0 
+                                                  ? metricsData.request_duration 
+                                                    ? metricsData.request_duration : '--' 
+                                                    : null)}
+          {MetricDataDiv('Download Duration', Object.keys(metricsData).length > 0 
+                                                  ? metricsData.request_duration 
+                                                    ? metricsData.response_duration : '--' 
+                                                    : null)}
         </div>
         <div className='w-full grid grid-cols-5 gap-4'>
-          {metricDataDiv('Redirect Duration', metricsData.redirectDuration)}
-          {metricDataDiv('DNS Lookup Duration', metricsData.dnsLookupDuration)}
-          {metricDataDiv('TLS Duration', metricsData.tlsDuration)}
-          {metricDataDiv('TCP Duration', metricsData.tcpDuration)}
-          {metricDataDiv('Transfer Size', metricsData.transferSize, bytesToHumanFileSize)}
+          {MetricDataDiv('Redirect Duration', Object.keys(metricsData).length > 0 
+                                                  ? metricsData.request_duration 
+                                                    ? metricsData.redirect_duration : '--' 
+                                                    : null)}
+          {MetricDataDiv('DNS Lookup Duration', Object.keys(metricsData).length > 0 
+                                                  ? metricsData.request_duration 
+                                                    ? metricsData.dns_lookup_duration : '--' 
+                                                    : null)}
+          {MetricDataDiv('SSL Duration', Object.keys(metricsData).length > 0 
+                                                  ? metricsData.request_duration 
+                                                    ? metricsData.ssl_duration : '--' 
+                                                    : null)}
+          {MetricDataDiv('TCP Duration', Object.keys(metricsData).length > 0 
+                                                  ? metricsData.request_duration 
+                                                    ? metricsData.tcp_duration : '--' 
+                                                    : null)}
+          {MetricDataDiv('Transfer Size', Object.keys(metricsData).length > 0
+                                                        ? metricsData.request_duration
+                                                          ? metricsData.transfer_size : '--'
+                                                          : null, bytesToHumanFileSize)}
         </div>
         <div className='w-full border rounded-md border-gray-400 p-4 mt-2'>
           <div className='w-full flex justify-end'>
             <div className='w-fit'>
               <MultiSelectDropdown label='Metrics to chart'
                                     onChange={setMetricsToChart} 
-                                    selectedOptions={[{ name: 'Total Duration', value: 'fetchDuration' }]} 
+                                    selectedOptions={[{ name: 'Total Duration', value: 'duration' }]} 
                                     options={METRICS_DROPDOWN_OPTIONS} />
             </div>
           </div>

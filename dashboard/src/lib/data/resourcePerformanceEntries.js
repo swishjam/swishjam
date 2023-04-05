@@ -6,24 +6,21 @@ export default class ResourcePerformanceEntries {
       SELECT
         name,
         initiator_type,
-        COUNT(name) AS total_count,
+        CAST(COUNT(name) AS int) AS total_count,
         date_trunc('hour', page_views.page_view_ts) AS hour,
         date_trunc('day', page_views.page_view_ts) AS day,
         PERCENTILE_CONT(${percentile}) WITHIN GROUP (ORDER BY start_time ASC) AS start_time,
-        PERCENTILE_CONT(${percentile}) WITHIN GROUP (ORDER BY domain_lookup_start ASC) AS domain_lookup_start,
-        PERCENTILE_CONT(${percentile}) WITHIN GROUP (ORDER BY domain_lookup_end ASC) AS domain_lookup_end,
-        PERCENTILE_CONT(${percentile}) WITHIN GROUP (ORDER BY connect_start ASC) AS connect_start,
-        PERCENTILE_CONT(${percentile}) WITHIN GROUP (ORDER BY connect_end ASC) AS connect_end,
-        PERCENTILE_CONT(${percentile}) WITHIN GROUP (ORDER BY secure_connection_start ASC) AS secure_connection_start,
-        PERCENTILE_CONT(${percentile}) WITHIN GROUP (ORDER BY request_start ASC) AS request_start,
-        PERCENTILE_CONT(${percentile}) WITHIN GROUP (ORDER BY response_start ASC) AS response_start,
-        PERCENTILE_CONT(${percentile}) WITHIN GROUP (ORDER BY response_end ASC) AS response_end,
+        PERCENTILE_CONT(${percentile}) WITHIN GROUP (ORDER BY waiting_duration ASC) AS waiting_duration,
+        PERCENTILE_CONT(${percentile}) WITHIN GROUP (ORDER BY redirect_duration ASC) AS redirect_duration,
+        PERCENTILE_CONT(${percentile}) WITHIN GROUP (ORDER BY dns_lookup_duration ASC) AS dns_lookup_duration,
+        PERCENTILE_CONT(${percentile}) WITHIN GROUP (ORDER BY tcp_duration ASC) AS tcp_duration,
+        PERCENTILE_CONT(${percentile}) WITHIN GROUP (ORDER BY ssl_duration ASC) AS ssl_duration,
+        PERCENTILE_CONT(${percentile}) WITHIN GROUP (ORDER BY request_duration ASC) AS request_duration,
+        PERCENTILE_CONT(${percentile}) WITHIN GROUP (ORDER BY response_duration ASC) AS response_duration,
         PERCENTILE_CONT(${percentile}) WITHIN GROUP (ORDER BY duration ASC) AS duration,
         PERCENTILE_CONT(${percentile}) WITHIN GROUP (ORDER BY transfer_size ASC) AS transfer_size,
         PERCENTILE_CONT(${percentile}) WITHIN GROUP (ORDER BY decoded_body_size ASC) AS decoded_body_size,
-        PERCENTILE_CONT(${percentile}) WITHIN GROUP (ORDER BY encoded_body_size ASC) AS encoded_body_size,
-        PERCENTILE_CONT(${percentile}) WITHIN GROUP (ORDER BY redirect_start ASC) AS redirect_start,
-        PERCENTILE_CONT(${percentile}) WITHIN GROUP (ORDER BY redirect_end ASC) AS redirect_end
+        PERCENTILE_CONT(${percentile}) WITHIN GROUP (ORDER BY encoded_body_size ASC) AS encoded_body_size
       FROM
         resource_performance_entries
       JOIN
@@ -46,20 +43,17 @@ export default class ResourcePerformanceEntries {
         name,
         COUNT(name) AS total_count,
         PERCENTILE_CONT(${percentile}) WITHIN GROUP (ORDER BY start_time ASC) AS start_time,
-        PERCENTILE_CONT(${percentile}) WITHIN GROUP (ORDER BY domain_lookup_start ASC) AS domain_lookup_start,
-        PERCENTILE_CONT(${percentile}) WITHIN GROUP (ORDER BY domain_lookup_end ASC) AS domain_lookup_end,
-        PERCENTILE_CONT(${percentile}) WITHIN GROUP (ORDER BY connect_start ASC) AS connect_start,
-        PERCENTILE_CONT(${percentile}) WITHIN GROUP (ORDER BY connect_end ASC) AS connect_end,
-        PERCENTILE_CONT(${percentile}) WITHIN GROUP (ORDER BY secure_connection_start ASC) AS secure_connection_start,
-        PERCENTILE_CONT(${percentile}) WITHIN GROUP (ORDER BY request_start ASC) AS request_start,
-        PERCENTILE_CONT(${percentile}) WITHIN GROUP (ORDER BY response_start ASC) AS response_start,
-        PERCENTILE_CONT(${percentile}) WITHIN GROUP (ORDER BY response_end ASC) AS response_end,
+        PERCENTILE_CONT(${percentile}) WITHIN GROUP (ORDER BY waiting_duration ASC) AS waiting_duration,
+        PERCENTILE_CONT(${percentile}) WITHIN GROUP (ORDER BY redirect_duration ASC) AS redirect_duration,
+        PERCENTILE_CONT(${percentile}) WITHIN GROUP (ORDER BY dns_lookup_duration ASC) AS dns_lookup_duration,
+        PERCENTILE_CONT(${percentile}) WITHIN GROUP (ORDER BY tcp_duration ASC) AS tcp_duration,
+        PERCENTILE_CONT(${percentile}) WITHIN GROUP (ORDER BY ssl_duration ASC) AS ssl_duration,
+        PERCENTILE_CONT(${percentile}) WITHIN GROUP (ORDER BY request_duration ASC) AS request_duration,
+        PERCENTILE_CONT(${percentile}) WITHIN GROUP (ORDER BY response_duration ASC) AS response_duration,
         PERCENTILE_CONT(${percentile}) WITHIN GROUP (ORDER BY duration ASC) AS duration,
         PERCENTILE_CONT(${percentile}) WITHIN GROUP (ORDER BY transfer_size ASC) AS transfer_size,
         PERCENTILE_CONT(${percentile}) WITHIN GROUP (ORDER BY decoded_body_size ASC) AS decoded_body_size,
-        PERCENTILE_CONT(${percentile}) WITHIN GROUP (ORDER BY encoded_body_size ASC) AS encoded_body_size,
-        PERCENTILE_CONT(${percentile}) WITHIN GROUP (ORDER BY redirect_start ASC) AS redirect_start,
-        PERCENTILE_CONT(${percentile}) WITHIN GROUP (ORDER BY redirect_end ASC) AS redirect_end
+        PERCENTILE_CONT(${percentile}) WITHIN GROUP (ORDER BY encoded_body_size ASC) AS encoded_body_size
       FROM
         resource_performance_entries
       JOIN
