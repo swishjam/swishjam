@@ -1,5 +1,24 @@
 {
 	"tokens": {
+		"typography": {
+			"fontSizes": [
+				{
+					"value": 1,
+					"unit": "rem",
+					"name": "sm"
+				},
+				{
+					"value": 1.2,
+					"unit": "rem",
+					"name": "md"
+				},
+				{
+					"value": 1.4,
+					"unit": "rem",
+					"name": "lg"
+				}
+			]
+		},
 		"colorData": [
 			{
 				"name": "DEFAULT",
@@ -9,7 +28,7 @@
 				}
 			},
 			{
-				"name": "Dark",
+				"name": "dark",
 				"baseColor": "#46518f",
 				"variants": {
 					"500": "#46518f"
@@ -77,86 +96,45 @@
 				"variants": {
 					"500": "#394150"
 				}
+			},
+			{
+				"name": "cello",
+				"baseColor": "#19355C",
+				"variants": {
+					"500": "#19355C"
+				}
 			}
 		],
-		"typography": {
-			"fontSizes": [
-				{
-					"value": 0.875,
-					"unit": "rem",
-					"name": "sm"
-				},
-				{
-					"value": 1.4,
-					"unit": "rem",
-					"name": "lg"
-				},
-				{
-					"name": "xs",
-					"value": 0.75,
-					"unit": "rem"
-				},
-				{
-					"name": "base",
-					"value": 1,
-					"unit": "rem"
-				},
-				{
-					"name": "lg",
-					"value": 1.125,
-					"unit": "rem"
-				},
-				{
-					"name": "xl",
-					"value": 1.25,
-					"unit": "rem"
-				},
-				{
-					"name": "2xl",
-					"value": 1.5,
-					"unit": "rem"
-				},
-				{
-					"name": "3xl",
-					"value": 2,
-					"unit": "rem"
-				},
-				{
-					"name": "4xl",
-					"value": 2.5,
-					"unit": "rem"
-				},
-				{
-					"name": "5xl",
-					"value": 3,
-					"unit": "rem"
-				},
-				{
-					"name": "6xl",
-					"value": 3.75,
-					"unit": "rem"
-				},
-				{
-					"name": "7xl",
-					"value": 4.5,
-					"unit": "rem"
-				},
-				{
-					"name": "8xl",
-					"value": 6,
-					"unit": "rem"
-				},
-				{
-					"name": "9xl",
-					"value": 8,
-					"unit": "rem"
-				}
-			]
-		}
+		"shadows": [
+			{
+				"name": "sm",
+				"value": "0 1px 2px 0 rgba(0, 0, 0, 0.05)"
+			},
+			{
+				"name": "md",
+				"value": "0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)"
+			},
+			{
+				"name": "lg",
+				"value": "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)"
+			},
+			{
+				"name": "dark-lg",
+				"value": "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)"
+			}
+		]
 	},
+	"files": [
+		"css",
+		"scss",
+		"js",
+		"cjs",
+		"ts",
+		"json"
+	],
 	"__internal__": {
 		"migrations": {
-			"version": "0.0.3"
+			"version": "0.0.5"
 		}
 	}
 }

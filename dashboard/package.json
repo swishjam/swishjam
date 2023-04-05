@@ -24,8 +24,8 @@
     "react": "^18.2.0",
     "react-copy-to-clipboard": "^5.1.0",
     "react-dom": "^18.2.0",
-    "recharts": "^2.4.3",
     "react-popper-tooltip": "^4.4.2",
+    "recharts": "^2.4.3",
     "yup": "^0.32.11"
   },
   "devDependencies": {
@@ -34,7 +34,7 @@
     "autoprefixer": "^10.4.13",
     "eslint": "^8.31.0",
     "eslint-config-acme": "^2.0.0",
-    "mirrorful": "^4.0.0",
+    "mirrorful": "^5.0.7",
     "postcss": "^8.4.20",
     "prettier": "^2.8.1",
     "prettier-plugin-tailwindcss": "^0.2.1",

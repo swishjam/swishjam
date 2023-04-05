@@ -8,7 +8,7 @@ const typography = require('@tailwindcss/typography')
 module.exports = {
   content: ['./src/**/*.{js,ts,jsx,tsx}'],
   theme: {
-    fontSize: {
+    /*fontSize: {
       xs: [Tokens.fontSizes.xs, { lineHeight: '1rem' }],
       sm: [Tokens.fontSizes.sm, { lineHeight: '1.5rem' }],
       base: [Tokens.fontSizes.base, { lineHeight: '1.75rem' }],
@@ -22,7 +22,7 @@ module.exports = {
       '7xl': [Tokens.fontSizes['7xl'], { lineHeight: '1.1' }],
       '8xl': [Tokens.fontSizes['8xl'], { lineHeight: '1' }],
       '9xl': [Tokens.fontSizes['9xl'], { lineHeight: '1' }],
-    },
+    },*/
     extend: {
       typography: {
         DEFAULT: {
@@ -51,9 +51,10 @@ module.exports = {
           red: Tokens.colors.red.base,
           blue: Tokens.colors.blue.base,
           green: Tokens.colors.green.base,
+          cello: Tokens.colors.cello.base, 
           'off-white':  Tokens.colors['off-white'].base,
           'dark-blue': Tokens.colors['dark-blue'].base,
-          'blue-gray': Tokens.colors['blue-gray'].base,
+          'blue-gray': Tokens.colors['blue-gray'].base
         },
       },
     },
