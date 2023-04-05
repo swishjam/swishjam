@@ -44,7 +44,7 @@ const RESOURCE_TYPE_ICON_DICT = {
   'other': <ArrowsRightLeftIcon className='h-4 w-4 inline mr-2' aria-hidden="true" />,
 }
 
-const MetricDataDiv = (metricName, metricValue, formatter = formattedMsOrSeconds) => {
+const MetricDataDiv = ({ metricName, metricValue, formatter = formattedMsOrSeconds }) => {
   return (
     <div className="col-span-1 p-2">
       <div className='w-full h-full border rounded-md border-gray-400 p-4 m-1 flex items-center justify-center'>
@@ -137,41 +137,58 @@ export default function Resource({ params }) {
           </div>
         </div>
         <div className='w-full grid grid-cols-4 gap-4 mt-8'>
-          {MetricDataDiv('Total Duration', metricsData.duration)}
-          {MetricDataDiv('Waiting Duration', Object.keys(metricsData).length > 0 
+          {<MetricDataDiv metricName='Total Duration' metricValue={metricsData.duration} />}
+          {<MetricDataDiv metricName='Waiting Duration'
+                            metricValue={Object.keys(metricsData).length > 0 
                                                   ? metricsData.request_duration 
                                                     ? metricsData.waiting_duration : '--' 
-                                                    : null)}
-          {MetricDataDiv('Request Duration', Object.keys(metricsData).length > 0 
+                                                    : null}
+            />}
+          {<MetricDataDiv metricName='Request Duration' 
+                            metricValue={Object.keys(metricsData).length > 0 
                                                   ? metricsData.request_duration 
                                                     ? metricsData.request_duration : '--' 
-                                                    : null)}
-          {MetricDataDiv('Download Duration', Object.keys(metricsData).length > 0 
+                                                    : null}
+            />}
+          {<MetricDataDiv metricName='Download Duration' 
+                            metricValue={Object.keys(metricsData).length > 0 
                                                   ? metricsData.request_duration 
                                                     ? metricsData.response_duration : '--' 
-                                                    : null)}
+                                                    : null}
+           />}
         </div>
         <div className='w-full grid grid-cols-5 gap-4'>
-          {MetricDataDiv('Redirect Duration', Object.keys(metricsData).length > 0 
+          {<MetricDataDiv metricName='Redirect Duration' 
+                            metricValue={Object.keys(metricsData).length > 0 
                                                   ? metricsData.request_duration 
                                                     ? metricsData.redirect_duration : '--' 
-                                                    : null)}
-          {MetricDataDiv('DNS Lookup Duration', Object.keys(metricsData).length > 0 
+                                                    : null}
+            />}
+          {<MetricDataDiv metricName='DNS Lookup Duration' 
+                            metricValue={Object.keys(metricsData).length > 0 
                                                   ? metricsData.request_duration 
                                                     ? metricsData.dns_lookup_duration : '--' 
-                                                    : null)}
-          {MetricDataDiv('SSL Duration', Object.keys(metricsData).length > 0 
+                                                    : null}
+            />}
+          {<MetricDataDiv metricName='SSL Duration' 
+                            metricValue={Object.keys(metricsData).length > 0 
                                                   ? metricsData.request_duration 
                                                     ? metricsData.ssl_duration : '--' 
-                                                    : null)}
-          {MetricDataDiv('TCP Duration', Object.keys(metricsData).length > 0 
+                                                    : null}
+            />}
+          {<MetricDataDiv metricName='TCP Duration' 
+                            metricValue={Object.keys(metricsData).length > 0 
                                                   ? metricsData.request_duration 
                                                     ? metricsData.tcp_duration : '--' 
-                                                    : null)}
-          {MetricDataDiv('Transfer Size', Object.keys(metricsData).length > 0
+                                                    : null}
+            />}
+          {<MetricDataDiv metricName='Transfer Size' 
+                            formatter={bytesToHumanFileSize}
+                            metricValue={Object.keys(metricsData).length > 0
                                                         ? metricsData.request_duration
                                                           ? metricsData.transfer_size : '--'
-                                                          : null, bytesToHumanFileSize)}
+                                                          : null}
+            />}
         </div>
         <div className='w-full border rounded-md border-gray-400 p-4 mt-2'>
           <div className='w-full flex justify-end'>
