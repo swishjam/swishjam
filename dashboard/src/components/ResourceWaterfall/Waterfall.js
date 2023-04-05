@@ -45,7 +45,7 @@ export default function Waterfall({ resources, performanceMetricsValues, navigat
     ) + 100
   );
 
-  if (resources[0] && resources[0].initiator_type !== 'navigation' && navigationPerformanceEntries?.response_end) {
+  if (resources[0] && resources[0].initiator_type !== 'navigation') {
     resources.unshift({ ...navigationPerformanceEntries, name: navigationPerformanceEntries.name, initiator_type: 'navigation' });
   }
   
@@ -56,7 +56,7 @@ export default function Waterfall({ resources, performanceMetricsValues, navigat
   while (timeMarkers.length * TIMESTAMP_EVERY_MS < maxTimestamp) {
     const formattedTime = formattedMsOrSeconds(timeMarkers.length * TIMESTAMP_EVERY_MS);
     timeMarkers.push(
-      <div className='text-end inline-block text-gray-400 text-sm border-r h-full' style={{ width: `${TIMESTAMP_EVERY_MS * PIXELS_PER_MS}px` }}>
+      <div key={timeMarkers.length} className='text-end inline-block text-gray-400 text-sm border-r h-full' style={{ width: `${TIMESTAMP_EVERY_MS * PIXELS_PER_MS}px` }}>
         {formattedTime}
       </div>
     )
@@ -90,7 +90,9 @@ export default function Waterfall({ resources, performanceMetricsValues, navigat
           {resources.map((resource, i) => {
             return (
               <div className={`flex items-center h-10 p-2 border-r border-l border-gray-200 ${i % 2 === 0 ? 'bg-gray-100' : ''}`} key={i}>
-                {formattedMsOrSeconds(resource.response_end - resource.start_time)}
+                {formattedMsOrSeconds(resource.response_duration 
+                    ? (resource.waiting_duration + resource.dns_lookup_duration + resource.tcp_duration + resource.ssl_duration + resource.request_duration + resource.response_duration) 
+                    : resource.duration)}
               </div>
             )
           })}
