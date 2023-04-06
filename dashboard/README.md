@@ -4,7 +4,7 @@ The Swishjam Dashboard is a web application that allows you to view your web per
 
 ## Development
 
-Under the hood, the Swishjam Dashboard is a NextJS application. To get started, run the following commands:
+Under the hood, the Swishjam Dashboard is a NextJS application. NodeJS 18+ is required. To get started, run the following commands:
 
 First, install packages:
 
