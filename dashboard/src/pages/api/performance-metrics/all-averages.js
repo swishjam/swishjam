@@ -1,4 +1,4 @@
-import PerformanceMetrics from '@/lib/data/performanceMetrics';
+import PerformanceMetrics from '@/lib/data/webVitals';
 import { runQueryIfUserHasAccess } from '@/lib/analyticQuerier';
 
 export default async (req, res) => {

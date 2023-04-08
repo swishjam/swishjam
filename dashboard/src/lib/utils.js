@@ -25,16 +25,35 @@ export {
 export const formattedMsOrSeconds = ms => parseFloat(ms) > 999 ? `${msToSeconds(parseFloat(ms))} s` : `${parseFloat(ms).toFixed(0)} ms`;
 
 export const formattedDate = (dateString, opts = {}) => {
-  opts.includeTime = typeof opts.includeTime === 'boolean' ? opts.includeTime : true;
-  const d = new Date(dateString);
-  const date = d.toLocaleDateString('en-US', { month: '2-digit', day: '2-digit' });
-  if(opts.includeTime) {
-    const time = d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
-    return `${date} ${time}`;
-  } else {
-    return date;
+  try {
+    opts.includeTime = typeof opts.includeTime === 'boolean' ? opts.includeTime : true;
+    const d = new Date(dateString);
+    const date = d.toLocaleDateString('en-US', { month: '2-digit', day: '2-digit' });
+    if(opts.includeTime) {
+      const time = d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+      return `${date} ${time}`;
+    } else {
+      return date;
+    }
+  } catch(err) {
+    return dateString;
   }
 };
+
+export const monthByNumber = {
+  1: 'January',
+  2: 'February',
+  3: 'March',
+  4: 'April',
+  5: 'May',
+  6: 'June',
+  7: 'July',
+  8: 'August',
+  9: 'September',
+  10: 'October',
+  11: 'November',
+  12: 'December',
+}
 
 export const bytesToHumanFileSize = (bytes, decimals = 2) => {
   const thresh = 1_000;
