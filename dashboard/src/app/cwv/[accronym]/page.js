@@ -6,6 +6,7 @@ import HostUrlFilterer from "@/components/Filters/HostUrlFilterer";
 import { WebVitalsApi } from "@/lib/api-client/web-vitals";
 import { BarChart } from "@tremor/react";
 import PathUrlFilterer from "@/components/Filters/PathUrlFilterer";
+import CwvDetail from "@/components/WebVitals/Details";
 
 const ACCRONYM_TO_HUMAN_DICT = {
   LCP: 'Largest Contentful Paint',
@@ -105,7 +106,7 @@ export default function CWV({ params }) {
   return (
     <AuthenticatedView>
       <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mt-8">
-        <div className='grid grid-cols-3'>
+        <div className='grid grid-cols-3 gap-4'>
           <div className='col-span-2'>
             <h1 className="text-xl font-medium">{humanName} details</h1>
           </div>
@@ -179,15 +180,40 @@ export default function CWV({ params }) {
             </div>
           </div>
 
-          <div className='w-full h-96'>
-            <div className='grid grid-cols-2'>
-              <div className='col-span-1'>
-                <h2 className='text-lg text-gray-700'>Mobile</h2>
-                <div className='w-full'>
-                  {mobileGoodNeedsImprovementChartData
-                    ? mobileGoodNeedsImprovementChartData.length > 0
-                      ? <BarChart
-                        data={mobileGoodNeedsImprovementChartData}
+          <div className='grid grid-cols-2 gap-4'>
+            <div className='col-span-1'>
+              <h2 className='text-lg text-gray-700'>Mobile</h2>
+              <div className='w-full'>
+                {mobileGoodNeedsImprovementChartData
+                  ? mobileGoodNeedsImprovementChartData.length > 0
+                    ? <BarChart
+                      data={mobileGoodNeedsImprovementChartData}
+                      dataKey="date"
+                      categories={['Good', 'Needs Improvement', 'Poor']}
+                      colors={['green', 'yellow', 'red']}
+                      showLegend={false}
+                      startEndOnly={false}
+                      valueFormatter={value => `${value}%`}
+                      height="h-96"
+                      marginTop="mt-4"
+                      stack={true}
+                      maxValue={'100'}
+                      showYAxis={true}
+                      showAnimation={false}
+                      layout="vertical"
+                    />
+                    : <p className='text-xs text-center text-gray-700'>No data found for timeperiod</p>
+                  : <div className='h-72 w-full animate-pulse bg-gray-100 mt-4 rounded-md'></div>
+                }
+              </div>
+            </div>
+            <div className='col-span-1'>
+              <h2 className='text-lg text-gray-700'>Desktop</h2>
+              <div className='w-full'>
+                {desktopGoodNeedsImprovementChartData
+                  ? desktopGoodNeedsImprovementChartData.length > 0
+                    ? <BarChart
+                        data={desktopGoodNeedsImprovementChartData}
                         dataKey="date"
                         categories={['Good', 'Needs Improvement', 'Poor']}
                         colors={['green', 'yellow', 'red']}
@@ -202,39 +228,14 @@ export default function CWV({ params }) {
                         showAnimation={false}
                         layout="vertical"
                       />
-                      : <p className='text-xs text-center text-gray-700'>No data found for timeperiod</p>
-                    : <div className='h-72 w-full animate-pulse bg-gray-100 mt-4 rounded-md'></div>
-                  }
-                </div>
-              </div>
-              <div className='col-span-1'>
-                <h2 className='text-lg text-gray-700'>Desktop</h2>
-                <div className='w-full'>
-                  {desktopGoodNeedsImprovementChartData
-                    ? desktopGoodNeedsImprovementChartData.length > 0
-                      ? <BarChart
-                          data={desktopGoodNeedsImprovementChartData}
-                          dataKey="date"
-                          categories={['Good', 'Needs Improvement', 'Poor']}
-                          colors={['green', 'yellow', 'red']}
-                          showLegend={false}
-                          startEndOnly={false}
-                          valueFormatter={value => `${value}%`}
-                          height="h-96"
-                          marginTop="mt-4"
-                          stack={true}
-                          maxValue={'100'}
-                          showYAxis={true}
-                          showAnimation={false}
-                          layout="vertical"
-                        />
-                      : <p className='text-xs text-center text-gray-700'>No data found for timeperiod</p>
-                    : <div className='h-72 w-full animate-pulse bg-gray-100 mt-4 rounded-md'></div>
-                  }
-                </div>
+                    : <p className='text-xs text-center text-gray-700'>No data found for timeperiod</p>
+                  : <div className='h-72 w-full animate-pulse bg-gray-100 mt-4 rounded-md'></div>
+                }
               </div>
             </div>
           </div>
+
+          <CwvDetail accronym={accronym} urlHost={urlHost} urlPath={urlPath} />
 
         </div>
       </main>

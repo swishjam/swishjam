@@ -27,10 +27,7 @@ const loadingSpinner = () => {
 const TableRowHeader = ({title, desc}) => {
   const { getArrowProps, getTooltipProps, setTooltipRef, setTriggerRef, visible } = usePopperTooltip({ followCursor: false, trigger: 'hover' });
   return (
-    <th
-      scope="col"
-      className="py-3.5 pr-3 text-left text-sm font-semibold text-gray-900 pl-4"
-    >
+    <th scope="col" className="py-3.5 pr-3 text-left text-sm font-semibold text-gray-900 pl-4">
       {desc ? (<span ref={setTriggerRef}>{title}</span>) : title}
       {visible && (
         <>
