@@ -63,6 +63,59 @@ export default class PerformanceMetricsData {
     }
   }
 
+  static async getPercentileForMetricsByConnection({ projectKey, urlHost, urlPath, percentile = 0.75, startTs }) {
+    if (!projectKey) throw new Error('Missing `projectKey` query param');
+    if (!urlHost) throw new Error('Missing `url_host` query param');
+    if (urlPath) {
+      const query = `
+        SELECT
+        (
+          (bucket - 1) * (1000 / 20) ||
+        '-' ||
+        (bucket * 1000 /20)
+                  ) AS range,
+        COUNT FROM(
+          SELECT 
+            width_bucket(connection_rtt, 0, 1000, 20) AS bucket,
+          count(*) AS count
+            FROM 
+              page_views
+            WHERE
+              page_views.project_key = $1 AND
+              page_views.page_view_ts >= $2 AND
+              page_views.url_host = $3 AND 
+              page_views.url_path = $4
+            GROUP BY bucket 
+            ORDER BY bucket   
+      `;
+      const result = await db.query(query, [projectKey, new Date(startTs), decodeURIComponent(urlHost), decodeURIComponent(urlPath)]);
+      return result.rows;
+    } else {
+      const query = `
+        SELECT
+        (
+          (bucket - 1) * (1000 / 20) ||
+        '-' ||
+        (bucket * 1000 /20)
+                  ) AS range,
+        COUNT FROM(
+          SELECT 
+            width_bucket(connection_rtt, 0, 1000, 20) AS bucket,
+          count(*) AS count
+            FROM 
+              page_views
+            WHERE
+              page_views.project_key = $1 AND
+              page_views.page_view_ts >= $2 AND
+              page_views.url_host = $3 AND 
+            GROUP BY bucket 
+            ORDER BY bucket   
+      `;
+      const result = await db.query(query, [projectKey, new Date(startTs), decodeURIComponent(urlHost)]);
+      return result.rows;
+    }
+  }
+
   static async getPercentileForMetricsByDevice({ projectKey, urlHost, urlPath, percentile = 0.75, startTs }) {
     if (!projectKey) throw new Error('Missing `projectKey` query param');
     if (!urlHost) throw new Error('Missing `url_host` query param');

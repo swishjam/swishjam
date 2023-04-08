@@ -81,11 +81,20 @@ export default function VisitorDemographics() {
                 : (
                   <>
                     <div className='grid grid-cols-3 gap-6'>
-                      <DemographicsCard title="Devices" />
-                      <DemographicsCard title="Connection Types" />
-                      <DemographicsCard title="Browsers" />
+                      <DemographicsCard
+                        data={demographicData && demographicData.deviceType}  
+                        title="Devices"
+                      />
+                      <DemographicsCard
+                      
+                        title="Connection Types"
+                      />
+                      <DemographicsCard
+                        data={demographicData && demographicData.browser}  
+                        title="Browsers"
+                      />
                     </div>
-                    {demographicData && JSON.stringify(demographicData)}
+                    {/*demographicData && JSON.stringify(demographicData)*/}
                   </>
                 )
           }

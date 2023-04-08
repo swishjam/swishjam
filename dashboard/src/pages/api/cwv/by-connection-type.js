@@ -7,24 +7,25 @@ export default async (req, res) => {
 
   return runQueryIfUserHasAccess({ req, res, projectKey }, async () => {
     try {
-      const queries = ['4g', ''].map(metric => (
-        PerformanceMetricsData.getPercentileForMetricsByDevice({ 
-          projectKey,
-          urlHost,
-          urlPath,
-          metric,
-          percentile: parseFloat(percentile), 
-          startTs 
-        })
-      ))
-      const results = await Promise.all(queries);
-      const resultsByMetric = results.reduce((acc, result, i) => {
+      const results = await PerformanceMetricsData.getPercentileForMetricsByConnection({ 
+        projectKey,
+        urlHost,
+        urlPath,
+        metric,
+        percentile: parseFloat(percentile), 
+        startTs 
+      })
+      
+      /*const resultsByMetric = results.reduce((acc, result, i) => {
         const metric = JSON.parse(metrics)[i];
         acc[metric] = result;
         return acc;
-      }, {});
-      console.log(resultsByMetric);
-      return res.status(200).json({ ...resultsByMetric });
+      }, {});*/
+      //console.log(resultsByMetric);
+      
+      console.log(results); 
+      return res.status(200).json({ ...results });
+      //return res.status(200).json({ ...resultsByMetric });
     } catch (err) {
       console.error(err);
       return res.status(500).json({ error: err.message });
