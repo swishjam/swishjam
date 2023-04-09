@@ -7,6 +7,7 @@ import { WebVitalsApi } from "@/lib/api-client/web-vitals";
 import { BarChart } from "@tremor/react";
 import PathUrlFilterer from "@/components/Filters/PathUrlFilterer";
 import CwvDetail from "@/components/WebVitals/Details";
+import { ChevronRightIcon } from "@heroicons/react/20/solid"; 
 
 const ACCRONYM_TO_HUMAN_DICT = {
   LCP: 'Largest Contentful Paint',
@@ -67,9 +68,9 @@ export default function CWV({ params }) {
       const formatted = data[accronym].map(data => {
         return ({
           date: data.date,
-          'Good': parseFloat(data.percentGood).toFixed(2),
-          'Needs Improvement': parseFloat(data.percentNeedsImprovement).toFixed(2),
-          'Poor': parseFloat(data.percentPoor).toFixed(2),
+          'Poor': (Math.floor(data.percentPoor*1*100)/100),
+          'Needs Improvement': (Math.floor(data.percentNeedsImprovement*1*100)/100),
+          'Good':  (Math.floor(data.percentGood*1*100)/100),
         })
       });
       setterMethod(formatted);
@@ -100,7 +101,20 @@ export default function CWV({ params }) {
     });    
   }
 
-  const totalCount = mobileHistogramData => (mobileHistogramData || []).reduce((acc, curr) => acc + parseInt(curr.count), 0);
+  const totalCount = histogramData => (histogramData || []).reduce((acc, curr) => acc + parseInt(curr.count), 0);
+  const formattedMobileHistogramData = mobileHistogramData?.map(datapoint => { 
+    return {
+      range: datapoint.range.replace(/\n /g, ''),
+      count: ((parseFloat(datapoint.count) / totalCount(mobileHistogramData)) * 100).toFixed(2)
+    }
+  })
+  const formattedDesktopHistogramData = desktopHistogramData?.map(datapoint => { 
+    return {
+      range: datapoint.range.replace(/\n /g, ''),
+      count: ((parseFloat(datapoint.count) / totalCount(desktopHistogramData)) * 100).toFixed(2)
+    }
+  })
+  //console.log('total count', totalCount(mobileHistogramData));
   const humanName = ACCRONYM_TO_HUMAN_DICT[accronym];
 
   return (
@@ -108,6 +122,22 @@ export default function CWV({ params }) {
       <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mt-8">
         <div className='grid grid-cols-3 gap-4'>
           <div className='col-span-2'>
+            <div className='flex'>
+              <ol role="list" className="flex items-center space-x-4">
+                <li>
+                  <div className="flex">
+                    <a href="/" className="text-sm font-medium text-gray-500 hover:text-gray-700">
+                      Web Vitals
+                    </a>
+                  </div>
+                </li>
+                <li>
+                  <div className="flex items-center">
+                    <ChevronRightIcon className="h-5 w-5 flex-shrink-0 text-gray-400" aria-hidden="true" />
+                  </div>
+                </li>
+              </ol>
+            </div> 
             <h1 className="text-xl font-medium">{humanName} details</h1>
           </div>
           <div className='col-span-1 flex justify-end'>
@@ -135,15 +165,16 @@ export default function CWV({ params }) {
                 {mobileHistogramData 
                   ? mobileHistogramData.length > 0 
                     ? <BarChart
-                        data={mobileHistogramData}
+                        data={formattedMobileHistogramData}
                         dataKey="range"
-                        categories={['count']}
+                        categories={["count"]}
                         colors={['blue']}
                         showLegend={false}
-                        valueFormatter={value => `${((parseFloat(value) / totalCount(mobileHistogramData)) * 100).toFixed(2)}%`}
+                        valueFormatter={value => `${value}%`}
                         height="h-72"
                         marginTop="mt-4"
-                        maxValue={100.0}
+                        autoMinValue={true} 
+                        maxValue={100}
                         showYAxis={true}
                         showAnimation={false}
                       />
@@ -161,15 +192,16 @@ export default function CWV({ params }) {
                 {desktopHistogramData
                   ? desktopHistogramData.length > 0
                     ? <BarChart
-                      data={desktopHistogramData}
+                      data={formattedDesktopHistogramData}
                       dataKey="range"
                       categories={['count']}
                       colors={['blue']}
                       showLegend={false}
-                      valueFormatter={value => `${((parseInt(value) / totalCount(desktopHistogramData)) * 100).toFixed(2)}%`}
+                      valueFormatter={value => `${value}%`}
                       height="h-72"
                       marginTop="mt-4"
-                      maxValue={100.0}
+                      maxValue={100}
+                      autoMinValue={true} 
                       showYAxis={true}
                       showAnimation={false}
                     />
@@ -197,7 +229,7 @@ export default function CWV({ params }) {
                       height="h-96"
                       marginTop="mt-4"
                       stack={true}
-                      maxValue={'100'}
+                      maxValue={100}
                       showYAxis={true}
                       showAnimation={false}
                       layout="vertical"
@@ -223,7 +255,7 @@ export default function CWV({ params }) {
                         height="h-96"
                         marginTop="mt-4"
                         stack={true}
-                        maxValue={'100'}
+                        maxValue={100}
                         showYAxis={true}
                         showAnimation={false}
                         layout="vertical"

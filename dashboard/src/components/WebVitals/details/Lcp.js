@@ -44,7 +44,12 @@ export default function LcpDetail({ accronym, deviceTypes, urlHost, urlPath }) {
 
   return (
     <>
-      {orderedLcpEntries && orderedLcpEntries.length > 0 ? (<img src={orderedLcpEntries[0].url} className='w-full' />) : null}
+      {orderedLcpEntries && orderedLcpEntries.length > 0 && orderedLcpEntries[0].url ? (
+        <img src={orderedLcpEntries[0].url} className='w-full' />):
+        <div className="w-full bg-gray-50 h-6 border rounded my-4 py-40 text-center align-center">
+          <span className="block text-sm font-semibold text-gray-900">HTML or Text<br />is LCP</span> 
+        </div> 
+      }
       <table className="divide-y divide-gray-300 table-fixed w-full">
         <thead>
           <tr>
@@ -52,7 +57,7 @@ export default function LcpDetail({ accronym, deviceTypes, urlHost, urlPath }) {
               Resource
             </th>
             <th scope="col" className="py-3.5 pr-3 text-left text-sm font-semibold text-gray-900 pl-4">
-              % of Time is LCP
+              % Item is LCP
             </th>
             <th scope="col" className="py-3.5 pr-3 text-left text-sm font-semibold text-gray-900 pl-4">
               Render time
@@ -78,7 +83,7 @@ const LcpEntryRow = ({ lcpEntry }) => {
   return (
     <tr className="px-4" key={lcpEntry.url}>
       <td className="whitespace-nowrap py-4 pl-4 pr-3 text-gray-900 sm:pl-6 lg:pl-8 truncate">
-        {lcpEntry.url.length > 1 && (
+        {lcpEntry.url.length > 1 ? (
           <>
             <div ref={setTriggerRef}>
               <img src={lcpEntry.url} className='h-12' />
@@ -95,10 +100,13 @@ const LcpEntryRow = ({ lcpEntry }) => {
               </>
             )}
           </>
-        )}
+        ):
+        <>Text or HTML</>
+        }
+
       </td>
       <td className="whitespace-nowrap py-4 pl-4 pr-3 text-gray-900 sm:pl-6 lg:pl-8">
-        {lcpEntry.count} ({lcpEntry.percentageLcp?.toFixed(2)}%)
+        {/*lcpEntry.count*/}{lcpEntry.percentageLcp?.toFixed(2)}%
       </td>
       <td className="whitespace-nowrap py-4 pl-4 pr-3 text-gray-900 sm:pl-6 lg:pl-8">
         {formattedMsOrSeconds(lcpEntry.render_time)}
