@@ -1,5 +1,5 @@
 import { runQueryIfUserHasAccess } from '@/lib/analyticQuerier';
-import PerformanceMetricsData from '@/lib/data/performanceMetrics';
+import WebVitals from '@/lib/data/webVitals';
 
 export default async (req, res) => {
   const defaultStartTs = Date.now() - 1000 * 60 * 60 * 24 * 7;
@@ -7,7 +7,7 @@ export default async (req, res) => {
 
   return runQueryIfUserHasAccess({ req, res, projectKey }, async () => {
     try {
-      const results = await PerformanceMetricsData.getPercentileForMetricsByConnection({ 
+      const results = await WebVitals.getPercentileForMetricsByConnection({ 
         projectKey,
         urlHost,
         urlPath,
