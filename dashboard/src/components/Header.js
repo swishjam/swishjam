@@ -12,8 +12,7 @@ const navigation = [
   { name: 'Web Vitals', href: '/' },
   { name: 'Resource Waterfall', href: '/waterfall' },
   { name: 'Page Breakdown', href: '/page-breakdown' },
-  //{ name: 'Projects', href: '#', current: false },
-  //{ name: 'Calendar', href: '#', current: false },
+  { name: 'Visitor Demographics', href: '/visitor-demographics' },
 ]
 
 function isCurrentPage (menuItemHref) {

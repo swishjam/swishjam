@@ -64,6 +64,159 @@ export default class WebVitalsData {
     }
   }
 
+  static async getPercentileForMetricsByConnection({ projectKey, urlHost, urlPath, percentile = 0.75, startTs }) {
+    if (!projectKey) throw new Error('Missing `projectKey` query param');
+    if (!urlHost) throw new Error('Missing `url_host` query param');
+    if (urlPath) {
+      const query = `
+        SELECT
+          ((bucket - 1) * (1000 / 20) || '-' || (bucket * 1000 / 20)) AS range,
+          count, metric, value FROM(
+            SELECT 
+              metric_name AS metric,
+              CAST(PERCENTILE_CONT(${parseFloat(percentile)}) WITHIN GROUP(ORDER BY metric_value ASC) AS float) AS value,
+              width_bucket(connection_rtt, 0, 1000, 20) AS bucket,
+              CAST(count(*) AS int) AS count
+            FROM 
+              performance_metrics 
+            JOIN
+              page_views ON page_views.uuid = performance_metrics.page_view_uuid
+            WHERE
+              page_views.project_key = $1 AND
+              page_views.page_view_ts >= $2 AND
+              page_views.url_host = $3 AND
+              page_views.url_path = $4
+            GROUP BY 
+              bucket, metric
+            ORDER BY 
+              bucket
+          ) AS buckets
+      `;
+    const result = await db.query(query, [projectKey, new Date(startTs), decodeURIComponent(urlHost), decodeURIComponent(urlPath)]);
+      return result.rows;
+    } else {
+      const query = `
+        SELECT
+          ((bucket - 1) * (1000 / 20) || '-' || (bucket * 1000 / 20)) AS connection_range,
+          count, metric, value FROM(
+            SELECT 
+              metric_name AS metric,
+              CAST(PERCENTILE_CONT(${parseFloat(percentile)}) WITHIN GROUP(ORDER BY metric_value ASC) AS float) AS value,
+              width_bucket(connection_rtt, 0, 1000, 20) AS bucket,
+              CAST(count(*) AS int) AS count
+            FROM 
+              performance_metrics 
+            JOIN
+              page_views ON page_views.uuid = performance_metrics.page_view_uuid
+            WHERE
+              page_views.project_key = $1 AND
+              page_views.page_view_ts >= $2 AND
+              page_views.url_host = $3
+            GROUP BY 
+              bucket, metric
+            ORDER BY 
+              bucket
+          ) AS buckets
+      `;
+      const result = await db.query(query, [projectKey, new Date(startTs), decodeURIComponent(urlHost)]);
+      return result.rows;
+    }
+  }
+
+  static async getPercentileForMetricsByDevice({ projectKey, urlHost, urlPath, percentile = 0.75, startTs }) {
+    if (!projectKey) throw new Error('Missing `projectKey` query param');
+    if (!urlHost) throw new Error('Missing `url_host` query param');
+    if (urlPath) {
+      const query = `
+        SELECT
+          page_views.device_type AS device_type,
+          performance_metrics.metric_name AS metric,
+          CAST(COUNT(performance_metrics.id) AS int) AS num_records,
+          CAST(PERCENTILE_CONT(${percentile}) WITHIN GROUP (ORDER BY performance_metrics.metric_value ASC) AS float) AS value
+        FROM
+          performance_metrics
+        JOIN
+          page_views ON performance_metrics.page_view_uuid = page_views.uuid
+        WHERE
+          page_views.project_key = $1 AND
+          page_views.page_view_ts >= $2 AND
+          page_views.url_host = $3 AND
+          page_views.url_path = $4
+        GROUP BY
+          device_type, metric
+      `;
+      const result = await db.query(query, [projectKey, new Date(startTs), decodeURIComponent(urlHost), decodeURIComponent(urlPath)]);
+      return result.rows;
+    } else {
+      const query = `
+        SELECT
+          page_views.device_type AS device_type,
+          performance_metrics.metric_name AS metric,
+          CAST(COUNT(performance_metrics.id) AS int) AS num_records,
+          CAST(PERCENTILE_CONT(${percentile}) WITHIN GROUP (ORDER BY performance_metrics.metric_value ASC) AS float) AS value
+        FROM
+          performance_metrics
+        JOIN
+          page_views ON performance_metrics.page_view_uuid = page_views.uuid
+        WHERE
+          page_views.project_key = $1 AND
+          page_views.page_view_ts >= $2 AND
+          page_views.url_host = $3
+        GROUP BY
+          device_type, metric
+      `;
+      const result = await db.query(query, [projectKey, new Date(startTs), decodeURIComponent(urlHost)]);
+      return result.rows;
+    }
+  }
+
+  static async getPercentileForMetricsByBrowser({ projectKey, urlHost, urlPath, percentile = 0.75, startTs }) {
+    if (!projectKey) throw new Error('Missing `projectKey` query param');
+    if (!urlHost) throw new Error('Missing `url_host` query param');
+    if (urlPath) {
+      const query = `
+        SELECT
+          page_views.device_client_name AS browser_name,
+          performance_metrics.metric_name AS metric,
+          CAST(COUNT(performance_metrics.id) AS int) AS num_records,
+          CAST(PERCENTILE_CONT(${percentile}) WITHIN GROUP (ORDER BY performance_metrics.metric_value ASC) AS float) AS value
+        FROM
+          performance_metrics
+        JOIN
+          page_views ON performance_metrics.page_view_uuid = page_views.uuid
+        WHERE
+          page_views.project_key = $1 AND
+          page_views.page_view_ts >= $2 AND
+          page_views.url_host = $3 AND
+          page_views.url_path = $4
+        GROUP BY
+          browser_name, metric
+      `;
+      const result = await db.query(query, [projectKey, new Date(startTs), decodeURIComponent(urlHost), decodeURIComponent(urlPath)]);
+      return result.rows;
+    } else {
+      const query = `
+        SELECT
+          page_views.device_client_name AS browser_name,
+          performance_metrics.metric_name AS metric,
+          CAST(COUNT(performance_metrics.id) AS int) AS num_records,
+          CAST(PERCENTILE_CONT(${percentile}) WITHIN GROUP (ORDER BY performance_metrics.metric_value ASC) AS float) AS value
+        FROM
+          performance_metrics
+        JOIN
+          page_views ON performance_metrics.page_view_uuid = page_views.uuid
+        WHERE
+          page_views.project_key = $1 AND
+          page_views.page_view_ts >= $2 AND
+          page_views.url_host = $3 
+        GROUP BY
+          browser_name, metric
+      `;
+      const result = await db.query(query, [projectKey, new Date(startTs), decodeURIComponent(urlHost)]);
+      return result.rows;
+    }
+  }
+
   static async getPercentileTimeseriesDataForMetric({ projectKey, metric, startTs, urlHost, urlPath, percentile = 0.75 }) {
     if (!projectKey) throw new Error('Missing required parameter: `projectKey`');
     if (!urlHost) throw new Error('Missing required parameter: `urlHost`');
