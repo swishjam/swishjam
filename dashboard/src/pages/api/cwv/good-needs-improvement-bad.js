@@ -1,15 +1,33 @@
 import { runQueryIfUserHasAccess } from '@lib/analyticQuerier';
-import PerformanceMetricsData from '@lib/data/performanceMetrics';
+import WebVitalsData from '@/lib/data/webVitals';
 
 export default async (req, res) => {
-  const defaultStartTs = Date.now() - 1000 * 60 * 60 * 24 * 7;
-  const { projectKey, metrics, urlHost, urlPath, startTs = defaultStartTs } = req.query;
+  const { projectKey, metrics, urlHost, urlPath, deviceTypes = JSON.stringify(['smartphone', 'phablet', 'tablet', 'desktop']) } = req.query;
+  let { groupBy = 'intelligent' } = req.query;
 
 
   return await runQueryIfUserHasAccess({ req, res, projectKey }, async () => {
+    if (groupBy === 'intelligent') {
+      const oldestRecord = await WebVitalsData.getOldestRecord({ projectKey, urlHost, urlPath, metric: 'LCP' });
+      const oneDay = 1000 * 60 * 60 * 24;
+      if (new Date(oldestRecord.date) <= new Date(oneDay * 30 * 5)) {
+        groupBy = 'month';
+      } else if (new Date(oldestRecord.date) <= new Date(oneDay * 7 * 5)) {
+        groupBy = 'week';
+      } else {
+        groupBy = 'day';
+      }
+    }
     try {
       const sqlQueries = JSON.parse(metrics || '[]').map(
-        metric => PerformanceMetricsData.getGoodNeedsImprovementChartDataDataForMetric({ projectKey, metric, urlHost, urlPath, startTs })
+        metric => WebVitalsData.getGoodNeedsImprovementChartDataDataForMetric({ 
+          projectKey, 
+          metric, 
+          groupBy, 
+          deviceTypes: JSON.parse(deviceTypes), 
+          urlHost, 
+          urlPath 
+        })
       );
       const results = await Promise.all(sqlQueries);
       const resultsByMetric = results.reduce((acc, result, i) => {
@@ -17,7 +35,7 @@ export default async (req, res) => {
         acc[metric] = result;
         return acc;
       }, {});
-      return res.status(200).json({ results: resultsByMetric });
+      return res.status(200).json({ groupedBy: groupBy, results: resultsByMetric });
     } catch (err) {
       console.error(err);
       return res.status(500).json({ error: err.message });

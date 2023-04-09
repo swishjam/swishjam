@@ -1,5 +1,5 @@
 import { runQueryIfUserHasAccess } from '@/lib/analyticQuerier';
-import PerformanceMetricsData from '@/lib/data/performanceMetrics';
+import WebVitalsData from '@/lib/data/webVitals';
 
 export default async (req, res) => {
   const defaultStartTs = Date.now() - 1000 * 60 * 60 * 24 * 7;
@@ -8,7 +8,7 @@ export default async (req, res) => {
   return runQueryIfUserHasAccess({ req, res, projectKey }, async () => {
     try {
       const sqlQueries = JSON.parse(metrics || '[]').map(
-        metric => PerformanceMetricsData.getPercentileForMetric({ projectKey, urlHost, urlPath, metric, percentile: parseFloat(percentile), startTs })
+        metric => WebVitalsData.getPercentileForMetric({ projectKey, urlHost, urlPath, metric, percentile: parseFloat(percentile), startTs })
       )
       const results = await Promise.all(sqlQueries);
       const result = results.reduce((acc, result, i) => {

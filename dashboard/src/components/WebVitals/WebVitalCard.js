@@ -4,6 +4,7 @@ import { LcpIcon, InpIcon, ClsIcon, FidIcon, FcpIcon, TtfbIcon } from '@/compone
 import { formattedMsOrSeconds } from '@lib/utils';
 import { cwvMetricBounds } from '@lib/cwvCalculations';
 import MetricGauge from '@/components/WebVitals/MetricGauge';
+import Link from 'next/link';
 
 const CardIcon = (iconType) => {
   return {
@@ -22,10 +23,11 @@ export default function WebVitalCard({ title, accronym, percentileValue, numReco
       date: data.date,
       'Good': parseFloat(data.percentGood).toFixed(2),
       'Needs Improvement': parseFloat(data.percentNeedsImprovement).toFixed(2),
-      'Bad': parseFloat(data.percentBad).toFixed(2),
+      'Poor': parseFloat(data.percentPoor).toFixed(2),
     })
   });
 
+  console.log(formattedBarChartData);
   const percentileColor = percentileValue <= cwvMetricBounds[accronym].good ? 'emerald' : 
                             percentileValue <= cwvMetricBounds[accronym].medium ? 'yellow' : 'rose';
   return (
@@ -33,7 +35,9 @@ export default function WebVitalCard({ title, accronym, percentileValue, numReco
       <>
         <dt className="flex items-center gap-x-3 text-base leading-7 text-gray-900">
           {CardIcon(accronym)}
-          {title}
+          <span className='hover:underline'>
+            <Link href={`/cwv/${accronym}`}>{title}</Link>
+          </span>
         </dt>
         {typeof numRecordsInPercentileCalculation === 'number' ?
                   numRecordsInPercentileCalculation > 0 ? (
@@ -53,7 +57,7 @@ export default function WebVitalCard({ title, accronym, percentileValue, numReco
               <BarChart
                 data={formattedBarChartData}
                 dataKey="date"
-                categories={['Good', 'Needs Improvement', 'Bad']}
+                categories={['Good', 'Needs Improvement', 'Poor']}
                 colors={['green', 'yellow', 'red']}
                 showLegend={false}
                 startEndOnly={true}
