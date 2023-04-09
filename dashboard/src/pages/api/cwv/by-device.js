@@ -1,5 +1,5 @@
 import { runQueryIfUserHasAccess } from '@/lib/analyticQuerier';
-import PerformanceMetricsData from '@/lib/data/performanceMetrics';
+import WebVitals from '@/lib/data/webVitals';
 import PageViews from '@/lib/data/pageViews';
 
 export default async (req, res) => {
@@ -9,7 +9,7 @@ export default async (req, res) => {
   return runQueryIfUserHasAccess({ req, res, projectKey }, async () => {
     try {
       const [metrics, totalCount] = await Promise.all([
-        PerformanceMetricsData.getPercentileForMetricsByDevice({ projectKey, urlHost, urlPath, percentile: parseFloat(percentile), startTs }),
+        WebVitals.getPercentileForMetricsByDevice({ projectKey, urlHost, urlPath, percentile: parseFloat(percentile), startTs }),
         PageViews.getCountByDeviceType({ projectKey, urlHost, urlPath, startTs })
       ]) 
       return res.status(200).json({ metrics, totalCount });
