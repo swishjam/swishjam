@@ -69,47 +69,53 @@ export default class PerformanceMetricsData {
     if (urlPath) {
       const query = `
         SELECT
-        (
-          (bucket - 1) * (1000 / 20) ||
-        '-' ||
-        (bucket * 1000 /20)
-                  ) AS range,
-        COUNT FROM(
-          SELECT 
-            width_bucket(connection_rtt, 0, 1000, 20) AS bucket,
-          count(*) AS count
+          ((bucket - 1) * (1000 / 20) || '-' || (bucket * 1000 / 20)) AS range,
+          count, metric, value FROM(
+            SELECT 
+              metric_name AS metric,
+              CAST(PERCENTILE_CONT(${parseFloat(percentile)}) WITHIN GROUP(ORDER BY metric_value ASC) AS float) AS value,
+              width_bucket(connection_rtt, 0, 1000, 20) AS bucket,
+              CAST(count(*) AS int) AS count
             FROM 
-              page_views
+              performance_metrics 
+            JOIN
+              page_views ON page_views.uuid = performance_metrics.page_view_uuid
             WHERE
               page_views.project_key = $1 AND
               page_views.page_view_ts >= $2 AND
-              page_views.url_host = $3 AND 
+              page_views.url_host = $3 AND
               page_views.url_path = $4
-            GROUP BY bucket 
-            ORDER BY bucket   
+            GROUP BY 
+              bucket, metric
+            ORDER BY 
+              bucket
+          ) AS buckets
       `;
-      const result = await db.query(query, [projectKey, new Date(startTs), decodeURIComponent(urlHost), decodeURIComponent(urlPath)]);
+    const result = await db.query(query, [projectKey, new Date(startTs), decodeURIComponent(urlHost), decodeURIComponent(urlPath)]);
       return result.rows;
     } else {
       const query = `
         SELECT
-        (
-          (bucket - 1) * (1000 / 20) ||
-        '-' ||
-        (bucket * 1000 /20)
-                  ) AS range,
-        COUNT FROM(
-          SELECT 
-            width_bucket(connection_rtt, 0, 1000, 20) AS bucket,
-          count(*) AS count
+          ((bucket - 1) * (1000 / 20) || '-' || (bucket * 1000 / 20)) AS connection_range,
+          count, metric, value FROM(
+            SELECT 
+              metric_name AS metric,
+              CAST(PERCENTILE_CONT(${parseFloat(percentile)}) WITHIN GROUP(ORDER BY metric_value ASC) AS float) AS value,
+              width_bucket(connection_rtt, 0, 1000, 20) AS bucket,
+              CAST(count(*) AS int) AS count
             FROM 
-              page_views
+              performance_metrics 
+            JOIN
+              page_views ON page_views.uuid = performance_metrics.page_view_uuid
             WHERE
               page_views.project_key = $1 AND
               page_views.page_view_ts >= $2 AND
-              page_views.url_host = $3 AND 
-            GROUP BY bucket 
-            ORDER BY bucket   
+              page_views.url_host = $3
+            GROUP BY 
+              bucket, metric
+            ORDER BY 
+              bucket
+          ) AS buckets
       `;
       const result = await db.query(query, [projectKey, new Date(startTs), decodeURIComponent(urlHost)]);
       return result.rows;

@@ -1,6 +1,3 @@
-import { useState } from 'react';
-//import { PieChart, Legend, Pie, Sector, Cell } from 'recharts';
-import { Tokens } from '.mirrorful/theme_cjs';
 import { BarList } from "@tremor/react";
 import { calcCwvMetric } from '@/lib/cwvCalculations';
 import { metricFormatterPlusUnits } from '@lib/utils';
@@ -26,42 +23,37 @@ const CwvBadge = ({metric, cwv}) => {
   );
 }
 
-export default function DemographicsCard({ title, data }) {
-  const [currentQuadrant, setCurrentQuadrant] = useState(0);
-  const roundedScore = Math.ceil(76)
-
+export default function DemographicsCard({ title, data, sortFunction = (a, b) => b.value - a.value }) {
   let formattedVizData = [];
   let totalCount = 0;
-  console.log(data); 
   if(data) {
+    totalCount = Object.values(data).reduce((acc, item) => acc + item.totalCount, 0);
     for (const property in data) {
-      totalCount += data[property].totalCount;
-    }
- 
-    for (const property in data) {
-      console.log(property); 
       formattedVizData.push({
         name: property,
         vitals: data[property],
         value: data[property].totalCount
       })
     }
-    formattedVizData.sort((a, b) => b.value - a.value);
-  
+    formattedVizData.sort(sortFunction);
   }
-   
-  const COLORS = [Tokens.colors.red.base, Tokens.colors.blue.base, Tokens.colors.green.base];
 
-  const onPieEnter = (_, index) => {
-    console.log('pie enter', index);
-  };
-  const handleMouseEnter = (i) => {
-    setCurrentQuadrant(i);
-  };
   return (
     <div className='rounded-lg border border-gray-200 p-4 pb-0 h-fit'>
       <h2 className="text-md font-medium mb-4">{title}</h2>
-      <BarList data={formattedVizData} /> 
+      {data
+        ? <BarList data={formattedVizData} valueFormatter={value => `${parseFloat(value / totalCount * 100).toFixed(2) }%`} /> 
+        : (
+          <>
+            <div className="animate-pulse h-10 w-full bg-gray-200 m-1 rounded" />
+            <div className="animate-pulse h-10 w-1/3 bg-gray-200 m-1 rounded" />
+            <div className="animate-pulse h-10 w-3/4 bg-gray-200 m-1 rounded" />
+            <div className="animate-pulse h-10 w-1/6 bg-gray-200 m-1 rounded" />
+            <div className="animate-pulse h-10 w-1/2 bg-gray-200 m-1 rounded" />
+            <div className="animate-pulse h-10 w-1/6 bg-gray-200 m-1 rounded" />
+          </>
+        )
+      }
       <div className="-mx-4 border-t border-gray-200 mt-4">
         <dl>
           <div className="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
@@ -69,32 +61,58 @@ export default function DemographicsCard({ title, data }) {
             <dt className="text-sm font-bold text-gray-500">Web Vital</dt>
             <dt className="text-sm font-bold text-gray-500">Score</dt>
           </div>
-          {formattedVizData && 
-          formattedVizData.map((item, index) => ( 
-            <div className={`${index%2 ? 'bg-gray-50':'bg-white'} px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6`}>
-              <dt className="text-sm font-medium text-gray-500">{item.name}</dt>
-              <dd className="mt-1 text-sm text-gray-900 sm:mt-0">
-                FCP
-              </dd>
-              <dd className="mt-1 text-sm text-gray-900 sm:mt-0">
-                <CwvBadge metric={item.vitals['FCP']?.value} cwv={'FCP'} /> 
-              </dd>
-              <dt className="text-sm font-medium text-gray-500"></dt>
-              <dd className="mt-1 text-sm text-gray-900 sm:mt-0">
-                CLS
-              </dd>
-              <dd className="mt-1 text-sm text-gray-900 sm:mt-0">
-                <CwvBadge metric={item.vitals['CLS']?.value} cwv={'CLS'} /> 
-              </dd>
-              <dt className="text-sm font-medium text-gray-500"></dt>
-              <dd className="mt-1 text-sm text-gray-900 sm:mt-0">
-                FID
-              </dd>
-              <dd className="mt-1 text-sm text-gray-900 sm:mt-0">
-                <CwvBadge metric={item.vitals['FID']?.value} cwv={'FID'} /> 
-              </dd>
-            </div>
-          ))} 
+          {data 
+            ? formattedVizData.map((item, index) => (
+              <div key={index} className={`${index%2 ? 'bg-gray-50':'bg-white'} px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6`}>
+                <dt className="text-sm font-medium text-gray-500">{item.name}</dt>
+                <dd className="mt-1 text-sm text-gray-900 sm:mt-0">
+                  FCP
+                </dd>
+                <dd className="mt-1 text-sm text-gray-900 sm:mt-0">
+                  <CwvBadge metric={item.vitals['FCP']?.value} cwv={'FCP'} /> 
+                </dd>
+                <dt className="text-sm font-medium text-gray-500"></dt>
+                <dd className="mt-1 text-sm text-gray-900 sm:mt-0">
+                  CLS
+                </dd>
+                <dd className="mt-1 text-sm text-gray-900 sm:mt-0">
+                  <CwvBadge metric={item.vitals['CLS']?.value} cwv={'CLS'} /> 
+                </dd>
+                <dt className="text-sm font-medium text-gray-500"></dt>
+                <dd className="mt-1 text-sm text-gray-900 sm:mt-0">
+                  FID
+                </dd>
+                <dd className="mt-1 text-sm text-gray-900 sm:mt-0">
+                  <CwvBadge metric={item.vitals['FID']?.value} cwv={'FID'} /> 
+                </dd>
+              </div>
+            ))
+            : (
+              <div className='bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6'>
+                <div className="h-4 w-12 animate-pulse bg-gray-200 rounded" />
+                <dd className="mt-1 text-sm text-gray-900 sm:mt-0">
+                  FCP
+                </dd>
+                <dd className="mt-1 text-sm text-gray-900 sm:mt-0">
+                  <div className='h-4 w-8 animate-pulse bg-gray-200 rounded-lg' />
+                </dd>
+                <dt className="text-sm font-medium text-gray-500"></dt>
+                <dd className="mt-1 text-sm text-gray-900 sm:mt-0">
+                  CLS
+                </dd>
+                <dd className="mt-1 text-sm text-gray-900 sm:mt-0">
+                  <div className='h-4 w-8 animate-pulse bg-gray-200 rounded-lg' />
+                </dd>
+                <dt className="text-sm font-medium text-gray-500"></dt>
+                <dd className="mt-1 text-sm text-gray-900 sm:mt-0">
+                  FID
+                </dd>
+                <dd className="mt-1 text-sm text-gray-900 sm:mt-0">
+                  <div className='h-4 w-8 animate-pulse bg-gray-200 rounded-lg' />
+                </dd>
+              </div>
+            )
+          }
         </dl>
       </div>
     </div>

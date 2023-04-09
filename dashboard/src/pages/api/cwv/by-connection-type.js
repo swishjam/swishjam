@@ -11,21 +11,10 @@ export default async (req, res) => {
         projectKey,
         urlHost,
         urlPath,
-        metric,
         percentile: parseFloat(percentile), 
         startTs 
       })
-      
-      /*const resultsByMetric = results.reduce((acc, result, i) => {
-        const metric = JSON.parse(metrics)[i];
-        acc[metric] = result;
-        return acc;
-      }, {});*/
-      //console.log(resultsByMetric);
-      
-      console.log(results); 
-      return res.status(200).json({ ...results });
-      //return res.status(200).json({ ...resultsByMetric });
+      return res.status(200).json(results);
     } catch (err) {
       console.error(err);
       return res.status(500).json({ error: err.message });
