@@ -56,7 +56,7 @@ export default function HostUrlFilterer({ onHostSelected, onNoHostsFound }) {
                                 dropdownIcon={<FunnelIcon className="h-5 w-5 text-gray-400" aria-hidden="true" />}
                                 label={'Host URL filter'} /> : (
                                   <div className='flex items-center'>
-                                    <div className='h-10 w-24 animate-pulse bg-gray-50 border border-gray-400 rounded-md' />
+                                    <div className='h-10 w-24 animate-pulse bg-gray-50 border border-gray-200 rounded-md' />
                                   </div>
                                 )
   )

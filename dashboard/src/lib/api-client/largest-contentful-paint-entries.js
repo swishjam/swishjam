@@ -6,8 +6,8 @@ export class LargestContentfulPaintEntriesApi extends API {
     return records;
   }
 
-  static async getDistinctEntries(data) {
-    const { records } = await API.get('/api/largest-contentful-paint-entries/distinct', data);
+  static async getEntries(data) {
+    const { records } = await API.get('/api/largest-contentful-paint-entries/get-entries', data);
     return records;
   }
 }

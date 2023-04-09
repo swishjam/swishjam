@@ -52,7 +52,7 @@ export default function PathUrlFilterer({ urlHost, onPathSelected, includeAllPat
                                               dropdownIcon={<FunnelIcon className="h-5 w-5 text-gray-400" aria-hidden="true" />}
                                               label={'Path URL filter'} /> : (
                                               <div className='flex items-center'>
-                                                <div className='h-10 w-20 animate-pulse bg-gray-50 border border-gray-400 rounded-md' />
+                                                <div className='h-10 w-20 animate-pulse bg-gray-50 border border-gray-200 rounded-md' />
                                               </div>
                                               )}
 

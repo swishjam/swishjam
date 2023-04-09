@@ -1,18 +1,22 @@
 'use client';
 import { PieChart, Pie, Sector, Cell } from 'recharts';
+import Link from 'next/link';
 import { Card, AreaChart } from "@tremor/react";
 import LoadingSpinner from '@components/LoadingSpinner';
 import { calcCwvMetric } from '@lib/cwvCalculations';
+import { InformationCircleIcon } from '@heroicons/react/24/outline';
+import { usePopperTooltip } from 'react-popper-tooltip';
+import 'react-popper-tooltip/dist/styles.css';
 
 const resScore = (score) => {
   return [
     {
-        name: 'Potenital Improvement Area',
-        value: 100 - score,
+      name: 'Potenital Improvement Area',
+      value: 100 - score,
     },
     {
-        name: 'Experience Score',
-        value: score,
+      name: 'Experience Score',
+      value: score,
     },
   ]
 }
@@ -74,6 +78,7 @@ const CardLoading = () => (
 )
 
 export default function ExperienceScoreCard({ timeseriesData, metricPercentiles, numPageViews }) {
+  const { getArrowProps, getTooltipProps, setTooltipRef, setTriggerRef, visible } = usePopperTooltip({ followCursor: false, trigger: 'hover', placement: 'left' });
   let metricPercentilesWithExperienceScore = {};
   Object.keys(metricPercentiles).forEach(cwvKey => {
     metricPercentilesWithExperienceScore[cwvKey] = {
@@ -95,7 +100,20 @@ export default function ExperienceScoreCard({ timeseriesData, metricPercentiles,
     <Card>
       <div className='flex'>
         <div className="w-1/3 flex flex-col pr-4">
-          <h2 className="text-center text-lg font-normal text-gray-900">Swishjam's Real User Experience Score</h2>
+          <h2 className="text-center text-lg font-normal text-gray-900">
+            Swishjam's Real User Experience Score
+          </h2>
+          <Link href="https://swishjam.com/blog/understanding-swishjam-experience-score" target="_blank">
+            <InformationCircleIcon ref={setTriggerRef} className='h-6 w-6 absolute top-6 right-6 text-gray-400 hover:text-swishjam transition duration-300 cursor-pointer'/> 
+          </Link> 
+          {visible && (
+            <>
+              <div ref={setTooltipRef} {...getTooltipProps({ className: 'tooltip-container p-4' })}>
+                Click the info button to learn more about how we calculate <br />the Swishjam real user experience score
+                <div {...getArrowProps({ className: 'tooltip-arrow' })} />
+              </div>
+            </>
+          )}
           {Object.keys(metricPercentilesWithExperienceScore || {}).length > 0 ? (
             <PieChart width={200} height={200} className="mx-auto">
               <Pie

@@ -1,7 +1,8 @@
 import db from '@lib/db';
 import { cwvMetricBounds } from '@/lib/cwvCalculations';
+import goodNeedsImprovementPoorQuery from '@/lib/data/webVitalQueries/goodNeedsImprovementPoor';
 
-export default class PerformanceMetricsData {
+export default class WebVitalsData {
   static async getPercentilesForAllMetrics({ projectKey, urlHost, urlPath, startTs, percentile }) {
     const query = `
       SELECT
@@ -262,80 +263,111 @@ export default class PerformanceMetricsData {
     }
   };
 
-  static async getGoodNeedsImprovementChartDataDataForMetric({ projectKey, metric, urlHost, urlPath, startTs }) {
-    if (!cwvMetricBounds[metric]) throw new Error(`Invalid metric: ${metric}`);
-    if (!urlHost) throw new Error(`Missing required parameter: \`urlHost\``);
+  static async getOldestRecord({ projectKey, urlHost, urlPath, metric }) {
+    if (!projectKey) throw new Error('Missing required parameter: `projectKey`');
+    if (!urlHost) throw new Error('Missing required parameter: `urlHost`');
+    if (!metric) throw new Error('Missing required parameter: `metric`');
     if (urlPath) {
       const query = `
         SELECT
-          metric_name,
-          date_trunc('day', page_views.page_view_ts) AS date,
-          CAST(COUNT(*) AS int) AS total_num_records,
-          CAST(
-            COUNT(CASE WHEN metric_value <= ${cwvMetricBounds[metric].good} THEN 1 END)
-          AS int) AS num_good_records,
-          CAST(
-            COUNT(
-              CASE WHEN 
-                metric_value > ${cwvMetricBounds[metric].good} AND 
-                metric_value <= ${cwvMetricBounds[metric].medium} 
-              THEN 1 END
-            )
-          AS int) AS num_needs_improvement_records,
-          CAST(
-            COUNT(CASE WHEN metric_value > ${cwvMetricBounds[metric].medium} THEN 1 END) 
-          AS int) AS num_bad_records
+          page_views.page_view_ts AS date
         FROM
           performance_metrics
-        LEFT JOIN 
+        LEFT JOIN
           page_views ON performance_metrics.page_view_uuid = page_views.uuid
         WHERE
-          performance_metrics.project_key = $1 AND
+          page_views.project_key = $1 AND
           metric_name = $2 AND
-          page_views.page_view_ts >= $3 AND
-          page_views.url_host = $4 AND
-          page_views.url_path = $5
-        GROUP BY
-          date, metric_name
+          page_views.url_host = $3 AND
+          page_views.url_path = $4 
         ORDER BY
-          date
-    `;
-      return (await db.query(query, [projectKey, metric, new Date(startTs), decodeURIComponent(urlHost), decodeURIComponent(urlPath)])).rows;
+          page_views.page_view_ts ASC
+        LIMIT 1
+      `;
+      return (await db.query(query, [projectKey, metric, decodeURIComponent(urlHost), decodeURIComponent(urlPath)])).rows[0];
     } else {
       const query = `
         SELECT
-          metric_name,
-          date_trunc('day', page_views.page_view_ts) AS date,
-          CAST(COUNT(*) AS int) AS total_num_records,
-          CAST(
-            COUNT(CASE WHEN metric_value <= ${cwvMetricBounds[metric].good} THEN 1 END)
-          AS int) AS num_good_records,
-          CAST(
-            COUNT(
-              CASE WHEN 
-                metric_value > ${cwvMetricBounds[metric].good} AND 
-                metric_value <= ${cwvMetricBounds[metric].medium} 
-              THEN 1 END
-            )
-          AS int) AS num_needs_improvement_records,
-          CAST(
-            COUNT(CASE WHEN metric_value > ${cwvMetricBounds[metric].medium} THEN 1 END) 
-          AS int) AS num_bad_records
+          page_views.page_view_ts AS date
         FROM
           performance_metrics
-        LEFT JOIN 
+        LEFT JOIN
           page_views ON performance_metrics.page_view_uuid = page_views.uuid
         WHERE
-          performance_metrics.project_key = $1 AND
+          page_views.project_key = $1 AND
           metric_name = $2 AND
-          page_views.page_view_ts >= $3 AND
-          page_views.url_host = $4
-        GROUP BY
-          date, metric_name
+          page_views.url_host = $3
         ORDER BY
-          date
-    `;
-      return (await db.query(query, [projectKey, metric, new Date(startTs), decodeURIComponent(urlHost)])).rows;
+          page_views.page_view_ts ASC
+        LIMIT 1
+      `;
+      return (await db.query(query, [projectKey, metric, decodeURIComponent(urlHost)])).rows[0];
     }
-  };
+  }
+
+  static getGoodNeedsImprovementChartDataDataForMetric = goodNeedsImprovementPoorQuery;
+
+  static async getHistogramData({ projectKey, accronym, urlHost, urlPath, deviceTypes, minimum = 0, maximum, numBuckets = 20, startTs }) {
+    if (!projectKey) throw new Error('Missing required parameter: `projectKey`');
+    if (!accronym) throw new Error('Missing required parameter: `accronym`');
+    if (!urlHost) throw new Error('Missing required parameter: `urlHost`');
+    if (urlPath) {
+      const query = `
+          SELECT 
+            (
+              (bucket-1) * (${maximum}/${numBuckets}) || 
+              '-' || 
+              (bucket * ${maximum}/${numBuckets})
+            ) AS range, 
+            COUNT FROM (
+              SELECT 
+                width_bucket(metric_value, ${minimum}, ${maximum}, ${numBuckets}) AS bucket, 
+                count(*) AS count
+              FROM 
+                performance_metrics
+              LEFT JOIN
+                page_views ON performance_metrics.page_view_uuid = page_views.uuid
+              WHERE
+                page_views.project_key = $1 AND
+                metric_name = $2 AND
+                page_views.page_view_ts >= $3 AND
+                page_views.url_host = $4 AND
+                page_views.url_path = $5 AND
+                page_views.device_type IN (${deviceTypes.map((_, i) => `$${i + 6}`).join(',')})
+              GROUP BY bucket 
+              ORDER BY bucket
+            ) x;
+        `;
+      const results = await db.query(query, [projectKey, accronym, new Date(startTs), decodeURIComponent(urlHost), decodeURIComponent(urlPath), ...deviceTypes])
+      return results.rows;
+    } else {
+        const query = `
+          SELECT 
+            (
+              (bucket-1) * (${maximum}/${numBuckets}) || 
+              '-' || 
+              (bucket * ${maximum}/${numBuckets})
+            ) AS range, 
+            COUNT FROM (
+              SELECT 
+                width_bucket(metric_value, ${minimum}, ${maximum}, ${numBuckets}) AS bucket, 
+                count(*) AS count
+              FROM 
+                performance_metrics
+              LEFT JOIN
+                page_views ON performance_metrics.page_view_uuid = page_views.uuid
+              WHERE
+                page_views.project_key = $1 AND
+                metric_name = $2 AND
+                page_views.page_view_ts >= $3 AND
+                page_views.url_host = $4 AND
+                page_views.device_type IN (${deviceTypes.map((_, i) => `$${i + 5}`).join(',')})
+              GROUP BY bucket 
+              ORDER BY bucket
+            ) x;
+        `;
+        const results = await (db.query(query, [projectKey, accronym, new Date(startTs), decodeURIComponent(urlHost), ...deviceTypes]))
+        return results.rows;
+    }
+  }
 }
