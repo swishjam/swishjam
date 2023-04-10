@@ -10,9 +10,9 @@ export default async (req, res) => {
     if (groupBy === 'intelligent') {
       const oldestRecord = await WebVitalsData.getOldestRecord({ projectKey, urlHost, urlPath, metric: 'LCP' });
       const oneDay = 1000 * 60 * 60 * 24;
-      if (new Date(oldestRecord.date) <= new Date(oneDay * 30 * 5)) {
+      if (oldestRecord && new Date(oldestRecord.date) <= new Date(oneDay * 30 * 5)) {
         groupBy = 'month';
-      } else if (new Date(oldestRecord.date) <= new Date(oneDay * 7 * 5)) {
+      } else if (oldestRecord && new Date(oldestRecord.date) <= new Date(oneDay * 7 * 5)) {
         groupBy = 'week';
       } else {
         groupBy = 'day';
