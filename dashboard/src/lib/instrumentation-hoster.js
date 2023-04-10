@@ -12,18 +12,13 @@ export class InstrumentationHoster {
     this.reportingUrl = reportingUrl;
     this.sampleRate = sampleRate;
 
-    this.initialDirectory = `${process.cwd()}/swishjam-instrumentation-template`;
-    this.localDesintationDir = `${process.cwd()}/tmp/${this.projectKey}-instrumentation`;
-    this.localDesintationFilename = 'swishjam-instrumentation.js';
+    this.localTemplateJsDir = `${process.cwd()}/swishjam-instrumentation-template`;
     this.s3Filename = 'instrumentation.js';
-    if (!fs.existsSync(`${process.cwd()}/tmp`)) fs.mkdirSync(`${process.cwd()}/tmp`);
   }
 
   async hostInstrumentation() {
-    this._writeProjectSpecificContentToFile();
     await this._uploadInstrumentationToS3();
     await this._purgeCloudfrontCache();
-    fs.rmdirSync(this.localDesintationDir, { recursive: true });
     return `https://${process.env.NEXT_PUBLIC_JS_CDN_HOST_NAME}/${this.projectKey}/instrumentation.js`;
   }
 
@@ -52,7 +47,7 @@ export class InstrumentationHoster {
     const params = {
       Bucket: process.env.JS_S3_BUCKET_NAME,
       Key: `${this.projectKey}/${this.s3Filename}`,
-      Body: fs.readFileSync(`${this.localDesintationDir}/${this.localDesintationFilename}`, 'utf8'),
+      Body: this._generateJsContent(),
       ContentType: 'application/javascript',
       ACL: 'public-read'
     }
@@ -64,12 +59,11 @@ export class InstrumentationHoster {
     }).promise();
   }
 
-  _writeProjectSpecificContentToFile() {
-    if (!fs.existsSync(this.localDesintationDir)) fs.mkdirSync(this.localDesintationDir);
-    const templateContent = fs.readFileSync(`${this.initialDirectory}/template.js`, 'utf8');
-    const projectSpecificJsContent = templateContent.replace(/{{SWISHJAM_REPLACE_PUBLIC_API_KEY}}/g, this.projectKey)
-                                                      .replace(/{{SWISHJAM_REPLACE_REPORTING_URL}}/g, this.reportingUrl)
-                                                      .replace(/"{{SWISHJAM_REPLACE_SAMPLE_RATE}}"/g, parseFloat(this.sampleRate));
-    fs.writeFileSync(`${this.localDesintationDir}/${this.localDesintationFilename}`, projectSpecificJsContent);
+  _generateJsContent() {
+    const templateContent = fs.readFileSync(`${this.localTemplateJsDir}/template.js`, 'utf8');
+    return templateContent.replace(/{{SWISHJAM_REPLACE_PUBLIC_API_KEY}}/g, this.projectKey)
+                            .replace(/{{SWISHJAM_REPLACE_REPORTING_URL}}/g, this.reportingUrl)
+                            .replace(/"{{SWISHJAM_REPLACE_SAMPLE_RATE}}"/g, parseFloat(this.sampleRate));
+    // fs.writeFileSync(`${this.localDesintationDir}/${this.localDesintationFilename}`, projectSpecificJsContent);
   }
 }
