@@ -48,7 +48,7 @@ export default function CwvDashboardView() {
   };
 
   const getAndSetBarChartsData = async ({ urlHost, urlPath }) => {
-    const params = { urlHost, urlPath, metrics: JSON.stringify(['LCP', 'INP', 'CLS', 'FCP', 'FID', 'TTFB']) };
+    const params = { urlHost, urlPath, groupBy: 'day', metrics: JSON.stringify(['LCP', 'INP', 'CLS', 'FCP', 'FID', 'TTFB']) };
     if (urlPath === 'All Paths' || !urlPath) delete params.urlPath;
     return WebVitalsApi.getGoodNeedsImprovementChartData(params).then(setCwvBarChartData);
   }
