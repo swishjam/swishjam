@@ -1,21 +1,7 @@
-import { useState } from "react";
 import { HeroImg } from '@components/HeroImg';
 import CopiableCodeSnippet from "./CopiableCodeSnippet";
 
 export default function CdnInstallInstructions({ projectId }) {
-  const [copyTxt, setCopyTxt] = useState('Copy');
-
-  const cdnUrl = `https://cdn.swishjam.com/latest/src.js`
-  const cdnApi = `https://api.swishjam.com/events`
-  const codeSnippet = `<script src="${cdnUrl}" swishjam-reporting-url="${cdnApi}" swishjam-public-api-key="${projectId}" swishjam-sample-rate="1.0" defer></script>` 
-
-  // (function(projectKey) {
-  //   var s = document.createElement('script');
-  //   s.setAttribute('defer', '');
-  //   s.setAttribute('src', 'https://cdn.swishjam.com/latest/src.js');
-  //   document.head.appendChild(s);
-  // })("my-project-key")
-
   return (
     <div className="flex mt-6">
       <div className="h-full w-1/2 pr-12 mb-6" >
@@ -61,13 +47,15 @@ export default function CdnInstallInstructions({ projectId }) {
       <div className="h-full w-1/2 pb-32">
         <CopiableCodeSnippet
           copyContent={`
-            (function(projectKey) { 
-              var s = document.createElement('script'); 
-              s.setAttribute('defer', ''); 
-              s.setAttribute('src', "https://cdn.swishjam.com/" + projectKey + "/instrumentation.js");
-              document.head.appendChild(s);
-            })("${projectId}");`
-          }
+            <script>
+              (function(projectKey) { 
+                var s = document.createElement('script'); 
+                s.setAttribute('defer', ''); 
+                s.setAttribute('src', "https://cdn.swishjam.com/" + projectKey + "/instrumentation.js");
+                document.head.appendChild(s);
+              })("${projectId}");
+            </script>
+          `}
           snippet={
             <div>
               <span className='block'>

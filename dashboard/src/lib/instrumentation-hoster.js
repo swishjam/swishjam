@@ -20,7 +20,7 @@ export class InstrumentationHoster {
     await this._uploadInstrumentationToS3();
     await this._purgeCloudfrontCache();
     fs.rmdirSync(this.localDesintationDir, { recursive: true });
-    return `https://s3.amazonaws.com/${process.env.JS_S3_BUCKET_NAME}/${this.projectKey}/instrumentation.js`;
+    return `https://${process.env.NEXT_PUBLIC_JS_CDN_HOST_NAME}/${this.projectKey}/instrumentation.js`;
   }
 
   async _purgeCloudfrontCache() {
