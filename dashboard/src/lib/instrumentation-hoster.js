@@ -2,6 +2,9 @@ import { S3, CloudFront } from 'aws-sdk';
 import fs from 'fs';
 require('aws-sdk/lib/maintenance_mode_message').suppress = true;
 
+const cloudfront = new CloudFront();
+const s3 = new S3();
+
 export class InstrumentationHoster {
   constructor({ projectKey, reportingUrl = 'https://api.swishjam.com/events', sampleRate = 1.0 }) {
     if (!projectKey) throw new Error('projectKey is required');
@@ -24,7 +27,6 @@ export class InstrumentationHoster {
   }
 
   async _purgeCloudfrontCache() {
-    const cloudfront = new CloudFront();
     const params = {
       DistributionId: process.env.JS_CLOUDFRONT_DISTRIBUTION_ID,
       InvalidationBatch: {
@@ -46,7 +48,6 @@ export class InstrumentationHoster {
   }
 
   async _uploadInstrumentationToS3() {
-    const s3 = new S3();
     const params = {
       Bucket: process.env.JS_S3_BUCKET_NAME,
       Key: `${this.projectKey}/${this.s3Filename}`,
