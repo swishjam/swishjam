@@ -10,7 +10,7 @@ function classNames(...classes) {
 }
 
 export default function SnippetInstall({ projectId }) {
-  const [currentTab, setCurrentTab] = useState('npm');
+  const [currentTab, setCurrentTab] = useState('cdn');
 
   return (
     <Card>

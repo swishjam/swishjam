@@ -9,6 +9,13 @@ export default function CdnInstallInstructions({ projectId }) {
   const cdnApi = `https://api.swishjam.com/events`
   const codeSnippet = `<script src="${cdnUrl}" swishjam-reporting-url="${cdnApi}" swishjam-public-api-key="${projectId}" swishjam-sample-rate="1.0" defer></script>` 
 
+  // (function(projectKey) {
+  //   var s = document.createElement('script');
+  //   s.setAttribute('defer', '');
+  //   s.setAttribute('src', 'https://cdn.swishjam.com/latest/src.js');
+  //   document.head.appendChild(s);
+  // })("my-project-key")
+
   return (
     <div className="flex mt-6">
       <div className="h-full w-1/2 pr-12 mb-6" >
@@ -26,7 +33,6 @@ export default function CdnInstallInstructions({ projectId }) {
                   <div className="flex min-w-0 flex-1 justify-between space-x-4 pt-1.5">
                     <div>
                       <p className="text-sm text-gray-500">Copy & embed the snippet on the right into the <span className="font-medium text-gray-900">very bottom of the `head`</span> on each page of your website or application.</p>
-                      {/* <p className="text-xs text-gray-500 mt-1">*We keep our script tag really small and performant so it doesn't interfere with your site.</p> */}
                     </div>
                   </div>
                 </div>
@@ -54,8 +60,85 @@ export default function CdnInstallInstructions({ projectId }) {
       </div>
       <div className="h-full w-1/2 pb-32">
         <CopiableCodeSnippet
-          copyContent={codeSnippet}
-          snippet={codeSnippet}
+          copyContent={`
+            (function(projectKey) { 
+              var s = document.createElement('script'); 
+              s.setAttribute('defer', ''); 
+              s.setAttribute('src', "https://cdn.swishjam.com/" + projectKey + "/instrumentation.js");
+              document.head.appendChild(s);
+            })("${projectId}");`
+          }
+          snippet={
+            <div>
+              <span className='block'>
+                {'<'}
+                <span className='text-fuchsia-400'>script</span>
+                {'>'}
+              </span>
+              <span className='ml-4 block'>
+                (
+                <span className='text-fuchsia-400'>function</span>
+                (
+                <span className='text-sky-400'>projectKey</span>
+                <span className='mr-1'>) {'{'}</span>
+              </span>
+              <span className='block ml-8'>
+                <span className='text-sky-500 mr-1'>var</span>
+                <span className='text-sky-400 mr-1'>s</span>
+                = 
+                <span className='text-sky-400 ml-1'>document</span>
+                .
+                <span className='text-yellow-400'>createElement</span>
+                (
+                <span className='text-green-400'>'script'</span>
+                );
+              </span>
+              <span className='block ml-8'>
+                <span className='text-sky-400'>s</span>
+                .
+                <span className='text-yellow-400'>setAttribute</span>
+                (
+                <span className='text-green-400'>'defer'</span>
+                , 
+                <span className='text-green-400 ml-2'>''</span>
+                );
+              </span>
+              <span className='block ml-8'>
+                <span className='text-sky-400'>s</span>
+                .
+                <span className='text-yellow-400'>setAttribute</span>
+                (
+                <span className='text-green-400'>'src'</span>
+                , 
+                <span className='text-green-400 mr-1 ml-1'>'https://cdn.swishjam.com/'</span> 
+                + 
+                <span className='text-sky-400 mx-1'>projectKey</span>
+                +
+                <span className='text-green-400 ml-1'>'/instrumentation.js'</span>
+                );
+              </span>
+              <span className='block ml-8'>
+                <span className='text-sky-400'>document</span>
+                .
+                <span className='text-sky-500'>head</span>
+                .
+                <span className='text-yellow-400'>appendChild</span>
+                (
+                <span className='text-sky-400'>s</span>
+                );
+              </span>
+              <span className='block ml-4'>
+                {'}'}(
+                  <span className='text-green-400'>'{projectId}'</span>
+                )
+              </span>
+              <span className='block'>
+                {'</'}
+                <span className='text-fuchsia-400'>script</span>
+                {'>'}
+              </span>
+            </div>
+          }
         />
         <HeroImg className="h-36 pt-2 absolute bottom-0 right-0"/>
       </div>

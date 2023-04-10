@@ -29,6 +29,11 @@ export default function NewProjectDialog({ isOpen, onClose, onComplete}) {
       setLoading(false);
       setErrorMsg(error.message);
     } else {
+      await fetch('/api/instrumentation/create', { 
+        method: 'POST', 
+        headers: { 'Content-Type': 'application/json' }, 
+        body: JSON.stringify({ projectKey: data[0].public_id }) 
+      });
       setProjects([...projects, data[0]]);
       updateCurrentProject(data[0]); 
       setLoading(false);
