@@ -37,12 +37,10 @@ export class InstrumentationHoster {
         }
       }
     };
-    await cloudfront.createInvalidation(params, (err, data) => {
+    await cloudfront.createInvalidation(params, (err, _data) => {
       if (err) {
         console.error(err);
         throw new Error(err);
-      } else {
-        console.log(data);
       }
     }).promise();
   }
@@ -56,12 +54,10 @@ export class InstrumentationHoster {
       ContentType: 'application/javascript',
       ACL: 'public-read'
     }
-    await s3.putObject(params, (err, data) => {
+    await s3.putObject(params, (err, _data) => {
       if (err) {
         console.error(err);
         throw new Error(err);
-      } else {
-        console.log(data);
       }
     }).promise();
   }
