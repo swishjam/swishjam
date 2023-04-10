@@ -52,11 +52,11 @@ export default function Waterfall({ resources, performanceMetricsValues, navigat
   const TIMESTAMP_EVERY_MS = 500;
   const PIXELS_PER_MS = 0.15;
 
-  let timeMarkers = [<div className='inline-block text-gray-400 border-r h-full' style={{ width: '0px' }} />];
+  let timeMarkers = [<div key={0} className='inline-block text-gray-400 border-r h-full' style={{ width: '0px' }} />];
   while (timeMarkers.length * TIMESTAMP_EVERY_MS < maxTimestamp) {
     const formattedTime = formattedMsOrSeconds(timeMarkers.length * TIMESTAMP_EVERY_MS);
     timeMarkers.push(
-      <div key={timeMarkers.length} className='text-end inline-block text-gray-400 text-sm border-r h-full' style={{ width: `${TIMESTAMP_EVERY_MS * PIXELS_PER_MS}px` }}>
+      <div key={timeMarkers.length + 1} className='text-end inline-block text-gray-400 text-sm border-r h-full' style={{ width: `${TIMESTAMP_EVERY_MS * PIXELS_PER_MS}px` }}>
         {formattedTime}
       </div>
     )
@@ -117,7 +117,7 @@ export default function Waterfall({ resources, performanceMetricsValues, navigat
               <div className={`flex items-center min-w-[100%] h-10 py-2 ${i % 2 === 0 ? 'bg-gray-100' : ''}`} 
                     key={i} 
                     style={{ width: `${timeMarkers.length * TIMESTAMP_EVERY_MS * PIXELS_PER_MS}px` }}>
-                <WaterfallRowVisual resource={resource} index={i}  maxTimestamp={maxTimestamp} />
+                <WaterfallRowVisual resource={resource} index={i}  maxTimestamp={maxTimestamp} key={`waterfall-visual-${i}`} />
               </div>
             )
           })}

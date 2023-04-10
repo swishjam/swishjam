@@ -1,5 +1,4 @@
 import { runQueryIfUserHasAccess } from '@/lib/analyticQuerier';
-// import PerformanceMetricsData from '@/lib/data/performanceMetrics';
 import WebVitals from '@/lib/data/webVitals';
 import PageViews from '@/lib/data/pageViews';
 

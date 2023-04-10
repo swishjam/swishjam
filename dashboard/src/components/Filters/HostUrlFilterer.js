@@ -41,7 +41,7 @@ export default function HostUrlFilterer({ onHostSelected, onNoHostsFound }) {
         }
       });
     }
-  }, [currentProject?.key]);
+  }, [currentProject?.public_id]);
 
   const onDropdownSelection = option => {
     localStorage.setItem('swishjamSelectedHostUrl', option);

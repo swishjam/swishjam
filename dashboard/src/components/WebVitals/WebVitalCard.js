@@ -27,7 +27,6 @@ export default function WebVitalCard({ title, accronym, percentileValue, numReco
     })
   });
 
-  console.log(formattedBarChartData);
   const percentileColor = percentileValue <= cwvMetricBounds[accronym].good ? 'emerald' : 
                             percentileValue <= cwvMetricBounds[accronym].medium ? 'yellow' : 'rose';
   return (

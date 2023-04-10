@@ -35,7 +35,7 @@ export default function TabButtons({currentTab, setTab }) {
                 <CodeBracketIcon className={`h-4 w-4 flex-none ${currentTab ==='npm' ? 'text-swishjam' : 'text-slate-600'}`} /> :
                 <BoltIcon className={`h-4 w-4 flex-none ${currentTab === 'cdn' ? 'text-swishjam' : 'text-slate-600'}`} />
               }
-              <span class="sr-only lg:not-sr-only lg:ml-2 ">via {method.toUpperCase()}</span>
+              <span className="sr-only lg:not-sr-only lg:ml-2 ">via {method.toUpperCase()}</span>
             </Tab>
           ))}
         </Tab.List>
@@ -44,7 +44,7 @@ export default function TabButtons({currentTab, setTab }) {
   )
 }
             /*<CodeBracketIcon className='h-4 w-4 flex-none stroke-swishjam' />
-            <span class="sr-only lg:not-sr-only lg:ml-2 text-slate-900">via NPM</span>
+            <span className="sr-only lg:not-sr-only lg:ml-2 text-slate-900">via NPM</span>
             
             <BoltIcon className='h-4 w-4 flex-none stroke-slate-600' />
-            <span class="sr-only lg:not-sr-only lg:ml-2 text-slate-600">via CDN</span>*/
+            <span className="sr-only lg:not-sr-only lg:ml-2 text-slate-600">via CDN</span>*/

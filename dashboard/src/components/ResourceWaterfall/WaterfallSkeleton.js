@@ -3,13 +3,13 @@ export default function WaterfallSkeleton() {
   const tickIndicatorEverMs = maxTimestamp > 5_000 ? 1_000 : 500;
   const numRows = 50;
 
-  let timeMarkers = [<div className='inline-block text-gray-400 border-r h-full' style={{ width: '0%' }} />];
+  let timeMarkers = [<div key={0} className='inline-block text-gray-400 border-r h-full' style={{ width: '0%' }} />];
   while (timeMarkers.length * tickIndicatorEverMs < maxTimestamp) {
     const formattedTime = timeMarkers.length * tickIndicatorEverMs >= 1_000 ?
       `${(timeMarkers.length * tickIndicatorEverMs) / 1_000} s` :
       `${timeMarkers.length * tickIndicatorEverMs} ms`;
     timeMarkers.push(
-      <div className='text-end inline-block text-gray-400 text-sm border-r h-full' style={{ width: `${(tickIndicatorEverMs / maxTimestamp) * 100}%` }}>
+      <div key={timeMarkers.length + 1} className='text-end inline-block text-gray-400 text-sm border-r h-full' style={{ width: `${(tickIndicatorEverMs / maxTimestamp) * 100}%` }}>
         {formattedTime}
       </div>
     )
@@ -23,8 +23,8 @@ export default function WaterfallSkeleton() {
           {Array.from(Array(numRows)).map((_dummy, i) => {
             return (
               <div className={`flex items-center h-10 p-2 ${i % 2 === 0 ? 'bg-gray-100' : ''}`} key={i}>
-                <div class="animate-pulse flex space-x-4 h-full w-full">
-                  <div class={`rounded bg-slate-200 h-full ${['w-1/4', 'w-1/3', 'w-1/2', 'w-2/3', 'w-3/4', 'w-full'][Math.ceil(Math.random() * 5)]}`} />
+                <div className="animate-pulse flex space-x-4 h-full w-full">
+                  <div className={`rounded bg-slate-200 h-full ${['w-1/4', 'w-1/3', 'w-1/2', 'w-2/3', 'w-3/4', 'w-full'][Math.ceil(Math.random() * 5)]}`} />
                 </div>
               </div>
             )

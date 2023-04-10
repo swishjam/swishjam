@@ -12,7 +12,7 @@ function tryToFindDefaultPath(urlPaths) {
     autoSelectedPathUrl = pastSelectedPathUrl;
   } else {
     autoSelectedPathUrl = urlPaths.find(urlPath => urlPath === '/') ||
-                            urlPaths.reduce((a, b) => a.length <= b.length ? a : b) ||
+                            (urlPaths?.length > 0 && urlPaths.reduce((a, b) => a.length <= b.length ? a : b)) ||
                             urlPaths[0];
   }
   return autoSelectedPathUrl;
@@ -36,7 +36,7 @@ export default function PathUrlFilterer({ urlHost, onPathSelected, includeAllPat
         }
       });
     }
-  }, [currentProject?.key, urlHost]);
+  }, [currentProject?.public_id, urlHost]);
 
   const onDropdownSelection = option => {
     localStorage.setItem('swishjamSelectedPathUrl', option);
