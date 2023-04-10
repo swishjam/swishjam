@@ -16,6 +16,7 @@ export class InstrumentationHoster {
     this.localDesintationDir = `${process.cwd()}/tmp/${this.projectKey}-instrumentation`;
     this.localDesintationFilename = 'swishjam-instrumentation.js';
     this.s3Filename = 'instrumentation.js';
+    if (!fs.existsSync(`${process.cwv()}/tmp`)) fs.writeFileSync(`${process.cwv()}/tmp`);
   }
 
   async hostInstrumentation() {
