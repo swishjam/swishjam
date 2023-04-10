@@ -13,7 +13,7 @@ export class InstrumentationHoster {
     this.sampleRate = sampleRate;
 
     this.initialDirectory = `${process.cwd()}/swishjam-instrumentation-template`;
-    this.localDesintationDir = `${process.cwd()}/swishjam-instrumentation-template/${this.projectKey}`;
+    this.localDesintationDir = `${process.cwd()}/tmp/${this.projectKey}-instrumentation`;
     this.localDesintationFilename = 'swishjam-instrumentation.js';
     this.s3Filename = 'instrumentation.js';
   }
