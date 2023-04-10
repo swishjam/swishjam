@@ -66,24 +66,24 @@ export default function DemographicsCard({ title, data, sortFunction = (a, b) =>
               <div key={index} className={`${index%2 ? 'bg-gray-50':'bg-white'} px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6`}>
                 <dt className="text-sm font-medium text-gray-500">{item.name}</dt>
                 <dd className="mt-1 text-sm text-gray-900 sm:mt-0">
-                  FCP
+                  LCP
                 </dd>
                 <dd className="mt-1 text-sm text-gray-900 sm:mt-0">
-                  <CwvBadge metric={item.vitals['FCP']?.value} cwv={'FCP'} /> 
+                  <CwvBadge metric={item.vitals['LCP']?.value} cwv='LCP' /> 
                 </dd>
                 <dt className="text-sm font-medium text-gray-500"></dt>
                 <dd className="mt-1 text-sm text-gray-900 sm:mt-0">
                   CLS
                 </dd>
                 <dd className="mt-1 text-sm text-gray-900 sm:mt-0">
-                  <CwvBadge metric={item.vitals['CLS']?.value} cwv={'CLS'} /> 
+                  <CwvBadge metric={item.vitals['CLS']?.value} cwv='CLS' /> 
                 </dd>
                 <dt className="text-sm font-medium text-gray-500"></dt>
                 <dd className="mt-1 text-sm text-gray-900 sm:mt-0">
                   FID
                 </dd>
                 <dd className="mt-1 text-sm text-gray-900 sm:mt-0">
-                  <CwvBadge metric={item.vitals['FID']?.value} cwv={'FID'} /> 
+                  <CwvBadge metric={item.vitals['FID']?.value} cwv='FID' /> 
                 </dd>
               </div>
             ))
@@ -91,7 +91,7 @@ export default function DemographicsCard({ title, data, sortFunction = (a, b) =>
               <div className='bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6'>
                 <div className="h-4 w-12 animate-pulse bg-gray-200 rounded" />
                 <dd className="mt-1 text-sm text-gray-900 sm:mt-0">
-                  FCP
+                  LCP
                 </dd>
                 <dd className="mt-1 text-sm text-gray-900 sm:mt-0">
                   <div className='h-4 w-8 animate-pulse bg-gray-200 rounded-lg' />
