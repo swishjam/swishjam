@@ -1,3 +1,17 @@
+const { 
+  navigationEntry,
+  longtaskEntry,
+  paintEntry,
+  resourceEntry,
+  largestContentfulPaintEntry,
+  firstInputEntry,
+  layoutShiftEntry,
+  elementEntry,
+  eventEntry,
+  markEntry,
+  measureEntry,
+} = require('./resourceFormatters');
+
 class PerformanceEntriesHandler {
   constructor(reportingHandler, options = {}) {
     this.reportingHandler = reportingHandler;
@@ -25,9 +39,7 @@ class PerformanceEntriesHandler {
 
   _onPerformanceEntries(callback) {
     if(!window.PerformanceObserver) return;
-    return new PerformanceObserver((list, _observer) => {
-      callback(list.getEntries())
-    }).observe({ entryTypes: this.performanceEntryTypesToCapture });
+    return new PerformanceObserver( (list, _observer) => callback(list.getEntries()) ).observe({ entryTypes: this.performanceEntryTypesToCapture });
   }
 
   _getPerformanceEntries() {
@@ -36,22 +48,33 @@ class PerformanceEntriesHandler {
   }
 
   _formattedPerformanceEntry(entry) {
-    // not every performance entry has a URL attribute, for now we will set it to an empty string if it is not present
-    let formattedEntry = { 
-      ...entry.toJSON(), 
-      name: encodeURIComponent(entry.name || ""),
-      url: encodeURIComponent(entry.url || ""),
-    };
-    if (formattedEntry.attribution && formattedEntry.attribution.length > 0) {
-      formattedEntry.attribution = formattedEntry.attribution.map(attribution => {
-        return {
-          ...attribution.toJSON(),
-          name: encodeURIComponent(attribution.name || ""),
-          url: encodeURIComponent(attribution.url || ""),
-        }
-      });
+    switch(entry.entryType) {
+      case "paint":
+        return paintEntry(entry);
+      case "longtask":
+        return longtaskEntry(entry);
+      case "navigation":
+        return navigationEntry(entry);
+      case "resource":
+        return resourceEntry(entry);
+      case "largest-contentful-paint":
+        return largestContentfulPaintEntry(entry);
+      case "first-input":
+        return firstInputEntry(entry);
+      case "layout-shift":
+        return layoutShiftEntry(entry);
+      case 'element':
+        return elementEntry(entry);
+      case 'event':
+        return eventEntry(entry);
+      case 'mark':
+        return markEntry(entry);
+      case 'measure':
+        return measureEntry(entry);
+      default:
+        console.warn('Unexpected Swishjam performance entry: ', entry.entryType);
+        return entry.toJSON();
     }
-    return formattedEntry;
   }
 }
 

@@ -44,5 +44,6 @@ S:::::::::::::::SS     w:::w           w:::w          i::::::i s:::::::::::ss  h
                                                                                           jjj::::::jjj                                            
                                                                                              jjjjjj                                               
   `)
-  console.log(`Local Swishjam server running on port ${port}!`)
+  console.log(`Local Swishjam server running on port ${port}!`);
+  console.log(`API endpoint: http://localhost:${port}/api/events`);
 });

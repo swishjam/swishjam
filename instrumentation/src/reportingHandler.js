@@ -9,6 +9,9 @@ class ReportingHandler {
     this.reportAfterIdleTimeMs = options.reportAfterIdleTimeMs || 10_000;
     this.reportingIdleTimeCheckInterval = options.reportingIdleTimeCheckInterval || 5_000;
     this.mockApiCalls = options.mockApiCalls || false;
+    this.maxNumEventsPerPageView = options.maxNumEventsPerPageView || 200;
+
+    this.pageViewEventCounter = {};
     this.dataToReport = [];
     this._setReportingOnIdleTimeInterval();
   }
@@ -20,6 +23,11 @@ class ReportingHandler {
   recordEvent(eventName, data, uuid = null) {
     if (!EVENT_TYPES.includes(eventName)) throw new Error(`Invalid event: ${eventName}. Valid event types are: ${EVENT_TYPES.join(', ')}.`);
     if (!this.currentPageViewIdentifier) throw new Error('ReportingHandler has no currentPageViewIdentifier, cannot record event.');
+    this.pageViewEventCounter[this.currentPageViewIdentifier] = (this.pageViewEventCounter[this.currentPageViewIdentifier] || 0) + 1;
+    if (this.pageViewEventCounter[this.currentPageViewIdentifier] > this.maxNumEventsPerPageView) {
+      console.warn(`Swishjam: max number of events per page view (${this.maxNumEventsPerPageView}) reached, not recording event: ${eventName}`);
+      return;
+    }
     this.dataToReport.push({ 
       _event: eventName, 
       uuid: uuid || UuidGenerator.generate(eventName.toLowerCase()),
@@ -55,6 +63,7 @@ class ReportingHandler {
       siteId: this.publicApiKey, 
       projectKey: this.publicApiKey, 
       originatingUrl: window.encodeURIComponent(window.location.href), 
+      swishjamVersion: window.Swishjam.config.version,
       data: this.dataToReport 
     };
     if (this.mockApiCalls) {
@@ -63,6 +72,7 @@ class ReportingHandler {
       try {
         // TODO: we're swallowing errors here. JSON stringifying causes circular dependency errors when DOM nodes are in the data.
         const blob = new Blob([JSON.stringify(body)], {});
+        // const blob = new Blob([JSON.stringify(body)], { type: 'application/json' }); // use for local dev?
         window.navigator.sendBeacon(this.reportingUrl, blob);
       } catch(err) {}
     } else {
