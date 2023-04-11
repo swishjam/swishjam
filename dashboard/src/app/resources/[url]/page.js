@@ -25,6 +25,7 @@ const METRICS_DROPDOWN_OPTIONS = [
   { name: 'SSL Duration', value: 'ssl_duration' },
   // { name: 'Initial Connection Duration', value: 'initialConnectionDuration' },
   { name: 'Time to First Byte Duration', value: 'time_to_first_byte_duration' },
+  { name: 'Fetch Start Time', value: 'fetch_start' },
   { name: 'Request Duration', value: 'request_duration' },
   { name: 'Download Duration', value: 'download_duration' },
   { name: 'Total Duration', value: 'duration' },
@@ -46,8 +47,8 @@ const RESOURCE_TYPE_ICON_DICT = {
 
 const MetricDataDiv = ({ metricName, metricValue, formatter = formattedMsOrSeconds }) => {
   return (
-    <div className="col-span-1 p-2">
-      <div className='w-full h-full border rounded-md border-gray-400 p-4 m-1 flex items-center justify-center'>
+    <div className="col-span-1 my-1">
+      <div className='w-full h-full border rounded-md border-gray-400 p-4 flex items-center justify-center'>
         <div className='text-center'>
           <span className='block text-sm'>{metricName}</span>
           {typeof metricValue === 'number' 

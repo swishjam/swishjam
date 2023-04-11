@@ -20,7 +20,8 @@ export default class ResourcePerformanceEntries {
         PERCENTILE_CONT(${percentile}) WITHIN GROUP (ORDER BY duration ASC) AS duration,
         PERCENTILE_CONT(${percentile}) WITHIN GROUP (ORDER BY transfer_size ASC) AS transfer_size,
         PERCENTILE_CONT(${percentile}) WITHIN GROUP (ORDER BY decoded_body_size ASC) AS decoded_body_size,
-        PERCENTILE_CONT(${percentile}) WITHIN GROUP (ORDER BY encoded_body_size ASC) AS encoded_body_size
+        PERCENTILE_CONT(${percentile}) WITHIN GROUP (ORDER BY encoded_body_size ASC) AS encoded_body_size,
+        PERCENTILE_CONT(${percentile}) WITHIN GROUP (ORDER BY fetch_start ASC) AS fetch_start
       FROM
         resource_performance_entries
       JOIN
