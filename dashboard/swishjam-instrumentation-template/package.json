@@ -10,6 +10,7 @@
   "license": "ISC",
   "dependencies": {
     "@babel/preset-env": "^7.21.4",
+    "@swishjam/swishjam": "^0.0.248",
     "babel-core": "^6.26.3",
     "babel-loader": "^9.1.2",
     "babel-preset-es2015": "^6.24.1",
