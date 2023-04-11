@@ -87,7 +87,7 @@ export function largestContentfulPaintEntry(entry) {
   }
 }
 
-export function formattedResourceEntry(entry) {
+export function resourceEntry(entry) {
   return {
     name: encodeURIComponent(entry.name || ""),
     entryType: entry.entryType,
@@ -142,7 +142,7 @@ export function longtaskEntry(entry) {
   }
 }
 
-export function formattedNavigationEntry(entry) {
+export function navigationEntry(entry) {
   return {
     name: encodeURIComponent(entry.name || ""),
     duration: entry.duration,

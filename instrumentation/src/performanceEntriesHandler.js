@@ -1,8 +1,8 @@
 const { 
-  formattedNavigationEntry,
+  navigationEntry,
   longtaskEntry,
   paintEntry,
-  formattedResourceEntry,
+  resourceEntry,
   largestContentfulPaintEntry,
   firstInputEntry,
   layoutShiftEntry,
@@ -54,9 +54,9 @@ class PerformanceEntriesHandler {
       case "longtask":
         return longtaskEntry(entry);
       case "navigation":
-        return formattedNavigationEntry(entry);
+        return navigationEntry(entry);
       case "resource":
-        return formattedResourceEntry(entry);
+        return resourceEntry(entry);
       case "largest-contentful-paint":
         return largestContentfulPaintEntry(entry);
       case "first-input":
