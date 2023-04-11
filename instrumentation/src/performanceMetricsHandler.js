@@ -16,7 +16,8 @@ class PerformanceMetricsHandler {
   }
 
   _reportCWV(type, entry) {
-    this.reportingHandler.recordEvent('PAGE_LOAD_METRIC', { type: type, ...entry });
+    // this.reportingHandler.recordEvent('PAGE_LOAD_METRIC', { type: type, ...entry });
+    this.reportingHandler.recordEvent('PAGE_LOAD_METRIC', { type: type, value: entry.value });
   }
 }
 
