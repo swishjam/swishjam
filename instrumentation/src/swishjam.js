@@ -54,6 +54,7 @@ class Swishjam {
     if (!config.reportingUrl) throw new Error('Swishjam `reportingUrl` is required');
     if (!config.publicApiKey) throw new Error('Swishjam `publicApiKey` is required');
     return {
+      version: '0.0.248',
       reportingUrl: config.reportingUrl,
       publicApiKey: config.publicApiKey,
       sampleRate: config.sampleRate || 1.0,
@@ -61,7 +62,6 @@ class Swishjam {
       reportAfterIdleTimeMs: config.reportAfterIdleTimeMs || 10_000,
       reportingIdleTimeCheckInterval: config.reportingIdleTimeCheckInterval || 2_000,
       mockApiCalls: config.mockApiCalls || false,
-      version: '0.0.246',
       // performanceEntryTypesToCapture: config.performanceEntryTypesToCapture || ['navigation', 'paint', 'resource', 'longtask', 'largest-contentful-paint', 'layout-shift'],
       performanceEntryTypesToCapture: config.performanceEntryTypesToCapture || window.PerformanceObserver ? window.PerformanceObserver.supportedEntryTypes : [],
       includeSwishjamResourcesEntries: config.includeSwishjamResourcesEntries || false,

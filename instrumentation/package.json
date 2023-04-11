@@ -1,6 +1,6 @@
 {
   "name": "@swishjam/swishjam",
-  "version": "0.0.246",
+  "version": "0.0.248",
   "description": "Monitor your web app's front end performance metrics",
   "main": "src/swishjam.js",
   "scripts": {
