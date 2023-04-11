@@ -71,6 +71,7 @@ const captureEvents = async (payload, db) => {
   });
   console.log(`Awaiting ${dbPromises.length} dbPromises`);
   const results = await Promise.all(dbPromises);
+  console.log('All promises complete.');
   
   const failedEvents = results.filter(result => result && result.error);
   if (failedEvents.length > 0) {

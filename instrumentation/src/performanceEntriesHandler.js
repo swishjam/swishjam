@@ -72,6 +72,7 @@ class PerformanceEntriesHandler {
       case 'measure':
         return measureEntry(entry);
       default:
+        console.warn('Unexpected Swishjam performance entry: ', entry.entryType);
         return entry.toJSON();
     }
   }

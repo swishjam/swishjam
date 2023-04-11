@@ -1,38 +1,38 @@
 export function elementEntry(entry) {
   return {
+    name: encodeURIComponent(entry.name || ""),
+    url: encodeURIComponent(entry.url || ''),
     duration: entry.duration,
     entryType: entry.entryType,
-    name: encodeURIComponent(entry.name || ""),
     startTime: entry.startTime,
-    element: entry.element,
+    element: _elementIdentifier(entry.element),
     id: entry.id,
     identifier: entry.identifier,
     intersectionRect: entry.intersectionRect,
     loadTime: entry.loadTime,
     naturalHeight: entry.naturalHeight,
     renderTime: entry.renderTime,
-    url: encodeURIComponent(entry.url || ''),
   }
 }
 
 export function eventEntry(entry) {
   return {
+    name: encodeURIComponent(entry.name || ""),
     duration: entry.duration,
     entryType: entry.entryType,
-    name: encodeURIComponent(entry.name || ""),
     startTime: entry.startTime,
     interactionId: entry.interactionId,
     processingStart: entry.processingStart,
     processingEnd: entry.processingEnd,
-    target: entry.target,
+    target: _elementIdentifier(entry.target),
   }
 }
 
 export function markEntry(entry) {
   return {
+    name: encodeURIComponent(entry.name || ""),
     duration: entry.duration,
     entryType: entry.entryType,
-    name: encodeURIComponent(entry.name || ""),
     startTime: entry.startTime,
     detail: entry.detail,
   }
@@ -40,9 +40,9 @@ export function markEntry(entry) {
 
 export function measureEntry(entry) {
   return {
+    name: encodeURIComponent(entry.name || ""),
     duration: entry.duration,
     entryType: entry.entryType,
-    name: encodeURIComponent(data.name || ""),
     startTime: entry.startTime,
     detail: entry.detail,
   }
@@ -50,7 +50,7 @@ export function measureEntry(entry) {
 
 export function layoutShiftEntry(entry) {
   return {
-    name: encodeURIComponent(data.name || ""),
+    name: encodeURIComponent(entry.name || ""),
     entryType: entry.entryType,
     startTime: entry.startTime,
     duration: entry.duration,
@@ -61,29 +61,29 @@ export function layoutShiftEntry(entry) {
 
 export function firstInputEntry(entry) {
   return {
+    name: encodeURIComponent(entry.name || ""),
     duration: entry.duration,
     entryType: entry.entryType,
-    name: encodeURIComponent(entry.name || ""),
     startTime: entry.startTime,
     interactionId: entry.interactionId,
     processingStart: entry.processingStart,
     processingEnd: entry.processingEnd,
-    target: entry.target,
+    target: _elementIdentifier(entry.target),
   }
 }
 
 export function largestContentfulPaintEntry(entry) {
   return {
+    name: encodeURIComponent(entry.name || ""),
+    url: encodeURIComponent(entry.url || ''),
     duration: entry.duration,
     entryType: entry.entryType,
-    name: encodeURIComponent(entry.name || ""),
     startTime: entry.startTime,
-    element: entry.element,
+    element: _elementIdentifier(entry.element),
     renderTime: entry.renderTime,
     loadTime: entry.loadTime,
     size: entry.size,
     id: entry.id,
-    url: encodeURIComponent(entry.url || ''),
   }
 }
 
@@ -125,25 +125,28 @@ export function paintEntry(entry) {
 
 export function longtaskEntry(entry) {
   return {
+    name: encodeURIComponent(entry.name || ""),
     duration: entry.duration,
     entryType: entry.entryType,
-    name: encodeURIComponent(entry.name || ""),
     startTime: entry.startTime,
     attribution: (entry.attribution || []).map(attribution => ({
+      containerSrc: encodeURIComponent(attribution.containerSrc || ""),
+      containerName: encodeURIComponent(attribution.containerName || ""),
       duration: attribution.duration,
       entryType: attribution.entryType,
       name: attribution.name,
       startTime: attribution.startTime,
       containerType: attribution.containerType,
-      containerSrc: encodeURIComponent(attribution.containerSrc || ""),
       containerId: attribution.containerId,
-      containerName: encodeURIComponent(attribution.containerName || ""),
     }))
   }
 }
 
 export function formattedNavigationEntry(entry) {
   return {
+    name: encodeURIComponent(entry.name || ""),
+    duration: entry.duration,
+    entryType: entry.entryType,
     startTime: entry.startTime,
     initiatorType: entry.initiatorType,
     domComplete: entry.domComplete,
@@ -173,4 +176,23 @@ export function formattedNavigationEntry(entry) {
     secureConnectionStart: entry.secureConnectionStart,
     transferSize: entry.transferSize,
   }
+}
+
+function _elementIdentifier(element) {
+  if (!element) return;
+  try {
+    return element.nodeName + (
+      element.getAttribute('src')
+        ? '+SRC=' + element.getAttribute('src')
+        : element.getAttribute('href')
+          ? '+HREF=' + element.getAttribute('href')
+          : element.innerText && element.innerText.length > 0
+            ? '+TEXT=' + element.innerText
+            : element.getAttribute('id')
+              ? '+ID=' + element.getAttribute('id')
+              : element.getAttribute('class')
+                ? '+CLASS=' + element.getAttribute('class')
+                : null
+    )
+  } catch(err) {}
 }
