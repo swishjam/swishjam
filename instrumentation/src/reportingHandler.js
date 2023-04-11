@@ -9,7 +9,7 @@ class ReportingHandler {
     this.reportAfterIdleTimeMs = options.reportAfterIdleTimeMs || 10_000;
     this.reportingIdleTimeCheckInterval = options.reportingIdleTimeCheckInterval || 5_000;
     this.mockApiCalls = options.mockApiCalls || false;
-    this.maxNumEventsPerPageView = options.maxNumEventsPerPageView || 200;
+    this.maxNumEventsPerPage = options.maxNumEventsPerPage || 250;
 
     this.pageViewEventCounter = {};
     this.dataToReport = [];
@@ -24,8 +24,8 @@ class ReportingHandler {
     if (!EVENT_TYPES.includes(eventName)) throw new Error(`Invalid event: ${eventName}. Valid event types are: ${EVENT_TYPES.join(', ')}.`);
     if (!this.currentPageViewIdentifier) throw new Error('ReportingHandler has no currentPageViewIdentifier, cannot record event.');
     this.pageViewEventCounter[this.currentPageViewIdentifier] = (this.pageViewEventCounter[this.currentPageViewIdentifier] || 0) + 1;
-    if (this.pageViewEventCounter[this.currentPageViewIdentifier] > this.maxNumEventsPerPageView) {
-      console.warn(`Swishjam: max number of events per page view (${this.maxNumEventsPerPageView}) reached, not recording event: ${eventName}`);
+    if (this.pageViewEventCounter[this.currentPageViewIdentifier] > this.maxNumEventsPerPage) {
+      console.warn(`Swishjam: max number of events per page view (${this.maxNumEventsPerPage}) reached, not recording event: ${eventName}`);
       return;
     }
     this.dataToReport.push({ 

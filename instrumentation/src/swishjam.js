@@ -18,6 +18,7 @@ class Swishjam {
         reportingUrl: options.reportingUrl,
         publicApiKey: options.publicApiKey,
         maxNumEventsInMemory: options.maxNumEventsInMemory,
+        maxNumEventsPerPage: options.maxNumEventsPerPage,
         reportAfterIdleTimeMs: options.reportAfterIdleTimeMs,
         reportingIdleTimeCheckInterval: options.reportingIdleTimeCheckInterval,
         mockApiCalls: options.mockApiCalls,
@@ -54,13 +55,14 @@ class Swishjam {
     if (!config.reportingUrl) throw new Error('Swishjam `reportingUrl` is required');
     if (!config.publicApiKey) throw new Error('Swishjam `publicApiKey` is required');
     return {
-      version: '0.0.248',
+      version: '0.0.249',
       reportingUrl: config.reportingUrl,
       publicApiKey: config.publicApiKey,
       sampleRate: config.sampleRate || 1.0,
       maxNumEventsInMemory: config.maxNumEventsInMemory || 25,
       reportAfterIdleTimeMs: config.reportAfterIdleTimeMs || 10_000,
       reportingIdleTimeCheckInterval: config.reportingIdleTimeCheckInterval || 2_000,
+      maxNumEventsPerPage: config.maxNumEventsPerPage || 250,
       mockApiCalls: config.mockApiCalls || false,
       // performanceEntryTypesToCapture: config.performanceEntryTypesToCapture || ['navigation', 'paint', 'resource', 'longtask', 'largest-contentful-paint', 'layout-shift'],
       performanceEntryTypesToCapture: config.performanceEntryTypesToCapture || window.PerformanceObserver ? window.PerformanceObserver.supportedEntryTypes : [],
