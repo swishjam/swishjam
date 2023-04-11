@@ -1,4 +1,4 @@
-import { 
+const { 
   formattedNavigationEntry,
   longtaskEntry,
   paintEntry,
@@ -10,7 +10,7 @@ import {
   eventEntry,
   markEntry,
   measureEntry,
-} from './resourceFormatters';
+} = require('./resourceFormatters');
 
 class PerformanceEntriesHandler {
   constructor(reportingHandler, options = {}) {

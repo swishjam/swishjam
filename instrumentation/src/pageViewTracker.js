@@ -15,13 +15,13 @@ class PageViewTracker {
       navigationType: navigationType,
       url: encodeURIComponent(window.location.href || ''),
       referrerUrl: encodeURIComponent(previousPageUrl || ''),
-      userAgent: window.navigator.userAgent,
+      userAgent: window.navigator?.userAgent,
       screenWidth: window.innerWidth,
       screenHeight: window.innerHeight,
       connection: {
-        effectiveType: window.navigator.connection.effectiveType,
-        downlink: window.navigator.connection.downlink,
-        rtt: window.navigator.connection.rtt,
+        effectiveType: window.navigator?.connection?.effectiveType,
+        downlink: window.navigator?.connection?.downlink,
+        rtt: window.navigator?.connection?.rtt,
       }
     }, this.currentPageViewIdentifier);
     return window.location.href;
