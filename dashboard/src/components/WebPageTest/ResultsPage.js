@@ -3,8 +3,8 @@ import { Disclosure } from '@headlessui/react'
 import { Bars3Icon, XMarkIcon, EnvelopeIcon } from '@heroicons/react/24/outline'
 import Logo from '@components/Logo';
 import LighthouseSection from './LighthouseSection'
-import FilmstripSection from './FilmstripSection';
-import WaterfallSection from './WaterfallSection';
+// import FilmstripSection from './FilmstripSection';
+// import WaterfallSection from './WaterfallSection';
 
 // const navigation = [{ name: 'Lighthouse Audit' }, { name: 'Performance Metrics' }, { name: 'Resource Waterfall' }];
 const navigation = [];
@@ -53,9 +53,9 @@ export default function ResultsPage({ webPageTestResults }) {
                     </div>
                     <div className="hidden lg:ml-4 lg:block">
                       <div className="flex items-center">
-                        <button className='cursor-pointer flex items-center rounded-md py-2 px-3 text-sm font-medium text-white hover:bg-indigo-500 hover:bg-opacity-75'>
+                        {/* <button className='cursor-pointer flex items-center rounded-md py-2 px-3 text-sm font-medium text-white hover:bg-indigo-500 hover:bg-opacity-75'>
                           <EnvelopeIcon className='h-5 w-5 inline-block mr-1' /> Receive weekly audits to your inbox?
-                        </button>
+                        </button> */}
                       </div>
                     </div>
                   </div>
