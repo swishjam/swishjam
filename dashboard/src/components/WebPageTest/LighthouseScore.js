@@ -1,0 +1,52 @@
+import { PieChart, Pie, Sector, Cell } from 'recharts';
+
+const renderActiveShape = (props) => {
+  const { cx, cy, innerRadius, outerRadius, startAngle, endAngle, fill, payload, size, sizeMultiplier } = props;
+  return (
+    <g>
+      <text className={`${size === 'large' ? 'text-5xl' : size === 'medium' ? 'text-3xl' : 'text-lg'}`} x={cx} y={cy} dy={16 * sizeMultiplier} textAnchor="middle" fill={fill}>
+        {payload.value}
+      </text>
+      <Sector
+        cx={cx}
+        cy={cy}
+        innerRadius={innerRadius}
+        outerRadius={outerRadius}
+        startAngle={startAngle}
+        endAngle={endAngle}
+        fill={fill}
+      />
+    </g>
+  );
+};
+
+export default function LighthouseScore({ score, size = 'large' }) {
+  const sizeMultiplier = {
+    large: 1,
+    medium: 0.75,
+    small: 0.5
+  }[size] || 1;
+  const data = [100 - score, score].map(value => ({ value, name: 'Lighthouse Score' }) );
+  const COLORS = ['#f1f5f9', (score >= 90 ? '#10b981' : (score >= 50 ? '#eab308' : '#f43f5e'))];
+
+  return (
+    <PieChart width={200 * sizeMultiplier} height={200 * sizeMultiplier} className="mx-auto">
+      <Pie
+        data={data}
+        cx={'50%'}
+        cy={'50%'}
+        activeIndex={1}
+        activeShape={props => renderActiveShape({ ...props, size, sizeMultiplier })}
+        innerRadius={66 * sizeMultiplier}
+        outerRadius={75 * sizeMultiplier}
+        fill="#000"
+        paddingAngle={5}
+        dataKey="value"
+      >
+        {data.map((_entry, index) => (
+          <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+        ))}
+      </Pie>
+    </PieChart>
+  );
+}
