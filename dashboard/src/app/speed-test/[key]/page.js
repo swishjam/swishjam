@@ -22,7 +22,7 @@ export default function SpeedTest({ params }) {
         setIsAwaitingResults(false);
       } else if(data.statusCode === 100) {
         setIsAwaitingResults(true);
-        setTimeout(pollForResults, 5000);
+        setTimeout(pollForResults, 5_000);
       } else {
         // an error occurred!;
       }

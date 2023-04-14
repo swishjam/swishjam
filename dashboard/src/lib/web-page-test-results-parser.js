@@ -18,7 +18,7 @@ export class WebPageTestResults {
   lighthouseScore(category = 'performance') {
     const score = this.results.data.lighthouse.categories[category]?.score;
     if (!score) return;
-    return score * 100;
+    return Math.ceil(score * 100);
   }
 
   lighthousePerformanceMetrics() {
