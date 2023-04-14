@@ -48,6 +48,10 @@ export class WebPageTestResults {
     return this.results.data.lighthouse.audits[type];
   }
 
+  lighthouseWarnings() {
+    return this.results.data.lighthouse.runWarnings || [];
+  }
+
   filmstrip() {
     return this.results.data.runs["1"].firstView.videoFrames;
   }

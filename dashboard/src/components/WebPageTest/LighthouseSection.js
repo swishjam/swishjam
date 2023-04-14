@@ -3,6 +3,7 @@ import LighthouseScore from "./LighthouseScore";
 import LighthouseAuditResultRow from "./LighthouseAuditResultRow";
 import MarkdownText from "../MarkdownText";
 import { InformationCircleIcon } from "@heroicons/react/24/outline";
+import { formattedMsOrSeconds } from "@/lib/utils";
 
 const GoodScoreShape = () => <div className='w-2 h-2 rounded-full bg-green-700' />;
 const OkScoreShape = () => <div className='w-2 h-2 bg-yellow-500' />;
@@ -44,6 +45,11 @@ export default function LighthouseSection({ webPageTestResults }) {
         <div className='text-center mb-2'>
           <h2 className='text-2xl'>Performance Score</h2>
           <LighthouseScore score={webPageTestResults.lighthouseScore('performance')} size='large' />
+          {webPageTestResults.lighthouseWarnings().length > 0 && (
+            <div className='text-sm text-red-600 bg-red-100 p-2 rounded-md w-fit m-auto'>
+              {webPageTestResults.lighthouseWarnings().map(msg => <p className='m-1'>{msg}</p>)}
+            </div>
+          )}
         </div>
         <div className='flex justify-end'>
           <span 
@@ -60,6 +66,14 @@ export default function LighthouseSection({ webPageTestResults }) {
           <Metric audit={tbt} isExpanded={metricsExpanded} />
           <Metric audit={lcp} isExpanded={metricsExpanded} />
           <Metric audit={cls} isExpanded={metricsExpanded} />
+        </div>
+        <div className='flex justify-space mb-4 max-w-full h-32 overflow-x-scroll'>
+          {webPageTestResults.getLighthouseAudit('screenshot-thumbnails').details.items.map(({ timing, data }) => (
+            <div className='m-1 text-center'>
+              <img src={data} className='border border-gray-100 rounded' />
+              <span className='text-xs text-gray-500'>{formattedMsOrSeconds(timing)}</span>
+            </div>
+          ))}
         </div>
         <div className='mb-8'>
           <h2 className='text-lg mb-4'>Opportunities ({opportunities.length})</h2>

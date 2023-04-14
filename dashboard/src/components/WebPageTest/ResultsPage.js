@@ -4,8 +4,10 @@ import { Bars3Icon, XMarkIcon, EnvelopeIcon } from '@heroicons/react/24/outline'
 import Logo from '@components/Logo';
 import LighthouseSection from './LighthouseSection'
 import FilmstripSection from './FilmstripSection';
+import WaterfallSection from './WaterfallSection';
 
-const navigation = [{ name: 'Lighthouse Audit' }, { name: 'Performance Metrics' }];
+// const navigation = [{ name: 'Lighthouse Audit' }, { name: 'Performance Metrics' }, { name: 'Resource Waterfall' }];
+const navigation = [];
 
 export default function ResultsPage({ webPageTestResults }) {
   const [currentTabName, setCurrentTabName] = useState('Lighthouse Audit');
@@ -87,9 +89,12 @@ export default function ResultsPage({ webPageTestResults }) {
 
         <main className="-mt-32">
           <div className="mx-auto max-w-7xl px-4 pb-12 sm:px-6 lg:px-8 bg-white rounded-lg p-4 min-h-[70vh]">
-            {currentTabName === 'Lighthouse Audit' 
+            <LighthouseSection webPageTestResults={webPageTestResults} />
+            {/* {currentTabName === 'Lighthouse Audit' 
                     ? <LighthouseSection webPageTestResults={webPageTestResults}/>
-                    : <FilmstripSection filmstrip={webPageTestResults.filmstrip()} />}
+                    : currentTabName === 'Performance Metrics' 
+                      ? <FilmstripSection filmstrip={webPageTestResults.filmstrip()} />
+                      : <WaterfallSection webPageTestResults={webPageTestResults} />} */}
           </div>
         </main>
       </div>
