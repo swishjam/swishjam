@@ -5,7 +5,6 @@ import LoadingFullScreen from '@/components/LoadingFullScreen';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import Logo from '@/components/Logo';
 import { WebPageTestResults } from '@/lib/web-page-test-results-parser';
-import WebPageTestResultsPage from '@/components/WebPageTest/ResultsPage';
 import ResultsPage from '@/components/WebPageTest/ResultsPage';
 
 export default function SpeedTest({ params }) {
