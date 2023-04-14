@@ -1,9 +1,17 @@
+import NextCors from 'nextjs-cors';
+
 export default async (req, res) => {
+  await NextCors(req, res, {
+    methods: ['GET'],
+    origin: '*',
+    optionsSuccessStatus: 200,
+  });
+
   const { url, includeLighthouse = true, includeVideo = true, label } = req.query;
   let derivedUrl;
   let derivedLabel;
   try {
-    if (url.indexOf('.') === -1) throw new Error('Invalid URL.');
+    if (!url || url.indexOf('.') === -1) throw new Error('Invalid URL.');
     derivedUrl = url.startsWith('http') ? url : `https://${url}`;
     derivedLabel = label || `${new URL(derivedUrl).hostname} - ${new Date().toLocaleString()}}`
   } catch(err) {
