@@ -28,12 +28,12 @@ export class WebPageTestResults {
 
   lighthouseAudits(category = 'performance') {
     const auditTypesForCategory = this.results.data.lighthouse.categories[category].auditRefs
-                                      .flatMap(category => category.relevantAudits || [])
+                                      .flatMap(category => (category.relevantAudits || []).concat([category.id]))
                                       .filter((val, index, arr) => arr.indexOf(val) === index );
     const auditsForCategory = auditTypesForCategory.map(auditId => this.results.data.lighthouse.audits[auditId]);
     let results = { opportunities: [], diagnostics: [], passing: [] };
     auditsForCategory.forEach(audit => {
-      audit.score === 1 
+      audit.score === 1
       ? results.passing.push(audit) 
       : audit.details && audit.details.type === 'opportunity' && typeof audit.score === 'number' && audit.score < 1
         ? results.opportunities.push(audit)

@@ -3,24 +3,42 @@ import { bytesToHumanFileSize, formattedMsOrSeconds } from "@/lib/utils"
 import { ArrowsPointingInIcon, ArrowsPointingOutIcon } from "@heroicons/react/24/outline";
 import MarkdownText from "@components/MarkdownText";
 
-export default function AuditResultRow({ title, icon, description, details, numericValue, numericUnit, displayValue, scoreDisplayMode }) {
+export default function AuditResultRow({ 
+  title, 
+  subTitle,
+  subTitleColor,
+  icon, 
+  description, 
+  details, 
+  numericValue, 
+  numericUnit, 
+  displayValue, 
+  displayVisualEstimatedSavings 
+}) {
   const [isCollapsed, setIsCollapsed] = useState(true);
 
   return (
-    <div className='border border-gray-200 rounded-md p-4 mb-4' key={title}>
-      <div className='flex justify-between cursor-pointer' onClick={() => setIsCollapsed(!isCollapsed)}>
-        <div className='flex items-center'>
-          {isCollapsed ? <ArrowsPointingOutIcon className='h-5 w-5 inline-block text-gray-400' /> : <ArrowsPointingInIcon className='h-5 w-5 inline-block text-gray-400' />}
+    <div className='border border-gray-200 rounded-md py-2 px-4 mb-2' key={title}>
+      <div className='grid grid-cols-4 flex justify-between cursor-pointer py-2 px-1' onClick={() => setIsCollapsed(!isCollapsed)}>
+        <div className={`flex items-center ${displayVisualEstimatedSavings ? 'col-span-2' : 'col-span-3'}`}>
           {icon}
-          <h3 className='text-lg font-bold inline-block ml-2'>
-            {title} ({scoreDisplayMode})
+          <h3 className='text-sm inline-block ml-2'>
+            {title} {subTitle ? <span className={subTitleColor || 'text-gray-600'}> - {subTitle}</span> : null}
           </h3>
         </div>
-        <h3 className="text-lg font-extralight">
-          {['millisecond', 'seconds'].includes(numericUnit) ? `${formattedMsOrSeconds(numericValue)} in estimated savings` : `${displayValue || ''}`}
-        </h3>
+        <div className={`grid grid-cols-3 ${displayVisualEstimatedSavings ? 'col-span-2' : 'col-span-1'}`}>
+          <div className='col-span-2 flex items-center justify-end overflow-hidden'>
+            {displayVisualEstimatedSavings && <div className={`mr-2 h-2 rounded ${details.overallSavingsMs > 999 ? 'bg-red-600' : 'bg-yellow-600'}`} style={{ width: `${details.overallSavingsMs / 30}px` }} />}
+          </div>
+          <div className='col-span-1 flex items-center justify-end'>
+            <h3 className="text-sm font-extralight w-fit">
+              {['millisecond', 'seconds'].includes(numericUnit) && numericValue > 0 ? formattedMsOrSeconds(numericValue) : displayValue}
+              {isCollapsed ? <ArrowsPointingOutIcon className='h-4 w-4 inline-block text-gray-400 ml-2' /> : <ArrowsPointingInIcon className='h-5 w-5 inline-block text-gray-400 ml-2' />}
+            </h3>
+          </div>
+        </div>
       </div>
-      <div className={isCollapsed ? 'hidden' : 'mt-4'}>
+      <div className={isCollapsed ? 'hidden' : 'p-4'}>
         <MarkdownText text={description} />
         <div className='mt-4'>
           <div className={`grid grid-cols-${details?.headings?.length + 1}`}>
