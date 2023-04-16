@@ -19,7 +19,8 @@ export default async (req, res) => {
   let derivedUrl;
   let derivedLabel;
   try {
-    if (!url || url.indexOf('.') === -1) throw new Error('Invalid URL.');
+    var pattern = /^(?:(?:https?|ftp):\/\/)?(?:\S+(?::\S*)?@)?(?:\S+(?:\.[^\s.]+)+(?:\:\d{2,5})?)(?:\/[\w#!:.?+=&%@!-/])?$/;
+    if (!pattern.test(url)) throw new Error('Invalid URL.');
     derivedUrl = url.startsWith('http') ? url : `https://${url}`;
     derivedLabel = label || `${new URL(derivedUrl).hostname} - ${new Date().toLocaleString()}}`
   } catch(err) {
@@ -41,6 +42,7 @@ export default async (req, res) => {
     pingback: `https://${process.env.WEB_PAGE_TEST_WEBHOOK_HOST || 'app.swishjam.com'}/api/speed-tests/webhook`,
     f: 'json' 
   });
+  console.log('Enqueueing WPT speed test: ', JSON.stringify(queryParams));
   const result = await fetch(`https://www.webpagetest.org/runtest.php?${queryParams}`, { method: 'POST' });
   if (result.status === 200) {
     const response = await result.json();
