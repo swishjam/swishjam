@@ -24,6 +24,23 @@ module.exports = {
       '9xl': [Tokens.fontSizes['9xl'], { lineHeight: '1' }],
     },*/
     extend: {
+      extend: {
+        'animation': {
+              'text':'text 5s ease infinite',
+          },
+          'keyframes': {
+              'text': {
+                  '0%, 100%': {
+                     'background-size':'200% 200%',
+                      'background-position': 'left center'
+                  },
+                  '50%': {
+                     'background-size':'200% 200%',
+                      'background-position': 'right center'
+                  }
+              },
+          }
+      },
       typography: {
         DEFAULT: {
           css: {
