@@ -6,8 +6,8 @@ export default async (req, res) => {
   const { 
     url, 
     label,
-    projectKey = 'TEST!',
-    email = 'collin@swishjam.com',
+    projectKey,
+    email,
     mobile = false,
     includeLighthouse = true, 
     includeVideo = true, 

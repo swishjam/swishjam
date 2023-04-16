@@ -51,14 +51,12 @@ module.exports = {
       created_at: { allowNull: false, type: Sequelize.DATE, defaultValue: Sequelize.fn('now') },
       completed_at: { allowNull: false, type: Sequelize.DATE }
     });
+    await queryInterface.addIndex('synthetic_runs', ['project_key']);
+    await queryInterface.addIndex('synthetic_runs', ['url_host']);
+    await queryInterface.addIndex('synthetic_runs', ['url_path']);
   },
 
   async down (queryInterface, Sequelize) {
-    /**
-     * Add reverting commands here.
-     *
-     * Example:
-     * await queryInterface.dropTable('users');
-     */
+    await queryInterface.dropTable('synthetic_runs');
   }
 };
