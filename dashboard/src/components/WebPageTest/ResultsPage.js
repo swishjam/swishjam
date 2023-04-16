@@ -1,9 +1,10 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Disclosure } from '@headlessui/react'
+import { CopyToClipboard } from "react-copy-to-clipboard";
 import {
   Bars3Icon,
   XMarkIcon,
-  EnvelopeIcon,
+  ArrowUpOnSquareIcon,
   BeakerIcon,
   GlobeAltIcon
 } from '@heroicons/react/24/outline'
@@ -33,6 +34,13 @@ export default function ResultsPage({ webPageTestResults }) {
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [show, setShow] = useState(false);
+  const [url, setUrl] = useState('');
+  const [copyBtnTxt, setcopyBtnTxt] = useState('Copy');
+
+  useEffect(() => {
+    setUrl(window.location.href)
+  }, [])
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -60,7 +68,7 @@ export default function ResultsPage({ webPageTestResults }) {
       <SuccessMsg show={show} setShow={v => setShow(v)} title="Success!" msg={"You'll Receive Weekly Audits of "+webPageTestResults.auditedUrl() }/> 
       <div className="min-h-full bg-swishjam pb-16">
         <div className="bg-white pb-32">
-          <Disclosure as="nav" className="bg-white py-10">
+          <Disclosure as="nav" className="bg-white pt-10 pb-4">
             {({ open }) => (
               <>
                 <div className="mx-auto max-w-7xl px-2 sm:px-4 lg:px-8">
@@ -68,6 +76,11 @@ export default function ResultsPage({ webPageTestResults }) {
                     <div className="pb-4 flex items-center px-2 lg:px-0">
                       <div className="flex">
                         <Logo words={true} className="mt-3 h-10"/>
+                        <h1 className="mt-2 ml-4 flex items-center text-3xl tracking-tight mb-8">
+                          —
+                          <BeakerIcon className="mt-1 ml-4 text-swishjam h-6 w-6 mr-2" aria-hidden="true" />
+                          {currentTabName}
+                        </h1>
                       </div>
                       <div className="hidden lg:ml-10 lg:block">
                         <div className="flex space-x-4">
@@ -123,15 +136,15 @@ export default function ResultsPage({ webPageTestResults }) {
             )}
           </Disclosure>
           <div className="mx-auto max-w-7xl px-2 sm:px-4 lg:px-8">
-            <h1 className="flex items-center text-3xl tracking-tight mb-8">
+            {/*<h1 className="flex items-center text-3xl tracking-tight mb-8">
               <BeakerIcon className="text-swishjam h-6 w-6 mr-2" aria-hidden="true" />
               {currentTabName}
-            </h1>
+                    </h1>*/}
           </div> 
           <div className="mb-10 mx-auto max-w-7xl px-2 sm:px-4 lg:px-8 grid grid-cols-1 gap-x-8 gap-y-16 lg:grid-cols-3">
-            <article className="flex max-w-xl flex-col items-start justify-between">
-              <h2 className="sr-only">Details</h2>
-              <div className="space-y-5">
+            <article className="flex max-w-xl flex-col items-start">
+              <h2 className="text-sm font-medium text-gray-500 pb-4">Test Information</h2>
+              <div className="space-y-2 w-full">
                 <Link href="#" className="flex items-center space-x-2 hover:underline hover:cursor-pointer text-swishjam hover:text-swishjam-dark transition duration-300">
                   <GlobeAltIcon className="h-5 w-5" aria-hidden="true" />
                   <span className="text-sm font-medium">{webPageTestResults?.results?.data?.lighthouse?.finalDisplayedUrl}</span>
@@ -141,6 +154,31 @@ export default function ResultsPage({ webPageTestResults }) {
                   <span className="text-sm font-medium text-gray-900">
                     Tested on <time dateTime={testDate}> {testDate}</time>
                   </span>
+                </div>
+                <div className="w-full flex items-center space-x-2">
+                  <div className="w-full relative mt-2 rounded-md shadow-sm">
+                    <div className="text-gray-400 absolute inset-y-0 left-0 flex items-center pl-2">
+                      <ArrowUpOnSquareIcon className="h-5 w-5" aria-hidden="true" />
+                    </div>
+                    <input
+                      type="text"
+                      className="bg-gray-50 block w-full rounded-md border-0 py-1.5 pl-8 pr-14 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-swishjam sm:text-sm sm:leading-6"
+                      placeholder={url}
+                      aria-describedby="price-currency"
+                      value={url}
+                      readOnly 
+                    />
+                    <div className="text-gray-500 transition duration-300 hover:cursor-pointer hover:text-swishjam absolute inset-y-0 right-0 flex items-center pr-3">
+                      <CopyToClipboard
+                        text={url}
+                        className="sm:text-sm"
+                      >
+                        <div onClick={() => { setcopyBtnTxt('✓'); setTimeout(() => setcopyBtnTxt('Copy'), 2000) }}>
+                          {copyBtnTxt}
+                        </div>
+                      </CopyToClipboard>
+                    </div>
+                  </div>
                 </div>
               </div>
             </article>
