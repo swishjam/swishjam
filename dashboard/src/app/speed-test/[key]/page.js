@@ -33,10 +33,12 @@ export default function SpeedTest({ params }) {
         setIsAwaitingResults(false);
       } else if(data.statusCode === 100) {
         setIsAwaitingResults(true);
-        currentLoadingMessageIndex = currentLoadingMessageIndex === LOADING_MESSAGES.length - 1 ? 0 : currentLoadingMessageIndex + 1;
-        loadingMessageEl.current.innerText = LOADING_MESSAGES[currentLoadingMessageIndex];
-        startedAgoEl.current.innerText = data.statusText;
         setTimeout(pollForResults, 5_000);
+        if (loadingMessageEl.current) {
+          currentLoadingMessageIndex = currentLoadingMessageIndex === LOADING_MESSAGES.length - 1 ? 0 : currentLoadingMessageIndex + 1;
+          loadingMessageEl.current.innerText = LOADING_MESSAGES[currentLoadingMessageIndex];
+        }
+        if (startedAgoEl.current) startedAgoEl.current.innerText = data.statusText;
       } else {
         // an error occurred!;
       }
