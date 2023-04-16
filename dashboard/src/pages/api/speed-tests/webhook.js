@@ -7,10 +7,10 @@ export default async (req, res) => {
 
   if (testResults.statusCode === 200) {
     const { data } = testResults;
-    const userEmail = (data.median.firstView.metadata || {}).email;
+    // const userEmail = (data.median.firstView.metadata || {}).email;
     const payload = {
       uuid: id,
-      project_key: (data.median.firstView.metadata || {}).projectKey,
+      project_key: (data.median.firstView.metadata || {}).projectKey || 'ANONYMOUS',
       full_url: data.url,
       url_host: new URL(data.url).host,
       url_path: new URL(data.url).pathname,
