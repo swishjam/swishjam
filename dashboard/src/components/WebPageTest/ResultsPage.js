@@ -8,7 +8,7 @@ import {
   BeakerIcon,
   GlobeAltIcon
 } from '@heroicons/react/24/outline'
-const { DateTime } = require("luxon");
+import { DateTime } from "luxon";
 import Link from 'next/link';
 import {
   CalendarIcon,
@@ -20,15 +20,10 @@ import Logo from '@components/Logo';
 import LighthouseSection from '@components/WebPageTest/LighthouseSection'
 import LoadingSpinner from '@components/LoadingSpinner';
 import SuccessMsg from '@components/SuccessMsg';
-// import FilmstripSection from './FilmstripSection';
-// import WaterfallSection from './WaterfallSection';
 
-//const navigation = [{ name: 'Lighthouse Audit' }, { name: 'Performance Metrics' }, { name: 'Resource Waterfall' }];
 const navigation = [];
 
 export default function ResultsPage({ webPageTestResults }) {
-  //console.log(webPageTestResults)
-  //console.log(webPageTestResults.auditedUrl())
   const testDate = DateTime.fromSeconds(webPageTestResults.results.data.completed).toLocaleString(DateTime.DATETIME_MED)
   const [currentTabName, setCurrentTabName] = useState('Page Speed Audit');
   const [email, setEmail] = useState('');
@@ -145,9 +140,9 @@ export default function ResultsPage({ webPageTestResults }) {
             <article className="flex max-w-xl flex-col items-start">
               <h2 className="text-sm font-medium text-gray-500 pb-4">Test Information</h2>
               <div className="space-y-2 w-full">
-                <Link href="#" className="flex items-center space-x-2 hover:underline hover:cursor-pointer text-swishjam hover:text-swishjam-dark transition duration-300">
+                <Link href={webPageTestResults.results?.data?.lighthouse?.finalDisplayedUrl} target='_blank' className="flex items-center space-x-2 hover:underline hover:cursor-pointer text-swishjam hover:text-swishjam-dark transition duration-300">
                   <GlobeAltIcon className="h-5 w-5" aria-hidden="true" />
-                  <span className="text-sm font-medium">{webPageTestResults?.results?.data?.lighthouse?.finalDisplayedUrl}</span>
+                  <span className="text-sm font-medium">{webPageTestResults.results?.data?.lighthouse?.finalDisplayedUrl}</span>
                 </Link>
                 <div className="flex items-center space-x-2">
                   <CalendarIcon className="h-5 w-5 text-gray-400" aria-hidden="true" />
