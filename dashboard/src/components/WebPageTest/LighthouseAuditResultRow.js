@@ -43,13 +43,13 @@ export default function AuditResultRow({
         <div className='mt-4'>
           <div className={`grid grid-cols-${details?.headings?.length + 1}`}>
             {(details?.headings || []).map(({ label }, i) => (
-              <div className={`${i === 0 ? 'col-span-2' : 'col-span-1'} py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-3`}>{label}</div>
+              <div key={i} className={`${i === 0 ? 'col-span-2' : 'col-span-1'} py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-3`}>{label}</div>
             ))}
           </div>
           {(details?.items || []).map((itemDetails, i) => (
             <div className={`grid grid-cols-${details?.headings?.length + 1} ${i % 2 === 0 ? 'bg-gray-100' : undefined}`} key={i}>
               {(details?.headings || []).map(({ key, valueType }, j) => (
-                <div className={`truncate py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-3 ${j === 0 ? 'col-span-2' : 'col-span-1'}`}>
+                <div key={j} className={`truncate py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-3 ${j === 0 ? 'col-span-2' : 'col-span-1'}`}>
                   {['text', 'url'].includes(valueType) 
                     ? itemDetails[key]
                     : ['bytes'].includes(valueType)
