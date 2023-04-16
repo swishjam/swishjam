@@ -12,7 +12,8 @@ export class WebPageTestResults {
   }
 
   screenshotUrl() {
-    return this.results.data.runs["1"]?.firstView?.images?.screenShot;
+    // return this.results.data.runs["1"]?.firstView?.images?.screenShot;
+    return this.results.data.median.firstView.images.screenShot;
   }
 
   lighthouseScore(category = 'performance') {
@@ -53,6 +54,7 @@ export class WebPageTestResults {
   }
 
   filmstrip() {
-    return this.results.data.runs["1"].firstView.videoFrames;
+    // return this.results.data.runs["1"].firstView.videoFrames;
+    return this.results.data.median.firstView.videoFrames;
   }
 }

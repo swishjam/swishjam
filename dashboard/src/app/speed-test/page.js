@@ -26,7 +26,6 @@ export default function SpeedTest() {
         router.push(`/speed-test/${testId}`);
       }
     } catch (error) {
-      console.error('Sign Up Error', error);
       setLoading(false);
       setErrorMsg(error.message);
     }

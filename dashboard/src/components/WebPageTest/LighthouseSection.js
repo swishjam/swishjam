@@ -29,6 +29,7 @@ function Metric({ audit, isExpanded }) {
 
 export default function LighthouseSection({ webPageTestResults }) {
   const [metricsExpanded, setMetricsExpanded] = useState(false);
+  const [passingSectionIsExpanded, setPassingSectionIsExpanded] = useState(false);
 
   const { opportunities, diagnostics, passing } = webPageTestResults.lighthouseAudits();
   
@@ -47,7 +48,7 @@ export default function LighthouseSection({ webPageTestResults }) {
           <LighthouseScore score={webPageTestResults.lighthouseScore('performance')} size='large' />
           {webPageTestResults.lighthouseWarnings().length > 0 && (
             <div className='text-sm text-red-600 bg-red-100 p-2 rounded-md w-fit m-auto'>
-              {webPageTestResults.lighthouseWarnings().map(msg => <p className='m-1'>{msg}</p>)}
+              {webPageTestResults.lighthouseWarnings().map((msg, i) => <p key={i} className='m-1'>{msg}</p>)}
             </div>
           )}
         </div>
@@ -68,8 +69,8 @@ export default function LighthouseSection({ webPageTestResults }) {
           <Metric audit={cls} isExpanded={metricsExpanded} />
         </div>
         <div className='flex justify-space mb-4 max-w-full h-32 overflow-x-scroll'>
-          {webPageTestResults.getLighthouseAudit('screenshot-thumbnails').details.items.map(({ timing, data }) => (
-            <div className='m-1 text-center'>
+          {webPageTestResults.getLighthouseAudit('screenshot-thumbnails').details.items.map(({ timing, data }, i) => (
+            <div className='m-1 text-center' key={i}>
               <img src={data} className='border border-gray-100 rounded' />
               <span className='text-xs text-gray-500'>{formattedMsOrSeconds(timing)}</span>
             </div>
@@ -114,18 +115,28 @@ export default function LighthouseSection({ webPageTestResults }) {
           ))}
         </div>
         <div className='mb-4'>
-          <h2 className='text-lg mb-4'>Passing ({passing.length})</h2>
-          {passing.map(({ title, description, details, displayValue, scoreDisplayMode }) => (
-            <LighthouseAuditResultRow
-              key={title}
-              icon={scoreDisplayMode  === 'informative' ? <InformationCircleIcon className='h-6 w-6 ml-2 text-blue-600' /> : <GoodScoreShape />}
-              title={title}
-              subTitle={displayValue}
-              subTitleColor={'text-green-600'}
-              description={description}
-              details={details}
-            />
-          ))}
+          <div className='flex justify-between'>
+            <h2 className='text-lg mb-4'>Passing ({passing.length})</h2>
+            <span 
+              onClick={() => setPassingSectionIsExpanded(!passingSectionIsExpanded)} 
+              className='text-sm text-gray-700 cursor-pointer hover:underline'
+            >
+              {passingSectionIsExpanded ? 'Hide' : 'Show'}
+            </span>
+          </div>
+          <div className={passingSectionIsExpanded ? '' : 'h-0 overflow-hidden border border-t border-gray-200'}>
+            {passing.map(({ title, description, details, displayValue, scoreDisplayMode }) => (
+              <LighthouseAuditResultRow
+                key={title}
+                icon={scoreDisplayMode  === 'informative' ? <InformationCircleIcon className='h-6 w-6 ml-2 text-blue-600' /> : <GoodScoreShape />}
+                title={title}
+                subTitle={displayValue}
+                subTitleColor={'text-green-600'}
+                description={description}
+                details={details}
+              />
+            ))}
+          </div>
         </div>
       </div>
     </>

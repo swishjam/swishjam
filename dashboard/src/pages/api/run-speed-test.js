@@ -1,13 +1,21 @@
 import NextCors from 'nextjs-cors';
 
 export default async (req, res) => {
-  await NextCors(req, res, {
-    methods: ['GET'],
-    origin: '*',
-    optionsSuccessStatus: 200,
-  });
+  await NextCors(req, res, { methods: ['GET'], origin: '*', optionsSuccessStatus: 200 });
 
-  const { url, includeLighthouse = true, includeVideo = true, label } = req.query;
+  const { 
+    url, 
+    label,
+    projectKey,
+    email,
+    mobile = false,
+    includeLighthouse = true, 
+    includeVideo = true, 
+    includeRepeatView = false, 
+    includeDevToolsTimeline = true,
+    includeV8Profiler = true,
+  } = req.query;
+  
   let derivedUrl;
   let derivedLabel;
   try {
@@ -21,9 +29,16 @@ export default async (req, res) => {
   const queryParams = new URLSearchParams({ 
     url: derivedUrl, 
     k: process.env.WEB_PAGE_TEST_API_KEY, 
+    label: derivedLabel, 
     lighthouse: includeLighthouse ? 1 : 0, 
     video: includeVideo ? 1 : 0, 
-    label: derivedLabel, 
+    fvonly: includeRepeatView ? 0 : 1,
+    mobile: mobile ? 1 : 0,
+    timeline: includeDevToolsTimeline ? 1 : 0,
+    profiler: includeV8Profiler ? 1 : 0,
+    metadata: JSON.stringify({ projectKey, email }),
+    // location: 'Dulles:Chrome.Cable',
+    pingback: `https://${process.env.WEB_PAGE_TEST_WEBHOOK_HOST || 'app.swishjam.com'}/api/speed-tests/webhook`,
     f: 'json' 
   });
   const result = await fetch(`https://www.webpagetest.org/runtest.php?${queryParams}`, { method: 'POST' });
