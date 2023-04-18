@@ -3,6 +3,10 @@ export class WebPageTestResults {
     this.results = results;
   }
 
+  pending() {
+    return this.results.statusCode === 100;
+  }
+
   auditedUrl() {
     return this.results.data.url;
   }
@@ -12,8 +16,11 @@ export class WebPageTestResults {
   }
 
   screenshotUrl() {
-    // return this.results.data.runs["1"]?.firstView?.images?.screenShot;
     return this.results.data.median.firstView.images.screenShot;
+  }
+
+  lighthouseFailed() {
+    return this.results.data.lighthouse && Object.keys(this.results.data.lighthouse).length < 2;
   }
 
   lighthouseScore(category = 'performance') {
@@ -28,9 +35,10 @@ export class WebPageTestResults {
   }
 
   lighthouseAudits(category = 'performance') {
-    const auditTypesForCategory = this.results.data.lighthouse.categories[category].auditRefs
+    const categories = this.results.data.lighthouse.categories || {};
+    const auditTypesForCategory = categories[category]?.auditRefs
                                       .flatMap(category => (category.relevantAudits || []).concat([category.id]))
-                                      .filter((val, index, arr) => arr.indexOf(val) === index );
+                                      .filter((val, index, arr) => arr.indexOf(val) === index ) || [];
     const auditsForCategory = auditTypesForCategory.map(auditId => this.results.data.lighthouse.audits[auditId]);
     let results = { opportunities: [], diagnostics: [], passing: [] };
     auditsForCategory.forEach(audit => {
@@ -46,7 +54,7 @@ export class WebPageTestResults {
   }
 
   getLighthouseAudit(type) {
-    return this.results.data.lighthouse.audits[type];
+    return (this.results.data.lighthouse.audits || {})[type];
   }
 
   lighthouseWarnings() {
@@ -54,7 +62,6 @@ export class WebPageTestResults {
   }
 
   filmstrip() {
-    // return this.results.data.runs["1"].firstView.videoFrames;
     return this.results.data.median.firstView.videoFrames;
   }
 }

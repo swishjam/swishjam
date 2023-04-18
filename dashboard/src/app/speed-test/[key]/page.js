@@ -12,12 +12,13 @@ const LOADING_MESSAGES = [
   'Amazon found that for every 100ms of page load latency, they lost 1% in sales.',
   'Walmart found that for every 1 second improvement in page load time, conversions increased by 2%.',
   'Google\'s research found that 53% of mobile site visits are abandoned if pages take longer than 3 seconds to load.',
-]
+];
 
 export default function SpeedTest({ params }) {
   const { key } = params;
   const [isAwaitingResults, setIsAwaitingResults] = useState();
   const [webPageTestResults, setWebPageTestResults] = useState();
+  const [auditedUrl, setAuditedUrl] = useState();
 
   const loadingMessageEl = useRef();
   const startedAgoEl = useRef();
@@ -26,25 +27,27 @@ export default function SpeedTest({ params }) {
 
   const pollForResults = () => {
     fetch(`https://www.webpagetest.org/jsonResult.php?test=${key}&breakdown=${1}`)
-    .then((res) => res.json())
-    .then((data) => {
-      if (data.statusCode === 200) {
-        setWebPageTestResults(new WebPageTestResults(data));
-        setIsAwaitingResults(false);
-      } else if(data.statusCode === 100) {
-        setIsAwaitingResults(true);
-        setTimeout(pollForResults, 5_000);
-        setTimeout(() => {
-          if (loadingMessageEl.current) {
-            currentLoadingMessageIndex = currentLoadingMessageIndex === LOADING_MESSAGES.length - 1 ? 0 : currentLoadingMessageIndex + 1;
-            loadingMessageEl.current.innerText = LOADING_MESSAGES[currentLoadingMessageIndex];
-          }
-          if (startedAgoEl.current) startedAgoEl.current.innerText = data.statusText;
-        }, 3_000)
-      } else {
-        // an error occurred!;
-      }
-    });
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.statusCode === 200) {
+          setWebPageTestResults(new WebPageTestResults(data));
+          if (data.data.lighthouse.finalDisplayedUrl) setAuditedUrl(data.data.lighthouse.finalDisplayedUrl);
+          setIsAwaitingResults(false);
+        } else if(data.statusCode === 100) {
+          if (!auditedUrl) setAuditedUrl(data.data.testInfo.url);
+          setIsAwaitingResults(true);
+          setTimeout(pollForResults, 5_000);
+          setTimeout(() => {
+            if (loadingMessageEl.current) {
+              currentLoadingMessageIndex = currentLoadingMessageIndex === LOADING_MESSAGES.length - 1 ? 0 : currentLoadingMessageIndex + 1;
+              loadingMessageEl.current.innerText = LOADING_MESSAGES[currentLoadingMessageIndex];
+            }
+            if (startedAgoEl.current) startedAgoEl.current.innerText = data.statusText;
+          }, 3_000)
+        } else {
+          // an error occurred!;
+        }
+      });
   }
 
   useEffect(() => {
@@ -53,8 +56,8 @@ export default function SpeedTest({ params }) {
 
   return (
     <>
-      {webPageTestResults 
-        ? <ResultsPage webPageTestResults={webPageTestResults} />
+      {webPageTestResults || auditedUrl
+        ? <ResultsPage webPageTestResults={webPageTestResults} auditedUrl={auditedUrl} />
         : isAwaitingResults === undefined 
           ? <LoadingFullScreen /> 
           :  (
