@@ -72,7 +72,7 @@ export default function ResultsPage({ webPageTestResults, auditedUrl }) {
                             <a
                               key={item.name}
                               onClick={() => setCurrentTabName(item.name)}
-                              className={`cursor-pointer rounded-md py-2 px-3 text-sm font-medium ${item.name === currentTabName ? 'bg-indigo-700 ' : ' hover:bg-indigo-500 hover:bg-opacity-75'}`}
+                              className={`cursor-pointer rounded-md py-2 px-3 text-sm font-medium ${item.name === currentTabName ? 'bg-swishjam text-white' : 'hover:text-white hover:bg-indigo-500 hover:bg-opacity-75'}`}
                               aria-current={item.current ? 'page' : undefined}
                             >
                               {item.name}
@@ -188,33 +188,31 @@ export default function ResultsPage({ webPageTestResults, auditedUrl }) {
                 </div>
               </div>
             </article>
-            <article className="flex max-w-xl flex-col items-start justify-between ">
-                      
-          <form onSubmit={handleSubmit} className="w-full">
-            <div className="min-w-0 flex-1">
-              <label htmlFor="email" className="block text-sm font-medium leading-6 text-gray-500 mb-2">
-                Get Free Audits 
-              </label>
-              <input
-                id="hero-email"
-                type="email"
-                className="block w-full rounded-md border border-gray-300 px-5 py-3 text-base text-gray-900 placeholder-gray-500 shadow-sm focus:border-swishjam focus:ring-swishjam"
-                placeholder="Enter Email"
-                value={email}
-                required
-                onChange={(e) => setEmail(e.target.value)}
-              />
-            </div>
-            <div className="mt-6">
-              <button
-                type="submit"
-                className="transition block w-full rounded-md border border-transparent bg-swishjam px-5 py-3 text-base font-medium text-white shadow hover:bg-swishjam-dark focus:outline-none focus:ring-0 sm:px-10"
-              >
-                {loading ? <LoadingSpinner className='animate-spin mx-auto h-6 w-6 text-white'/>:'Get Free Weekly Audit'}
-              </button>
-            </div>
-          </form>
-            
+            <article className="flex max-w-xl flex-col items-start justify-between ">    
+              <form onSubmit={handleSubmit} className="w-full">
+                <div className="min-w-0 flex-1">
+                  <label htmlFor="email" className="block text-sm font-medium leading-6 text-gray-500 mb-2">
+                    Get Free Audits 
+                  </label>
+                  <input
+                    id="hero-email"
+                    type="email"
+                    className="block w-full rounded-md border border-gray-300 px-5 py-3 text-base text-gray-900 placeholder-gray-500 shadow-sm focus:border-swishjam focus:ring-swishjam"
+                    placeholder="Enter Email"
+                    value={email}
+                    required
+                    onChange={(e) => setEmail(e.target.value)}
+                  />
+                </div>
+                <div className="mt-6">
+                  <button
+                    type="submit"
+                    className="transition block w-full rounded-md border border-transparent bg-swishjam px-5 py-3 text-base font-medium text-white shadow hover:bg-swishjam-dark focus:outline-none focus:ring-0 sm:px-10"
+                  >
+                    {loading ? <LoadingSpinner className='animate-spin mx-auto h-6 w-6 text-white'/>:'Get Free Weekly Audit'}
+                  </button>
+                </div>
+              </form>
             </article>
           </div>
         </div>

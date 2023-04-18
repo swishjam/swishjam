@@ -32,11 +32,13 @@ export default function CruxMetricGoodNeedsImprovementPoorChart({
   const cwvBoundsForMetric = cwvMetricBounds[accronym];
   const p75Grade = p75Value < cwvBoundsForMetric.good ? 'good' : p75Value < cwvBoundsForMetric.medium ? 'needs improvement' : 'poor';
   const indexForP75Indicator = p75Grade === 'good' ? 0 : p75Grade === 'needs improvement' ? 1 : 2;
-  const p75MarginLeftPercent = p75Grade === 'good' 
-                                ? (p75Value / cwvBoundsForMetric.good) * 100
-                                : p75Grade === 'needs improvement'
-                                  ? ((p75Value - cwvBoundsForMetric.good) / (cwvBoundsForMetric.medium - cwvBoundsForMetric.good)) * 100 
-                                  : ((p75Value - cwvBoundsForMetric.medium) / (cwvBoundsForMetric.medium + cwvBoundsForMetric.medium)) * 100;
+  const p75MarginLeftPercent = Math.min(
+    p75Grade === 'good' 
+      ? (p75Value / cwvBoundsForMetric.good) * 100
+      : p75Grade === 'needs improvement'
+        ? ((p75Value - cwvBoundsForMetric.good) / (cwvBoundsForMetric.medium - cwvBoundsForMetric.good)) * 100 
+        : ((p75Value - cwvBoundsForMetric.medium) / (cwvBoundsForMetric.medium + (cwvBoundsForMetric.medium - cwvBoundsForMetric.good))) * 100,
+  100)
   return (
     <div className='w-full flex h-10'>
       {histogramTimeseries.map(({ densities }, i) => (
@@ -57,7 +59,8 @@ export default function CruxMetricGoodNeedsImprovementPoorChart({
             {i === indexForP75Indicator && (
               <>
                 <div 
-                  className={`h-[150%] text-xs text-right absolute w-0 bottom-0 left-0 border-r border-gray-300 ${hoveredIndex === i ? 'border-r-2 font-bold' : 'font-medium'} ${p75Grade === 'good' ? 'text-green-600' : p75Grade === 'needs improvement' ? 'text-yellow-500' : 'text-red-600'}`} style={{ marginLeft: `${p75MarginLeftPercent}%`}}
+                  className={`h-[150%] text-xs text-right absolute w-0 bottom-0 left-0 border-r border-gray-300 ${hoveredIndex === i ? 'border-r-2 font-bold' : 'font-medium'} ${p75Grade === 'good' ? 'text-green-600' : p75Grade === 'needs improvement' ? 'text-yellow-500' : 'text-red-600'}`} 
+                  style={{ marginLeft: `${p75MarginLeftPercent}%`}}
                   ref={setTriggerRef}
                 >
                   <span className='px-1 whitespace-nowrap'>{metric === 'cumulative_layout_shift' ? p75Value : formattedMsOrSeconds(p75Value)}</span>
