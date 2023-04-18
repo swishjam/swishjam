@@ -71,7 +71,7 @@ export default function LighthouseSection({ webPageTestResults }) {
               </div>
               <div className='grid grid-cols-2 gap-2 mb-4 flex items-center'>
                 <Metric audit={webPageTestResults.getLighthouseAudit('first-contentful-paint')} isExpanded={metricsExpanded} />
-                <Metric audit={webPageTestResults.getLighthouseAudit('time-to-interactive')} isExpanded={metricsExpanded} />
+                <Metric audit={webPageTestResults.getLighthouseAudit('interactive')} isExpanded={metricsExpanded} />
                 <Metric audit={webPageTestResults.getLighthouseAudit('speed-index')} isExpanded={metricsExpanded} />
                 <Metric audit={webPageTestResults.getLighthouseAudit('total-blocking-time')} isExpanded={metricsExpanded} />
                 <Metric audit={webPageTestResults.getLighthouseAudit('largest-contentful-paint')} isExpanded={metricsExpanded} />

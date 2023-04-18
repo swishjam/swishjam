@@ -21,9 +21,7 @@ export default function ResultsPage({ webPageTestResults, auditedUrl }) {
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
   const [swishjamShareUrl, setSwishjamShareUrl] = useState();
   const [copyBtnTxt, setcopyBtnTxt] = useState('Copy');
-  const [cruxDataUrl, setCruxDataUrl] = useState(auditedUrl);
 
-  console.log(webPageTestResults);
   useEffect(() => {
     setSwishjamShareUrl(window.location.href)
   }, [])
@@ -51,7 +49,7 @@ export default function ResultsPage({ webPageTestResults, auditedUrl }) {
 
   return (
     <>
-      <SuccessMsg show={showSuccessMessage} setShow={setShowSuccessMessage} title="Success!" msg={"You'll Receive Weekly Audits of "+webPageTestResults.auditedUrl() }/> 
+      <SuccessMsg show={showSuccessMessage} setShow={setShowSuccessMessage} title="Success!" msg={"You'll Receive Weekly Audits of "+auditedUrl }/> 
       <div className="min-h-full bg-swishjam pb-16">
         <div className="bg-white pb-32">
           <Disclosure as="nav" className="bg-white pt-10 pb-4">
@@ -120,10 +118,16 @@ export default function ResultsPage({ webPageTestResults, auditedUrl }) {
             <article className="flex max-w-xl flex-col items-start">
               <h2 className="text-sm font-medium text-gray-500 pb-4">Test Information</h2>
               <div className="space-y-2 w-full">
-                <Link href={webPageTestResults.results?.data?.lighthouse?.finalDisplayedUrl || '#'} target='_blank' className="flex items-center space-x-2 hover:underline hover:cursor-pointer text-swishjam hover:text-swishjam-dark transition duration-300">
-                  <GlobeAltIcon className="h-5 w-5" aria-hidden="true" />
-                  <span className="text-sm font-medium">{webPageTestResults.results?.data?.lighthouse?.finalDisplayedUrl}</span>
-                </Link>
+                {webPageTestResults  && (
+                  <Link 
+                    href={webPageTestResults.results.data.lighthouse.finalDisplayedUrl || '#'} 
+                    target='_blank' 
+                    className="flex items-center space-x-2 hover:underline hover:cursor-pointer text-swishjam hover:text-swishjam-dark transition duration-300"
+                  >
+                    <GlobeAltIcon className="h-5 w-5" aria-hidden="true" />
+                    <span className="text-sm font-medium">{webPageTestResults.results.data.lighthouse.finalDisplayedUrl}</span>
+                  </Link>
+                )}
                 <div className="flex items-center space-x-2">
                   <CalendarIcon className="h-5 w-5 text-gray-400" aria-hidden="true" />
                   <span className="text-sm font-medium text-gray-900">
@@ -220,14 +224,8 @@ export default function ResultsPage({ webPageTestResults, auditedUrl }) {
             {currentTabName === 'Lighthouse Audit' 
                 ? <LighthouseSection webPageTestResults={webPageTestResults}/>
                 : currentTabName === 'Real User Data' 
-                  ? <CruxData 
-                      url={cruxDataUrl}
-                      onCruxDataUrlUpdated={url => {
-                        console.log('Updating Crux Data URL to: ', url);
-                        setCruxDataUrl(url);
-                      }} 
-                      onLighthouseAuditNavigation={() => setCurrentTabName('Lighthouse Audit')} 
-                    /> : null}
+                  ? <CruxData url={auditedUrl} onLighthouseAuditNavigation={() => setCurrentTabName('Lighthouse Audit')} /> 
+                  : null}
           </div>
         </main>
       </div>
