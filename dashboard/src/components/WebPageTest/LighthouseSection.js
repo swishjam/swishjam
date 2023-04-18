@@ -4,6 +4,7 @@ import LighthouseAuditResultRow from "./LighthouseAuditResultRow";
 import MarkdownText from "../MarkdownText";
 import { InformationCircleIcon } from "@heroicons/react/24/outline";
 import { formattedMsOrSeconds } from "@/lib/utils";
+import LoadingSpinner from "../LoadingSpinner";
 
 const GoodScoreShape = () => <div className='w-2 h-2 rounded-full bg-green-700' />;
 const OkScoreShape = () => <div className='w-2 h-2 bg-yellow-500' />;
@@ -26,119 +27,129 @@ function Metric({ audit, isExpanded }) {
   )
 }
 
-
 export default function LighthouseSection({ webPageTestResults }) {
   const [metricsExpanded, setMetricsExpanded] = useState(false);
   const [passingSectionIsExpanded, setPassingSectionIsExpanded] = useState(false);
 
-  const { opportunities, diagnostics, passing } = webPageTestResults.lighthouseAudits();
+  const { opportunities = [], diagnostics = [], passing = [] } = webPageTestResults ? webPageTestResults.lighthouseAudits() : {};
   
-  const fcp = webPageTestResults.getLighthouseAudit('first-contentful-paint');
-  const speedIndex = webPageTestResults.getLighthouseAudit('speed-index');
-  const lcp = webPageTestResults.getLighthouseAudit('largest-contentful-paint');
-  const tti = webPageTestResults.getLighthouseAudit('interactive');
-  const tbt = webPageTestResults.getLighthouseAudit('total-blocking-time');
-  const cls = webPageTestResults.getLighthouseAudit('cumulative-layout-shift');
-
   return (
     <>
-      <div className='max-w-4xl m-auto'>
-        <div className='text-center mb-2'>
-          <h2 className='text-2xl'>Performance Score</h2>
-          <LighthouseScore score={webPageTestResults.lighthouseScore('performance')} size='large' />
-          {webPageTestResults.lighthouseWarnings().length > 0 && (
-            <div className='text-sm text-red-600 bg-red-100 p-2 rounded-md w-fit m-auto'>
-              {webPageTestResults.lighthouseWarnings().map((msg, i) => <p key={i} className='m-1'>{msg}</p>)}
+      {!webPageTestResults
+        ? (
+          <div className='text-center'>
+            <h2 className='text-2xl'>Running Lighthouse audit...</h2>
+            <div className='w-fit m-auto mt-4'>
+              <LoadingSpinner size={8} />
             </div>
-          )}
-        </div>
-        <div className='flex justify-end'>
-          <span 
-            onClick={() => setMetricsExpanded(!metricsExpanded)}
-            className='text-sm text-gray-500 mb-2 cursor-pointer hover:underline'
-          >
-            {metricsExpanded ? 'Collapse' : 'Expand'}
-          </span>
-        </div>
-        <div className='grid grid-cols-2 gap-2 mb-4 flex items-center'>
-          <Metric audit={fcp} isExpanded={metricsExpanded} />
-          <Metric audit={tti} isExpanded={metricsExpanded} />
-          <Metric audit={speedIndex} isExpanded={metricsExpanded} />
-          <Metric audit={tbt} isExpanded={metricsExpanded} />
-          <Metric audit={lcp} isExpanded={metricsExpanded} />
-          <Metric audit={cls} isExpanded={metricsExpanded} />
-        </div>
-        <div className='flex justify-space mb-4 max-w-full h-32 overflow-x-scroll'>
-          {webPageTestResults.getLighthouseAudit('screenshot-thumbnails').details.items.map(({ timing, data }, i) => (
-            <div className='m-1 text-center' key={i}>
-              <img src={data} className='border border-gray-100 rounded' />
-              <span className='text-xs text-gray-500'>{formattedMsOrSeconds(timing)}</span>
+          </div>
+        ) 
+        : webPageTestResults.lighthouseFailed() 
+          ? (
+            <div className='border-red-600 bg-red-100 text-red-600 text-center p-4 text-md'>
+              Lighthouse audit was unable to successfully complete.
             </div>
-          ))}
-        </div>
-        <div className='mb-8'>
-          <h2 className='text-lg mb-4'>Opportunities ({opportunities.length})</h2>
-          {opportunities.sort((a, b) => b.details.overallSavingsMs - a.details.overallSavingsMs )
-                          .map(({ title, description, details, numericValue, numericUnit, displayValue, scoreDisplayMode }) => (
-            <LighthouseAuditResultRow 
-              key={title} 
-              icon={
-                scoreDisplayMode === 'informative' 
-                    ? <InformationCircleIcon className='h-4 w-4 ml-2 text-blue-600' /> 
-                    :  details.overallSavingsMs > 999 ? <BadScoreShape /> : <OkScoreShape />
-              }
-              displayVisualEstimatedSavings={true}
-              scoreDisplayMode={scoreDisplayMode}
-              title={title} 
-              description={description} 
-              details={details} 
-              numericValue={numericValue} 
-              numericUnit={numericUnit} 
-              displayValue={displayValue}
-            />
-          ))}
-        </div>
-        <div className='mb-8'>
-          <h2 className='text-lg mb-4'>Diagnostics ({diagnostics.length})</h2>
-          {diagnostics.sort((a, b) => a.scoreDisplayMode === 'informative' ? 1 : -1)
-                        .map(({ title, description, details, displayValue, scoreDisplayMode }) => (
-            <LighthouseAuditResultRow
-              key={title}
-              icon={scoreDisplayMode  === 'informative' ? <InformationCircleIcon className='h-4 w-4 text-blue-600' /> : <BadScoreShape />}
-              scoreDisplayMode={scoreDisplayMode}
-              title={title}
-              subTitle={displayValue}
-              subTitleColor={scoreDisplayMode === 'informative' ? 'text-gray-600' : 'text-red-600'}
-              description={description}
-              details={details}
-            />
-          ))}
-        </div>
-        <div className='mb-4'>
-          <div className='flex justify-between'>
-            <h2 className='text-lg mb-4'>Passing ({passing.length})</h2>
-            <span 
-              onClick={() => setPassingSectionIsExpanded(!passingSectionIsExpanded)} 
-              className='text-sm text-gray-700 cursor-pointer hover:underline'
-            >
-              {passingSectionIsExpanded ? 'Hide' : 'Show'}
-            </span>
-          </div>
-          <div className={passingSectionIsExpanded ? '' : 'h-0 overflow-hidden border border-t border-gray-200'}>
-            {passing.map(({ title, description, details, displayValue, scoreDisplayMode }) => (
-              <LighthouseAuditResultRow
-                key={title}
-                icon={scoreDisplayMode  === 'informative' ? <InformationCircleIcon className='h-6 w-6 ml-2 text-blue-600' /> : <GoodScoreShape />}
-                title={title}
-                subTitle={displayValue}
-                subTitleColor={'text-green-600'}
-                description={description}
-                details={details}
-              />
-            ))}
-          </div>
-        </div>
-      </div>
+          )
+          : (
+            <div className='max-w-4xl m-auto'>
+              <div className='text-center mb-2'>
+                <h2 className='text-2xl'>Performance Score</h2>
+                <LighthouseScore score={webPageTestResults.lighthouseScore('performance')} size='large' />
+                {webPageTestResults.lighthouseWarnings().length > 0 && (
+                  <div className='text-sm text-red-600 bg-red-100 p-2 rounded-md w-fit m-auto'>
+                    {webPageTestResults.lighthouseWarnings().map((msg, i) => <p key={i} className='m-1'>{msg}</p>)}
+                  </div>
+                )}
+              </div>
+              <div className='flex justify-end'>
+                <span 
+                  onClick={() => setMetricsExpanded(!metricsExpanded)}
+                  className='text-sm text-gray-500 mb-2 cursor-pointer hover:underline'
+                >
+                  {metricsExpanded ? 'Collapse' : 'Expand'}
+                </span>
+              </div>
+              <div className='grid grid-cols-2 gap-2 mb-4 flex items-center'>
+                <Metric audit={webPageTestResults.getLighthouseAudit('first-contentful-paint')} isExpanded={metricsExpanded} />
+                <Metric audit={webPageTestResults.getLighthouseAudit('interactive')} isExpanded={metricsExpanded} />
+                <Metric audit={webPageTestResults.getLighthouseAudit('speed-index')} isExpanded={metricsExpanded} />
+                <Metric audit={webPageTestResults.getLighthouseAudit('total-blocking-time')} isExpanded={metricsExpanded} />
+                <Metric audit={webPageTestResults.getLighthouseAudit('largest-contentful-paint')} isExpanded={metricsExpanded} />
+                <Metric audit={webPageTestResults.getLighthouseAudit('cumulative-layout-shift')} isExpanded={metricsExpanded} />
+              </div>
+              <div className='flex justify-space mb-4 max-w-full h-32 overflow-x-scroll'>
+                {webPageTestResults.getLighthouseAudit('screenshot-thumbnails').details.items.map(({ timing, data }, i) => (
+                  <div className='m-1 text-center' key={i}>
+                    <img src={data} className='border border-gray-100 rounded' />
+                    <span className='text-xs text-gray-500'>{formattedMsOrSeconds(timing)}</span>
+                  </div>
+                ))}
+              </div>
+              <div className='mb-8'>
+                <h2 className='text-lg mb-4'>Opportunities ({opportunities.length})</h2>
+                {opportunities.sort((a, b) => b.details.overallSavingsMs - a.details.overallSavingsMs )
+                                .map(({ title, description, details, numericValue, numericUnit, displayValue, scoreDisplayMode }) => (
+                  <LighthouseAuditResultRow 
+                    key={title} 
+                    icon={
+                      scoreDisplayMode === 'informative' 
+                          ? <InformationCircleIcon className='h-4 w-4 ml-2 text-blue-600' /> 
+                          :  details.overallSavingsMs > 999 ? <BadScoreShape /> : <OkScoreShape />
+                    }
+                    displayVisualEstimatedSavings={true}
+                    scoreDisplayMode={scoreDisplayMode}
+                    title={title} 
+                    description={description} 
+                    details={details} 
+                    numericValue={numericValue} 
+                    numericUnit={numericUnit} 
+                    displayValue={displayValue}
+                  />
+                ))}
+              </div>
+              <div className='mb-8'>
+                <h2 className='text-lg mb-4'>Diagnostics ({diagnostics.length})</h2>
+                {diagnostics.sort((a, b) => a.scoreDisplayMode === 'informative' ? 1 : -1)
+                              .map(({ title, description, details, displayValue, scoreDisplayMode }) => (
+                  <LighthouseAuditResultRow
+                    key={title}
+                    icon={scoreDisplayMode  === 'informative' ? <InformationCircleIcon className='h-4 w-4 text-blue-600' /> : <BadScoreShape />}
+                    scoreDisplayMode={scoreDisplayMode}
+                    title={title}
+                    subTitle={displayValue}
+                    subTitleColor={scoreDisplayMode === 'informative' ? 'text-gray-600' : 'text-red-600'}
+                    description={description}
+                    details={details}
+                  />
+                ))}
+              </div>
+              <div className='mb-4'>
+                <div className='flex justify-between'>
+                  <h2 className='text-lg mb-4'>Passing ({passing.length})</h2>
+                  <span 
+                    onClick={() => setPassingSectionIsExpanded(!passingSectionIsExpanded)} 
+                    className='text-sm text-gray-700 cursor-pointer hover:underline'
+                  >
+                    {passingSectionIsExpanded ? 'Hide' : 'Show'}
+                  </span>
+                </div>
+                <div className={passingSectionIsExpanded ? '' : 'h-0 overflow-hidden border border-t border-gray-200'}>
+                  {passing.map(({ title, description, details, displayValue, scoreDisplayMode }) => (
+                    <LighthouseAuditResultRow
+                      key={title}
+                      icon={scoreDisplayMode  === 'informative' ? <InformationCircleIcon className='h-6 w-6 ml-2 text-blue-600' /> : <GoodScoreShape />}
+                      title={title}
+                      subTitle={displayValue}
+                      subTitleColor={'text-green-600'}
+                      description={description}
+                      details={details}
+                    />
+                  ))}
+                </div>
+              </div>
+            </div>
+          )
+      }
     </>
   )
 }
