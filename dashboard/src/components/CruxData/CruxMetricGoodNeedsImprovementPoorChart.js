@@ -8,10 +8,11 @@ export default function CruxMetricGoodNeedsImprovementPoorChart({
   histogramTimeseries, 
   p75Value, 
   indexToVisualize, 
+  indexOfScoreToHighlight,
   metric
 }) {
   const { getArrowProps, getTooltipProps, setTooltipRef, setTriggerRef, visible } = usePopperTooltip({ followCursor: false, trigger: 'hover', placement: 'top' });
-  const [hoveredIndex, setHoveredIndex] = useState();
+  const [hoveredIndex, setHoveredIndex] = useState(indexOfScoreToHighlight);
   const accronym = {
     'first_contentful_paint': 'FCP',
     'first_input_delay': 'FID',
@@ -41,12 +42,12 @@ export default function CruxMetricGoodNeedsImprovementPoorChart({
       {histogramTimeseries.map(({ densities }, i) => (
         typeof densities[indexToVisualize] === 'number' ? (
           <div key={i}
-            className={`h-full relative cursor-default overflow-x-hidden inline-flex flex-grow items-center justify-center hover:outline hover:outline-2 hover:outline-swishjam ${i === 0 ? 'bg-green-500 hover:bg-green-600' : i === 1 ? 'bg-yellow-400 hover:bg-yellow-500' : 'bg-red-500 hover:bg-red-600'}`}
+            className={`h-full relative cursor-default overflow-x-hidden inline-flex flex-grow items-center justify-center hover:z-10 hover:outline hover:outline-2 hover:outline-swishjam ${i === 0 ? 'bg-green-500 hover:bg-green-600' : i === 1 ? 'bg-yellow-400 hover:bg-yellow-500' : 'bg-red-500 hover:bg-red-600'}`}
             style={{ width: `${densities[indexToVisualize] * 100}%`, overflow: 'visible' }}
             onMouseOver={() => setHoveredIndex(i)}
             onMouseOut={() => setHoveredIndex(null)}
           >
-            {hoveredIndex === i && <div className='absolute bottom-0 left-0 h-full -mb-10 text-xs text-gray-500'>{
+            {hoveredIndex === i && <div className='absolute bottom-0 left-0 h-full -mb-10 text-xs text-gray-500 whitespace-nowrap'>{
               i === 0
                 ? 0
                 : i === 1
@@ -56,10 +57,10 @@ export default function CruxMetricGoodNeedsImprovementPoorChart({
             {i === indexForP75Indicator && (
               <>
                 <div 
-                  className={`h-[150%] text-xs absolute bottom-0 left-0 border-r border-gray-300 ${hoveredIndex === i ? 'border-r-2 font-bold' : 'font-medium'} ${p75Grade === 'good' ? 'text-green-600' : p75Grade === 'needs improvement' ? 'text-yellow-500' : 'text-red-600'}`} style={{ marginLeft: `${p75MarginLeftPercent}%`}}
+                  className={`h-[150%] text-xs text-right absolute w-0 bottom-0 left-0 border-r border-gray-300 ${hoveredIndex === i ? 'border-r-2 font-bold' : 'font-medium'} ${p75Grade === 'good' ? 'text-green-600' : p75Grade === 'needs improvement' ? 'text-yellow-500' : 'text-red-600'}`} style={{ marginLeft: `${p75MarginLeftPercent}%`}}
                   ref={setTriggerRef}
                 >
-                  <span className='pr-1'>{metric === 'cumulative_layout_shift' ? p75Value : formattedMsOrSeconds(p75Value)}</span>
+                  <span className='px-1 whitespace-nowrap'>{metric === 'cumulative_layout_shift' ? p75Value : formattedMsOrSeconds(p75Value)}</span>
                 </div>
                 {visible && (
                   <div ref={setTooltipRef} {...getTooltipProps({ className: 'tooltip-container' })}>
@@ -73,7 +74,7 @@ export default function CruxMetricGoodNeedsImprovementPoorChart({
                 )}
               </>
             )}
-            {hoveredIndex === i && <div className='absolute bottom-0 right-0 h-full -mb-10 text-xs text-gray-500'>{
+            {hoveredIndex === i && <div className='absolute bottom-0 right-0 h-full -mb-10 text-xs text-gray-500 whitespace-nowrap'>{
               i === 0
                 ? metric === 'cumulative_layout_shift' ? cwvBoundsForMetric.good : formattedMsOrSeconds(cwvBoundsForMetric.good)
                 : i === 1

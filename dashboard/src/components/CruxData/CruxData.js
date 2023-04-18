@@ -71,9 +71,9 @@ export default function CruxData({ url, onLighthouseAuditNavigation }) {
       {!cruxError && (
         <div className='grid grid-cols-10 space-y-4'>
           {[
-            { metric: "largest_contentful_paint", name: "Largest Contentful Paint", description: 'LCP reports the render time of the largest content element that is visible within the viewport. [web.dev/lcp](web.dev/lcp)' },
-            { metric: "cumulative_layout_shift", name: "Cumulative Layout Shift", description: 'CLS measures the sum total of all individual layout shift scores for every unexpected layout shift that occurs during the entire lifespan of the page. [web.dev/cls](web.dev/cls)' },
-            { metric: "first_input_delay", name: "First Input Delay", description: 'FID measures the time from when a user first interacts with a page (i.e. when they click a link, tap on a button, or use a custom, JavaScript-powered control) to the time when the browser is actually able to respond to that interaction. [web.dev/fid](web.dev/fid)' },
+            { metric: "largest_contentful_paint", name: "Largest Contentful Paint", description: 'LCP reports the render time of the largest content element that is visible within the viewport. [web.dev/lcp](https://web.dev/lcp)' },
+            { metric: "cumulative_layout_shift", name: "Cumulative Layout Shift", description: 'CLS measures the sum total of all individual layout shift scores for every unexpected layout shift that occurs during the entire lifespan of the page. [web.dev/cls](https://web.dev/cls)' },
+            { metric: "first_input_delay", name: "First Input Delay", description: 'FID measures the time from when a user first interacts with a page (i.e. when they click a link, tap on a button, or use a custom, JavaScript-powered control) to the time when the browser is actually able to respond to that interaction. [web.dev/fid](https://web.dev/fid)' },
             { metric: "first_contentful_paint", name: "First Contentful Paint", description: '' },
             { metric: "experimental_time_to_first_byte", name: "Time to First Byte", description: '' },
             { metric: "experimental_interaction_to_next_paint", name: "Interaction to Next Paint", description: '' },
