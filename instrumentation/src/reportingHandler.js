@@ -25,7 +25,7 @@ class ReportingHandler {
     if (!this.currentPageViewIdentifier) throw new Error('ReportingHandler has no currentPageViewIdentifier, cannot record event.');
     this.pageViewEventCounter[this.currentPageViewIdentifier] = (this.pageViewEventCounter[this.currentPageViewIdentifier] || 0) + 1;
     if (this.pageViewEventCounter[this.currentPageViewIdentifier] > this.maxNumEventsPerPage) {
-      console.warn(`Swishjam: max number of events per page view (${this.maxNumEventsPerPage}) reached, not recording event: ${eventName}`);
+      // console.warn(`Swishjam: max number of events per page view (${this.maxNumEventsPerPage}) reached, not recording event: ${eventName}`);
       return;
     }
     this.dataToReport.push({ 
