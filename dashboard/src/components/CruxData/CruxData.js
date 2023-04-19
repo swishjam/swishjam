@@ -141,7 +141,12 @@ export default function CruxData({ url, onLighthouseAuditNavigation }) {
                         maxYValue={Math.max(...cruxDesktopData.metrics[metric].percentilesTimeseries.p75s, ...cruxMobileData.metrics[metric].percentilesTimeseries.p75s)}
                         isExpanded={expandedMetrics.includes(metric)}
                       />
-                      : <div className='w-[90%] m-auto bg-gray-300 animate-pulse rounded h-10 ml-[10%]' />}
+                      : (
+                        <>
+                          <div className='w-[90%] m-auto bg-gray-300 animate-pulse rounded h-32 ml-[10%] mb-2' />
+                          <div className='w-[90%] m-auto bg-gray-300 animate-pulse rounded h-10 ml-[10%]' />
+                        </>
+                    )}
                   </div>
                   <div>
                     <div className='block'>
@@ -159,7 +164,12 @@ export default function CruxData({ url, onLighthouseAuditNavigation }) {
                         maxYValue={Math.max(...cruxDesktopData.metrics[metric].percentilesTimeseries.p75s, ...cruxMobileData.metrics[metric].percentilesTimeseries.p75s)}
                         isExpanded={expandedMetrics.includes(metric)}
                       /> 
-                      : <div className='w-[90%] m-auto bg-gray-300 animate-pulse rounded h-10 ml-[10%]' />}
+                      : (
+                        <>
+                          <div className='w-[90%] m-auto bg-gray-300 animate-pulse rounded h-32 ml-[10%] mb-2' />
+                          <div className='w-[90%] m-auto bg-gray-300 animate-pulse rounded h-10 ml-[10%]' />
+                        </>
+                    )}
                   </div>
                 </div>
               )}

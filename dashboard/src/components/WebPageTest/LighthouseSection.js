@@ -37,8 +37,9 @@ export default function LighthouseSection({ webPageTestResults }) {
     <>
       {!webPageTestResults
         ? (
-          <div className='text-center'>
-            <h2 className='text-2xl'>Running Lighthouse audit...</h2>
+          <div className='text-center p-6'>
+            <h2 className='text-xl text-gray-700'>Performing Lighthouse audit...</h2>
+            <h2 className='text-md text-gray-500'>This may take a few minutes.</h2>
             <div className='w-fit m-auto mt-4'>
               <LoadingSpinner size={8} />
             </div>
