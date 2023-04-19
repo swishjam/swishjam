@@ -19,7 +19,7 @@ export default async (req, res) => {
   let derivedUrl;
   let derivedLabel;
   try {
-    var pattern = /^(?:(?:https?|ftp):\/\/)?(?:\S+(?::\S*)?@)?(?:\S+(?:\.[^\s.]+)+(?:\:\d{2,5})?)(?:\/[\w#!:.?+=&%@!-/])?$/;
+    const pattern = /^(?:(?:https?|ftp):\/\/)?(?:\S+(?::\S*)?@)?(?:\S+(?:\.[^\s.]+)+(?:\:\d{2,5})?)(?:\/[\w#!:.?+=&%@!-/])?$/;
     if (!pattern.test(url)) throw new Error('Invalid URL.');
     derivedUrl = url.startsWith('http') ? url : `https://${url}`;
     derivedLabel = label || `${new URL(derivedUrl).hostname} - ${new Date().toLocaleString()}}`

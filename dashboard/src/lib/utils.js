@@ -22,7 +22,7 @@ export {
   msToSeconds,
 }
 
-export const formattedMsOrSeconds = ms => parseFloat(ms) > 999 ? `${msToSeconds(parseFloat(ms))} s` : `${parseFloat(ms).toFixed(0)} ms`;
+export const formattedMsOrSeconds = ms => parseFloat(ms) > 999 ? `${parseFloat(parseFloat(msToSeconds(parseFloat(ms))).toFixed(2))} s` : `${parseFloat(ms).toFixed(0)} ms`;
 
 export const formattedDate = (dateString, opts = {}) => {
   try {
