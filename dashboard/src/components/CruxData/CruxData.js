@@ -77,7 +77,7 @@ export default function CruxData({ url, onLighthouseAuditNavigation }) {
           { metric: "experimental_time_to_first_byte", name: "Time to First Byte", description: '' },
           { metric: "experimental_interaction_to_next_paint", name: "Interaction to Next Paint", description: '' },
         ].map(({ metric, name, description }) => (
-          <div className='col-span-10 border border-gray-200 rounded bg-gray-100 p-4' key={metric}>
+          <div className='col-span-10 p-4' key={metric}>
             <div className='grid grid-cols-2'>
               <h3 className='text-md text-gray-900 mb-2'>{name}</h3>
               <div className='text-end'>
@@ -99,7 +99,7 @@ export default function CruxData({ url, onLighthouseAuditNavigation }) {
               <MarkdownText text={description} />
             </div>
             <div className='w-fit'>
-              <div className='inline-flex items-center m-2'>
+              <div className='inline-flex items-center m-2 ml-0'>
                 <div className='w-6 h-4 bg-green-500 rounded inline-block' />
                 <span className='text-xs text-gray-600 ml-2'>
                   Good ({'<'} {metric === 'cumulative_layout_shift' ? cwvBoundsForMetric(metric).good : formattedMsOrSeconds(cwvBoundsForMetric(metric).good)})
@@ -173,9 +173,11 @@ export default function CruxData({ url, onLighthouseAuditNavigation }) {
                   </div>
                 </div>
               )}
+            <div className='mt-6 border-t w-full'></div>
           </div>
         ))}
       </div>
+      <p className='mt-4 text-center text-gray-300 text-sm font-medium'>This data is collected anonymously from the Chrome UX Report</p>
     </div>
   );
 }

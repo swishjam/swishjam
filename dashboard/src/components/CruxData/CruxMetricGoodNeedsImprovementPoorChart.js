@@ -29,7 +29,7 @@ function P75Indicator({ p75Value, upperBound, humanMetricName, isHovered, textCo
   return (
     <>
       <div
-        className={`h-[150%] text-xs text-right absolute w-0 bottom-0 left-0 border-r border-gray-300 ${isHovered ? 'border-r-2 font-bold' : 'font-medium'} ${textColor}`}
+        className={`h-[150%] text-xs text-right absolute w-0 bottom-0 left-0 border-r border-dashed border-slate-600 ${isHovered ? 'border-r-2 font-bold' : 'font-medium'} ${textColor}`}
         style={{ marginLeft: `${marginLeft}%` }}
         ref={setTriggerRef}
       >
@@ -91,7 +91,7 @@ function BarComponent({ percentInBar, barType, metric, displayP75Indicator, p75V
   return (
     <>
       <div 
-        className={`h-full relative cursor-default overflow-x-hidden inline-flex flex-grow items-center justify-center hover:z-10 hover:outline hover:outline-2 hover:outline-swishjam ${bgKlass}`}
+        className={`h-full relative cursor-default overflow-x-hidden inline-flex flex-grow items-center justify-center hover:z-10 hover:outline hover:outline-2 hover:outline-swishjam duration-300 transition ${bgKlass}`}
         style={{ width: `${percentInBar}%`, overflow: 'visible' }}
         onMouseOver={() => setIsHovered(true)}
         onMouseOut={() => setIsHovered(false)}
@@ -130,7 +130,7 @@ function BarComponent({ percentInBar, barType, metric, displayP75Indicator, p75V
           />
         )}
         {percentInBar >= 10 && (
-          <div className='text-xs text-white'>
+          <div className='text-xs text-white font-semibold'>
             {parseFloat(percentInBar).toFixed(2)}%
           </div>
         )}
