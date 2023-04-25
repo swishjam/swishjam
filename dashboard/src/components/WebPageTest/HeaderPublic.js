@@ -16,7 +16,7 @@ export default function HeaderPublic({ currentNav, navigation, setNavigation, fi
 
   const [swishjamShareUrl, setSwishjamShareUrl] = useState();
   const [copyBtnTxt, setcopyBtnTxt] = useState('Copy');
-  let [open, setOpen] = useState(false)
+  const [shareDialogIsOpen, setShareDialogIsOpen] = useState(false)
   const [email, setEmail ] = useState('');
   const [website, setWebsite ] = useState(null);
   const [frequency, setFrequency ] = useState('Weekly');
@@ -57,7 +57,7 @@ export default function HeaderPublic({ currentNav, navigation, setNavigation, fi
   return (
     <>
       <Disclosure as="nav" className="border-b border-gray-200 bg-white">
-        {({ open }) => (
+        {({ shareDialogIsOpen }) => (
           <>
             <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
               <div className="flex h-16 justify-between">
@@ -117,7 +117,7 @@ export default function HeaderPublic({ currentNav, navigation, setNavigation, fi
                     </div>
                     <div>
                       <button
-                        onClick={() => setOpen(true)} 
+                        onClick={() => setShareDialogIsOpen(true)} 
                         type="button"
                         className="ml-6 mt-2 rounded-md bg-swishjam px-2.5 py-2 text-sm font-semibold text-white shadow-sm hover:bg-swishjam-dark focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-swishjam transition duration-300"
                       >
@@ -132,7 +132,7 @@ export default function HeaderPublic({ currentNav, navigation, setNavigation, fi
                   {/* Mobile menu button */}
                   <Disclosure.Button className="inline-flex items-center justify-center rounded-md bg-white p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-swishjam focus:ring-offset-2">
                     <span className="sr-only">Open main menu</span>
-                    {open ? (
+                    {shareDialogIsOpen ? (
                       <XMarkIcon className="block h-6 w-6" aria-hidden="true" />
                     ) : (
                       <Bars3Icon className="block h-6 w-6" aria-hidden="true" />
@@ -177,8 +177,8 @@ export default function HeaderPublic({ currentNav, navigation, setNavigation, fi
           </>
         )}
       </Disclosure>
-      <Transition.Root show={open} as={Fragment}>
-        <Dialog as="div" className="relative z-10" onClose={setOpen}>
+      <Transition.Root show={shareDialogIsOpen} as={Fragment}>
+        <Dialog as="div" className="relative z-10" onClose={setShareDialogIsOpen}>
           <Transition.Child
             as={Fragment}
             enter="ease-out duration-300"
@@ -207,7 +207,7 @@ export default function HeaderPublic({ currentNav, navigation, setNavigation, fi
                     <button
                       type="button"
                       className="rounded-md bg-white text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-none"
-                      onClick={() => setOpen(false)}
+                      onClick={() => setShareDialogIsOpen(false)}
                     >
                       <span className="sr-only">Close</span>
                       <XMarkIcon className="h-6 w-6" aria-hidden="true" />

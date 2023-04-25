@@ -22,9 +22,9 @@ const METRIC_NAME_TO_ACCRONYM_DICT = {
   'experimental_interaction_to_next_paint': 'INP'
 };
 
-function P75Indicator({ p75Value, upperBound, humanMetricName, isHovered, textColor }) {
+function P75Indicator({ p75Value, upperBound, lowerBound, humanMetricName, isHovered, textColor }) {
   const { getArrowProps, getTooltipProps, setTooltipRef, setTriggerRef, visible } = usePopperTooltip({ followCursor: false, trigger: 'hover', placement: 'top' });
-  const marginLeft = (1 - ((upperBound - p75Value) / upperBound)) * 100;
+  const marginLeft = (p75Value - lowerBound) / (upperBound - lowerBound) * 100;
 
   return (
     <>
@@ -123,6 +123,13 @@ function BarComponent({ percentInBar, barType, metric, displayP75Indicator, p75V
                 : barType === 'needs improvement' 
                   ? cwvBoundsForMetric.medium 
                   : cwvBoundsForMetric.medium + (cwvBoundsForMetric.medium - cwvBoundsForMetric.good)
+            }
+            lowerBound={
+              barType === 'good'
+                ? 0
+                : barType === 'needs improvement'
+                  ? cwvBoundsForMetric.good
+                  : cwvBoundsForMetric.medium
             }
             isHovered={isHovered}
             humanMetricName={METRIC_NAME_TO_HUMAN_NAME_DICT[metric]}
