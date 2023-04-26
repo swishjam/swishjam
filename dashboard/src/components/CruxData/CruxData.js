@@ -25,8 +25,7 @@ export default function CruxData({ url, onLighthouseAuditNavigation }) {
   const [cruxDesktopData, setCruxDesktopData] = useState();
   const [cruxMobileData, setCruxMobileData] = useState();
   const [expandedMetrics, setExpandedMetrics] = useState([]);
-  // DONT DEPLOY WITH THIS - HACKING FOR TESTING PURPOSES
-  const [isMissingCruxData, setIsMissingCruxData] = useState(true);
+  const [isMissingCruxData, setIsMissingCruxData] = useState(false);
   const [urlForCruxData, setUrlForCruxData] = useState(url);
 
   const hostname = new URL(urlForCruxData).hostname;
@@ -34,8 +33,7 @@ export default function CruxData({ url, onLighthouseAuditNavigation }) {
   const friendlyUrl = `${hostname}${path === '/' ? '' : path}`
 
   const getAndSetCruxData = async ({ url, formFactor }) => {
-    // UNCOMMENT THIS BEFORE DEPLOYING - HACKING FOR TESTING PURPOSES
-    // setIsMissingCruxData(false);
+    setIsMissingCruxData(false);
     setCruxDesktopData();
     setCruxMobileData();
     const body = {
