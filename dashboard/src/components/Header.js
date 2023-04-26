@@ -80,7 +80,7 @@ export default function Header() {
                 </button>*/}
 
                 {/* Profile dropdown */}
-                <SiteSwitcher className="mr-16"/>
+                <SiteSwitcher className=""/>
 
                 <Menu as="div" className="relative ml-3">
                   <div>
