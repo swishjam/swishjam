@@ -3,11 +3,13 @@
 import AuthenticatedView from '@/components/AuthenticatedView';
 import { useAuth } from '@components/AuthProvider';
 import { useState } from 'react';
+import Link from 'next/link';
 import { LabTestsAPI } from '@/lib/api-client/lab-tests';
 import LighthouseCard from '@/components/LabTests/LighthouseCard';
 import PerformanceMetricCard from '@/components/LabTests/PerformanceMetricCard';
 import HostUrlFilterer from '@/components/Filters/HostUrlFilterer';
 import PathUrlFilterer from '@/components/Filters/PathUrlFilterer';
+import { Cog6ToothIcon } from '@heroicons/react/24/outline';
 
 export default function LabTests() {
   const { currentProject } = useAuth();
@@ -44,6 +46,11 @@ export default function LabTests() {
                 includeAllPathsSelection={true}
                 onPathSelected={urlPath => getLabDataForUrlHostAndPath(hostUrlToFilterOn, urlPath)} 
               />
+            </div>
+            <div className='inline-block ml-2'>
+              <Link href='/lab-tests/manage'>
+                <Cog6ToothIcon className='h-6 w-6 text-gray-500 hover:text-gray-700 cursor-pointer' />
+              </Link>
             </div>
           </div>
         </div>

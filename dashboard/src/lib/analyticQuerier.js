@@ -19,10 +19,10 @@ export async function runQueryIfUserHasAccess({ req, res, projectKey }, callback
   const projects = await supabase.from('projects').select('*').eq('organization_id', orgs.data[0].id)
   if (projects.error) return noAccess(res);
 
-  const userHasAccess = projects.data.find(p => p.public_id === projectKey);
+  const requestedProject = projects.data.find(p => p.public_id === projectKey);
 
-  if (userHasAccess) {
-    return await callback();
+  if (requestedProject) {
+    return await callback({ supabaseClient: supabase, organizations: orgs, projects, user, currentProject: requestedProject });
   } else {
     return noAccess(res);
   }
