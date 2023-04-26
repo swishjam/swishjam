@@ -5,7 +5,7 @@ export default async (req, res) => {
   const { projectKey, urlHost } = req.query;
   return await runQueryIfUserHasAccess({ req, res, projectKey }, async () => {
     // HACK! change this back. Hardcoding for testing purposes
-    const rows = await LabTests.getUniquePaths({ projectKey: 'ANONYMOUS', urlHost });
+    const rows = await LabTests.getUniquePaths({ projectKey: 'undefined', urlHost });
     const pathArray = rows.map(({ url_path }) => url_path);
     console.log(urlHost)
     console.log(pathArray);
