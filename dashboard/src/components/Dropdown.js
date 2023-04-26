@@ -53,7 +53,7 @@ export default function Dropdown({ direction = 'left', dropdownIcon, label, opti
                         <CheckIcon className="h-5 w-5" aria-hidden="true" />
                       </span>
                     }
-                    <span className='pl-10'>
+                    <span className='pl-10 max-w-lg truncate'>
                       {option}
                     </span>
                   </div>
