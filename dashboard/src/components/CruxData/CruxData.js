@@ -3,8 +3,11 @@
 import { useState, useEffect } from 'react';
 import MarkdownText from '../MarkdownText';
 import CruxMetricsGroup from './CruxMetricsGroup';
+import NoDataCruxMetricsGroup from './NoDataCruxMetricsGroup';
 import { cwvMetricBounds } from '@/lib/cwvCalculations';
 import { formattedMsOrSeconds } from '@/lib/utils';
+import { ExclamationCircleIcon } from '@heroicons/react/24/outline';
+
 const CRUX_API_KEY = 'AIzaSyD3DF2QoXzxsafuVFgJIfeJMXSqTSDuLrw';
 
 const cwvBoundsForMetric = metric => {
@@ -22,11 +25,15 @@ export default function CruxData({ url, onLighthouseAuditNavigation }) {
   const [cruxDesktopData, setCruxDesktopData] = useState();
   const [cruxMobileData, setCruxMobileData] = useState();
   const [expandedMetrics, setExpandedMetrics] = useState([]);
-  const [cruxError, setCruxError] = useState();
+  const [isMissingCruxData, setIsMissingCruxData] = useState(false);
   const [urlForCruxData, setUrlForCruxData] = useState(url);
 
+  const hostname = new URL(urlForCruxData).hostname;
+  const path = new URL(urlForCruxData).pathname;
+  const friendlyUrl = `${hostname}${path === '/' ? '' : path}`
+
   const getAndSetCruxData = async ({ url, formFactor }) => {
-    setCruxError();
+    setIsMissingCruxData(false);
     setCruxDesktopData();
     setCruxMobileData();
     const body = {
@@ -50,7 +57,7 @@ export default function CruxData({ url, onLighthouseAuditNavigation }) {
     .then(res => res.json())
     .then(({ error, record }) => {
       if (error) {
-        setCruxError(error.message);
+        setIsMissingCruxData(true);
       } else {
         return formFactor === 'DESKTOP' ? setCruxDesktopData(record) : setCruxMobileData(record)
       }
@@ -64,9 +71,19 @@ export default function CruxData({ url, onLighthouseAuditNavigation }) {
 
   return (
     <div>
-      {cruxError && <div className='border-red-600 bg-red-100 text-red-600 text-center rounded p-4 text-md mb-4'>
-        <span className='block'>Unable to display real user data for {urlForCruxData}</span>
-        <span className='block cursor-pointer underline' onClick={onLighthouseAuditNavigation}>View Lighthouse Audit.</span>
+      {isMissingCruxData && <div className='bg-yellow-100 text-gray-600 text-left rounded px-8 py-4 text-md mb-4 flex'>
+        <ExclamationCircleIcon className='w-6 h-6 mr-2 inline-block' />
+        <div>
+          <span className='block text-md font-md'>
+            {friendlyUrl} does not meet the criteria for Chrome's real user performance data.
+          </span>
+          <span className='block text-sm mb-2'>
+            Consider signing up for a <a href='https://app.swishjam.com' target='_blank' className='underline'>Swishjam account</a> and installing our JS snippet to monitor your real user performance data.
+          </span>
+          <span className='block text-sm'>
+            <span className='cursor-pointer underline' onClick={onLighthouseAuditNavigation}>View Lighthouse Audit</span> in the meantime.
+          </span>
+        </div>
       </div>}
       <div className='grid grid-cols-10 space-y-4'>
         {[
@@ -91,7 +108,7 @@ export default function CruxData({ url, onLighthouseAuditNavigation }) {
                     }
                   }}
                 >
-                  {cruxError ? <></> : expandedMetrics.includes(metric) ? 'Hide historical data' : 'View historical data'}
+                  {isMissingCruxData ? <></> : expandedMetrics.includes(metric) ? 'Hide historical data' : 'View historical data'}
                 </span>
               </div>
             </div>
@@ -118,61 +135,60 @@ export default function CruxData({ url, onLighthouseAuditNavigation }) {
                 </span>
               </div>
             </div>
-            {cruxError 
-              ? (
-              <div className='text-sm text-gray-700 text-center p-4'>
-                Unable to get real user data for {url}.
-              </div>
-              ) : (    
-                <div className='grid grid-cols-2 mt-4'>
-                  <div>
-                    <div className='block'>
-                      <div className='w-[10%] inline-block'></div>
-                      <div className='w-[90%] inline-block'>
-                        <span className='block text-sm font-medium text-gray-700'>Desktop</span>
-                      </div>
-                    </div>
-                    {cruxDesktopData && cruxMobileData  
-                      ? <CruxMetricsGroup
-                        metric={metric}
-                        timeperiods={cruxDesktopData.collectionPeriods}
-                        histogramTimeseriesData={cruxDesktopData.metrics[metric].histogramTimeseries}
-                        p75TimeseriesData={cruxDesktopData.metrics[metric].percentilesTimeseries.p75s}
-                        maxYValue={Math.max(...cruxDesktopData.metrics[metric].percentilesTimeseries.p75s, ...cruxMobileData.metrics[metric].percentilesTimeseries.p75s)}
-                        isExpanded={expandedMetrics.includes(metric)}
-                      />
-                      : (
-                        <>
-                          <div className='w-[90%] m-auto bg-gray-300 animate-pulse rounded h-32 ml-[10%] mb-2' />
-                          <div className='w-[90%] m-auto bg-gray-300 animate-pulse rounded h-10 ml-[10%]' />
-                        </>
-                    )}
-                  </div>
-                  <div>
-                    <div className='block'>
-                      <div className='w-[10%] inline-block'></div>
-                      <div className='w-[90%] inline-block'>
-                        <span className='text-sm font-medium text-gray-700'>Mobile</span>
-                      </div>
-                    </div>
-                    {cruxMobileData && cruxDesktopData
-                      ? <CruxMetricsGroup 
-                        metric={metric}
-                        timeperiods={cruxMobileData.collectionPeriods} 
-                        histogramTimeseriesData={cruxMobileData.metrics[metric].histogramTimeseries} 
-                        p75TimeseriesData={cruxMobileData.metrics[metric].percentilesTimeseries.p75s}
-                        maxYValue={Math.max(...cruxDesktopData.metrics[metric].percentilesTimeseries.p75s, ...cruxMobileData.metrics[metric].percentilesTimeseries.p75s)}
-                        isExpanded={expandedMetrics.includes(metric)}
-                      /> 
-                      : (
-                        <>
-                          <div className='w-[90%] m-auto bg-gray-300 animate-pulse rounded h-32 ml-[10%] mb-2' />
-                          <div className='w-[90%] m-auto bg-gray-300 animate-pulse rounded h-10 ml-[10%]' />
-                        </>
-                    )}
+            <div className='grid grid-cols-2 mt-4'>
+              <div>
+                <div className='block'>
+                  <div className='w-[10%] inline-block'></div>
+                  <div className='w-[90%] inline-block'>
+                    <span className='block text-sm font-medium text-gray-700'>Desktop</span>
                   </div>
                 </div>
-              )}
+                {isMissingCruxData
+                  ? <NoDataCruxMetricsGroup friendlyUrl={friendlyUrl} onLighthouseAuditNavigation={onLighthouseAuditNavigation} />
+                  : cruxDesktopData && cruxMobileData  
+                    ? <CruxMetricsGroup
+                      metric={metric}
+                      timeperiods={cruxDesktopData.collectionPeriods}
+                      histogramTimeseriesData={cruxDesktopData.metrics[metric].histogramTimeseries}
+                      p75TimeseriesData={cruxDesktopData.metrics[metric].percentilesTimeseries.p75s}
+                      maxYValue={Math.max(...cruxDesktopData.metrics[metric].percentilesTimeseries.p75s, ...cruxMobileData.metrics[metric].percentilesTimeseries.p75s)}
+                      isExpanded={expandedMetrics.includes(metric)}
+                    />
+                    : (
+                      <>
+                        <div className='w-[90%] m-auto bg-gray-300 animate-pulse rounded h-32 ml-[10%] mb-2' />
+                        <div className='w-[90%] m-auto bg-gray-300 animate-pulse rounded h-10 ml-[10%]' />
+                      </>
+                    )
+                }
+              </div>
+              <div>
+                <div className='block'>
+                  <div className='w-[10%] inline-block'></div>
+                  <div className='w-[90%] inline-block'>
+                    <span className='text-sm font-medium text-gray-700'>Mobile</span>
+                  </div>
+                </div>
+                {isMissingCruxData 
+                  ? <NoDataCruxMetricsGroup friendlyUrl={friendlyUrl} onLighthouseAuditNavigation={onLighthouseAuditNavigation} />
+                  : cruxDesktopData && cruxMobileData  
+                    ? <CruxMetricsGroup 
+                      metric={metric}
+                      timeperiods={cruxMobileData.collectionPeriods} 
+                      histogramTimeseriesData={cruxMobileData.metrics[metric].histogramTimeseries} 
+                      p75TimeseriesData={cruxMobileData.metrics[metric].percentilesTimeseries.p75s}
+                      maxYValue={Math.max(...cruxDesktopData.metrics[metric].percentilesTimeseries.p75s, ...cruxMobileData.metrics[metric].percentilesTimeseries.p75s)}
+                      isExpanded={expandedMetrics.includes(metric)}
+                    /> 
+                    : (
+                      <>
+                        <div className='w-[90%] m-auto bg-gray-300 animate-pulse rounded h-32 ml-[10%] mb-2' />
+                        <div className='w-[90%] m-auto bg-gray-300 animate-pulse rounded h-10 ml-[10%]' />
+                      </>
+                    )
+                }
+              </div>
+            </div>
             <div className='mt-6 border-t w-full'></div>
           </div>
         ))}
