@@ -9,11 +9,7 @@ const booleanToInteger = (bool, defaultVal) => typeof bool === 'boolean'
                                                     : 0;
 
 export class WebPageTestRunner {
-  static async runSpeedTest({
-    projectKey,
-    url,
-    options = {}
-  }) {
+  static async runSpeedTest({ projectKey, url, options = {} }) {
     if (!url) throw new Error('No URL provided.');
     const params = new URLSearchParams({
       url,
@@ -25,13 +21,13 @@ export class WebPageTestRunner {
       mobile: booleanToInteger(options.mobile, false),
       timeline: booleanToInteger(options.includeDevToolsTimeline, true),
       profiler: booleanToInteger(options.includeV8Profiler, true),
-      pingback: `https://${process.env.WEB_PAGE_TEST_WEBHOOK_HOST || 'app.swishjam.com'}/api/speed-tests/webhook`,
+      pingback: `https://${process.env.WEB_PAGE_TEST_WEBHOOK_HOST || 'app.swishjam.com'}/api/lab-tests/webhook`,
       f: 'json'
     });
     const result = await fetch(`https://www.webpagetest.org/runtest.php?${params}`, { method: 'POST' });
     if (result.status === 200) {
       const response = await result.json();
-      const { data: { testId, jsonUrl } } = response;
+      const { data: { testId, jsonUrl }} = response;
       const payload = {
         uuid: testId,
         project_key: projectKey || 'ANONYMOUS',

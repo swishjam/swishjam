@@ -4,19 +4,19 @@ import { WebPageTestRunner } from '@/lib/web-page-test-runner';
 export default async (req, res) => {
   await NextCors(req, res, { methods: ['GET'], origin: '*', optionsSuccessStatus: 200 });
 
-  const { 
-    url, 
+  const {
+    url,
     label,
     projectKey,
     email,
     mobile = false,
-    includeLighthouse = true, 
-    includeVideo = true, 
-    firstViewOnly = true, 
+    includeLighthouse = true,
+    includeVideo = true,
+    firstViewOnly = true,
     includeDevToolsTimeline = true,
     includeV8Profiler = true,
   } = req.query;
-  
+
   let derivedUrl;
   let derivedLabel;
   try {
@@ -24,7 +24,7 @@ export default async (req, res) => {
     if (!pattern.test(url)) throw new Error('Invalid URL.');
     derivedUrl = url.startsWith('http') ? url : `https://${url}`;
     derivedLabel = label || `${new URL(derivedUrl).hostname} - ${new Date().toLocaleString()}}`
-  } catch(err) {
+  } catch (err) {
     console.error(err);
     return res.status(500).json({ error: `Invalid URL provided: ${url}.` });
   }
@@ -32,7 +32,7 @@ export default async (req, res) => {
   try {
     const { testId, jsonUrl } = await WebPageTestRunner.runSpeedTest({
       projectKey,
-      url: derivedUrl, 
+      url: derivedUrl,
       options: {
         label: derivedLabel,
         includeLighthouse,
@@ -45,7 +45,7 @@ export default async (req, res) => {
       }
     });
     return res.status(200).json({ testId, jsonUrl });
-  } catch(err) {
+  } catch (err) {
     console.error(err);
     return res.status(500).json({ error: 'Unable to initiate speed test.' });
   }

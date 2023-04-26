@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Logo from '@components/Logo';
 import LoadingSpinner from '@components/LoadingSpinner';
-import { SpeedTestAPI } from '@/lib/api-client/speed-test';
+import { LabTestsAPI } from '@/lib/api-client/lab-tests';
 
 export default function SpeedTest() {
   const router = useRouter();
@@ -15,12 +15,12 @@ export default function SpeedTest() {
     e.preventDefault();
     if (/^(?:\S+(?::\S*)?@)?(?:\S+(?:\.[^\s.]+)+(?:\:\d{2,5})?)(?:\/[\w#!:.?+=&%@!-/])?$/.test(urlToTest)) {
       setLoading(true);
-      const { testId, error } = await SpeedTestAPI.initiate({ url: urlToTest });
+      const { testId, error } = await LabTestsAPI.initiate({ url: urlToTest });
       if(error) {
         setLoading(false);
         setErrorMsg(error)
       } else {
-        router.push(`/speed-test/${testId}`);
+        router.push(`/lab-test/${testId}`);
       }
     } else {
       setErrorMsg('Invalid URL');
