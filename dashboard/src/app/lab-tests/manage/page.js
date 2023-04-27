@@ -34,11 +34,9 @@ export default function Manage() {
             </button>
           </div>
         </div>
-        {projectPageUrls === undefined
-          ? <LoadingState />
-          : projectPageUrls.length === 0
-            ? <EmptyState onNewConfigurationClick={() => setNewPageUrlModalIsOpen(true)} /> 
-            : <ProjectPageUrlsTable projectPageUrls={projectPageUrls} />
+        {projectPageUrls && projectPageUrls.length === 0
+          ? <EmptyState onNewConfigurationClick={() => setNewPageUrlModalIsOpen(true)} /> 
+          : <ProjectPageUrlsTable projectPageUrls={projectPageUrls} />
         }
       </main>
       <NewProjectPageUrlModal 
@@ -73,61 +71,29 @@ function ProjectPageUrlsTable({ projectPageUrls }) {
           </tr>
         </thead>
         <tbody className="divide-y divide-gray-200 bg-white">
-          {projectPageUrls.map(pageUrl => (
-            <ManageRow key={pageUrl.public_id} pageUrl={pageUrl} />
-          ))}
-        </tbody>
-      </table>
-    </div>
-  )
-}
-
-function LoadingState() {
-  return (
-    <div className='border border-gray-300 rounded-md'>
-      <table className="min-w-full divide-y divide-gray-300">
-        <thead>
-          <tr className='bg-gray-100'>
-            <th scope="col" className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900">
-              URL
-            </th>
-            <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
-              Cadence
-            </th>
-            <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
-              Status
-            </th>
-            <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
-              Created
-            </th>
-            <th scope="col" className="relative py-3.5 pl-3 pr-4">
-            </th>
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-gray-200 bg-white">
-          {Array.from({ length: 6 }).map(i => (
-            <tr key={i}>
-              <td className="whitespace-nowrap py-5 pl-4 pr-3 text-sm sm:pl-0">
-                <div className="flex items-center">
-                  <div className="ml-4">
-                    <div className="w-32 h-6 animate-pulse bg-gray-200 rounded-md"></div>
-                  </div>
-                </div>
-              </td>
-              <td className="whitespace-nowrap px-3 py-5 text-sm text-gray-500">
-                <div className="w-12 h-6 animate-pulse bg-gray-200 rounded-md"></div>
-              </td>
-              <td className="whitespace-nowrap px-3 py-5 text-sm text-gray-500">
-                <div className="w-8 h-6 animate-pulse bg-gray-200 rounded-md"></div>
-              </td>
-              <td className="whitespace-nowrap px-3 py-5 text-sm text-gray-500">
-                <div className="w-10 h-6 animate-pulse bg-gray-200 rounded-md"></div>
-              </td>
-              <td className="relative whitespace-nowrap py-5 pl-3 pr-4 text-right text-sm font-medium">
-                <div className="w-8 h-6 animate-pulse bg-gray-200 rounded-md"></div>
-              </td>
-            </tr>
-          ))}
+          {projectPageUrls 
+            ? projectPageUrls.map(pageUrl => <ManageRow key={pageUrl.public_id} pageUrl={pageUrl} />)
+            : (
+              Array.from({ length: 6}).map(i => (
+                <tr key={i}>
+                  <td className="whitespace-nowrap py-5 pl-4 pr-3 text-sm sm:pl-0">
+                    <div className="ml-4 w-32 h-6 animate-pulse bg-gray-200 rounded-md"></div>
+                  </td>
+                  <td className="whitespace-nowrap px-3 py-5 text-sm text-gray-500">
+                    <div className="w-12 h-6 animate-pulse bg-gray-200 rounded-md"></div>
+                  </td>
+                  <td className="whitespace-nowrap px-3 py-5 text-sm text-gray-500">
+                    <div className="w-8 h-6 animate-pulse bg-gray-200 rounded-md"></div>
+                  </td>
+                  <td className="whitespace-nowrap px-3 py-5 text-sm text-gray-500">
+                    <div className="w-10 h-6 animate-pulse bg-gray-200 rounded-md"></div>
+                  </td>
+                  <td className="relative whitespace-nowrap py-5 pl-3 pr-4 text-right text-sm font-medium">
+                    <div className="w-8 h-6 animate-pulse bg-gray-200 rounded-md"></div>
+                  </td>
+                </tr>
+              ))
+            )}
         </tbody>
       </table>
     </div>
