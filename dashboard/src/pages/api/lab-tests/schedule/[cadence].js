@@ -1,5 +1,5 @@
 import { WebPageTestRunner } from "@/lib/web-page-test-runner";
-import { createServerSupabaseClient } from '@supabase/auth-helpers-nextjs';
+import { createClient } from "@supabase/supabase-js";
 
 const VALID_CADENCES = ["5-minutes", "15-minutes", "30-minutes", "1-hour", "3-hours", "6-hours", "12-hours", "1-day"];
 
@@ -10,7 +10,7 @@ export default async (req, res) => {
   } else if (!VALID_CADENCES.includes(cadence)) {
     return res.status(400).json({ error: "Invalid cadence" });
   } else {
-    const supabase = createServerSupabaseClient({ req, res });
+    const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.SUPABASE_GOD_MODE_KEY);
     const { data, error } = await supabase
                                     .from('project_page_urls')
                                     .select(`full_url, projects:project_id (public_id)`)
