@@ -15,13 +15,7 @@ export class API {
   }
 
   static _params(data) {
-    const currentProject = localStorage.getItem('currentProject')
-    if (currentProject) {
-      const { public_id: projectKey } = JSON.parse(currentProject);
-      if (!projectKey) throw new Error('No current project key found');
-      return { projectKey, ...data };
-    } else {
-      throw new Error('No current project found');
-    }
+    const { public_id: projectKey } = JSON.parse(localStorage.getItem('currentProject') || '{}');
+    return { projectKey, ...data };
   }
 }

@@ -41,6 +41,57 @@ const TableRowHeader = ({title, desc}) => {
   )
 }
 
+const TableRowUrl = ({page}) => {
+  const { getArrowProps, getTooltipProps, setTooltipRef, setTriggerRef, visible } = usePopperTooltip({ followCursor: false, trigger: 'hover' });
+  
+  const getMetric = (metrics, key) => {
+    const metric = metrics.find(m => m.name.toLowerCase() === key.toLowerCase());
+    if (metric) return metric.value
+    return undefined;
+  }
+
+  return (
+    <>
+    <tr className="px-4" key={page.urlPath}>
+      <td className="cursor-default whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6 lg:pl-8 max-w-xs truncate overflow-hidden">
+        {page?.urlPath.length > 60 ? (<span ref={setTriggerRef}>{page.urlPath}</span>) : page.urlPath}
+      </td>
+      <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+        {page.numPageViews.toLocaleString()}
+      </td>
+      <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+        <CwvBadge metric={getMetric(page.pageMetrics, 'LCP')} cwv={'LCP'} />
+      </td>
+      <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+        <CwvBadge metric={getMetric(page.pageMetrics, 'FID')} cwv={'FID'} />
+      </td>
+      <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+        <CwvBadge metric={getMetric(page.pageMetrics, 'CLS')} cwv={'CLS'} />
+      </td>
+      <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+        <CwvBadge metric={getMetric(page.pageMetrics, 'INP')} cwv={'INP'} />
+      </td>
+      <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+        <CwvBadge metric={getMetric(page.pageMetrics, 'FCP')} cwv={'FCP'} />
+      </td>
+      <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+        <CwvBadge metric={getMetric(page.pageMetrics, 'TTFB')} cwv={'TTFB'} />
+      </td>
+    </tr>
+      {
+        visible && (
+          <>
+            <div ref={setTooltipRef} {...getTooltipProps({ className: 'tooltip-container' })}>
+              {page.urlPath}
+              <div {...getArrowProps({ className: 'tooltip-arrow' })} />
+            </div>
+          </>
+        )
+      }
+    </>
+  ) 
+}
+
 const CwvBadge = ({metric, cwv}) => {
   if(!metric) {return <></>} 
   
@@ -63,11 +114,6 @@ const CwvBadge = ({metric, cwv}) => {
 }
 
 const TableData = ({ data = []}) => {
-  const getMetric = (metrics, key) => {
-    const metric = metrics.find(m => m.name.toLowerCase() === key.toLowerCase());
-    if (metric) return metric.value
-    return undefined;
-  }
   
   return (
     <div className="mt-8 flow-root">
@@ -88,32 +134,7 @@ const TableData = ({ data = []}) => {
             </thead>
             <tbody className="divide-y divide-gray-200 bg-white">
               {data ? data.map((page) => (
-                <tr className="px-4" key={page.urlPath}>
-                  <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6 lg:pl-8">
-                    {page.urlPath}
-                  </td>
-                  <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                      {page.numPageViews.toLocaleString()}
-                  </td>
-                  <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                    <CwvBadge metric={getMetric(page.pageMetrics, 'LCP')} cwv={'LCP'}/>
-                  </td>
-                  <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                    <CwvBadge metric={getMetric(page.pageMetrics, 'FID')} cwv={'FID'}/>
-                  </td>
-                  <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                    <CwvBadge metric={getMetric(page.pageMetrics, 'CLS')} cwv={'CLS'}/> 
-                  </td>
-                  <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                    <CwvBadge metric={getMetric(page.pageMetrics, 'INP')} cwv={'INP'}/> 
-                  </td>
-                  <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                    <CwvBadge metric={getMetric(page.pageMetrics, 'FCP')} cwv={'FCP'}/> 
-                  </td>
-                  <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                    <CwvBadge metric={getMetric(page.pageMetrics, 'TTFB')} cwv={'TTFB'}/> 
-                  </td>
-                </tr>
+                <TableRowUrl page={page} /> 
               )):
               loadingSpinner()
               }
