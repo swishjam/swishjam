@@ -53,7 +53,7 @@ export default function SiteSwitcher(props) {
                         className="mr-3 h-5 w-5 text-gray-400 group-hover:text-gray-500"
                         aria-hidden="true"
                       />
-                      {project.name} 
+                      <span className='max-w-lg truncate'>{project.name} </span>
                     </div>
                   )}
                 </Menu.Item>

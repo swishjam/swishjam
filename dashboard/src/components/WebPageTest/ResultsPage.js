@@ -11,7 +11,6 @@ import HeaderPublic from '@/components/WebPageTest/HeaderPublic';
 const navigation = [{ name: 'Real User Data' }, { name: 'Lighthouse Audit' }];
 
 export default function ResultsPage({ webPageTestResults, auditedUrl }) {
-  const testDate = DateTime.fromSeconds(webPageTestResults?.results?.data?.completed || 0).toLocaleString(DateTime.DATETIME_MED)
   const [currentTabName, setCurrentTabName] = useState('Real User Data');
 
   return (
@@ -87,7 +86,7 @@ export default function ResultsPage({ webPageTestResults, auditedUrl }) {
 
         <main className="-mt-32">
           <div className="px-2 sm:px-4 lg:px-8 mx-auto max-w-7xl min-h-[70vh]">
-            <div className='border pb-12 bg-white rounded-lg'>
+            <div className='border pb-12 bg-white rounded-lg overflow-hidden'>
               {currentTabName === 'Lighthouse Audit' 
                 ? <LighthouseSection webPageTestResults={webPageTestResults}/>
                 : currentTabName === 'Real User Data' 
