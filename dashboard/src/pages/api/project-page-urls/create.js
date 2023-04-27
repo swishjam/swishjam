@@ -9,7 +9,11 @@ export default async (req, res) => {
   return await runQueryIfUserHasAccess({ req, res, projectKey }, async ({ supabaseClient, currentProject }) => {
     if (!url.startsWith('http')) url = `https://${url}`;
 
-    const existingPageUrl = await supabaseClient.from('project_page_urls').select().eq('full_url', url);
+    const existingPageUrl = await supabaseClient
+                                    .from('project_page_urls')
+                                    .select()
+                                    .eq('full_url', url)
+                                    .eq('project_id', currentProject.id);
     console.log(existingPageUrl)
     if (existingPageUrl.data.length > 0) return res.status(400).json({ error: `${url} page URL already exists.` });
 
