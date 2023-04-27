@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Logo from '@components/Logo';
 import LoadingSpinner from '@components/LoadingSpinner';
-import { SpeedTestAPI } from '@/lib/api-client/speed-test';
+import { LabTestsAPI } from '@/lib/api-client/lab-tests';
 
 export default function SpeedTest() {
   const router = useRouter();
@@ -15,12 +15,12 @@ export default function SpeedTest() {
     e.preventDefault();
     if (/^(?:\S+(?::\S*)?@)?(?:\S+(?:\.[^\s.]+)+(?:\:\d{2,5})?)(?:\/[\w#!:.?+=&%@!-/])?$/.test(urlToTest)) {
       setLoading(true);
-      const { testId, error } = await SpeedTestAPI.initiate({ url: urlToTest });
+      const { testId, error } = await LabTestsAPI.initiate({ url: urlToTest });
       if(error) {
         setLoading(false);
         setErrorMsg(error)
       } else {
-        router.push(`/speed-test/${testId}`);
+        router.push(`/lab-test/${testId}`);
       }
     } else {
       setErrorMsg('Invalid URL');
@@ -56,10 +56,11 @@ export default function SpeedTest() {
                 </div>
               </div>
             </div>
-            {errorMsg && <div className="text-red-600 text-sm mt-4">{errorMsg}</div>}
+            {errorMsg && !loading && <div className="text-red-600 text-sm mt-4">{errorMsg}</div>}
             <button
               type="submit"
-              className="w-full flex justify-center py-2 px-4 mt-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-swishjam hover:bg-swishjam-dark focus:outline-none focus:ring-2 focus:ring-offse6-2"
+              className={`w-full flex justify-center py-2 px-4 mt-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white focus:outline-none focus:ring-2 ${loading ? 'bg-gray-400' : 'bg-swishjam hover:bg-swishjam-dark'}`}
+              disabled={loading}
             >
               {loading ? <div className="h-6"><LoadingSpinner size={6} color='white' /></div> : 'Run page speed audit'}
             </button>

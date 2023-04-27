@@ -1,0 +1,36 @@
+{
+  "crons": [
+    {
+      "path": "/api/lab-tests/schedule/5-minutes?k=zKTwqDjq4cQQ6ycsDEQSjs5RapOg4Zpl",
+      "schedule": "*/5 * * * *"
+    },
+    {
+      "path": "/api/lab-tests/schedule/15-minutes?k=zKTwqDjq4cQQ6ycsDEQSjs5RapOg4Zpl",
+      "schedule": "*/15 * * * *"
+    },
+    {
+      "path": "/api/lab-tests/schedule/30-minutes?k=zKTwqDjq4cQQ6ycsDEQSjs5RapOg4Zpl",
+      "schedule": "*/30 * * * *"
+    },
+    {
+      "path": "/api/lab-tests/schedule/1-hour?k=zKTwqDjq4cQQ6ycsDEQSjs5RapOg4Zpl",
+      "schedule": "0 * * * *"
+    },
+    {
+      "path": "/api/lab-tests/schedule/3-hours?k=zKTwqDjq4cQQ6ycsDEQSjs5RapOg4Zpl",
+      "schedule": "0 */3 * * *"
+    },
+    {
+      "path": "/api/lab-tests/schedule/6-hours?k=zKTwqDjq4cQQ6ycsDEQSjs5RapOg4Zpl",
+      "schedule": "0 */6 * * *"
+    },
+    {
+      "path": "/api/lab-tests/schedule/12-hours?k=zKTwqDjq4cQQ6ycsDEQSjs5RapOg4Zpl",
+      "schedule": "0 */12 * * *"
+    },
+    {
+      "path": "/api/lab-tests/schedule/1-day?k=zKTwqDjq4cQQ6ycsDEQSjs5RapOg4Zpl",
+      "schedule": "0 0 * * *"
+    }
+  ]
+}

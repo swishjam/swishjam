@@ -2,9 +2,15 @@ import { PieChart, Pie, Sector, Cell } from 'recharts';
 
 const renderActiveShape = (props) => {
   const { cx, cy, innerRadius, outerRadius, startAngle, endAngle, fill, payload, size, sizeMultiplier } = props;
+  const textSize = {
+    large: 'text-5xl',
+    medium: 'text-3xl',
+    small: 'text-lg',
+    tiny: 'text-xs'
+  }[size]
   return (
     <g>
-      <text className={`${size === 'large' ? 'text-5xl' : size === 'medium' ? 'text-3xl' : 'text-lg'}`} x={cx} y={cy} dy={16 * sizeMultiplier} textAnchor="middle" fill={fill}>
+      <text className={textSize} x={cx} y={cy} dy={16 * sizeMultiplier} textAnchor="middle" fill={fill}>
         {payload.value}
       </text>
       <Sector
@@ -24,7 +30,8 @@ export default function LighthouseScore({ score, size = 'large' }) {
   const sizeMultiplier = {
     large: 1,
     medium: 0.75,
-    small: 0.5
+    small: 0.5,
+    tiny: 0.25
   }[size] || 1;
   const data = [100 - score, score].map(value => ({ value, name: 'Lighthouse Score' }) );
   const COLORS = ['#f1f5f9', (score >= 90 ? '#10b981' : (score >= 50 ? '#eab308' : '#f43f5e'))];
