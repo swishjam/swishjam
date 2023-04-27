@@ -4,6 +4,7 @@ export class LabTests {
   static async getAll({ projectKey, urlHost, urlPath, limit = 50 }) {
     if (!projectKey) throw new Error('projectKey is required');
     if (!urlHost) throw new Error('urlHost is required');
+    console.log(urlPath)
     if (urlPath) {
       const query = `
         SELECT

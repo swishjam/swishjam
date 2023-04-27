@@ -1,9 +1,7 @@
 import {  useState } from 'react';
 import { Disclosure } from '@headlessui/react'
 import { Bars3Icon, XMarkIcon, CursorArrowRippleIcon, BeakerIcon, GlobeAltIcon } from '@heroicons/react/24/outline'
-import { DateTime } from "luxon";
 import Link from 'next/link';
-import { CalendarIcon, MapPinIcon, BoltIcon } from '@heroicons/react/20/solid'
 import LighthouseSection from '@components/WebPageTest/LighthouseSection'
 import CruxData from '../CruxData/CruxData';
 import HeaderPublic from '@/components/WebPageTest/HeaderPublic';

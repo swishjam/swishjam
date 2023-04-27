@@ -18,6 +18,7 @@ export default function LabTests() {
   const [labTests, setLabTests] = useState();
 
   const getLabDataForUrlHostAndPath = (urlHost, urlPath) => {
+    setLabTests();
     const params = { urlHost, urlPath };
     if (urlPath === 'All Paths' || !urlPath) delete params.urlPath;
     LabTestsAPI.getAll(params).then(setLabTests);
@@ -70,14 +71,14 @@ export default function LabTests() {
           ) : (
             <>
               <div className='grid grid-cols-3 gap-4 mb-4'>
-                <PerformanceMetricCard labTests={labTests} title='Largest Contentful Paint' metric='largest_contentful_paint' />
-                <PerformanceMetricCard labTests={labTests} title='Cumulative Layout Shift' metric='cumulative_layout_shift' />
-                <PerformanceMetricCard labTests={labTests} title='First Input Delay' metric='max_first_input_delay' />
+                <PerformanceMetricCard labTests={labTests} title='Largest Contentful Paint' metric='largest_contentful_paint' color='lime' />
+                <PerformanceMetricCard labTests={labTests} title='Cumulative Layout Shift' metric='cumulative_layout_shift' color='blue' />
+                <PerformanceMetricCard labTests={labTests} title='First Input Delay' metric='max_first_input_delay' color='emerald' />
               </div>
               <div className='grid grid-cols-3 gap-4 mb-4'>
-                <PerformanceMetricCard labTests={labTests} title='Time to First Byte' metric='time_to_first_byte' />
-                <PerformanceMetricCard labTests={labTests} title='Total Blocking Time' metric='total_blocking_time' />
-                <PerformanceMetricCard labTests={labTests} title='Speed Index' metric='speed_index' />
+                <PerformanceMetricCard labTests={labTests} title='Time to First Byte' metric='time_to_first_byte' color='cyan' />
+                <PerformanceMetricCard labTests={labTests} title='Total Blocking Time' metric='total_blocking_time' color='teal' />
+                <PerformanceMetricCard labTests={labTests} title='Speed Index' metric='speed_index' color='fuchsia' />
               </div>
               <LighthouseCard labTests={labTests} />
             </>
