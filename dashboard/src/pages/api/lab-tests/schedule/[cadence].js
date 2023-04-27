@@ -20,8 +20,9 @@ export default async (req, res) => {
       console.error(error);
       return res.status(500).json({ error: "Error fetching lab test configurations" });
     } else {
+      console.log(`Enqueuing ${data.length} lab tests.`);
       await Promise.all(
-        data.map(({ url, projects: { public_id } }) => WebPageTestRunner.runSpeedTest({ url, projectKey: public_id }))
+        data.map(({ full_url, projects: { public_id } }) => WebPageTestRunner.runSpeedTest({ url: full_url, projectKey: public_id }))
       );
       return res.status(200).json({ success: true, message: `Enqueued ${data.length} lab tests.` });
     }
