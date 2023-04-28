@@ -13,6 +13,7 @@
   "dependencies": {
     "@headlessui/react": "^1.7.12",
     "@heroicons/react": "^2.0.16",
+    "@sentry/nextjs": "^7.50.0",
     "@supabase/auth-helpers-nextjs": "^0.5.2",
     "@supabase/supabase-js": "^2.2.3",
     "@swishjam/swishjam": "^0.0.247",
