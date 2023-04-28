@@ -88,7 +88,7 @@ export default function UpdatePageUrlModal({ projectPageUrl, onClose, isOpen, on
                           </Dialog.Title>
                           <div className="mt-2">
                             <p className="text-sm text-gray-500">
-                              It is currently set to run every {projectPageUrl.lab_test_cadence.split('-').join(' ')} on {projectPageUrl.full_url}.
+                              {projectPageUrl.lab_test_cadence && `It is currently set to run every ${projectPageUrl.lab_test_cadence.split('-').join(' ')} on ${projectPageUrl.full_url}.`}
                             </p>
                           </div>
                           <div className='mt-6'>
@@ -117,6 +117,7 @@ export default function UpdatePageUrlModal({ projectPageUrl, onClose, isOpen, on
                               value={cadence}
                               onChange={e => setCadence(e.target.value)}
                             >
+                              <option value='never'>Never</option>
                               <option value='5-minutes'>Every 5 minutes</option>
                               <option value='15-minutes'>Every 15 minutes</option>
                               <option value='30-minutes'>Every 30 minutes</option>

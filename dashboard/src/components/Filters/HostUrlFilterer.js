@@ -2,7 +2,8 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@components/AuthProvider';
 import { PageUrlsApi } from '@/lib/api-client/page-urls';
-import { LabTestsAPI } from '@/lib/api-client/lab-tests';
+// import { LabTestsAPI } from '@/lib/api-client/lab-tests';
+import { ProjectPageUrlsAPI } from '@/lib/api-client/project-page-urls';
 import { FunnelIcon } from '@heroicons/react/24/outline';
 import Dropdown from '../Dropdown';
 
@@ -24,7 +25,7 @@ function tryToFindDefaultHost(urlHosts) {
 
 export default function HostUrlFilterer({ onHostSelected, onNoHostsFound, urlHostAPI = 'rum' }) {
   if (!['rum', 'lab'].includes(urlHostAPI)) throw new Error('urlHostAPI must be rum or lab');
-  const UrlHostAPIInterface = { rum: PageUrlsApi, lab: LabTestsAPI }[urlHostAPI];
+  const UrlHostAPIInterface = { rum: PageUrlsApi, lab: ProjectPageUrlsAPI }[urlHostAPI];
   const { currentProject } = useAuth();
   const [filterOptions, setFilterOptions] = useState();
   const [selectedOption, setSelectedOption] = useState();
@@ -34,7 +35,6 @@ export default function HostUrlFilterer({ onHostSelected, onNoHostsFound, urlHos
       setFilterOptions();
       setSelectedOption();
       UrlHostAPIInterface.getUniqueHosts().then(urlHosts => {
-        console.log(urlHosts);
         setFilterOptions(urlHosts);
         const defaultHost = tryToFindDefaultHost(urlHosts);
         if (defaultHost) {

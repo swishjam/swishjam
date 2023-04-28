@@ -63,16 +63,16 @@ export default function ManageRow({ pageUrl }) {
        </div>
      </td>
      <td className="whitespace-nowrap px-3 py-5 text-sm text-gray-500">
-       <div className="text-gray-900">Every {CADENCE_TO_HUMAN_READABLE[cadence]}</div>
+       <div className="text-gray-900">{cadence ? `Every ${CADENCE_TO_HUMAN_READABLE[cadence]}` : 'Never'}</div>
      </td>
      <td className="whitespace-nowrap px-3 py-5 text-sm text-gray-500">
        <span
          className={`
-            ${isEnabled ? 'bg-green-50 text-green-700 ring-green-600/20' : 'bg-red-50 text-red-700 ring-red-600/20'} 
+            ${cadence && isEnabled ? 'bg-green-50 text-green-700 ring-green-600/20' : 'bg-red-50 text-red-700 ring-red-600/20'} 
             inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset
           `}
-       >
-         {isEnabled ? 'Active' : 'Disabled'}
+        >
+         {cadence && isEnabled ? 'Active' : 'Disabled'}
        </span>
      </td>
      <td className="whitespace-nowrap px-3 py-5 text-sm text-gray-500">
@@ -106,12 +106,12 @@ export default function ManageRow({ pageUrl }) {
                    <PencilSquareIcon className='w-4 h-4 inline-block mr-2' /> Edit
                  </button>
                </Menu.Item>
-               <Menu.Item>
+               {cadence && <Menu.Item>
                  <button
                    className={`
-                              ${isUpdating ? 'text-gray-600 bg-gray-50' : isEnabled ? 'text-red-600 hover:bg-red-50' : 'text-green-600 hover:bg-green-50'} 
-                              flex items-center w-full px-4 py-2 text-left text-sm hover:bg-gray-50
-                            `}
+                      ${isUpdating ? 'text-gray-600 bg-gray-50' : isEnabled ? 'text-red-600 hover:bg-red-50' : 'text-green-600 hover:bg-green-50'} 
+                      flex items-center w-full px-4 py-2 text-left text-sm hover:bg-gray-50
+                    `}
                     onClick={toggleLabTestsEnabled}
                     disabled={isUpdating}
                  >
@@ -122,7 +122,7 @@ export default function ManageRow({ pageUrl }) {
                     </span>
                    {isUpdating && <span className='ml-2'><LoadingSpinner size={4} /></span>}
                  </button>
-               </Menu.Item>
+               </Menu.Item>}
              </div>
            </Menu.Items>
          </Transition>

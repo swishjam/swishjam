@@ -4,7 +4,8 @@ import { useAuth } from '@components/AuthProvider';
 import { PageUrlsApi } from '@/lib/api-client/page-urls';
 import { FunnelIcon } from '@heroicons/react/24/outline'
 import Dropdown from '../Dropdown'
-import { LabTestsAPI } from '@/lib/api-client/lab-tests';
+// import { LabTestsAPI } from '@/lib/api-client/lab-tests';
+import { ProjectPageUrlsAPI } from '@/lib/api-client/project-page-urls';
 
 function tryToFindDefaultPath(urlPaths) {
   let autoSelectedPathUrl;
@@ -21,7 +22,7 @@ function tryToFindDefaultPath(urlPaths) {
 
 export default function PathUrlFilterer({ urlHost, onPathSelected, includeAllPathsSelection = false, urlPathAPI = 'rum' }) {
   if (!['rum', 'lab'].includes(urlPathAPI)) throw new Error('urlHostAPI must be rum or lab');
-  const UrlPathAPIInterface = { rum: PageUrlsApi, lab: LabTestsAPI }[urlPathAPI];
+  const UrlPathAPIInterface = { rum: PageUrlsApi, lab: ProjectPageUrlsAPI }[urlPathAPI];
   const { currentProject } = useAuth();
   const [filterOptions, setFilterOptions] = useState();
   const [selectedOption, setSelectedOption] = useState();

@@ -22,7 +22,7 @@ export default function PerformanceMetricCard({ labTests, title, metric, color }
     }));
   const currentValue = formattedLabTestsData[formattedLabTestsData.length - 1]?.[title];
   const previousValue = formattedLabTestsData[formattedLabTestsData.length - 2]?.[title];
-  const percentChange = typeof previousValue === undefined ? undefined : ((currentValue - previousValue) / previousValue) * 100;
+  const percentChange = typeof previousValue === undefined || parseFloat(previousValue) === 0 ? undefined : ((currentValue - previousValue) / previousValue) * 100;
   return (
     <div className="bg-white shadow overflow-hidden rounded-md border border-gray-200 p-4">
       <div className='flex items-center justify-between mb-4'>
@@ -30,7 +30,7 @@ export default function PerformanceMetricCard({ labTests, title, metric, color }
         <div>
           {labTests === undefined 
             ? <div className='h-6 w-8 animate-pulse bg-gray-200 rounded-md' />
-            : <h3 className='inline-block text-md font-medium'>{typeof currentValue === 'undefined' ? '--' : formattedMetric(currentValue)}</h3>
+            : <h3 className='inline-block text-md font-medium'>{typeof currentValue === 'undefined' ? '--' : formattedMetric(currentValue, metric)}</h3>
           }
           {typeof percentChange === 'number' && percentChange.toString() !== 'NaN' && (
             <>
@@ -44,7 +44,7 @@ export default function PerformanceMetricCard({ labTests, title, metric, color }
                 <>
                   <div ref={setTooltipRef} {...getTooltipProps({ className: 'tooltip-container max-w-[200px]' })}>
                     <div className='text-xs text-center'>
-                      The most recent lab test resulted in a {title} of <span className='font-medium'>{formattedMetric(currentValue)}</span>, {percentChange > 0 ? 'an increase' : 'a decrease'} of <span className='font-medium'>{percentChange.toFixed(2)}%</span> from the previous lab test of <span className='font-medium'>{formattedMetric(previousValue)}</span>.
+                      The most recent lab test resulted in a {title} of <span className='font-medium'>{formattedMetric(currentValue, metric)}</span>, {percentChange > 0 ? 'an increase' : 'a decrease'} of <span className='font-medium'>{percentChange.toFixed(2)}%</span> from the previous lab test of <span className='font-medium'>{formattedMetric(previousValue, metric)}</span>.
                     </div>
                     <div {...getArrowProps({ className: 'tooltip-arrow' })} />
                   </div>
