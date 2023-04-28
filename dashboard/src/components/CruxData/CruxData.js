@@ -35,7 +35,6 @@ const getCruxData = async (url, formFactor) => {
     ]
   }
 
-  console.log(`Getting ${url} for ${formFactor}...`)
   return fetch("https://chromeuxreport.googleapis.com/v1/records:queryHistoryRecord?key=" + CRUX_API_KEY, {
     method: "POST",
     headers: { "Content-Type": "application/json" },

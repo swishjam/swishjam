@@ -21,7 +21,7 @@ export default function CruxDataPage() {
                                     subTitle='Once added, we will visualize CrUX data if available.'
                                     onClose={() => setDisplayNewPageUrlModal(false)} 
                                     isOpen={displayNewPageUrlModal} 
-                                    onNewConfiguration={newConfig => console.log(newConfig)} 
+                                    onNewConfiguration={_newConfig => {}} 
                                     defaultLabTestCadence='never'
                                     successMessage='URL added successfully.'
                                   />}
@@ -34,10 +34,7 @@ export default function CruxDataPage() {
             {!hasNoData && <HostUrlFilterer
               onNoHostsFound={() => setHasNoData(true)}
               urlHostAPI='lab'
-              onHostSelected={hostUrl => {
-                setHasNoData(true)
-                // setHostUrlToFilterOn(hostUrl)
-              }}
+              onHostSelected={hostUrl => setHostUrlToFilterOn(hostUrl)}
             />}
             <div className='inline-block ml-2'>
               {!hasNoData && <PathUrlFilterer
