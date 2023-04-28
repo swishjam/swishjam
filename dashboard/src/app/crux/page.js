@@ -9,10 +9,10 @@ import NewPageUrlModal from '@/components/ProjectPageUrls/NewModal'
 import { ChartBarIcon } from '@heroicons/react/24/outline'
 
 export default function CruxDataPage() {
-  const [hasNoData, setHasNoData] = useState(true)
   const [hostUrlToFilterOn, setHostUrlToFilterOn] = useState();
   const [urlForCruxData, setUrlForCruxData] = useState();
   const [displayNewPageUrlModal, setDisplayNewPageUrlModal] = useState(false)
+  const [hasNoData, setHasNoData] = useState(false)
 
   return (
     <AuthenticatedView>
