@@ -4,7 +4,6 @@
 import * as Sentry from '@sentry/nextjs';
 
 if (process.env.NEXT_PUBLIC_SENTRY_DSN) {
-  console.log(`Initing Sentry with DSN: ${process.env.NEXT_PUBLIC_SENTRY_DSN}`);
   Sentry.init({
     dsn: process.env.NEXT_PUBLIC_SENTRY_DSN,
     // Adjust this value in production, or use tracesSampler for greater control
@@ -14,6 +13,4 @@ if (process.env.NEXT_PUBLIC_SENTRY_DSN) {
     // `release` value here - use the environment variable `SENTRY_RELEASE`, so
     // that it will also get attached to your source maps
   });
-} else {
-  console.log('Not initing Sentry because no DSN was found.');
 }
