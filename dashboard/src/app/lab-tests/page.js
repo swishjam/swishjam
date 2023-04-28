@@ -92,8 +92,13 @@ export default function LabTests() {
           </div>
           <div className={`w-full flex items-center justify-end ${hasNoData ? 'hidden' : ''}`}>
             <HostUrlFilterer 
-              onNoHostsFound={() => setHasNoData(true)}
               urlHostAPI='lab'
+              onNoHostsFound={() => setHasNoData(true)}
+              onHostsFetched={() => {
+                setHasNoData(false);
+                setLabTests();
+                setHostUrlToFilterOn();
+              }}
               onHostSelected={hostUrl => {
                 setHasNoData(false)
                 setLabTests();

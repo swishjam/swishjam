@@ -23,7 +23,7 @@ function tryToFindDefaultHost(urlHosts) {
   return autoSelectedHostUrl;
 }
 
-export default function HostUrlFilterer({ onHostSelected, onNoHostsFound, urlHostAPI = 'rum' }) {
+export default function HostUrlFilterer({ onHostSelected, onNoHostsFound, onHostsFetched, urlHostAPI = 'rum' }) {
   if (!['rum', 'lab'].includes(urlHostAPI)) throw new Error('urlHostAPI must be rum or lab');
   const UrlHostAPIInterface = { rum: PageUrlsApi, lab: ProjectPageUrlsAPI }[urlHostAPI];
   const { currentProject } = useAuth();
@@ -32,6 +32,7 @@ export default function HostUrlFilterer({ onHostSelected, onNoHostsFound, urlHos
 
   useEffect(() => {
     if (currentProject) {
+      onHostsFetched && onHostsFetched();
       setFilterOptions();
       setSelectedOption();
       UrlHostAPIInterface.getUniqueHosts().then(urlHosts => {
