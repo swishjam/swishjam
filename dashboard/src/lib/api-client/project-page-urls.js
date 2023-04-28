@@ -23,7 +23,9 @@ export class ProjectPageUrlsAPI extends API {
   }
 
   static async create({ url, cadence, enabled }) {
-    return await API.post('/api/project-page-urls/create', { url, labTestCadence: cadence, labTestsEnabled: enabled });
+    const params = { url, labTestCadence: cadence, labTestsEnabled: enabled };
+    if (!cadence) delete params.labTestCadence;
+    return await API.post('/api/project-page-urls/create', params);
   }
 
   static async update({ id, url, cadence, enabled }) {

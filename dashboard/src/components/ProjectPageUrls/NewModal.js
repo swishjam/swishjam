@@ -4,9 +4,17 @@ import { ProjectPageUrlsAPI } from "@/lib/api-client/project-page-urls";
 import { CheckCircleIcon, ExclamationTriangleIcon, BeakerIcon, XMarkIcon, LinkIcon } from '@heroicons/react/24/outline'
 import LoadingSpinner from "@/components/LoadingSpinner";
 
-export default function NewPageUrlModal({ onClose, isOpen, onNewConfiguration }) {
+export default function NewPageUrlModal({ 
+  title, 
+  subTitle, 
+  defaultLabTestCadence = '30-minutes', 
+  successMessage, 
+  onClose, 
+  isOpen, 
+  onNewConfiguration 
+}) {
   const [url, setUrl] = useState();
-  const [cadence, setCadence] = useState('5-minutes');
+  const [cadence, setCadence] = useState(defaultLabTestCadence);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState();
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
@@ -15,7 +23,11 @@ export default function NewPageUrlModal({ onClose, isOpen, onNewConfiguration })
     e.preventDefault();
     setError();
     setLoading(true);
-    const { record, error } = await ProjectPageUrlsAPI.create({ url, cadence, enabled: true });
+    const { record, error } = await ProjectPageUrlsAPI.create({ 
+      url, 
+      cadence: cadence === 'never' ? undefined : cadence, 
+      enabled: true 
+    });
     setLoading(false);
     if (error) {
       setError(error);
@@ -68,7 +80,7 @@ export default function NewPageUrlModal({ onClose, isOpen, onNewConfiguration })
                   ? (
                     <div className='text-center'>
                       <CheckCircleIcon className='h-16 w-16 mx-auto text-green-500 bg-green-100 rounded-full' />
-                      <h3 className="text-lg text-gray-900 text-center mt-3">Lab test added.</h3>
+                      <h3 className="text-lg text-gray-900 text-center mt-3">{successMessage || 'Lab test added.'}</h3>
                       <button
                         className="transition mt-3 duration-300 inline-flex w-full justify-center rounded-md bg-swishjam px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-swishjam-dark sm:w-auto"
                         onClick={() => setShowSuccessMessage(false)}
@@ -84,11 +96,11 @@ export default function NewPageUrlModal({ onClose, isOpen, onNewConfiguration })
                         </div>
                         <div className="mt-3 text-center sm:ml-4 sm:mt-0 sm:text-left">
                           <Dialog.Title as="h3" className="text-base font-semibold leading-6 text-gray-900">
-                            Configure new lab test
+                            {title || 'Configure new lab test'}
                           </Dialog.Title>
                           <div className="mt-2">
                             <p className="text-sm text-gray-500">
-                              Specify the URL, and the cadence to run a lab test against it.
+                              {subTitle || 'Specify the URL, and the cadence to run a lab test against it.'}
                             </p>
                           </div>
                           <div className='mt-6'>
@@ -110,13 +122,14 @@ export default function NewPageUrlModal({ onClose, isOpen, onNewConfiguration })
                           </div>
                           <div className='mt-2'>
                             <label htmlFor="location" className="block text-sm font-medium leading-6 text-gray-900">
-                              Frequency
+                              Lab Test Frequency
                             </label>
                             <select
                               className="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm sm:leading-6 disabled:cursor-not-allowed disabled:bg-gray-50 disabled:text-gray-500 disabled:ring-gray-200"
                               value={cadence}
                               onChange={e => setCadence(e.target.value)}
                             >
+                              <option value='never'>Never</option>
                               <option value='5-minutes'>Every 5 minutes</option>
                               <option value='15-minutes'>Every 15 minutes</option>
                               <option value='30-minutes'>Every 30 minutes</option>
