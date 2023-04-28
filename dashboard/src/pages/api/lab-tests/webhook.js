@@ -109,6 +109,7 @@ export default async (req, res) => {
           console.error(`Cannot find record for synthetic result ${id}`);
           return res.status(500).json({ error: 'Unable to capture lab test result.' });
         } else {
+          console.log(`Successfully captured lab test result for ${id}.`);
           return res.status(200).json({ message: `Updated lab test ${id} in ${(Date.now() - start) / 1_000} seconds.` });
         }
       }

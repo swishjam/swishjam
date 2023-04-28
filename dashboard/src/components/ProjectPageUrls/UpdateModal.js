@@ -21,7 +21,6 @@ export default function UpdatePageUrlModal({ projectPageUrl, onClose, isOpen, on
     if (error) {
       setError(error);
     } else {
-      setUrl();
       setShowSuccessMessage(true)
       onUpdate && onUpdate(record);
     }
