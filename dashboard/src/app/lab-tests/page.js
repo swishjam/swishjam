@@ -90,22 +90,23 @@ export default function LabTests() {
           <div>
             <h1 className="text-lg font-medium">Lab tests for {currentProject?.name}</h1>
           </div>
-          <div className="w-full flex items-center justify-end">
-            {!hasNoData && <HostUrlFilterer 
+          <div className={`w-full flex items-center justify-end ${hasNoData ? 'hidden' : ''}`}>
+            <HostUrlFilterer 
               onNoHostsFound={() => setHasNoData(true)}
               urlHostAPI='lab'
               onHostSelected={hostUrl => {
+                setHasNoData(false)
                 setLabTests();
                 setHostUrlToFilterOn(hostUrl);
               }} 
-            />}
+            />
             <div className='inline-block ml-2'>
-              {!hasNoData && <PathUrlFilterer 
+              <PathUrlFilterer 
                 urlHost={hostUrlToFilterOn}
                 urlPathAPI='lab'
                 includeAllPathsSelection={true}
                 onPathSelected={urlPath => getLabDataForUrlHostAndPath(hostUrlToFilterOn, urlPath)} 
-              />}
+              />
             </div>
             <div className='inline-block ml-2'>
               <Link href='/lab-tests/manage'>
