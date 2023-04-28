@@ -21,53 +21,59 @@ const cwvBoundsForMetric = metric => {
   }[metric]]
 }
 
-export default function CruxData({ url, onLighthouseAuditNavigation }) {
+const getCruxData = async (url, formFactor) => {
+  const body = {
+    url,
+    formFactor,
+    metrics: [
+      "first_contentful_paint",
+      "first_input_delay",
+      "largest_contentful_paint",
+      "cumulative_layout_shift",
+      "experimental_time_to_first_byte",
+      "experimental_interaction_to_next_paint"
+    ]
+  }
+
+  console.log(`Getting ${url} for ${formFactor}...`)
+  return fetch("https://chromeuxreport.googleapis.com/v1/records:queryHistoryRecord?key=" + CRUX_API_KEY, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body)
+  })
+}
+
+export default function CruxData({ url, onLighthouseAuditNavigation, shouldPromptUserToRegister = true }) {
   const [cruxDesktopData, setCruxDesktopData] = useState();
   const [cruxMobileData, setCruxMobileData] = useState();
   const [expandedMetrics, setExpandedMetrics] = useState([]);
   const [isMissingCruxData, setIsMissingCruxData] = useState(false);
-  const [urlForCruxData, setUrlForCruxData] = useState(url);
 
-  const hostname = new URL(urlForCruxData).hostname;
-  const path = new URL(urlForCruxData).pathname;
-  const friendlyUrl = `${hostname}${path === '/' ? '' : path}`
+  const hostname = url && new URL(url).hostname;
+  const path = url && new URL(url).pathname;
+  const friendlyUrl = url && `${hostname}${path === '/' ? '' : path}`
 
-  const getAndSetCruxData = async ({ url, formFactor }) => {
+  const getAndSetCruxData = async formFactor => {
+    if (!url) return;
     setIsMissingCruxData(false);
     setCruxDesktopData();
     setCruxMobileData();
-    const body = {
-      url: url,
-      formFactor,
-      metrics: [
-        "first_contentful_paint",
-        "first_input_delay",
-        "largest_contentful_paint",
-        "cumulative_layout_shift",
-        "experimental_time_to_first_byte",
-        "experimental_interaction_to_next_paint"
-      ]
-    }
 
-    return fetch("https://chromeuxreport.googleapis.com/v1/records:queryHistoryRecord?key=" + CRUX_API_KEY, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body)
-    })
-    .then(res => res.json())
-    .then(({ error, record }) => {
-      if (error) {
-        setIsMissingCruxData(true);
-      } else {
-        return formFactor === 'DESKTOP' ? setCruxDesktopData(record) : setCruxMobileData(record)
-      }
-    });
+    getCruxData(url, formFactor)
+      .then(res => res.json())
+      .then(({ error, record }) => {
+        if (error) {
+          setIsMissingCruxData(true);
+        } else {
+          return formFactor === 'DESKTOP' ? setCruxDesktopData(record) : setCruxMobileData(record)
+        }
+      });
   }
 
   useEffect(() => {
-    getAndSetCruxData({ url: urlForCruxData, formFactor: 'DESKTOP' })
-    getAndSetCruxData({ url: urlForCruxData, formFactor: 'PHONE' })
-  }, []);
+    getAndSetCruxData('DESKTOP')
+    getAndSetCruxData('PHONE')
+  }, [url]);
 
   return (
     <div>
@@ -77,12 +83,16 @@ export default function CruxData({ url, onLighthouseAuditNavigation }) {
           <span className='block text-md font-md'>
             {friendlyUrl} does not meet the criteria for Chrome's real user performance data.
           </span>
-          <span className='block text-sm mb-2'>
-            Consider signing up for a <a href='https://app.swishjam.com' target='_blank' className='underline'>Swishjam account</a> and installing our JS snippet to monitor your real user performance data.
-          </span>
-          <span className='block text-sm'>
-            <span className='cursor-pointer underline' onClick={onLighthouseAuditNavigation}>View Lighthouse Audit</span> in the meantime.
-          </span>
+          {shouldPromptUserToRegister && (
+            <>
+              <span className='block text-sm mb-2'>
+                Consider signing up for a <a href='https://app.swishjam.com' target='_blank' className='underline'>Swishjam account</a> and installing our JS snippet to monitor your real user performance data.
+              </span>
+              <span className='block text-sm'>
+                <span className='cursor-pointer underline' onClick={onLighthouseAuditNavigation}>View Lighthouse Audit</span> in the meantime.
+              </span>
+            </>
+          )}
         </div>
       </div>}
       <div className='grid grid-cols-10 space-y-4'>
@@ -144,7 +154,11 @@ export default function CruxData({ url, onLighthouseAuditNavigation }) {
                   </div>
                 </div>
                 {isMissingCruxData
-                  ? <NoDataCruxMetricsGroup friendlyUrl={friendlyUrl} onLighthouseAuditNavigation={onLighthouseAuditNavigation} />
+                  ? <NoDataCruxMetricsGroup 
+                      friendlyUrl={friendlyUrl} 
+                      onLighthouseAuditNavigation={onLighthouseAuditNavigation} 
+                      shouldPromptUserToRegister={shouldPromptUserToRegister}
+                    />
                   : cruxDesktopData && cruxMobileData  
                     ? <CruxMetricsGroup
                       metric={metric}
@@ -169,8 +183,12 @@ export default function CruxData({ url, onLighthouseAuditNavigation }) {
                     <span className='text-sm font-medium text-gray-700'>Mobile</span>
                   </div>
                 </div>
-                {isMissingCruxData 
-                  ? <NoDataCruxMetricsGroup friendlyUrl={friendlyUrl} onLighthouseAuditNavigation={onLighthouseAuditNavigation} />
+                {isMissingCruxData
+                  ? <NoDataCruxMetricsGroup 
+                      friendlyUrl={friendlyUrl} 
+                      onLighthouseAuditNavigation={onLighthouseAuditNavigation} 
+                      shouldPromptUserToRegister={shouldPromptUserToRegister}
+                    />
                   : cruxDesktopData && cruxMobileData  
                     ? <CruxMetricsGroup 
                       metric={metric}

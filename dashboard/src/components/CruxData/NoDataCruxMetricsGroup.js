@@ -10,7 +10,7 @@ const randomDate = () => {
 
 const randomNumberBetween = (min, max) => Math.random() * (max - min) + min;
 
-export default function NoDataCruxMetricsGroup({ friendlyUrl, onLighthouseAuditNavigation }) {
+export default function NoDataCruxMetricsGroup({ friendlyUrl, onLighthouseAuditNavigation, shouldPromptUserToRegister }) {
   const [isHovered, setIsHovered] = useState(false);
   const [timeseriesData, setTimeseriesData] = useState();
   const [goodPercent, setGoodPercent] = useState();
@@ -47,12 +47,16 @@ export default function NoDataCruxMetricsGroup({ friendlyUrl, onLighthouseAuditN
           <span className='block text-md font-md'>
             {friendlyUrl} does not meet the criteria for Chrome's real user performance data.
           </span>
-          <span className='block text-sm mb-2'>
-            Consider signing up for a <a href='https://app.swishjam.com' target='_blank' className='underline'>Swishjam account</a> and installing our JS snippet to monitor your real user performance data.
-          </span>
-          <span className='block text-sm'>
-            <span className='cursor-pointer underline' onClick={onLighthouseAuditNavigation}>View Lighthouse Audit</span> in the meantime.
-          </span>
+          {shouldPromptUserToRegister && (
+            <>
+              <span className='block text-sm mb-2'>
+                Consider signing up for a <a href='https://app.swishjam.com' target='_blank' className='underline'>Swishjam account</a> and installing our JS snippet to monitor your real user performance data.
+              </span>
+              <span className='block text-sm'>
+                <span className='cursor-pointer underline' onClick={onLighthouseAuditNavigation}>View Lighthouse Audit</span> in the meantime.
+              </span>
+            </>  
+          )}
         </div>
       </div>
       <div className={`relative transition ${isHovered ? 'blur-md' : 'blur-sm'}`}>
