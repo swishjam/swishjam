@@ -1,6 +1,7 @@
 import { useState, Fragment } from 'react'
 import { Menu, Transition } from '@headlessui/react'
 import { ProjectPageUrlsAPI } from '@/lib/api-client/project-page-urls';
+import UpdatePageUrlModal from './UpdateModal';
 import { EllipsisVerticalIcon, CheckCircleIcon, XCircleIcon, PencilSquareIcon } from "@heroicons/react/24/outline";
 import { formattedDate } from "@/lib/utils";
 import LoadingSpinner from '../LoadingSpinner';
@@ -18,8 +19,11 @@ const CADENCE_TO_HUMAN_READABLE = {
 }
 
 export default function ManageRow({ pageUrl }) {
+  const [url, setUrl] = useState(pageUrl.full_url);
+  const [cadence, setCadence] = useState(pageUrl.lab_test_cadence);
   const [isEnabled, setIsEnabled] = useState(pageUrl.lab_tests_enabled);
   const [isUpdating, setIsUpdating] = useState(false);
+  const [showUpdateModal, setShowUpdateModal] = useState(false);
 
   const toggleLabTestsEnabled = async () => {
     setIsUpdating(true);
@@ -39,25 +43,34 @@ export default function ManageRow({ pageUrl }) {
 
  return (
    <tr key={pageUrl.id}>
+    {showUpdateModal && <UpdatePageUrlModal 
+                          projectPageUrl={pageUrl} 
+                          onClose={() => setShowUpdateModal(false)} 
+                          onUpdate={record => {
+                            setCadence(record.lab_test_cadence);
+                            setUrl(record.full_url);
+                          }} 
+                          isOpen={showUpdateModal}
+                        />}
      <td className="whitespace-nowrap py-5 pl-4 pr-3 text-sm sm:pl-0">
        <div className="flex items-center">
          <div className="ml-4">
            <div className="font-medium text-gray-900 flex items-center">
-              <span className='inline-block'>{pageUrl.full_url}</span>
+              <span className='inline-block'>{url}</span>
               {isUpdating && <span className='inline-block ml-2'><LoadingSpinner /></span>}
             </div>
          </div>
        </div>
      </td>
      <td className="whitespace-nowrap px-3 py-5 text-sm text-gray-500">
-       <div className="text-gray-900">Every {CADENCE_TO_HUMAN_READABLE[pageUrl.lab_test_cadence]}</div>
+       <div className="text-gray-900">Every {CADENCE_TO_HUMAN_READABLE[cadence]}</div>
      </td>
      <td className="whitespace-nowrap px-3 py-5 text-sm text-gray-500">
        <span
          className={`
-                    ${isEnabled ? 'bg-green-50 text-green-700 ring-green-600/20' : 'bg-red-50 text-red-700 ring-red-600/20'} 
-                    inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset
-                  `}
+            ${isEnabled ? 'bg-green-50 text-green-700 ring-green-600/20' : 'bg-red-50 text-red-700 ring-red-600/20'} 
+            inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset
+          `}
        >
          {isEnabled ? 'Active' : 'Disabled'}
        </span>
@@ -85,11 +98,14 @@ export default function ManageRow({ pageUrl }) {
          >
            <Menu.Items className="absolute right-0 z-10 mt-2 w-56 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
              <div className="py-1">
-               {/* <Menu.Item>
-                 <button className='text-gray-700 block w-full px-4 py-2 text-left text-sm hover:bg-gray-50 flex items-center'>
+               <Menu.Item>
+                 <button 
+                    className='text-gray-700 block w-full px-4 py-2 text-left text-sm hover:bg-gray-50 flex items-center'
+                    onClick={() => setShowUpdateModal(true)}
+                  >
                    <PencilSquareIcon className='w-4 h-4 inline-block mr-2' /> Edit
                  </button>
-               </Menu.Item> */}
+               </Menu.Item>
                <Menu.Item>
                  <button
                    className={`

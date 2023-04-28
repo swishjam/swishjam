@@ -4,9 +4,10 @@ import { ProjectPageUrlsAPI } from "@/lib/api-client/project-page-urls";
 import { CheckCircleIcon, ExclamationTriangleIcon, BeakerIcon, XMarkIcon, LinkIcon } from '@heroicons/react/24/outline'
 import LoadingSpinner from "@/components/LoadingSpinner";
 
-export default function NewPageUrlModal({ onClose, isOpen, onNewConfiguration }) {
-  const [url, setUrl] = useState();
-  const [cadence, setCadence] = useState('5-minutes');
+export default function UpdatePageUrlModal({ projectPageUrl, onClose, isOpen, onUpdate }) {
+  const [url, setUrl] = useState(projectPageUrl.full_url);
+  const [cadence, setCadence] = useState(projectPageUrl.lab_test_cadence);
+  const [isEnabled, setIsEnabled] = useState(projectPageUrl.lab_tests_enabled);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState();
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
@@ -15,15 +16,14 @@ export default function NewPageUrlModal({ onClose, isOpen, onNewConfiguration })
     e.preventDefault();
     setError();
     setLoading(true);
-    const { record, error } = await ProjectPageUrlsAPI.create({ url, cadence, enabled: true });
+    const { record, error } = await ProjectPageUrlsAPI.update({ id: projectPageUrl.id, url, cadence, enabled: isEnabled });
     setLoading(false);
     if (error) {
       setError(error);
     } else {
       setUrl();
-      setCadence('5-minutes');
       setShowSuccessMessage(true)
-      onNewConfiguration && onNewConfiguration(record);
+      onUpdate && onUpdate(record);
     }
   }
 
@@ -68,13 +68,13 @@ export default function NewPageUrlModal({ onClose, isOpen, onNewConfiguration })
                   ? (
                     <div className='text-center'>
                       <CheckCircleIcon className='h-16 w-16 mx-auto text-green-500 bg-green-100 rounded-full' />
-                      <h3 className="text-lg text-gray-900 text-center mt-3">Lab test added.</h3>
-                      <button
+                      <h3 className="text-lg text-gray-900 text-center mt-3">Lab test updated.</h3>
+                      {/* <button
                         className="transition mt-3 duration-300 inline-flex w-full justify-center rounded-md bg-swishjam px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-swishjam-dark sm:w-auto"
                         onClick={() => setShowSuccessMessage(false)}
                       >
                         Add another
-                      </button>
+                      </button> */}
                     </div>
                   ) : (
                     <form onSubmit={submitConfiguration}>
@@ -84,11 +84,11 @@ export default function NewPageUrlModal({ onClose, isOpen, onNewConfiguration })
                         </div>
                         <div className="mt-3 text-center sm:ml-4 sm:mt-0 sm:text-left">
                           <Dialog.Title as="h3" className="text-base font-semibold leading-6 text-gray-900">
-                            Configure new lab test
+                            Update lab test configuration
                           </Dialog.Title>
                           <div className="mt-2">
                             <p className="text-sm text-gray-500">
-                              Specify the URL, and the cadence to run a lab test against it.
+                              It is currently set to run every {projectPageUrl.lab_test_cadence.split('-').join(' ')} on {projectPageUrl.full_url}.
                             </p>
                           </div>
                           <div className='mt-6'>
@@ -149,7 +149,7 @@ export default function NewPageUrlModal({ onClose, isOpen, onNewConfiguration })
                           className={`${loading ? 'bg-gray-300' : 'bg-swishjam hover:bg-swishjam-dark'} transition duration-300 inline-flex w-full justify-center rounded-md px-3 py-2 text-sm font-semibold text-white shadow-sm sm:ml-3 sm:w-auto`}
                           disabled={loading}
                         >
-                          {loading ? <div className={'mx-8'} ><LoadingSpinner color="white" /></div> : 'Add lab test'}
+                          {loading ? <div className={'mx-8'} ><LoadingSpinner color="white" /></div> : 'Update lab test'}
                         </button>
                       </div>
                     </form>

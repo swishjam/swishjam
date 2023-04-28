@@ -5,8 +5,8 @@ export class LabTestsAPI extends API {
     return await API.get('/api/lab-tests/run', { url });
   }
 
-  static async getAll({ urlHost, urlPath }) {
-    return await API.get('/api/lab-tests/all', { urlHost, urlPath });
+  static async getAll(data) {
+    return await API.get('/api/lab-tests/all', data);
   }
 
   static async getUniqueHosts() {
