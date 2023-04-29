@@ -38,7 +38,7 @@ function classNames(...classes) {
   return classes.filter(Boolean).join(' ')
 }
 
-const SidebarMobile = ({ sidebarOpen, setSidebarOpen }) => {
+const SidebarMobile = ({ sidebarOpen, setSidebarOpen, user, handleSignOut }) => {
   return (
     <Transition.Root show={sidebarOpen} as={Fragment}>
       <Dialog as="div" className="relative z-50 lg:hidden" onClose={setSidebarOpen}>
@@ -91,96 +91,51 @@ const SidebarMobile = ({ sidebarOpen, setSidebarOpen }) => {
                 <nav className="flex flex-1 flex-col">
                   <ul role="list" className="flex flex-1 flex-col gap-y-7">
                     <li>
-                      <ul role="list" className="-mx-2 space-y-1">
-                        {navigation.map((item) => (
-                          <li key={item.name}>
-                            <a
-                              href={item.href}
-                              className={classNames(
-                                item.current
-                                  ? 'bg-gray-50 text-swishjam'
-                                  : 'text-gray-700 hover:text-swishjam hover:bg-gray-50',
-                                'group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold'
-                              )}
-                            >
-                              <item.icon
-                                className={classNames(
-                                  item.current ? 'text-swishjam' : 'text-gray-400 group-hover:text-indigo-600',
-                                  'h-6 w-6 shrink-0'
-                                )}
-                                aria-hidden="true"
-                              />
-                              {item.name}
-                            </a>
-                          </li>
-                        ))}
+                      <ListTitle title={'Current Project'} Icon={CodeBracketSquareIcon} />
+                      <div className="-mx-2 space-y-1">
+                        <SiteSwitcher />
+                      </div>
+                    </li>
+                    <li>
+                      <ul role="list" className="-mx-2 mt-2 space-y-1">
+                        <ListTitle title={'Real User Monitoring'} Icon={CursorArrowRippleIcon} /> 
+                        {rumNav.map((item) => <DesktopNavItem item={item} key={item.name} />)}
                       </ul>
                     </li>
                     <li>
-                      <div className="text-xs font-semibold leading-6 text-gray-400">
-                        <CursorArrowRippleIcon className="h-4 w-4" aria-hidden="true" />
-                        Real User Monitoring
-                      </div>
                       <ul role="list" className="-mx-2 mt-2 space-y-1">
-                        {teams.map((team) => (
-                          <li key={team.name}>
-                            <a
-                              href={team.href}
-                              className={classNames(
-                                team.current
-                                  ? 'bg-gray-50 text-swishjam'
-                                  : 'text-gray-700 hover:text-swishjam hover:bg-gray-50',
-                                'group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold'
-                              )}
-                            >
-                              <span
-                                className={classNames(
-                                  team.current
-                                    ? 'text-swishjam border-indigo-600'
-                                    : 'text-gray-400 border-gray-200 group-hover:border-swishjam group-hover:text-indigo-600',
-                                  'flex h-6 w-6 shrink-0 items-center justify-center rounded-lg border text-[0.625rem] font-medium bg-white'
-                                )}
-                              >
-                                {team.initial}
-                              </span>
-                              <span className="truncate">{team.name}</span>
-                            </a>
-                          </li>
-                        ))}
+                        <ListTitle title={'Lab Tests'} Icon={BeakerIcon} /> 
+                        {labTestNav.map((item) => <DesktopNavItem item={item} key={item.name} />)}
                       </ul>
                     </li>
-                    <li>
-                      <div className="text-xs font-semibold leading-6 text-gray-400">
-                        <BeakerIcon className="h-4 w-4" aria-hidden="true" />
-                        Lab Tests
+                    <li className="">
+                      <div className="-mx-2 mt-2">
+                      <ListTitle title={'Settings'}/> 
+                      </div> 
+                      <div className="-mx-2">
+                        <div
+                          onClick={() => handleSignOut()}
+                          className={'cursor-pointer duration-300 transition text-gray-700 hover:text-swishjam hover:bg-gray-50 group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold'}
+                        >
+                          <ArrowLeftOnRectangleIcon
+                            className={'duration-300 transition text-gray-400 group-hover:text-swishjam h-6 w-6 shrink-0'}
+                            aria-hidden="true"
+                          />
+                          <span className="truncate">Sign Out</span>
+                        </div>
                       </div>
-                      <ul role="list" className="-mx-2 mt-2 space-y-1">
-                        {teams.map((team) => (
-                          <li key={team.name}>
-                            <a
-                              href={team.href}
-                              className={classNames(
-                                team.current
-                                  ? 'bg-gray-50 text-swishjam'
-                                  : 'text-gray-700 hover:text-swishjam hover:bg-gray-50',
-                                'group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold'
-                              )}
-                            >
-                              <span
-                                className={classNames(
-                                  team.current
-                                    ? 'text-swishjam border-indigo-600'
-                                    : 'text-gray-400 border-gray-200 group-hover:border-swishjam group-hover:text-indigo-600',
-                                  'flex h-6 w-6 shrink-0 items-center justify-center rounded-lg border text-[0.625rem] font-medium bg-white'
-                                )}
-                              >
-                                {team.initial}
-                              </span>
-                              <span className="truncate">{team.name}</span>
-                            </a>
-                          </li>
-                        ))}
-                      </ul>
+                      <div
+                        className="-mx-2 flex items-center gap-x-4 py-3 text-sm font-semibold leading-6 text-gray-900"
+                      >
+                        {user && user.imageUrl ?
+                          <img className="h-8 w-8 rounded-full" src={user.imageUrl} alt="" /> :
+                          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-10 h-10 text-gray-500">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M17.982 18.725A7.488 7.488 0 0012 15.75a7.488 7.488 0 00-5.982 2.975m11.963 0a9 9 0 10-11.963 0m11.963 0A8.966 8.966 0 0112 21a8.966 8.966 0 01-5.982-2.275M15 9.75a3 3 0 11-6 0 3 3 0 016 0z" />
+                          </svg>
+                        }
+                        <span className='cursor-default' aria-hidden="true">{user.email}</span>
+                      </div>
+
                     </li>
                   </ul>
                 </nav>
@@ -191,16 +146,16 @@ const SidebarMobile = ({ sidebarOpen, setSidebarOpen }) => {
       </Dialog>
     </Transition.Root>
   )
-}  
+}
 
 
-const DesktopListTitle = ({ title, Icon }) => {
+const ListTitle = ({ title, Icon }) => {
   return (
     <div className="-mx-2 flex text-xs font-semibold leading-6 text-gray-400 mb-2">
-      <Icon className="h-4 w-4 mt-1 mr-2" aria-hidden="true" />
-      {title} 
+      {Icon && <Icon className="h-4 w-4 mt-1 mr-2" aria-hidden="true" />}
+      {title}
     </div>
-  ) 
+  )
 }
 
 const DesktopNavItem = ({ item }) => {
@@ -243,7 +198,12 @@ export default function Sidebar() {
   return (
     <>
       <div>
-        {/*<SidebarMobile sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />*/}
+        <SidebarMobile
+          sidebarOpen={sidebarOpen}
+          setSidebarOpen={setSidebarOpen}
+          user={user}   
+          handleSignOut={handleSignOut} 
+        />
     
         {/* Static sidebar for desktop */}
         <div className="hidden lg:fixed lg:inset-y-0 lg:z-20 lg:flex lg:w-72 lg:flex-col">
@@ -257,19 +217,19 @@ export default function Sidebar() {
             <nav className="flex flex-1 flex-col">
               <ul role="list" className="flex flex-1 flex-col gap-y-7">
                 <li>
-                  <DesktopListTitle title={'Current Project'} Icon={CodeBracketSquareIcon} /> 
+                  <ListTitle title={'Current Project'} Icon={CodeBracketSquareIcon} /> 
                   <div className="-mx-2 space-y-1">
                     <SiteSwitcher />
                   </div>
                 </li>
                 <li>
-                  <DesktopListTitle title={'Real User Monitoring'} Icon={CursorArrowRippleIcon} /> 
+                  <ListTitle title={'Real User Monitoring'} Icon={CursorArrowRippleIcon} /> 
                   <ul role="list" className="-mx-2 space-y-1">
                     {rumNav.map((item) => <DesktopNavItem item={item} key={item.name} />)}
                   </ul>
                 </li>
                 <li>
-                  <DesktopListTitle title={'Lab Tests'} Icon={BeakerIcon} /> 
+                  <ListTitle title={'Lab Tests'} Icon={BeakerIcon} /> 
                   <ul role="list" className="-mx-2 space-y-1">
                     {labTestNav.map((item) => <DesktopNavItem item={item} key={item.name} />)}
                   </ul>
@@ -310,15 +270,6 @@ export default function Sidebar() {
             <span className="sr-only">Open sidebar</span>
             <Bars3Icon className="h-6 w-6" aria-hidden="true" />
           </button>
-          <div className="flex-1 text-sm font-semibold leading-6 text-gray-900">Dashboard</div>
-          <a href="#">
-            <span className="sr-only">Your profile</span>
-            <img
-              className="h-8 w-8 rounded-full bg-gray-50"
-              src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
-              alt=""
-            />
-          </a>
         </div>
       </div>
     </>
