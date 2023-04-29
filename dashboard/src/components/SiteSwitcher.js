@@ -1,7 +1,12 @@
 'use client';
 import { Fragment, useState } from 'react'
 import { Menu, Transition } from '@headlessui/react'
-import { GlobeAltIcon, ChevronDownIcon, PlusCircleIcon } from '@heroicons/react/20/solid'
+import { 
+  GlobeAltIcon,
+  ChevronDownIcon,
+  PlusCircleIcon
+} from '@heroicons/react/20/solid'
+import { Cog6ToothIcon } from '@heroicons/react/24/outline';
 import { useAuth } from '@components/AuthProvider'
 import LoadingSpinner from '@components/LoadingSpinner';
 import NewSiteDialog from '@components/NewSiteDialog';
@@ -18,13 +23,19 @@ export default function SiteSwitcher(props) {
     return <></>
   }
 
+
   return (
     <div {...props}>
-      <Menu as="div" className="relative inline-block text-left">
+      <Menu as="div" className="">
         <div>
-          <Menu.Button className="inline-flex w-full justify-center items-center gap-x-1.5 rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
-            {currentProject?.name || <div className="mt-1"><LoadingSpinner size={4} /></div>} 
-            <ChevronDownIcon className="-mr-1 h-5 w-5 text-gray-400 mt-1" aria-hidden="true" />
+          <Menu.Button
+            className={'w-full cursor-pointer justify-between text-gray-700 hover:text-swishjam hover:bg-gray-50 group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold duration-300 transition items-center'}
+          >
+            {currentProject?.name ? <span className='truncate'>{currentProject?.name}</span>:<div className="mt-1"><LoadingSpinner size={4} /></div>}
+            <Cog6ToothIcon
+              className={'text-gray-400 group-hover:text-swishjam duration-300 transition h-4 w-4 shrink-0 '}
+              aria-hidden="true"
+            />
           </Menu.Button>
         </div>
 
@@ -37,7 +48,7 @@ export default function SiteSwitcher(props) {
           leaveFrom="transform opacity-100 scale-100"
           leaveTo="transform opacity-0 scale-95"
         >
-          <Menu.Items className="absolute right-0 z-10 mt-2 origin-top-right divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none cursor-pointer">
+          <Menu.Items className="absolute z-10 mt-2 origin-top-left divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none cursor-pointer">
             <div className="py-1">
               {projects?.map((project) => (
                 <Menu.Item key={project.id}>

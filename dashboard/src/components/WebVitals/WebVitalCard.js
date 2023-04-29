@@ -37,7 +37,7 @@ export default function WebVitalCard({ title, accronym, percentileValue, numReco
           {CardIcon(accronym)}
           <span className='hover:underline hover:text-swishjam duration-300 transition'>
             <Link
-              class="hover:text-swishjam"
+              className="hover:text-swishjam"
               href={`/cwv/${accronym}`}
             >{title}</Link>
           </span>

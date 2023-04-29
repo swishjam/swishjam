@@ -1,5 +1,6 @@
 'use client';
 import Header from '@components/Header';
+import Sidebar from '@components/Sidebar';
 import { useAuth } from '@components/AuthProvider';
 import LoadingFullScreen from '@components/LoadingFullScreen';
 import SignIn from '@components/Auth/SignIn';
@@ -12,15 +13,19 @@ export default function AuthenticatedView({ children }) {
   } else if(user && !currentProject) {
     return (
       <>
-        <Header />
         <NoProjectsView />
       </>
     )
   } else if (user) {
     return(
       <>
-        <Header />
-        {children}
+        <Sidebar />
+        <main className="py-10 lg:pl-72">
+          <div className="px-4 sm:px-6 lg:px-8">
+            {children}
+          </div>
+        </main> 
+        
       </>
     );
   } else if (!initial && !user) {
