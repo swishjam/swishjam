@@ -30,7 +30,7 @@ export class WebPageTestRunner {
       const { data: { testId, jsonUrl }} = response;
       const payload = {
         uuid: testId,
-        project_key: projectKey || 'ANONYMOUS',
+        project_key: projectKey || 'undefined',
         full_url: url,
         url_host: new URL(url).host,
         url_path: new URL(url).pathname,

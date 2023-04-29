@@ -20,7 +20,7 @@ export default function SpeedTest() {
         setLoading(false);
         setErrorMsg(error)
       } else {
-        router.push(`/lab-test/${testId}`);
+        router.push(`/speed-test/${testId}`);
       }
     } else {
       setErrorMsg('Invalid URL');

@@ -40,8 +40,8 @@ export default function LighthouseCard({ labTests }) {
                           ? '--' 
                           : <LighthouseScore score={parseInt(labTest.lighthouse_performance_score * 100)} size='tiny' />}
                       <div className="flex items-center">
-                        <p className="text-sm leading-6 text-gray-900">
-                          <a href={`/lab-test/${labTest.uuid}`}>
+                        <p className="text-sm leading-6 text-gray-900 hover:underline">
+                          <a href={`/lab-tests/lighthouse/${labTest.uuid}`}>
                             {labTest.full_url}
                           </a>
                         </p>

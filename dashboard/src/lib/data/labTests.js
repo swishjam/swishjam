@@ -44,6 +44,8 @@ export class LabTests {
         synthetic_runs
       WHERE
         project_key = $1
+      ORDER BY
+        url_host
     `;
     return (await db.query(query, [projectKey])).rows;
   }
@@ -57,6 +59,8 @@ export class LabTests {
       WHERE
         project_key = $1 AND
         url_host = $2
+      ORDER BY
+        url_path
     `;
     return (await db.query(query, [projectKey, decodeURIComponent(urlHost)])).rows;
   }
