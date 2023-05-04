@@ -1,3 +1,5 @@
+import { SwishjamMemory } from "@/lib/swishjam-memory";
+
 export class API {
   static async get(url, data) {
     const queryParams = new URLSearchParams(this._params(data));
@@ -15,7 +17,7 @@ export class API {
   }
 
   static _params(data) {
-    const { public_id: projectKey } = JSON.parse(localStorage.getItem('currentProject') || '{}');
+    const { public_id: projectKey } = JSON.parse(SwishjamMemory.get('currentProject') || '{}');
     return { projectKey, ...data };
   }
 }

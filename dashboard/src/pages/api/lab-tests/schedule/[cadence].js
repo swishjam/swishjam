@@ -1,4 +1,4 @@
-import { WebPageTestRunner } from "@/lib/web-page-test-runner";
+import { WebPageTestRunner } from "@/lib/web-page-test/web-page-test-runner";
 import { createClient } from "@supabase/supabase-js";
 
 const VALID_CADENCES = ["5-minutes", "15-minutes", "30-minutes", "1-hour", "3-hours", "6-hours", "12-hours", "1-day"];

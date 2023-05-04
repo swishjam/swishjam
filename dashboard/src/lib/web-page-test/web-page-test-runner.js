@@ -1,4 +1,6 @@
 import db from '@lib/db'
+import { CONNECTIONS } from './connections';
+import { NAMES_TO_CODE } from './locations';
 
 const booleanToInteger = (bool, defaultVal) => typeof bool === 'boolean' 
                                                   ? bool 
@@ -15,12 +17,23 @@ export class WebPageTestRunner {
       url,
       k: process.env.WEB_PAGE_TEST_API_KEY,
       label: options.label,
-      lighthouse: booleanToInteger(options.includeLighthouse, true),
-      video: booleanToInteger(options.includeVideo, true),
-      fvonly: booleanToInteger(options.firstViewOnly, true),
-      mobile: booleanToInteger(options.mobile, false),
-      timeline: booleanToInteger(options.includeDevToolsTimeline, true),
-      profiler: booleanToInteger(options.includeV8Profiler, true),
+      location: options.location || `${NAMES_TO_CODE.NEW_YORK_CITY}:Chrome.${CONNECTIONS.Cable}`,
+      lighthouse: 1,
+      video: 1,
+      fvonly: 1,
+      mobile: 0,
+      timeline: 1,
+      profiler: 1,
+      wappalyzer: 0,
+      axe: 0,
+      metadata: JSON.stringify({ projectKey }),
+      // lighthouse: booleanToInteger(options.includeLighthouse, true),
+      // video: booleanToInteger(options.includeVideo, true),
+      // fvonly: booleanToInteger(options.firstViewOnly, true),
+      // mobile: booleanToInteger(options.mobile, false),
+      // timeline: booleanToInteger(options.includeDevToolsTimeline, true),
+      // profiler: booleanToInteger(options.includeV8Profiler, true),
+      appendua: 'SwishjamLabTests',
       pingback: `https://${process.env.WEB_PAGE_TEST_WEBHOOK_HOST || 'app.swishjam.com'}/api/lab-tests/webhook`,
       f: 'json'
     });

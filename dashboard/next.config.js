@@ -7,6 +7,16 @@ const { withSentryConfig } = require('@sentry/nextjs');
 /** @type {import('next').NextConfig} */
 module.exports = {
   reactStrictMode: true,
+  images: {
+    remotePatterns: [
+      {
+        // (https://www.webpagetest.org/getfile.php?test=230503_BiDcA8_8JT&file=1_screen.jpg)
+        protocol: 'https',
+        hostname: 'www.webpagetest.org',
+        pathname: '/getfile.php',
+      }
+    ]
+  },
   experimental: {
     appDir: true,
   },

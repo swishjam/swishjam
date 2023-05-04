@@ -2,14 +2,14 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@components/AuthProvider';
 import { PageUrlsApi } from '@/lib/api-client/page-urls';
-// import { LabTestsAPI } from '@/lib/api-client/lab-tests';
 import { ProjectPageUrlsAPI } from '@/lib/api-client/project-page-urls';
 import { FunnelIcon } from '@heroicons/react/24/outline';
 import Dropdown from '../Dropdown';
+import { SwishjamMemory } from '@/lib/swishjam-memory';
 
 function tryToFindDefaultHost(urlHosts) {
   let autoSelectedHostUrl;
-  const pastSelectedHostUrl = localStorage.getItem('swishjamSelectedHostUrl');
+  const pastSelectedHostUrl = SwishjamMemory.get('selectedHostUrlFilter');
   if (urlHosts.find(urlHost => urlHost === pastSelectedHostUrl)) {
     autoSelectedHostUrl = pastSelectedHostUrl;
   } else {
@@ -49,7 +49,7 @@ export default function HostUrlFilterer({ onHostSelected, onNoHostsFound, onHost
   }, [currentProject?.public_id]);
 
   const onDropdownSelection = option => {
-    localStorage.setItem('swishjamSelectedHostUrl', option);
+    SwishjamMemory.set('selectedHostUrlFilter', option);
     setSelectedOption(option);
     onHostSelected(option);
   }

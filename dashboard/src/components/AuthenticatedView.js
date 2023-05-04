@@ -1,13 +1,16 @@
 'use client';
-import Header from '@components/Header';
+import { useState } from 'react';
 import Sidebar from '@components/Sidebar';
 import { useAuth } from '@components/AuthProvider';
 import LoadingFullScreen from '@components/LoadingFullScreen';
 import SignIn from '@components/Auth/SignIn';
 import NoProjectsView from './NoProjectsView';
+import { SwishjamMemory } from '@/lib/swishjam-memory';
 
 export default function AuthenticatedView({ children }) {
   const { initial, user, currentProject } = useAuth();
+  const [sideNavIsCollapsed, setSideNavIsCollapsed] = useState(typeof SwishjamMemory.get('isNavCollapsed') === 'boolean' ? SwishjamMemory.get('isNavCollapsed') : false);
+
   if (initial) {
     return (<LoadingFullScreen />);
   } else if(user && !currentProject) {
@@ -19,8 +22,8 @@ export default function AuthenticatedView({ children }) {
   } else if (user) {
     return(
       <>
-        <Sidebar />
-        <main className="py-10 lg:pl-72">
+        <Sidebar onCollapse={() => setSideNavIsCollapsed(true)} onExpand={() => setSideNavIsCollapsed(false)} />
+        <main className={`py-10 transition ${sideNavIsCollapsed ? 'lg:pl-10' : 'lg:pl-72'}`}>
           <div className="px-4 sm:px-6 lg:px-8">
             {children}
           </div>

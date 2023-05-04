@@ -1,13 +1,5 @@
 import { formattedMsOrSeconds } from '@/lib/utils';
-import { 
-  AreaChart, 
-  Area, 
-  XAxis, 
-  YAxis, 
-  CartesianGrid, 
-  Tooltip, 
-  ResponsiveContainer,
-} from 'recharts';
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
 export default function MetricChart({ data, metric, goodNeedsImprovementPoorTiers, xAxisKey = 'completed_at' }) {
   const maxDataPoint = Math.max(...data.map(i => i[metric]));
