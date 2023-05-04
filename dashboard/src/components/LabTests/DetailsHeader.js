@@ -26,20 +26,20 @@ export default function DetailsHeader({ labTestId, webPageTestResults, selectedN
                   </a>
                   <h1 className="text-2xl font-medium">{webPageTestResults.auditedUrl()} audit</h1>
                   <div className='flex items-center justify-between mt-2'>
-                    <h4 className='text-sm text-gray-500 w-fit inline-block flex items-center mr-5'>
+                    <h4 className='text-sm text-gray-500 w-fit inline-block flex items-center mr-5 whitespace-nowrap'>
                       <CalendarDaysIcon className='h-4 w-4 inline-block mr-1' /> {webPageTestResults.auditDate()}
                     </h4>
-                    <h4 className='text-sm text-gray-500 w-fit inline-block flex items-center mr-5'>
+                    <h4 className='text-sm text-gray-500 w-fit inline-block flex items-center mr-5 whitespace-nowrap'>
                       <GlobeAmericasIcon className='h-4 w-4 inline-block mr-1' /> {webPageTestResults.parsedLocation()}
                     </h4>
-                    <h4 className='text-sm text-gray-500 w-fit inline-block flex items-center mr-5'>
+                    <h4 className='text-sm text-gray-500 w-fit inline-block flex items-center mr-5 whitespace-nowrap'>
                       {webPageTestResults.isMobile() ? <DevicePhoneMobileIcon className='h-4 w-4 inline-block mr-1' /> : <ComputerDesktopIcon className='h-4 w-4 inline-block mr-1' />}
                       {webPageTestResults.isMobile() ? 'Mobile' : 'Desktop'}
                     </h4>
-                    <h4 className='text-sm text-gray-500 w-fit inline-block flex items-center mr-5'>
+                    <h4 className='text-sm text-gray-500 w-fit inline-block flex items-center mr-5 whitespace-nowrap'>
                       <WindowIcon className='h-4 w-4 inline-block mr-1' /> {webPageTestResults.browser()}
                     </h4>
-                    <h4 className='text-sm text-gray-500 w-fit inline-block flex items-center mr-5'>
+                    <h4 className='text-sm text-gray-500 w-fit inline-block flex items-center mr-5 whitespace-nowrap'>
                       <WifiIcon className='h-4 w-4 inline-block mr-1' /> {webPageTestResults.connection()}
                     </h4>
                   </div>
