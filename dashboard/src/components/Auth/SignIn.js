@@ -4,7 +4,6 @@ import Link from 'next/link';
 import cn from 'classnames';
 import { Field, Form, Formik } from 'formik';
 import * as Yup from 'yup';
-import { useAuth } from '@components/AuthProvider';
 import supabase from '@lib/supabase-browser';
 import Logo from '@components/Logo';
 import LoadingSpinner from '@components/LoadingSpinner';
@@ -15,7 +14,6 @@ const SignInSchema = Yup.object().shape({
 });
 
 const SignIn = () => {
-  const { setView } = useAuth();
   const [ loading, setLoading ] = useState(false); 
   const [ errorMsg, setErrorMsg ] = useState(null);
 
@@ -90,7 +88,7 @@ const SignIn = () => {
                 </div>{/* end password input */}
 
                 <div>
-                  <div className="flex items-center justify-between">
+                  {/* <div className="flex items-center justify-between">
                     <div className="text-sm mb-4">
                       <Link href="/forgot-password">
                         <div className="font-medium text-swishjam hover:text-swishjam-dark cursor-pointer">
@@ -98,7 +96,7 @@ const SignIn = () => {
                         </div>
                       </Link>
                     </div>
-                  </div>
+                  </div> */}
 
                   <button
                     type="submit"

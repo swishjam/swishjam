@@ -7,6 +7,8 @@ import { ProjectPageUrlsAPI } from "@/lib/api-client/project-page-urls";
 import NewProjectPageUrlModal from "@/components/ProjectPageUrls/NewModal";
 import ManageRow from "@/components/ProjectPageUrls/ManageRow";
 import { BeakerIcon } from "@heroicons/react/24/outline";
+import Link from "next/link";
+import { ArrowLeftIcon } from "@heroicons/react/20/solid";
 
 export default function Manage() {
   const { currentProject } = useAuth();
@@ -23,6 +25,9 @@ export default function Manage() {
       <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mb-8">
         <div className='my-8 flex items-center grid grid-cols-2'>
           <div>
+            <Link href='/lab-tests' className='text-xs text-blue-700 flex items-center'>
+              <ArrowLeftIcon className='h-3 w-3 inline-block mr-1' /> All lab tests
+            </Link>
             <h1 className="text-lg font-medium">Manage Lab Tests</h1>
           </div>
           <div className='text-right'>

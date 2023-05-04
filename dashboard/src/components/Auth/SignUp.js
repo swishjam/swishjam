@@ -7,7 +7,7 @@ import { useRouter } from 'next/navigation';
 import * as Yup from 'yup';
 import Logo from '@components/Logo';
 import LoadingSpinner from '@components/LoadingSpinner';
-import { setUserOrg, useAuth } from '@components/AuthProvider';
+import { useAuth } from '@components/AuthProvider';
 import supabase from '@lib/supabase-browser';
 
 const SignUpSchema = Yup.object().shape({
@@ -17,7 +17,7 @@ const SignUpSchema = Yup.object().shape({
 });
 
 const SignUp = () => {
-  const { initial, session, setUserOrg, updateRegistering } = useAuth();
+  const { session, setUserOrg } = useAuth();
   const router = useRouter();
   const [ errorMsg, setErrorMsg ] = useState(null);
   const [ successMsg, setSuccessMsg ] = useState(null);

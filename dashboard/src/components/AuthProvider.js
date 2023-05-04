@@ -3,6 +3,7 @@
 import { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import supabase from 'src/lib/supabase-browser';
+import { SwishjamMemory } from '@/lib/swishjam-memory';
 
 export const EVENTS = {
   SIGNED_IN: 'SIGNED_IN',
@@ -28,7 +29,7 @@ export const AuthProvider = (props) => {
     //update the current project in local storage
     if(curProject) {
       try {
-        localStorage.setItem("currentProject", JSON.stringify(curProject))
+        SwishjamMemory.set("currentProject", JSON.stringify(curProject))
         setCurrentProject(curProject)
       } catch(err) {
         console.error(err)
@@ -56,14 +57,14 @@ export const AuthProvider = (props) => {
           const loadedProjects = await supabase.from('projects').select('*').eq('organization_id', orgs.data[0].id)
           setProjects(loadedProjects.data)
 
-          const lsCurProject = localStorage.getItem("currentProject");
+          const lsCurProject = SwishjamMemory.get("currentProject");
           
           if (lsCurProject) {
             setCurrentProject(JSON.parse(lsCurProject))  
           }
           if(!lsCurProject && loadedProjects.data.length > 0) {
             setCurrentProject(loadedProjects.data[0]);
-            localStorage.setItem("currentProject", JSON.stringify(loadedProjects.data[0]));
+            SwishjamMemory.set("currentProject", JSON.stringify(loadedProjects.data[0]));
           }
         }
       } catch (error) {
@@ -98,7 +99,7 @@ export const AuthProvider = (props) => {
         setUserOrg(null);
         setProjects([]);
         setCurrentProject(null);
-        localStorage.removeItem("currentProject");
+        SwishjamMemory.delete('currentProject')
       }
       // check if user is signed in and then try to pull the user's org, sites, & set site
       if(event === EVENTS.SIGNED_IN) {

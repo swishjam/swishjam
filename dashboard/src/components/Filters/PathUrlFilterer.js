@@ -6,10 +6,11 @@ import { FunnelIcon } from '@heroicons/react/24/outline'
 import Dropdown from '../Dropdown'
 // import { LabTestsAPI } from '@/lib/api-client/lab-tests';
 import { ProjectPageUrlsAPI } from '@/lib/api-client/project-page-urls';
+import { SwishjamMemory } from '@/lib/swishjam-memory';
 
 function tryToFindDefaultPath(urlPaths) {
   let autoSelectedPathUrl;
-  const pastSelectedPathUrl = localStorage.getItem('swishjamSelectedPathUrl');
+  const pastSelectedPathUrl = SwishjamMemory.get('selectedPathUrlFilter');
   if (urlPaths.find(urlPath => urlPath === pastSelectedPathUrl)) {
     autoSelectedPathUrl = pastSelectedPathUrl;
   } else {
@@ -43,7 +44,7 @@ export default function PathUrlFilterer({ urlHost, onPathSelected, includeAllPat
   }, [currentProject?.public_id, urlHost]);
 
   const onDropdownSelection = option => {
-    localStorage.setItem('swishjamSelectedPathUrl', option);
+    SwishjamMemory.set('selectedPathUrlFilter', option);
     setSelectedOption(option);
     onPathSelected(option);
   }

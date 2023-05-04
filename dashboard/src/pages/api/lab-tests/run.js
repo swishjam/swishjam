@@ -1,5 +1,5 @@
 import NextCors from 'nextjs-cors';
-import { WebPageTestRunner } from '@/lib/web-page-test-runner';
+import { WebPageTestRunner } from '@/lib/web-page-test/web-page-test-runner';
 
 export default async (req, res) => {
   await NextCors(req, res, { methods: ['GET'], origin: '*', optionsSuccessStatus: 200 });

@@ -5,13 +5,13 @@ import { useAuth } from '@components/AuthProvider';
 import { useState } from 'react';
 import Link from 'next/link';
 import { LabTestsAPI } from '@/lib/api-client/lab-tests';
-import LighthouseCard from '@/components/LabTests/LighthouseCard';
 import PerformanceMetricCard from '@/components/LabTests/PerformanceMetricCard';
 import HostUrlFilterer from '@/components/Filters/HostUrlFilterer';
 import PathUrlFilterer from '@/components/Filters/PathUrlFilterer';
 import { Cog6ToothIcon, BeakerIcon } from '@heroicons/react/24/outline';
-import { formattedMsOrSeconds } from '@/lib/utils';
 import LabTestTab from '@/components/LabTests/LabTestTab';
+import LabTestResultsTable from '@/components/LabTests/ResultsTable';
+import { SwishjamMemory } from '@/lib/swishjam-memory';
 
 const GOOD_NEEDS_IMPROVEMENT_POOR_TIERS = {
   largest_contentful_paint: {
@@ -72,7 +72,7 @@ export default function LabTests() {
   const [hasNoData, setHasNoData] = useState(false);
   const [hostUrlToFilterOn, setHostUrlToFilterOn] = useState();
   const [labTests, setLabTests] = useState();
-  const [selectedMetric, setSelectedMetric] = useState('largest_contentful_paint');
+  const [selectedMetric, setSelectedMetric] = useState(SwishjamMemory.get('labTestsSelectedMetric') ||  'largest_contentful_paint');
 
   const getLabDataForUrlHostAndPath = (urlHost, urlPath) => {
     setLabTests();
@@ -81,7 +81,8 @@ export default function LabTests() {
     LabTestsAPI.getAll(params).then(setLabTests);
   }
 
-  const sortedLabTests = labTests ? labTests.sort((a, b) => new Date(a.completed_at) - new Date(b.completed_at)) : undefined;
+  const labTestsMostRecentLast = labTests ? labTests.sort((a, b) => new Date(a.completed_at) - new Date(b.completed_at)) : undefined;
+  const labTestsMostRecentFirst = labTestsMostRecentLast ? labTestsMostRecentLast.slice().reverse() : undefined;
   
   return (
     <AuthenticatedView>
@@ -134,37 +135,48 @@ export default function LabTests() {
               </a>
             </>
           ) : (
-            <div className='rounded-md border border-gray-200 overflow-hidden'>
-              <div className="grid grid-cols-1 md:grid-cols-6 md:divide-x">
-                {[
-                  { name: 'Largest Contentful Paint', metric: 'largest_contentful_paint' },
-                  { name: 'Cumulative Layout Shift', metric: 'cumulative_layout_shift' },
-                  { name: 'First Input Delay', metric: 'max_first_input_delay' },
-                  { name: 'Total Blocking Time', metric: 'total_blocking_time' },
-                  { name: 'Time to First Byte', metric: 'time_to_first_byte' },
-                  { name: 'Speed Index', metric: 'speed_index' },
-                ].map(({ name, metric }, i) => (
-                  <LabTestTab 
-                    title={name} 
-                    isActive={metric === selectedMetric}
-                    currentValue={sortedLabTests && sortedLabTests[sortedLabTests.length - 1]?.[metric]} 
-                    previousValue={sortedLabTests && sortedLabTests[sortedLabTests.length - 2]?.[metric]}
-                    goodNeedsImprovementPoorTiers={GOOD_NEEDS_IMPROVEMENT_POOR_TIERS[metric]}
-                    isFirstTab={i === 0}
-                    metric={metric}
-                    key={i} 
-                    onClick={() => setSelectedMetric(metric)} 
+            <>
+              <div className='rounded-md border border-gray-200 overflow-hidden'>
+                <div className="grid grid-cols-1 md:grid-cols-6 md:divide-x">
+                  {[
+                    { name: 'Largest Contentful Paint', metric: 'largest_contentful_paint' },
+                    { name: 'Cumulative Layout Shift', metric: 'cumulative_layout_shift' },
+                    { name: 'First Input Delay', metric: 'max_first_input_delay' },
+                    { name: 'Total Blocking Time', metric: 'total_blocking_time' },
+                    { name: 'Time to First Byte', metric: 'time_to_first_byte' },
+                    { name: 'Speed Index', metric: 'speed_index' },
+                  ].map(({ name, metric }, i) => (
+                    <LabTestTab 
+                      title={name} 
+                      isActive={metric === selectedMetric}
+                      currentValue={labTestsMostRecentLast && labTestsMostRecentLast[labTestsMostRecentLast.length - 1]?.[metric]} 
+                      previousValue={labTestsMostRecentLast && labTestsMostRecentLast[labTestsMostRecentLast.length - 2]?.[metric]}
+                      goodNeedsImprovementPoorTiers={GOOD_NEEDS_IMPROVEMENT_POOR_TIERS[metric]}
+                      isFirstTab={i === 0}
+                      metric={metric}
+                      key={i} 
+                      onClick={() => {
+                        setSelectedMetric(metric);
+                        SwishjamMemory.set('labTestsSelectedMetric', metric);
+                      }} 
+                    />
+                  ))}
+                </div>
+                <PerformanceMetricCard 
+                  labTests={labTestsMostRecentLast} 
+                  metric={selectedMetric} 
+                  title={METRIC_DICT[selectedMetric].title}
+                  description={METRIC_DICT[selectedMetric].description} 
+                />
+                <div className='mt-4'>
+                  <LabTestResultsTable 
+                    labTests={labTestsMostRecentFirst} 
+                    metricToDisplay={selectedMetric} 
+                    goodNeedsImprovementPoorTiers={GOOD_NEEDS_IMPROVEMENT_POOR_TIERS[selectedMetric]}
                   />
-                ))}
+                </div>
               </div>
-              <PerformanceMetricCard 
-                labTests={sortedLabTests} 
-                metric={selectedMetric} 
-                title={METRIC_DICT[selectedMetric].title}
-                description={METRIC_DICT[selectedMetric].description} 
-              />
-              {/* <LighthouseCard labTests={labTests} /> */}
-            </div>
+            </>
           )}
       </main>
     </AuthenticatedView>
