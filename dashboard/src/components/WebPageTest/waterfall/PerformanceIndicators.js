@@ -36,7 +36,7 @@ const PerformanceIndicator = ({ name, value, pixelToMsRatio }) => {
         style={{ 
           marginLeft: `calc(${MARGIN_BUFFER} + ${value * pixelToMsRatio}px)`,
           width: 0,
-          borderRight: `2px solid ${COLORS_DICT[name] || 'blue'}`,
+          borderRight: `2px dotted ${COLORS_DICT[name] || 'blue'}`,
           height: '100%',
           zIndex: 30
         }} 
