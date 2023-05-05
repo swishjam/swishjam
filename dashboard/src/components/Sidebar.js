@@ -10,8 +10,8 @@ import {
   ArrowLeftOnRectangleIcon,
   IdentificationIcon,
   AdjustmentsHorizontalIcon,
-  ChevronDoubleLeftIcon,
-  ChevronDoubleRightIcon,
+  ChevronLeftIcon,
+  ChevronRightIcon,
   WindowIcon,
 } from '@heroicons/react/24/outline'
 
@@ -278,14 +278,14 @@ export default function Sidebar({ onCollapse, onExpand }) {
         </div>
       </div>
       <div
-        className={`fixed p-1 top-0 cursor-pointer transition border-b border-r z-30 bg-white -ml-[1px] border-gray-200 hover:underline ${isCollapsed ? 'left-10' : 'left-72'}`}
+        className={`fixed text-gray-700 p-1 top-0 cursor-pointer transition border-b border-r z-30 bg-white -ml-[1px] border-gray-200 hover:underline ${isCollapsed ? 'left-10' : 'left-72'}`}
         onClick={() => {
           setIsCollapsed(!isCollapsed);
           isCollapsed ? onExpand() : onCollapse();
           SwishjamMemory.set('isNavCollapsed', !isCollapsed);
         }}
         >
-        {isCollapsed ? <ChevronDoubleRightIcon className="h-4 w-4 transition hover:scale-105" /> : <ChevronDoubleLeftIcon className="h-4 w-4 transition hover:scale-105" />}
+        {isCollapsed ? <ChevronRightIcon className="h-4 w-4 text-gray-700 transition hover:scale-105" /> : <ChevronLeftIcon className="h-4 w-4 transition hover:scale-105" />}
       </div>
     </>
   );

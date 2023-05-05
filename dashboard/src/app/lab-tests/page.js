@@ -149,8 +149,8 @@ export default function LabTests() {
                     <LabTestTab 
                       title={name} 
                       isActive={metric === selectedMetric}
-                      currentValue={labTestsMostRecentLast && labTestsMostRecentLast[labTestsMostRecentLast.length - 1]?.[metric]} 
-                      previousValue={labTestsMostRecentLast && labTestsMostRecentLast[labTestsMostRecentLast.length - 2]?.[metric]}
+                      currentValue={labTestsMostRecentLast && (labTestsMostRecentLast[labTestsMostRecentLast.length - 1]?.[metric] || null)}
+                      previousValue={labTestsMostRecentLast && (labTestsMostRecentLast[labTestsMostRecentLast.length - 2]?.[metric] || null)}
                       goodNeedsImprovementPoorTiers={GOOD_NEEDS_IMPROVEMENT_POOR_TIERS[metric]}
                       isFirstTab={i === 0}
                       metric={metric}

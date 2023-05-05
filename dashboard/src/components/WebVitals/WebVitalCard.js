@@ -73,7 +73,7 @@ export default function WebVitalCard({ title, accronym, percentileValue, numReco
                   showYAxis={false}
                   showAnimation={false}
                 />
-                <div class='flex justify-end mt-4'>
+                <div className='flex justify-end mt-4'>
                   <Link
                     href={`/cwv/${accronym}`}
                     className='hover:text-swishjam duration-300 transition px-2.5 py-1 text-xs font-semibold text-gray-900'

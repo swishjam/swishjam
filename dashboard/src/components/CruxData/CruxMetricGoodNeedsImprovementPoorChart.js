@@ -24,7 +24,7 @@ const METRIC_NAME_TO_ACCRONYM_DICT = {
 
 function P75Indicator({ p75Value, upperBound, lowerBound, humanMetricName, isHovered, textColor }) {
   const { getArrowProps, getTooltipProps, setTooltipRef, setTriggerRef, visible } = usePopperTooltip({ followCursor: false, trigger: 'hover', placement: 'top' });
-  const marginLeft = (p75Value - lowerBound) / (upperBound - lowerBound) * 100;
+  const marginLeft = Math.min(100, (p75Value - lowerBound) / (upperBound - lowerBound) * 100);
 
   return (
     <>

@@ -3,6 +3,7 @@
 import MetricChart from "@/components/LabTests/MetricChart";
 import { formattedDate, formattedMsOrSeconds } from "@/lib/utils";
 import { ArrowDownIcon, ArrowUpIcon } from "@heroicons/react/24/outline";
+import Link from "next/link";
 import { usePopperTooltip } from 'react-popper-tooltip';
 import 'react-popper-tooltip/dist/styles.css';
 
@@ -52,8 +53,16 @@ export default function PerformanceMetricCard({ labTests, title, metric, descrip
       {labTests === undefined
         ? <div className="h-72 animate-pulse bg-gray-200 rounded-md" />
         : formattedLabTestsData.length === 0
-          ? <p className='text-gray-700 text-sm'>No lab tests data.</p>
-          : (
+          ? (
+            <div className='h-72 flex items-center justify-center'>
+              <div className='text-center'>
+                <h2 className='text-gray-700 text-md'>No lab tests data.</h2>
+                <p className='text-gray-500 text-sm'>
+                  Manage your lab test configurations <Link href='/lab-tests/manage' className='cursor-pointer underline hover:text-swishjam'>here</Link>.
+                </p>
+              </div>
+            </div>
+          ) : (
             <div className='relative'>
               <MetricChart 
                 data={formattedLabTestsData} 

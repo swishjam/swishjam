@@ -1,11 +1,7 @@
 'use client';
 import { Fragment, useState } from 'react'
 import { Menu, Transition } from '@headlessui/react'
-import { 
-  GlobeAltIcon,
-  ChevronDownIcon,
-  PlusCircleIcon
-} from '@heroicons/react/20/solid'
+import { GlobeAltIcon, PlusCircleIcon } from '@heroicons/react/20/solid'
 import { Cog6ToothIcon } from '@heroicons/react/24/outline';
 import { useAuth } from '@components/AuthProvider'
 import LoadingSpinner from '@components/LoadingSpinner';

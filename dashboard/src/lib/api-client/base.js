@@ -17,7 +17,8 @@ export class API {
   }
 
   static _params(data) {
-    const { public_id: projectKey } = JSON.parse(SwishjamMemory.get('currentProject') || '{}');
-    return { projectKey, ...data };
+    const projectKey = SwishjamMemory.get('currentProjectKey');
+    const project = SwishjamMemory.get('currentProjectName');
+    return { projectKey, project, ...data };
   }
 }

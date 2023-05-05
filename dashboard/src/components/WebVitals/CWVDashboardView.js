@@ -87,15 +87,19 @@ export default function CwvDashboardView() {
           </div>
 
           <div className="w-full flex items-center justify-end">
-            <HostUrlFilterer onNoHostsFound={() => setHasNoData(true)}
-                              onHostSelected={hostUrl => {
-                                                resetDashboardData();
-                                                setHostUrlToFilterOn(hostUrl);
-                                              }} />
+            <HostUrlFilterer 
+              onNoHostsFound={() => setHasNoData(true)}
+              onHostSelected={hostUrl => {
+                resetDashboardData();
+                setHostUrlToFilterOn(hostUrl);
+              }} 
+            />
             <div className='inline-block ml-2'>
-              <PathUrlFilterer urlHost={hostUrlToFilterOn} 
-                                includeAllPathsSelection={true}
-                                onPathSelected={urlPath => getDashboardDataForUrlHostAndPath(hostUrlToFilterOn, urlPath)} />
+              <PathUrlFilterer 
+                urlHost={hostUrlToFilterOn} 
+                includeAllPathsSelection={true}
+                onPathSelected={urlPath => getDashboardDataForUrlHostAndPath(hostUrlToFilterOn, urlPath)} 
+              />
             </div>
           </div>
         </div>
