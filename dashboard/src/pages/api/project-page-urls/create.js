@@ -1,4 +1,4 @@
-import { runQueryIfUserHasAccess } from "@/lib/analyticQuerier";
+import { Validator } from "@/lib/queryValidator";
 
 export default async (req, res) => {
   const { projectKey, labTestCadence, labTestsEnabled } = req.body;
@@ -6,7 +6,7 @@ export default async (req, res) => {
   if (![undefined, '1-minute', '5-minutes', '15-minutes', '30-minutes', '1-hour', '3-hours', '6-hours', '12-hours', '1-day'].includes(labTestCadence)) {
     return res.status(400).json({ error: 'Invalid cadence.' });
   }
-  return await runQueryIfUserHasAccess({ req, res, projectKey }, async ({ supabaseClient, currentProject }) => {
+  return await Validator.runQueryIfUserHasAccess({ req, res, projectKey }, async ({ supabaseClient, currentProject }) => {
     if (!url.startsWith('http')) url = `https://${url}`;
 
     const parsedUrl = new URL(url);

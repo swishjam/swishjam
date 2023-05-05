@@ -1,4 +1,4 @@
-import { runQueryIfUserHasAccess } from "@/lib/analyticQuerier"
+import { Validator } from "@/lib/queryValidator"
 import { LargestContentfulPaintEntries } from "@/lib/data/largestContentfulPaintEntries"
 
 export default async (req, res) => {
@@ -11,7 +11,7 @@ export default async (req, res) => {
     startTs = defaultStartTs 
   } = req.query;
 
-  return await runQueryIfUserHasAccess({ req, res, projectKey }, async () => {
+  return await Validator.runQueryIfUserHasAccess({ req, res, projectKey }, async () => {
     const records = await LargestContentfulPaintEntries.getDistinctEntries({ 
       projectKey, 
       urlHost, 

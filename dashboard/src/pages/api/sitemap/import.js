@@ -1,11 +1,11 @@
-import { runQueryIfUserHasAccess } from '@/lib/analyticQuerier';
+import { Validator } from '@/lib/queryValidator';
 import { SitemapParser } from '@/lib/sitemap-parser';
 
 const MAXIMUM_SITEMAP_IMPORT_URL_ENTRIES = parseInt(process.env.MAXIMUM_SITEMAP_IMPORT_URL_ENTRIES || 1_000);
 
 export default async (req, res) => {
   const { projectKey, url, sitemapUrl } = req.query;
-  return runQueryIfUserHasAccess({ req, res, projectKey }, async ({ supabaseClient, currentProject }) => {
+  return Validator.runQueryIfUserHasAccess({ req, res, projectKey }, async ({ supabaseClient, currentProject }) => {
     try {
 
       const rootURL = await getRootURL(url);

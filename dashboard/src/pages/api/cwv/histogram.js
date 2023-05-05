@@ -1,4 +1,4 @@
-import { runQueryIfUserHasAccess } from '@lib/analyticQuerier';
+import { Validator } from '@/lib/queryValidator';
 import WebVitalsData from '@/lib/data/webVitals';
 
 export default async (req, res) => {
@@ -12,7 +12,7 @@ export default async (req, res) => {
     startTs = defaultStartTs 
   } = req.query;
 
-  return await runQueryIfUserHasAccess({ req, res, projectKey }, async () => {
+  return await Validator.runQueryIfUserHasAccess({ req, res, projectKey }, async () => {
     try {
       const histogramArray = await WebVitalsData.getHistogramData({ 
         projectKey, 

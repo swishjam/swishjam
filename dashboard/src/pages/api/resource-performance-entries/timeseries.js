@@ -1,11 +1,11 @@
-import { runQueryIfUserHasAccess } from '@/lib/analyticQuerier';
+import { Validator } from '@/lib/queryValidator';
 import ResourcePerformanceEntries from '@/lib/data/resourcePerformanceEntries';
 
 export default async (req, res) => {
   const defaultStartTs = Date.now() - 1000 * 60 * 60 * 24 * 7;
   const { projectKey, resourceName, metric, startTs = defaultStartTs } = req.query;
 
-  return await runQueryIfUserHasAccess({ req, res, projectKey }, async () => {
+  return await Validator.runQueryIfUserHasAccess({ req, res, projectKey }, async () => {
     try {
       if (!resourceName) throw new Error('Missing `resourceName` query param');
       const records = await ResourcePerformanceEntries.getTimeseriesForMetric({

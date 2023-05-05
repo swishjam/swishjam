@@ -1,5 +1,5 @@
 import ResourcePerformanceEntries from '@/lib/data/resourcePerformanceEntries';
-import { runQueryIfUserHasAccess } from '@/lib/analyticQuerier';
+import { Validator } from '@/lib/queryValidator';
 
 export default async (req, res) => {
   const defaultStartTs = Date.now() - 1000 * 60 * 60 * 24 * 7;
@@ -12,7 +12,7 @@ export default async (req, res) => {
     startTs = defaultStartTs 
   } = req.query;
 
-  return await runQueryIfUserHasAccess({ req, res, projectKey }, async () => {
+  return await Validator.runQueryIfUserHasAccess({ req, res, projectKey }, async () => {
     try {
       const records = await ResourcePerformanceEntries.getAll({
         projectKey,
