@@ -6,6 +6,7 @@ import DetailsHeader from "@/components/LabTests/DetailsHeader";
 import { formattedMsOrSeconds } from "@/lib/utils";
 import { WebPageTestResults } from "@/lib/web-page-test-results-parser";
 import LighthouseScore from "@/components/WebPageTest/LighthouseScore";
+import Filmstrip from "@/components/WebPageTest/Filmstrip";
 
 const GOOD_NEEDS_IMPROVEMENT_POOR_TIERS = {
   LargestContentfulPaint: {
@@ -61,25 +62,14 @@ export default function Overview({ params }) {
             : <div className='h-24 w-24 animate-pulse bg-gray-200 rounded-full mt-2 m-auto' />
           }
         </div>
-        <div className='flex items-center w-full overflow-x-scroll mb-4'>  
-          {webPageTestResults 
-            ? (
-                webPageTestResults.filmstrip().map(({ image, time }, i) => (
-                  <div className='text-center mr-2' key={i}>
-                    <span className='block text-sm text-gray-700'>{formattedMsOrSeconds(time)}</span>
-                    <img src={image} className='rounded-lg shadow-md border border-gray-100 min-w-[200px]' />
-                  </div>
-                ))
-            ) : (
-              Array.from({ length: 10 }).map((_, i) => (
-                <div className='text-center mr-2' key={i}>
-                  <div className='h-6 w-8 animate-pulse bg-gray-200 rounded mt-2 m-auto' />
-                  <div className='animate-pulse bg-gray-200 rounded mt-2' style={{ width: '200px', height: '100px' }} />
-                </div>
-              ))
-            )
-          }
-        </div>
+        <Filmstrip 
+          filmstrip={webPageTestResults?.filmstrip()} 
+          performanceMetrics={{
+            LargestContentfulPaint: webPageTestResults?.performanceData().LargestContentfulPaint,
+            FirstContentfulPaint: webPageTestResults?.performanceData().firstContentfulPaint,
+            TimeToFirstByte: webPageTestResults?.performanceData().TimeToFirstByte,
+          }} 
+        />
         <div className='grid grid-cols-3 gap-4'>
           {[
             ['Largest Contentful Paint', 'LargestContentfulPaint'],
