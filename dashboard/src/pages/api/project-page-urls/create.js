@@ -3,7 +3,7 @@ import { Validator } from "@/lib/queryValidator";
 export default async (req, res) => {
   const { projectKey, labTestCadence, labTestsEnabled } = req.body;
   let { url } = req.body;
-  if (![undefined, '1-minute', '5-minutes', '15-minutes', '30-minutes', '1-hour', '3-hours', '6-hours', '12-hours', '1-day'].includes(labTestCadence)) {
+  if (![undefined, '5-minutes', '15-minutes', '30-minutes', '1-hour', '3-hours', '6-hours', '12-hours', '1-day'].includes(labTestCadence)) {
     return res.status(400).json({ error: 'Invalid cadence.' });
   }
   return await Validator.runQueryIfUserHasAccess({ req, res, projectKey }, async ({ supabaseClient, currentProject }) => {
@@ -20,7 +20,11 @@ export default async (req, res) => {
       lab_tests_enabled: labTestsEnabled,
     }).select();
     if (error) {
-      return res.status(500).json({ error: result.error.message });
+      if (error.message.includes('duplicate key value violates unique constraint')) {
+        return res.status(400).json({ error: `A URL for "${url}" already exists for this project.` });
+      } else {
+        return res.status(500).json({ error: 'An error occurred, cannot add new configuration.' });
+      }
     } else {
       return res.status(200).json({ success: true, record: data[0] });
     }

@@ -77,9 +77,9 @@ function ProjectPageUrlsTable({ projectPageUrls }) {
         </thead>
         <tbody className="divide-y divide-gray-200 bg-white">
           {projectPageUrls 
-            ? projectPageUrls.map(pageUrl => <ManageRow key={pageUrl.public_id} pageUrl={pageUrl} />)
+            ? projectPageUrls.map(pageUrl => <ManageRow key={pageUrl.id} pageUrl={pageUrl} />)
             : (
-              Array.from({ length: 6}).map(i => (
+              Array.from({ length: 6}).map((_, i) => (
                 <tr key={i}>
                   <td className="whitespace-nowrap py-5 pl-4 pr-3 text-sm sm:pl-0">
                     <div className="ml-4 w-32 h-6 animate-pulse bg-gray-200 rounded-md"></div>
