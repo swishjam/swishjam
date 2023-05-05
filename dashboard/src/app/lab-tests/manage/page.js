@@ -18,7 +18,7 @@ export default function Manage() {
   useEffect(() => {
     setProjectPageUrls();
     ProjectPageUrlsAPI.getAll().then(setProjectPageUrls);
-  }, [currentProject?.public_id])
+  }, [currentProject?.public_id]);
 
   return (
     <AuthenticatedView>

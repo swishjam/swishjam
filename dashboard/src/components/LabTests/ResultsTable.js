@@ -7,11 +7,14 @@ function LabTestResultRow({ labTest, metricToDisplay, goodNeedsImprovementPoorTi
   const { good: goodUpperBound, needsImprovement: needsImprovementUpperBound } = goodNeedsImprovementPoorTiers;
   const poorUpperBound = needsImprovementUpperBound + (needsImprovementUpperBound - goodUpperBound)
   const status = labTest[metricToDisplay] < goodUpperBound ? 'good' : labTest[metricToDisplay] < needsImprovementUpperBound ? 'needs improvement' : 'poor';
-  const indicatorMarginLeft = status === 'good' 
-                                ? labTest[metricToDisplay] / goodUpperBound * 100 
-                                : status === 'needs improvement' 
-                                  ? ((labTest[metricToDisplay] - goodUpperBound) / (needsImprovementUpperBound - goodUpperBound)) * 100 
-                                  : ((labTest[metricToDisplay] - needsImprovementUpperBound) / (poorUpperBound - needsImprovementUpperBound)) * 100;
+  const indicatorMarginLeft = Math.min(
+    100,
+    status === 'good' 
+      ? labTest[metricToDisplay] / goodUpperBound * 100 
+      : status === 'needs improvement' 
+        ? ((labTest[metricToDisplay] - goodUpperBound) / (needsImprovementUpperBound - goodUpperBound)) * 100 
+        : ((labTest[metricToDisplay] - needsImprovementUpperBound) / (poorUpperBound - needsImprovementUpperBound)) * 100
+  )
   return (
     <tr>
       <td className="px-6 py-4 whitespace-nowrap">

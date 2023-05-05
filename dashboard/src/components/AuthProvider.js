@@ -25,18 +25,10 @@ export const AuthProvider = (props) => {
   const router = useRouter();
   const { accessToken, ...rest } = props;
 
-  async function updateCurrentProject(curProject) {
-    //update the current project in local storage
-    if(curProject) {
-      try {
-        SwishjamMemory.set("currentProject", JSON.stringify(curProject))
-        setCurrentProject(curProject)
-      } catch(err) {
-        console.error(err)
-      } 
-    } else {
-      console.error(err)
-    } 
+  function updateCurrentProject({ name, public_id }) {
+    SwishjamMemory.set("currentProjectName", name);
+    SwishjamMemory.set("currentProjectKey", public_id);
+    setCurrentProject({ name, public_id });
   }
 
   useEffect(() => {
@@ -57,20 +49,21 @@ export const AuthProvider = (props) => {
           const loadedProjects = await supabase.from('projects').select('*').eq('organization_id', orgs.data[0].id)
           setProjects(loadedProjects.data)
 
-          const lsCurProject = SwishjamMemory.get("currentProject");
+          const inMemoryProjectKey = SwishjamMemory.get("currentProjectKey");
+          const inMemoryProjectName = SwishjamMemory.get("currentProjectName");
           
-          if (lsCurProject) {
-            setCurrentProject(JSON.parse(lsCurProject))  
+          if (inMemoryProjectKey && inMemoryProjectName) {
+            setCurrentProject({ name: inMemoryProjectName, public_id: inMemoryProjectKey });  
           }
-          if(!lsCurProject && loadedProjects.data.length > 0) {
-            setCurrentProject(loadedProjects.data[0]);
-            SwishjamMemory.set("currentProject", JSON.stringify(loadedProjects.data[0]));
+          if ((!inMemoryProjectKey || !inMemoryProjectName) && loadedProjects.data.length > 0) {
+            setCurrentProject({ name: loadedProjects.data[0].name, public_id: loadedProjects.data[0].public_id });
+            SwishjamMemory.set("currentProjectName", loadedProjects.data[0].name);
+            SwishjamMemory.set("currentProjectKey", loadedProjects.data[0].public_id);
           }
         }
       } catch (error) {
         console.error(error);
       }
-      return;
     }
 
     async function getActiveSession() {
@@ -99,7 +92,8 @@ export const AuthProvider = (props) => {
         setUserOrg(null);
         setProjects([]);
         setCurrentProject(null);
-        SwishjamMemory.delete('currentProject')
+        SwishjamMemory.delete('currentProjectName')
+        SwishjamMemory.delete('currentProjectKey')
       }
       // check if user is signed in and then try to pull the user's org, sites, & set site
       if(event === EVENTS.SIGNED_IN) {

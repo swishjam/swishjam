@@ -32,38 +32,21 @@ const SignUp = () => {
   async function signUp(formData) {
     try {
       setLoading(true);
-      const { data, error } = await supabase.auth.signUp({
-        email: formData.email,
-        password: formData.password,
-      });
+      const { data, error } = await supabase.auth.signUp({ email: formData.email, password: formData.password });
       const { user } = data;
 
-      if (error) {
-        throw error;
-      } else {
+      if (error) throw error;
+      const newUser = await supabase.from('users').insert({ id: user.id, email: user.email });
+      if (newUser.error) throw newUser.error;
 
-        const newUser = await supabase
-          .from('users')
-          .insert({ id: user.id, email: user.email })
-        if(newUser.error) { throw newUser.error }
+      const newOrg = await supabase.from('organizations').insert({ name: formData.company, owner_uuid: user.id }).select();
+      if (newOrg.error) throw newOrg.error;
 
-        const newOrg = await supabase
-          .from('organizations')
-          .insert({ name: formData.company, owner_uuid: user.id })
-          .select()
-        if(newOrg.error) { throw newOrg.error }
+      const newOrgConnection = await supabase.from('organization_users').insert({ organization_id: newOrg.data[0].id, user_id: user.id });
+      if (newOrgConnection.error) throw newOrg.error;
 
-        const newOrgConnection = await supabase
-          .from('organization_users')
-          .insert({ organization_id: newOrg.data[0].id, user_id: user.id })
-        if(newOrgConnection.error) { throw newOrg.error }
-
-        // Send to auth provider
-        setUserOrg(newOrg.data[0]);
-        
-        // Forward user to dashboard 
-        router.push('/')
-      }
+      setUserOrg(newOrg.data[0]);
+      router.push('/');
     } catch (error) {
       console.error('Sign Up Error', error);
       setLoading(false);
@@ -151,7 +134,8 @@ const SignUp = () => {
                 <div>
                   <button
                     type="submit"
-                    className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-swishjam hover:bg-swishjam-dark focus:outline-none focus:ring-2 focus:ring-offse6-2"
+                    className={`w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white focus:outline-none focus:ring-2 ${loading ? 'bg-gray-400' : 'bg-swishjam hover:bg-swishjam-dark' }`}
+                    disabled={loading}
                   >
                     {loading ? <div className="h-6"><LoadingSpinner size={6} color='white'/></div> : 'Register'} 
                   </button>

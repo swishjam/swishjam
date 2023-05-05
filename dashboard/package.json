@@ -21,6 +21,7 @@
     "aws-sdk": "^2.1353.0",
     "classnames": "^2.3.2",
     "encoding": "^0.1.13",
+    "fast-xml-parser": "^4.2.2",
     "formik": "^2.2.9",
     "luxon": "^3.3.0",
     "markdown-it": "^13.0.1",

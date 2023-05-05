@@ -1,4 +1,4 @@
-import { runQueryIfUserHasAccess } from '@/lib/analyticQuerier';
+import { Validator } from '@/lib/queryValidator';
 import WebVitals from '@/lib/data/webVitals';
 import PageViews from '@/lib/data/pageViews';
 
@@ -6,7 +6,7 @@ export default async (req, res) => {
   const defaultStartTs = Date.now() - 1000 * 60 * 60 * 24 * 7;
   const { projectKey, urlHost, urlPath, percentile = 0.75, startTs = defaultStartTs } = req.query;
 
-  return runQueryIfUserHasAccess({ req, res, projectKey }, async () => {
+  return Validator.runQueryIfUserHasAccess({ req, res, projectKey }, async () => {
     try {
       const [metrics, totalCount] = await Promise.all([
         WebVitals.getPercentileForMetricsByBrowser({ projectKey, urlHost, urlPath, percentile: parseFloat(percentile), startTs }),

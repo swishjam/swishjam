@@ -1,11 +1,11 @@
-import { runQueryIfUserHasAccess } from '@lib/analyticQuerier';
+import { Validator } from '@/lib/queryValidator';
 import WebVitalsData from '@/lib/data/webVitals';
 
 export default async (req, res) => {
   const defaultStartTs = Date.now() - 1000 * 60 * 60 * 24 * 7;
   const { projectKey, metrics, urlHost, urlPath, percentile = 0.75, startTs = defaultStartTs } = req.query;
   
-  return await runQueryIfUserHasAccess({ req, res, projectKey }, async () => {
+  return await Validator.runQueryIfUserHasAccess({ req, res, projectKey }, async () => {
     try {
       const sqlQueries = JSON.parse(metrics || '[]').map(
         metric => WebVitalsData.getPercentileTimeseriesDataForMetric({ 

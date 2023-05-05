@@ -1,10 +1,11 @@
-import { runQueryIfUserHasAccess } from "@/lib/analyticQuerier";
+import { Validator } from "@/lib/queryValidator";
 
 export default async (req, res) => {
   const { projectKey, id, url, labTestCadence, labTestsEnabled } = req.body;
-  return await runQueryIfUserHasAccess({ req, res, projectKey }, async ({ supabaseClient }) => {
+  return await Validator.runQueryIfUserHasAccess({ req, res, projectKey }, async ({ supabaseClient, currentProject }) => {
     const parsedUrl = new URL(url);
     const { data, error } = await supabaseClient.from('project_page_urls').update({
+      url_uniqueness_key: `${currentProject.id}-${url}`,
       full_url: url,
       url_host: parsedUrl.host,
       url_path: parsedUrl.pathname,
