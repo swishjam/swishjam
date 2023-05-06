@@ -54,8 +54,15 @@ export default function DetailsHeader({ labTestId, webPageTestResults, selectedN
         </div>
         <div className='flex items-center justify-center'>
           {webPageTestResults  
-            ? <Image src={webPageTestResults.screenshotUrl()} width={300} height={200} className='border border-gray-200 rounded' />
-            : <div className='animate-pulse bg-gray-200 rounded' style={{ width: '300px', height: '200px' }} />}
+            ? (
+              <Image 
+                src={webPageTestResults.screenshotUrl()} 
+                width={300} 
+                height={200} 
+                className='border border-gray-200 rounded' 
+                alt='Screenshot of the web page'
+              />
+            ) : <div className='animate-pulse bg-gray-200 rounded' style={{ width: '300px', height: '200px' }} />}
         </div>
       </div>
       <div className="border-b border-gray-200">

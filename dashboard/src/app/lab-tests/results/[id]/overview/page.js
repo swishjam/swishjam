@@ -3,9 +3,12 @@
 import { useEffect, useState } from "react";
 import AuthenticatedView from "@/components/AuthenticatedView";
 import DetailsHeader from "@/components/LabTests/DetailsHeader";
-import { formattedMsOrSeconds } from "@/lib/utils";
 import { WebPageTestResults } from "@/lib/web-page-test-results-parser";
 import LighthouseScore from "@/components/WebPageTest/LighthouseScore";
+import Filmstrip from "@/components/WebPageTest/Filmstrip";
+import FilmstripVideo from "@/components/WebPageTest/FilmstripVideo";
+import { FilmIcon } from "@heroicons/react/24/outline";
+import { formattedMsOrSeconds } from "@/lib/utils";
 
 const GOOD_NEEDS_IMPROVEMENT_POOR_TIERS = {
   LargestContentfulPaint: {
@@ -37,6 +40,7 @@ const GOOD_NEEDS_IMPROVEMENT_POOR_TIERS = {
 export default function Overview({ params }) {
   const { id } = params;
   const [webPageTestResults, setWebPageTestResults] = useState();
+  const [filmstripIsExpanded, setFilmstripIsExpanded] = useState(false);
 
   useEffect(() => {
     fetch(`https://www.webpagetest.org/jsonResult.php?test=${id}&breakdown=${1}`)
@@ -57,28 +61,28 @@ export default function Overview({ params }) {
         <div className='text-center'>
           <span className='block text-lg font-medium text-gray-700'>Lighthouse Performance Score</span>
           {webPageTestResults
-            ? <LighthouseScore score={webPageTestResults.lighthouseScore()} size='medium' />
+            ? <LighthouseScore score={webPageTestResults.lighthouseScore()} size='large' />
             : <div className='h-24 w-24 animate-pulse bg-gray-200 rounded-full mt-2 m-auto' />
           }
         </div>
-        <div className='flex items-center w-full overflow-x-scroll mb-4'>  
-          {webPageTestResults 
-            ? (
-                webPageTestResults.filmstrip().map(({ image, time }, i) => (
-                  <div className='text-center mr-2' key={i}>
-                    <span className='block text-sm text-gray-700'>{formattedMsOrSeconds(time)}</span>
-                    <img src={image} className='rounded-lg shadow-md border border-gray-100 min-w-[200px]' />
-                  </div>
-                ))
-            ) : (
-              Array.from({ length: 10 }).map((_, i) => (
-                <div className='text-center mr-2' key={i}>
-                  <div className='h-6 w-8 animate-pulse bg-gray-200 rounded mt-2 m-auto' />
-                  <div className='animate-pulse bg-gray-200 rounded mt-2' style={{ width: '200px', height: '100px' }} />
-                </div>
-              ))
-            )
-          }
+        <div className='w-[50vw] my-4 m-auto'>
+          <FilmstripVideo 
+            filmstrip={webPageTestResults?.filmstrip({ filledIn: false })} 
+            performanceMetrics={{
+              LargestContentfulPaint: webPageTestResults?.performanceData().LargestContentfulPaint,
+              FirstContentfulPaint: webPageTestResults?.performanceData().firstContentfulPaint,
+              TimeToFirstByte: webPageTestResults?.performanceData().TimeToFirstByte,
+            }} 
+          />
+        </div>
+        <div className={`w-full mb-4 ${filmstripIsExpanded ? '' : 'border-b border-gray-200'}`}>
+          <span
+            className='text-sm text-gray-700 cursor-pointer hover:underline mt-2 mb-4 px-10'
+            onClick={() => setFilmstripIsExpanded(!filmstripIsExpanded)}
+          >
+            {filmstripIsExpanded ? 'Hide' : 'Show'} Filmstrip <FilmIcon className='h-4 w-4 inline-block ml-1' />
+          </span>
+          {filmstripIsExpanded && <Filmstrip filmstrip={webPageTestResults?.filmstrip()} />}
         </div>
         <div className='grid grid-cols-3 gap-4'>
           {[
