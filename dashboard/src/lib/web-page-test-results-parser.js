@@ -105,7 +105,22 @@ export class WebPageTestResults {
     return this.lighthouseData.runWarnings || [];
   }
 
-  filmstrip() {
-    return this.firstViewData.videoFrames;
+  filmstrip({ filledIn = true } = {}) {
+    if (filledIn) {
+      const filmstripObject = {};
+      this.firstViewData.videoFrames.forEach(({ time, image, VisuallyComplete }) => filmstripObject[parseFloat(time)] = { time, image, VisuallyComplete });
+
+      const sortedFilmstripTimestamps = Object.keys(filmstripObject).map(ts => parseFloat(ts)).sort((a, b) => parseFloat(a.time) - parseFloat(b.time));
+      const maxTs = sortedFilmstripTimestamps[sortedFilmstripTimestamps.length - 1];
+      for (let i = 0; i <= maxTs; i += 500) {
+        if (!filmstripObject[i]) {
+          const closestTs = sortedFilmstripTimestamps.find((ts, j) => i >= ts && i < sortedFilmstripTimestamps[j + 1]);
+          filmstripObject[i] = { ...filmstripObject[closestTs], time: i };
+        }
+      }
+      return Object.values(filmstripObject);
+    } else {
+      return this.firstViewData.videoFrames;
+    }
   }
 }
