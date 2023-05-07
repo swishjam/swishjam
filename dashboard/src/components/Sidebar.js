@@ -1,5 +1,6 @@
 'use client';
 import {
+  ArrowsRightLeftIcon,
   HeartIcon,
   CodeBracketSquareIcon,
   ServerStackIcon,
@@ -31,7 +32,8 @@ const rumNav = [
   { name: 'Resource Waterfall', href: '/waterfall', icon: Bars3CenterLeftIcon },
   { name: 'Page Breakdown', href: '/page-breakdown', icon: RectangleGroupIcon },
   { name: 'Visitor Demographics', href: '/visitor-demographics', icon: IdentificationIcon },
-  { name: 'Chrome Data', href: '/crux', icon: WindowIcon }
+  { name: 'Chrome Data', href: '/crux', icon: WindowIcon },
+  { name: 'API Performance', href: '/api-performance', icon: ArrowsRightLeftIcon },
 ]
 
 const labTestNav = [
