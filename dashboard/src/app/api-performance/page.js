@@ -74,7 +74,7 @@ export default function APIPerformance() {
               ? (
                 apiData.map(({ url, total_count, duration, transfer_size }, i) => (
                   <div 
-                    className={`border-b border-gray-400 p-1 hover:bg-gray-100 cursor-pointer ${url === selectedAPI?.url ? 'bg-gray-100 border border-gray-600' : ''}`}
+                    className={`border-b border-gray-400 p-4 hover:bg-gray-100 cursor-pointer ${url === selectedAPI?.url ? 'bg-gray-100 border border-gray-600' : ''}`}
                     key={i}
                     onClick={() => {
                       setSelectedAPI(apiData[i])
@@ -102,51 +102,50 @@ export default function APIPerformance() {
             }
           </div>
           <div className='col-span-6 h-full p-4'>
-            <div>
-              {selectedAPI
-                ? <h2 className='text-lg font-medium text-gray-700'>{selectedAPI.url}</h2>
-                : <div className='h-8 bg-gray-200 animate-pulse rounded w-1/2 m-1' />}
-              <div className='grid grid-cols-3 gap-4 my-4'>
-                <div className='border border-gray-400 rounded p-4 '>
-                  <div className='text-sm font-medium text-gray-500'>Total requests</div>
-                  {selectedAPI
-                    ? <h2 className='text-4xl font-bold text-gray-900'>{selectedAPI?.total_count}</h2>
-                    : <div className='h-12 bg-gray-200 rounded w-1/2 m-1' />}
-                  
-                </div>
-                <div className='border border-gray-400 rounded p-4 '>
-                  <div className='text-sm font-medium text-gray-500'>P75 request duration</div>
-                  {selectedAPI
-                    ? <h2 className='text-4xl font-bold text-gray-900'>{selectedAPI && formattedMsOrSeconds(selectedAPI?.duration)}</h2>
-                    : <div className='h-12 bg-gray-200 rounded w-1/2 m-1' />}
-                  
-                </div>
-                <div className='border border-gray-400 rounded p-4 '>
-                  <div className='text-sm font-medium text-gray-500'>P75 transfer size</div>
-                  {selectedAPI
-                    ? <h2 className='text-4xl font-bold text-gray-900'>{selectedAPI && bytesToHumanFileSize(selectedAPI?.transfer_size)}</h2>
-                    : <div className='h-12 bg-gray-200 rounded w-1/2 m-1' />}
-                  
-                </div>
+            {selectedAPI
+              ? <h2 className='text-lg font-medium text-gray-700'>{selectedAPI.url}</h2>
+              : <div className='h-8 bg-gray-200 animate-pulse rounded w-1/2 m-1' />}
+            <div className='grid grid-cols-3 gap-4 my-4'>
+              <div className='border border-gray-400 rounded p-4'>
+                <div className='text-sm font-medium text-gray-500'>Total requests</div>
+                {selectedAPI
+                  ? <h2 className='text-4xl font-bold text-gray-900'>{selectedAPI?.total_count}</h2>
+                  : <div className='h-12 bg-gray-200 rounded w-1/2 m-1' />}
+                
               </div>
+              <div className='border border-gray-400 rounded p-4'>
+                <div className='text-sm font-medium text-gray-500'>P75 request duration</div>
+                {selectedAPI
+                  ? <h2 className='text-4xl font-bold text-gray-900'>{selectedAPI && formattedMsOrSeconds(selectedAPI?.duration)}</h2>
+                  : <div className='h-12 bg-gray-200 rounded w-1/2 m-1' />}
+                
+              </div>
+              <div className='border border-gray-400 rounded p-4'>
+                <div className='text-sm font-medium text-gray-500'>P75 transfer size</div>
+                {selectedAPI
+                  ? <h2 className='text-4xl font-bold text-gray-900'>{selectedAPI && bytesToHumanFileSize(selectedAPI?.transfer_size)}</h2>
+                  : <div className='h-12 bg-gray-200 rounded w-1/2 m-1' />}
+                
+              </div>
+            </div>
+            <div className='border border-gray-400 rounded p-4'>
+              <h5 className='text-sm font-medium text-gray-500 mb-2'>P75 request duration</h5>
               {selectedAPITimeseriesData 
                 ? (
-                  <>
-                    <AreaChart
-                      data={selectedAPITimeseriesData} 
-                      keys={['duration']} 
-                      xAxisKey={'hour'} 
-                      height='h-72'
-                      width='w-full'
-                      includeLegend={false}
-                      yAxisDataFormatter={formattedMsOrSeconds}
-                      xAxisDataFormatter={dateString => formattedDate(dateString, { includeTime: true })}
-                    />
-                  </>
+                  <AreaChart
+                    data={selectedAPITimeseriesData} 
+                    keys={['duration']} 
+                    xAxisKey={'hour'} 
+                    height='h-72'
+                    width='w-full'
+                    includeLegend={false}
+                    yAxisDataFormatter={formattedMsOrSeconds}
+                    xAxisDataFormatter={dateString => formattedDate(dateString, { includeTime: true })}
+                  />
                 ) : <div className='h-72 w-full bg-gray-200 rounded animate-pulse' />
               }
             </div>
-            </div>
+          </div>
         </div>
       </main>
     </AuthenticatedView>

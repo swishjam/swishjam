@@ -7,7 +7,7 @@ if (process.env.NEXT_PUBLIC_SENTRY_DSN) {
   Sentry.init({
     dsn: process.env.NEXT_PUBLIC_SENTRY_DSN,
     // Adjust this value in production, or use tracesSampler for greater control
-    tracesSampleRate: process.env.VERCEL_ENV === 'development' ? 0 : 0.5,
+    tracesSampleRate: process.env.NEXT_PUBLIC_VERCEL_ENV === 'development' ? 0 : 0.5,
     // ...
     // Note: if you want to override the automatic release value, do not set a
     // `release` value here - use the environment variable `SENTRY_RELEASE`, so
