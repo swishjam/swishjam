@@ -1,5 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { formattedMsOrSeconds } from "@/lib/utils";
+import Dropdown from "../Dropdown";
+import { AreaChart, Area, ResponsiveContainer, CartesianGrid, XAxis, YAxis, Tooltip } from "recharts";
 
 const ADDITIONAL_MS_TO_VIDEO = 1_000;
 
@@ -13,16 +15,14 @@ export default function FilmstripVideo({ filmstrip, performanceMetrics }) {
 
   if (isPlaying && nextFilmstripItem) {
     const msUntilNextFrame = nextFilmstripItem.time - currentFilmstripItem.time;
-    setTimeout(() => {
-      setCurrentFilmstripFrameIndex(currentFilmstripFrameIndex + 1);
-    }, msUntilNextFrame / playbackSpeed)
+    setTimeout(() => setCurrentFilmstripFrameIndex(currentFilmstripFrameIndex + 1), msUntilNextFrame / playbackSpeed);
   } else if (isPlaying && !nextFilmstripItem) {
     setTimeout(() => setIsPlaying(false), ADDITIONAL_MS_TO_VIDEO / playbackSpeed);
   }
 
   return (
     <div className='border border-gray-200 pb-4'>
-      {filmstrip 
+      {filmstrip
         ? (
           <div className='text-center'>
             <div className='relative'>
@@ -45,13 +45,22 @@ export default function FilmstripVideo({ filmstrip, performanceMetrics }) {
               </div>
               <VideoPlayerProgressionIndicator
                 isRunning={isPlaying}
+                filmstrip={filmstrip}
                 time={currentFilmstripItem.time}
                 duration={filmstrip[filmstrip.length - 1].time + ADDITIONAL_MS_TO_VIDEO}
                 playbackSpeed={playbackSpeed}
                 performanceMetrics={performanceMetrics}
               />
             </div>
-            <div className='flex items-center justify-center mt-4 grid grid-cols-5 gap-x-4 mt-10 px-2'>
+            <div className='flex justify-end items-center mt-8 px-2'>
+              <Dropdown 
+                label='Playback Speed' 
+                options={['0.25x', '0.5x', '0.75x', '1x', '2x']} 
+                selected={'0.5x'} 
+                onSelect={ speed => setPlaybackSpeed(parseFloat(speed.replace('x', ''))) } 
+              />
+            </div>
+            {/* <div className='flex items-center justify-center mt-4 grid grid-cols-5 gap-x-4 mt-10 px-2'>
               {[0.25, 0.5, 0.75, 1, 2].map(speed => (
                 <div
                   className={`cursor-pointer px-4 py-1 text-sm rounded-md text-gray-700 hover:bg-gray-100 hover:text-gray-900 ${playbackSpeed === speed ? 'bg-gray-200' : ''}`}
@@ -61,18 +70,19 @@ export default function FilmstripVideo({ filmstrip, performanceMetrics }) {
                   {speed}x
                 </div>
               ))}
-            </div>
+            </div> */}
           </div>
         ) : <div className='w-full h-64 bg-gray-200 animate-pulse rounded-md' />}
     </div>
   )
 }
 
-const VideoPlayerProgressionIndicator = ({ time, playbackSpeed, performanceMetrics, isRunning, duration }) => {
+const VideoPlayerProgressionIndicator = ({ filmstrip, time, playbackSpeed, performanceMetrics, isRunning, duration }) => {
   const durationIndicatorRef = useRef(null);
   const intervalRef = useRef(null);
 
   const percentComplete = time / duration * 100;
+  const percentRemaining = 100 - percentComplete;
   const increments = playbackSpeed * 100;
 
   useEffect(() => {
@@ -80,7 +90,7 @@ const VideoPlayerProgressionIndicator = ({ time, playbackSpeed, performanceMetri
       intervalRef.current = setInterval(() => {
         const currentTime = parseInt(durationIndicatorRef.current.dataset.time);
         const incrementedTime = currentTime + increments;
-        durationIndicatorRef.current.style.width = `${(incrementedTime / duration) * 100}%`;
+        durationIndicatorRef.current.style.width = `${100 - ((incrementedTime / duration) * 100)}%`;
         durationIndicatorRef.current.dataset.time = incrementedTime;
       }, increments / playbackSpeed);
     } else {
@@ -89,25 +99,36 @@ const VideoPlayerProgressionIndicator = ({ time, playbackSpeed, performanceMetri
   }, [isRunning])
 
   return (
-    <div className='w-full h-6 relative'>
-      <div className='absolute top-0 h-full w-1 bg-blue-500 z-10' style={{ left: `${(performanceMetrics.TimeToFirstByte / duration) * 100}%` }} />
-      <div className='absolute top-6 text-gray-700 text-xs' style={{ left: `${(performanceMetrics.TimeToFirstByte / duration) * 100 - 2.5}%` }}>
-        TTFB<br/>{formattedMsOrSeconds(performanceMetrics.TimeToFirstByte)}
+    <div className='w-full h-10 relative'>
+      <div className='absolute top-0 h-full w-1 bg-blue-500 z-10' style={{ left: `${(performanceMetrics.TimeToFirstByte / duration) * 100}%` }}>
+        <div className='absolute text-gray-700 text-xs whitespace-nowrap z-20' style={{ transform: 'translateX(-50%)', marginLeft: '0.25rem', top: '100%' }}>
+          TTFB<br/>{formattedMsOrSeconds(performanceMetrics.TimeToFirstByte)}
+        </div>
       </div>
-      <div className='absolute top-0 h-full w-1 bg-yellow-500 z-10' style={{ left: `${(performanceMetrics.FirstContentfulPaint / duration) * 100}%` }} />
-      <div className='absolute top-6 text-gray-700 text-xs' style={{ left: `${(performanceMetrics.FirstContentfulPaint / duration) * 100 - 2.5}%` }}>
-        FCP<br/>{formattedMsOrSeconds(performanceMetrics.FirstContentfulPaint)}
+      <div className='absolute top-0 h-full w-1 bg-yellow-500 z-10' style={{ left: `${(performanceMetrics.FirstContentfulPaint / duration) * 100}%` }}>
+        <div className='absolute text-gray-700 text-xs whitespace-nowrap z-20' style={{ transform: 'translateX(-50%)', marginLeft: '0.25rem', top: '100%' }}>
+          FCP<br/>{formattedMsOrSeconds(performanceMetrics.FirstContentfulPaint)}
+        </div>
       </div>
-      <div className='absolute top-0 h-full w-1 bg-red-500 z-10' style={{ left: `${(performanceMetrics.LargestContentfulPaint / duration) * 100}%` }} />
-      <div className='absolute top-6 text-gray-700 text-xs' style={{ left: `${(performanceMetrics.LargestContentfulPaint / duration) * 100 - 2.5}%` }}>
-        LCP<br/>{formattedMsOrSeconds(performanceMetrics.LargestContentfulPaint)}
+      <div className='absolute top-0 h-full w-1 bg-red-500 z-10' style={{ left: `${(performanceMetrics.LargestContentfulPaint / duration) * 100}%` }}>
+        <div className='absolute text-gray-700 text-xs whitespace-nowrap z-20'  style={{ transform: 'translateX(-50%)', marginLeft: '0.25rem', top: '100%' }}>
+          LCP<br/>{formattedMsOrSeconds(performanceMetrics.LargestContentfulPaint)}
+        </div>
       </div>
-      <div 
-        className='bg-swishjam h-full transition' 
-        ref={durationIndicatorRef} 
-        data-time={time} 
-        style={{ width: `${percentComplete}%` }} 
-      />
+      <div className='relative h-10'>
+        <ResponsiveContainer width="100%" height="100%">
+          <AreaChart width={500} height={400} data={filmstrip} margin={{ top: 10, right: 0, left: 0, bottom: 0 }}>
+            <YAxis hide={true} domain={[0, 100]} />
+            <Area type='monotone' dataKey='VisuallyComplete' fill="#7487F7" stroke="#7487F7" strokeWidth={1} opacity={0.15} baseValue={0} />
+          </AreaChart>
+        </ResponsiveContainer>
+        <div 
+          className='bg-white transition absolute top-0 right-0 z-20' 
+          ref={durationIndicatorRef} 
+          data-time={time} 
+          style={{ width: `${percentRemaining}%`, height: '4.25rem' }} 
+        />
+      </div>
     </div>
   )
 }
