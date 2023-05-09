@@ -4,9 +4,10 @@ import { Bars3Icon, XMarkIcon, CursorArrowRippleIcon, BeakerIcon, GlobeAltIcon }
 import Link from 'next/link';
 import LighthouseSection from '@components/WebPageTest/LighthouseSection'
 import CruxData from '../CruxData/CruxData';
+import Waterfall from './waterfall/Waterfall';
 import HeaderPublic from '@/components/WebPageTest/HeaderPublic';
 
-const navigation = [{ name: 'Real User Data' }, { name: 'Lighthouse Audit' }];
+const navigation = [{ name: 'Real User Data' }, { name: 'Lighthouse Audit' }, { name: 'Resource Waterfall' }];
 
 export default function ResultsPage({ webPageTestResults, auditedUrl }) {
   const [currentTabName, setCurrentTabName] = useState('Real User Data');
@@ -89,7 +90,23 @@ export default function ResultsPage({ webPageTestResults, auditedUrl }) {
                 ? <LighthouseSection webPageTestResults={webPageTestResults}/>
                 : currentTabName === 'Real User Data' 
                   ? <CruxData url={auditedUrl} onLighthouseAuditNavigation={() => setCurrentTabName('Lighthouse Audit')} /> 
-                  : null}
+                  : currentTabName === 'Resource Waterfall'
+                    ? (
+                      <div className='py-4 px-8'>
+                        <Waterfall
+                          requestData={webPageTestResults.requestData()}
+                          performanceData={webPageTestResults.performanceData()}
+                          largestContentfulPaintImageUrl={webPageTestResults.lcpImg()}
+                          mostLikelyLastTimestamp={webPageTestResults.requestData()[webPageTestResults.requestData().length - 1].downloadEnd()}
+                          pixelToMsRatio={(() => {
+                            const lastTimestamp = webPageTestResults.requestData()[webPageTestResults.requestData().length - 1].downloadEnd()
+                            if (lastTimestamp) {
+                              return lastTimestamp < 3_000 ? 0.35 : lastTimestamp < 7_000 ? 0.2 : lastTimestamp < 10_000 ? 0.2 : lastTimestamp < 15_000 ? 0.1 : 0.05;
+                            }
+                          })()}
+                        />
+                      </div>
+                    ) : null}
             </div>
           </div>
         </main>

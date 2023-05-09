@@ -178,7 +178,7 @@ export default function HeaderPublic({ currentNav, navigation, setNavigation, fi
         )}
       </Disclosure>
       <Transition.Root show={shareDialogIsOpen} as={Fragment}>
-        <Dialog as="div" className="relative z-10" onClose={setShareDialogIsOpen}>
+        <Dialog as="div" className="relative" onClose={setShareDialogIsOpen} style={{ zIndex: 100 }}>
           <Transition.Child
             as={Fragment}
             enter="ease-out duration-300"
@@ -191,7 +191,7 @@ export default function HeaderPublic({ currentNav, navigation, setNavigation, fi
             <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" />
           </Transition.Child>
 
-          <div className="fixed inset-0 z-10 overflow-y-auto">
+          <div className="fixed inset-0 overflow-y-auto" style={{ zIndex: 100 }}>
             <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
               <Transition.Child
                 as={Fragment}

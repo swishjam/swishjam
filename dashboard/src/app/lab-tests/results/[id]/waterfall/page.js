@@ -30,7 +30,7 @@ export default function WaterfallPage({ params }) {
         <Waterfall 
           requestData={requestData} 
           performanceData={webPageTestData && webPageTestData.performanceData()} 
-          largestContentfulPaintImageUrl={webPageTestData && webPageTestData.firstViewData.LargestContentfulPaintImageURL} 
+          largestContentfulPaintImageUrl={webPageTestData && webPageTestData.lcpImg()} 
           mostLikelyLastTimestamp={requestData && requestData[requestData.length - 1].downloadEnd()}
           pixelToMsRatio={(() => {
             const lastTimestamp = requestData && requestData[requestData.length - 1].downloadEnd()
