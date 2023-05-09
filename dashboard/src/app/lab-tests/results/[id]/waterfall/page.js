@@ -22,15 +22,32 @@ export default function WaterfallPage({ params }) {
       });
   }, [])
 
+  const requestData = webPageTestData && webPageTestData.requestData();
   return (
     <AuthenticatedView>
-      <DetailsHeader webPageTestResults={webPageTestData} selectedNavItem='Resource Waterfall' labTestId={id}
-      />
-      <Waterfall 
-        requestData={webPageTestData && webPageTestData.requestData()} 
-        performanceData={webPageTestData && webPageTestData.performanceData()} 
-        largestContentfulPaintImageUrl={webPageTestData && webPageTestData.firstViewData.LargestContentfulPaintImageURL} 
-      />
+      <DetailsHeader webPageTestResults={webPageTestData} selectedNavItem='Resource Waterfall' labTestId={id}/>
+      <main className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
+        <Waterfall 
+          requestData={requestData} 
+          performanceData={webPageTestData && webPageTestData.performanceData()} 
+          largestContentfulPaintImageUrl={webPageTestData && webPageTestData.firstViewData.LargestContentfulPaintImageURL} 
+          mostLikelyLastTimestamp={requestData && requestData[requestData.length - 1].downloadEnd()}
+          pixelToMsRatio={(() => {
+            const lastTimestamp = requestData && requestData[requestData.length - 1].downloadEnd()
+            if (lastTimestamp) {
+              return lastTimestamp < 3_000
+                      ? 0.35
+                      : lastTimestamp < 7_000
+                        ? 0.2
+                        : lastTimestamp < 10_000
+                          ? 0.2
+                          : lastTimestamp < 15_000
+                            ? 0.1
+                            : 0.05;
+            }
+          })()}
+        />
+      </main>
     </AuthenticatedView>
   )
 }

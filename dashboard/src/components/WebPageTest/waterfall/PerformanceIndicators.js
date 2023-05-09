@@ -1,13 +1,13 @@
 import { formattedMsOrSeconds } from "@/lib/utils";
 import { usePopperTooltip } from "react-popper-tooltip";
 
-const MARGIN_BUFFER = '16rem';
 const COLORS_DICT = {
   'DOM Interactive': 'blue',
   'DOM Content Loaded': 'green',
   'DOM Complete': 'purple',
   'First Contentful Paint': 'yellow',
-  'Largest Contentful Paint': 'orange'
+  'Largest Contentful Paint': 'orange',
+  'Time to First Byte': 'red',
 }
 
 export default function PerformanceIndicators({ performanceData, pixelToMsRatio }) {
@@ -15,6 +15,7 @@ export default function PerformanceIndicators({ performanceData, pixelToMsRatio 
     <>
       {performanceData && (
         <>
+          <PerformanceIndicator name='Time to First Byte' value={performanceData.TimeToFirstByte} pixelToMsRatio={pixelToMsRatio} />
           <PerformanceIndicator name='DOM Interactive' value={performanceData.domInteractive} pixelToMsRatio={pixelToMsRatio} />
           <PerformanceIndicator name='DOM Content Loaded' value={performanceData.domContentLoadedEventEnd} pixelToMsRatio={pixelToMsRatio} />
           <PerformanceIndicator name='DOM Complete' value={performanceData.domComplete} pixelToMsRatio={pixelToMsRatio} />
@@ -34,9 +35,10 @@ const PerformanceIndicator = ({ name, value, pixelToMsRatio }) => {
         className='absolute top-0'
         ref={setTriggerRef}
         style={{ 
-          marginLeft: `calc(${MARGIN_BUFFER} + ${value * pixelToMsRatio}px)`,
+          // marginLeft: `calc(${MARGIN_BUFFER} + ${value * pixelToMsRatio}px)`,
+          marginLeft: `${value * pixelToMsRatio}px`,
           width: 0,
-          borderRight: `2px dotted ${COLORS_DICT[name] || 'blue'}`,
+          borderRight: `3px dotted ${COLORS_DICT[name] || 'blue'}`,
           height: '100%',
           zIndex: 30
         }} 

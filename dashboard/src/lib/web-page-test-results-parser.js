@@ -60,7 +60,7 @@ export class WebPageTestResults {
   }
 
   requestData() {
-    return this.firstViewData.requests;
+    return this.firstViewData.requests.map(req => new RequestData(req));
   }
 
   lighthouseFailed() {
@@ -122,5 +122,125 @@ export class WebPageTestResults {
     } else {
       return this.firstViewData.videoFrames;
     }
+  }
+}
+
+class RequestData {
+  constructor(requestData) {
+    this.requestData = requestData;
+  }
+
+  url() {
+    return this.requestData.full_url;
+  }
+
+  hostURL() {
+    return this.requestData.host;
+  }
+
+  pathURL() {
+    return this.requestData.url;
+  }
+
+  friendlyURL() {
+    return this.hostURL() + this.pathURL();
+  }
+
+  requestType() {
+    return this.requestData.request_type;
+  }
+
+  isRenderBlocking() {
+    return this.requestData.renderBlocking === 'blocking';
+  }
+
+  firstTimestamp() {
+    return Math.min(...[
+      this.waitStart(), this.dnsStart(), this.connectStart(), this.sslStart(), this.ttfbStart(), this.downloadStart()
+    ].filter(timestamp => ![null, undefined].includes(timestamp)));
+  }
+
+  waitTime() {
+    // return 0;
+  }
+
+  waitStart() {
+    // return 0;
+  }
+
+  waitEnd() {
+    // return 0;
+  }
+
+  dnsTime() {
+    return this.requestData.dns_ms;
+  }
+
+  dnsStart() {
+    return this._timestampAboveNegativeOne(this.requestData.dns_start);
+  }
+
+  dnsEnd() {
+    return this.requestData.dns_end;
+  }
+
+  connectTime() {
+    return this.requestData.connect_ms;
+  }
+
+  connectStart() {
+    return this._timestampAboveNegativeOne(this.requestData.connect_start);
+  }
+
+  connectEnd() {
+    return this.requestData.connect_end;
+  }
+
+  sslTime() {
+    return this.requestData.ssl_ms;
+  }
+
+  sslStart() {
+    return this._timestampAboveNegativeOne(this.requestData.ssl_start);
+  }
+
+  sslEnd() {
+    return this.requestData.ssl_end;
+  }
+
+  ttfbTime() {
+    return this.requestData.ttfb_ms;
+  }
+
+  ttfbStart() {
+    return this._timestampAboveNegativeOne(this.requestData.ttfb_start);
+  }
+
+  ttfbEnd() {
+    return this.requestData.ttfb_end;
+  }
+
+  downloadTime() {
+    return this.requestData.download_ms;
+  }
+
+  downloadStart() {
+    return this._timestampAboveNegativeOne(this.requestData.download_start);
+  }
+
+  downloadEnd() {
+    return this.requestData.download_end;
+  }
+
+  allMs() {
+    return this.requestData.all_ms;
+  }
+
+  size() {
+    return this.requestData.bytesIn;
+  }
+
+  _timestampAboveNegativeOne(timestamp) {
+    return timestamp > -1 ? timestamp : null;
   }
 }

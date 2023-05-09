@@ -1,6 +1,6 @@
 import RequestVisual from "./RequestVisual";
 import { usePopperTooltip } from "react-popper-tooltip";
-import { DocumentTextIcon, CodeBracketIcon, PaintBrushIcon, ArrowsRightLeftIcon, BookOpenIcon, XCircleIcon } from "@heroicons/react/24/outline";
+import { DocumentTextIcon, CodeBracketIcon, PaintBrushIcon, ArrowsRightLeftIcon, BookOpenIcon } from "@heroicons/react/24/outline";
 import { bytesToHumanFileSize } from "@/lib/utils";
 
 const RESOURCE_TYPE_ICON_DICT = {
@@ -25,6 +25,11 @@ const RESOURCE_TYPE_ICON_DICT = {
       <ArrowsRightLeftIcon className={`text-purple-300 inline-block`} aria-hidden="true" />
     </span>
   ),
+  Fetch: (
+    <span className='mr-1 rounded inline-flex border border-purple-300 h-4 w-4' style={{ padding: '1px' }}>
+      <ArrowsRightLeftIcon className={`text-purple-300 inline-block`} aria-hidden="true" />
+    </span>
+  ),
   Font: (
     <span className='mr-1 rounded inline-flex border border-gray-600 h-4 w-4' style = {{ padding: '1px' }} >
       <BookOpenIcon className={`text-gray-600 inline-block`} aria-hidden="true" />
@@ -35,18 +40,18 @@ const RESOURCE_TYPE_ICON_DICT = {
 export default function RequestRow({ requestDetails, pixelToMsRatio, mostLikelyLastTimestamp, isLCP, bgKlass }) {
   const decipheredBgKlass = isLCP 
                     ? 'bg-yellow-100' 
-                    : requestDetails.renderBlocking === 'blocking' 
+                    : requestDetails.isRenderBlocking()
                       ? 'bg-red-100' 
                       : bgKlass;
   return (
-    <div className={`h-10 flex items-center`}>
-      <div className={`w-44 cursor-default p-2 inline-block border-r border-gray-200 overflow-x-hidden whitespace-nowrap h-full flex items-center ${decipheredBgKlass}`}>
+    <>
+      <div className={`col-span-1 cursor-default p-2 inline-block border-r border-gray-200 overflow-x-hidden whitespace-nowrap h-full flex items-center ${decipheredBgKlass}`}>
         <RequestTitle requestDetails={requestDetails} />
       </div>
-      <div className={`w-20 cursor-default p-2 inline-block border-r border-gray-200 text-sm text-gray-700 overflow-x-hidden whitespace-nowrap h-full flex items-center ${decipheredBgKlass}`}>
-        {bytesToHumanFileSize(requestDetails.bytesIn)}
+      <div className={`col-span-1 cursor-default p-2 inline-block border-r border-gray-200 text-sm text-gray-700 overflow-x-hidden whitespace-nowrap h-full flex items-center ${decipheredBgKlass}`}>
+        {bytesToHumanFileSize(requestDetails.size())}
       </div>
-      <div className={`relative inline-block h-full ${decipheredBgKlass}`}>
+      <div className={`col-span-6 relative inline-block h-full whitespace-nowrap ${decipheredBgKlass}`}>
         {Array.from({ length: Math.ceil(mostLikelyLastTimestamp / 1000) }).map((_, i) => (
           <div 
             className='inline-block border-r border-gray-300 top-0 z-10 h-full' 
@@ -56,31 +61,7 @@ export default function RequestRow({ requestDetails, pixelToMsRatio, mostLikelyL
         ))}
         <RequestVisual requestDetails={requestDetails} pixelToMsRatio={pixelToMsRatio} isLCP={isLCP} />
       </div>
-    </div>
-  )
-}
-
-const RequestTitle = ({ requestDetails }) => {
-  const { getArrowProps, getTooltipProps, setTooltipRef, setTriggerRef, visible } = usePopperTooltip();
-
-  return (
-    <span className='flex items-center hover:bg-white hover:absolute hover:z-50 hover:w-fit hover:rounded hover:pr-2'>
-      {requestDetails.request_type === 'Image'
-        ? (
-          <>
-            <img className='inline-block h-4 w-4 mr-1' src={requestDetails.full_url} ref={setTriggerRef} />
-            {visible && (
-              <div ref={setTooltipRef} {...getTooltipProps({ className: 'tooltip-container' })}>
-                <img className='inline-block h-32 w-32' src={requestDetails.full_url} />
-                <div {...getArrowProps({ className: 'tooltip-arrow' })} />
-              </div>
-            )}
-          </>
-        ) : RESOURCE_TYPE_ICON_DICT[requestDetails.request_type]}
-      <span className={`text-sm ${requestDetails.renderBlocking === 'blocking' ? 'text-red-600' : 'text-gray-700'}`}>
-        {requestDetails.host}{requestDetails.url}
-      </span>
-    </span>
+    </>
   )
 }
 
