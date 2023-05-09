@@ -7,6 +7,7 @@ import PerformanceIndicators from "./PerformanceIndicators";
 import { usePopperTooltip } from 'react-popper-tooltip';
 import 'react-popper-tooltip/dist/styles.css';
 import { bytesToHumanFileSize, formattedMsOrSeconds } from "@/lib/utils";
+import WarningMessages from './WarningMessages';
 
 const bgKlass = ({ requestDetails, largestContentfulPaintImageUrl, index }) => {
   if (requestDetails.isRenderBlocking()) {
@@ -27,6 +28,7 @@ export default function Waterfall({ requestData, performanceData, pixelToMsRatio
         ? <Skeleton pixelToMsRatio={pixelToMsRatio} />
         : (
         <>
+          <WarningMessages requestData={requestData} lcpImageURL={largestContentfulPaintImageUrl} lcpValue={performanceData?.LargestContentfulPaint} />
           <div className='grid grid-cols-10 flex justify-baseline items-center m-auto'>
             <LegendItem text='Waiting' color='bg-red-100' type='full' />
             <LegendItem text='DNS Lookup' color='bg-teal-600' type='full' />
@@ -51,7 +53,10 @@ export default function Waterfall({ requestData, performanceData, pixelToMsRatio
             <div className='col-span-1'>
               <div className='h-10' />
               {requestData && requestData.map((requestDetails, i) => (
-                <div className={`cursor-default h-10 p-2 inline-block border-r border-gray-200 relative w-full flex items-center ${bgKlass({ requestDetails, largestContentfulPaintImageUrl, index: i })}`}>
+                <div 
+                  className={`cursor-default h-10 p-2 inline-block border-r border-gray-200 relative w-full flex items-center ${bgKlass({ requestDetails, largestContentfulPaintImageUrl, index: i })}`}
+                  key={i}
+                >
                   <RequestUrl requestDetails={requestDetails} key={i} />
                 </div>
               ))}
@@ -59,7 +64,10 @@ export default function Waterfall({ requestData, performanceData, pixelToMsRatio
             <div className='col-span-1'>
               <div className='h-10' />
               {requestData && requestData.map((requestDetails, i) => (
-                <div className={`overflow-x-scroll text-sm h-10 text-gray-700 cursor-default p-2 inline-block border-r border-gray-200 overflow-x-hidden whitespace-nowrap flex items-center ${bgKlass({ requestDetails, largestContentfulPaintImageUrl, index: i })}`}>
+                <div 
+                  className={`overflow-x-scroll text-sm h-10 text-gray-700 cursor-default p-2 inline-block border-r border-gray-200 overflow-x-hidden whitespace-nowrap flex items-center ${bgKlass({ requestDetails, largestContentfulPaintImageUrl, index: i })}`}
+                  key={i}
+                >
                   {bytesToHumanFileSize(requestDetails.size())} 
                   {requestDetails.isRenderBlocking() && <span className='bg-red-200 border border-red-500 text-red-500 ml-1 rounded px-1'>Render Blocking</span>}
                 </div>
@@ -83,7 +91,6 @@ export default function Waterfall({ requestData, performanceData, pixelToMsRatio
 }
 
 const RequestVisualArea = ({ requestData, pixelToMsRatio, performanceData, mostLikelyLastTimestamp, largestContentfulPaintImageUrl }) => {
-
   return (
     <>
       <div className='whitespace-nowrap h-10'>
@@ -113,9 +120,8 @@ const RequestVisualArea = ({ requestData, pixelToMsRatio, performanceData, mostL
         {requestData && requestData.map((requestDetails, i) => (
           <div 
             className={`min-w-full relative h-10 cursor-default py-2 inline-block border-r border-gray-200 overflow-x-hidden whitespace-nowrap flex items-center ${bgKlass({ requestDetails, largestContentfulPaintImageUrl, index: i })}`}
-            style={{ 
-              width: `${((mostLikelyLastTimestamp + 1_000) * pixelToMsRatio) + 50}px`
-            }}
+            style={{ width: `${(Math.ceil(mostLikelyLastTimestamp / 1_000 + 1) * 1_000) * pixelToMsRatio}px` }}
+            key={i}
           >
             <RequestVisual 
               requestDetails={requestDetails} 

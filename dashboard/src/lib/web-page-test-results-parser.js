@@ -127,19 +127,19 @@ export class WebPageTestResults {
 
 class RequestData {
   constructor(requestData) {
-    this.requestData = requestData;
+    this.payload = requestData;
   }
 
   url() {
-    return this.requestData.full_url;
+    return this.payload.full_url;
   }
 
   hostURL() {
-    return this.requestData.host;
+    return this.payload.host;
   }
 
   pathURL() {
-    return this.requestData.url;
+    return this.payload.url;
   }
 
   friendlyURL() {
@@ -147,11 +147,11 @@ class RequestData {
   }
 
   requestType() {
-    return this.requestData.request_type;
+    return this.payload.request_type;
   }
 
   isRenderBlocking() {
-    return this.requestData.renderBlocking === 'blocking';
+    return this.payload.renderBlocking === 'blocking';
   }
 
   firstTimestamp() {
@@ -173,71 +173,71 @@ class RequestData {
   }
 
   dnsTime() {
-    return this.requestData.dns_ms;
+    return this.payload.dns_ms;
   }
 
   dnsStart() {
-    return this._timestampAboveNegativeOne(this.requestData.dns_start);
+    return this._timestampAboveNegativeOne(this.payload.dns_start);
   }
 
   dnsEnd() {
-    return this.requestData.dns_end;
+    return this.payload.dns_end;
   }
 
   connectTime() {
-    return this.requestData.connect_ms;
+    return this.payload.connect_ms;
   }
 
   connectStart() {
-    return this._timestampAboveNegativeOne(this.requestData.connect_start);
+    return this._timestampAboveNegativeOne(this.payload.connect_start);
   }
 
   connectEnd() {
-    return this.requestData.connect_end;
+    return this.payload.connect_end;
   }
 
   sslTime() {
-    return this.requestData.ssl_ms;
+    return this.payload.ssl_ms;
   }
 
   sslStart() {
-    return this._timestampAboveNegativeOne(this.requestData.ssl_start);
+    return this._timestampAboveNegativeOne(this.payload.ssl_start);
   }
 
   sslEnd() {
-    return this.requestData.ssl_end;
+    return this.payload.ssl_end;
   }
 
   ttfbTime() {
-    return this.requestData.ttfb_ms;
+    return this.payload.ttfb_ms;
   }
 
   ttfbStart() {
-    return this._timestampAboveNegativeOne(this.requestData.ttfb_start);
+    return this._timestampAboveNegativeOne(this.payload.ttfb_start);
   }
 
   ttfbEnd() {
-    return this.requestData.ttfb_end;
+    return this.payload.ttfb_end;
   }
 
   downloadTime() {
-    return this.requestData.download_ms;
+    return this.payload.download_ms;
   }
 
   downloadStart() {
-    return this._timestampAboveNegativeOne(this.requestData.download_start);
+    return this._timestampAboveNegativeOne(this.payload.download_start);
   }
 
   downloadEnd() {
-    return this.requestData.download_end;
+    return this.payload.download_end;
   }
 
   allMs() {
-    return this.requestData.all_ms;
+    return this.payload.all_ms;
   }
 
   size() {
-    return this.requestData.bytesIn;
+    return this.payload.bytesIn;
   }
 
   _timestampAboveNegativeOne(timestamp) {
