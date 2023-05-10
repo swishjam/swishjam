@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from "react";
 import { formattedMsOrSeconds } from "@/lib/utils";
 import Dropdown from "../Dropdown";
-import { AreaChart, Area, ResponsiveContainer, CartesianGrid, XAxis, YAxis, Tooltip } from "recharts";
+import { AreaChart, Area, ResponsiveContainer, YAxis } from "recharts";
+import { usePopperTooltip } from "react-popper-tooltip";
 
 const ADDITIONAL_MS_TO_VIDEO = 1_000;
 
@@ -28,7 +29,7 @@ export default function FilmstripVideo({ filmstrip, performanceMetrics }) {
             <div className='relative'>
               {!isPlaying && (
                 <div
-                  className='absolute flex h-full w-full items-center justify-center bg-black text-white text-4xl opacity-25 cursor-pointer hover:opacity-50 hover:text-6xl transition-all duration-200'
+                  className='z-30 absolute flex h-full w-full items-center justify-center bg-black text-white text-4xl opacity-25 cursor-pointer hover:opacity-50 hover:text-6xl transition-all duration-200'
                   onClick={() => {
                     setCurrentFilmstripFrameIndex(0)
                     setIsPlaying(true)
@@ -53,7 +54,7 @@ export default function FilmstripVideo({ filmstrip, performanceMetrics }) {
               />
             </div>
             <div className='grid grid-cols-2 border-t border-gray-200 pt-2'>
-              <div className='text-left'>
+              <div className='text-left px-1'>
                 <div className='flex items-center'>
                   <div className='h-1 w-1 rounded-full bg-yellow-500 inline-block mr-1' />
                   <span className='inline-block text-xs text-gray-700'>Time to First Byte: {formattedMsOrSeconds(performanceMetrics.TimeToFirstByte)}</span>
@@ -114,18 +115,9 @@ const VideoPlayerProgressionIndicator = ({ filmstrip, time, playbackSpeed, perfo
             </AreaChart>
           </ResponsiveContainer>
         </div>
-        <div
-          className='h-1 bg-red-500'
-          style={{ width: `${(performanceMetrics.LargestContentfulPaint / duration) * 100}%` }}
-        />
-        <div
-          className='h-1 bg-blue-500'
-          style={{ width: `${(performanceMetrics.FirstContentfulPaint / duration) * 100}%` }}
-        />
-        <div
-          className='h-1 bg-yellow-500'
-          style={{ width: `${(performanceMetrics.TimeToFirstByte / duration) * 100}%` }}
-        />
+        <PerformanceMetricIndicator metric='Largest Contentful Paint' value={performanceMetrics.LargestContentfulPaint} duration={duration} color='bg-red-500' />
+        <PerformanceMetricIndicator metric='First Contentful Paint' value={performanceMetrics.FirstContentfulPaint} duration={duration} color='bg-blue-500' />
+        <PerformanceMetricIndicator metric='Time to First Byte' value={performanceMetrics.TimeToFirstByte} duration={duration} color='bg-yellow-500' />
         <div 
           className='bg-white transition absolute top-0 right-0 z-20 h-13' 
           ref={durationIndicatorRef} 
@@ -133,6 +125,25 @@ const VideoPlayerProgressionIndicator = ({ filmstrip, time, playbackSpeed, perfo
           style={{ width: `${percentRemaining}%`, height: '3.25rem' }} 
         />
       </div>
+    </>
+  )
+}
+
+const PerformanceMetricIndicator = ({ metric, value, duration, color }) => {
+  const { getArrowProps, getTooltipProps, setTooltipRef, setTriggerRef, visible } = usePopperTooltip();
+  return (
+    <>
+      <div
+        className={`h-1 ${color}`}
+        style={{ width: `${(value / duration) * 100}%` }}
+        ref={setTriggerRef}
+      />
+      {visible && (
+        <div ref={setTooltipRef} {...getTooltipProps({ className: 'bg-white shadow-md p-2 rounded-md text-xs' })}>
+          {metric}: {formattedMsOrSeconds(value)}
+          <div {...getArrowProps({ className: 'popper-arrow' })} />
+        </div>
+      )}
     </>
   )
 }
