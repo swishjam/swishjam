@@ -65,7 +65,7 @@ export default function Overview({ params }) {
             : <div className='h-24 w-24 animate-pulse bg-gray-200 rounded-full mt-2 m-auto' />
           }
         </div>
-        <div className='w-[50vw] my-4 m-auto'>
+        <div className='max-w-xl w-[50vw] my-4 m-auto'>
           <FilmstripVideo 
             filmstrip={webPageTestResults?.filmstrip({ filledIn: false })} 
             performanceMetrics={{

@@ -105,6 +105,11 @@ export class WebPageTestResults {
     return this.lighthouseData.runWarnings || [];
   }
 
+  lcpImageURL() {
+    if (this.firstViewData.LargestContentfulPaintNodeType !== 'IMG') return;
+    return this.firstViewData.LargestContentfulPaintImageURL;
+  }
+
   filmstrip({ filledIn = true } = {}) {
     if (filledIn) {
       const filmstripObject = {};
