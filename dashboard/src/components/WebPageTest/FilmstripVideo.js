@@ -52,25 +52,30 @@ export default function FilmstripVideo({ filmstrip, performanceMetrics }) {
                 performanceMetrics={performanceMetrics}
               />
             </div>
-            <div className='flex justify-end items-center mt-8 px-2'>
-              <Dropdown 
-                label='Playback Speed' 
-                options={['0.25x', '0.5x', '0.75x', '1x', '2x']} 
-                selected={'0.5x'} 
-                onSelect={ speed => setPlaybackSpeed(parseFloat(speed.replace('x', ''))) } 
-              />
-            </div>
-            {/* <div className='flex items-center justify-center mt-4 grid grid-cols-5 gap-x-4 mt-10 px-2'>
-              {[0.25, 0.5, 0.75, 1, 2].map(speed => (
-                <div
-                  className={`cursor-pointer px-4 py-1 text-sm rounded-md text-gray-700 hover:bg-gray-100 hover:text-gray-900 ${playbackSpeed === speed ? 'bg-gray-200' : ''}`}
-                  onClick={() => setPlaybackSpeed(speed)}
-                  key={speed}
-                >
-                  {speed}x
+            <div className='grid grid-cols-2 border-t border-gray-200 pt-2'>
+              <div className='text-left'>
+                <div className='flex items-center'>
+                  <div className='h-1 w-1 rounded-full bg-yellow-500 inline-block mr-1' />
+                  <span className='inline-block text-xs text-gray-700'>Time to First Byte: {formattedMsOrSeconds(performanceMetrics.TimeToFirstByte)}</span>
                 </div>
-              ))}
-            </div> */}
+                <div className='flex items-center'>
+                  <div className='h-1 w-1 rounded-full bg-blue-500 inline-block mr-1' />
+                  <span className='inline-block text-xs text-gray-700'>First Contentful Paint: {formattedMsOrSeconds(performanceMetrics.FirstContentfulPaint)}</span>
+                </div>
+                <div className='flex items-center'>
+                  <div className='h-1 w-1 rounded-full bg-red-500 inline-block mr-1' />
+                  <span className='inline-block text-xs text-gray-700'>Largest Contentful Paint: {formattedMsOrSeconds(performanceMetrics.LargestContentfulPaint)}</span>
+                </div>
+              </div>
+              <div className='flex justify-end items-center px-2'>
+                <Dropdown 
+                  label='Playback Speed' 
+                  options={['0.25x', '0.5x', '0.75x', '1x', '2x']} 
+                  selected={'0.5x'} 
+                  onSelect={ speed => setPlaybackSpeed(parseFloat(speed.replace('x', ''))) } 
+                />
+              </div>
+            </div>
           </div>
         ) : <div className='w-full h-64 bg-gray-200 animate-pulse rounded-md' />}
     </div>
@@ -99,37 +104,36 @@ const VideoPlayerProgressionIndicator = ({ filmstrip, time, playbackSpeed, perfo
   }, [isRunning])
 
   return (
-    <div className='w-full h-10 relative'>
-      <div className='absolute top-0 h-full w-1 bg-blue-500 z-10' style={{ left: `${(performanceMetrics.TimeToFirstByte / duration) * 100}%` }}>
-        <div className='absolute text-gray-700 text-xs whitespace-nowrap z-20' style={{ transform: 'translateX(-50%)', marginLeft: '0.25rem', top: '100%' }}>
-          TTFB<br/>{formattedMsOrSeconds(performanceMetrics.TimeToFirstByte)}
+    <>
+      <div className='w-full h-13 relative'>
+        <div className='relative h-10'>
+          <ResponsiveContainer width="100%" height="100%">
+            <AreaChart width={500} height={400} data={filmstrip} margin={{ top: 10, right: 0, left: 0, bottom: 0 }}>
+              <YAxis hide={true} domain={[0, 100]} />
+              <Area type='monotone' dataKey='VisuallyComplete' fill="#7487F7" stroke="#7487F7" strokeWidth={1} opacity={0.15} baseValue={0} />
+            </AreaChart>
+          </ResponsiveContainer>
         </div>
-      </div>
-      <div className='absolute top-0 h-full w-1 bg-yellow-500 z-10' style={{ left: `${(performanceMetrics.FirstContentfulPaint / duration) * 100}%` }}>
-        <div className='absolute text-gray-700 text-xs whitespace-nowrap z-20' style={{ transform: 'translateX(-50%)', marginLeft: '0.25rem', top: '100%' }}>
-          FCP<br/>{formattedMsOrSeconds(performanceMetrics.FirstContentfulPaint)}
-        </div>
-      </div>
-      <div className='absolute top-0 h-full w-1 bg-red-500 z-10' style={{ left: `${(performanceMetrics.LargestContentfulPaint / duration) * 100}%` }}>
-        <div className='absolute text-gray-700 text-xs whitespace-nowrap z-20'  style={{ transform: 'translateX(-50%)', marginLeft: '0.25rem', top: '100%' }}>
-          LCP<br/>{formattedMsOrSeconds(performanceMetrics.LargestContentfulPaint)}
-        </div>
-      </div>
-      <div className='relative h-10'>
-        <ResponsiveContainer width="100%" height="100%">
-          <AreaChart width={500} height={400} data={filmstrip} margin={{ top: 10, right: 0, left: 0, bottom: 0 }}>
-            <YAxis hide={true} domain={[0, 100]} />
-            <Area type='monotone' dataKey='VisuallyComplete' fill="#7487F7" stroke="#7487F7" strokeWidth={1} opacity={0.15} baseValue={0} />
-          </AreaChart>
-        </ResponsiveContainer>
+        <div
+          className='h-1 bg-red-500'
+          style={{ width: `${(performanceMetrics.LargestContentfulPaint / duration) * 100}%` }}
+        />
+        <div
+          className='h-1 bg-blue-500'
+          style={{ width: `${(performanceMetrics.FirstContentfulPaint / duration) * 100}%` }}
+        />
+        <div
+          className='h-1 bg-yellow-500'
+          style={{ width: `${(performanceMetrics.TimeToFirstByte / duration) * 100}%` }}
+        />
         <div 
-          className='bg-white transition absolute top-0 right-0 z-20' 
+          className='bg-white transition absolute top-0 right-0 z-20 h-13' 
           ref={durationIndicatorRef} 
           data-time={time} 
-          style={{ width: `${percentRemaining}%`, height: '4.25rem' }} 
+          style={{ width: `${percentRemaining}%`, height: '3.25rem' }} 
         />
       </div>
-    </div>
+    </>
   )
 }
 
