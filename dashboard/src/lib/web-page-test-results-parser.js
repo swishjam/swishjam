@@ -55,8 +55,20 @@ export class WebPageTestResults {
     return performanceData;
   }
 
+  lcpValue() {
+    return this.performanceData().LargestContentfulPaint;
+  }
+
   lcpImg() {
     return this.firstViewData.LargestContentfulPaintImageURL;
+  }
+
+  lcpType() {
+    return this.firstViewData.LargestContentfulPaintNodeType;
+  }
+
+  lcpBoundingRects() {
+    return (this.firstViewData.largestPaints.find(data => data.url === this.lcpImg()) || { element: {} }).element.boundingRect;
   }
 
   requestData() {

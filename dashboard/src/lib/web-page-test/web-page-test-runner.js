@@ -25,6 +25,8 @@ export class WebPageTestRunner {
       timeline: 1,
       profiler: 1,
       wappalyzer: 0,
+      pngss: 1, // full res screenshot of the fully loaded page
+      iq: 100, // Specify a JPEG compression level (between 30-100) for the screenshots and video capture.
       axe: 0,
       metadata: JSON.stringify({ projectKey }),
       // lighthouse: booleanToInteger(options.includeLighthouse, true),
@@ -37,6 +39,7 @@ export class WebPageTestRunner {
       pingback: `https://${process.env.WEB_PAGE_TEST_WEBHOOK_HOST || 'app.swishjam.com'}/api/lab-tests/webhook`,
       f: 'json'
     });
+    console.log('PINGBACK IS: ', process.env.WEB_PAGE_TEST_WEBHOOK_HOST);
     const result = await fetch(`https://www.webpagetest.org/runtest.php?${params}`, { method: 'POST' });
     if (result.status === 200) {
       const response = await result.json();

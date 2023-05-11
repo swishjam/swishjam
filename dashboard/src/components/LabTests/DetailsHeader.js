@@ -9,7 +9,8 @@ import {
   WifiIcon,
   BeakerIcon, 
   Bars3CenterLeftIcon, 
-  ArrowLeftIcon 
+  ArrowLeftIcon,
+  PhotoIcon,
 } from '@heroicons/react/20/solid'
 
 export default function DetailsHeader({ labTestId, webPageTestResults, selectedNavItem }) {
@@ -71,6 +72,7 @@ export default function DetailsHeader({ labTestId, webPageTestResults, selectedN
             { name: 'Overview', href: `/lab-tests/results/${labTestId}/overview`, icon: RectangleGroupIcon },
             { name: 'Lighthouse Audit', href: `/lab-tests/results/${labTestId}/lighthouse`, icon: BeakerIcon },
             { name: 'Resource Waterfall', href: `/lab-tests/results/${labTestId}/waterfall`, icon: Bars3CenterLeftIcon },
+            { name: 'LCP Breakdown', href: `/lab-tests/results/${labTestId}/lcp-analyzer`, icon: PhotoIcon },
           ].map(tab => (
             <a
               key={tab.name}
