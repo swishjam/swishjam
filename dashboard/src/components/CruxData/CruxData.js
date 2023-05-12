@@ -42,7 +42,8 @@ const getCruxData = async (url, formFactor) => {
   })
 }
 
-export default function CruxData({ url, onLighthouseAuditNavigation, shouldPromptUserToRegister = true }) {
+export default function CruxData({ onLighthouseAuditNavigation, shouldPromptUserToRegister = true }) {
+  const url = 'https://wearfigs.com';
   const [cruxDesktopData, setCruxDesktopData] = useState();
   const [cruxMobileData, setCruxMobileData] = useState();
   const [expandedMetrics, setExpandedMetrics] = useState([]);
@@ -52,26 +53,41 @@ export default function CruxData({ url, onLighthouseAuditNavigation, shouldPromp
   const path = url && new URL(url).pathname;
   const friendlyUrl = url && `${hostname}${path === '/' ? '' : path}`
 
-  const getAndSetCruxData = async formFactor => {
+  const getAndSetCruxData = async (url, formFactor, shouldSetAsMissing) => {
     if (!url) return;
     setIsMissingCruxData(false);
     setCruxDesktopData();
     setCruxMobileData();
 
-    getCruxData(url, formFactor)
+    return getCruxData(url, formFactor)
       .then(res => res.json())
       .then(({ error, record }) => {
         if (error) {
-          setIsMissingCruxData(true);
+          shouldSetAsMissing && setIsMissingCruxData(true);
+          return false;
         } else {
-          return formFactor === 'DESKTOP' ? setCruxDesktopData(record) : setCruxMobileData(record)
+          formFactor === 'DESKTOP' ? setCruxDesktopData(record) : setCruxMobileData(record)
+          return true;
         }
       });
   }
 
+
   useEffect(() => {
-    getAndSetCruxData('DESKTOP')
-    getAndSetCruxData('PHONE')
+    const tryToFetchCruxData = async () => {
+      const [hasDesktopData, _hasMobileData] = await Promise.all([
+        getAndSetCruxData(url, 'DESKTOP', false),
+        getAndSetCruxData(url, 'PHONE', false)
+      ]);
+      if (!hasDesktopData) {
+        const manipulatedURL = url.includes('www') ? url.replace('www.', '') : url.replace('://', '://www.');
+        await Promise.all([
+          getAndSetCruxData(manipulatedURL, 'DESKTOP', true),
+          getAndSetCruxData(manipulatedURL, 'PHONE', true)
+        ]);
+      }
+    }
+    tryToFetchCruxData();
   }, [url]);
 
   return (
