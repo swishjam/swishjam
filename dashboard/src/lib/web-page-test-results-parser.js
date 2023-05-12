@@ -147,6 +147,10 @@ class RequestData {
     this.payload = requestData;
   }
 
+  id() {
+    return this.payload.id;
+  }
+
   url() {
     return this.payload.full_url;
   }
@@ -191,7 +195,7 @@ class RequestData {
   }
 
   dnsTime() {
-    return this.payload.dns_ms;
+    return this._timestampAboveNegativeOne(this.payload.dns_ms) || 0;
   }
 
   dnsStart() {
@@ -203,7 +207,7 @@ class RequestData {
   }
 
   connectTime() {
-    return this.payload.connect_ms;
+    return this._timestampAboveNegativeOne(this.payload.connect_ms) || 0;
   }
 
   connectStart() {
@@ -215,7 +219,7 @@ class RequestData {
   }
 
   sslTime() {
-    return this.payload.ssl_ms;
+    return this._timestampAboveNegativeOne(this.payload.ssl_ms) || 0;
   }
 
   sslStart() {
@@ -227,7 +231,7 @@ class RequestData {
   }
 
   ttfbTime() {
-    return this.payload.ttfb_ms;
+    return this._timestampAboveNegativeOne(this.payload.ttfb_ms) || 0;
   }
 
   ttfbStart() {
@@ -239,7 +243,7 @@ class RequestData {
   }
 
   downloadTime() {
-    return this.payload.download_ms;
+    return this._timestampAboveNegativeOne(this.payload.download_ms) || 0;
   }
 
   downloadStart() {

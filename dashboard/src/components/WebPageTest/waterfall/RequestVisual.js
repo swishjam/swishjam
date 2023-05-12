@@ -32,7 +32,7 @@ const REQUEST_COLORS_DICT = {
   }
 }
 
-export default function RequestVisual({ requestDetails, isLCP, lastTimestamp }) {
+export default function RequestVisual({ requestDetails, isLCP, lastTimestamp, isExpanded }) {
   const [isHovered, setIsHovered] = useState(false);
 
   return (
