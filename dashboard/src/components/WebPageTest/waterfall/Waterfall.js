@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import RequestVisual from './RequestVisual';
 import RequestUrl from "./RequestUrl";
 import PerformanceIndicators from "./PerformanceIndicators";
@@ -9,19 +10,20 @@ import { bytesToHumanFileSize, formattedMsOrSeconds, randomNumberBetween } from 
 // import WarningMessages from './WarningMessages';
 import LoadingSpinner from '@/components/LoadingSpinner';
 
-const bgKlass = ({ requestDetails, largestContentfulPaintImageUrl, index }) => {
+const bgKlass = ({ requestDetails, largestContentfulPaintImageUrl, index, includeHover = false }) => {
   if (requestDetails.isRenderBlocking()) {
-    return 'bg-red-100';
+    return `bg-red-100 ${includeHover ? 'hover:bg-red-200' : ''}`;
   } else if (requestDetails.url() === largestContentfulPaintImageUrl) {
-    return 'bg-yellow-100';
+    return `bg-yellow-100 ${includeHover ? 'hover: bg-yellow-200' : ''}`;
   } else if (index % 2 === 0) {
-    return 'bg-gray-50';
+    return `bg-gray-50 ${includeHover ? 'hover:bg-gray-100' : ''}`;
   } else {
-    return 'bg-white';
+    return `bg-white ${includeHover ? 'hover:bg-gray-50' : ''}`;
   }
 }
 
 export default function Waterfall({ requestData, performanceData, largestContentfulPaintImageUrl, isRunning }) {
+  const [expandedRequestIds, setExpandedRequestIds] = useState([]);
   const lastTimestampInData = Math.max(
     requestData ? requestData[requestData.length - 1].downloadEnd() : undefined,
     performanceData?.TimeToFirstByte,
@@ -32,7 +34,7 @@ export default function Waterfall({ requestData, performanceData, largestContent
     performanceData?.LargestContentfulPaint,
   )
   const lastTimestamp = Math.ceil(lastTimestampInData) + 1_000;
-  // const secondMarkerIncrements = lastTimestamp < 10 ? 1 : lastTimestamp < 20 ? 2 : 4;
+  
   return (
     <>
       {isRunning ? (
@@ -72,24 +74,30 @@ export default function Waterfall({ requestData, performanceData, largestContent
               <div className='col-span-1'>
                 <div className='h-10' />
                 {requestData && requestData.map((requestDetails, i) => (
-                  <div 
-                    className={`cursor-default h-10 p-2 inline-block border-r border-gray-200 relative w-full flex items-center ${bgKlass({ requestDetails, largestContentfulPaintImageUrl, index: i })}`}
-                    key={i}
-                  >
-                    <RequestUrl requestDetails={requestDetails} key={i} />
-                  </div>
+                  <>
+                    <div 
+                      className={`cursor-default h-10 p-2 inline-block border-r border-gray-200 relative w-full flex items-center ${bgKlass({ requestDetails, largestContentfulPaintImageUrl, index: i })}`}
+                      key={i}
+                    >
+                      <RequestUrl requestDetails={requestDetails} />
+                    </div>
+                    {expandedRequestIds.includes(requestDetails.id()) && <div className={`h-44 ${bgKlass({ requestDetails, largestContentfulPaintImageUrl, index: i }) }`} />}
+                  </>
                 ))}
               </div>
               <div className='col-span-1'>
                 <div className='h-10' />
                 {requestData && requestData.map((requestDetails, i) => (
-                  <div 
-                    className={`overflow-x-scroll text-sm h-10 text-gray-700 cursor-default p-2 inline-block border-r border-gray-200 overflow-x-hidden whitespace-nowrap flex items-center ${bgKlass({ requestDetails, largestContentfulPaintImageUrl, index: i })}`}
-                    key={i}
-                  >
-                    {bytesToHumanFileSize(requestDetails.size())} 
-                    {requestDetails.isRenderBlocking() && <span className='bg-red-200 border border-red-500 text-red-500 ml-1 rounded px-1'>Render Blocking</span>}
-                  </div>
+                  <>
+                    <div 
+                      className={`overflow-x-scroll text-sm h-10 h-10 text-gray-700 cursor-default p-2 inline-block border-r border-gray-200 overflow-x-hidden whitespace-nowrap flex items-center ${bgKlass({ requestDetails, largestContentfulPaintImageUrl, index: i })}`}
+                      key={i}
+                    >
+                      {bytesToHumanFileSize(requestDetails.size())} 
+                      {requestDetails.isRenderBlocking() && <span className='bg-red-200 border border-red-500 text-red-500 ml-1 rounded px-1'>Render Blocking</span>}
+                    </div>
+                    {expandedRequestIds.includes(requestDetails.id()) && <div className={`h-44 ${bgKlass({ requestDetails, largestContentfulPaintImageUrl, index: i }) }`} />}
+                  </>
                 ))}
               </div>
               <div className='col-span-6 overflow-x-scroll'>
@@ -98,6 +106,8 @@ export default function Waterfall({ requestData, performanceData, largestContent
                   performanceData={performanceData}
                   largestContentfulPaintImageUrl={largestContentfulPaintImageUrl}
                   lastTimestamp={lastTimestamp}
+                  onExpand={id => expandedRequestIds.includes(id) ? setExpandedRequestIds(expandedRequestIds.filter(i => i !== id)) : setExpandedRequestIds([...expandedRequestIds, id])}
+                  expandedRequestIds={expandedRequestIds}
                 />
               </div>
             </div>
@@ -108,14 +118,14 @@ export default function Waterfall({ requestData, performanceData, largestContent
   )
 }
 
-const RequestVisualArea = ({ requestData, performanceData, largestContentfulPaintImageUrl, lastTimestamp, secondMarkerIncrements }) => {
+const RequestVisualArea = ({ requestData, performanceData, largestContentfulPaintImageUrl, lastTimestamp, onExpand, expandedRequestIds }) => {
   const numSecondsToDisplay = lastTimestamp / 1000;
   return (
     <>
       <div className='whitespace-nowrap h-10'>
         {Array.from({ length: numSecondsToDisplay }).map((_, i) => (
           <div 
-            className='inline-block relative h-full text-xs text-gray-700 text-right' 
+            className='inline-block relative h-full text-xs text-gray-700 text-right w-0' 
             style={{ width: `${100 / numSecondsToDisplay}%` }}
             key={i}
           >
@@ -127,28 +137,106 @@ const RequestVisualArea = ({ requestData, performanceData, largestContentfulPain
         {performanceData && <PerformanceIndicators performanceData={performanceData} lastTimestamp={lastTimestamp} />}
           {Array.from({ length: numSecondsToDisplay }).map((_, i) => (
             <div
-              className='absolute border-r border-gray-300 h-full top-0 second-indicator'
+              className='absolute border-r border-gray-300 h-full top-0 second-indicator w-0'
               key={i}
               style={{ 
-                width: `${100 / numSecondsToDisplay}%`,
-                marginLeft: `${100 / numSecondsToDisplay * i}%`,
+                marginLeft: `${100 / numSecondsToDisplay * (i + 1)}%`,
                 zIndex: 20
               }}
             />
           ))}
         {requestData && requestData.map((requestDetails, i) => (
-          <div 
-            className={`w-full relative h-10 cursor-default py-2 inline-block border-r border-gray-200 overflow-x-hidden whitespace-nowrap flex items-center ${bgKlass({ requestDetails, largestContentfulPaintImageUrl, index: i })}`}
-            key={i}
-          >
-            <RequestVisual 
-              requestDetails={requestDetails} 
-              isLCP={requestDetails.url() === largestContentfulPaintImageUrl}
-              lastTimestamp={lastTimestamp}
-            />
-          </div>
+          <RequestVisualRow 
+            requestDetails={requestDetails} 
+            largestContentfulPaintImageUrl={largestContentfulPaintImageUrl} 
+            lastTimestamp={lastTimestamp} 
+            isExpanded={expandedRequestIds.includes(requestDetails.id())}
+            onClick={() => onExpand(requestDetails.id())}
+            backgroundColor={bgKlass({ requestDetails, largestContentfulPaintImageUrl, index: i, includeHover: true })}
+            key={i} 
+          />
         ))}
       </div>
+    </>
+  )
+}
+
+const RequestVisualRow = ({ requestDetails, largestContentfulPaintImageUrl, lastTimestamp, isExpanded, onClick, backgroundColor }) => {
+  const REQUEST_COLORS_DICT = {
+    Document: {
+      request: 'bg-blue-500',
+      response: 'bg-blue-700',
+    },
+    Stylesheet: {
+      request: 'bg-purple-500',
+      response: 'bg-purple-700',
+    },
+    Script: {
+      request: 'bg-orange-400',
+      response: 'bg-orange-600',
+    },
+    XHR: {
+      request: 'bg-green-500',
+      response: 'bg-green-700',
+    },
+    Ping: {
+      request: 'bg-green-500',
+      response: 'bg-green-700',
+    },
+    Font: {
+      request: 'bg-pink-500',
+      response: 'bg-pink-700',
+    },
+    Image: {
+      request: 'bg-red-500',
+      response: 'bg-red-700',
+    }
+  }
+
+  return (
+    <>
+      <div
+        className={`w-full relative h-10 py-2 inline-block border-r border-gray-200 cursor-pointer overflow-x-hidden whitespace-nowrap flex items-center cursor-pointer hover:opacity-80 ${backgroundColor}`}
+        onClick={onClick}
+      >
+        <RequestVisual
+          requestDetails={requestDetails}
+          isLCP={requestDetails.url() === largestContentfulPaintImageUrl}
+          lastTimestamp={lastTimestamp}
+        />
+      </div>
+      {isExpanded && (
+        <div className='h-44 flex items-center relative p-2'>
+          <div className={`absolute top-0 left-0 w-full h-full z-50 ${backgroundColor}`}>
+            <h4 className='text-md'>Request details:</h4>
+            <div className='text-sm'>
+              <div>
+                <div className='bg-teal-600 h-4 w-4 rounded inline-block' />
+                <div className='inline-block ml-2'>DNS: {formattedMsOrSeconds(requestDetails.dnsTime())}</div>
+              </div>
+              <div>
+                <div className='bg-orange-500 h-4 w-4 rounded inline-block' />
+                <div className='inline-block ml-2'>Connect: {formattedMsOrSeconds(requestDetails.connectTime())}</div>
+              </div>
+              <div>
+                <div className='bg-pink-500 h-4 w-4 rounded inline-block' />
+                <div className='inline-block ml-2'>SSL: {formattedMsOrSeconds(requestDetails.sslTime())}</div>
+              </div>
+              <div>
+                <div className={`${REQUEST_COLORS_DICT[requestDetails.requestType()]?.request || 'bg-blue-500'} h-4 w-4 rounded inline-block`} />
+                <div className='inline-block ml-2'>Request: {formattedMsOrSeconds(requestDetails.ttfbTime())}</div>
+              </div>
+              <div>
+                <div className={`${REQUEST_COLORS_DICT[requestDetails.requestType()]?.response || 'bg-blue-700'} h-4 w-4 rounded inline-block`} />
+                <div className='inline-block ml-2'>Response: {formattedMsOrSeconds(requestDetails.downloadTime())}</div>
+              </div>
+              <div>
+                <div className='inline-block font-bold'>Total Duration: {formattedMsOrSeconds(requestDetails.allMs())}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   )
 }
