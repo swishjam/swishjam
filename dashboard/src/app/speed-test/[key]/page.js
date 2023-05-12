@@ -34,7 +34,7 @@ export default function SpeedTest({ params }) {
           if (data.data.lighthouse.finalDisplayedUrl) setAuditedUrl(data.data.lighthouse.finalDisplayedUrl);
           setIsAwaitingResults(false);
         } else if(data.statusCode === 100) {
-          if (!auditedUrl) setAuditedUrl(data.data.testInfo.url);
+          if (!auditedUrl) setAuditedUrl(data?.data?.testInfo?.url);
           setIsAwaitingResults(true);
           setTimeout(pollForResults, 5_000);
           setTimeout(() => {

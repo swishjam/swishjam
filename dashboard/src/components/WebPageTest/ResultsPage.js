@@ -6,15 +6,83 @@ import LighthouseSection from '@components/WebPageTest/LighthouseSection'
 import CruxData from '../CruxData/CruxData';
 import Waterfall from './waterfall/Waterfall';
 import HeaderPublic from '@/components/WebPageTest/HeaderPublic';
+import GoodNeedsImprovementPoor from '@/components/LcpAnalyzer/GoodNeedsImprovementPoor';
+import LCPImageViewer from '@/components/LcpAnalyzer/LcpImageViewer';
+import LifecycleVisualization from '@/components/LcpAnalyzer/LifecycleVisualization';
 
-const navigation = [{ name: 'Real User Data' }, { name: 'Lighthouse Audit' }, { name: 'Resource Waterfall' }];
+import { SwishjamMemory } from '@/lib/swishjam-memory';
+import LoadingSpinner from '../LoadingSpinner';
+
+const navigation = [
+  { name: 'Real User Data' }, 
+  { name: 'Lighthouse Audit' }, 
+  { name: 'Resource Waterfall' },
+  { name: 'LCP Breakdown' },
+];
 
 export default function ResultsPage({ webPageTestResults, auditedUrl }) {
-  const [currentTabName, setCurrentTabName] = useState('Real User Data');
+  const [currentTabName, setCurrentTabName] = useState(SwishjamMemory.get('speedTestSelectedTab') || 'Real User Data');
 
+  const currentTabView = () => {
+    switch (currentTabName) {
+      case 'Real User Data':
+        return <CruxData url={auditedUrl} onLighthouseAuditNavigation={() => setCurrentTabName('Lighthouse Audit')} />;
+      case 'Lighthouse Audit':
+        return <LighthouseSection webPageTestResults={webPageTestResults} />;
+      case 'Resource Waterfall':
+        return (
+          <div className='py-4 px-8'>
+            <Waterfall
+              requestData={webPageTestResults && webPageTestResults.requestData()}
+              performanceData={webPageTestResults && webPageTestResults.performanceData()}
+              largestContentfulPaintImageUrl={webPageTestResults && webPageTestResults.lcpImg()}
+              isRunning={webPageTestResults && webPageTestResults.isRunning()}
+            />
+          </div>
+        )
+      case 'LCP Breakdown':
+        return (  
+          <div className='py-8 px-4'>
+            {!webPageTestResults 
+              ? (
+                <div className='text-center'>
+                  <LoadingSpinner size={8} />
+                </div>
+              ) : webPageTestResults.isRunning() 
+                ? ( 
+                  <div className='text-md text-center'>
+                    <LoadingSpinner size={8} />
+                    Speed audit is running. LCP Breakdown will be available once the test is complete.
+                  </div>
+                ) : (
+                  <>
+                    <div className='grid grid-cols-2 gap-8 items-center'>
+                      <div className='h-40'>
+                        <GoodNeedsImprovementPoor lcpValue={webPageTestResults && webPageTestResults.lcpValue()} />
+                      </div>
+                      <LCPImageViewer webPageTestData={webPageTestResults} />
+                      {/* <BreakdownExplanation ttfb={ttfb} lcpImageDiscoveredAt={lcpImageDiscoveredAt} lcpImageDownloadedAt={lcpImageDownloadedAt} lcpValue={lcpValue} /> */}
+                    </div>
+                    <div className='mt-8'>
+                      <LifecycleVisualization webPageTestData={webPageTestResults} />
+                    </div>
+                  </>
+                )}
+          </div>
+        )
+    }
+  }
   return (
     <>
-      <HeaderPublic finishedUrl={auditedUrl} currentNav={currentTabName} navigation={navigation} setNavigation={(name) => setCurrentTabName(name)}/> 
+      <HeaderPublic 
+        finishedUrl={auditedUrl} 
+        currentNav={currentTabName} 
+        navigation={navigation} 
+        setNavigation={name => {
+          SwishjamMemory.set('speedTestSelectedTab', name);
+          setCurrentTabName(name)
+        }}
+      /> 
       <div className="min-h-full bg-swishjam pb-16">
         <div className="bg-white pb-32">
           <Disclosure as="nav" className="bg-white pt-10 pb-4">
@@ -86,27 +154,7 @@ export default function ResultsPage({ webPageTestResults, auditedUrl }) {
         <main className="-mt-32">
           <div className="px-2 sm:px-4 lg:px-8 mx-auto max-w-7xl min-h-[70vh]">
             <div className='border pb-12 bg-white rounded-lg overflow-hidden'>
-              {currentTabName === 'Lighthouse Audit' 
-                ? <LighthouseSection webPageTestResults={webPageTestResults}/>
-                : currentTabName === 'Real User Data' 
-                  ? <CruxData url={auditedUrl} onLighthouseAuditNavigation={() => setCurrentTabName('Lighthouse Audit')} /> 
-                  : currentTabName === 'Resource Waterfall'
-                    ? (
-                      <div className='py-4 px-8'>
-                        <Waterfall
-                          requestData={webPageTestResults.requestData()}
-                          performanceData={webPageTestResults.performanceData()}
-                          largestContentfulPaintImageUrl={webPageTestResults.lcpImg()}
-                          mostLikelyLastTimestamp={webPageTestResults.requestData()[webPageTestResults.requestData().length - 1].downloadEnd()}
-                          pixelToMsRatio={(() => {
-                            const lastTimestamp = webPageTestResults.requestData()[webPageTestResults.requestData().length - 1].downloadEnd()
-                            if (lastTimestamp) {
-                              return lastTimestamp < 3_000 ? 0.35 : lastTimestamp < 7_000 ? 0.2 : lastTimestamp < 10_000 ? 0.2 : lastTimestamp < 15_000 ? 0.1 : 0.05;
-                            }
-                          })()}
-                        />
-                      </div>
-                    ) : null}
+              {currentTabView()}
             </div>
           </div>
         </main>

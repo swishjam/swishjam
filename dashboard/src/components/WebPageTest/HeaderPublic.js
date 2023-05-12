@@ -90,7 +90,7 @@ export default function HeaderPublic({ currentNav, navigation, setNavigation, fi
                   {/* Empty Currently */}
                   {/* Right Side of the Large View For the Report */}
                   <div className='flex'>
-                    <div className="w-96 flex items-center space-x-2">
+                    {/* <div className="w-96 flex items-center space-x-2">
                       <div className="w-full relative mt-2 rounded-md shadow-sm">
                         <div className="text-gray-400 absolute inset-y-0 left-0 flex items-center pl-2">
                           <ArrowUpOnSquareIcon className="h-5 w-5" aria-hidden="true" />
@@ -114,7 +114,7 @@ export default function HeaderPublic({ currentNav, navigation, setNavigation, fi
                           </CopyToClipboard>
                         </div>
                       </div>
-                    </div>
+                    </div> */}
                     <div>
                       <button
                         onClick={() => setShareDialogIsOpen(true)} 

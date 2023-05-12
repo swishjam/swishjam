@@ -32,25 +32,18 @@ const REQUEST_COLORS_DICT = {
   }
 }
 
-export default function RequestVisual({ requestDetails, pixelToMsRatio, isLCP }) {
+export default function RequestVisual({ requestDetails, isLCP, lastTimestamp }) {
   const [isHovered, setIsHovered] = useState(false);
 
   return (
     <>
       <div>
-        <div 
-          className={`absolute top-0 h-[100%] z-50 ${isHovered ? 'scale-110' : ''}`}
-          style={{
-            width: `${(requestDetails.downloadEnd() - requestDetails.firstTimestamp()) * pixelToMsRatio}px`,
-            marginLeft: `${requestDetails.firstTimestamp() * pixelToMsRatio}px`,
-          }}
-        />
         {requestDetails.dnsStart() !== null && (
           <div
             className={`absolute h-[25%] bg-teal-600 top-[38%] z-20 ${isHovered ? 'scale-110' : ''}`}
             style={{
-              marginLeft: `${requestDetails.dnsStart() * pixelToMsRatio}px`,
-              width: `${(requestDetails.dnsTime()) * pixelToMsRatio}px`
+              marginLeft: `${requestDetails.dnsStart() / lastTimestamp * 100}%`,
+              width: `${(requestDetails.dnsTime() / lastTimestamp) * 100}%`
             }}
           />
         )}
@@ -58,8 +51,8 @@ export default function RequestVisual({ requestDetails, pixelToMsRatio, isLCP })
           <div
             className={`absolute h-[25%] bg-red-100 top-[38%] z-20 ${isHovered ? 'scale-110' : ''}`}
             style={{
-              marginLeft: `${requestDetails.waitStart() * pixelToMsRatio}px`,
-              width: `${(requestDetails.waitTime() || 0) * pixelToMsRatio}px`
+              marginLeft: `${requestDetails.waitStart() / lastTimestamp * 100}%`,
+              width: `${(requestDetails.waitTime() || 0) / lastTimestamp * 100}%`
             }}
           />
         )}
@@ -67,8 +60,8 @@ export default function RequestVisual({ requestDetails, pixelToMsRatio, isLCP })
           <div
             className={`absolute h-[25%] bg-orange-500 top-[38%] z-20 ${isHovered ? 'scale-110' : ''}`}
             style={{
-              marginLeft: `${requestDetails.connectStart() * pixelToMsRatio}px`,
-              width: `${(requestDetails.connectTime()) * pixelToMsRatio}px`
+              marginLeft: `${requestDetails.connectStart() / lastTimestamp * 100}%`,
+              width: `${(requestDetails.connectTime() / lastTimestamp) * 100}%`
             }}
           />
         )}
@@ -76,8 +69,8 @@ export default function RequestVisual({ requestDetails, pixelToMsRatio, isLCP })
           <div
             className={`absolute h-[25%] bg-pink-500 top-[38%] z-20 ${isHovered ? 'scale-110' : ''}`}
             style={{
-              marginLeft: `${requestDetails.sslStart() * pixelToMsRatio}px`,
-              width: `${(requestDetails.sslTime()) * pixelToMsRatio}px`
+              marginLeft: `${requestDetails.sslStart() / lastTimestamp * 100}%`,
+              width: `${(requestDetails.sslTime() / lastTimestamp) * 100}%`
             }}
           />
         )}
@@ -85,8 +78,8 @@ export default function RequestVisual({ requestDetails, pixelToMsRatio, isLCP })
           <div
             className={`absolute h-[50%] top-[25%] z-20 ${REQUEST_COLORS_DICT[requestDetails.requestType()]?.request || 'bg-blue-500'}`}
             style={{
-              marginLeft: `${requestDetails.ttfbStart() * pixelToMsRatio}px`,
-              width: `${(requestDetails.ttfbTime()) * pixelToMsRatio}px`
+              marginLeft: `${requestDetails.ttfbStart() / lastTimestamp * 100}%`,
+              width: `${(requestDetails.ttfbTime() / lastTimestamp) * 100}%`
             }}
           />
         )}
@@ -95,13 +88,15 @@ export default function RequestVisual({ requestDetails, pixelToMsRatio, isLCP })
             <div
               className={`absolute h-[50%] top-[25%] z-20 ${REQUEST_COLORS_DICT[requestDetails.requestType()]?.response || 'bg-blue-700'}`}
               style={{
-                marginLeft: `${requestDetails.downloadStart() * pixelToMsRatio}px`,
-                width: `${requestDetails.downloadTime() * pixelToMsRatio}px`
+                marginLeft: `${requestDetails.downloadStart() / lastTimestamp * 100}%`,
+                width: `${(requestDetails.downloadTime() / lastTimestamp) * 100}%`
               }}
             />
             <span
               className='absolute text-xs text-gray-700 h-[100%] flex items-center z-20 w-24 top-0'
-              style={{ marginLeft: `calc(${requestDetails.downloadEnd() * pixelToMsRatio}px + 10px)` }}
+              style={{ 
+                marginLeft: `calc(${requestDetails.downloadEnd() / lastTimestamp * 100}% + 10px)`
+              }}
             >
               {formattedMsOrSeconds(requestDetails.allMs())}
             </span>

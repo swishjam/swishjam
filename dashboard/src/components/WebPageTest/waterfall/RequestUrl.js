@@ -40,7 +40,7 @@ export default function  RequestTitle({ requestDetails }) {
 
   return (
     <div className='relative overflow-x-hidden whitespace-nowrap flex items-center hover:bg-white hover:absolute hover:z-50 hover:w-fit hover:rounded hover:pr-2 hover:top-2'>
-      {requestDetails.request_type === 'Image'
+      {requestDetails.requestType() === 'Image'
         ? (
           <>
             <img className='inline-block h-4 w-4 mr-1' src={requestDetails.url()} ref={setTriggerRef} />

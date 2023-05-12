@@ -39,7 +39,7 @@ export default function LifecycleVisualization({ webPageTestData }) {
   const requestData = webPageTestData.requestData();
   const lcpImageURL = webPageTestData.lcpImg();
   const lcpValue = webPageTestData.lcpValue();
-  const documentRequests = requestData.slice(0, 2).filter(request => request.requestType() === 'Document');
+  const documentRequest = requestData.slice(0, 2).find(request => request.requestType() === 'Document');
   const lcpImageURLRequest = requestData.find(req => req.url() === lcpImageURL);
   const lcpImageRequestNum = (lcpImageURLRequest || { payload: { number: -1 } }).payload.number;
   // const numBlockingRequestsBeforeLCP = requestData.filter(req => req.payload.number < lcpImageRequestNum && req.isRenderBlocking()).length;
@@ -52,7 +52,7 @@ export default function LifecycleVisualization({ webPageTestData }) {
   return (
     <>
       <Modal isOpen={!!modalContent} onClose={() => setModalContent(null)} content={modalContent}/>
-      <h2 className='text-lg text-gray-800'>Largest Contentful Paint can be broken down into 4 stages:</h2>
+      {/* <h2 className='text-lg text-gray-800'>Largest Contentful Paint is broken down into 4 stages:</h2> */}
       <dl className="my-5 grid grid-cols-4 gap-4">
         <LCPSubPartStat 
           title='1. Time to First Byte'
@@ -103,16 +103,14 @@ export default function LifecycleVisualization({ webPageTestData }) {
         <div className='grid grid-cols-10'>
           <div className='col-span-2'>
             <div className='h-5' />
-            {documentRequests.map(request => (
-              <div key={request.payload.number} className={`cursor-default h-10 px-1 py-2 ${request.payload.number % 2 === 0 ? 'bg-white' : 'bg-gray-50'}`}>
-                <span className='text-sm text-gray-500 mr-2'>{request.payload.number}.</span>
-                <span className='text-sm text-gray-900'>{request.friendlyURL()}</span>
-              </div>
-            ))}
-            <div className={`cursor-default h-10 px-1 py-2 ${documentRequests.length % 2 === 0 ? 'bg-gray-50' : 'bg-white'}`}>
-              <span className='text-sm text-gray-500 mr-2'>...{lcpImageRequestNum - 1 - documentRequests.length} requests...</span>
+            <div className={`cursor-default h-10 px-1 py-2 bg-gray-50`}>
+              <span className='text-sm text-gray-500 mr-2'>{documentRequest.payload.number}.</span>
+              <span className='text-sm text-gray-900'>{documentRequest.friendlyURL()}</span>
             </div>
-            <div className={`h-10 relative px-1 py-2 ${documentRequests.length % 2 === 0 ? 'bg-white' : 'bg-gray-50'}`}>
+            <div className={`cursor-default h-10 px-1 py-2 bg-white`}>
+              <span className='text-sm text-gray-500 mr-2'>...{lcpImageRequestNum - documentRequest.payload.number} requests...</span>
+            </div>
+            <div className={`h-10 relative px-1 py-2 bg-gray-50`}>
               <div className='cursor-default whitespace-nowrap overflow-hidden hover:absolute hover:bg-white hover:top-2 hover:left-1 hover:w-fit'>
                 <span className='text-sm text-gray-500 mr-2'>{lcpImageRequestNum}.</span>
                 <span className='text-sm text-gray-900'>{lcpImageURLRequest.friendlyURL()}</span>
@@ -176,27 +174,25 @@ export default function LifecycleVisualization({ webPageTestData }) {
                     borderRight: '2px dotted black'
                   }}
                 />
-                {documentRequests.map(request => (
-                  <div key={request.payload.number} className={`h-10 relative w-full ${request.payload.number % 2 === 0 ? 'bg-white' : 'bg-gray-50'}`}>
-                    <div
-                      className='absolute h-[50%] top-[25%] bg-blue-500 rounded'
-                      style={{
-                        marginLeft: `${request.firstTimestamp() / lcpValue * 100}%`,
-                        width: `${request.allMs() / lcpValue * 100}%`,
-                      }}
-                    />
-                  </div>
-                ))}
-                <div className={`h-10 relative w-full text-sm text-gray-700 ${documentRequests.length % 2 === 0 ? 'bg-gray-50' : 'bg-white'}`}>
+                <div key={documentRequest.number} className={`h-10 relative w-full bg-white`}>
                   <div
-                    className='absolute h-[50%] top-[25%] bg-gray-200 rounded'
+                    className='absolute h-[50%] top-[25%] bg-blue-500 rounded'
                     style={{
-                      marginLeft: `${documentRequests[documentRequests.length - 1].allMs() / lcpValue * 100}%`,
-                      width: `${(lcpImageDiscoveredAt - documentRequests[documentRequests.length - 1].allMs()) / lcpValue * 100}%`
+                      marginLeft: `${documentRequest.firstTimestamp() / lcpValue * 100}%`,
+                      width: `${documentRequest.allMs() / lcpValue * 100}%`,
                     }}
                   />
                 </div>
-                <div className={`h-10 relative w-full ${documentRequests.length % 2 === 0 ? 'bg-white' : 'bg-gray-50'}`}>
+                <div className={`h-10 relative w-full text-sm text-gray-700 bg-gray-50`}>
+                  <div
+                    className='absolute h-[50%] top-[25%] bg-gray-200 rounded'
+                    style={{
+                      marginLeft: `${documentRequest.firstTimestamp() / lcpValue * 100}%`,
+                      width: `${requestData[lcpImageURLRequest.payload.index - 1].allMs() / lcpValue * 100}%`
+                    }}
+                  />
+                </div>
+                <div className={`h-10 relative w-full bg-gray-50`}>
                   <div
                     className='absolute h-[50%] top-[25%] bg-yellow-500 rounded'
                     style={{

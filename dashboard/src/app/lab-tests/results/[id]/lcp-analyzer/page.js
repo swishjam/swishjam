@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { WebPageTestResults } from "@/lib/web-page-test-results-parser";
 import LifecycleVisualization from "@/components/LcpAnalyzer/LifecycleVisualization";
 import GoodNeedsImprovementPoor from "@/components/LcpAnalyzer/GoodNeedsImprovementPoor";
+import LCPImageViewer from "@/components/LcpAnalyzer/LCPImageViewer";
 import { formattedMsOrSeconds } from "@/lib/utils";
 import DetailsHeader from "@/components/LabTests/DetailsHeader";
 import LoadingSpinner from "@/components/LoadingSpinner";
@@ -82,7 +83,7 @@ export default function WaterfallPage({ params }) {
             <div className='h-40'>
               <GoodNeedsImprovementPoor lcpValue={lcpValue} />
             </div>
-            <LCPImageView webPageTestData={webPageTestData} />
+            <LCPImageViewer webPageTestData={webPageTestData} />
             {/* <BreakdownExplanation ttfb={ttfb} lcpImageDiscoveredAt={lcpImageDiscoveredAt} lcpImageDownloadedAt={lcpImageDownloadedAt} lcpValue={lcpValue} /> */}
           </div>
           <div className='mt-8'>
@@ -147,30 +148,5 @@ const ExplanationItem = ({ title, value, description, lcpValue }) => {
         )}
       </div>
     </li>
-  )
-}
-
-const LCPImageView = ({ webPageTestData }) => {
-  const viewportWidth = webPageTestData.firstViewData.viewport.width;
-  const viewportHeight = webPageTestData.firstViewData.viewport.height;
-
-  const borderTop = (webPageTestData.lcpBoundingRects().top / viewportHeight) * 100;
-  const borderLeft = (webPageTestData.lcpBoundingRects().left / viewportWidth) * 100;
-  const borderWidth = (webPageTestData.lcpBoundingRects().width / viewportWidth) * 100;
-  const borderHeight = (webPageTestData.lcpBoundingRects().height / viewportHeight) * 100;
-  return (
-    <div className='relative w-fit h-fit overflow-hidden rounded border border-gray-200'>
-      <img
-        src={webPageTestData.lcpImg()}
-        className='absolute hover:scale-110 transition z-10'
-        style={{
-          top: `${borderTop}%`,
-          left: `${borderLeft}%`,
-          width: `${borderWidth}%`,
-          height: `${borderHeight}%`,
-        }}
-      />
-      <img src={webPageTestData.screenshotUrl()} style={{ filter: 'blur(2px)' }} />
-    </div>
   )
 }

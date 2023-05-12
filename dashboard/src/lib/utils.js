@@ -114,6 +114,8 @@ export const calculatedResourceTimings = resourceTimings => {
   }
 }
 
+export const randomNumberBetween = (min, max) => Math.floor(Math.random() * (max - min + 1) + min);
+
 export const resourceTypeToHumanName = initiatorType => {
   switch (initiatorType) {
     case 'navigation':
