@@ -12,7 +12,7 @@ export class WebPageTestResults {
     return this.data.id;
   }
 
-  pending() {
+  isRunning() {
     return this.results.statusCode === 100;
   }
 
@@ -164,6 +164,7 @@ class RequestData {
   }
 
   requestType() {
+    // return this.payload.request_type || this.payload.responseCode === 301 ? 'Redirect' : undefined;
     return this.payload.request_type;
   }
 
