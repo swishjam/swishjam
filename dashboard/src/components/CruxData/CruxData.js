@@ -42,8 +42,7 @@ const getCruxData = async (url, formFactor) => {
   })
 }
 
-export default function CruxData({ onLighthouseAuditNavigation, shouldPromptUserToRegister = true }) {
-  const url = 'https://wearfigs.com';
+export default function CruxData({ url, onLighthouseAuditNavigation, shouldPromptUserToRegister = true }) {
   const [cruxDesktopData, setCruxDesktopData] = useState();
   const [cruxMobileData, setCruxMobileData] = useState();
   const [expandedMetrics, setExpandedMetrics] = useState([]);
