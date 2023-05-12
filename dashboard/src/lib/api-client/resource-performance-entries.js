@@ -15,4 +15,8 @@ export class ResourcePerformanceEntriesApi extends API {
     const { records } = await API.get('/api/resource-performance-entries/all', data);
     return records;
   }
+
+  static async getXHRResources(data) {
+    return await API.get('/api/resource-performance-entries/xhrs', data);
+  }
 }
