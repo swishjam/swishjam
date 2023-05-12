@@ -74,7 +74,7 @@ export default function APIPerformance() {
               ? (
                 apiData.map(({ url, total_count, duration, transfer_size }, i) => (
                   <div 
-                    className={`border-b border-gray-400 p-4 hover:bg-gray-100 cursor-pointer ${url === selectedAPI?.url ? 'bg-gray-100 border border-gray-600' : ''}`}
+                    className={`border-b border-gray-400 p-4 hover:bg-gray-100 cursor-pointer break-all ${url === selectedAPI?.url ? 'bg-gray-100 border border-gray-600' : ''}`}
                     key={i}
                     onClick={() => {
                       setSelectedAPI(apiData[i])
