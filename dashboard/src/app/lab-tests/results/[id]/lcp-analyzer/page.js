@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { WebPageTestResults } from "@/lib/web-page-test-results-parser";
 import LifecycleVisualization from "@/components/LcpAnalyzer/LifecycleVisualization";
 import GoodNeedsImprovementPoor from "@/components/LcpAnalyzer/GoodNeedsImprovementPoor";
-import LCPImageViewer from "@/components/LcpAnalyzer/LCPImageViewer";
+import LCPImageViewer from "@/components/LcpAnalyzer/LcpImageViewer";
 import { formattedMsOrSeconds } from "@/lib/utils";
 import DetailsHeader from "@/components/LabTests/DetailsHeader";
 import LoadingSpinner from "@/components/LoadingSpinner";
