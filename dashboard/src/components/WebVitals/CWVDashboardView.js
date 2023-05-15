@@ -29,8 +29,8 @@ export default function CwvDashboardView() {
     setNumPageViews();
   }
 
-  const getAndSetExperienceScoreTimeseriesData = async ({ urlHost, urlPath }) => {
-    const params = { urlHost, urlPath, metrics: JSON.stringify(['LCP', 'INP', 'CLS', 'FCP', 'FID', 'TTFB']) };
+  const getAndSetExperienceScoreTimeseriesData = async ({ urlHost, urlPath, groupBy = 'day' }) => {
+    const params = { urlHost, urlPath, groupBy, metrics: JSON.stringify(['LCP', 'INP', 'CLS', 'FCP', 'FID', 'TTFB']) };
     if (urlPath === 'All Paths' || !urlPath) delete params.urlPath;
     return WebVitalsApi.getTimeseriesData(params).then(data => {
       let dataWithExperienceScores = {};
@@ -48,9 +48,12 @@ export default function CwvDashboardView() {
   };
 
   const getAndSetBarChartsData = async ({ urlHost, urlPath }) => {
-    const params = { urlHost, urlPath, groupBy: 'day', metrics: JSON.stringify(['LCP', 'INP', 'CLS', 'FCP', 'FID', 'TTFB']) };
+    const params = { urlHost, urlPath, metrics: JSON.stringify(['LCP', 'INP', 'CLS', 'FCP', 'FID', 'TTFB']) };
     if (urlPath === 'All Paths' || !urlPath) delete params.urlPath;
-    return WebVitalsApi.getGoodNeedsImprovementChartData(params).then(setCwvBarChartData);
+    return WebVitalsApi.getGoodNeedsImprovementChartData(params).then(({ data, groupedBy }) => {
+      setCwvBarChartData(data);
+      getAndSetExperienceScoreTimeseriesData({ urlHost, urlPath, groupBy: groupedBy });
+    });
   }
 
   const getAndSetNumPageViews = async ({ urlHost, urlPath }) => {
@@ -65,7 +68,6 @@ export default function CwvDashboardView() {
       getAndSetNumPageViews({ urlHost, urlPath }),
       getAndSetBarChartsData({ urlHost, urlPath }), 
       getAndSetWebVitalPercentiles({ urlHost, urlPath }),
-      getAndSetExperienceScoreTimeseriesData({ urlHost, urlPath })
     ]);
   }
 

@@ -1,5 +1,6 @@
 'use client';
-import { Card, Metric, Text, Flex, BarChart } from '@tremor/react';
+import { Card, Metric, Text } from '@tremor/react';
+import BarChart from '@/components/Charts/BarChart';
 import { LcpIcon, InpIcon, ClsIcon, FidIcon, FcpIcon, TtfbIcon } from '@/components/WebVitals/WebVitalIcons';
 import { formattedMsOrSeconds } from '@lib/utils';
 import { cwvMetricBounds } from '@lib/cwvCalculations';
@@ -7,7 +8,7 @@ import MetricGauge from '@/components/WebVitals/MetricGauge';
 import Link from 'next/link';
 import { ChevronRightIcon } from '@heroicons/react/24/outline';
 
-const CardIcon = (iconType) => {
+const CardIcon = iconType => {
   return {
     LCP: <LcpIcon />,
     INP: <InpIcon />,
@@ -18,16 +19,7 @@ const CardIcon = (iconType) => {
   }[iconType] || <></>;
 }
 
-export default function WebVitalCard({ title, accronym, percentileValue, numRecordsInPercentileCalculation, barChartData }, ...props) {
-  const formattedBarChartData = barChartData && barChartData.map(data => {
-    return ({
-      date: data.date,
-      'Good': parseFloat(data.percentGood).toFixed(2),
-      'Needs Improvement': parseFloat(data.percentNeedsImprovement).toFixed(2),
-      'Poor': parseFloat(data.percentPoor).toFixed(2),
-    })
-  });
-
+export default function WebVitalCard({ title, accronym, percentileValue, numRecordsInPercentileCalculation, barChartData }) {
   const percentileColor = percentileValue <= cwvMetricBounds[accronym].good ? 'emerald' : 
                             percentileValue <= cwvMetricBounds[accronym].medium ? 'yellow' : 'rose';
   return (
@@ -36,42 +28,68 @@ export default function WebVitalCard({ title, accronym, percentileValue, numReco
         <dt className="flex items-center gap-x-3 text-base leading-7 text-gray-900">
           {CardIcon(accronym)}
           <span className='hover:underline hover:text-swishjam duration-300 transition'>
-            <Link
-              className="hover:text-swishjam"
-              href={`/cwv/${accronym}`}
-            >{title}</Link>
+            <Link className="hover:text-swishjam" href={`/cwv/${accronym}`}>{title}</Link>
           </span>
         </dt>
-        {typeof numRecordsInPercentileCalculation === 'number' ?
-                  numRecordsInPercentileCalculation > 0 ? (
-                    <div className='mt-2'>
-                      <Metric color={percentileColor}>
-                        {accronym === 'CLS' ? parseFloat(percentileValue).toFixed(4) : formattedMsOrSeconds(percentileValue)}
+        {typeof numRecordsInPercentileCalculation === 'number'
+                  ? (
+                    <div className='my-2'>
+                      <Metric color={typeof percentileValue === 'number' ? percentileColor : 'gray'}>
+                        {typeof percentileValue === 'number' 
+                          ? accronym === 'CLS' ? parseFloat(percentileValue).toFixed(4) : formattedMsOrSeconds(percentileValue)
+                          : '--'
+                        }
                       </Metric>
                       <div className='mt-4'>
                         <MetricGauge accronym={accronym} percentileValue={percentileValue} />
                       </div>
                     </div>
-                  ) : <Metric>--</Metric> :
-                  <div className='animate-pulse w-20 h-10 bg-gray-200 rounded'></div>
+                  ) : <div className='my-2 animate-pulse w-20 h-10 bg-gray-200 rounded'></div>
         }
-        {formattedBarChartData === undefined ? <div className='animate-pulse w-full h-48 mt-4 bg-gray-200 rounded'></div> : 
-            formattedBarChartData.length > 0 ? (
+        {barChartData === undefined ? <div className='animate-pulse w-full h-48 mt-4 bg-gray-200 rounded' /> : 
+            barChartData.length > 0 ? (
               <>
                 <BarChart
-                  data={formattedBarChartData}
-                  dataKey="date"
-                  categories={['Good', 'Needs Improvement', 'Poor']}
-                  colors={['green', 'yellow', 'red']}
-                  showLegend={false}
-                  startEndOnly={true}
-                  valueFormatter={value => `${value}%`}
-                  height="h-48"
-                  marginTop="mt-4"
-                  stack={true}
-                  maxValue={100.0}
-                  showYAxis={false}
-                  showAnimation={false}
+                  data={barChartData}
+                  xAxisKey="date"
+                  keys={['percentGood', 'percentNeedsImprovement', 'percentPoor', 'noData']}
+                  colors={['rgb(16, 185, 129)', 'rgb(234, 179, 8)', 'rgb(244, 63, 94)', '#9499a3']}
+                  stacked={true}
+                  includeLegend={false}
+                  includeYAxis={false}
+                  yAxisDataFormatter={value => `${parseFloat(value).toFixed(2)}%`}
+                  yAxisMin={0}
+                  yAxisMax={100}
+                  height='h-48'
+                  yAxisNameFormatter={value => {
+                    switch(value) {
+                      case 'percentGood':
+                        return 'Good';
+                      case 'percentNeedsImprovement':
+                        return 'Needs Improvement';
+                      case 'percentPoor':
+                        return 'Poor';
+                      default:
+                        return value;
+                    }
+                  }}
+                  hideTooltipNames={['noData']}
+                  tooltipDisplay={({ label }) => {
+                    const dataForDate = barChartData.find(data => data.date === label);
+                    if (!dataForDate) return;
+                    if (dataForDate.noData === 100) {
+                      return (
+                        <div className="custom-tooltip bg-white w-fit p-4 relative border border-gray-300 rounded-lg min-w-72 text-center">
+                          <span className="text-sm text-gray-700">Not enough data for {label}</span>
+                        </div>
+                      )
+                    }                   
+                  }}
+                  tooltipDescriptionFormatter={dateString => {
+                    const dataForDate = barChartData.find(data => data.date === dateString);
+                    if (!dataForDate) return;
+                    return `Based on ${dataForDate.total} total records`
+                  }}
                 />
                 <div className='flex justify-end mt-4'>
                   <Link
