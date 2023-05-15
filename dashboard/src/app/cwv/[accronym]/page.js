@@ -64,7 +64,7 @@ export default function CWV({ params }) {
   const getAndSetGoodNeedsImprovementChartData = ({ urlHost, urlPath, deviceTypes, setterMethod }) => {
     const params = { urlHost, urlPath, metrics: JSON.stringify([accronym]), deviceTypes: JSON.stringify(deviceTypes) };
     if (urlPath === 'All Paths') delete params.urlPath;
-    WebVitalsApi.getGoodNeedsImprovementChartData(params).then(data => {
+    WebVitalsApi.getGoodNeedsImprovementChartData(params).then(({ data }) => {
       const formatted = data[accronym].map(data => {
         return ({
           date: data.date,

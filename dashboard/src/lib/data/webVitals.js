@@ -217,7 +217,7 @@ export default class WebVitalsData {
     }
   }
 
-  static async getPercentileTimeseriesDataForMetric({ projectKey, metric, startTs, urlHost, urlPath, percentile = 0.75 }) {
+  static async getPercentileTimeseriesDataForMetric({ projectKey, metric, groupBy = 'day', startTs, urlHost, urlPath, percentile = 0.75 }) {
     if (!projectKey) throw new Error('Missing required parameter: `projectKey`');
     if (!urlHost) throw new Error('Missing required parameter: `urlHost`');
     if (!metric) throw new Error('Missing required parameter: `metric`');
@@ -225,7 +225,7 @@ export default class WebVitalsData {
       const query = `
         SELECT
           CAST(PERCENTILE_CONT(${percentile}) WITHIN GROUP (ORDER BY metric_value) AS float) AS value,
-          date_trunc('day', page_views.page_view_ts) AS date
+          date_trunc('${groupBy}', page_views.page_view_ts) AS date
         FROM
           performance_metrics
         LEFT JOIN

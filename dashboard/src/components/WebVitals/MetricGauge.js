@@ -11,12 +11,16 @@ export default function MetricGauge({ accronym, percentileValue }) {
   const percentageValue = Math.min(100, startingPercentage + ((percentileValue / totalSize) * 100));
   return (
     <div className='w-full'>
-      <CategoryBar
-        categoryPercentageValues={[(cwvBounds.good / totalSize) * 100, (cwvBounds.medium / totalSize) * 100, (sizeOfBad / totalSize) * 100]}
-        colors={["emerald", "yellow", "rose"]}
-        percentageValue={percentageValue}
-        showLabels={false}
-      />
+      {typeof percentileValue === 'number' 
+        ? (
+          <CategoryBar
+            categoryPercentageValues={[(cwvBounds.good / totalSize) * 100, (cwvBounds.medium / totalSize) * 100, (sizeOfBad / totalSize) * 100]}
+            colors={["emerald", "yellow", "rose"]}
+            percentageValue={percentageValue}
+            showLabels={false}
+          />
+        ) : <div className='w-full h-2 rounded bg-gray-400' />
+      }
       <div className='block'>
         <div className='inline-block text-xs text-gray-400 text-center' 
               style={{ width: `${((cwvBounds.good / totalSize) + ((cwvBounds.medium / totalSize) / 2)) * 100}%` }}>
