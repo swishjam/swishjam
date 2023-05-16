@@ -16,7 +16,7 @@
 - Drop us a message to discuss upcoming features
 
 ## Our goal
-We want everyone to build awesome web experiences. We see Swishjam becoming a collection of tools to measure, mitigate, and enhance your users experience and help it perform better.
+We want everyone to build awesome web experiences. We see Swishjam becoming a collection of tools to measure, monitor, and enhance your users experience and help it perform better.
 
 ## Repo Architecture 
     .
