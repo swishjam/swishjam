@@ -207,6 +207,9 @@ const UserFlyout = ({ userEmail, signOut, currentOrg, userOrgs, updateCurrentOrg
                     onClick={() => updateCurrentOrganization(org)}
                     key={org.id}
                   >
+                    <div className='rounded-full bg-gray-300 text-gray-900 text-xs w-6 h-6 p-1 inline-flex items-center justify-center mr-2'>
+                      {org.name.split(' ').map(word => word[0]).join('')}
+                    </div>
                     <span>{org.name}</span>
                   </Menu.Button>
                 ))}
