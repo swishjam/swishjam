@@ -4,6 +4,7 @@ import WebVitalsData from '@/lib/data/webVitals';
 export default async (req, res) => {
   const defaultStartTs = Date.now() - 1000 * 60 * 60 * 24 * 7;
   const { 
+    organizationId,
     projectKey, 
     urlHost, 
     urlPath, 
@@ -12,7 +13,7 @@ export default async (req, res) => {
     startTs = defaultStartTs 
   } = req.query;
 
-  return await Validator.runQueryIfUserHasAccess({ req, res, projectKey }, async () => {
+  return await Validator.runQueryIfUserHasAccess({ req, res, organizationId, projectKey }, async () => {
     try {
       const histogramArray = await WebVitalsData.getHistogramData({ 
         projectKey, 

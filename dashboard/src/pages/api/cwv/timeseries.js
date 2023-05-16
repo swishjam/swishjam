@@ -3,7 +3,7 @@ import WebVitalsData from '@/lib/data/webVitals';
 
 export default async (req, res) => {
   const oneDay = 1000 * 60 * 60 * 24;
-  const { projectKey, metrics, urlHost, urlPath, groupBy ='day', percentile = 0.75 } = req.query;
+  const { organizationId, projectKey, metrics, urlHost, urlPath, groupBy ='day', percentile = 0.75 } = req.query;
   const startTs = req.query.startTs || groupBy === 'month'
                     ? new Date(Date.now() - (oneDay * 30 * 5))
                     : groupBy === 'week'
@@ -11,7 +11,7 @@ export default async (req, res) => {
                       : new Date(Date.now() - (oneDay * 7));
 
   
-  return await Validator.runQueryIfUserHasAccess({ req, res, projectKey }, async () => {
+  return await Validator.runQueryIfUserHasAccess({ req, res, organizationId, projectKey }, async () => {
     try {
       const sqlQueries = JSON.parse(metrics || '[]').map(
         metric => WebVitalsData.getPercentileTimeseriesDataForMetric({ 

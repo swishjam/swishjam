@@ -13,13 +13,15 @@ import {
   AdjustmentsHorizontalIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
+  ChevronDownIcon,
+  UserCircleIcon,
 } from '@heroicons/react/24/outline'
 
 import { useAuth } from './AuthProvider';
 import { Fragment, useState } from 'react'
 import Link from 'next/link'
 import Logo from '@components/Logo'
-import { Dialog, Transition } from '@headlessui/react'
+import { Menu, Dialog, Transition } from '@headlessui/react'
 import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline'
 import SiteSwitcher from '@components/SiteSwitcher';
 import { usePopperTooltip } from 'react-popper-tooltip';
@@ -163,6 +165,77 @@ const ListTitle = ({ title, Icon, isCollapsed }) => {
   )
 }
 
+const UserFlyout = ({ userEmail, signOut, currentOrg, userOrgs, updateCurrentOrganization }) => {
+  return (
+    <>
+      <Menu as="div" className="relative inline-block text-left w-full">
+        <div>
+          <Menu.Button className="px-8 inline-flex justify-between items-center w-full rounded-md bg-white py-2 text-sm text-gray-900 hover:bg-gray-50">
+            <div className='flex items-center truncate'>
+              <UserCircleIcon className='text-gray-400 group-hover:text-swishjam duration-300 transition h-6 w-6 shrink-0 inline-block mr-2' /> 
+              <span className='truncate'>{userEmail}</span>
+            </div>
+            <ChevronDownIcon className="-mr-1 h-5 w-5 text-gray-400" aria-hidden="true" />
+          </Menu.Button>
+        </div>
+
+        <Transition
+          as={Fragment}
+          enter="transition ease-out duration-100"
+          enterFrom="transform opacity-0 scale-95"
+          enterTo="transform opacity-100 scale-100"
+          leave="transition ease-in duration-75"
+          leaveFrom="transform opacity-100 scale-100"
+          leaveTo="transform opacity-0 scale-95"
+        >
+          <Menu.Items className="absolute left-0 bottom-0 w-full z-10 divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+            <Menu.Button className="w-full px-4 py-3 flex w-full justify-between items-center hover:bg-gray-50 cursor-pointer">
+              <div className='flex items-center truncate'>
+                <UserCircleIcon className='text-gray-900 duration-300 transition h-6 w-6 shrink-0 inline-block mr-2' />
+                <p className="truncate text-sm font-medium text-gray-900">{userEmail}</p>
+              </div>
+              <ChevronDownIcon className="h-5 w-5 text-gray-400" aria-hidden="true" />
+            </Menu.Button>
+            {userOrgs.length > 1 && (
+              <>
+                <div className='text-gray-700 px-4 py-2 text-sm text-gray-900 font-medium'>
+                  Change organizations
+                </div>
+                {userOrgs.map(org => (
+                  <Menu.Button
+                    className={`block w-full text-start px-4 py-2 text-sm ${org.id === currentOrg.id ? 'bg-gray-100 text-swishjam cursor-default' : 'cursor-pointer text-gray-700 hover:bg-gray-100'}`}
+                    onClick={() => updateCurrentOrganization(org)}
+                    key={org.id}
+                  >
+                    <span>{org.name}</span>
+                  </Menu.Button>
+                ))}
+              </>
+            )}
+            <div className="py-1">
+              <Menu.Item>
+                {({ active }) => (
+                  <button
+                    type="submit"
+                    onClick={signOut}
+                    className={classNames(
+                      active ? 'bg-red-100 text-red-500' : 'text-gray-700',
+                      'block w-full px-4 py-2 text-left text-sm'
+                    )}
+                  >
+                    <ArrowLeftOnRectangleIcon className='h-6 w-6 inline-block mr-2' />
+                    Sign out
+                  </button>
+                )}
+              </Menu.Item>
+            </div>
+          </Menu.Items>
+        </Transition>
+      </Menu>
+    </>
+  )
+}
+
 const DesktopNavItem = ({ item, isCollapsed }) => {
   const { getArrowProps, getTooltipProps, setTooltipRef, setTriggerRef, visible } = usePopperTooltip({ placement: 'right' });
 
@@ -199,7 +272,7 @@ const DesktopNavItem = ({ item, isCollapsed }) => {
 export default function Sidebar({ onCollapse, onExpand }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(typeof SwishjamMemory.get('isNavCollapsed') === 'boolean' ? SwishjamMemory.get('isNavCollapsed') : false);
-  const { signOut, user } = useAuth();
+  const { signOut, user, userOrg, userOrgs, updateCurrentOrganization } = useAuth();
 
   return (
     <>
@@ -210,7 +283,6 @@ export default function Sidebar({ onCollapse, onExpand }) {
           user={user}   
           handleSignOut={signOut} 
         />
-    
 
         <div className={`hidden lg:fixed lg:inset-y-0 lg:z-20 lg:flex lg:flex-col transition ${isCollapsed ? 'lg:w-10' : 'lg:w-72'}`}>
           <div className={`flex grow flex-col gap-y-5 overflow-y-auto border-r border-gray-200 bg-white ${isCollapsed ? 'px-1' : 'px-6'}`}>
@@ -240,30 +312,13 @@ export default function Sidebar({ onCollapse, onExpand }) {
                   </ul>
                 </li>
                 {!isCollapsed && <li className="-mx-6 mt-auto">
-                  <div className="mx-4">
-                    <div
-                      onClick={signOut} 
-                      className={'cursor-pointer duration-300 transition text-gray-700 hover:text-swishjam hover:bg-gray-50 group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold'}
-                    >
-                      <ArrowLeftOnRectangleIcon
-                        className={'duration-300 transition text-gray-400 group-hover:text-swishjam h-6 w-6 shrink-0'}
-                        aria-hidden="true"
-                      />
-                      <span className="truncate">Sign Out</span>
-                    </div>
-                  </div>
-                  <div
-                    className="flex items-center gap-x-4 px-6 py-3 text-sm font-semibold leading-6 text-gray-900"
-                  >
-                    {user && user.imageUrl ? 
-                    <img className="h-8 w-8 rounded-full" src={user.imageUrl} alt="" />:
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-10 h-10 text-gray-500">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M17.982 18.725A7.488 7.488 0 0012 15.75a7.488 7.488 0 00-5.982 2.975m11.963 0a9 9 0 10-11.963 0m11.963 0A8.966 8.966 0 0112 21a8.966 8.966 0 01-5.982-2.275M15 9.75a3 3 0 11-6 0 3 3 0 016 0z" />
-                    </svg>
-                    }
-                    <span className='cursor-default' aria-hidden="true">{user.email}</span>
-                  </div>
-
+                  <UserFlyout 
+                    userEmail={user.email} 
+                    signOut={signOut} 
+                    currentOrg={userOrg}
+                    userOrgs={userOrgs} 
+                    updateCurrentOrganization={updateCurrentOrganization} 
+                  />
                 </li>}
               </ul>
             </nav>

@@ -17,11 +17,12 @@ export const AuthContext = createContext();
 
 export const AuthProvider = (props) => {
   const [initial, setInitial] = useState(true);
-  const [session, setSession] = useState(null);
-  const [user, setUser] = useState(null);
-  const [userOrg, setUserOrg] = useState(null);
+  const [session, setSession] = useState();
+  const [user, setUser] = useState();
+  const [userOrg, setUserOrg] = useState();
+  const [userOrgs, setUserOrgs] = useState();
   const [projects, setProjects] = useState([]);
-  const [currentProject, setCurrentProject] = useState(null);
+  const [currentProject, setCurrentProject] = useState();
   const router = useRouter();
   const { accessToken, ...rest } = props;
 
@@ -31,34 +32,55 @@ export const AuthProvider = (props) => {
     setCurrentProject({ name, public_id });
   }
 
+  async function updateCurrentOrganization(organization) {
+    if (organization) {
+      SwishjamMemory.set('currentOrganization', organization.id);
+      setUserOrg(organization);
+      const { data: projects } = await supabase.from('projects').select('*').eq('organization_id', organization.id)
+      setProjects(projects);
+
+      const inMemoryProject = SwishjamMemory.get("currentProjectKey") ? projects.find(({ public_id }) => public_id === SwishjamMemory.get("currentProjectKey")) : null;
+
+      if (inMemoryProject) {
+        setCurrentProject({ name: inMemoryProject.name, public_id: inMemoryProject.public_id });
+      } else if (projects.length > 0) {
+        setCurrentProject({ name: projects[0].name, public_id: projects[0].public_id });
+        SwishjamMemory.set("currentProjectName", projects[0].name);
+        SwishjamMemory.set("currentProjectKey", projects[0].public_id);
+      }
+    } else {
+      SwishjamMemory.delete('currentOrganization');
+      setUserOrg(null);
+    }
+  }
+
   useEffect(() => {
     async function getCoreUserData(localUser) {
       try { 
         if (localUser) {
-          if(window?.location?.href?.includes('register')) {
-            return
-          }
+          if(window?.location?.href?.includes('register')) return;
           
           const orgUsers = await supabase.from('organization_users').select('*').eq('user_id', localUser.id)
           if (orgUsers.error) { throw orgUsers.error } 
         
-          const orgs = await supabase.from('organizations').select('*').eq('id', orgUsers.data[0].organization_id)
+          const orgs = await supabase.from('organizations').select('id, name').in('id', orgUsers.data.map(orgUser => orgUser.organization_id))
           if (orgs.error) { throw orgs.error } 
-          setUserOrg(orgs.data[0])
-        
-          const loadedProjects = await supabase.from('projects').select('*').eq('organization_id', orgs.data[0].id)
-          setProjects(loadedProjects.data)
+          setUserOrgs(orgs.data);
 
-          const inMemoryProjectKey = SwishjamMemory.get("currentProjectKey");
-          const inMemoryProjectName = SwishjamMemory.get("currentProjectName");
+          const currentOrganization = SwishjamMemory.get('currentOrganization') ? orgs.data.find(org => org.id === SwishjamMemory.get('currentOrganization')) : orgs.data[0];
+          updateCurrentOrganization(currentOrganization);
+        
+          const { data: projects } = await supabase.from('projects').select('*').eq('organization_id', currentOrganization.id)
+          setProjects(projects)
+
+          const inMemoryProject = SwishjamMemory.get("currentProjectKey") ? projects.find(({ public_id }) => public_id === SwishjamMemory.get("currentProjectKey")) : null;
           
-          if (inMemoryProjectKey && inMemoryProjectName) {
-            setCurrentProject({ name: inMemoryProjectName, public_id: inMemoryProjectKey });  
-          }
-          if ((!inMemoryProjectKey || !inMemoryProjectName) && loadedProjects.data.length > 0) {
-            setCurrentProject({ name: loadedProjects.data[0].name, public_id: loadedProjects.data[0].public_id });
-            SwishjamMemory.set("currentProjectName", loadedProjects.data[0].name);
-            SwishjamMemory.set("currentProjectKey", loadedProjects.data[0].public_id);
+          if (inMemoryProject) {
+            setCurrentProject({ name: inMemoryProject.name, public_id: inMemoryProject.public_id });  
+          } else if (projects.length > 0) {
+            setCurrentProject({ name: projects[0].name, public_id: projects[0].public_id });
+            SwishjamMemory.set("currentProjectName", projects[0].name);
+            SwishjamMemory.set("currentProjectKey", projects[0].public_id);
           }
         }
       } catch (error) {
@@ -75,9 +97,7 @@ export const AuthProvider = (props) => {
     }
     getActiveSession();
 
-    const {
-      data: { subscription: authListener },
-    } = supabase.auth.onAuthStateChange((event, currentSession) => {
+    const { data: { subscription: authListener }} = supabase.auth.onAuthStateChange((event, currentSession) => {
       
       if (currentSession?.access_token !== accessToken) {
         router.refresh();
@@ -89,7 +109,7 @@ export const AuthProvider = (props) => {
       if(event === EVENTS.SIGNED_OUT) {
         setSession(null)
         setUser(null)
-        setUserOrg(null);
+        updateCurrentOrganization(null);
         setProjects([]);
         setCurrentProject(null);
         SwishjamMemory.delete('currentProjectName')
@@ -116,7 +136,8 @@ export const AuthProvider = (props) => {
       session,
       user,
       userOrg,
-      setUserOrg,
+      userOrgs,
+      updateCurrentOrganization,
       currentProject,
       updateCurrentProject,
       projects,

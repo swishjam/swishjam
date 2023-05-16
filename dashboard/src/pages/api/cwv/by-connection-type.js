@@ -3,9 +3,9 @@ import WebVitals from '@/lib/data/webVitals';
 
 export default async (req, res) => {
   const defaultStartTs = Date.now() - 1000 * 60 * 60 * 24 * 7;
-  const { projectKey, urlHost, urlPath, percentile = 0.75, startTs = defaultStartTs } = req.query;
+  const { organizationId, projectKey, urlHost, urlPath, percentile = 0.75, startTs = defaultStartTs } = req.query;
 
-  return Validator.runQueryIfUserHasAccess({ req, res, projectKey }, async () => {
+  return Validator.runQueryIfUserHasAccess({ req, res, organizationId, projectKey }, async () => {
     try {
       const results = await WebVitals.getPercentileForMetricsByConnection({ 
         projectKey,

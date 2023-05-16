@@ -3,9 +3,9 @@ import ResourcePerformanceEntries from '@/lib/data/resourcePerformanceEntries';
 
 export default async (req, res) => {
   const defaultStartTs = Date.now() - 1000 * 60 * 60 * 24 * 7;
-  const { projectKey, urlPath, urlHost, metric = 'duration', startTs = defaultStartTs } = req.query;
+  const { organizationId, projectKey, urlPath, urlHost, metric = 'duration', startTs = defaultStartTs } = req.query;
 
-  return await Validator.runQueryIfUserHasAccess({ req, res, projectKey }, async () => {
+  return await Validator.runQueryIfUserHasAccess({ req, res, organizationId, projectKey }, async () => {
     try {
       const records = await ResourcePerformanceEntries.getAll({ projectKey, startTs, metric, urlPath, urlHost });
       return res.status(200).json({ records });
