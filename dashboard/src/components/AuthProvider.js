@@ -36,7 +36,18 @@ export const AuthProvider = (props) => {
     if (organization) {
       SwishjamMemory.set('currentOrganization', organization.id);
       setUserOrg(organization);
-      // getCoreUserData(user);
+      const { data: projects } = await supabase.from('projects').select('*').eq('organization_id', organization.id)
+      setProjects(projects);
+
+      const inMemoryProject = SwishjamMemory.get("currentProjectKey") ? projects.find(({ public_id }) => public_id === SwishjamMemory.get("currentProjectKey")) : null;
+
+      if (inMemoryProject) {
+        setCurrentProject({ name: inMemoryProject.name, public_id: inMemoryProject.public_id });
+      } else if (projects.length > 0) {
+        setCurrentProject({ name: projects[0].name, public_id: projects[0].public_id });
+        SwishjamMemory.set("currentProjectName", projects[0].name);
+        SwishjamMemory.set("currentProjectKey", projects[0].public_id);
+      }
     } else {
       SwishjamMemory.delete('currentOrganization');
       setUserOrg(null);
@@ -59,18 +70,17 @@ export const AuthProvider = (props) => {
           const currentOrganization = SwishjamMemory.get('currentOrganization') ? orgs.data.find(org => org.id === SwishjamMemory.get('currentOrganization')) : orgs.data[0];
           updateCurrentOrganization(currentOrganization);
         
-          const loadedProjects = await supabase.from('projects').select('*').eq('organization_id', currentOrganization.id)
-          setProjects(loadedProjects.data)
+          const { data: projects } = await supabase.from('projects').select('*').eq('organization_id', currentOrganization.id)
+          setProjects(projects)
 
-          const inMemoryProject = SwishjamMemory.get("currentProjectKey") ? loadedProjects.data.find(project => project.public_id === SwishjamMemory.get("currentProjectKey")) : null;
+          const inMemoryProject = SwishjamMemory.get("currentProjectKey") ? projects.find(({ public_id }) => public_id === SwishjamMemory.get("currentProjectKey")) : null;
           
           if (inMemoryProject) {
             setCurrentProject({ name: inMemoryProject.name, public_id: inMemoryProject.public_id });  
-          }
-          if (!inMemoryProject && loadedProjects.data.length > 0) {
-            setCurrentProject({ name: loadedProjects.data[0].name, public_id: loadedProjects.data[0].public_id });
-            SwishjamMemory.set("currentProjectName", loadedProjects.data[0].name);
-            SwishjamMemory.set("currentProjectKey", loadedProjects.data[0].public_id);
+          } else if (projects.length > 0) {
+            setCurrentProject({ name: projects[0].name, public_id: projects[0].public_id });
+            SwishjamMemory.set("currentProjectName", projects[0].name);
+            SwishjamMemory.set("currentProjectKey", projects[0].public_id);
           }
         }
       } catch (error) {
@@ -118,7 +128,7 @@ export const AuthProvider = (props) => {
       authListener?.unsubscribe();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [userOrg]);
+  }, []);
 
   const value = useMemo(() => {
     return {

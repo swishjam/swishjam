@@ -67,7 +67,11 @@ export default function Home() {
               <HostUrlFilterer
                 urlHostAPI={dataSource === 'Swishjam' ? 'rum' : 'lab'}
                 onHostSelected={setUrlHostToFilterOn}
-                disabled={hasNoData}
+                onHostsFetched={() => {
+                  setUrlHostToFilterOn();
+                  setUrlPathToFilterOn();
+                  setHasNoData();
+                }}
                 onNoHostsFound={() => {
                   if (userHasToggledDataSource) {
                     setHasNoData(true)
@@ -86,7 +90,6 @@ export default function Home() {
                 includeAllPathsSelection={dataSource === 'Swishjam'}
                 urlPathAPI={dataSource === 'Swishjam' ? 'rum' : 'lab'}
                 onPathSelected={setUrlPathToFilterOn}
-                disabled={hasNoData}
               />
             </div>
           </div>

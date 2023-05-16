@@ -1,9 +1,14 @@
 import { createServerSupabaseClient } from '@supabase/auth-helpers-nextjs';
 
 const noAccess = res => res.status(403).json({ error: 'Unauthorized' });
+const invalid = (res, msg) => res.status(400).json({ error: msg || 'Invalid request' });
 
 export class Validator {
-  static async runQueryIfUserHasAccess({ req, res, organizationId, projectKey }, callback) {
+  static async runQueryIfUserHasAccess({ req, res }, callback) {
+    const { organizationId, projectKey } = req.query;
+    if (!organizationId) return invalid(res, 'Missing `organizationId` query param');
+    if (!projectKey) return invalid(res, 'Missing `projectKey` query param');
+
     const supabase = createServerSupabaseClient({ req, res });
   
     const { data: { session: { user } }} = await supabase.auth.getSession();

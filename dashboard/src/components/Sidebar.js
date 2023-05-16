@@ -171,8 +171,9 @@ const UserFlyout = ({ userEmail, signOut, currentOrg, userOrgs, updateCurrentOrg
       <Menu as="div" className="relative inline-block text-left w-full">
         <div>
           <Menu.Button className="px-8 inline-flex justify-between items-center w-full rounded-md bg-white py-2 text-sm text-gray-900 hover:bg-gray-50">
-            <div className='flex items-center'>
-              <UserCircleIcon className='text-gray-400 group-hover:text-swishjam duration-300 transition h-6 w-6 shrink-0 inline-block mr-2' /> {userEmail}
+            <div className='flex items-center truncate'>
+              <UserCircleIcon className='text-gray-400 group-hover:text-swishjam duration-300 transition h-6 w-6 shrink-0 inline-block mr-2' /> 
+              <span className='truncate'>{userEmail}</span>
             </div>
             <ChevronDownIcon className="-mr-1 h-5 w-5 text-gray-400" aria-hidden="true" />
           </Menu.Button>
@@ -189,7 +190,7 @@ const UserFlyout = ({ userEmail, signOut, currentOrg, userOrgs, updateCurrentOrg
         >
           <Menu.Items className="absolute left-0 bottom-0 w-full z-10 divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
             <Menu.Button className="w-full px-4 py-3 flex w-full justify-between items-center hover:bg-gray-50 cursor-pointer">
-              <div className='flex items-center'>
+              <div className='flex items-center truncate'>
                 <UserCircleIcon className='text-gray-900 duration-300 transition h-6 w-6 shrink-0 inline-block mr-2' />
                 <p className="truncate text-sm font-medium text-gray-900">{userEmail}</p>
               </div>
@@ -201,15 +202,13 @@ const UserFlyout = ({ userEmail, signOut, currentOrg, userOrgs, updateCurrentOrg
                   Change organizations
                 </div>
                 {userOrgs.map(org => (
-                  <div 
-                    className={`px-4 py-2 text-sm ${org.id === currentOrg.id ? 'bg-gray-100 text-swishjam' : 'cursor-pointer text-gray-700 hover:bg-gray-100'}`}
+                  <Menu.Button
+                    className={`block w-full text-start px-4 py-2 text-sm ${org.id === currentOrg.id ? 'bg-gray-100 text-swishjam cursor-default' : 'cursor-pointer text-gray-700 hover:bg-gray-100'}`}
                     onClick={() => updateCurrentOrganization(org)}
                     key={org.id}
                   >
-                    <Menu.Item>
-                      <span>{org.name}</span>
-                    </Menu.Item>
-                  </div>
+                    <span>{org.name}</span>
+                  </Menu.Button>
                 ))}
               </>
             )}
