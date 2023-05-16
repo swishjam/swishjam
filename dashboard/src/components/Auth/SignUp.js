@@ -13,11 +13,12 @@ import supabase from '@lib/supabase-browser';
 const SignUpSchema = Yup.object().shape({
   email: Yup.string().email('Invalid email').required('Required'),
   company: Yup.string().required('Required'),
+  url: Yup.string().required('Required'),
   password: Yup.string().required('Required'),
 });
 
 const SignUp = () => {
-  const { session, setUserOrg } = useAuth();
+  const { session, updateCurrentOrganization, updateCurrentProject, setProjects, setUserOrgs } = useAuth();
   const router = useRouter();
   const [ errorMsg, setErrorMsg ] = useState(null);
   const [ successMsg, setSuccessMsg ] = useState(null);
@@ -25,7 +26,7 @@ const SignUp = () => {
 
   useEffect(() => {
     if (session?.user && !loading) {
-        router.push('/');
+      router.push('/');
     }
   }, [session])
 
@@ -42,10 +43,31 @@ const SignUp = () => {
       const newOrg = await supabase.from('organizations').insert({ name: formData.company, owner_uuid: user.id }).select();
       if (newOrg.error) throw newOrg.error;
 
-      const newOrgConnection = await supabase.from('organization_users').insert({ organization_id: newOrg.data[0].id, user_id: user.id });
-      if (newOrgConnection.error) throw newOrg.error;
+      const newOrganizationUser = await supabase.from('organization_users').insert({ organization_id: newOrg.data[0].id, user_id: user.id });
+      if (newOrganizationUser.error) throw newOrg.error;
 
-      setUserOrg(newOrg.data[0]);
+      const newProject = await supabase.from('projects').insert({ name: newOrg.data[0].name, created_by: user.id, organization_id: newOrg.data[0].id }).select();
+      if (newProject.error) throw newProject.error;
+
+      const url = `https://${formData.url}`
+      const parsedUrl = new URL(url);
+      const newProjectPageUrl = await supabase.from('project_page_urls').insert({ 
+        project_id: newProject.data[0].id, 
+        full_url: url,
+        url_uniqueness_key: `${newProject.data[0].id}-${url}`,
+        url_host: parsedUrl.host,
+        url_path: parsedUrl.pathname,
+        lab_test_cadence: '1-day',
+        lab_tests_enabled: true,
+      }).select();
+
+      debugger;
+
+      updateCurrentOrganization(newOrg.data[0]);
+      updateCurrentProject(newProject.data[0]);
+      setProjects([newProject.data[0]]);
+      setUserOrgs([newOrg.data[0]]);
+
       router.push('/');
     } catch (error) {
       console.error('Sign Up Error', error);
@@ -113,6 +135,36 @@ const SignUp = () => {
                   </div>
                 </div>{/* End Company Name input */}
 
+                <div>
+                  <label htmlFor="company" className="block text-sm font-medium text-gray-700">
+                    URL to monitor
+                  </label>
+                  <div className="mt-1">
+                    <div
+                      className={`flex w-full rounded-md border px-1 py-1 text-base text-gray-900 placeholder-gray-500 shadow-sm focus:border-swishjam focus:ring-swishjam ${errors.url && touched.url ? 'border-red-400' : 'border-gray-300'}`}
+                    >
+                      <span className="flex select-none items-center pl-3 py-0.5 text-gray-500 sm:text-sm">https://</span>
+                      <Field
+                        className="block flex-1 border-0 bg-transparent pl-1 py-0.5 text-gray-900 placeholder:text-gray-400 focus:ring-0 sm:text-sm sm:leading-6"
+                        id="url"
+                        name="url"
+                        placeholder="google.com"
+                        type="text"
+                      />
+                    </div>
+                    {/* <Field
+                      className={cn('input', errors.url && touched.url && 'border-red-400')}
+                      id="url"
+                      name="url"
+                      placeholder="URL to monitor"
+                      type="text"
+                    /> */}
+                    {errors.url && touched.url ? (
+                      <div className="text-red-600 mt-1 text-sm text-right">{errors.url}</div>
+                    ) : null}
+                  </div>
+                </div>
+
                 <div>{/* password input */}
                   <label htmlFor="password" className="block text-sm font-medium text-gray-700">
                     Password
@@ -129,7 +181,7 @@ const SignUp = () => {
                       <div className="text-red-600 mt-1 text-sm text-right">{errors.password}</div>
                     ) : null}
                   </div>
-                </div>{/* end password input */}
+                </div>
 
                 <div>
                   <button

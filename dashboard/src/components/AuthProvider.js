@@ -137,10 +137,11 @@ export const AuthProvider = (props) => {
       user,
       userOrg,
       userOrgs,
-      updateCurrentOrganization,
       currentProject,
-      updateCurrentProject,
       projects,
+      updateCurrentOrganization,
+      setUserOrgs,
+      updateCurrentProject,
       setProjects,
       signOut: () => supabase.auth.signOut(),
     };

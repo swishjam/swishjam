@@ -5,7 +5,7 @@ const invalid = (res, msg) => res.status(400).json({ error: msg || 'Invalid requ
 
 export class Validator {
   static async runQueryIfUserHasAccess({ req, res }, callback) {
-    const { organizationId, projectKey } = req.query;
+    const { organizationId, projectKey } = req.method === 'GET' ? req.query : req.body;
     if (!organizationId) return invalid(res, 'Missing `organizationId` query param');
     if (!projectKey) return invalid(res, 'Missing `projectKey` query param');
 
