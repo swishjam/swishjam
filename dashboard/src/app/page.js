@@ -27,7 +27,7 @@ export default function Home() {
         <div className='grid grid-cols-2 mt-8 flex items-center'>
           <div>
             <h1 className="text-lg font-medium text-gray-700 mb-0">Core Web Vitals</h1>
-            <h2 className='text-sm text-gray-400'>Based on real user data collected by {dataSource === 'Swishjam' ? 'Swishjam' : 'Google Chrome'}</h2>
+            <h2 className='text-sm text-gray-400'>Based on real user data collected by {dataSource === 'Swishjam' ? 'Swishjam' : 'Chrome User Experience Report'}</h2>
           </div>
 
           <div className="w-full flex items-center justify-end">
