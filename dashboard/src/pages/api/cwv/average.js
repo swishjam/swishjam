@@ -3,9 +3,9 @@ import WebVitalsData from '@/lib/data/webVitals';
 
 export default async (req, res) => {
   const defaultStartTs = Date.now() - 1000 * 60 * 60 * 24 * 7;
-  const { projectKey, metric, urlHost, urlPath, startTs = defaultStartTs } = req.query;
+  const { organizationId, projectKey, metric, urlHost, urlPath, startTs = defaultStartTs } = req.query;
 
-  return await Validator.Validator.runQueryIfUserHasAccess({ req, res, projectKey }, async () => {
+  return await Validator.Validator.runQueryIfUserHasAccess({ req, res, organizationId, projectKey }, async () => {
     try {
       if (!metric) throw new Error('Missing `metric` query param');
       const { average, numRecords } = await WebVitalsData.getAverageMetric({ projectKey, metric, startTs, urlHost, urlPath });

@@ -1,5 +1,4 @@
-import { Validator } from '@/lib/queryValidator';
-import WebVitalsData from '@/lib/data/webVitals';
+// import { Validator } from '@/lib/queryValidator';
 
 export default async (req, res) => {
   const { url, formFactor } = req.query;

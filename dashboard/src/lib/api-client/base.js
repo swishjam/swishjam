@@ -19,6 +19,7 @@ export class API {
   static _params(data) {
     const projectKey = SwishjamMemory.get('currentProjectKey');
     const project = SwishjamMemory.get('currentProjectName');
-    return { projectKey, project, ...data };
+    const organizationId = SwishjamMemory.get('currentOrganization');
+    return { projectKey, project, organizationId, ...data };
   }
 }

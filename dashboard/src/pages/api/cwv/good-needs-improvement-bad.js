@@ -2,11 +2,11 @@ import { Validator } from '@/lib/queryValidator';
 import WebVitalsData from '@/lib/data/webVitals';
 
 export default async (req, res) => {
-  const { projectKey, metrics, urlHost, urlPath, deviceTypes = JSON.stringify(['smartphone', 'phablet', 'tablet', 'desktop']) } = req.query;
+  const { organizationId, projectKey, metrics, urlHost, urlPath, deviceTypes = JSON.stringify(['smartphone', 'phablet', 'tablet', 'desktop']) } = req.query;
   let { groupBy = 'intelligent' } = req.query;
 
 
-  return await Validator.runQueryIfUserHasAccess({ req, res, projectKey }, async () => {
+  return await Validator.runQueryIfUserHasAccess({ req, res, organizationId, projectKey }, async () => {
     if (groupBy === 'intelligent') {
       const oldestRecord = await WebVitalsData.getOldestRecord({ projectKey, urlHost, urlPath, metric: 'LCP' });
       const oneDay = 1000 * 60 * 60 * 24;
