@@ -61,8 +61,6 @@ const SignUp = () => {
         lab_tests_enabled: true,
       }).select();
 
-      debugger;
-
       updateCurrentOrganization(newOrg.data[0]);
       updateCurrentProject(newProject.data[0]);
       setProjects([newProject.data[0]]);
