@@ -6,7 +6,6 @@ import { formattedMsOrSeconds } from '@lib/utils';
 import { cwvMetricBounds } from '@lib/cwvCalculations';
 import MetricGauge from '@/components/WebVitals/MetricGauge';
 import Link from 'next/link';
-import { ChevronRightIcon } from '@heroicons/react/24/outline';
 
 const CardIcon = iconType => {
   return {
@@ -57,7 +56,7 @@ export default function WebVitalCard({ title, accronym, percentileValue, numReco
                   stacked={true}
                   includeLegend={false}
                   includeYAxis={false}
-                  yAxisDataFormatter={value => `${parseFloat(value).toFixed(2)}%`}
+                  yAxisDataFormatter={value => `${parseFloat(parseFloat(value).toFixed(2))}%`}
                   yAxisMin={0}
                   yAxisMax={100}
                   height='h-48'
@@ -88,7 +87,7 @@ export default function WebVitalCard({ title, accronym, percentileValue, numReco
                   tooltipDescriptionFormatter={dateString => {
                     const dataForDate = barChartData.find(data => data.date === dateString);
                     if (!dataForDate) return;
-                    return `Based on ${dataForDate.total} total records`
+                    return `Based on ${dataForDate.total} total ${accronym} records.`
                   }}
                 />
                 <div className='flex justify-end mt-4'>

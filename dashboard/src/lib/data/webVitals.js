@@ -245,7 +245,7 @@ export default class WebVitalsData {
       const query = `
         SELECT
           PERCENTILE_CONT(${percentile}) WITHIN GROUP (ORDER BY metric_value) AS value,
-          date_trunc('day', page_views.page_view_ts) AS date
+          date_trunc('${groupBy}', page_views.page_view_ts) AS date
         FROM
           performance_metrics
         LEFT JOIN

@@ -1,6 +1,6 @@
 import MarkdownIt from "markdown-it"
 
-export default function MarkdownText({ text}) {
+export default function MarkdownText({ text, className }) {
   const markdown = new MarkdownIt();
   return (
     <div className='markdown'>
@@ -17,7 +17,7 @@ export default function MarkdownText({ text}) {
           font-weight: 800;
         }
       `}</style>
-      <p className='text-gray-700' dangerouslySetInnerHTML={{ __html: markdown.render(text) }} />
+      <p className={className} dangerouslySetInnerHTML={{ __html: markdown.render(text) }} />
     </div>
   )
 }

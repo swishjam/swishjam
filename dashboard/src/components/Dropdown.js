@@ -9,12 +9,13 @@ const classNames = (...classes) => classes.filter(Boolean).join(' ');
 export default function Dropdown({ direction = 'left', dropdownIcon, label, options, selected, onSelect }) {
   const [selectedOption, setSelectedOption] = useState(selected);
   const directionClass = direction === 'left' ? 'right-0' : 'left-0'
+
   return (
     <Menu as="div" className="relative inline-block text-left">
       <div>
         <Menu.Button className="inline-flex items-center w-full justify-center gap-x-1.5 rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
           {dropdownIcon}
-          {selectedOption}
+          {selectedOption || selected}
           <ChevronDownIcon className="-mr-1 h-5 w-5 text-gray-400 mt-1" aria-hidden="true" />
         </Menu.Button>
       </div>
@@ -33,7 +34,7 @@ export default function Dropdown({ direction = 'left', dropdownIcon, label, opti
             </Menu.Item>
           )}
           {options.map(option => {
-            const isSelectedOption = option === selectedOption;
+            const isSelectedOption = option === (selectedOption ? selectedOption : selected);
             return (
               <Menu.Item key={option}>
                 {({ active }) => (

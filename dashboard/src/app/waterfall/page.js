@@ -80,29 +80,33 @@ export default function Resources() {
         <div className='grid grid-cols-2'>
           <div>
             <h1 className="text-lg font-medium">Page Resource Waterfall</h1>
-            <h3 className='text-gray-700 text-sm'>
+            {hasData && <h3 className='text-gray-700 text-sm'>
               Based on {numPageViews === undefined ?
                 (<div className='animate-pulse inline-block w-4 h-4' style={{ marginBottom: '-2px' }}>
                   <div className='rounded bg-slate-200 w-full h-full'></div>
                 </div>) : numPageViews} page views over the last 7 days.
-            </h3>
+            </h3>}
           </div>
           <div className='w-full flex items-center justify-end'>
-            {<HostUrlFilterer onNoHostsFound={() => setHasData(false)}
-                              onHostSelected={urlHost => {
-                                setHostUrlToFilterOn(urlHost);
-                                setHasData(true);
-                              }} />}
-            <div className='ml-2 inline-block'>
-              {<PathUrlFilterer 
-                  urlHost={hostUrlToFilterOn} 
-                  onPathSelected={urlPath => {
-                    setPathUrlToFilterOn(urlPath);
-                    updateViewForHostAndPath({ urlHost: hostUrlToFilterOn, urlPath, percentile }) 
-                  }} 
-                />}
+            <div className={`inline-block ${!hasData ? 'hidden' : ''}`}>
+              {<HostUrlFilterer 
+                onNoHostsFound={() => setHasData(false)}
+                onHostSelected={urlHost => {
+                  setHostUrlToFilterOn(urlHost);
+                  setHasData(true);
+                }} 
+              />}
             </div>
-            <div className='ml-2 inline-block'>
+            <div className={`ml-2 inline-block ${!hasData ? 'hidden' : ''}`}>
+              {<PathUrlFilterer 
+                urlHost={hostUrlToFilterOn} 
+                onPathSelected={urlPath => {
+                  setPathUrlToFilterOn(urlPath);
+                  updateViewForHostAndPath({ urlHost: hostUrlToFilterOn, urlPath, percentile }) 
+                }} 
+              />}
+            </div>
+            <div className={`ml-2 inline-block ${!hasData ? 'hidden' : ''}`}>
               {<Dropdown label='Aggregation method' 
                           options={['P99', 'P90', 'P75', 'P50']} 
                           selected={percentile}

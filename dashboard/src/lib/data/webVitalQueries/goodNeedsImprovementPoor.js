@@ -52,7 +52,7 @@ export default async ({ projectKey, metric, deviceTypes, groupBy, urlHost, urlPa
     const query = `
         SELECT
           metric_name,
-          date_trunc('day', page_views.page_view_ts) AS date,
+          date_trunc('${groupBy}', page_views.page_view_ts) AS date,
           CAST(COUNT(*) AS int) AS total_num_records,
           CAST(
             COUNT(CASE WHEN metric_value <= ${cwvMetricBounds[metric].good} THEN 1 END)
