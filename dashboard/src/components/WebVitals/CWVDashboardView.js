@@ -1,17 +1,18 @@
 'use client';
-import { useState } from 'react';
+
+import { useState, useEffect } from 'react';
 import { ColGrid } from '@tremor/react';
 import { useAuth } from '@components/AuthProvider';
 import SnippetInstall from '@components/SnippetInstall/SnippetInstall';
 import ExperienceScoreCard from '@/components/WebVitals/ExperienceScoreCard';
 import WebVitalCard from '@/components/WebVitals/WebVitalCard';
-import HostUrlFilterer from '@components/Filters/HostUrlFilterer';
+// import HostUrlFilterer from '@components/Filters/HostUrlFilterer';
 import { calcCwvMetric } from '@lib/cwvCalculations';
 import { PageViewsAPI } from '@/lib/api-client/page-views';
 import { WebVitalsApi } from '@/lib/api-client/web-vitals';
-import PathUrlFilterer from '../Filters/PathUrlFilterer';
+// import PathUrlFilterer from '../Filters/PathUrlFilterer';
 
-export default function CwvDashboardView() {
+export default function CwvDashboardView({ urlHost, urlPath, hasNoData }) {
   const { currentProject } = useAuth();
 
   const [cwvBarChartData, setCwvBarChartData] = useState({});
@@ -19,8 +20,17 @@ export default function CwvDashboardView() {
   const [experienceScoreTimeseriesData, setExperienceScoreTimeseriesData] = useState();
   const [numPageViews, setNumPageViews] = useState();
 
-  const [hostUrlToFilterOn, setHostUrlToFilterOn] = useState();
-  const [hasNoData, setHasNoData] = useState();
+  useEffect(() => {
+    const fetchData = async () => {
+      resetDashboardData();
+      return await Promise.all([
+        getAndSetNumPageViews({ urlHost, urlPath }),
+        getAndSetBarChartsData({ urlHost, urlPath }),
+        getAndSetWebVitalPercentiles({ urlHost, urlPath }),
+      ]);
+    }
+    if (urlHost) fetchData();
+  }, [urlHost, urlPath])
 
   const resetDashboardData = () => {
     setCwvBarChartData({});
@@ -62,50 +72,15 @@ export default function CwvDashboardView() {
     return PageViewsAPI.getCount(params).then(setNumPageViews);
   }
 
-  const getDashboardDataForUrlHostAndPath = async (urlHost, urlPath) => {
-    resetDashboardData();
-    return Promise.all([ 
-      getAndSetNumPageViews({ urlHost, urlPath }),
-      getAndSetBarChartsData({ urlHost, urlPath }), 
-      getAndSetWebVitalPercentiles({ urlHost, urlPath }),
-    ]);
-  }
-
   if (hasNoData) {
     return (
-      <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mb-8">
-        <div className="w-full my-6">
-          <SnippetInstall projectId={currentProject?.public_id} />
-        </div>
-      </main>
+      <div className="w-full my-6">
+        <SnippetInstall projectId={currentProject?.public_id} />
+      </div>
     )
   } else {
     return (
-      <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mb-8">
-        
-        <div className='grid grid-cols-2 mt-8 flex items-center'>
-          <div>
-            <h1 className="text-lg font-medium">Core Web Vitals for {currentProject.name}</h1>
-          </div>
-
-          <div className="w-full flex items-center justify-end">
-            <HostUrlFilterer 
-              onNoHostsFound={() => setHasNoData(true)}
-              onHostSelected={hostUrl => {
-                resetDashboardData();
-                setHostUrlToFilterOn(hostUrl);
-              }} 
-            />
-            <div className='inline-block ml-2'>
-              <PathUrlFilterer 
-                urlHost={hostUrlToFilterOn} 
-                includeAllPathsSelection={true}
-                onPathSelected={urlPath => getDashboardDataForUrlHostAndPath(hostUrlToFilterOn, urlPath)} 
-              />
-            </div>
-          </div>
-        </div>
-
+      <>
         <div className='mt-8 flex items-center'>
           <ExperienceScoreCard timeseriesData={experienceScoreTimeseriesData} metricPercentiles={cwvPercentileData} numPageViews={numPageViews} />
         </div>
@@ -154,7 +129,7 @@ export default function CwvDashboardView() {
             barChartData={cwvBarChartData.TTFB} 
           />
         </ColGrid>
-      </main>
+      </>
     );
   }
 

@@ -23,7 +23,7 @@ function tryToFindDefaultHost(urlHosts) {
   return autoSelectedHostUrl;
 }
 
-export default function HostUrlFilterer({ onHostSelected, onNoHostsFound, onHostsFetched, urlHostAPI = 'rum' }) {
+export default function HostUrlFilterer({ onHostSelected, onNoHostsFound, onHostsFetched, disabled, urlHostAPI = 'rum' }) {
   if (!['rum', 'lab'].includes(urlHostAPI)) throw new Error('urlHostAPI must be rum or lab');
   const UrlHostAPIInterface = { rum: PageUrlsApi, lab: ProjectPageUrlsAPI }[urlHostAPI];
   const { currentProject } = useAuth();
@@ -46,7 +46,7 @@ export default function HostUrlFilterer({ onHostSelected, onNoHostsFound, onHost
         }
       });
     }
-  }, [currentProject?.public_id]);
+  }, [currentProject?.public_id, urlHostAPI]);
 
   const onDropdownSelection = option => {
     SwishjamMemory.set('selectedHostUrlFilter', option);
@@ -55,14 +55,19 @@ export default function HostUrlFilterer({ onHostSelected, onNoHostsFound, onHost
   }
 
   return (
-    filterOptions ? <Dropdown options={filterOptions}
-                                selected={selectedOption}
-                                onSelect={onDropdownSelection}
-                                dropdownIcon={<FunnelIcon className="h-5 w-5 text-gray-400" aria-hidden="true" />}
-                                label={'Host URL filter'} /> : (
-                                  <div className='flex items-center'>
-                                    <div className='h-10 w-24 animate-pulse bg-gray-50 border border-gray-200 rounded-md' />
-                                  </div>
-                                )
+    !filterOptions || disabled
+      ? (
+        <div className='flex items-center'>
+          <div className={`h-10 w-24 rounded-md border ${disabled ? 'bg-gray-200 border-gray-400' : 'animate-pulse bg-gray-50 border-gray-200'}`} />
+        </div>
+      ) : (
+        <Dropdown
+          options={filterOptions}
+          selected={selectedOption}
+          onSelect={onDropdownSelection}
+          dropdownIcon={<FunnelIcon className="h-5 w-5 text-gray-400" aria-hidden="true" />}
+          label='Host URL filter'
+        /> 
+      )
   )
 }

@@ -8,8 +8,6 @@ import { cwvMetricBounds } from '@/lib/cwvCalculations';
 import { formattedMsOrSeconds } from '@/lib/utils';
 import { ExclamationCircleIcon } from '@heroicons/react/24/outline';
 
-const CRUX_API_KEY = 'AIzaSyD3DF2QoXzxsafuVFgJIfeJMXSqTSDuLrw';
-
 const cwvBoundsForMetric = metric => {
   return cwvMetricBounds[{
     'first_contentful_paint': 'FCP',
@@ -22,24 +20,7 @@ const cwvBoundsForMetric = metric => {
 }
 
 const getCruxData = async (url, formFactor) => {
-  const body = {
-    url,
-    formFactor,
-    metrics: [
-      "first_contentful_paint",
-      "first_input_delay",
-      "largest_contentful_paint",
-      "cumulative_layout_shift",
-      "experimental_time_to_first_byte",
-      "experimental_interaction_to_next_paint"
-    ]
-  }
-
-  return fetch("https://chromeuxreport.googleapis.com/v1/records:queryHistoryRecord?key=" + CRUX_API_KEY, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(body)
-  })
+  return await fetch('/api/cwv/crux?url=' + url + '&formFactor=' + formFactor);
 }
 
 export default function CruxData({ url, onLighthouseAuditNavigation, shouldPromptUserToRegister = true }) {
@@ -86,7 +67,7 @@ export default function CruxData({ url, onLighthouseAuditNavigation, shouldPromp
         ]);
       }
     }
-    tryToFetchCruxData();
+    if (url) tryToFetchCruxData();
   }, [url]);
 
   return (
@@ -120,7 +101,7 @@ export default function CruxData({ url, onLighthouseAuditNavigation, shouldPromp
         ].map(({ metric, name, description }) => (
           <div className='col-span-10 p-4' key={metric}>
             <div className='grid grid-cols-2'>
-              <h3 className='text-md text-gray-900 mb-2'>{name}</h3>
+              <h3 className='text-md text-gray-900'>{name}</h3>
               <div className='text-end'>
                 <span
                   className='text-sm font-light text-gray-700 decoration-dotted hover:underline cursor-pointer'
@@ -136,9 +117,7 @@ export default function CruxData({ url, onLighthouseAuditNavigation, shouldPromp
                 </span>
               </div>
             </div>
-            <div className='text-xs text-gray-700'>
-              <MarkdownText text={description} />
-            </div>
+            <MarkdownText text={description} className='text-xs text-gray-400 mb-2' />
             <div className='w-fit'>
               <div className='inline-flex items-center m-2 ml-0'>
                 <div className='w-6 h-4 bg-green-500 rounded inline-block' />
