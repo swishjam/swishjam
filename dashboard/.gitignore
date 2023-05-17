@@ -4,3 +4,4 @@
 
 # Sentry
 next.config.original.js
+database/credentials.json

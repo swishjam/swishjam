@@ -10,8 +10,9 @@ export class Validator {
     if (!projectKey) return invalid(res, 'Missing `projectKey` query param');
 
     const supabase = createServerSupabaseClient({ req, res });
-  
-    const { data: { session: { user } }} = await supabase.auth.getSession();
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) return noAccess(res);
+    const { user } = session;
     if (!user) return noAccess(res);
   
     const orgUsers = await supabase.from('organization_users').select('*').eq('user_id', user.id)
@@ -26,7 +27,12 @@ export class Validator {
     const requestedProject = projects.data.find(p => p.public_id === projectKey);
   
     if (requestedProject) {
-      return await callback({ supabaseClient: supabase, organizationId, projects, user, currentProject: requestedProject });
+      try {
+        return await callback({ supabaseClient: supabase, organizationId, projects, user, currentProject: requestedProject });
+      } catch(err) {
+        console.error(err);
+        return invalid(res, err.message);
+      }
     } else {
       return noAccess(res);
     }
