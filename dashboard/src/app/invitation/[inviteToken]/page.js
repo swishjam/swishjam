@@ -130,9 +130,9 @@ function AcceptForm({ userInvite, loggedInUser, updateCurrentOrganization }) {
                 <span className='font-medium'>{userInvite.invited_by_user.email}</span> has invited you to join the <span className='font-medium'>{userInvite.organization.name}</span> team on Swishjam.
               </h2>
               {loggedInUser.email !== email && (
-                <div className="flex items-center bg-yellow-50 text-yellow-700 text-sm text-center mb-4 rounded-md p-4 mt-2">
+                <div className="flex items-center justify-center bg-yellow-50 text-yellow-700 text-sm mb-4 rounded-md p-4 mt-2">
                   <ExclamationCircleIcon className='h-5 w-5 inline-block mr-2' />
-                  This invitation was intended for <span className='font-medium'>{userInvite.invited_email}</span>.
+                  <span>This invitation was intended for <span className='font-medium'>{userInvite.invited_email}</span>.</span>
                 </div>
               )}
               {errorMsg && <div className="text-red-600 text-sm text-center mb-2">{errorMsg}</div>}
