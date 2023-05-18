@@ -15,6 +15,7 @@ import {
   ChevronRightIcon,
   ChevronDownIcon,
   UserCircleIcon,
+  CommandLineIcon,
   UserGroupIcon,
 } from '@heroicons/react/24/outline'
 
@@ -197,6 +198,13 @@ const UserFlyout = ({ userEmail, signOut, currentOrg, userOrgs, updateCurrentOrg
               </div>
               <ChevronDownIcon className="h-5 w-5 text-gray-400" aria-hidden="true" />
             </Menu.Button>
+            <a
+              className='flex items-center w-full text-start px-4 py-2 text-sm cursor-pointer text-gray-700 hover:bg-gray-100 hover:text-swishjam transition'
+              href='/install-script'
+            >
+              <CommandLineIcon className='h-4 w-4 inline-block mr-2' />
+              <span>Install Instructions</span>
+            </a>
             <a
               className='flex items-center w-full text-start px-4 py-2 text-sm cursor-pointer text-gray-700 hover:bg-gray-100 hover:text-swishjam transition'
               href='/team'
