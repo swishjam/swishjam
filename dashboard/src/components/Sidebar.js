@@ -15,6 +15,7 @@ import {
   ChevronRightIcon,
   ChevronDownIcon,
   UserCircleIcon,
+  CommandLineIcon,
 } from '@heroicons/react/24/outline'
 
 import { useAuth } from './AuthProvider';
@@ -195,6 +196,13 @@ const UserFlyout = ({ userEmail, signOut, currentOrg, userOrgs, updateCurrentOrg
                 <p className="truncate text-sm font-medium text-gray-900">{userEmail}</p>
               </div>
               <ChevronDownIcon className="h-5 w-5 text-gray-400" aria-hidden="true" />
+              <Menu.Button 
+                className='block w-full text-start px-4 py-2 text-sm cursor-pointer text-gray-700 hover:bg-gray-100'
+                href='/snippet-install'
+              >
+                <CommandLineIcon className='h-5 w-5 inline-block mr-2' />
+                <span>Install Instructions</span>
+              </Menu.Button>
             </Menu.Button>
             {userOrgs.length > 1 && (
               <>
