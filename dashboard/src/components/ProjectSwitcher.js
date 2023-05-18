@@ -4,7 +4,6 @@ import { Menu, Transition } from '@headlessui/react'
 import { GlobeAltIcon, PlusCircleIcon } from '@heroicons/react/20/solid'
 import { Cog6ToothIcon } from '@heroicons/react/24/outline';
 import { useAuth } from '@components/AuthProvider'
-import LoadingSpinner from '@components/LoadingSpinner';
 import NewSiteDialog from '@components/NewSiteDialog';
 
 function classNames(...classes) {
@@ -15,19 +14,17 @@ export default function SiteSwitcher(props) {
   const { currentProject, updateCurrentProject, userOrg, projects } = useAuth();
   const [ isDialogOpenSwitcher, setIsDialogOpenSwitcher ] = useState(false);
 
-  if(!currentProject || projects?.length === 0) {
-    return <></>
-  }
-
-
   return (
     <div {...props}>
       <Menu as="div" className="">
         <div>
           <Menu.Button
-            className={'w-full cursor-pointer justify-between text-gray-700 hover:text-swishjam hover:bg-gray-50 group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold duration-300 transition items-center'}
+            className='w-full cursor-pointer justify-between text-gray-700 hover:text-swishjam hover:bg-gray-50 group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold duration-300 transition items-center'
           >
-            {currentProject?.name ? <span className='truncate'>{currentProject?.name}</span>:<div className="mt-1"><LoadingSpinner size={4} /></div>}
+            {currentProject 
+              ? <span className='truncate'>{currentProject.name}</span>
+              : <div className="w-40 h-7 animate-pulse bg-gray-100 rounded" />
+            }
             <Cog6ToothIcon
               className={'text-gray-400 group-hover:text-swishjam duration-300 transition h-4 w-4 shrink-0 '}
               aria-hidden="true"

@@ -25,7 +25,7 @@ import Link from 'next/link'
 import Logo from '@components/Logo'
 import { Menu, Dialog, Transition } from '@headlessui/react'
 import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline'
-import SiteSwitcher from '@components/SiteSwitcher';
+import ProjectSwitcher from '@components/ProjectSwitcher';
 import { usePopperTooltip } from 'react-popper-tooltip';
 import 'react-popper-tooltip/dist/styles.css';
 import { SwishjamMemory } from '@/lib/swishjam-memory';
@@ -102,7 +102,7 @@ const SidebarMobile = ({ sidebarOpen, setSidebarOpen, user, handleSignOut }) => 
                     <li>
                       <ListTitle title={'Current Project'} Icon={CodeBracketSquareIcon} />
                       <div className="space-y-1">
-                        <SiteSwitcher />
+                        <ProjectSwitcher />
                       </div>
                     </li>
                     <li>
@@ -136,13 +136,15 @@ const SidebarMobile = ({ sidebarOpen, setSidebarOpen, user, handleSignOut }) => 
                       <div
                         className="flex items-center gap-x-4 py-3 text-sm font-semibold leading-6 text-gray-900"
                       >
-                        {user && user.imageUrl ?
-                          <img className="h-8 w-8 rounded-full" src={user.imageUrl} alt="" /> :
-                          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-10 h-10 text-gray-500">
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M17.982 18.725A7.488 7.488 0 0012 15.75a7.488 7.488 0 00-5.982 2.975m11.963 0a9 9 0 10-11.963 0m11.963 0A8.966 8.966 0 0112 21a8.966 8.966 0 01-5.982-2.275M15 9.75a3 3 0 11-6 0 3 3 0 016 0z" />
-                          </svg>
+                        {user?.imageUrl 
+                          ? <img className="h-8 w-8 rounded-full" src={user.imageUrl} alt="" /> 
+                          : (
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-10 h-10 text-gray-500">
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M17.982 18.725A7.488 7.488 0 0012 15.75a7.488 7.488 0 00-5.982 2.975m11.963 0a9 9 0 10-11.963 0m11.963 0A8.966 8.966 0 0112 21a8.966 8.966 0 01-5.982-2.275M15 9.75a3 3 0 11-6 0 3 3 0 016 0z" />
+                            </svg>
+                          )
                         }
-                        <span className='cursor-default' aria-hidden="true">{user.email}</span>
+                        <span className='cursor-default' aria-hidden="true">{user?.email}</span>
                       </div>
 
                     </li>
@@ -202,16 +204,16 @@ const UserFlyout = ({ userEmail, signOut, currentOrg, userOrgs, updateCurrentOrg
               className='flex items-center w-full text-start px-4 py-2 text-sm cursor-pointer text-gray-700 hover:bg-gray-100 hover:text-swishjam transition'
               href='/install-script'
             >
-              <CommandLineIcon className='h-4 w-4 inline-block mr-2' />
+              <CommandLineIcon className='h-6 w-6 inline-block mr-2' />
               <span>Install Instructions</span>
             </a>
             <a
               className='flex items-center w-full text-start px-4 py-2 text-sm cursor-pointer text-gray-700 hover:bg-gray-100 hover:text-swishjam transition'
               href='/team'
             >
-              <UserGroupIcon className='h-4 w-4 inline-block mr-2' /> Manage team
+              <UserGroupIcon className='h-6 w-6 inline-block mr-2' /> Manage team
             </a>
-            {userOrgs.length > 1 && (
+            {userOrgs && userOrgs.length > 1 && (
               <>
                 <div className='text-gray-700 px-4 py-2 text-sm text-gray-900 font-medium'>
                   Change organizations
@@ -222,7 +224,7 @@ const UserFlyout = ({ userEmail, signOut, currentOrg, userOrgs, updateCurrentOrg
                     onClick={() => updateCurrentOrganization(org)}
                     key={org.id}
                   >
-                    <div className='rounded-full bg-gray-300 text-gray-900 text-xs w-6 h-6 p-1 inline-flex items-center justify-center mr-2'>
+                    <div className='rounded-full bg-gray-300 text-gray-900 text-xs w-8 h-8 p-1 inline-flex items-center justify-center mr-2'>
                       {org.name.split(' ').map(word => word[0]).join('')}
                     </div>
                     <span>{org.name}</span>
@@ -314,7 +316,7 @@ export default function Sidebar({ onCollapse, onExpand }) {
                 {!isCollapsed && <li>
                   <ListTitle title={isCollapsed ? '' : 'Current Project'} Icon={CodeBracketSquareIcon} isCollapsed={isCollapsed} /> 
                   <div className="space-y-1">
-                    <SiteSwitcher />
+                    <ProjectSwitcher />
                   </div>
                 </li>}
                 <li>
@@ -329,7 +331,7 @@ export default function Sidebar({ onCollapse, onExpand }) {
                     {labTestNav.map((item) => <DesktopNavItem item={item} key={item.name} isCollapsed={isCollapsed} />)}
                   </ul>
                 </li>
-                {!isCollapsed && <li className="-mx-6 mt-auto">
+                {user && !isCollapsed && <li className="-mx-6 mt-auto">
                   <UserFlyout 
                     userEmail={user.email} 
                     signOut={signOut} 

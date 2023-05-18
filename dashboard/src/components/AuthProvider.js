@@ -23,6 +23,7 @@ export const AuthProvider = (props) => {
   const [userOrgs, setUserOrgs] = useState();
   const [projects, setProjects] = useState([]);
   const [currentProject, setCurrentProject] = useState();
+  const [isAwaitingData, setIsAwaitingData] = useState(true);
   const router = useRouter();
   const { accessToken, ...rest } = props;
 
@@ -83,6 +84,7 @@ export const AuthProvider = (props) => {
             SwishjamMemory.set("currentProjectKey", projects[0].public_id);
           }
         }
+        setIsAwaitingData(false);
       } catch (error) {
         console.error(error);
       }
@@ -139,6 +141,7 @@ export const AuthProvider = (props) => {
       userOrgs,
       currentProject,
       projects,
+      isAwaitingData,
       updateCurrentOrganization,
       setUserOrgs,
       updateCurrentProject,
