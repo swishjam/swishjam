@@ -262,8 +262,8 @@ const InviteModal = ({ isOpen, onClose, onInviteSent }) => {
   const [email, setEmail] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState();
-  const [successMessage, setSuccessMessage] = useState('Invitation was sent dog!');
-  const [userInviteToken, setUserInviteToken] = useState('fopo');
+  const [successMessage, setSuccessMessage] = useState();
+  const [userInviteToken, setUserInviteToken] = useState();
   const [copySuccessMessage, setCopySuccessMessage] = useState();
 
   const inviteUser = async e => {

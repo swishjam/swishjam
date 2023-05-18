@@ -35,15 +35,19 @@ export default async (req, res) => {
     if (error) {
       return res.status(400).json({ error: error.message });
     } else {
-      const { data: organization } = await supabase.from("organizations").select("*").eq("id", organizationId).single();
-      await UserInvitation.send({
-        to: email,
-        variables: {
-          invited_by_user: user.email,
-          organization_name: organization?.name,
-          invitation_url: `${process.env.NEXT_PUBLIC_BASE_URL || 'https://app.swishjam.com'}/invitation/${data[0].invite_token}`
-        }
-      })
+      if (process.env.DISABLE_TRANSACTION_EMAILS) {
+        console.log(`Bypassing sending invite email to ${email} because DISABLE_TRANSACTION_EMAILS ENV is enabled.`)
+      } else {
+        const { data: organization } = await supabase.from("organizations").select("*").eq("id", organizationId).single();
+        await UserInvitation.send({
+          to: email,
+          variables: {
+            invited_by_user: user.email,
+            organization_name: organization?.name,
+            invitation_url: `${process.env.NEXT_PUBLIC_BASE_URL || 'https://app.swishjam.com'}/invitation/${data[0].invite_token}`
+          }
+        })
+      }
 
       return res.status(200).json({ userInvite: data[0] });
     }
