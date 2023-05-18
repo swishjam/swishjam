@@ -16,6 +16,7 @@ import {
   ChevronDownIcon,
   UserCircleIcon,
   CommandLineIcon,
+  UserGroupIcon,
 } from '@heroicons/react/24/outline'
 
 import { useAuth } from './AuthProvider';
@@ -196,14 +197,20 @@ const UserFlyout = ({ userEmail, signOut, currentOrg, userOrgs, updateCurrentOrg
                 <p className="truncate text-sm font-medium text-gray-900">{userEmail}</p>
               </div>
               <ChevronDownIcon className="h-5 w-5 text-gray-400" aria-hidden="true" />
-              <Menu.Button 
-                className='block w-full text-start px-4 py-2 text-sm cursor-pointer text-gray-700 hover:bg-gray-100'
-                href='/snippet-install'
-              >
-                <CommandLineIcon className='h-5 w-5 inline-block mr-2' />
-                <span>Install Instructions</span>
-              </Menu.Button>
             </Menu.Button>
+            <a
+              className='flex items-center w-full text-start px-4 py-2 text-sm cursor-pointer text-gray-700 hover:bg-gray-100 hover:text-swishjam transition'
+              href='/install-script'
+            >
+              <CommandLineIcon className='h-4 w-4 inline-block mr-2' />
+              <span>Install Instructions</span>
+            </a>
+            <a
+              className='flex items-center w-full text-start px-4 py-2 text-sm cursor-pointer text-gray-700 hover:bg-gray-100 hover:text-swishjam transition'
+              href='/team'
+            >
+              <UserGroupIcon className='h-4 w-4 inline-block mr-2' /> Manage team
+            </a>
             {userOrgs.length > 1 && (
               <>
                 <div className='text-gray-700 px-4 py-2 text-sm text-gray-900 font-medium'>
@@ -211,7 +218,7 @@ const UserFlyout = ({ userEmail, signOut, currentOrg, userOrgs, updateCurrentOrg
                 </div>
                 {userOrgs.map(org => (
                   <Menu.Button
-                    className={`block w-full text-start px-4 py-2 text-sm ${org.id === currentOrg.id ? 'bg-gray-100 text-swishjam cursor-default' : 'cursor-pointer text-gray-700 hover:bg-gray-100'}`}
+                    className={`block w-full text-start px-4 py-2 text-sm ${org.id === currentOrg.id ? 'bg-gray-100 text-swishjam cursor-default' : 'cursor-pointer text-gray-700 hover:bg-gray-100 hover:text-swishjam transition'}`}
                     onClick={() => updateCurrentOrganization(org)}
                     key={org.id}
                   >

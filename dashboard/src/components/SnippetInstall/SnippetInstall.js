@@ -7,7 +7,7 @@ export default function SnippetInstall({ projectId }) {
     <Card>
       <div className="flex">
         <div className="grow">
-          <h1 className="text-lg font-medium mb-2 inline-block">SwishhjamJS Installation Instructions</h1>
+          <h1 className="text-lg font-medium mb-2 inline-block">SwishjamJS Installation Instructions</h1>
         </div>
       </div>
       <div className="flex ">
