@@ -13,7 +13,7 @@ import { WebVitalsApi } from '@/lib/api-client/web-vitals';
 // import PathUrlFilterer from '../Filters/PathUrlFilterer';
 
 export default function CwvDashboardView({ urlHost, urlPath, hasNoData }) {
-  const { currentProject } = useAuth();
+  const { currentProject, isAwaitingData } = useAuth();
 
   const [cwvBarChartData, setCwvBarChartData] = useState({});
   const [cwvPercentileData, setCwvPercentileData] = useState({});

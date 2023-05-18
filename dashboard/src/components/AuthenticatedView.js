@@ -6,19 +6,23 @@ import LoadingFullScreen from '@components/LoadingFullScreen';
 import SignIn from '@components/Auth/SignIn';
 import NoProjectsView from './NoProjectsView';
 import { SwishjamMemory } from '@/lib/swishjam-memory';
+import LoadingSpinner from './LoadingSpinner';
 
-export default function AuthenticatedView({ children }) {
-  const { initial, user, currentProject } = useAuth();
+export default function AuthenticatedView({ LoadingView, children }) {
+  const { initial, user, currentProject, isAwaitingData } = useAuth();
   const [sideNavIsCollapsed, setSideNavIsCollapsed] = useState(typeof SwishjamMemory.get('isNavCollapsed') === 'boolean' ? SwishjamMemory.get('isNavCollapsed') : false);
 
-  if (initial) {
-    return (<LoadingFullScreen />);
-  } else if(user && !currentProject) {
+  if (isAwaitingData) {
     return (
       <>
-        <NoProjectsView />
+        <Sidebar onCollapse={() => setSideNavIsCollapsed(true)} onExpand={() => setSideNavIsCollapsed(false)} />
+        <main className={`py-10 flex h-screen items-center transition ${sideNavIsCollapsed ? 'lg:pl-10' : 'lg:pl-72'}`}>
+          {LoadingView || <div className='w-fit mx-auto'><LoadingSpinner size={12} /></div>}
+        </main> 
       </>
-    )
+    );
+  } else if(user && !currentProject) {
+    return <NoProjectsView />
   } else if (user) {
     return(
       <>
@@ -32,9 +36,9 @@ export default function AuthenticatedView({ children }) {
       </>
     );
   } else if (!initial && !user) {
-    return (<SignIn />)
+    return <SignIn />
   } else {
     // This is back up for now... 
-    return (<LoadingFullScreen />);
+    return <LoadingFullScreen />;
   } 
 }
