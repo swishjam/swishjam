@@ -6,6 +6,7 @@ import { ProjectPageUrlsAPI } from '@/lib/api-client/project-page-urls';
 import { FunnelIcon } from '@heroicons/react/24/outline';
 import Dropdown from '../Dropdown';
 import { SwishjamMemory } from '@/lib/swishjam-memory';
+import Toast from '../Toast';
 
 function tryToFindDefaultHost(urlHosts) {
   let autoSelectedHostUrl;
@@ -29,22 +30,30 @@ export default function HostUrlFilterer({ onHostSelected, onNoHostsFound, onHost
   const { currentProject } = useAuth();
   const [filterOptions, setFilterOptions] = useState();
   const [selectedOption, setSelectedOption] = useState();
+  const [toastError, setToastError] = useState();
 
   useEffect(() => {
     if (currentProject) {
-      onHostsFetched && onHostsFetched();
-      setFilterOptions();
-      setSelectedOption();
-      UrlHostAPIInterface.getUniqueHosts().then(urlHosts => {
-        setFilterOptions(urlHosts);
-        const defaultHost = tryToFindDefaultHost(urlHosts);
-        if (defaultHost) {
-          setSelectedOption(defaultHost);
-          onHostSelected(defaultHost);
-        } else {
-          onNoHostsFound && onNoHostsFound();
-        }
-      });
+      try {
+        onHostsFetched && onHostsFetched();
+        setFilterOptions();
+        setSelectedOption();
+        UrlHostAPIInterface.getUniqueHosts().then(urlHosts => {
+          setFilterOptions(urlHosts);
+          const defaultHost = tryToFindDefaultHost(urlHosts);
+          if (defaultHost) {
+            setSelectedOption(defaultHost);
+            onHostSelected(defaultHost);
+          } else {
+            onNoHostsFound && onNoHostsFound();
+          }
+        });
+      } catch(err) {
+        setToastError({ 
+          title: 'An error occurred loading your data.', 
+          description: <>Please<a className='text-blue-600 underline' href={window.location.href}>reload the page.</a></>,
+        })
+      }
     }
   }, [currentProject?.public_id, urlHostAPI]);
 
@@ -55,19 +64,25 @@ export default function HostUrlFilterer({ onHostSelected, onNoHostsFound, onHost
   }
 
   return (
-    !filterOptions || disabled
-      ? (
-        <div className='flex items-center'>
-          <div className={`h-10 w-24 rounded-md border ${disabled ? 'bg-gray-200 border-gray-400' : 'animate-pulse bg-gray-50 border-gray-200'}`} />
-        </div>
-      ) : (
-        <Dropdown
-          options={filterOptions}
-          selected={selectedOption}
-          onSelect={onDropdownSelection}
-          dropdownIcon={<FunnelIcon className="h-5 w-5 text-gray-400" aria-hidden="true" />}
-          label='Host URL filter'
-        /> 
-      )
+    <>
+      {toastError && <Toast title={toastError.title} description={toastError.description} error={true} />}
+      {!filterOptions || disabled
+        ? (
+          <div className='flex items-center'>
+            <div className={`h-10 w-24 rounded-md border ${disabled ? 'bg-gray-200 border-gray-400' : 'animate-pulse bg-gray-50 border-gray-200'}`} />
+          </div>
+        ) : (
+          <>
+            <Dropdown
+              options={filterOptions}
+              selected={selectedOption}
+              onSelect={onDropdownSelection}
+              dropdownIcon={<FunnelIcon className="h-5 w-5 text-gray-400" aria-hidden="true" />}
+              label='Host URL filter'
+            /> 
+          </>
+        )
+      }
+    </>
   )
 }

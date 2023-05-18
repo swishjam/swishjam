@@ -24,9 +24,12 @@ function LabTestResultRow({ labTest, metricToDisplay, goodNeedsImprovementPoorTi
       </td>
       <td className="px-6 py-4 whitespace-nowrap">
         <div className='flex items-center'>
-          <span className={`text-md font-medium w-20 ${labTest[metricToDisplay] < goodNeedsImprovementPoorTiers.good ? 'text-green-600' : labTest[metricToDisplay] < goodNeedsImprovementPoorTiers.needsImprovement ? 'text-yellow-600' : 'text-red-600'}`}>
-            {metricToDisplay === 'cumulative_layout_shift' ? parseFloat(labTest[metricToDisplay]).toFixed(4) : formattedMsOrSeconds(labTest[metricToDisplay])}
-          </span>
+          {labTest.completed_at
+            ? <span className={`text-md font-medium w-20 ${labTest[metricToDisplay] < goodNeedsImprovementPoorTiers.good ? 'text-green-600' : labTest[metricToDisplay] < goodNeedsImprovementPoorTiers.needsImprovement ? 'text-yellow-600' : 'text-red-600'}`}>
+                {metricToDisplay === 'cumulative_layout_shift' ? parseFloat(labTest[metricToDisplay]).toFixed(4) : formattedMsOrSeconds(labTest[metricToDisplay])}
+              </span>
+            : <span className='text-md'>Lab test is running</span>
+          }
           <div className='w-44 h-6 inline-block ml-2'>
             <div className='bg-green-500 hover:bg-green-600 inline-block w-[33.3%] h-full relative'>
               {status === 'good' && (
@@ -61,7 +64,7 @@ function LabTestResultRow({ labTest, metricToDisplay, goodNeedsImprovementPoorTi
         </div>
       </td>
       <td className="px-6 py-4 whitespace-nowrap">
-        <div className="text-sm text-gray-900">{formattedDate(labTest.completed_at)}</div>
+        <div className="text-sm text-gray-900">{formattedDate(labTest.created_at)}</div>
       </td>
       <td className="px-6 py-4 whitespace-nowrap text-right">
         <Link 
