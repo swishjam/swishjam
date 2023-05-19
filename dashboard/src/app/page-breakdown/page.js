@@ -11,8 +11,10 @@ import { PerformanceMetricsApi } from '@/lib/api-client/performance-metrics';
 import { PageViewsAPI } from '@/lib/api-client/page-views';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import HostUrlFilterer from '@/components/Filters/HostUrlFilterer';
-import { calcCwvMetric } from '@/lib/cwvCalculations';
-import { metricFormatterPlusUnits } from '@lib/utils';
+import { cwvMetricBounds } from '@/lib/cwvCalculations';
+import { formattedMsOrSeconds, metricFormatterPlusUnits } from '@lib/utils';
+
+const MAX_URLS_TO_FETCH = 50;
 
 const loadingSpinner = () => {
   return (
@@ -60,28 +62,28 @@ const TableRowUrl = ({page}) => {
         {page.numPageViews.toLocaleString()}
       </td>
       <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-        <CwvBadge metric={getMetric(page.pageMetrics, 'LCP')} cwv={'LCP'} />
+        <CwvBadge metric={getMetric(page.pageMetrics, 'LCP')} cwv='LCP' />
       </td>
       <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-        <CwvBadge metric={getMetric(page.pageMetrics, 'FID')} cwv={'FID'} />
+        <CwvBadge metric={getMetric(page.pageMetrics, 'FID')} cwv='FID' />
       </td>
       <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-        <CwvBadge metric={getMetric(page.pageMetrics, 'CLS')} cwv={'CLS'} />
+        <CwvBadge metric={getMetric(page.pageMetrics, 'CLS')} cwv='CLS' />
       </td>
       <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-        <CwvBadge metric={getMetric(page.pageMetrics, 'INP')} cwv={'INP'} />
+        <CwvBadge metric={getMetric(page.pageMetrics, 'INP')} cwv='INP' />
       </td>
       <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-        <CwvBadge metric={getMetric(page.pageMetrics, 'FCP')} cwv={'FCP'} />
+        <CwvBadge metric={getMetric(page.pageMetrics, 'FCP')} cwv='FCP' />
       </td>
       <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-        <CwvBadge metric={getMetric(page.pageMetrics, 'TTFB')} cwv={'TTFB'} />
+        <CwvBadge metric={getMetric(page.pageMetrics, 'TTFB')} cwv='TTFB' />
       </td>
     </tr>
       {
         visible && (
           <>
-            <div ref={setTooltipRef} {...getTooltipProps({ className: 'tooltip-container' })}>
+            <div ref={setTooltipRef} {...getTooltipProps({ className: 'tooltip-container text-sm text-gray-700' })}>
               {page.urlPath}
               <div {...getArrowProps({ className: 'tooltip-arrow' })} />
             </div>
@@ -92,23 +94,17 @@ const TableRowUrl = ({page}) => {
   ) 
 }
 
-const CwvBadge = ({metric, cwv}) => {
+const CwvBadge = ({ metric, cwv }) => {
   if(!metric) {return <></>} 
   
-  const metricScore = calcCwvMetric(metric, cwv);
-  let colorBg = 'bg-red-100';; 
-  let colorText = 'text-red-800';
-  if(metricScore.rating === 'pass') {
-    colorBg = 'bg-green-100';
-    colorText = 'text-green-800';
-  }
-  if(metricScore.rating === 'average') {
-    colorBg = 'bg-yellow-100';
-    colorText = 'text-yellow-800';
-  }
+  const [colorBg, colorText] = metric <= cwvMetricBounds[cwv].good
+                                ? ['bg-green-100', 'text-green-800']
+                                : metric <= cwvMetricBounds[cwv].medium
+                                  ? ['bg-yellow-100', 'text-yellow-800']
+                                  : ['bg-red-100', 'text-red-800'];
   return (
     <span className={`inline-flex rounded-full ${colorBg} ${colorText} px-2 text-xs font-semibold leading-5`}>
-      {metricFormatterPlusUnits(metric, metricScore.metricScoring.displayUnits || '')} 
+      {cwv === 'CLS' ? parseFloat(parseFloat(metric).toFixed(4)) : formattedMsOrSeconds(metric)}
     </span> 
   );
 }
@@ -133,11 +129,7 @@ const TableData = ({ data = []}) => {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200 bg-white">
-              {data ? data.map((page) => (
-                <TableRowUrl page={page} /> 
-              )):
-              loadingSpinner()
-              }
+              {data ? data.map((page, i) => <TableRowUrl page={page} key={i} />) : loadingSpinner()}
             </tbody>
           </table>
         </div>
@@ -150,7 +142,7 @@ const SkeletonTable = () => {
   return (
     <>
       <TableData data={[]} />
-      {Array.from({ length: 10 }).map((_, i) => <div className={`h-12 w-full animate-pulse rounded ${i % 2 === 0 ? 'bg-gray-200' : 'bg-gray-50'}`} /> )}
+      {Array.from({ length: 10 }).map((_, i) => <div className={`h-12 w-full animate-pulse rounded ${i % 2 === 0 ? 'bg-gray-200' : 'bg-gray-50'}`} key={i} /> )}
     </>
   )
 }
@@ -163,33 +155,33 @@ export default function PageBreakdown() {
   const onUrlHostSelected = urlHost => {
     setUrlPathsData(undefined);
     PageUrlsApi.getUniquePaths({ urlHosts: [urlHost] }).then(urlPaths => {
-      setUrlPaths(urlPaths);
-      if (urlPaths) updateViewForHostAndPaths({ urlHost, urlPaths });
+      const formattedUrlPaths = urlPaths.map(urlPath => urlPath.url_path);
+      setUrlPaths(formattedUrlPaths);
+      if (urlPaths) updateViewForHostAndPaths({ urlHost, urlPaths: formattedUrlPaths });
     });
   }
 
   const updateViewForHostAndPaths = async ({ urlPaths, urlHost }) => {
     setUrlPathsData(undefined);
-   
-    let urlsPageViews = urlPaths.map(urlPath => {
-      return PageViewsAPI.getCount({ urlHost, urlPath });
-    })    
-    let urlsPageMetrics = urlPaths.map(urlPath => {
-      return PerformanceMetricsApi.getAllMetricsPercentiles({ urlHost, urlPath })
-    })    
-    urlsPageViews =  await Promise.all(urlsPageViews)
-    urlsPageMetrics =  await Promise.all(urlsPageMetrics)
 
-    let upd = urlPaths.map((urlPath, i) => {
+    const cappedUrlPaths = urlPaths.slice(0, MAX_URLS_TO_FETCH);
+   
+    const urlsPageViewCountRequests = cappedUrlPaths.map(urlPath => PageViewsAPI.getCount({ urlHost, urlPath }))  
+    const urlsPageMetricsRequests = cappedUrlPaths.map(urlPath => PerformanceMetricsApi.getAllMetricsPercentiles({ urlHost, urlPath }))
+    const [urlsPageViews, urlsPageMetrics] = await Promise.all([
+      Promise.all(urlsPageViewCountRequests), 
+      Promise.all(urlsPageMetricsRequests)
+    ]);
+
+    const formattedUrlPathsData = cappedUrlPaths.map((urlPath, i) => {
       return {
         urlPath,
         numPageViews: urlsPageViews[i],
         pageMetrics: urlsPageMetrics[i]
       };
-    })
-    .sort((a, b) => b.numPageViews - a.numPageViews);   
+    }).sort((a, b) => b.numPageViews - a.numPageViews);   
     
-    setUrlPathsData(upd);
+    setUrlPathsData(formattedUrlPathsData);
   }
 
   return (

@@ -35,28 +35,34 @@ export default class Pages {
     if (urlHosts && urlHosts.length > 0) {
       const query = `
         SELECT
-          DISTINCT url_path
+          DISTINCT url_path,
+          CAST(COUNT(*) AS int) AS total_views
         FROM
           page_views
         WHERE
           project_key = $1 AND
           page_view_ts >= $2 AND
           url_host IN (${urlHosts.map(host => `\'${host}\'`).join(', ')})
-        ORDER BY
+        GROUP BY
           url_path
+        ORDER BY
+          total_views DESC
       `;
       return (await db.query(query, [projectKey, new Date(startTs)])).rows;
     } else {
       const query = `
         SELECT
-          DISTINCT url_path
+          DISTINCT url_path,
+          CAST(COUNT(*) AS int) AS total_views
         FROM
           page_views
         WHERE
           project_key = $1 AND
           page_view_ts >= $2
-        ORDER BY
+        GROUP BY
           url_path
+        ORDER BY
+          total_views DESC
       `;
       return (await db.query(query, [projectKey, new Date(startTs)])).rows;
     }

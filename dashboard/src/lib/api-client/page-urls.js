@@ -9,6 +9,7 @@ export class PageUrlsApi extends API {
   static async getUniquePaths({ urlHosts, urlHost }) {
     if(urlHost) urlHosts = [urlHost];
     const { results } = await API.get('/api/pages/paths', { urlHosts: JSON.stringify(urlHosts) })
-    return results.map(result => result.url_path);
+    return results;
+    // return results.map(result => result.url_path);
   }
 }

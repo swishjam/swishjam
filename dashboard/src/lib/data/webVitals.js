@@ -85,7 +85,8 @@ export default class WebVitalsData {
               page_views.project_key = $1 AND
               page_views.page_view_ts >= $2 AND
               page_views.url_host = $3 AND
-              page_views.url_path = $4
+              page_views.url_path = $4 AND
+              page_views.connection_rtt IS NOT NULL
             GROUP BY 
               bucket, metric
             ORDER BY 
