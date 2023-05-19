@@ -37,10 +37,12 @@ export default function VisitorDemographics() {
     ]);
     const formattedConnectionData = {};
     byConnections.forEach(connectionData => {
-      formattedConnectionData[connectionData.connection_range] = formattedConnectionData[connectionData.connection_range] || {};
-      formattedConnectionData[connectionData.connection_range][connectionData.metric] = {
-        value: connectionData.value,
-        numRecords: connectionData.count,
+      if (connectionData.connection_range) {
+        formattedConnectionData[connectionData.connection_range] = formattedConnectionData[connectionData.connection_range] || {};
+        formattedConnectionData[connectionData.connection_range][connectionData.metric] = {
+          value: connectionData.value,
+          numRecords: connectionData.count,
+        }
       }
     });
     for(const connectionRange in formattedConnectionData) {

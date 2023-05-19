@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect, Fragment } from 'react'
+import { useState, useEffect, useRef, Fragment } from 'react'
 import { useAuth } from '@components/AuthProvider';
 import { PageUrlsApi } from '@/lib/api-client/page-urls';
 import { FunnelIcon, CheckIcon, ChevronDownIcon, MagnifyingGlassIcon } from '@heroicons/react/24/outline'
@@ -67,8 +67,11 @@ export default function PathUrlFilterer({ urlHost, onPathSelected, disabled, inc
                 isSelected: url_path === selectedOption,
                 text: (
                   <>
-                    <span className='text-sm font-medium text-gray-700 truncate'>{url_path}</span>
-                    {typeof total_views === 'number' && <span className='text-xs text-white bg-swishjam rounded-lg px-2 py-1'>{total_views}</span>}
+                    <div className='truncate'>
+                      <span className='text-sm font-medium text-gray-700 truncate block'>{url_path}</span>
+                      {/* {typeof total_views === 'number' && <span className='text-xs text-white bg-swishjam rounded-lg px-2 py-1'>{total_views}</span>} */}
+                      {typeof total_views === 'number' && <span className='text-xs text-gray-400'>{total_views} page views</span>}
+                    </div>
                   </>
                 ),
               }))
@@ -92,6 +95,8 @@ const PathFilterDropdown = ({ direction = 'left', options, selected, onSelect, o
   const [isSearchExpanded, setIsSearchExpanded] = useState(false);
   const directionClass = direction === 'left' ? 'right-0' : 'left-0'
 
+  const searchInputRef = useRef(null);
+
   return (
     <Menu as="div" className="relative inline-block text-left">
       <div>
@@ -114,12 +119,13 @@ const PathFilterDropdown = ({ direction = 'left', options, selected, onSelect, o
             <div className="bg-gray-50 px-4 py-2 text-sm text-gray-500 border-b cursor-default flex justify-between items-center">
               <span>URL Path Filter</span>
               <div className='flex items-center h-8'>
-                {isSearchExpanded && (
-                  <input className='input' placeholder='Search' onChange={e => onSearch && onSearch(e.target.value)} />
-                )}
+                <input className={`input ${isSearchExpanded ? '' : 'hidden'}`} ref={searchInputRef} placeholder='Search' onChange={e => onSearch && onSearch(e.target.value)} />
                 <div 
                   className={`h-5 w-5 w-fit cursor-pointer ml-2 ${isSearchExpanded ? 'text-swishjam hover:text-swishjam-dark' : 'text-gray-400 hover:text-gray-700'}`}
-                  onClick={() => setIsSearchExpanded(!isSearchExpanded)}
+                  onClick={() => {
+                    if(!isSearchExpanded) searchInputRef.current.focus();
+                    setIsSearchExpanded(!isSearchExpanded);
+                  }}
                 >
                   <MagnifyingGlassIcon className='h-5 w-5' />
                 </div>
