@@ -1,0 +1,133 @@
+<mjml>
+  <mj-body background-color="#ffffff" width="520px">
+
+    <mj-section padding-bottom="0px" padding-top="40px">
+      <mj-column vertical-align="top">
+        <mj-text font-size="24px" align="center" font-family="inter,helvetica,sans-serif" line-height="32px" font-weight="semibold">Weekly Performance Snapshot</mj-text>
+        <mj-text font-size="14px" align="center" font-family="inter,helvetica,sans-serif" line-height="14px">Powered by</mj-text>
+        <mj-image src="https://fastly.picsum.photos/id/75/520/120.jpg?hmac=dlzNEwzYqDnV39U3i1MZB6fdI0hrk8JMIfBcjIQmKAM" alt="" align="center" border="none" padding-left="0px" padding-right="0px" padding-bottom="0px" padding-top="0"></mj-image>
+      </mj-column>
+    </mj-section>
+
+    <mj-section padding-top="40px">
+      <mj-column>
+        <mj-text padding-left="0px" font-size="24px" font-family="inter,helvetica,sans-serif" line-height="24px" font-weight="semibold">Site Grade</mj-text>
+      </mj-column>
+    </mj-section>
+
+    <mj-section padding-top="0px">
+      <mj-column padding="1px" background-color="#e5e5e5" inner-background-color="#FFFFFF" border-radius="8px" inner-border-radius="8px">
+        <mj-group>
+          <mj-column width="25%">
+            <mj-image src="https://fastly.picsum.photos/id/936/100/100.jpg?hmac=Y1HP8tGBdbyGXlqQfapmz3xTMzKARU8VRqGLIyk86vs" alt="Image" />
+          </mj-column>
+          <mj-column width="75%">
+            <mj-text padding-top="35px" font-size="20px">
+              Swishjam.com Passed
+            </mj-text>
+          </mj-column>
+        </mj-group>
+      </mj-column>
+    </mj-section>
+
+
+    <mj-section padding-top="20px">
+      <mj-column>
+        <mj-text padding-left="0px" font-size="24px" font-family="inter,helvetica,sans-serif" line-height="24px" font-weight="semibold">Core Web Vitals</mj-text>
+      </mj-column>
+    </mj-section>
+
+    <mj-section padding-top="0px">
+      <mj-column padding="1px" background-color="#e5e5e5" inner-background-color="#FFFFFF" border-radius="8px" inner-border-radius="8px">
+
+        <mj-table padding="0">
+          <tr style="border-bottom: 1px solid #E5E5E5;">
+            <td style="width:25%;padding: 20px;">
+
+              <span style="color: green; font-size: 24px; font-weight: bold;">
+                2.68s
+              </span>
+            </td>
+            <td style="width: 75%;padding: 20px;">
+              <h3 style="font-wieght: normal;">Largest Contentful Paint</h3>
+              <p><span style="color:red;">+10%</span> slower than last week</p>
+            </td>
+          </tr>
+          <tr style="border-bottom: 1px solid #E5E5E5;">
+            <td style="width:25%;padding: 20px;">
+
+              <span style="color: green; font-size: 24px; font-weight: bold;">
+                2.68s
+              </span>
+            </td>
+            <td style="width: 75%;padding: 20px;">
+              <h3 style="font-wieght: normal;">Cumulative Layout Shift</h3>
+              <p><span style="color:red;">+10%</span> slower than last week</p>
+            </td>
+          </tr>
+          <tr style="border-bottom: 1px solid #E5E5E5;">
+            <td style="width:25%;padding: 20px;">
+              <span style="color: green; font-size: 24px; font-weight: bold;">
+                2.68s
+              </span>
+            </td>
+            <td style="width: 75%;padding: 20px;">
+              <h3 style="font-wieght: normal;">Interaction To Next Paint</h3>
+              <p><span style="color:red;">+10%</span> slower than last week</p>
+            </td>
+          </tr>
+        </mj-table>
+      </mj-column>
+    </mj-section>
+
+    <mj-section padding-top="20px">
+      <mj-column>
+        <mj-text padding-left="0px" font-size="24px" font-family="inter,helvetica,sans-serif" line-height="24px" font-weight="semibold">Other Web Vitals</mj-text>
+      </mj-column>
+    </mj-section>
+
+    <mj-section padding-top="0px">
+      <mj-column padding="1px" background-color="#e5e5e5" inner-background-color="#FFFFFF" border-radius="8px" inner-border-radius="8px">
+
+        <mj-table padding="0">
+          <tr style="border-bottom: 1px solid #E5E5E5;">
+            <td style="width:25%;padding: 20px;">
+
+              <span style="color: green; font-size: 24px; font-weight: bold;">
+                2.68s
+              </span>
+            </td>
+            <td style="width: 75%;padding: 20px;">
+              <h3 style="font-wieght: normal;">Largest Contentful Paint</h3>
+              <p><span style="color:red;">+10%</span> slower than last week</p>
+            </td>
+          </tr>
+          <tr style="border-bottom: 1px solid #E5E5E5;">
+            <td style="width:25%;padding: 20px;">
+
+              <span style="color: green; font-size: 24px; font-weight: bold;">
+                2.68s
+              </span>
+            </td>
+            <td style="width: 75%;padding: 20px;">
+              <h3 style="font-wieght: normal;">Cumulative Layout Shift</h3>
+              <p><span style="color:red;">+10%</span> slower than last week</p>
+            </td>
+          </tr>
+          <tr style="border-bottom: 1px solid #E5E5E5;">
+            <td style="width:25%;padding: 20px;">
+              <span style="color: green; font-size: 24px; font-weight: bold;">
+                2.68s
+              </span>
+            </td>
+            <td style="width: 75%;padding: 20px;">
+              <h3 style="font-wieght: normal;">Interaction To Next Paint</h3>
+              <p><span style="color:red;">+10%</span> slower than last week</p>
+            </td>
+          </tr>
+        </mj-table>
+      </mj-column>
+    </mj-section>
+
+  </mj-body>
+</mjml>

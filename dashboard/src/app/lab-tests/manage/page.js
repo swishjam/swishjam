@@ -6,9 +6,9 @@ import { useAuth } from "@/components/AuthProvider";
 import { ProjectPageUrlsAPI } from "@/lib/api-client/project-page-urls";
 import NewProjectPageUrlModal from "@/components/ProjectPageUrls/NewModal";
 import ManageRow from "@/components/ProjectPageUrls/ManageRow";
-import { BeakerIcon } from "@heroicons/react/24/outline";
 import Link from "next/link";
-import { ArrowLeftIcon } from "@heroicons/react/20/solid";
+import { BeakerIcon } from "@heroicons/react/24/outline";
+import { ArrowLeftIcon, PlusCircleIcon } from "@heroicons/react/20/solid";
 
 export default function Manage() {
   const { currentProject } = useAuth();
@@ -35,7 +35,8 @@ export default function Manage() {
               onClick={() => setNewPageUrlModalIsOpen(true)}
               className="ml-6 mt-2 rounded-md bg-swishjam px-2.5 py-2 text-sm font-semibold text-white shadow-sm hover:bg-swishjam-dark focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-swishjam transition duration-300"
             >
-              New lab test configuration
+              <PlusCircleIcon className='h-5 w-5 inline-block mr-1' />
+              Add lab test
             </button>
           </div>
         </div>
@@ -57,9 +58,9 @@ function ProjectPageUrlsTable({ projectPageUrls }) {
   return (
     <div className='border border-gray-300 rounded-md'>
       <table className="min-w-full divide-y divide-gray-300">
-        <thead>
+        <thead className='bg-gray-100'>
           <tr className='bg-gray-100'>
-            <th scope="col" className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900">
+            <th scope="col" className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 rounded-tl-md overflow-hidden">
               URL
             </th>
             <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
@@ -71,11 +72,11 @@ function ProjectPageUrlsTable({ projectPageUrls }) {
             <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
               Created
             </th>
-            <th scope="col" className="relative py-3.5 pl-3 pr-4">
+            <th scope="col" className="relative py-3.5 pl-3 pr-4 rounded-tr-md overflow-hidden">
             </th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-gray-200 bg-white">
+        <tbody className="divide-y divide-gray-200">
           {projectPageUrls 
             ? projectPageUrls.map(pageUrl => <ManageRow key={pageUrl.id} pageUrl={pageUrl} />)
             : (
