@@ -48,12 +48,7 @@ export default function CdnInstallInstructions({ projectId }) {
         <CopiableCodeSnippet
           copyContent={`
             <script>
-              (function(projectKey) { 
-                var s = document.createElement('script'); 
-                s.setAttribute('defer', ''); 
-                s.setAttribute('src', "https://cdn.swishjam.com/" + projectKey + "/instrumentation.js");
-                document.head.appendChild(s);
-              })("${projectId}");
+              (function(k){var s = document.createElement('script');s.setAttribute('defer', '');s.setAttribute('src', "https://cdn.swishjam.com/"+k+"/instrumentation.js");document.head.appendChild(s);})("${projectId}");
             </script>
           `}
           snippet={

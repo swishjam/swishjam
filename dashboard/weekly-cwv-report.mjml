@@ -129,5 +129,16 @@
       </mj-column>
     </mj-section>
 
+    <mj-section padding-top="0px">
+      <mj-button href="https://app.swishjam.com/" font-size="16px" inner-padding="15px" font-family="Helvetica" background-color="#7384FF" color="white" width="520px" align="center">
+        View More In Swishjam 
+      </mj-button>
+    </mj-section>
+
+    <mj-section padding-top="0px">
+      <mj-text align="center">Swishjam by Tagsafe, Inc</mj-text> 
+      <mj-text line-height="42px" align="center">Edit your settings for the weekly summary emails in Swishjam</mj-text> 
+      <mj-text line-height="42px" align="center">225 Rosecrans Ave, Unit 2, Manhattan Beach, CA 90226</mj-text> 
+    </mj-section>
   </mj-body>
 </mjml>

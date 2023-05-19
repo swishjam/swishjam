@@ -23,6 +23,7 @@ export const AuthProvider = (props) => {
   const [userOrgs, setUserOrgs] = useState();
   const [projects, setProjects] = useState([]);
   const [currentProject, setCurrentProject] = useState();
+  const [isAwaitingData, setIsAwaitingData] = useState(true);
   const router = useRouter();
   const { accessToken, ...rest } = props;
 
@@ -56,36 +57,33 @@ export const AuthProvider = (props) => {
 
   useEffect(() => {
     async function getCoreUserData(localUser) {
-      try { 
-        if (localUser) {
-          if(window?.location?.href?.includes('register')) return;
-          
-          const orgUsers = await supabase.from('organization_users').select('*').eq('user_id', localUser.id)
-          if (orgUsers.error) { throw orgUsers.error } 
+      if (localUser) {
+        if(window?.location?.href?.includes('register')) return;
         
-          const orgs = await supabase.from('organizations').select('id, name').in('id', orgUsers.data.map(orgUser => orgUser.organization_id))
-          if (orgs.error) { throw orgs.error } 
-          setUserOrgs(orgs.data);
+        const orgUsers = await supabase.from('organization_users').select('*').eq('user_id', localUser.id)
+        if (orgUsers.error) { throw orgUsers.error } 
+      
+        const orgs = await supabase.from('organizations').select('id, name').in('id', orgUsers.data.map(orgUser => orgUser.organization_id))
+        if (orgs.error) { throw orgs.error } 
+        setUserOrgs(orgs.data);
 
-          const currentOrganization = SwishjamMemory.get('currentOrganization') ? orgs.data.find(org => org.id === SwishjamMemory.get('currentOrganization')) : orgs.data[0];
-          updateCurrentOrganization(currentOrganization);
+        const currentOrganization = SwishjamMemory.get('currentOrganization') ? orgs.data.find(org => org.id === SwishjamMemory.get('currentOrganization')) : orgs.data[0];
+        updateCurrentOrganization(currentOrganization);
+      
+        const { data: projects } = await supabase.from('projects').select('*').eq('organization_id', currentOrganization.id)
+        setProjects(projects)
+
+        const inMemoryProject = SwishjamMemory.get("currentProjectKey") ? projects.find(({ public_id }) => public_id === SwishjamMemory.get("currentProjectKey")) : null;
         
-          const { data: projects } = await supabase.from('projects').select('*').eq('organization_id', currentOrganization.id)
-          setProjects(projects)
-
-          const inMemoryProject = SwishjamMemory.get("currentProjectKey") ? projects.find(({ public_id }) => public_id === SwishjamMemory.get("currentProjectKey")) : null;
-          
-          if (inMemoryProject) {
-            setCurrentProject({ name: inMemoryProject.name, public_id: inMemoryProject.public_id });  
-          } else if (projects.length > 0) {
-            setCurrentProject({ name: projects[0].name, public_id: projects[0].public_id });
-            SwishjamMemory.set("currentProjectName", projects[0].name);
-            SwishjamMemory.set("currentProjectKey", projects[0].public_id);
-          }
+        if (inMemoryProject) {
+          setCurrentProject({ name: inMemoryProject.name, public_id: inMemoryProject.public_id });  
+        } else if (projects.length > 0) {
+          setCurrentProject({ name: projects[0].name, public_id: projects[0].public_id });
+          SwishjamMemory.set("currentProjectName", projects[0].name);
+          SwishjamMemory.set("currentProjectKey", projects[0].public_id);
         }
-      } catch (error) {
-        console.error(error);
       }
+      setIsAwaitingData(false);
     }
 
     async function getActiveSession() {
@@ -139,6 +137,7 @@ export const AuthProvider = (props) => {
       userOrgs,
       currentProject,
       projects,
+      isAwaitingData,
       updateCurrentOrganization,
       setUserOrgs,
       updateCurrentProject,

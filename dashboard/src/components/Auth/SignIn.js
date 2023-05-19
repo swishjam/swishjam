@@ -100,7 +100,7 @@ const SignIn = () => {
 
                   <button
                     type="submit"
-                    className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-swishjam hover:bg-swishjam-dark focus:outline-none focus:ring-2 focus:ring-offset-2"
+                    className={`w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white ${loading ? 'bg-gray-400' : 'bg-swishjam hover:bg-swishjam-dark'}`}
                     disabled={loading}
                   >
                     {loading ? <div className="h-6"><LoadingSpinner size={6} color='white'/></div> : 'Sign In'} 
