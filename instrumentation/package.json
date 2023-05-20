@@ -1,6 +1,6 @@
 {
   "name": "@swishjam/swishjam",
-  "version": "0.0.250",
+  "version": "0.0.251",
   "description": "Monitor your web app's front end performance metrics",
   "main": "src/swishjam.js",
   "scripts": {
@@ -18,6 +18,7 @@
   },
   "homepage": "https://github.com/swishjam/swishjam#readme",
   "dependencies": {
+    "@swishjam/swishjam": "^0.0.251",
     "web-vitals": "^3.1.1",
     "webpack": "^5.75.0"
   },
