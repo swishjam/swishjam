@@ -18,7 +18,6 @@
   },
   "homepage": "https://github.com/swishjam/swishjam#readme",
   "dependencies": {
-    "@swishjam/swishjam": "^0.0.251",
     "web-vitals": "^3.1.1",
     "webpack": "^5.75.0"
   },
