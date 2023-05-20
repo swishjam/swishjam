@@ -24,7 +24,7 @@ class ReportingHandler {
     if (!EVENT_TYPES.includes(eventName)) throw new Error(`Invalid event: ${eventName}. Valid event types are: ${EVENT_TYPES.join(', ')}.`);
     if (!this.currentPageViewIdentifier) throw new Error('ReportingHandler has no currentPageViewIdentifier, cannot record event.');
     this.pageViewEventCounter[this.currentPageViewIdentifier] = (this.pageViewEventCounter[this.currentPageViewIdentifier] || 0) + 1;
-    if (this.pageViewEventCounter[this.currentPageViewIdentifier] > this.maxNumEventsPerPage) {
+    if (eventName === 'PERFORMANCE_ENTRY' && this.pageViewEventCounter[this.currentPageViewIdentifier] > this.maxNumEventsPerPage) {
       // console.warn(`Swishjam: max number of events per page view (${this.maxNumEventsPerPage}) reached, not recording event: ${eventName}`);
       return;
     }
