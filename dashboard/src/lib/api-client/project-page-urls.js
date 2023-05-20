@@ -19,7 +19,7 @@ export class ProjectPageUrlsAPI extends API {
             .filter(urlConfig => urlConfig.url_host === urlHost)
             .map(urlConfig => urlConfig)
             .filter((urlPath, index, self) => self.findIndex(t => t === urlPath) === index)
-            .sort((a, b) => a.localeCompare(b));
+            .sort((a, b) => a.url_path.localeCompare(b.url_path));
   }
 
   static async create({ url, cadence, enabled }) {
