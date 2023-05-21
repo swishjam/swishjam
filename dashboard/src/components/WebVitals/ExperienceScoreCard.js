@@ -108,7 +108,7 @@ export default function ExperienceScoreCard({ timeseriesData, metricPercentiles,
           </Link> 
           {visible && (
             <>
-              <div ref={setTooltipRef} {...getTooltipProps({ className: 'tooltip-container p-4' })}>
+              <div ref={setTooltipRef} {...getTooltipProps({ className: 'tooltip-container p-4 text-xs text-gray-700' })}>
                 Click the info button to learn more about how we calculate <br />the Swishjam real user experience score
                 <div {...getArrowProps({ className: 'tooltip-arrow' })} />
               </div>

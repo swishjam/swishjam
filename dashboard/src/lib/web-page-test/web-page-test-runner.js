@@ -39,45 +39,50 @@ export class WebPageTestRunner {
       pingback: `https://${process.env.WEB_PAGE_TEST_WEBHOOK_HOST || 'app.swishjam.com'}/api/lab-tests/webhook`,
       f: 'json'
     });
-    console.log('PINGBACK IS: ', process.env.WEB_PAGE_TEST_WEBHOOK_HOST);
-    const result = await fetch(`https://www.webpagetest.org/runtest.php?${params}`, { method: 'POST' });
-    if (result.status === 200) {
-      const response = await result.json();
-      const { data: { testId, jsonUrl }} = response;
-      const payload = {
-        uuid: testId,
-        project_key: projectKey || 'undefined',
-        full_url: url,
-        url_host: new URL(url).host,
-        url_path: new URL(url).pathname,
-        url_query: new URL(url).search,
-      }
-      const insertData = Object.values(payload);
-      const query = {
-        text: `
-        INSERT INTO synthetic_runs (
-          uuid,
-          project_key,
-          full_url,
-          url_host,
-          url_path,
-          url_query
-        ) VALUES(${insertData.map((_val, i) => `$${i + 1}`).join(', ')})
-      `,
-        values: insertData,
-      }
-      await db.query(query, (err, _result) => {
-        if (err) {
-          console.error('Unable to initiate speed test');
-          console.error(err)
-          throw new Error('Unable to initiate speed test.');
-        }
-      });
-      return { testId, jsonUrl };
+    if (process.env.MOCK_WEB_PAGE_TESTS) {
+      console.log('MOCKING WEB PAGE TEST');
+      console.log(params);
+      return { testId: 'MOCKED', jsonUrl: 'MOCKED' };
     } else {
-      console.error('Unable to initiate speed test');
-      console.error(result);
-      throw new Error('Unable to initiate speed test.');
+      const result = await fetch(`https://www.webpagetest.org/runtest.php?${params}`, { method: 'POST' });
+      if (result.status === 200) {
+        const response = await result.json();
+        const { data: { testId, jsonUrl }} = response;
+        const payload = {
+          uuid: testId,
+          project_key: projectKey || 'undefined',
+          full_url: url,
+          url_host: new URL(url).host,
+          url_path: new URL(url).pathname,
+          url_query: new URL(url).search,
+        }
+        const insertData = Object.values(payload);
+        const query = {
+          text: `
+          INSERT INTO synthetic_runs (
+            uuid,
+            project_key,
+            full_url,
+            url_host,
+            url_path,
+            url_query
+          ) VALUES(${insertData.map((_val, i) => `$${i + 1}`).join(', ')})
+        `,
+          values: insertData,
+        }
+        await db.query(query, (err, _result) => {
+          if (err) {
+            console.error('Unable to initiate speed test');
+            console.error(err)
+            throw new Error('Unable to initiate speed test.');
+          }
+        });
+        return { testId, jsonUrl };
+      } else {
+        console.error('Unable to initiate speed test');
+        console.error(result);
+        throw new Error('Unable to initiate speed test.');
+      }
     }
   }
 }
