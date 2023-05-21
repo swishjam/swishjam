@@ -28,7 +28,6 @@ export default function NewPageUrlModal({
       cadence: cadence === 'never' ? undefined : cadence, 
       enabled: true 
     });
-    debugger;
     setLoading(false);
     if (error) {
       setError(error);

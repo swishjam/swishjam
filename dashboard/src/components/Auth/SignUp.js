@@ -9,7 +9,7 @@ import Logo from '@components/Logo';
 import LoadingSpinner from '@components/LoadingSpinner';
 import { useAuth } from '@components/AuthProvider';
 import supabase from '@lib/supabase-browser';
-import { ProjectPageUrl } from 'src/models/ProjectPageUrl';
+import { ProjectPageUrlsAPI } from '@/lib/api-client/project-page-urls';
 
 const SignUpSchema = Yup.object().shape({
   email: Yup.string().email('Invalid email').required('Required'),
@@ -50,23 +50,12 @@ const SignUp = () => {
       const newProject = await supabase.from('projects').insert({ name: newOrg.data[0].name, created_by: user.id, organization_id: newOrg.data[0].id }).select();
       if (newProject.error) throw newProject.error;
 
-      await new ProjectPageUrl({ projectId: newProject.data[0].id, url: formData.url, labTestCadence: '1-day', labTestsEnabled: true }).save();
-      // const url = `https://${formData.url}`
-      // const parsedUrl = new URL(url);
-      // const newProjectPageUrl = await supabase.from('project_page_urls').insert({ 
-      //   project_id: newProject.data[0].id, 
-      //   full_url: url,
-      //   url_uniqueness_key: `${newProject.data[0].id}-${url}`,
-      //   url_host: parsedUrl.host,
-      //   url_path: parsedUrl.pathname,
-      //   lab_test_cadence: '1-day',
-      //   lab_tests_enabled: true,
-      // }).select();
-
       updateCurrentOrganization(newOrg.data[0]);
       updateCurrentProject(newProject.data[0]);
       setProjects([newProject.data[0]]);
       setUserOrgs([newOrg.data[0]]);
+      
+      await ProjectPageUrlsAPI.create({ url: formData.url, cadence: '1-day', enabled: true });
 
       router.push('/');
     } catch (error) {

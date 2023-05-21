@@ -1,6 +1,5 @@
 import { Validator } from "@/lib/queryValidator";
-// import { ProjectPageUrl } from "@/models/ProjectPageUrl";
-import { ProjectPageUrl } from "src/models/ProjectPageUrl";
+import { ProjectPageUrl } from "@/models/ProjectPageUrl";
 
 export default async (req, res) => {
   const { organizationId, projectKey, labTestCadence, labTestsEnabled } = req.body;
@@ -18,19 +17,8 @@ export default async (req, res) => {
       projectId: currentProject.id, 
       runFirstLabTest: true 
     });
-    console.log('CREATE API RECORD??', record);
-    // const parsedUrl = new URL(url);
-    // const { data, error } = await supabaseClient.from('project_page_urls').insert({ 
-    //   project_id: currentProject.id,
-    //   url_uniqueness_key: `${currentProject.id}-${url}`,
-    //   full_url: url, 
-    //   url_host: parsedUrl.host,
-    //   url_path: parsedUrl.pathname,
-    //   lab_test_cadence: labTestCadence,
-    //   lab_tests_enabled: labTestsEnabled,
-    // }).select();
+
     if (error) {
-      console.error(error);
       if (error.message.includes('duplicate key value violates unique constraint')) {
         return res.status(400).json({ error: `A URL for "${url}" already exists for this project.` });
       } else {
