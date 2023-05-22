@@ -77,7 +77,7 @@ function ProjectPageUrlsTable({ projectPageUrls }) {
         </thead>
         <tbody className="divide-y divide-gray-200 bg-white">
           {projectPageUrls 
-            ? projectPageUrls.map((pageUrl, i) => <ManageRow key={pageUrl.id} pageUrl={pageUrl} key={i} />)
+            ? projectPageUrls.map(pageUrl => <ManageRow key={pageUrl.id} pageUrl={pageUrl} />)
             : (
               Array.from({ length: 6}).map((_, i) => (
                 <tr key={i}>
