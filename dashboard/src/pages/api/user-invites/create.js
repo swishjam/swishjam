@@ -4,7 +4,7 @@ import { createClient } from "@supabase/supabase-js";
 import { UserInvitation } from "@/lib/emails/user-invitation";
 
 export default async (req, res) => {
-  const { email } = req.body;
+  const { email, userName } = req.body;
 
   return await Validator.runQueryIfUserHasAccess({ req, res }, async ({ organizationId, user }) => {
     const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.SUPABASE_GOD_MODE_KEY);
@@ -35,19 +35,16 @@ export default async (req, res) => {
     if (error) {
       return res.status(400).json({ error: error.message });
     } else {
-      if (process.env.DISABLE_TRANSACTION_EMAILS) {
-        console.log(`Bypassing sending invite email to ${email} because DISABLE_TRANSACTION_EMAILS ENV is enabled.`)
-      } else {
-        const { data: organization } = await supabase.from("organizations").select("*").eq("id", organizationId).single();
-        await UserInvitation.send({
-          to: email,
-          variables: {
-            invited_by_user: user.email,
-            organization_name: organization?.name,
-            invitation_url: `${process.env.NEXT_PUBLIC_BASE_URL || 'https://app.swishjam.com'}/invitation/${data[0].invite_token}`
-          }
-        })
-      }
+      const { data: organization } = await supabase.from("organizations").select("*").eq("id", organizationId).single();
+      await UserInvitation.send({
+        to: email,
+        variables: {
+          user_name: userName, 
+          invited_by_user: user.email,
+          organization_name: organization?.name,
+          invitation_url: `${process.env.NEXT_PUBLIC_BASE_URL || 'https://app.swishjam.com'}/invitation/${data[0].invite_token}`
+        }
+      })
 
       return res.status(200).json({ userInvite: data[0] });
     }

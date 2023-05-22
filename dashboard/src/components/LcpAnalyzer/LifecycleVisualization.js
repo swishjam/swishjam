@@ -51,7 +51,9 @@ export default function LifecycleVisualization({ webPageTestData }) {
 
   return (
     <>
-      <Modal isOpen={!!modalContent} onClose={() => setModalContent(null)} content={modalContent}/>
+      <Modal isOpen={!!modalContent} onClose={() => setModalContent(null)}>
+        {modalContent}
+      </Modal>
       {/* <h2 className='text-lg text-gray-800'>Largest Contentful Paint is broken down into 4 stages:</h2> */}
       <dl className="my-5 grid grid-cols-4 gap-4">
         <LCPSubPartStat 
