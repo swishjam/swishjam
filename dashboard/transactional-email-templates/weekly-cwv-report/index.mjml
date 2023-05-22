@@ -1,6 +1,6 @@
 <mjml>
   <mj-head>
-    <mj-preview>YoursiteName.com Passed It's Weekly Performance Checkup</mj-preview>
+    <mj-preview>{DATA_VARIABLE:siteUrl} {DATA_VARIABLE:status} It's Weekly Performance Checkup</mj-preview>
   </mj-head>
   <mj-body background-color="#ffffff" width="520px">
 
@@ -22,10 +22,10 @@
       <mj-wrapper background-color="#e5e5e5" padding="1px" border-radius="8px">
         <mj-section border-radius="8px" background-color="#FFFFFF">
           <mj-column width="25%" vertical-align="middle">
-            <mj-image src="https://fastly.picsum.photos/id/936/100/100.jpg?hmac=Y1HP8tGBdbyGXlqQfapmz3xTMzKARU8VRqGLIyk86vs" alt="" />
+            <mj-image src="{DATA_VARIABLE:statusImg}" alt="{DATA_VARIABLE:status}" />
           </mj-column>
           <mj-column width="75%" vertical-align="middle">
-            <mj-text font-size="20px" align="center">Swishjam.com Passed </mj-text>
+            <mj-text font-size="20px" align="center">{DATA_VARIABLE:siteUrl} {DATA_VARIABLE:status}</mj-text>
           </mj-column>
         </mj-section>
       </mj-wrapper>
@@ -44,29 +44,29 @@
             <mj-table padding="0px">
               <tr style="border-bottom: 1px solid #E5E5E5;">
                 <td style="width:30%;padding: 15px;text-align:center;">
-                  <span style="color: green; font-size: 1.5em; font-weight: bold;"> 2.68s </span>
+                  {DATA_VARIABLE:lcp} 
                 </td>
                 <td style="width:70%;padding: 15px 5px;">
                   <h3 style="font-weight: normal;font-size:1.5em;">Largest Contentful Paint</h3>
-                  <p style="font-size:1.25em;"><span style="color:red;">+10%</span> slower than last week</p>
+                  {DATA_VARIABLE:lcpChange} 
                 </td>
               </tr>
               <tr style="border-bottom: 1px solid #E5E5E5;">
                 <td style="width:30%;padding: 15px;text-align:center;">
-                  <span style="color: green; font-size: 1.5em; font-weight: bold;"> 0.68</span>
+                  {DATA_VARIABLE:cls} 
                 </td>
                 <td style="width:70%;padding: 15px 5px;">
                   <h3 style="font-weight: normal;font-size:1.5em;">Cumulative Layout Shift</h3>
-                  <p style="font-size:1.25em;"><span style="color:red;">+10%</span> slower than last week</p>
+                  {DATA_VARIABLE:clsChange} 
                 </td>
               </tr>
               <tr style="">
                 <td style="width:30%;padding: 15px;text-align:center;">
-                  <span style="color: green; font-size: 1.5em; font-weight: bold;"> 4.68s</span>
+                  {DATA_VARIABLE:inp} 
                 </td>
                 <td style="width:70%;padding: 15px 5px;">
                   <h3 style="font-weight: normal;font-size:1.5em;">Interaction To Next Paint</h3>
-                  <p style="font-size:1.25em;"><span style="color:red;">+10%</span> slower than last week</p>
+                  {DATA_VARIABLE:inpChange} 
                 </td>
               </tr>
             </mj-table>
@@ -88,29 +88,29 @@
             <mj-table padding="0px">
               <tr style="border-bottom: 1px solid #E5E5E5;">
                 <td style="width:30%;padding: 15px;text-align:center;">
-                  <span style="color: green; font-size: 1.5em; font-weight: bold;"> 2.68s </span>
+                  {DATA_VARIABLE:fcp} 
                 </td>
                 <td style="width:70%;padding: 15px 5px;">
-                  <h3 style="font-weight: normal;font-size:1.5em;">Largest Contentful Paint</h3>
-                  <p style="font-size:1.25em;"><span style="color:red;">+10%</span> slower than last week</p>
+                  <h3 style="font-weight: normal;font-size:1.5em;">First Contentful Paint</h3>
+                  {DATA_VARIABLE:fcpChange} 
                 </td>
               </tr>
               <tr style="border-bottom: 1px solid #E5E5E5;">
                 <td style="width:30%;padding: 15px;text-align:center;">
-                  <span style="color: green; font-size: 1.5em; font-weight: bold;"> 0.68</span>
+                  {DATA_VARIABLE:ttfb} 
                 </td>
                 <td style="width:70%;padding: 15px 5px;">
-                  <h3 style="font-weight: normal;font-size:1.5em;">Cumulative Layout Shift</h3>
-                  <p style="font-size:1.25em;"><span style="color:red;">+10%</span> slower than last week</p>
+                  <h3 style="font-weight: normal;font-size:1.5em;">Time To First Byte</h3>
+                  {DATA_VARIABLE:ttfbChange} 
                 </td>
               </tr>
               <tr style="">
                 <td style="width:30%;padding: 15px;text-align:center;">
-                  <span style="color: green; font-size: 1.5em; font-weight: bold;"> 4.68s</span>
+                  {DATA_VARIABLE:fid} 
                 </td>
                 <td style="width:70%;padding: 15px 5px;">
-                  <h3 style="font-weight: normal;font-size:1.5em;">Interaction To Next Paint</h3>
-                  <p style="font-size:1.25em;"><span style="color:red;">+10%</span> slower than last week</p>
+                  <h3 style="font-weight: normal;font-size:1.5em;">First Input Delay</h3>
+                  {DATA_VARIABLE:fidChange} 
                 </td>
               </tr>
             </mj-table>
@@ -119,15 +119,15 @@
       </mj-wrapper>
     </mj-section>
 
-
-
     <mj-section padding-top="0px" padding-left="10px" padding-right="10px">
       <mj-button href="https://app.swishjam.com/" font-size="16px" inner-padding="15px" font-family="Helvetica" background-color="#7384FF" color="white" width="100%" align="center" border-radius="8px"> View More In Swishjam </mj-button>
     </mj-section>
 
     <mj-section padding-top="0px" padding-left="10px" padding-right="10px">
       <mj-text align="center">Swishjam by Tagsafe, Inc</mj-text>
-      <mj-text line-height="42px" align="center">Edit your settings for the weekly summary emails</mj-text>
+      <mj-text line-height="42px" align="center">
+        <a href="https://app.swishjam.com" target="_blank">Edit your settings for the weekly summary emails</a> 
+      </mj-text>
       <mj-text line-height="42px" align="center">225 Rosecrans Ave, Unit 2, Manhattan Beach, CA 90226</mj-text>
     </mj-section>
 

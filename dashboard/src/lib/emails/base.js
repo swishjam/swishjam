@@ -1,5 +1,6 @@
 const TRANSACTION_ID_MAP = {
   'USER_INVITATION': 'clhrv3a44001wl30fx4gyqz2s',
+  'WEEKLY_CWV_REPORT': 'clhrutisx008ekx0fv2ij65ts',
 }
 
 export class Mailer {
