@@ -1,4 +1,5 @@
 import db from '@lib/db';
+import { WebPageTestResults } from '@/lib/web-page-test-results-parser';
 
 export default async (req, res) => {
   const start = Date.now();
@@ -8,6 +9,19 @@ export default async (req, res) => {
 
   if (testResults.statusCode === 200) {
     const { data } = testResults;
+    
+    // let lcpImgURL;
+    // let lcpImageDiscoveredAt;
+    // let lcpImageDownloadedAt;
+    // try {
+    //   const webPageTestResults = new WebPageTestResults(testResults);
+    //   const requestData = webPageTestResults.requestData();
+    //   lcpImgURL = webPageTestResults.lcpImg();
+    //   const lcpImageURLRequest = requestData.find(req => req.url() === lcpImgURL);
+    //   lcpImageDiscoveredAt = lcpImageURLRequest && lcpImageURLRequest.firstTimestamp();
+    //   lcpImageDownloadedAt = lcpImageURLRequest && lcpImageURLRequest.downloadEnd();
+    // } catch(err) {}
+
     const payload = {
       full_url: data.url,
       url_host: new URL(data.url).host,
