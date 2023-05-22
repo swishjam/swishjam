@@ -43,7 +43,7 @@ const labTestNav = [
   { name: 'Configure', href: '/lab-tests/manage', icon: AdjustmentsHorizontalIcon },
 ]
 
-const isCurrentPage = menuItemHref => menuItemHref === window.location.pathname
+const isCurrentPage = menuItemHref => typeof window === 'undefined' ? false : menuItemHref === window.location.pathname;
 
 const classNames = (...classes) => classes.filter(Boolean).join(' ')
 
