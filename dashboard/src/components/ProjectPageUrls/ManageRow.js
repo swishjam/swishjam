@@ -7,15 +7,16 @@ import { formattedDate } from "@/lib/utils";
 import LoadingSpinner from '../LoadingSpinner';
 
 const CADENCE_TO_HUMAN_READABLE = {
-  '1-minute': 'minute',
-  '5-minutes': '5 minutes',
-  '15-minutes': '15 minutes',
-  '30-minutes': '30 minutes',
-  '1-hour': 'hour',
-  '3-hours': '3 hours',
-  '6-hours': '6 hours',
-  '12-hours': '12 hours',
-  '1-day': 'day'
+  '1-minute': 'Once every minute',
+  '5-minutes': 'Once every 5 minutes',
+  '15-minutes': 'Once every 15 minutes',
+  '30-minutes': 'Once every 30 minutes',
+  '1-hour': 'Once every hour',
+  '3-hours': 'Once every 3 hours',
+  '6-hours': 'Once every 6 hours',
+  '12-hours': 'Once every 12 hours',
+  '1-day': 'Once every day',
+  'never': 'Never'
 }
 
 export default function ManageRow({ pageUrl }) {
@@ -63,7 +64,7 @@ export default function ManageRow({ pageUrl }) {
        </div>
      </td>
      <td className="whitespace-nowrap px-3 py-5 text-sm text-gray-500">
-       <div className="text-gray-900">{cadence ? `Every ${CADENCE_TO_HUMAN_READABLE[cadence]}` : 'Never'}</div>
+       <div className="text-gray-900">{cadence ? CADENCE_TO_HUMAN_READABLE[cadence] : 'Never'}</div>
      </td>
      <td className="whitespace-nowrap px-3 py-5 text-sm text-gray-500">
        <span

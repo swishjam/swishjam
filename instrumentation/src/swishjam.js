@@ -55,7 +55,7 @@ class Swishjam {
     if (!config.reportingUrl) throw new Error('Swishjam `reportingUrl` is required');
     if (!config.publicApiKey) throw new Error('Swishjam `publicApiKey` is required');
     return {
-      version: '0.0.249',
+      version: '0.0.252',
       reportingUrl: config.reportingUrl,
       publicApiKey: config.publicApiKey,
       sampleRate: config.sampleRate || 1.0,

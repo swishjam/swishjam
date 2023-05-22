@@ -17,9 +17,9 @@ export class ProjectPageUrlsAPI extends API {
     const allUrlConfigs = await API.get('/api/project-page-urls/all');
     return allUrlConfigs
             .filter(urlConfig => urlConfig.url_host === urlHost)
-            .map(urlConfig => urlConfig.url_path)
+            .map(urlConfig => urlConfig)
             .filter((urlPath, index, self) => self.findIndex(t => t === urlPath) === index)
-            .sort((a, b) => a.localeCompare(b));
+            .sort((a, b) => a.url_path.localeCompare(b.url_path));
   }
 
   static async create({ url, cadence, enabled }) {

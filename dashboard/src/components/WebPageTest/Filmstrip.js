@@ -30,7 +30,7 @@ const FilmstripItem = ({ image, time }) => {
         <img src={image} className='rounded-lg shadow-md border border-gray-100 min-w-[200px]' />
       </div>
       {visible && (
-        <div ref={setTooltipRef} {...getTooltipProps({ className: 'z-20' })}>
+        <div ref={setTooltipRef} {...getTooltipProps({ className: 'z-50' })}>
           <div className='bg-white p-4 border border-gray-100 shadow-md rounded-md flex items-center justify-center'>
             <div>
               <h4 className='block text-lg font-medium text-gray-700 mb-2 text-center'>{formattedMsOrSeconds(time)}</h4>
