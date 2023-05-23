@@ -31,6 +31,10 @@
     {
       "path": "/api/lab-tests/schedule/1-day?k=zKTwqDjq4cQQ6ycsDEQSjs5RapOg4Zpl",
       "schedule": "0 0 * * *"
+    },
+    {
+      "path": "/api/cwv/weekly-cwv-report?k=zKTwqDjq4cQQ6ycsDEQSjs5RapOg4Zpl",
+      "schedule": "0 0 * * MON"
     }
   ]
 }
