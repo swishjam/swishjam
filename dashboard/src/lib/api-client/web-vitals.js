@@ -49,7 +49,7 @@ export class WebVitalsApi extends API {
                 ? formattedDate(date) 
                 : groupedBy === 'week' 
                   ? `Week of ${formattedDate(date)}`
-                  : `Month of ${monthByNumber[parseInt(formattedDate(date).split('/')[0])]}`,
+                  : monthByNumber[parseInt(formattedDate(date).split('/')[0])],
         total: parseInt(total_num_records),
         numGood: parseInt(num_good_records),
         percentGood: (parseInt(num_good_records) / parseInt(total_num_records)) * 100,
