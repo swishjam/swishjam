@@ -1,6 +1,7 @@
 'use client';
 import {
   ArrowsRightLeftIcon,
+  FlagIcon, 
   HeartIcon,
   CodeBracketSquareIcon,
   ServerStackIcon,
@@ -32,15 +33,19 @@ import { SwishjamMemory } from '@/lib/swishjam-memory';
 
 const rumNav = [
   { name: 'Core Web Vitals', href: '/', icon: HeartIcon },
-  { name: 'Resource Waterfall', href: '/waterfall', icon: Bars3CenterLeftIcon },
   { name: 'Page Breakdown', href: '/page-breakdown', icon: RectangleGroupIcon },
   { name: 'Visitor Demographics', href: '/visitor-demographics', icon: IdentificationIcon },
+  { name: 'Resource Waterfall', href: '/waterfall', icon: Bars3CenterLeftIcon },
   // { name: 'API Performance', href: '/api-performance', icon: ArrowsRightLeftIcon },
 ]
 
 const labTestNav = [
   { name: 'Lab Tests', href: '/lab-tests', icon: ServerStackIcon },
   { name: 'Configure', href: '/lab-tests/manage', icon: AdjustmentsHorizontalIcon },
+]
+
+const reportingNav = [
+  { name: 'Settings', href: '/reporting', icon: AdjustmentsHorizontalIcon },
 ]
 
 const isCurrentPage = menuItemHref => typeof window === 'undefined' ? false : menuItemHref === window.location.pathname;
@@ -267,12 +272,12 @@ const DesktopNavItem = ({ item, isCollapsed }) => {
           isCurrentPage(item.href)
             ? 'bg-gray-50 text-swishjam'
             : 'text-gray-700 hover:text-swishjam hover:bg-gray-50',
-          `group flex gap-x-3 rounded-mp-2 text-sm leading-6 font-semibold duration-300 transition ${isCollapsed ? 'py-2 px-1' : 'p-2'}`
+          `group flex gap-x-3 rounded-mp-2 text-sm leading-6 font-semibold duration-500 transition ${isCollapsed ? 'py-2 px-1' : 'p-2'}`
         )}
       >
         {item.icon && <item.icon
           className={classNames(
-            isCurrentPage(item.href) ? 'text-swishjam' : 'text-gray-400 group-hover:text-swishjam duration-300 transition',
+            isCurrentPage(item.href) ? 'text-swishjam' : 'text-gray-400 group-hover:text-swishjam duration-500 transition',
             'h-6 w-6 shrink-0'
           )}
           aria-hidden="true"
@@ -280,7 +285,7 @@ const DesktopNavItem = ({ item, isCollapsed }) => {
         {isCollapsed ? '' : item.name}
       </a>
       {isCollapsed && visible && (
-        <div ref={setTooltipRef} {...getTooltipProps({ className: 'tooltip-container w-fit' })}>
+        <div ref={setTooltipRef} {...getTooltipProps({ className: 'tooltip-container min-w-max' })}>
           <div className="tooltip-arrow" {...getArrowProps({ className: 'tooltip-arrow' })} />
           <div className="text-xs text-gray-700">{item.name}</div>
         </div>
@@ -331,6 +336,12 @@ export default function Sidebar({ onCollapse, onExpand }) {
                     {labTestNav.map((item) => <DesktopNavItem item={item} key={item.name} isCollapsed={isCollapsed} />)}
                   </ul>
                 </li>
+                <li>
+                  <ListTitle title={isCollapsed ? 'Reports' : 'Reporting'} Icon={FlagIcon} isCollapsed={isCollapsed} /> 
+                  <ul role="list" className="space-y-1">
+                    {reportingNav.map((item) => <DesktopNavItem item={item} key={item.name} isCollapsed={isCollapsed} />)}
+                  </ul>
+                </li>
                 {user && !isCollapsed && <li className="-mx-6 mt-auto">
                   <UserFlyout 
                     userEmail={user.email} 
@@ -353,7 +364,7 @@ export default function Sidebar({ onCollapse, onExpand }) {
         </div>
       </div>
       <div
-        className={`fixed text-gray-700 p-1 top-0 cursor-pointer transition-all duration-300 border-b rounded-br-lg border-r z-30 bg-white -ml-[1px] border-gray-200 hover:text-swishjam hover:bg-gray-50 ${isCollapsed ? 'left-10' : 'left-72'}`}
+        className={`fixed text-gray-700 p-1 top-0 cursor-pointer transition-all duration-500 border-b rounded-br-lg border-r z-30 bg-white -ml-[1px] border-gray-200 hover:text-swishjam hover:bg-gray-50 ${isCollapsed ? 'left-10' : 'left-72'}`}
         onClick={() => {
           setIsCollapsed(!isCollapsed);
           isCollapsed ? onExpand() : onCollapse();
