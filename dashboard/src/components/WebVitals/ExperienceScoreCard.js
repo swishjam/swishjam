@@ -69,32 +69,13 @@ const renderActiveShape = (props) => {
   );
 };
 
-const CardLoading = () => (   
-  <div className='flex'>
-    <div className='m-auto py-20'>
-      <LoadingSpinner size={8} />
-    </div>
-  </div>
-)
-
-export default function ExperienceScoreCard({ timeseriesData, metricPercentiles, numPageViews }) {
+export default function ExperienceScoreCard({ timeseriesData, numPageViews }) {
   const { getArrowProps, getTooltipProps, setTooltipRef, setTriggerRef, visible } = usePopperTooltip({ followCursor: false, trigger: 'hover', placement: 'left' });
-  let metricPercentilesWithExperienceScore = {};
-  Object.keys(metricPercentiles).forEach(cwvKey => {
-    metricPercentilesWithExperienceScore[cwvKey] = {
-      ...metricPercentiles[cwvKey],
-      ...calcCwvMetric(metricPercentiles[cwvKey].value, cwvKey)
-    }
-  });
 
-  const experienceScore = metricPercentilesWithExperienceScore.LCP?.weightedScore +
-                            metricPercentilesWithExperienceScore.FID?.weightedScore +
-                            metricPercentilesWithExperienceScore.CLS?.weightedScore +
-                            metricPercentilesWithExperienceScore.FCP?.weightedScore;
-  const roundedScore = Math.ceil(experienceScore)
-  const data = resScore(roundedScore); 
   const experienceScoreTimeseriesData = calculateTimeseries(timeseriesData);
-  const COLORS = ['#f1f5f9', (roundedScore >= 90 ? '#10b981': (roundedScore >= 50 ? '#eab308': '#f43f5e'))];
+  const currentScore = Math.ceil(experienceScoreTimeseriesData[experienceScoreTimeseriesData.length - 1]?.['Swishjam Experience Score'])
+  const formattedScore = resScore(currentScore); 
+  const COLORS = ['#f1f5f9', (currentScore >= 90 ? '#10b981': (currentScore >= 50 ? '#eab308': '#f43f5e'))];
   
   return (
     <Card>
@@ -114,10 +95,10 @@ export default function ExperienceScoreCard({ timeseriesData, metricPercentiles,
               </div>
             </>
           )}
-          {Object.keys(metricPercentilesWithExperienceScore || {}).length > 0 ? (
+          {Object.keys(timeseriesData || {}).length > 0 ? (
             <PieChart width={200} height={200} className="mx-auto">
               <Pie
-                data={data}
+                data={formattedScore}
                 cx={'50%'}
                 cy={'50%'}
                 activeIndex={1}
@@ -128,7 +109,7 @@ export default function ExperienceScoreCard({ timeseriesData, metricPercentiles,
                 paddingAngle={5}
                 dataKey="value"
               >
-                {data.map((entry, index) => (
+                {formattedScore.map((entry, index) => (
                   <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                 ))}
               </Pie>
@@ -153,18 +134,18 @@ export default function ExperienceScoreCard({ timeseriesData, metricPercentiles,
           {timeseriesData === undefined 
             ? <div className='mt-12 h-64 w-full animate-pulse rounded bg-gray-200' />
             : experienceScoreTimeseriesData.length > 0
-                ? <AreaChart
-                    data={experienceScoreTimeseriesData}
-                    dataKey="date"
-                    categories={['Swishjam Experience Score']}
-                    colors={['blue']}
-                    showLegend={false}
-                    startEndOnly={true}
-                    marginTop="mt-12"
-                    valueFormatter={d => d.toLocaleString()}
-                    yAxisWidth="w-10"
-                  /> 
-                : <span className='text-sm text-gray-500'>Not enough data for the last 7 days.</span>}
+              ? <AreaChart
+                  data={experienceScoreTimeseriesData}
+                  dataKey="date"
+                  categories={['Swishjam Experience Score']}
+                  colors={['blue']}
+                  showLegend={false}
+                  startEndOnly={true}
+                  marginTop="mt-12"
+                  valueFormatter={d => d.toLocaleString()}
+                  yAxisWidth="w-10"
+                /> 
+              : <span className='text-sm text-gray-500'>Not enough data for the last 7 days.</span>}
         </div>
       </div>
     </Card>

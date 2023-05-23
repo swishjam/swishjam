@@ -40,7 +40,7 @@ export const formattedDate = (dateString, opts = {}) => {
   }
 };
 
-export const numberWithOrdinalIndicator = (number) => {
+export const numberWithOrdinalIndicator = number => {
   const j = number % 10;
   const k = number % 100;
   if (j === 1 && k !== 11) {
