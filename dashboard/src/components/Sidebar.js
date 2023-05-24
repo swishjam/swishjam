@@ -261,7 +261,7 @@ const UserFlyout = ({ userEmail, signOut, currentOrg, userOrgs, updateCurrentOrg
   )
 }
 
-const DesktopNavItem = ({ item, isCollapsed }) => {
+const DesktopNavItem = ({ item, isCollapsed, category}) => {
   const { getArrowProps, getTooltipProps, setTooltipRef, setTriggerRef, visible } = usePopperTooltip({ placement: 'right' });
 
   return (
@@ -287,7 +287,7 @@ const DesktopNavItem = ({ item, isCollapsed }) => {
       {isCollapsed && visible && (
         <div ref={setTooltipRef} {...getTooltipProps({ className: 'tooltip-container min-w-max' })}>
           <div className="tooltip-arrow" {...getArrowProps({ className: 'tooltip-arrow' })} />
-          <div className="text-xs text-gray-700">{item.name}</div>
+          <div className="text-xs text-gray-700">{category} {item.name}</div>
         </div>
       )}            
     </li>
@@ -327,19 +327,19 @@ export default function Sidebar({ onCollapse, onExpand }) {
                 <li>
                   <ListTitle title={isCollapsed ? 'RUM' : 'Real User Monitoring'} isCollapsed={isCollapsed} Icon={CursorArrowRippleIcon} /> 
                   <ul role="list" className="space-y-1">
-                    {rumNav.map((item) => <DesktopNavItem item={item} key={item.name} isCollapsed={isCollapsed} />)}
+                    {rumNav.map((item) => <DesktopNavItem item={item} key={item.name} isCollapsed={isCollapsed} category="Real User Monitoring"/>)}
                   </ul>
                 </li>
                 <li>
                   <ListTitle title={isCollapsed ? 'Lab' : 'Lab Tests'} Icon={BeakerIcon} isCollapsed={isCollapsed} /> 
                   <ul role="list" className="space-y-1">
-                    {labTestNav.map((item) => <DesktopNavItem item={item} key={item.name} isCollapsed={isCollapsed} />)}
+                    {labTestNav.map((item) => <DesktopNavItem item={item} key={item.name} isCollapsed={isCollapsed} category={'Lab Tests'}/>)}
                   </ul>
                 </li>
                 <li>
-                  <ListTitle title={isCollapsed ? 'Reports' : 'Reporting'} Icon={FlagIcon} isCollapsed={isCollapsed} /> 
+                  <ListTitle title={isCollapsed ? 'Rep.' : 'Reporting'} Icon={FlagIcon} isCollapsed={isCollapsed} /> 
                   <ul role="list" className="space-y-1">
-                    {reportingNav.map((item) => <DesktopNavItem item={item} key={item.name} isCollapsed={isCollapsed} />)}
+                    {reportingNav.map((item) => <DesktopNavItem item={item} key={item.name} isCollapsed={isCollapsed} category={'Reporting'}/>)}
                   </ul>
                 </li>
                 {user && !isCollapsed && <li className="-mx-6 mt-auto">
