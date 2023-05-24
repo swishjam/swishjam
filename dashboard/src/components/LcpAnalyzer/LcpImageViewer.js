@@ -3,6 +3,7 @@ import { useState } from "react";
 export default function LcpImageViewer({ webPageTestData }) {
   if (!webPageTestData) return <div className='relative w-fit h-fit rounded bg-gray-200 animate-pulse' />;
   if (webPageTestData.isRunning()) return;
+  if (!webPageTestData.lcpImg()) return;
 
   const [lcpImageLoaded, setLCPImageLoaded] = useState(false);
   const [screenshotImageLoaded, setScreenshotImageLoaded] = useState(false);

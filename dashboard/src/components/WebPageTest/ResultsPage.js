@@ -13,15 +13,15 @@ import LifecycleVisualization from '@/components/LcpAnalyzer/LifecycleVisualizat
 import { SwishjamMemory } from '@/lib/swishjam-memory';
 import LoadingSpinner from '../LoadingSpinner';
 
-const navigation = [
-  { name: 'Real User Data' }, 
-  { name: 'Lighthouse Audit' }, 
-  { name: 'Resource Waterfall' },
-  { name: 'LCP Breakdown' },
-];
-
 export default function ResultsPage({ webPageTestResults, auditedUrl }) {
   const [currentTabName, setCurrentTabName] = useState(SwishjamMemory.get('speedTestSelectedTab') || 'Real User Data');
+
+  let navigation = [
+    { name: 'Real User Data' },
+    { name: 'Lighthouse Audit' },
+    { name: 'Resource Waterfall' },
+  ];
+  if (webPageTestResults && !webPageTestResults.isRunning() && webPageTestResults.lcpImg()) navigation.push({ name: 'LCP Breakdown' });
 
   const currentTabView = () => {
     switch (currentTabName) {
@@ -72,6 +72,7 @@ export default function ResultsPage({ webPageTestResults, auditedUrl }) {
         )
     }
   }
+
   return (
     <>
       <HeaderPublic 
