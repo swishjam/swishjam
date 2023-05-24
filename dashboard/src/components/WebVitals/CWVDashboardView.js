@@ -6,14 +6,12 @@ import { useAuth } from '@components/AuthProvider';
 import SnippetInstall from '@components/SnippetInstall/SnippetInstall';
 import ExperienceScoreCard from '@/components/WebVitals/ExperienceScoreCard';
 import WebVitalCard from '@/components/WebVitals/WebVitalCard';
-// import HostUrlFilterer from '@components/Filters/HostUrlFilterer';
 import { calcCwvMetric } from '@lib/cwvCalculations';
 import { PageViewsAPI } from '@/lib/api-client/page-views';
 import { WebVitalsApi } from '@/lib/api-client/web-vitals';
-// import PathUrlFilterer from '../Filters/PathUrlFilterer';
 
 export default function CwvDashboardView({ urlHost, urlPath, hasNoData }) {
-  const { currentProject, isAwaitingData } = useAuth();
+  const { currentProject } = useAuth();
 
   const [cwvBarChartData, setCwvBarChartData] = useState({});
   const [cwvPercentileData, setCwvPercentileData] = useState({});
@@ -29,8 +27,8 @@ export default function CwvDashboardView({ urlHost, urlPath, hasNoData }) {
         getAndSetWebVitalPercentiles({ urlHost, urlPath }),
       ]);
     }
-    if (urlHost) fetchData();
-  }, [urlHost, urlPath])
+    if (urlPath) fetchData();
+  }, [urlPath])
 
   const resetDashboardData = () => {
     setCwvBarChartData({});
@@ -58,7 +56,7 @@ export default function CwvDashboardView({ urlHost, urlPath, hasNoData }) {
   };
 
   const getAndSetBarChartsData = async ({ urlHost, urlPath }) => {
-    const params = { urlHost, urlPath, metrics: JSON.stringify(['LCP', 'INP', 'CLS', 'FCP', 'FID', 'TTFB']) };
+    const params = { urlHost, urlPath, groupBy: 'intelligent', metrics: JSON.stringify(['LCP', 'INP', 'CLS', 'FCP', 'FID', 'TTFB']) };
     if (urlPath === 'All Paths' || !urlPath) delete params.urlPath;
     return WebVitalsApi.getGoodNeedsImprovementChartData(params).then(({ data, groupedBy }) => {
       setCwvBarChartData(data);
@@ -82,7 +80,7 @@ export default function CwvDashboardView({ urlHost, urlPath, hasNoData }) {
     return (
       <>
         <div className='mt-8 flex items-center'>
-          <ExperienceScoreCard timeseriesData={experienceScoreTimeseriesData} metricPercentiles={cwvPercentileData} numPageViews={numPageViews} />
+          <ExperienceScoreCard timeseriesData={experienceScoreTimeseriesData} numPageViews={numPageViews} />
         </div>
 
         <ColGrid numColsMd={2} numColsLg={3} gapX="gap-x-6" gapY="gap-y-6" marginTop="mt-6">

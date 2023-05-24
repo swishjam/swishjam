@@ -1,6 +1,12 @@
 import { API } from './base';
-import { formattedDate, monthByNumber } from '../utils';
+import { monthByNumber } from '../utils';
 import { filledInTimeseries } from '@lib/utilities/timeseriesHelpers';
+
+const formattedDate = isoDate => {
+  const splitDate = isoDate.split('T')[0].split('-');
+  // return `${monthByNumber[parseInt(splitDate[1])]}, ${numberWithOrdinalIndicator(parseInt(splitDate[2]))}`
+  return [splitDate[1], splitDate[2]].join('/');
+}
 
 export class WebVitalsApi extends API {
   static async average(data) {
@@ -40,10 +46,10 @@ export class WebVitalsApi extends API {
       }) => ({
         fullDate: date,
         date: groupedBy === 'day' 
-                ? formattedDate(date, { includeTime: false }) 
+                ? formattedDate(date) 
                 : groupedBy === 'week' 
-                  ? `Week of ${formattedDate(date, { includeTime: false })}`
-                  : `Month of ${monthByNumber[parseInt(formattedDate(date, { includeTime: false }).split('/')[0])]}`,
+                  ? `Week of ${formattedDate(date)}`
+                  : monthByNumber[parseInt(formattedDate(date).split('/')[0])],
         total: parseInt(total_num_records),
         numGood: parseInt(num_good_records),
         percentGood: (parseInt(num_good_records) / parseInt(total_num_records)) * 100,

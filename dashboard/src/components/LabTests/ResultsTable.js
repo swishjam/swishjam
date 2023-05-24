@@ -2,6 +2,7 @@ import LighthouseScore from "@/components/WebPageTest/LighthouseScore";
 import { formattedDate, formattedMsOrSeconds } from '@/lib/utils';
 import { ArrowRightIcon } from "@heroicons/react/24/outline";
 import Link from "next/link";
+import LoadingSpinner from "../LoadingSpinner";
 
 function LabTestResultRow({ labTest, metricToDisplay, goodNeedsImprovementPoorTiers }) {
   const { good: goodUpperBound, needsImprovement: needsImprovementUpperBound } = goodNeedsImprovementPoorTiers;
@@ -25,37 +26,40 @@ function LabTestResultRow({ labTest, metricToDisplay, goodNeedsImprovementPoorTi
       <td className="px-6 py-4 whitespace-nowrap">
         <div className='flex items-center'>
           {labTest.completed_at
-            ? <span className={`text-md font-medium w-20 ${labTest[metricToDisplay] < goodNeedsImprovementPoorTiers.good ? 'text-green-600' : labTest[metricToDisplay] < goodNeedsImprovementPoorTiers.needsImprovement ? 'text-yellow-600' : 'text-red-600'}`}>
-                {metricToDisplay === 'cumulative_layout_shift' ? parseFloat(labTest[metricToDisplay]).toFixed(4) : formattedMsOrSeconds(labTest[metricToDisplay])}
-              </span>
-            : <span className='text-md'>Lab test is running</span>
+            ? ( 
+              <>
+                <span className={`text-md font-medium w-20 ${labTest[metricToDisplay] < goodNeedsImprovementPoorTiers.good ? 'text-green-600' : labTest[metricToDisplay] < goodNeedsImprovementPoorTiers.needsImprovement ? 'text-yellow-600' : 'text-red-600'}`}>
+                  {metricToDisplay === 'cumulative_layout_shift' ? parseFloat(labTest[metricToDisplay]).toFixed(4) : formattedMsOrSeconds(labTest[metricToDisplay])}
+                </span>
+                <div className='w-44 h-6 inline-block ml-2'>
+                  <div className='bg-green-500 hover:bg-green-600 inline-block w-[33.3%] h-full relative'>
+                    {status === 'good' && (
+                      <div
+                        className='h-[125%] text-xs text-right absolute w-0 bottom-0 left-0 border-r border-dashed border-slate-600'
+                        style={{ marginLeft: `${indicatorMarginLeft}%` }}
+                      />
+                    )}
+                  </div>
+                  <div className='bg-yellow-400 hover:bg-yellow-500 inline-block w-[33.3%] h-full relative'>
+                    {status === 'needs improvement' && (
+                      <div
+                        className='h-[125%] text-xs text-right absolute w-0 bottom-0 left-0 border-r border-dashed border-slate-600'
+                        style={{ marginLeft: `${indicatorMarginLeft}%` }}
+                      />
+                    )}
+                  </div>
+                  <div className='bg-red-500 hover:bg-red-600 inline-block w-[33.3%] h-full relative'>
+                    {status === 'poor' && (
+                      <div
+                        className='h-[125%] text-xs text-right absolute w-0 bottom-0 left-0 border-r border-dashed border-slate-600'
+                        style={{ marginLeft: `${indicatorMarginLeft}%` }}
+                      />
+                    )}
+                  </div>
+                </div>
+              </>
+            ) : <LoadingSpinner size={6} />
           }
-          <div className='w-44 h-6 inline-block ml-2'>
-            <div className='bg-green-500 hover:bg-green-600 inline-block w-[33.3%] h-full relative'>
-              {status === 'good' && (
-                <div
-                  className='h-[125%] text-xs text-right absolute w-0 bottom-0 left-0 border-r border-dashed border-slate-600'
-                  style={{ marginLeft: `${indicatorMarginLeft}%` }}
-                />
-              )}
-            </div>
-            <div className='bg-yellow-400 hover:bg-yellow-500 inline-block w-[33.3%] h-full relative'>
-              {status === 'needs improvement' && (
-                <div
-                  className='h-[125%] text-xs text-right absolute w-0 bottom-0 left-0 border-r border-dashed border-slate-600'
-                  style={{ marginLeft: `${indicatorMarginLeft}%` }}
-                />
-              )}
-            </div>
-            <div className='bg-red-500 hover:bg-red-600 inline-block w-[33.3%] h-full relative'>
-              {status === 'poor' && (
-                <div
-                  className='h-[125%] text-xs text-right absolute w-0 bottom-0 left-0 border-r border-dashed border-slate-600'
-                  style={{ marginLeft: `${indicatorMarginLeft}%` }}
-                />
-              )}
-            </div>
-          </div>
         </div>
       </td>
       <td className="px-6 py-4 whitespace-nowrap">

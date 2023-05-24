@@ -164,7 +164,6 @@ const SidebarMobile = ({ sidebarOpen, setSidebarOpen, user, handleSignOut }) => 
   )
 }
 
-
 const ListTitle = ({ title, Icon, isCollapsed }) => {
   return (
     <div className={`flex text-xs font-semibold leading-6 text-gray-400 mb-2 ${isCollapsed ? 'justify-center': ''}`}>

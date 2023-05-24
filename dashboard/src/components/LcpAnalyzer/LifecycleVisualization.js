@@ -42,16 +42,13 @@ export default function LifecycleVisualization({ webPageTestData }) {
   const documentRequest = requestData.slice(0, 2).find(request => request.requestType() === 'Document');
   const lcpImageURLRequest = requestData.find(req => req.url() === lcpImageURL);
   const lcpImageRequestNum = (lcpImageURLRequest || { payload: { number: -1 } }).payload.number;
-  // const numBlockingRequestsBeforeLCP = requestData.filter(req => req.payload.number < lcpImageRequestNum && req.isRenderBlocking()).length;
   const lcpImageDiscoveredAt = lcpImageURLRequest && lcpImageURLRequest.firstTimestamp();
   const lcpImageDownloadedAt = lcpImageURLRequest && lcpImageURLRequest.downloadEnd();
-  // const msFromDownloadToLCP = lcpValue - lcpImageDownloadedAt;
-  // const lcpImageFormat = lcpImageURLRequest && lcpImageURLRequest.payload.contentType;
   const ttfb = webPageTestData.performanceData().TimeToFirstByte;
 
   return (
     <>
-      <Modal isOpen={!!modalContent} onClose={() => setModalContent(null)}>
+      <Modal isOpen={!!modalContent} onClose={() => setTimeout(() => setModalContent(null), 500)}>
         {modalContent}
       </Modal>
       {/* <h2 className='text-lg text-gray-800'>Largest Contentful Paint is broken down into 4 stages:</h2> */}
@@ -189,8 +186,13 @@ export default function LifecycleVisualization({ webPageTestData }) {
                   <div
                     className='absolute h-[50%] top-[25%] bg-gray-200 rounded'
                     style={{
-                      marginLeft: `${documentRequest.firstTimestamp() / lcpValue * 100}%`,
-                      width: `${requestData[lcpImageURLRequest.payload.index - 1].allMs() / lcpValue * 100}%`
+                      marginLeft: `${requestData[documentRequest.payload.index + 1].firstTimestamp() / lcpValue * 100}%`,
+                      width: `${
+                        (requestData[documentRequest.payload.index + 1].firstTimestamp() 
+                        + (lcpImageDiscoveredAt))
+                        / lcpValue 
+                        * 100
+                      }%`
                     }}
                   />
                 </div>
