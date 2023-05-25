@@ -35,7 +35,6 @@
     "react-dom": "^18.2.0",
     "react-popper-tooltip": "^4.4.2",
     "recharts": "^2.4.3",
-    "sequelize": "^6.31.1",
     "yup": "^0.32.11"
   },
   "devDependencies": {
