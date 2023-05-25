@@ -3,42 +3,22 @@
 import { useEffect, useState } from "react";
 import AuthenticatedView from "@/components/AuthenticatedView"
 import { useAuth } from "@/components/AuthProvider";
-import { BeakerIcon } from "@heroicons/react/24/outline";
-import { ExclamationTriangleIcon, CheckCircleIcon, XMarkIcon } from '@heroicons/react/20/solid'
+import { FlagIcon } from "@heroicons/react/24/outline";
+import { PlusCircleIcon } from "@heroicons/react/20/solid";
+
+import { ProjectReportUrlsAPI } from "@/lib/api-client/project-report-urls";
+import NewReportModal from "@/components/Reporting/NewModal";
+import ManageRow from "@/components/Reporting/ManageRow";
 
 export default function Manage() {
   const { currentProject } = useAuth();
-  const [ success, setSuccess] = useState();
-  const [ error, setError] = useState();
-  const [ projectReportSettings, setProjectReportSettings] = useState();
-
-  const saveSettings = async () => {
-    setSuccess(false);
-    setError(false);
-
-
-    if(false) {
-      setSuccess(true);
-      await new Promise(resolve => setTimeout(resolve, 1500)); 
-      setSuccess(false); 
-    } else {
-      setError(true);
-      await new Promise(resolve => setTimeout(resolve, 1500)); 
-      setError(false);
-    }
-
-  }
+  const [ projectReportUrls, setProjectReportUrls ] = useState([]);
+  const [ newReportUrlModalIsOpen, setNewReportUrlModalIsOpen ] = useState(false);
 
   useEffect(() => {
-    //setProjectPageUrls();
-    //ProjectPageUrlsAPI.getAll().then(setProjectPageUrls);
+    setProjectReportUrls();
+    ProjectReportUrlsAPI.getAll().then(setProjectReportUrls);
   }, [currentProject?.public_id]);
-
-  // todo 
-  // data model in supabase
-  // api & backend calls to save the data in supabase
-  // get the data from supabase 
-  
 
   return (
     <AuthenticatedView>
@@ -47,82 +27,98 @@ export default function Manage() {
           <div>
             <h1 className="text-lg font-medium">Reporting Settings</h1>
           </div>
-          <div className='justify-end flex'>
-            {success && <SuccessMsg />}
-            {error && <ErrorMsg />} 
+          <div className='text-right'>
             <button 
-              onClick={() => saveSettings()}
+              onClick={() => setNewReportUrlModalIsOpen(true)}
               className="ml-6 mt-2 rounded-md bg-swishjam px-2.5 py-2 text-sm font-semibold text-white shadow-sm hover:bg-swishjam-dark focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-swishjam transition duration-300"
             >
-              Save Settings
+              <PlusCircleIcon className='h-5 w-5 inline-block mr-1' />
+              Add Report 
             </button>
           </div>
         </div>
-        <div className="max-w-2xl space-y-10 md:col-span-2">
-          <fieldset>
-            <legend className="text-sm font-semibold leading-6 text-gray-900">Real User Reporting</legend>
-            <div className="mt-6 space-y-6">
-              <div className="relative flex gap-x-3">
-                <div className="flex h-6 items-center">
-                  <input
-                    id="comments"
-                    name="comments"
-                    type="checkbox"
-                    className="h-4 w-4 rounded border-gray-300 text-swishjam focus:ring-swishjam cursor-pointer"
-                  />
-                </div>
-                <div className="text-sm leading-6">
-                  <label htmlFor="comments" className="font-medium text-gray-900">
-                    Weekly Core Web Vitals Report
-                  </label>
-                  <p className="text-gray-500">Get a weekly email on your real user core web vitals. <br />Know when your users experince changes for the better or worse.</p>
-                </div>
-              </div>
-            </div>
-          </fieldset>
-          <fieldset>
-            <legend className="text-sm font-semibold leading-6 text-gray-900">Lab Test Reporting</legend>
-            <p className="text-gray-500">(Coming Soon)</p>
-          </fieldset>
-          <fieldset>
-            <legend className="text-sm font-semibold leading-6 text-gray-900">Google's CrUX Data Reporting</legend>
-            <p className="text-gray-500">(Coming Soon)</p>
-          </fieldset>
-        </div>
+        {projectReportUrls && projectReportUrls.length === 0
+          ? <EmptyState onNewConfigurationClick={() => setNewReportUrlModalIsOpen(true)} /> 
+          : <ProjectPageUrlsTable projectReportUrls={projectReportUrls} />
+        }
       </main>
+      <NewReportModal 
+        isOpen={newReportUrlModalIsOpen} 
+        onClose={() => setNewReportUrlModalIsOpen(false)} 
+        onNewConfiguration={newConfiguration => setProjectReportUrls([...projectReportUrls, newConfiguration])}
+      />
     </AuthenticatedView>
   )
 }
 
-function SuccessMsg() {
+function ProjectPageUrlsTable({ projectReportUrls }) {
   return (
-    <div className="rounded-md bg-green-50 p-2 w-64 mt-2">
-      <div className="flex">
-        <div className="flex-shrink-0">
-          <CheckCircleIcon className="h-5 w-5 text-green-400" aria-hidden="true" />
-        </div>
-        <div className="ml-3">
-          <p className="text-sm font-medium text-green-800">Successfully saved.</p>
-        </div>
-      </div>
+    <div className='border border-gray-300 rounded-md'>
+      <table className="min-w-full divide-y divide-gray-300">
+        <thead className='bg-gray-100'>
+          <tr className='bg-gray-100'>
+            <th scope="col" className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 rounded-tl-md overflow-hidden">
+              URL
+            </th>
+            <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+              Cadence 
+            </th>
+            <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+              Data Source
+            </th>
+            <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+              Enabled 
+            </th>
+            <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+              Created
+            </th>
+            <th scope="col" className="relative py-3.5 pl-3 pr-4 rounded-tr-md overflow-hidden">
+            </th>
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-gray-200">
+          {projectReportUrls 
+            ? projectReportUrls.map(pageUrl => <ManageRow key={pageUrl.id} pageUrl={pageUrl} />)
+            : (
+              Array.from({ length: 6}).map((_, i) => (
+                <tr key={i}>
+                  <td className="whitespace-nowrap py-5 pl-4 pr-3 text-sm sm:pl-0">
+                    <div className="ml-4 w-32 h-6 animate-pulse bg-gray-200 rounded-md"></div>
+                  </td>
+                  <td className="whitespace-nowrap px-3 py-5 text-sm text-gray-500">
+                    <div className="w-12 h-6 animate-pulse bg-gray-200 rounded-md"></div>
+                  </td>
+                  <td className="whitespace-nowrap px-3 py-5 text-sm text-gray-500">
+                    <div className="w-12 h-6 animate-pulse bg-gray-200 rounded-md"></div>
+                  </td>
+                  <td className="whitespace-nowrap px-3 py-5 text-sm text-gray-500">
+                    <div className="w-8 h-6 animate-pulse bg-gray-200 rounded-md"></div>
+                  </td>
+                  <td className="whitespace-nowrap px-3 py-5 text-sm text-gray-500">
+                    <div className="w-10 h-6 animate-pulse bg-gray-200 rounded-md"></div>
+                  </td>
+                  <td className="relative whitespace-nowrap py-5 pl-3 pr-4 text-right text-sm font-medium">
+                    <div className="w-8 h-6 animate-pulse bg-gray-200 rounded-md"></div>
+                  </td>
+                </tr>
+              ))
+            )}
+        </tbody>
+      </table>
     </div>
   )
 }
 
-function ErrorMsg() {
+function EmptyState({ onNewConfigurationClick }) {
   return (
-    <div className="bg-yellow-50 p-2 w-64 mt-2">
-      <div className="flex">
-        <div className="flex-shrink-0">
-          <ExclamationTriangleIcon className="h-5 w-5 text-yellow-400" aria-hidden="true" />
-        </div>
-        <div className="ml-3">
-          <p className="text-sm text-yellow-700">
-            An error occurred try again 
-          </p>
-        </div>
-      </div>
-    </div>
-  
+    <button
+      type="button"
+      className="group relative block w-full rounded-lg border-2 border-dashed border-gray-300 p-12 text-center hover:border-swishjam focus:outline-none focus:ring-2 focus:ring-swishjam focus:ring-offset-2 transition-all duration-300"
+      onClick={onNewConfigurationClick}
+    >
+      <FlagIcon className='group-hover:text-swishjam mx-auto h-12 w-12 text-gray-700 transition-all duration-300' />
+      <span className="group-hover:text-swishjam mt-2 block text-md font-semibold text-gray-700 transition-all duration-300">You haven't configured any reports yet.</span>
+      <span className="group-hover:text-swishjam mt-2 block text-sm font-semibold text-gray-700 transition-all duration-300">Create your first report.</span>
+    </button>
   )
 }

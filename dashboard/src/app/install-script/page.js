@@ -9,7 +9,7 @@ export default function InstallScript() {
 
   return (
     <AuthenticatedView>
-      <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mb-8">
+      <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mb-8 mt-8">
         <div>
           <h1 className="text-lg font-medium text-gray-700 mb-0">SwishjamJS Install Script</h1>
           <h2 className='text-sm text-gray-400 mb-8'>Use this JS snippet to collect your real user performance data.</h2>

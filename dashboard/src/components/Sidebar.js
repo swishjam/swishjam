@@ -286,7 +286,7 @@ const DesktopNavItem = ({ item, isCollapsed, category}) => {
       {isCollapsed && visible && (
         <div ref={setTooltipRef} {...getTooltipProps({ className: 'tooltip-container min-w-max' })}>
           <div className="tooltip-arrow" {...getArrowProps({ className: 'tooltip-arrow' })} />
-          <div className="text-xs text-gray-700">{category} {item.name}</div>
+          <div className="text-xs text-gray-700">{category} — {item.name}</div>
         </div>
       )}            
     </li>
@@ -297,6 +297,10 @@ export default function Sidebar({ onCollapse, onExpand }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(typeof SwishjamMemory.get('isNavCollapsed') === 'boolean' ? SwishjamMemory.get('isNavCollapsed') : false);
   const { signOut, user, userOrg, userOrgs, updateCurrentOrganization } = useAuth();
+
+  if (!user) {
+    return null;
+  }
 
   return (
     <>
