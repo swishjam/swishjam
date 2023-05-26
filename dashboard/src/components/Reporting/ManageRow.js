@@ -10,7 +10,7 @@ const CADENCE_TO_HUMAN_READABLE = {
   '7-day': 'Every 7 days',
   '14-day': 'Every 14 days'
 }
-const DATASOURCE_TO_HUMAN_READABLE = {
+const DATATYPE_TO_HUMAN_READABLE = {
   'rum': 'Real User Data',
   'lab-test': 'Lab Tests',
   'crux': 'CrUX — Google Data'
@@ -18,7 +18,7 @@ const DATASOURCE_TO_HUMAN_READABLE = {
 
 export default function ManageRow({ pageUrl }) {
   const [url, setUrl] = useState(pageUrl.full_url);
-  const [dataSource, setDataSource] = useState(pageUrl.data_source);
+  const [dataType, setDataType] = useState(pageUrl.data_type);
   const [cadence, setCadence] = useState(pageUrl.cadence);
   const [isEnabled, setIsEnabled] = useState(pageUrl.enabled);
   const [isUpdating, setIsUpdating] = useState(false);
@@ -26,11 +26,11 @@ export default function ManageRow({ pageUrl }) {
 
   const toggleReportEnabled = async () => {
     setIsUpdating(true);
-    const { error, record } = await ProjectPageUrlsAPI.update({ 
+    const { error, record } = await ProjectReportUrlsAPI.update({ 
       id: pageUrl.id, 
       url: pageUrl.full_url, 
       cadence: pageUrl.cadence,
-      dataSource: pageUrl.data_source, 
+      dataType: pageUrl.data_type, 
       enabled: !isEnabled 
     });
     setIsUpdating(false);
@@ -42,19 +42,18 @@ export default function ManageRow({ pageUrl }) {
   }
 
  return (
-  <>
-    {showUpdateModal && <UpdateReportUrlModal 
-                          projectReportUrl={pageUrl} 
-                          onClose={() => setShowUpdateModal(false)} 
-                          onUpdate={record => {
-                            setDataSource(record.data_source);
-                            setCadence(record.cadence);
-                            setUrl(record.full_url);
-                          }} 
-                          isOpen={showUpdateModal}
-                        />}
    <tr key={pageUrl.id}>
      <td className="whitespace-nowrap py-5 pl-4 pr-3 text-sm sm:pl-0">
+        {showUpdateModal && <UpdateReportUrlModal
+          projectReportUrl={pageUrl}
+          onClose={() => setShowUpdateModal(false)}
+          onUpdate={record => {
+            setDataType(record.data_type);
+            setCadence(record.cadence);
+            setUrl(record.full_url);
+          }}
+          isOpen={showUpdateModal}
+        />}
        <div className="flex items-center">
          <div className="ml-4">
            <div className="font-medium text-gray-900 flex items-center">
@@ -68,7 +67,7 @@ export default function ManageRow({ pageUrl }) {
        <div className="text-gray-900">{cadence ? CADENCE_TO_HUMAN_READABLE[cadence] : 'Never'}</div>
      </td>
      <td className="whitespace-nowrap px-3 py-5 text-sm text-gray-500">
-       <div className="text-gray-900">{dataSource ? DATASOURCE_TO_HUMAN_READABLE[dataSource] : '—'}</div>
+       <div className="text-gray-900">{dataType ? DATATYPE_TO_HUMAN_READABLE[dataType] : '—'}</div>
      </td>
      <td className="whitespace-nowrap px-3 py-5 text-sm text-gray-500">
        <span
@@ -134,6 +133,5 @@ export default function ManageRow({ pageUrl }) {
        </Menu>
      </td>
    </tr>
-  </> 
  )
 }

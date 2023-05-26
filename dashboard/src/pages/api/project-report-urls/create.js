@@ -1,8 +1,8 @@
 import { Validator } from "@/lib/queryValidator";
-//import { ProjectPageUrl } from "@/models/ProjectPageUrl";
+import { ProjectReportUrl } from "@/models/ProjectReportUrl";
 
 export default async (req, res) => {
-  const { organizationId, projectKey, dataSource, cadence, enabled } = req.body;
+  const { organizationId, projectKey, dataType, cadence, enabled } = req.body;
   let { url } = req.body;
   if (![undefined, '7-day', '14-day'].includes(cadence)) {
     return res.status(400).json({ error: 'Invalid cadence.' });
@@ -10,13 +10,13 @@ export default async (req, res) => {
   return await Validator.runQueryIfUserHasAccess({ req, res, projectKey, organizationId }, async ({ currentProject }) => {
     if (!url.startsWith('http')) url = `https://${url}`;
 
-    /*const { record, error } = await ProjectPageUrl.create({ 
+    const { record, error } = await ProjectReportUrl.create({ 
       url, 
-      dataSource, 
+      dataType, 
       cadence, 
       enabled, 
       projectId: currentProject.id, 
-    });*/
+    });
 
     if (error) {
       if (error.message.includes('duplicate key value violates unique constraint')) {

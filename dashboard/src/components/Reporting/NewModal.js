@@ -7,7 +7,7 @@ import LoadingSpinner from "@/components/LoadingSpinner";
 export default function NewPageUrlModal({ 
   title, 
   subTitle, 
-  defaultDataSource = 'rum', 
+  defaultDataType = 'rum', 
   defaultCadence = '7-day', 
   successMessage, 
   onClose, 
@@ -15,7 +15,7 @@ export default function NewPageUrlModal({
   onNewConfiguration 
 }) {
   const [url, setUrl] = useState('');
-  const [dataSource, setDataSource] = useState(defaultDataSource);
+  const [dataType, setDataType] = useState(defaultDataType);
   const [cadence, setCadence] = useState(defaultCadence);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState();
@@ -29,7 +29,7 @@ export default function NewPageUrlModal({
     const { record, error } = await ProjectReportUrlsAPI.create({ 
       url, 
       cadence: cadence === 'never' ? undefined : cadence, 
-      dataSource: dataSource,     
+      dataType: dataType,     
       enabled: true 
     });
     setLoading(false);
@@ -37,7 +37,7 @@ export default function NewPageUrlModal({
       setError(error);
     } else {
       setUrl();
-      setDataSource(defaultDataSource);
+      setDataType(defaultDataType);
       setCadence(defaultCadence);
       setShowSuccessMessage(true)
       onNewConfiguration && onNewConfiguration(record);
@@ -126,8 +126,8 @@ export default function NewPageUrlModal({
                               id="source"
                               name="source"
                               className="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm sm:leading-6 disabled:cursor-not-allowed disabled:bg-gray-50 disabled:text-gray-500 disabled:ring-gray-200"
-                              value={dataSource}
-                              onChange={e => setDataSource(e.target.value)}
+                              value={dataType}
+                              onChange={e => setDataType(e.target.value)}
                               disabled 
                             >
                               <option value='rum'>Real User Data</option>
