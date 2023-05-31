@@ -40,8 +40,8 @@ export default function Team() {
         onClose={() => setUserToDisplayInRemoveModal()}
         onRemoveUser={user => setUsers(users.filter(u => u.id !== user.id))} 
       />
-      <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mb-8">
-        <div className='grid gric-cols-2'>
+      <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mb-8 mt-12">
+        <div className='my-8 grid grid-cols-2'>
           <h1 className="text-lg font-medium text-gray-700 mb-0">{userOrg?.name} Team Management</h1>
           <div className='flex justify-end'>
             <button
