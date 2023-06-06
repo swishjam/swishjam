@@ -23,3 +23,16 @@ Then run the app, if everything is successful you should see a login page at `lo
 ```bash
 npm run dev
 ```
+
+
+
+## How to do migrations and update Supabase db structure
+- `npx supabase link --project-ref <project-id>` link to the development project. useful for when you want to push this live.
+- `npx supabase start` spin up the local dev supabase server
+- make changes in the edit table ui in local server
+- `npx supabase db diff` -- see the changes
+- `npx supabase db diff -f migration_name` - dumbs changes to migration
+  - `npx supabase new migration_name` - creates a new blank migration if you need it. Not required id you use the diff to dump to the db.
+- add and commit the new file 
+
+## How to deploy the migrations
