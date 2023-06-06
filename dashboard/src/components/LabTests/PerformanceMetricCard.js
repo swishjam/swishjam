@@ -43,7 +43,7 @@ const GOOD_NEEDS_IMPROVEMENT_POOR_TIERS = {
 export default function PerformanceMetricCard({ labTests, title, metric, description }) {
   const formattedLabTestsData = (labTests || [])
     .filter(test => test[metric] !== null)
-    .map(test => ({ [title]: test[metric], completed_at: formattedDate(test.completed_at) }));
+    .map(test => ({ [title]: test[metric], created_at: formattedDate(test.created_at) }));
   return (
     <div className="bg-white overflow-hidden p-4">
       <div className='mb-4'>
@@ -67,7 +67,7 @@ export default function PerformanceMetricCard({ labTests, title, metric, descrip
               <MetricChart 
                 data={formattedLabTestsData} 
                 metric={title} 
-                xAxisKey='completed_at' 
+                xAxisKey='created_at' 
                 goodNeedsImprovementPoorTiers={GOOD_NEEDS_IMPROVEMENT_POOR_TIERS[metric]}
               />
             </div>
