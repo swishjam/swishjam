@@ -1,6 +1,8 @@
 import { createClient } from "@supabase/supabase-js";
 import { WeeklyCWVReport } from "@/lib/emails/weekly-cwv-report"
-//import { WebPageTestRunner } from "@/lib/web-page-test/web-page-test-runner";
+import WebVitalsData from '@/lib/data/webVitals';
+import { cwvMetricBounds, calcCwvMetric } from '@lib/cwvCalculations';
+import { formattedMsOrSeconds } from '@lib/utils';
 
 const renderMetric = (value, status) => {
   const color =
@@ -10,58 +12,128 @@ const renderMetric = (value, status) => {
   return `<span style="color:${color};font-size:1.5em;font-weight:bold;">${value}</span>`;
 };
 
-const renderChangedMetric = (value, changeDirection) => {
+const renderChangedMetric = (value, status) => {
   const color =
-    changeDirection === 'faster' ? '#10B981' : 
-    changeDirection === 'slower' ? '#F43F5E' :
-    'black';
-  return `<p style="font-size:1.25em;"><span style="color:${color};">${value}%</span> ${changeDirection}</p>`;
+    status === 'Passed' ? '#10B981' : 
+    status === 'Needs Improvement' ? '#EAB308' :
+    '#F43F5E';
+  return `<p style="font-size:1.25em;"><span style="color:${color};">${value}</span> last week</p>`;
 } 
 
-export default async (req, res) => {
-  const { k } = req.query;
+const queryAllDataForRumReport = async (projectKey,  urlHost, urlPath, metrics = ['LCP', 'FCP', 'TTFB', 'CLS', 'FID', 'INP']) => {
+    
+  try {
+    //console.log(projectKey, urlHost, urlPath, metrics);
+    const startTs = Date.now() - 1000 * 60 * 60 * 24 * 7;
+    const startTsTwo = Date.now() - 1000 * 60 * 60 * 24 * 14;
+
+    const sqlQueries = metrics.map(
+      metric => WebVitalsData.getPercentileForMetric({ projectKey, urlHost, urlPath, metric, percentile: 0.75, startTs })
+    );
+    const sqlQueries2 = metrics.map(
+      metric => WebVitalsData.getPercentileForMetric({ projectKey, urlHost, urlPath, metric, percentile: 0.75, startTs: startTsTwo })
+    );
+    const results = await Promise.all(sqlQueries);
+    const results2 = await Promise.all(sqlQueries2);
+    const resultsByMetric = results.reduce((acc, result, i) => {
+      const metric = metrics[i];
+      const status = result.value <= cwvMetricBounds[metric].good ? 'Passed' :
+        result.value <= cwvMetricBounds[metric].medium ? 'Needs Improvement' : 'Failing';
+        
+        let varMetrics = calcCwvMetric(result.value, metric)
+        console.log('varMetrics: ', varMetrics)
+
+        acc[metric] = {
+        current: metric === 'CLS' ? parseFloat(result.value).toFixed(4) : formattedMsOrSeconds(result.value),
+        previous:  metric === 'CLS' ? parseFloat(results2[i].value).toFixed(4) : formattedMsOrSeconds(results2[i].value),
+        status: status,
+        change: (((results2[i].value - result.value)/results2[i].value)*100).toFixed(2),
+        weightedScore: varMetrics.weightedScore,
+      }
+      //console.log('acc: ', acc); 
+      return acc;
+    }, {});
+    return  resultsByMetric;
+    //return res.status(200).json({ groupedBy: groupBy, results: resultsByMetric });
+  } catch (err) {
+    console.error(err);
+    throw err; 
+    //return res.status(500).json({ error: err.message });
+  }
+}
+
+export default async function (req, res) {
+  const { cadence, k } = req.query;
   if (k !== process.env.CRON_JOB_API_KEY) {
-    return res.status(403).json({ message: 'Unauthorized.' })
+    console.error('Reporting: Unauthorized Access'); 
+    return res.status(403).json({ message: 'Reporting: Unauthorized.' })
   } else {
     const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.SUPABASE_GOD_MODE_KEY);
 
-    // How do we decide what to toggle? 
+    const { data, error } = await supabase
+                                    .from('project_report_urls')
+                                    .select('*, projects:project_id (public_id)')
+                                    .eq('cadence', cadence)
+                                    .eq('enabled', true);
 
-
-    /*const { data, error } = await supabase
-                                    .from('project_page_urls')
-                                    .select(`full_url, projects:project_id (public_id)`)
-                                    .eq('lab_test_cadence', cadence)
-                                    .eq('lab_tests_enabled', true);
     if (error) {
       console.error(error);
-      return res.status(500).json({ error: "Error fetching lab test configurations" });
+      return res.status(500).json({ error: "Error fetching report configurations" });
     } else {
-      console.log(`Enqueuing ${data.length} lab tests.`);
-      console.log(data);
-      await Promise.all(
-        data.map(({ full_url, projects: { public_id } }) => WebPageTestRunner.runSpeedTest({ url: full_url, projectKey: public_id }))
-      );
-      return res.status(200).json({ success: true, message: `Enqueued ${data.length} lab tests.` });
-    }*/
+      console.log(`Enqueuing ${data.length} weekly reports.`);
+      console.log('Reports Queued:', data);
+      if(data[0].data_type === 'rum') {
+        try {
+          let emailData = await queryAllDataForRumReport(data[0].projects.public_id, data[0].url_host, data[0].url_path);
+          //console.log('Email Data:', emailData) 
+          let weightedSum = 0;
+          let hasFailingMetrics = false; 
+          Object.entries(emailData).forEach(([key, value]) => { 
+            weightedSum += value.weightedScore;           
+            if(value.status == 'Failing') {
+              hasFailingMetrics = true
+            }
+          })
 
-    WeeklyCWVReport.send({ to: "founders@swishjam.com", variables: {
-      siteUrl: 'Swishjam.com',
-      status: 'Passed',
-      statusImg: 'https://swishjam.com/passed.png', 
-      lcp: renderMetric('2.62s', 'Passed'),
-      lcpChange: renderChangedMetric('+11', 'faster'),
-      cls: renderMetric('0.23', 'Needs Improvement'),
-      clsChange: renderChangedMetric('+1', 'slower'),
-      inp: renderMetric('2.64s', 'Failing'),
-      inpChange: renderChangedMetric('+2', 'slower'),
-      fcp: renderMetric('2.65s', 'Passed'),
-      fcpChange: renderChangedMetric('+5', 'faster'),
-      ttfb: renderMetric('2.66s', 'Failing'), 
-      ttfbChange: renderChangedMetric('+35', 'faster'), 
-      fid: renderMetric('2.67s', 'Failing'),
-      fidChange: renderChangedMetric('0', 'no change'), 
-    }});
-    return res.status(200).json({ success: true, message: `Completed` });
+          // wieghted score is greater than 90 && no failing metrics
+          let reportStatus = 'Failing'; 
+          let reportImage = 'https://swishjam.com/failing.png';
+          if(weightedSum >= 90 && !hasFailingMetrics) {
+            // status is passed
+            reportStatus = 'Passed';
+            reportImage = 'https://swishjam.com/passed.png';
+          } else if(weightedSum < 70 && hasFailingMetrics) {
+            // status is Needs Improvement if failing metrics or below 90 but above 70
+            reportStatus = 'Needs Improvement';
+            reportImage = 'https://swishjam.com/needs-improvement.png';
+          } else {
+            // status is failed if failing metrics or below 70
+          }
+
+          WeeklyCWVReport.send({ to: "zach@swishjam.com", variables: {
+            siteUrl: data[0].full_url,
+            status: reportStatus,
+            statusImg: reportImage, 
+            lcp: renderMetric(emailData.LCP.current, emailData.LCP.status),
+            lcpChange: renderChangedMetric(emailData.LCP.change, emailData.LCP.status),
+            cls: renderMetric(emailData.CLS.current, emailData.CLS.status),
+            clsChange: renderChangedMetric(emailData.CLS.change, emailData.CLS.status),
+            inp: renderMetric(emailData.INP.current, emailData.INP.status),
+            inpChange: renderChangedMetric(emailData.INP.change, emailData.INP.status),
+            fcp: renderMetric(emailData.FCP.current, emailData.FCP.status),
+            fcpChange: renderChangedMetric(emailData.FCP.change, emailData.FCP.status),
+            ttfb: renderMetric(emailData.TTFB.current, emailData.TTFB.status), 
+            ttfbChange: renderChangedMetric(emailData.TTFB.change, emailData.TTFB.status), 
+            fid: renderMetric(emailData.FID.current, emailData.FID.status),
+            fidChange: renderChangedMetric(emailData.FID.change, emailData.FID.status), 
+          }});
+        } catch(err) {
+          console.error(err);
+          return res.status(200).json({ success: false, message: err });
+        }
+        return res.status(200).json({ success: true, message: `Enqueued ${data.length} reports sent.` });
+      }
+    }
+
   }
 }

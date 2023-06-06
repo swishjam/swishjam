@@ -19,6 +19,8 @@ export default async (req, res) => {
       }
     }
     try {
+      // console log the below for debugging
+       
       const sqlQueries = JSON.parse(metrics || '[]').map(
         metric => WebVitalsData.getGoodNeedsImprovementChartDataDataForMetric({ 
           projectKey, 
@@ -35,6 +37,7 @@ export default async (req, res) => {
         acc[metric] = result;
         return acc;
       }, {});
+      console.log('Good Needs Improvement Bad API call', { groupedBy: groupBy, results: resultsByMetric })
       return res.status(200).json({ groupedBy: groupBy, results: resultsByMetric });
     } catch (err) {
       console.error(err);
