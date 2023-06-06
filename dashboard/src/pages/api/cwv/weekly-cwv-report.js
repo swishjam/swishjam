@@ -12,7 +12,7 @@ const renderMetric = (value, status) => {
   return `<span style="color:${color};font-size:1.5em;font-weight:bold;">${value}</span>`;
 };
 
-const renderChangedMetric = (value, status) => {
+const renderPreviousMetric = (value, status) => {
   const color =
     status === 'Passed' ? '#10B981' : 
     status === 'Needs Improvement' ? '#EAB308' :
@@ -115,17 +115,17 @@ export default async function (req, res) {
             status: reportStatus,
             statusImg: reportImage, 
             lcp: renderMetric(emailData.LCP.current, emailData.LCP.status),
-            lcpChange: renderChangedMetric(emailData.LCP.change, emailData.LCP.status),
+            lcpChange: renderPreviousMetric(emailData.LCP.previous, emailData.LCP.status),
             cls: renderMetric(emailData.CLS.current, emailData.CLS.status),
-            clsChange: renderChangedMetric(emailData.CLS.change, emailData.CLS.status),
+            clsChange: renderPreviousMetric(emailData.CLS.previous, emailData.CLS.status),
             inp: renderMetric(emailData.INP.current, emailData.INP.status),
-            inpChange: renderChangedMetric(emailData.INP.change, emailData.INP.status),
+            inpChange: renderPreviousMetric(emailData.INP.previous, emailData.INP.status),
             fcp: renderMetric(emailData.FCP.current, emailData.FCP.status),
-            fcpChange: renderChangedMetric(emailData.FCP.change, emailData.FCP.status),
+            fcpChange: renderPreviousMetric(emailData.FCP.previous, emailData.FCP.status),
             ttfb: renderMetric(emailData.TTFB.current, emailData.TTFB.status), 
-            ttfbChange: renderChangedMetric(emailData.TTFB.change, emailData.TTFB.status), 
+            ttfbChange: renderPreviousMetric(emailData.TTFB.previous, emailData.TTFB.status), 
             fid: renderMetric(emailData.FID.current, emailData.FID.status),
-            fidChange: renderChangedMetric(emailData.FID.change, emailData.FID.status), 
+            fidChange: renderPreviousMetric(emailData.FID.previous, emailData.FID.status), 
           }});
         } catch(err) {
           console.error(err);
