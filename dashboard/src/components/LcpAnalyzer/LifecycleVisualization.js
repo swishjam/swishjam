@@ -33,6 +33,8 @@ const MODAL_CONTENT = {
 }
 
 export default function LifecycleVisualization({ webPageTestData }) {
+  if (!webPageTestData.lcpImg()) return;
+
   const [hoveredSubPart, setHoveredSubPart] = useState(null);
   const [modalContent, setModalContent] = useState(null);
 

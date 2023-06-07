@@ -60,14 +60,15 @@ export class WebPageTestResults {
   }
 
   lcpImg() {
-    return this.firstViewData.LargestContentfulPaintImageURL;
+    return this.firstViewData?.LargestContentfulPaintImageURL;
   }
 
   lcpType() {
-    return this.firstViewData.LargestContentfulPaintNodeType;
+    return this.firstViewData?.LargestContentfulPaintNodeType;
   }
 
   lcpBoundingRects() {
+    if (!this.lcpImg()) return;
     return (this.firstViewData.largestPaints.find(data => data.url === this.lcpImg()) || { element: {} }).element.boundingRect;
   }
 
