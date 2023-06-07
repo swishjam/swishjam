@@ -34,7 +34,7 @@
     },
     {
       "path": "/api/cwv/weekly-cwv-report?k=zKTwqDjq4cQQ6ycsDEQSjs5RapOg4Zpl",
-      "schedule": "0 0 * * MON"
+      "schedule": "55 5 * * 1"
     }
   ]
 }
