@@ -2,7 +2,7 @@ import { Validator } from "@/lib/queryValidator";
 import { ProjectReportUrl } from "@/models/ProjectReportUrl";
 
 export default async (req, res) => {
-  const { organizationId, projectKey, dataType, cadence, enabled } = req.body;
+  const { organizationId, projectKey, dataType, cadence, enabled, notificationType, notificationDestination } = req.body;
   let { url } = req.body;
   if (![undefined, '7-day', '14-day'].includes(cadence)) {
     return res.status(400).json({ error: 'Invalid cadence.' });
@@ -15,6 +15,8 @@ export default async (req, res) => {
       dataType, 
       cadence, 
       enabled, 
+      notificationType,
+      notificationDestination,
       projectId: currentProject.id, 
     });
 

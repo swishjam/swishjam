@@ -13,13 +13,15 @@ const CADENCE_TO_HUMAN_READABLE = {
 const DATATYPE_TO_HUMAN_READABLE = {
   'rum': 'Real User Data',
   'lab-test': 'Lab Tests',
-  'crux': 'CrUX — Google Data'
+  'crux': 'CrUX — Google User Data'
 }
 
 export default function ManageRow({ pageUrl }) {
   const [url, setUrl] = useState(pageUrl.full_url);
   const [dataType, setDataType] = useState(pageUrl.data_type);
   const [cadence, setCadence] = useState(pageUrl.cadence);
+  const [notificationDestination, setNotificationDestination] = useState(pageUrl.notification_destination);
+  const [notificationType, setNotificationType] = useState(pageUrl.notification_type);
   const [isEnabled, setIsEnabled] = useState(pageUrl.enabled);
   const [isUpdating, setIsUpdating] = useState(false);
   const [showUpdateModal, setShowUpdateModal] = useState(false);
@@ -51,6 +53,8 @@ export default function ManageRow({ pageUrl }) {
             setDataType(record.data_type);
             setCadence(record.cadence);
             setUrl(record.full_url);
+            setNotificationDestination(record.notification_destination);
+            setNotificationType(record.notification_type);
           }}
           isOpen={showUpdateModal}
         />}
@@ -62,6 +66,9 @@ export default function ManageRow({ pageUrl }) {
             </div>
          </div>
        </div>
+     </td>
+     <td className="whitespace-nowrap px-3 py-5 text-sm text-gray-500">
+       <div className="text-gray-900">{notificationDestination}</div>
      </td>
      <td className="whitespace-nowrap px-3 py-5 text-sm text-gray-500">
        <div className="text-gray-900">{cadence ? CADENCE_TO_HUMAN_READABLE[cadence] : 'Never'}</div>
@@ -78,9 +85,6 @@ export default function ManageRow({ pageUrl }) {
         >
          {cadence && isEnabled ? 'Active' : 'Disabled'}
        </span>
-     </td>
-     <td className="whitespace-nowrap px-3 py-5 text-sm text-gray-500">
-       <div className="text-gray-900">{formattedDate(pageUrl.created_at)}</div>
      </td>
      <td className="relative whitespace-nowrap py-5 pl-3 pr-4 text-right text-sm font-medium">
        <Menu as="div" className="relative inline-block text-left">

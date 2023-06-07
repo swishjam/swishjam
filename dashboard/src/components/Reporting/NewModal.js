@@ -9,6 +9,7 @@ export default function NewPageUrlModal({
   subTitle, 
   defaultDataType = 'rum', 
   defaultCadence = '7-day', 
+  defaultNotificationType = 'email', 
   successMessage, 
   onClose, 
   isOpen, 
@@ -17,9 +18,19 @@ export default function NewPageUrlModal({
   const [url, setUrl] = useState('');
   const [dataType, setDataType] = useState(defaultDataType);
   const [cadence, setCadence] = useState(defaultCadence);
+  const [notificationType, setNotificationType] = useState(defaultNotificationType);
+  const [notificationDestination, setNotificationDestination] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState();
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
+
+  const handlePaste = async e => {
+    e.preventDefault(); 
+    let urlLocal = e.clipboardData.getData('text')
+    urlLocal = urlLocal.replace('https://', '')
+    urlLocal = urlLocal.replace('http://', '')
+    setUrl(url+urlLocal);
+  }
 
   const submitConfiguration = async e => {
     e.preventDefault();
@@ -30,6 +41,8 @@ export default function NewPageUrlModal({
       url, 
       cadence: cadence === 'never' ? undefined : cadence, 
       dataType: dataType,     
+      notificationType: notificationType,
+      notificationDestination: notificationDestination, 
       enabled: true 
     });
     setLoading(false);
@@ -39,6 +52,8 @@ export default function NewPageUrlModal({
       setUrl();
       setDataType(defaultDataType);
       setCadence(defaultCadence);
+      setNotificationType(defaultNotificationType);
+      setNotificationDestination(''); 
       setShowSuccessMessage(true)
       onNewConfiguration && onNewConfiguration(record);
     }
@@ -115,7 +130,7 @@ export default function NewPageUrlModal({
                           </Dialog.Title>
                           <div className="mt-2">
                             <p className="text-sm text-gray-500">
-                              {subTitle || 'Specify real user data/lab test/CrUX, the URL, and the cadence to run a report.'}
+                              {subTitle || 'Get timely reports for changes to your core metrics'}
                             </p>
                           </div>
                           <div className='mt-6'>
@@ -151,9 +166,41 @@ export default function NewPageUrlModal({
                               <option value='14-day'>Every 14 days</option>
                             </select>
                           </div>
+                          {/*<div className='mt-2'>
+                            <label htmlFor="location" className="block text-sm font-medium leading-6 text-gray-900">
+                              Notification Method  
+                            </label>
+                            <select
+                              disabled 
+                              className="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm sm:leading-6 disabled:cursor-not-allowed disabled:bg-gray-50 disabled:text-gray-500 disabled:ring-gray-200"
+                              value={notificationType}
+                              onChange={e => setNotificationType(e.target.value)}
+                            >
+                              <option value='email'>Email</option>
+                              <option value='webhook'>Webhook</option>
+                              <option value='slack-webhook'>Slack Webhook</option>
+                            </select>
+                          </div>*/}
                           <div className='mt-2'>
                             <label htmlFor="email" className="block text-sm font-medium leading-6 text-gray-900">
-                              URL
+                              Email Report Destination 
+                            </label>
+                            <div
+                              className={`flex w-full rounded-md border border-gray-300 px-1 py-1 text-base text-gray-900 placeholder-gray-500 shadow-sm focus:border-swishjam focus:ring-swishjam`}
+                            >
+                              <input
+                                className="block flex-1 border-0 bg-transparent pl-1 py-0.5 text-gray-900 placeholder:text-gray-400 focus:ring-0 sm:text-sm sm:leading-6"
+                                value={notificationDestination} 
+                                onChange={e => setNotificationDestination(e.target.value)}
+                                placeholder='founders@swishjam.com'
+                                type='text'
+                                required
+                              />
+                            </div>
+                          </div>
+                          <div className='mt-2'>
+                            <label htmlFor="email" className="block text-sm font-medium leading-6 text-gray-900">
+                              URL To Report On
                             </label>
                             <div
                               className={`flex w-full rounded-md border border-gray-300 px-1 py-1 text-base text-gray-900 placeholder-gray-500 shadow-sm focus:border-swishjam focus:ring-swishjam`}

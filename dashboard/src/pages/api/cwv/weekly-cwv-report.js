@@ -41,7 +41,7 @@ const queryAllDataForRumReport = async (projectKey,  urlHost, urlPath, metrics =
         result.value <= cwvMetricBounds[metric].medium ? 'Needs Improvement' : 'Failing';
         
         let varMetrics = calcCwvMetric(result.value, metric)
-        console.log('varMetrics: ', varMetrics)
+        //console.log('varMetrics: ', varMetrics)
 
         acc[metric] = {
         current: metric === 'CLS' ? parseFloat(result.value).toFixed(4) : formattedMsOrSeconds(result.value),
@@ -82,57 +82,64 @@ export default async function (req, res) {
     } else {
       console.log(`Enqueuing ${data.length} weekly reports.`);
       console.log('Reports Queued:', data);
-      if(data[0].data_type === 'rum') {
-        try {
-          let emailData = await queryAllDataForRumReport(data[0].projects.public_id, data[0].url_host, data[0].url_path);
-          //console.log('Email Data:', emailData) 
-          let weightedSum = 0;
-          let hasFailingMetrics = false; 
-          Object.entries(emailData).forEach(([key, value]) => { 
-            weightedSum += value.weightedScore;           
-            if(value.status == 'Failing') {
-              hasFailingMetrics = true
+
+      data.map(async (dataItem) => {
+        
+        if(dataItem.data_type === 'rum') {
+          try {
+            let emailData = await queryAllDataForRumReport(dataItem.projects.public_id, dataItem.url_host, dataItem.url_path);
+            //console.log('Email Data:', emailData) 
+            let weightedSum = 0;
+            let hasFailingMetrics = false; 
+            Object.entries(emailData).forEach(([key, value]) => { 
+              weightedSum += value.weightedScore;           
+              if(value.status == 'Failing') {
+                hasFailingMetrics = true
+              }
+            })
+
+            // wieghted score is greater than 90 && no failing metrics
+            let reportStatus = 'Failing'; 
+            let reportImage = 'https://swishjam.com/failing.png';
+            if(weightedSum >= 90 && !hasFailingMetrics) {
+              // status is passed
+              reportStatus = 'Passed';
+              reportImage = 'https://swishjam.com/passed.png';
+            } else if(weightedSum < 70 && hasFailingMetrics) {
+              // status is Needs Improvement if failing metrics or below 90 but above 70
+              reportStatus = 'Needs Improvement';
+              reportImage = 'https://swishjam.com/needs-improvement.png';
+            } else {
+              // status is failed if failing metrics or below 70
             }
-          })
 
-          // wieghted score is greater than 90 && no failing metrics
-          let reportStatus = 'Failing'; 
-          let reportImage = 'https://swishjam.com/failing.png';
-          if(weightedSum >= 90 && !hasFailingMetrics) {
-            // status is passed
-            reportStatus = 'Passed';
-            reportImage = 'https://swishjam.com/passed.png';
-          } else if(weightedSum < 70 && hasFailingMetrics) {
-            // status is Needs Improvement if failing metrics or below 90 but above 70
-            reportStatus = 'Needs Improvement';
-            reportImage = 'https://swishjam.com/needs-improvement.png';
-          } else {
-            // status is failed if failing metrics or below 70
+            console.log('finished')
+            if(dataItem.notification_destination && dataItem.notification_type == 'email') {
+              WeeklyCWVReport.send({ to: dataItem.notification_destination, variables: {
+                siteUrl: dataItem.full_url,
+                status: reportStatus,
+                statusImg: reportImage, 
+                lcp: renderMetric(emailData.LCP.current, emailData.LCP.status),
+                lcpChange: renderPreviousMetric(emailData.LCP.previous, emailData.LCP.status),
+                cls: renderMetric(emailData.CLS.current, emailData.CLS.status),
+                clsChange: renderPreviousMetric(emailData.CLS.previous, emailData.CLS.status),
+                inp: renderMetric(emailData.INP.current, emailData.INP.status),
+                inpChange: renderPreviousMetric(emailData.INP.previous, emailData.INP.status),
+                fcp: renderMetric(emailData.FCP.current, emailData.FCP.status),
+                fcpChange: renderPreviousMetric(emailData.FCP.previous, emailData.FCP.status),
+                ttfb: renderMetric(emailData.TTFB.current, emailData.TTFB.status), 
+                ttfbChange: renderPreviousMetric(emailData.TTFB.previous, emailData.TTFB.status), 
+                fid: renderMetric(emailData.FID.current, emailData.FID.status),
+                fidChange: renderPreviousMetric(emailData.FID.previous, emailData.FID.status), 
+              }});
+            }
+          } catch(err) {
+            console.error(err);
           }
-
-          WeeklyCWVReport.send({ to: "zach@swishjam.com", variables: {
-            siteUrl: data[0].full_url,
-            status: reportStatus,
-            statusImg: reportImage, 
-            lcp: renderMetric(emailData.LCP.current, emailData.LCP.status),
-            lcpChange: renderPreviousMetric(emailData.LCP.previous, emailData.LCP.status),
-            cls: renderMetric(emailData.CLS.current, emailData.CLS.status),
-            clsChange: renderPreviousMetric(emailData.CLS.previous, emailData.CLS.status),
-            inp: renderMetric(emailData.INP.current, emailData.INP.status),
-            inpChange: renderPreviousMetric(emailData.INP.previous, emailData.INP.status),
-            fcp: renderMetric(emailData.FCP.current, emailData.FCP.status),
-            fcpChange: renderPreviousMetric(emailData.FCP.previous, emailData.FCP.status),
-            ttfb: renderMetric(emailData.TTFB.current, emailData.TTFB.status), 
-            ttfbChange: renderPreviousMetric(emailData.TTFB.previous, emailData.TTFB.status), 
-            fid: renderMetric(emailData.FID.current, emailData.FID.status),
-            fidChange: renderPreviousMetric(emailData.FID.previous, emailData.FID.status), 
-          }});
-        } catch(err) {
-          console.error(err);
-          return res.status(200).json({ success: false, message: err });
+          return res.status(200).json({ success: true, message: `Enqueued ${data.length} reports sent.` });
         }
-        return res.status(200).json({ success: true, message: `Enqueued ${data.length} reports sent.` });
-      }
+      })
+
     }
 
   }

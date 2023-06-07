@@ -23,12 +23,12 @@ export class ProjectReportUrlsAPI extends API {
             .sort((a, b) => a.url_path.localeCompare(b.url_path));
   }
 
-  static async create({ url, cadence, dataType, enabled }) {
+  static async create({ url, cadence, dataType, enabled, notificationType, notificationDestination }) {
     console.log({ url, cadence, dataType, enabled }); 
-    return await API.post('/api/project-report-urls/create', { url, dataType, cadence, enabled });
+    return await API.post('/api/project-report-urls/create', { url, dataType, cadence, enabled, notificationType, notificationDestination });
   }
 
-  static async update({ id, url, cadence, dataType, enabled }) {
-    return await API.post('/api/project-report-urls/update', { id, url, dataType, cadence, enabled });
+  static async update({ id, url, cadence, dataType, enabled, notificationType, notificationDestination }) {
+    return await API.post('/api/project-report-urls/update', { id, url, dataType, cadence, enabled, notificationType, notificationDestination });
   }
 }

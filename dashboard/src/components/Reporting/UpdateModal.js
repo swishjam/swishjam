@@ -6,18 +6,28 @@ import LoadingSpinner from "@/components/LoadingSpinner";
 
 export default function UpdateReportModal({ projectReportUrl, onClose, isOpen, onUpdate }) {
   const [url, setUrl] = useState(projectReportUrl.full_url.replace('https://', ''));
-  const [dataType, setDataType] = useState(projectReportUrl.dataType);
+  const [dataType, setDataType] = useState(projectReportUrl.data_type);
   const [cadence, setCadence] = useState(projectReportUrl.cadence);
+  const [notificationType, setNotificationType] = useState(projectReportUrl.notification_type);
+  const [notificationDestination, setNotificationDestination] = useState(projectReportUrl.notification_destination);
   const [isEnabled, setIsEnabled] = useState(projectReportUrl.enabled);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState();
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
+  
+  const handlePaste = async e => {
+    e.preventDefault(); 
+    let urlLocal = e.clipboardData.getData('text')
+    urlLocal = urlLocal.replace('https://', '')
+    urlLocal = urlLocal.replace('http://', '')
+    setUrl(url+urlLocal);
+  }
 
   const submitConfiguration = async e => {
     e.preventDefault();
     setError();
     setLoading(true);
-    const { record, error } = await ProjectReportUrlsAPI.update({ id: projectReportUrl.id, url: 'https://'+url, dataType, cadence, enabled: isEnabled });
+    const { record, error } = await ProjectReportUrlsAPI.update({ id: projectReportUrl.id, url: 'https://'+url, dataType, cadence, enabled: isEnabled, notificationType, notificationDestination });
     setLoading(false);
     if (error) {
       setError(error);
@@ -117,6 +127,39 @@ export default function UpdateReportModal({ projectReportUrl, onClose, isOpen, o
                               <option value='7-day'>Every 7 days</option>
                               <option value='14-day'>Every 14 days</option>
                             </select>
+                          </div>
+                          
+                          {/*<div className='mt-2'>
+                            <label htmlFor="location" className="block text-sm font-medium leading-6 text-gray-900">
+                              Notification Method  
+                            </label>
+                            <select
+                              disabled 
+                              className="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm sm:leading-6 disabled:cursor-not-allowed disabled:bg-gray-50 disabled:text-gray-500 disabled:ring-gray-200"
+                              value={notificationType}
+                              onChange={e => setNotificationType(e.target.value)}
+                            >
+                              <option value='email'>Email</option>
+                              <option value='webhook'>Webhook</option>
+                              <option value='slack-webhook'>Slack Webhook</option>
+                            </select>
+                          </div>*/}
+                          <div className='mt-2'>
+                            <label htmlFor="email" className="block text-sm font-medium leading-6 text-gray-900">
+                              Email Report Destination 
+                            </label>
+                            <div
+                              className={`flex w-full rounded-md border border-gray-300 px-1 py-1 text-base text-gray-900 placeholder-gray-500 shadow-sm focus:border-swishjam focus:ring-swishjam`}
+                            >
+                              <input
+                                className="block flex-1 border-0 bg-transparent pl-1 py-0.5 text-gray-900 placeholder:text-gray-400 focus:ring-0 sm:text-sm sm:leading-6"
+                                value={notificationDestination} 
+                                onChange={e => setNotificationDestination(e.target.value)}
+                                placeholder='founders@swishjam.com'
+                                type='text'
+                                required
+                              />
+                            </div>
                           </div>
                           
                           <div className='mt-2'>

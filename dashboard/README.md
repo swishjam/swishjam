@@ -36,3 +36,5 @@ npm run dev
 - add and commit the new file 
 
 ## How to deploy the migrations
+- check to see if any changes have been done on remote server `npx supabase db remote changes`
+  - There might be a diff here because of production differences. Likely do not pull down or commit the changes.

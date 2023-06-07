@@ -61,6 +61,9 @@ function ProjectPageUrlsTable({ projectReportUrls }) {
               URL
             </th>
             <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+              Report Destination 
+            </th>
+            <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
               Cadence 
             </th>
             <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
@@ -70,15 +73,12 @@ function ProjectPageUrlsTable({ projectReportUrls }) {
               Enabled 
             </th>
             <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
-              Created
-            </th>
-            <th scope="col" className="relative py-3.5 pl-3 pr-4 rounded-tr-md overflow-hidden">
             </th>
           </tr>
         </thead>
         <tbody className="divide-y divide-gray-200">
           {projectReportUrls 
-            ? projectReportUrls.map(pageUrl => <ManageRow key={pageUrl.id} pageUrl={pageUrl} />)
+            ? projectReportUrls.sort((a, b) => a.full_url - b.full_url).map(pageUrl => <ManageRow key={pageUrl.id} pageUrl={pageUrl} />)
             : (
               Array.from({ length: 6}).map((_, i) => (
                 <tr key={i}>
