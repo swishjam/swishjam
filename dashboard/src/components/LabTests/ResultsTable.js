@@ -3,8 +3,11 @@ import { formattedDate, formattedMsOrSeconds } from '@/lib/utils';
 import { ArrowRightIcon } from "@heroicons/react/24/outline";
 import Link from "next/link";
 import LoadingSpinner from "../LoadingSpinner";
+import { usePopperTooltip } from "react-popper-tooltip"
 
 function LabTestResultRow({ labTest, metricToDisplay, goodNeedsImprovementPoorTiers }) {
+  const { getArrowProps, getTooltipProps, setTooltipRef, setTriggerRef, visible } = usePopperTooltip({ followCursor: false, trigger: 'hover' });
+
   const { good: goodUpperBound, needsImprovement: needsImprovementUpperBound } = goodNeedsImprovementPoorTiers;
   const poorUpperBound = needsImprovementUpperBound + (needsImprovementUpperBound - goodUpperBound)
   const status = labTest[metricToDisplay] < goodUpperBound ? 'good' : labTest[metricToDisplay] < needsImprovementUpperBound ? 'needs improvement' : 'poor';
@@ -16,6 +19,60 @@ function LabTestResultRow({ labTest, metricToDisplay, goodNeedsImprovementPoorTi
         ? ((labTest[metricToDisplay] - goodUpperBound) / (needsImprovementUpperBound - goodUpperBound)) * 100 
         : ((labTest[metricToDisplay] - needsImprovementUpperBound) / (poorUpperBound - needsImprovementUpperBound)) * 100
   )
+
+  let displayContent;
+  if (labTest.completed_at && parseInt(labTest[metricToDisplay]) > -1) {
+    displayContent = (
+      <>
+        <span className={`text-md font-medium w-20 ${labTest[metricToDisplay] < goodNeedsImprovementPoorTiers.good ? 'text-green-600' : labTest[metricToDisplay] < goodNeedsImprovementPoorTiers.needsImprovement ? 'text-yellow-600' : 'text-red-600'}`}>
+          {metricToDisplay === 'cumulative_layout_shift' ? parseFloat(labTest[metricToDisplay]).toFixed(4) : formattedMsOrSeconds(labTest[metricToDisplay])}
+        </span>
+        <div className='w-44 h-6 inline-block ml-2'>
+          <div className='bg-green-500 hover:bg-green-600 inline-block w-[33.3%] h-full relative'>
+            {status === 'good' && (
+              <div
+                className='h-[125%] text-xs text-right absolute w-0 bottom-0 left-0 border-r border-dashed border-slate-600'
+                style={{ marginLeft: `${indicatorMarginLeft}%` }}
+              />
+            )}
+          </div>
+          <div className='bg-yellow-400 hover:bg-yellow-500 inline-block w-[33.3%] h-full relative'>
+            {status === 'needs improvement' && (
+              <div
+                className='h-[125%] text-xs text-right absolute w-0 bottom-0 left-0 border-r border-dashed border-slate-600'
+                style={{ marginLeft: `${indicatorMarginLeft}%` }}
+              />
+            )}
+          </div>
+          <div className='bg-red-500 hover:bg-red-600 inline-block w-[33.3%] h-full relative'>
+            {status === 'poor' && (
+              <div
+                className='h-[125%] text-xs text-right absolute w-0 bottom-0 left-0 border-r border-dashed border-slate-600'
+                style={{ marginLeft: `${indicatorMarginLeft}%` }}
+              />
+            )}
+          </div>
+        </div>
+      </>
+    )
+  } else if (labTest.completed_at) {
+    displayContent = (
+      <>
+        <div className='text-sm text-gray-700 px-4 py-1 cursor-default' ref={setTriggerRef}>
+          --
+        </div>
+        {visible && (
+          <div className='bg-gray-800 text-white text-xs px-2 py-1 rounded shadow-lg px-4 py-2' ref={setTooltipRef} {...getTooltipProps({ className: 'tooltip-container' })}>
+            <div className='flex items-center'>
+              <div className='text-sm text-gray-700'>Lab test was unable to determine the <span className='italic'>{metricToDisplay.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}</span> metric for this run.</div>
+            </div>
+          </div>
+        )}
+      </>
+    )
+  } else {
+    displayContent = <LoadingSpinner size={6} />
+  }
   return (
     <tr>
       <td className="px-6 py-4 whitespace-nowrap">
@@ -25,41 +82,7 @@ function LabTestResultRow({ labTest, metricToDisplay, goodNeedsImprovementPoorTi
       </td>
       <td className="px-6 py-4 whitespace-nowrap">
         <div className='flex items-center'>
-          {labTest.completed_at
-            ? ( 
-              <>
-                <span className={`text-md font-medium w-20 ${labTest[metricToDisplay] < goodNeedsImprovementPoorTiers.good ? 'text-green-600' : labTest[metricToDisplay] < goodNeedsImprovementPoorTiers.needsImprovement ? 'text-yellow-600' : 'text-red-600'}`}>
-                  {metricToDisplay === 'cumulative_layout_shift' ? parseFloat(labTest[metricToDisplay]).toFixed(4) : formattedMsOrSeconds(labTest[metricToDisplay])}
-                </span>
-                <div className='w-44 h-6 inline-block ml-2'>
-                  <div className='bg-green-500 hover:bg-green-600 inline-block w-[33.3%] h-full relative'>
-                    {status === 'good' && (
-                      <div
-                        className='h-[125%] text-xs text-right absolute w-0 bottom-0 left-0 border-r border-dashed border-slate-600'
-                        style={{ marginLeft: `${indicatorMarginLeft}%` }}
-                      />
-                    )}
-                  </div>
-                  <div className='bg-yellow-400 hover:bg-yellow-500 inline-block w-[33.3%] h-full relative'>
-                    {status === 'needs improvement' && (
-                      <div
-                        className='h-[125%] text-xs text-right absolute w-0 bottom-0 left-0 border-r border-dashed border-slate-600'
-                        style={{ marginLeft: `${indicatorMarginLeft}%` }}
-                      />
-                    )}
-                  </div>
-                  <div className='bg-red-500 hover:bg-red-600 inline-block w-[33.3%] h-full relative'>
-                    {status === 'poor' && (
-                      <div
-                        className='h-[125%] text-xs text-right absolute w-0 bottom-0 left-0 border-r border-dashed border-slate-600'
-                        style={{ marginLeft: `${indicatorMarginLeft}%` }}
-                      />
-                    )}
-                  </div>
-                </div>
-              </>
-            ) : <LoadingSpinner size={6} />
-          }
+          {displayContent}
         </div>
       </td>
       <td className="px-6 py-4 whitespace-nowrap">

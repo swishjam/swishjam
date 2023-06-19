@@ -42,7 +42,7 @@ const GOOD_NEEDS_IMPROVEMENT_POOR_TIERS = {
 
 export default function PerformanceMetricCard({ labTests, title, metric, description }) {
   const formattedLabTestsData = (labTests || [])
-    .filter(test => test[metric] !== null)
+    .filter(test => test[metric] !== null && parseInt(test[metric]) > -1)
     .map(test => ({ [title]: test[metric], completed_at: formattedDate(test.completed_at) }));
   return (
     <div className="bg-white overflow-hidden p-4">

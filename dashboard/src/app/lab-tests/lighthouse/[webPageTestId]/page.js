@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import AuthenticatedView from "@/components/AuthenticatedView";
-import { WebPageTestResults } from '@/lib/web-page-test-results-parser';
+import { WebPageTestResults } from '@/lib/web-page-test/web-page-test-results-parser';
 import LighthouseSection from "@/components/WebPageTest/LighthouseSection";
 import LoadingSpinner from "@/components/LoadingSpinner";
 

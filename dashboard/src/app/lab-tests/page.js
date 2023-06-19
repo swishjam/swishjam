@@ -145,12 +145,13 @@ export default function LabTests() {
                     { name: 'Total Blocking Time', metric: 'total_blocking_time' },
                     { name: 'Time to First Byte', metric: 'time_to_first_byte' },
                     { name: 'Speed Index', metric: 'speed_index' },
-                  ].map(({ name, metric }, i) => (
-                    <LabTestTab 
+                  ].map(({ name, metric }, i) => {
+                    const successfulLabTestsMostRecentLast = labTestsMostRecentLast ? labTestsMostRecentLast.filter(labTest => parseInt(labTest[metric]) > -1) : undefined;
+                    return <LabTestTab 
                       title={name} 
                       isActive={metric === selectedMetric}
-                      currentValue={labTestsMostRecentLast && (labTestsMostRecentLast[labTestsMostRecentLast.length - 1]?.[metric] || null)}
-                      previousValue={labTestsMostRecentLast && (labTestsMostRecentLast[labTestsMostRecentLast.length - 2]?.[metric] || null)}
+                      currentValue={successfulLabTestsMostRecentLast && (successfulLabTestsMostRecentLast[successfulLabTestsMostRecentLast.length - 1]?.[metric] || null)}
+                      previousValue={successfulLabTestsMostRecentLast && (successfulLabTestsMostRecentLast[successfulLabTestsMostRecentLast.length - 2]?.[metric] || null)}
                       goodNeedsImprovementPoorTiers={GOOD_NEEDS_IMPROVEMENT_POOR_TIERS[metric]}
                       isFirstTab={i === 0}
                       metric={metric}
@@ -160,7 +161,7 @@ export default function LabTests() {
                         SwishjamMemory.set('labTestsSelectedMetric', metric);
                       }} 
                     />
-                  ))}
+                  })}
                 </div>
                 <PerformanceMetricCard 
                   labTests={labTestsMostRecentLast} 
