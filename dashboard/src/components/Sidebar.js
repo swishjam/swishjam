@@ -27,9 +27,11 @@ import Logo from '@components/Logo'
 import { Menu, Dialog, Transition } from '@headlessui/react'
 import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline'
 import ProjectSwitcher from '@components/ProjectSwitcher';
+import OneOffLabTestModal from './LabTests/OneOffModal';
 import { usePopperTooltip } from 'react-popper-tooltip';
 import 'react-popper-tooltip/dist/styles.css';
 import { SwishjamMemory } from '@/lib/swishjam-memory';
+import { useHotkeys } from 'react-hotkeys-hook';
 
 const rumNav = [
   { name: 'Core Web Vitals', href: '/', icon: HeartIcon },
@@ -173,7 +175,7 @@ const ListTitle = ({ title, Icon, isCollapsed }) => {
   )
 }
 
-const UserFlyout = ({ userEmail, signOut, currentOrg, userOrgs, updateCurrentOrganization }) => {
+const UserFlyout = ({ onLabTestClick, userEmail, signOut, currentOrg, userOrgs, updateCurrentOrganization }) => {
   return (
     <>
       <Menu as="div" className="relative inline-block text-left w-full">
@@ -204,6 +206,13 @@ const UserFlyout = ({ userEmail, signOut, currentOrg, userOrgs, updateCurrentOrg
               </div>
               <ChevronDownIcon className="h-5 w-5 text-gray-400" aria-hidden="true" />
             </Menu.Button>
+            <a
+              className='flex items-center w-full text-start px-4 py-2 text-sm cursor-pointer text-gray-700 hover:bg-gray-100 hover:text-swishjam transition'
+              onClick={onLabTestClick}
+            >
+              <BeakerIcon className='h-6 w-6 inline-block mr-2' />
+              <span>Run a lab test <span className='text-xs text-gray-700 bg-gray-200 px-2 py-1 rounded italic'>Shift + L</span></span>
+            </a>
             <a
               className='flex items-center w-full text-start px-4 py-2 text-sm cursor-pointer text-gray-700 hover:bg-gray-100 hover:text-swishjam transition'
               href='/install-script'
@@ -294,16 +303,18 @@ const DesktopNavItem = ({ item, isCollapsed, category}) => {
 }
 
 export default function Sidebar({ onCollapse, onExpand }) {
+  const { signOut, user, userOrg, userOrgs, updateCurrentOrganization } = useAuth();
+  if (!user) return;
+
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(typeof SwishjamMemory.get('isNavCollapsed') === 'boolean' ? SwishjamMemory.get('isNavCollapsed') : false);
-  const { signOut, user, userOrg, userOrgs, updateCurrentOrganization } = useAuth();
+  const [isLabTestModalOpen, setIsLabTestModalOpen] = useState(false);
 
-  if (!user) {
-    return null;
-  }
+  useHotkeys('shift+l', () => setIsLabTestModalOpen(true));
 
   return (
     <>
+      <OneOffLabTestModal isDisplayed={isLabTestModalOpen} onClose={() => setIsLabTestModalOpen(false)} />
       <div>
         <SidebarMobile
           sidebarOpen={sidebarOpen}
@@ -349,6 +360,7 @@ export default function Sidebar({ onCollapse, onExpand }) {
                   <UserFlyout 
                     userEmail={user.email} 
                     signOut={signOut} 
+                    onLabTestClick={() => setIsLabTestModalOpen(true)}
                     currentOrg={userOrg}
                     userOrgs={userOrgs} 
                     updateCurrentOrganization={updateCurrentOrganization} 

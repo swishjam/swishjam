@@ -6,6 +6,7 @@ import CwvDashboardView from '@/components/WebVitals/CWVDashboardView';
 import CruxDataView from '@/components/CruxData/View';
 import HostUrlFilterer from '@/components/Filters/HostUrlFilterer';
 import PathUrlFilterer from '@/components/Filters/PathUrlFilterer';
+import OneOffLabTestModal from '@/components/LabTests/OneOffModal';
 import { SwishjamMemory } from '@/lib/swishjam-memory';
 import { Switch } from '@headlessui/react'
 import Logo from '@/components/Logo';
@@ -23,6 +24,7 @@ export default function Home() {
 
   return (
     <AuthenticatedView>
+      <OneOffLabTestModal />
       <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mb-8">
         <div className='grid grid-cols-2 mt-8 flex items-center'>
           <div>

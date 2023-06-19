@@ -5,12 +5,14 @@ import { useAuth } from '@components/AuthProvider';
 import LoadingFullScreen from '@components/LoadingFullScreen';
 import SignIn from '@components/Auth/SignIn';
 import NoProjectsView from './NoProjectsView';
+import OneOffLabTestModal from './LabTests/OneOffModal';
 import { SwishjamMemory } from '@/lib/swishjam-memory';
 import LoadingSpinner from './LoadingSpinner';
 
 export default function AuthenticatedView({ LoadingView, children }) {
   const { initial, user, currentProject, isAwaitingData } = useAuth();
   const [sideNavIsCollapsed, setSideNavIsCollapsed] = useState(typeof SwishjamMemory.get('isNavCollapsed') === 'boolean' ? SwishjamMemory.get('isNavCollapsed') : false);
+  const [oneOffLabTestModalIsDisplayed, setOneOffLabTestModalIsDisplayed] = useState(false);
 
   if (isAwaitingData) {
     return (
