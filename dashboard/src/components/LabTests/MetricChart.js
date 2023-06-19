@@ -1,7 +1,7 @@
 import { formattedMsOrSeconds } from '@/lib/utils';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
-export default function MetricChart({ data, metric, goodNeedsImprovementPoorTiers, xAxisKey = 'completed_at' }) {
+export default function MetricChart({ data, metric, goodNeedsImprovementPoorTiers, xAxisKey = 'created_at' }) {
   const maxDataPoint = Math.max(...data.map(i => i[metric]));
 
   const calculatedPoorCeiling = goodNeedsImprovementPoorTiers.needsImprovement + (goodNeedsImprovementPoorTiers.needsImprovement - goodNeedsImprovementPoorTiers.good);

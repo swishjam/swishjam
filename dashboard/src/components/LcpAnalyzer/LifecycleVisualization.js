@@ -41,7 +41,7 @@ export default function LifecycleVisualization({ webPageTestData }) {
   const requestData = webPageTestData.requestData();
   const lcpImageURL = webPageTestData.lcpImg();
   const lcpValue = webPageTestData.lcpValue();
-  const documentRequest = requestData.slice(0, 2).find(request => request.requestType() === 'Document');
+  const documentRequest = requestData.slice(0, 5).find(request => request.requestType() === 'Document');
   const lcpImageURLRequest = requestData.find(req => req.url() === lcpImageURL);
   const lcpImageRequestNum = (lcpImageURLRequest || { payload: { number: -1 } }).payload.number;
   const lcpImageDiscoveredAt = lcpImageURLRequest && lcpImageURLRequest.firstTimestamp();

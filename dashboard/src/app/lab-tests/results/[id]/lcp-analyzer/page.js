@@ -2,7 +2,7 @@
 
 import AuthenticatedView from "@/components/AuthenticatedView";
 import { useEffect, useState } from "react";
-import { WebPageTestResults } from "@/lib/web-page-test-results-parser";
+import { WebPageTestResults } from "@/lib/web-page-test/web-page-test-results-parser";
 import LifecycleVisualization from "@/components/LcpAnalyzer/LifecycleVisualization";
 import GoodNeedsImprovementPoor from "@/components/LcpAnalyzer/GoodNeedsImprovementPoor";
 import LCPImageViewer from "@/components/LcpAnalyzer/LcpImageViewer";

@@ -4,7 +4,7 @@ import { useEffect, useState, useRef } from 'react';
 import LoadingFullScreen from '@/components/LoadingFullScreen';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import Logo from '@/components/Logo';
-import { WebPageTestResults } from '@/lib/web-page-test-results-parser';
+import { WebPageTestResults } from '@/lib/web-page-test/web-page-test-results-parser';
 import ResultsPage from '@/components/WebPageTest/ResultsPage';
 
 const LOADING_MESSAGES = [

@@ -7,17 +7,26 @@ import LoadingSpinner from "@/components/LoadingSpinner";
 export default function NewPageUrlModal({ 
   title, 
   subTitle, 
-  defaultLabTestCadence = '30-minutes', 
+  defaultLabTestCadence = '1-day', 
   successMessage, 
   onClose, 
   isOpen, 
   onNewConfiguration 
 }) {
-  const [url, setUrl] = useState();
+  const [url, setUrl] = useState('');
   const [cadence, setCadence] = useState(defaultLabTestCadence);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState();
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
+
+
+  const handlePaste = async e => {
+    e.preventDefault(); 
+    let urlLocal = e.clipboardData.getData('text')
+    urlLocal = urlLocal.replace('https://', '')
+    urlLocal = urlLocal.replace('http://', '')
+    setUrl(url+urlLocal);
+  }
 
   const submitConfiguration = async e => {
     e.preventDefault();
@@ -104,7 +113,7 @@ export default function NewPageUrlModal({
                         <div className="mx-auto flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-swishjam-blue sm:mx-0 sm:h-10 sm:w-10">
                           <BeakerIcon className="h-6 w-6 text-swishjam-cello" aria-hidden="true" />
                         </div>
-                        <div className="mt-3 text-center sm:ml-4 sm:mt-0 sm:text-left">
+                        <div className="mt-3 text-center sm:ml-4 sm:mt-0 sm:text-left w-full">
                           <Dialog.Title as="h3" className="text-base font-semibold leading-6 text-gray-900">
                             {title || 'Configure new lab test'}
                           </Dialog.Title>
@@ -123,7 +132,9 @@ export default function NewPageUrlModal({
                               <span className="flex select-none items-center pl-3 py-0.5 text-gray-500 sm:text-sm">https://</span>
                               <input
                                 className="block flex-1 border-0 bg-transparent pl-1 py-0.5 text-gray-900 placeholder:text-gray-400 focus:ring-0 sm:text-sm sm:leading-6"
+                                value={url} 
                                 onChange={e => setUrl(e.target.value)}
+                                onPaste={e => handlePaste(e)} 
                                 placeholder='www.swishjam.com'
                                 type='text'
                                 required
@@ -166,7 +177,7 @@ export default function NewPageUrlModal({
                           )}
                         </div>
                       </div>
-                      <div className="sm:flex sm:flex-row-reverse mt-3">
+                      <div className="sm:flex sm:flex-row-reverse mt-6">
                         <button
                           type="submit"
                           className={`${loading ? 'bg-gray-300' : 'bg-swishjam hover:bg-swishjam-dark'} transition duration-300 inline-flex w-full justify-center rounded-md px-3 py-2 text-sm font-semibold text-white shadow-sm sm:ml-3 sm:w-auto`}

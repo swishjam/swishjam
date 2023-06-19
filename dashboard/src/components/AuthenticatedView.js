@@ -17,7 +17,7 @@ export default function AuthenticatedView({ LoadingView, children }) {
       <>
         <Sidebar onCollapse={() => setSideNavIsCollapsed(true)} onExpand={() => setSideNavIsCollapsed(false)} />
         <main className={`py-10 flex h-screen items-center transition ${sideNavIsCollapsed ? 'lg:pl-10' : 'lg:pl-72'}`}>
-          {LoadingView || <div className='w-fit mx-auto'><LoadingSpinner size={12} /></div>}
+          {LoadingView || <div className='w-fit mx-auto'><LoadingSpinner size={8} /></div>}
         </main> 
       </>
     );
@@ -27,7 +27,7 @@ export default function AuthenticatedView({ LoadingView, children }) {
     return(
       <>
         <Sidebar onCollapse={() => setSideNavIsCollapsed(true)} onExpand={() => setSideNavIsCollapsed(false)} />
-        <main className={`py-10 transition ${sideNavIsCollapsed ? 'lg:pl-10' : 'lg:pl-72'}`}>
+        <main className={`transition-all duration-500 ${sideNavIsCollapsed ? 'lg:pl-10' : 'lg:pl-72'}`}>
           <div className="px-4 sm:px-6 lg:px-8">
             {children}
           </div>

@@ -1,5 +1,6 @@
 const TRANSACTION_ID_MAP = {
   USER_INVITATION: 'clhrv3a44001wl30fx4gyqz2s',
+  WEEKLY_CWV_REPORT: 'clhrutisx008ekx0fv2ij65ts',
 }
 
 export class Mailer {
@@ -10,11 +11,12 @@ export class Mailer {
     if (!process.env.LOOPS_API_KEY) throw new Error(`Loops API key not found in environment.`);
     const body = { email: to, transactionalId, dataVariables: variables };
 
+    console.log('env disabled', process.env.DISABLE_TRANSACTION_EMAILS)
     if (process.env.DISABLE_TRANSACTION_EMAILS) {
       console.log(`Bypassing sending ${type} email to ${to} because DISABLE_TRANSACTION_EMAILS ENV is enabled.`);
       console.log(body);
       return { success: true };
-    } else {        
+    } else {
       const response = await fetch('https://app.loops.so/api/v1/transactional', {
         method: 'POST',
         headers: {

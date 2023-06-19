@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from "react";
-import { WebPageTestResults } from "@/lib/web-page-test-results-parser";
+import { WebPageTestResults } from "@/lib/web-page-test/web-page-test-results-parser";
 import FilmstripVideo from "@/components/WebPageTest/FilmstripVideo";
 
 export default function WaterfallPage({ params }) {
