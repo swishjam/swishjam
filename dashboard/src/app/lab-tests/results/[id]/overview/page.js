@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import AuthenticatedView from "@/components/AuthenticatedView";
 import DetailsHeader from "@/components/LabTests/DetailsHeader";
-import { WebPageTestResults } from "@/lib/web-page-test-results-parser";
+import { WebPageTestResults } from "@/lib/web-page-test/web-page-test-results-parser";
 import LighthouseScore from "@/components/WebPageTest/LighthouseScore";
 import Filmstrip from "@/components/WebPageTest/Filmstrip";
 import FilmstripVideo from "@/components/WebPageTest/FilmstripVideo";

@@ -1,4 +1,4 @@
-import { CODES_TO_NAME } from "./web-page-test/locations";
+import { CODES_TO_NAME } from "./locations";
 
 export class WebPageTestResults {
   constructor(results) {
@@ -51,7 +51,7 @@ export class WebPageTestResults {
       SpeedIndex: this.firstViewData.SpeedIndex,
       TimeToFirstByte: this.firstViewData.TTFB,
     };
-    this.firstViewData.chromeUserTiming.forEach(item => performanceData[item.name] = (typeof item.time === 'number' ? item.time : item.value));
+    (this.firstViewData.chromeUserTiming || []).forEach(item => performanceData[item.name] = (typeof item.time === 'number' ? item.time : item.value));
     return performanceData;
   }
 

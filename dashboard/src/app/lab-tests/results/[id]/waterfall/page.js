@@ -4,7 +4,7 @@ import AuthenticatedView from "@/components/AuthenticatedView";
 import { useEffect, useState } from "react";
 import Waterfall from "@/components/WebPageTest/waterfall/Waterfall";
 import DetailsHeader from "@/components/LabTests/DetailsHeader";
-import { WebPageTestResults } from "@/lib/web-page-test-results-parser";
+import { WebPageTestResults } from "@/lib/web-page-test/web-page-test-results-parser";
 
 export default function WaterfallPage({ params }) {
   const { id } = params;
