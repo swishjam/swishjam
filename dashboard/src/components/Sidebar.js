@@ -26,9 +26,6 @@ import Link from 'next/link'
 import Logo from '@components/Logo'
 import { Menu, Dialog, Transition } from '@headlessui/react'
 import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline'
-import ProjectSwitcher from '@components/ProjectSwitcher';
-import { usePopperTooltip } from 'react-popper-tooltip';
-import 'react-popper-tooltip/dist/styles.css';
 import { SwishjamMemory } from '@/lib/swishjam-memory';
 
 const rumNav = [
@@ -107,7 +104,6 @@ const SidebarMobile = ({ sidebarOpen, setSidebarOpen, user, handleSignOut }) => 
                     <li>
                       <ListTitle title={'Current Project'} Icon={CodeBracketSquareIcon} />
                       <div className="space-y-1">
-                        <ProjectSwitcher />
                       </div>
                     </li>
                     <li>
@@ -261,10 +257,9 @@ const UserFlyout = ({ userEmail, signOut, currentOrg, userOrgs, updateCurrentOrg
 }
 
 const DesktopNavItem = ({ item, isCollapsed, category}) => {
-  const { getArrowProps, getTooltipProps, setTooltipRef, setTriggerRef, visible } = usePopperTooltip({ placement: 'right' });
 
   return (
-    <li key={item.name} ref={setTriggerRef}>
+    <li key={item.name}>
       <a
         href={item.href}
         className={classNames(
@@ -283,12 +278,6 @@ const DesktopNavItem = ({ item, isCollapsed, category}) => {
         />}
         {isCollapsed ? '' : item.name}
       </a>
-      {isCollapsed && visible && (
-        <div ref={setTooltipRef} {...getTooltipProps({ className: 'tooltip-container min-w-max' })}>
-          <div className="tooltip-arrow" {...getArrowProps({ className: 'tooltip-arrow' })} />
-          <div className="text-xs text-gray-700">{category} — {item.name}</div>
-        </div>
-      )}            
     </li>
   )
 }
@@ -324,7 +313,6 @@ export default function Sidebar({ onCollapse, onExpand }) {
                 {!isCollapsed && <li>
                   <ListTitle title={isCollapsed ? '' : 'Current Project'} Icon={CodeBracketSquareIcon} isCollapsed={isCollapsed} /> 
                   <div className="space-y-1">
-                    <ProjectSwitcher />
                   </div>
                 </li>}
                 <li>

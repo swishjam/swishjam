@@ -4,7 +4,6 @@ import Sidebar from '@components/Sidebar';
 import { useAuth } from '@components/AuthProvider';
 import LoadingFullScreen from '@components/LoadingFullScreen';
 import SignIn from '@components/Auth/SignIn';
-import NoProjectsView from './NoProjectsView';
 import { SwishjamMemory } from '@/lib/swishjam-memory';
 import LoadingSpinner from './LoadingSpinner';
 
@@ -22,7 +21,7 @@ export default function AuthenticatedView({ LoadingView, children }) {
       </>
     );
   } else if(user && !currentProject) {
-    return <NoProjectsView />
+    return <></>
   } else if (user) {
     return(
       <>
