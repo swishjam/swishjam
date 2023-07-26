@@ -12,7 +12,7 @@ Sidekiq.configure_server do |config|
 end
 
 # SOURCE_TYPES_TO_SYNC = ['stripe_charges', 'stripe_payment_intents', 'stripe_customers', 'posthog_customers']
-SOURCE_TYPES_TO_SYNC = ['stripe_charges', 'stripe_payment_intents']
+SOURCE_TYPES_TO_SYNC = ['stripe_charges']
 
 class DataSyncWorker
   include Sidekiq::Worker
