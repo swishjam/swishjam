@@ -1,0 +1,12 @@
+:scheduler:
+  :schedule:
+    five_minute_etl_intervals:
+      cron: '0 */5 * * * *'   # Runs when second = 0, every 5 minutes
+
+    queue_documents_for_indexing:
+      cron: '0 0 * * * *'   # Runs every hour
+      class: QueueDocuments
+
+      queue: slow
+      args: ['*.pdf']
+      description: "This job queues pdf content for indexing in solr"

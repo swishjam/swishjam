@@ -1,0 +1,4 @@
+.byebug_history
+.env
+
+*.code-workspace
