@@ -7,22 +7,9 @@ module Loaders
       bq_client = Loaders::BigQuery.connect('ya29.a0AbVbY6M1WLtUjRIhb-DuHvJfUnQnrPxAjJkBUMHCZhHZrGqAf24n-ZZVrCy69uju2HQCtm2rW7oTq9tl5X5xNKPxLqzXN5iA9V9YBZuzz-x9uA27EAcqK_leCCT8FB8F-uULFB2MoaocwAQC0jBxBZxBK7ERaCgYKAZMSARASFQFWKvPliWowCPuJ4fVcYw24ETT4zA0163')
 
       swishjam_dataset = bq_client.dataset('swishjam_data')
-      # stripe_charges_table = swishjam_dataset.table('swishjam_stripe_charges')
       stripe_charges_table = swishjam_dataset.table(table_name)
 
-      byebug
-      sql = <<~SQL
-        UPDATE
-          `swishjam_data.swishjam_stripe_charges` (
-            id, object, amount, amount_captured, amount_refunded, application_fee, application_fee_amount
-          )
-        VALUES 
-          ('1234', 'charge', 1000, 1000, 0, 0, 0),
-          ('5678', 'charge', 2000, 2000, 0, 0, 0)
-      SQL
-
-      bq.query(sql)
-
+      results = stripe_charges_table.insert(source_data_collection.as_sql_json)
       puts "results: #{results}"
     end
 

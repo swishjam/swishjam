@@ -8,14 +8,22 @@ module SourceDataCollections
       def initialize(stripe_charges)
         @stripe_charges = stripe_charges
       end
+      
+      def each(&block)
+        @stripe_charges.each(&block)
+      end
   
-      def as_sql
+      def as_sql_json
         @stripe_charges.map do |stripe_charge|
-          self.class.attributes.map{ |attribute| stripe_charge[attribute.to_s] }
+          Hash.new.tap do |hash|
+            self.class.attributes.each do |attribute|
+              hash[attribute] = stripe_charge[attribute.to_s]
+            end
+          end
         end
       end
-      alias to_sql as_sql
-      
+      alias to_sql_json as_sql_json
+
     end
   end
 end

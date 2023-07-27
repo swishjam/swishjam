@@ -8,7 +8,8 @@ class DataSourceConfigFetcher
         source_type: source_type, 
         attribute_mapping_rules: 'all', 
         attributes_to_capture: 'all',
-        destination_type: 'big_query',
+        # destination_type: 'big_query',
+        destination_type: 'log',
         destination_table_name: "swishjam_#{source_type}",
         destination_credentials: {
           host: 'localhost',
@@ -20,7 +21,8 @@ class DataSourceConfigFetcher
         source_type: source_type, 
         attribute_mapping_rules: 'all', 
         attributes_to_capture: 'all',
-        destination_type: 'big_query',
+        # destination_type: 'big_query',
+        destination_type: 'log',
         destination_table_name: "swishjam_#{source_type}",
         destination_credentials: {
           host: 'localhost',
