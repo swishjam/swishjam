@@ -1,7 +1,0 @@
-{
-  "Records": [
-    {
-      "body": "{\"siteId\": \"LOCAL-TEST-xyz123\",\"data\":[{\"_event\": \"PAGE_VIEW\",\"uniqueIdentifier\": \"page_view-1677556013909-45f99cd7-86f1-904b-28dc-737a1da73263\",\"siteId\": \"sj-55a4ab9cebf9d45f\",\"pageViewIdentifier\": \"page_view-1677556013909-45f99cd7-86f1-904b-28dc-737a1da73263\",\"ts\": 1677556013909,\"data\": {\"pageLoadTs\": 1677556013909,\"navigationType\": \"hard\",\"url\": \"https%3A%2F%2Fuseswishjam.com%2F\",\"referrerUrl\": \"\",\"userAgent\": \"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36\",\"screenWidth\": 977,\"screenHeight\": 796,\"connection\": {\"effectiveType\": \"4g\",\"downlink\": 10,\"rtt\": 50}}}]}"
-    }
-  ]
-}
