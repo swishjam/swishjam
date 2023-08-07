@@ -1,14 +1,16 @@
 import { SwishjamMemory } from "@/lib/swishjam-memory";
 
+const API_HOST = process.env.NEXT_PUBLIC_API_HOST || 'https://api.swishjam.com';
+
 export class API {
-  static async get(url, data) {
+  static async get(urlPath, data) {
     const queryParams = new URLSearchParams(this._params(data));
-    const response = await fetch(`${url}?${queryParams}`);
+    const response = await fetch(`${API_HOST}${urlPath}?${queryParams}`);
     return await response.json();
   }
 
-  static async post(url, data = {}) {
-    const response = await fetch(url, {
+  static async post(urlPath, data = {}) {
+    const response = await fetch(`${API_HOST}${urlPath}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' }, 
       body: JSON.stringify(this._params(data))
