@@ -1,25 +1,16 @@
 'use client';
 import {
-  ArrowsRightLeftIcon,
-  FlagIcon, 
-  HeartIcon,
+  ChartBarSquareIcon,
+  SquaresPlusIcon, 
   CodeBracketSquareIcon,
-  ServerStackIcon,
-  RectangleGroupIcon,
-  Bars3CenterLeftIcon,
   CursorArrowRippleIcon,
-  BeakerIcon,
   ArrowLeftOnRectangleIcon,
-  IdentificationIcon,
-  AdjustmentsHorizontalIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
   ChevronDownIcon,
   UserCircleIcon,
-  CommandLineIcon,
   UserGroupIcon,
 } from '@heroicons/react/24/outline'
-
 import { useAuth } from './AuthProvider';
 import { Fragment, useState } from 'react'
 import Link from 'next/link'
@@ -28,21 +19,9 @@ import { Menu, Dialog, Transition } from '@headlessui/react'
 import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline'
 import { SwishjamMemory } from '@/lib/swishjam-memory';
 
-const rumNav = [
-  { name: 'Core Web Vitals', href: '/', icon: HeartIcon },
-  { name: 'Page Breakdown', href: '/page-breakdown', icon: RectangleGroupIcon },
-  { name: 'Visitor Demographics', href: '/visitor-demographics', icon: IdentificationIcon },
-  { name: 'Resource Waterfall', href: '/waterfall', icon: Bars3CenterLeftIcon },
-  // { name: 'API Performance', href: '/api-performance', icon: ArrowsRightLeftIcon },
-]
-
-const labTestNav = [
-  { name: 'Lab Tests', href: '/lab-tests', icon: ServerStackIcon },
-  { name: 'Configure', href: '/lab-tests/manage', icon: AdjustmentsHorizontalIcon },
-]
-
-const reportingNav = [
-  { name: 'Settings', href: '/reporting', icon: AdjustmentsHorizontalIcon },
+const appNav = [
+  { name: 'Dashboard', href: '/', icon: ChartBarSquareIcon },
+  { name: 'Connections', href: '/connections', icon: SquaresPlusIcon},
 ]
 
 const isCurrentPage = menuItemHref => typeof window === 'undefined' ? false : menuItemHref === window.location.pathname;
@@ -109,13 +88,7 @@ const SidebarMobile = ({ sidebarOpen, setSidebarOpen, user, handleSignOut }) => 
                     <li>
                       <ul role="list" className="mt-2 space-y-1">
                         <ListTitle title={'Real User Monitoring'} Icon={CursorArrowRippleIcon} /> 
-                        {rumNav.map((item) => <DesktopNavItem item={item} key={item.name} />)}
-                      </ul>
-                    </li>
-                    <li>
-                      <ul role="list" className="mt-2 space-y-1">
-                        <ListTitle title={'Lab Tests'} Icon={BeakerIcon} /> 
-                        {labTestNav.map((item) => <DesktopNavItem item={item} key={item.name} />)}
+                        {appNav.map((item) => <DesktopNavItem item={item} key={item.name} />)}
                       </ul>
                     </li>
                     <li className="">
@@ -202,13 +175,6 @@ const UserFlyout = ({ userEmail, signOut, currentOrg, userOrgs, updateCurrentOrg
             </Menu.Button>
             <a
               className='flex items-center w-full text-start px-4 py-2 text-sm cursor-pointer text-gray-700 hover:bg-gray-100 hover:text-swishjam transition'
-              href='/install-script'
-            >
-              <CommandLineIcon className='h-6 w-6 inline-block mr-2' />
-              <span>Install Instructions</span>
-            </a>
-            <a
-              className='flex items-center w-full text-start px-4 py-2 text-sm cursor-pointer text-gray-700 hover:bg-gray-100 hover:text-swishjam transition'
               href='/team'
             >
               <UserGroupIcon className='h-6 w-6 inline-block mr-2' /> Manage team
@@ -266,7 +232,7 @@ const DesktopNavItem = ({ item, isCollapsed, category}) => {
           isCurrentPage(item.href)
             ? 'bg-gray-50 text-swishjam'
             : 'text-gray-700 hover:text-swishjam hover:bg-gray-50',
-          `group flex gap-x-3 rounded-mp-2 text-sm leading-6 font-semibold duration-500 transition ${isCollapsed ? 'py-2 px-1' : 'p-2'}`
+          `group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold duration-500 transition ${isCollapsed ? 'py-2 px-1' : 'p-2'}`
         )}
       >
         {item.icon && <item.icon
@@ -310,27 +276,9 @@ export default function Sidebar({ onCollapse, onExpand }) {
             </div>
             <nav className="flex flex-1 flex-col">
               <ul role="list" className="flex flex-1 flex-col gap-y-7">
-                {!isCollapsed && <li>
-                  <ListTitle title={isCollapsed ? '' : 'Current Project'} Icon={CodeBracketSquareIcon} isCollapsed={isCollapsed} /> 
-                  <div className="space-y-1">
-                  </div>
-                </li>}
                 <li>
-                  <ListTitle title={isCollapsed ? 'RUM' : 'Real User Monitoring'} isCollapsed={isCollapsed} Icon={CursorArrowRippleIcon} /> 
                   <ul role="list" className="space-y-1">
-                    {rumNav.map((item) => <DesktopNavItem item={item} key={item.name} isCollapsed={isCollapsed} category="Real User Monitoring"/>)}
-                  </ul>
-                </li>
-                <li>
-                  <ListTitle title={isCollapsed ? 'Lab' : 'Lab Tests'} Icon={BeakerIcon} isCollapsed={isCollapsed} /> 
-                  <ul role="list" className="space-y-1">
-                    {labTestNav.map((item) => <DesktopNavItem item={item} key={item.name} isCollapsed={isCollapsed} category={'Lab Tests'}/>)}
-                  </ul>
-                </li>
-                <li>
-                  <ListTitle title={isCollapsed ? 'Rep.' : 'Reporting'} Icon={FlagIcon} isCollapsed={isCollapsed} /> 
-                  <ul role="list" className="space-y-1">
-                    {reportingNav.map((item) => <DesktopNavItem item={item} key={item.name} isCollapsed={isCollapsed} category={'Reporting'}/>)}
+                    {appNav.map((item) => <DesktopNavItem item={item} key={item.name} isCollapsed={isCollapsed} category=""/>)}
                   </ul>
                 </li>
                 {user && !isCollapsed && <li className="-mx-6 mt-auto">

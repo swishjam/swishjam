@@ -17,7 +17,6 @@
     "@supabase/auth-helpers-nextjs": "^0.5.2",
     "@supabase/supabase-js": "^2.22.0",
     "@swishjam/swishjam": "^0.0.247",
-    "@tremor/react": "^1.8.1",
     "aws-sdk": "^2.1353.0",
     "classnames": "^2.3.2",
     "encoding": "^0.1.13",
@@ -31,10 +30,10 @@
     "pg": "^8.9.0",
     "postgres": "^3.3.4",
     "react": "^18.2.0",
-    "react-copy-to-clipboard": "^5.1.0",
     "react-dom": "^18.2.0",
     "react-popper-tooltip": "^4.4.2",
     "recharts": "^2.4.3",
+    "stripe": "^12.16.0",
     "yup": "^0.32.11"
   },
   "devDependencies": {

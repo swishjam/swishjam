@@ -9,6 +9,8 @@
       "@/styles/*": ["src/styles/*"],
       "@models/*": ["src/models/*"],
       "@/models/*": ["src/models/*"],
+      "@public/*": ["public/*"],
+      "@/public/*": ["public/*"],
     }
   }
 }

@@ -11,6 +11,8 @@ export default function AuthenticatedView({ LoadingView, children }) {
   const { initial, user, currentProject, isAwaitingData } = useAuth();
   const [sideNavIsCollapsed, setSideNavIsCollapsed] = useState(typeof SwishjamMemory.get('isNavCollapsed') === 'boolean' ? SwishjamMemory.get('isNavCollapsed') : false);
 
+  console.log(user)
+
   if (isAwaitingData) {
     return (
       <>

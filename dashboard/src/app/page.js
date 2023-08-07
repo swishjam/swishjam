@@ -1,13 +1,8 @@
 'use client';
 
-import { useState } from 'react';
 import AuthenticatedView from '@/components/AuthenticatedView';
-import { SwishjamMemory } from '@/lib/swishjam-memory';
-import { Switch } from '@headlessui/react'
-import Logo from '@/components/Logo';
-import Image from 'next/image';
 
-import { Card, Metric, Text, AreaChart, BadgeDelta, Flex, DeltaType } from "@tremor/react"
+//import { Card, Metric, Text, AreaChart, BadgeDelta, Flex, DeltaType } from "@tremor/react"
 
 const data = [
   {
@@ -70,7 +65,7 @@ export default function Home() {
           </div>
         </div>
         <div className='grid grid-cols-3 gap-6 pt-12'>
-          {categories.map((item) => (
+          {/*categories.map((item) => (
         <Card key={item.title}>
           <Flex alignItems="start">
             <Text>{item.title}</Text>
@@ -96,7 +91,7 @@ export default function Home() {
             showLegend={false}
           />
         </Card>
-      ))}
+          ))*/}
         </div> 
       </main>
     </AuthenticatedView>
