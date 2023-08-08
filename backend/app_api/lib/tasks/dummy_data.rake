@@ -1,3 +1,8 @@
+RANDOM_NUM_OF_DEVICES_PER_USER_MAX = 10
+RANDOM_NUM_OF_SESSIONS_PER_DEVICE_MAX = 20
+RANDOM_NUM_OF_PAGE_HITS_PER_SESSION_MAX = 20
+RANDOM_NUM_OF_EVENTS_PER_PAGE_HIT_MAX = 10
+
 def seed_users!
   puts "Seeding #{NUMBER_OF_USERS} users..."
   NUMBER_OF_USERS.times.map do
@@ -19,7 +24,7 @@ def seed_users!
 end
 alias run_seed! seed_users!
 
-def seed_devices_for_user!(user, min: 0, max: 10)
+def seed_devices_for_user!(user, min: 0, max: RANDOM_NUM_OF_DEVICES_PER_USER_MAX)
   num_devices = rand(min..max)
   puts "Seeding #{num_devices} devices for user #{user.id}..."
   num_devices.times do
@@ -38,7 +43,7 @@ def seed_devices_for_user!(user, min: 0, max: 10)
   NUM_NEW_DEVICES += num_devices
 end
 
-def seed_sessions_for_device!(device, min: 0, max: 20)
+def seed_sessions_for_device!(device, min: 0, max: RANDOM_NUM_OF_SESSIONS_PER_DEVICE_MAX)
   num_sessions = rand(min..max)
   puts "Seeding #{num_sessions} sessions for device #{device.id}..."
   num_sessions.times do
@@ -52,7 +57,7 @@ def seed_sessions_for_device!(device, min: 0, max: 20)
   NUM_NEW_SESSIONS += num_sessions
 end
 
-def seed_hits_for_session!(session, min: 0, max: 20)
+def seed_hits_for_session!(session, min: 0, max: RANDOM_NUM_OF_PAGE_HITS_PER_SESSION_MAX)
   num_hits = rand(min..max)
   puts "Seeding #{num_hits} page hits for session #{session.id}..."
   num_hits.times do
@@ -76,7 +81,7 @@ def seed_hits_for_session!(session, min: 0, max: 20)
   NUM_NEW_PAGE_HITS += num_hits
 end
 
-def seed_events_for_page_hit!(page_hit, min: 0, max: 10)
+def seed_events_for_page_hit!(page_hit, min: 0, max: RANDOM_NUM_OF_EVENTS_PER_PAGE_HIT_MAX)
   num_events = rand(min..max)
   puts "Seeding #{num_events} events for page hit #{page_hit.id}..."
   num_events.times do
@@ -85,6 +90,7 @@ def seed_events_for_page_hit!(page_hit, min: 0, max: 10)
       session: page_hit.session,
       page_hit: page_hit,
       name: EVENT_NAMES[rand(0..EVENT_NAMES.count - 1)],
+      timestamp: Faker::Time.between(from: page_hit.start_time, to: page_hit.start_time + 10.minutes),
       metadata_attributes: rand(0..10).times.map do |m|
         {
           key: Faker::Lorem.word,

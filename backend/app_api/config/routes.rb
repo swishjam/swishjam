@@ -8,6 +8,17 @@ Rails.application.routes.draw do
         end
       end
       
+      resources :events, only: [] do
+        collection do
+          get :feed
+        end
+      end
+
+      resources :users, only: [] do
+      end
+
+      resources :organizations, only: [] do
+      end
     end
   end
 end

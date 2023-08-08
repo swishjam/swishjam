@@ -5,4 +5,5 @@ module ApplicationHelper
     return if api_key.blank?
     @requested_instance ||= Instance.find_by(public_key: api_key)
   end
+  alias instance requested_instance
 end
