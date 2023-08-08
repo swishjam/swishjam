@@ -57,7 +57,7 @@ def seed_sessions_for_device!(device, min: 0, max: RANDOM_NUM_OF_SESSIONS_PER_DE
   NUM_NEW_SESSIONS += num_sessions
 end
 
-def seed_hits_for_session!(session, min: 0, max: RANDOM_NUM_OF_PAGE_HITS_PER_SESSION_MAX)
+def seed_hits_for_session!(session, min: 1, max: RANDOM_NUM_OF_PAGE_HITS_PER_SESSION_MAX)
   num_hits = rand(min..max)
   puts "Seeding #{num_hits} page hits for session #{session.id}..."
   num_hits.times do

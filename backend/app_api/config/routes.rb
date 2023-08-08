@@ -2,9 +2,27 @@ Rails.application.routes.draw do
   namespace :api do
     namespace :v1 do
 
+      resources :organizations, only: [] do
+      end
+
+      resources :users, only: [] do
+        collection do
+          get :count
+          get :timeseries
+        end
+      end
+
       resources :sessions, only: [] do
         collection do
           get :count
+          get :timeseries
+          get :referrers
+        end
+      end
+
+      resources :page_hits, only: [] do
+        collection do
+          get :top_pages
         end
       end
       
@@ -14,11 +32,7 @@ Rails.application.routes.draw do
         end
       end
 
-      resources :users, only: [] do
-      end
-
-      resources :organizations, only: [] do
-      end
+      
     end
   end
 end

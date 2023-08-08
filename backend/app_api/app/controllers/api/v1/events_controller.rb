@@ -3,14 +3,12 @@ module Api
     class EventsController < BaseController
       def feed
         limit = params[:limit] || 50
+        # TODO: do we need metadata here?
         events = Event.for_instance(instance)
-                        .joins(:metadata, device: :user)
-                        .select('events.id, events.name, events.timestamp, metadata.key, metadata.value, users.email, users.first_name, users.last_name')
+                        .joins(device: :user)
+                        .select('events.id, events.name, events.timestamp, users.email as user_email, users.first_name as user_first_name, users.last_name as user_last_name')
                         .order(timestamp: :desc)
                         .limit(limit)
-        # .select(:id, :name, :timestamp)
-                        # .includes(:metadata, device: :user)
-                        # .select(:id, :name, :timestamp, metadata: [:key, :value], user: [:email, :first_name, :last_name])
         render json: { events: events }
       end
     end
