@@ -64,7 +64,7 @@ module Api
         end_time = params[:end_time] || Time.zone.now
 
         render json: {
-          referrers: PageHit.first_of_sessions(instance).where(start_time: start_time..end_time).group(:referrer_url_host).count,
+          referrers: Analytics::PageHit.first_of_sessions(instance).where(start_time: start_time..end_time).group(:referrer_url_host).count,
           start_time: start_time,
           end_time: end_time,
         }, status: :ok

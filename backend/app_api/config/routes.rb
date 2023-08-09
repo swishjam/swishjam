@@ -32,6 +32,11 @@ Rails.application.routes.draw do
         end
       end
 
+      resources :billing_data_snapshots, only: [] do
+        collection do
+          get :get
+        end
+      end
       
     end
   end

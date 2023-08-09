@@ -10,12 +10,12 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2023_08_01_220030) do
+ActiveRecord::Schema.define(version: 2023_08_09_004634) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
-  create_table "devices", force: :cascade do |t|
+  create_table "analytics_devices", force: :cascade do |t|
     t.bigint "instance_id"
     t.bigint "user_id"
     t.string "fingerprint"
@@ -27,12 +27,12 @@ ActiveRecord::Schema.define(version: 2023_08_01_220030) do
     t.string "device"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
-    t.index ["fingerprint"], name: "index_devices_on_fingerprint"
-    t.index ["instance_id"], name: "index_devices_on_instance_id"
-    t.index ["user_id"], name: "index_devices_on_user_id"
+    t.index ["fingerprint"], name: "index_analytics_devices_on_fingerprint"
+    t.index ["instance_id"], name: "index_analytics_devices_on_instance_id"
+    t.index ["user_id"], name: "index_analytics_devices_on_user_id"
   end
 
-  create_table "events", force: :cascade do |t|
+  create_table "analytics_events", force: :cascade do |t|
     t.bigint "device_id"
     t.bigint "session_id"
     t.bigint "page_hit_id"
@@ -40,19 +40,12 @@ ActiveRecord::Schema.define(version: 2023_08_01_220030) do
     t.datetime "timestamp"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
-    t.index ["device_id"], name: "index_events_on_device_id"
-    t.index ["page_hit_id"], name: "index_events_on_page_hit_id"
-    t.index ["session_id"], name: "index_events_on_session_id"
+    t.index ["device_id"], name: "index_analytics_events_on_device_id"
+    t.index ["page_hit_id"], name: "index_analytics_events_on_page_hit_id"
+    t.index ["session_id"], name: "index_analytics_events_on_session_id"
   end
 
-  create_table "instances", force: :cascade do |t|
-    t.string "public_key"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
-    t.index ["public_key"], name: "index_instances_on_public_key"
-  end
-
-  create_table "metadata", force: :cascade do |t|
+  create_table "analytics_metadata", force: :cascade do |t|
     t.string "parent_type"
     t.bigint "parent_id"
     t.string "key"
@@ -62,26 +55,26 @@ ActiveRecord::Schema.define(version: 2023_08_01_220030) do
     t.index ["parent_type", "parent_id"], name: "index_metadata_on_parent"
   end
 
-  create_table "organization_users", force: :cascade do |t|
+  create_table "analytics_organization_users", force: :cascade do |t|
     t.bigint "organization_id"
     t.bigint "user_id"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
-    t.index ["organization_id"], name: "index_organization_users_on_organization_id"
-    t.index ["user_id"], name: "index_organization_users_on_user_id"
+    t.index ["organization_id"], name: "index_analytics_organization_users_on_organization_id"
+    t.index ["user_id"], name: "index_analytics_organization_users_on_user_id"
   end
 
-  create_table "organizations", force: :cascade do |t|
+  create_table "analytics_organizations", force: :cascade do |t|
     t.bigint "instance_id"
     t.string "name"
     t.string "unique_identifier"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
-    t.index ["instance_id"], name: "index_organizations_on_instance_id"
-    t.index ["unique_identifier"], name: "index_organizations_on_unique_identifier"
+    t.index ["instance_id"], name: "index_analytics_organizations_on_instance_id"
+    t.index ["unique_identifier"], name: "index_analytics_organizations_on_unique_identifier"
   end
 
-  create_table "page_hits", force: :cascade do |t|
+  create_table "analytics_page_hits", force: :cascade do |t|
     t.bigint "device_id"
     t.bigint "session_id"
     t.string "unique_identifier"
@@ -97,12 +90,12 @@ ActiveRecord::Schema.define(version: 2023_08_01_220030) do
     t.datetime "end_time"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
-    t.index ["device_id"], name: "index_page_hits_on_device_id"
-    t.index ["session_id"], name: "index_page_hits_on_session_id"
-    t.index ["unique_identifier"], name: "index_page_hits_on_unique_identifier"
+    t.index ["device_id"], name: "index_analytics_page_hits_on_device_id"
+    t.index ["session_id"], name: "index_analytics_page_hits_on_session_id"
+    t.index ["unique_identifier"], name: "index_analytics_page_hits_on_unique_identifier"
   end
 
-  create_table "sessions", force: :cascade do |t|
+  create_table "analytics_sessions", force: :cascade do |t|
     t.bigint "organization_id"
     t.bigint "device_id"
     t.string "unique_identifier"
@@ -110,12 +103,12 @@ ActiveRecord::Schema.define(version: 2023_08_01_220030) do
     t.datetime "end_time"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
-    t.index ["device_id"], name: "index_sessions_on_device_id"
-    t.index ["organization_id"], name: "index_sessions_on_organization_id"
-    t.index ["unique_identifier"], name: "index_sessions_on_unique_identifier"
+    t.index ["device_id"], name: "index_analytics_sessions_on_device_id"
+    t.index ["organization_id"], name: "index_analytics_sessions_on_organization_id"
+    t.index ["unique_identifier"], name: "index_analytics_sessions_on_unique_identifier"
   end
 
-  create_table "users", force: :cascade do |t|
+  create_table "analytics_users", force: :cascade do |t|
     t.bigint "instance_id"
     t.string "unique_identifier"
     t.string "email"
@@ -123,8 +116,38 @@ ActiveRecord::Schema.define(version: 2023_08_01_220030) do
     t.string "last_name"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
-    t.index ["instance_id"], name: "index_users_on_instance_id"
-    t.index ["unique_identifier"], name: "index_users_on_unique_identifier"
+    t.index ["instance_id"], name: "index_analytics_users_on_instance_id"
+    t.index ["unique_identifier"], name: "index_analytics_users_on_unique_identifier"
+  end
+
+  create_table "billing_data_snapshots", force: :cascade do |t|
+    t.bigint "instance_id"
+    t.integer "mrr_in_cents"
+    t.integer "total_revenue_in_cents"
+    t.integer "num_active_subscriptions"
+    t.integer "num_free_trial_subscriptions"
+    t.integer "num_canceled_subscriptions"
+    t.datetime "captured_at"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["instance_id"], name: "index_billing_data_snapshots_on_instance_id"
+  end
+
+  create_table "instances", force: :cascade do |t|
+    t.string "public_key"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["public_key"], name: "index_instances_on_public_key"
+  end
+
+  create_table "integrations", force: :cascade do |t|
+    t.bigint "instance_id"
+    t.string "type"
+    t.jsonb "config"
+    t.boolean "enabled"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["instance_id"], name: "index_integrations_on_instance_id"
   end
 
 end

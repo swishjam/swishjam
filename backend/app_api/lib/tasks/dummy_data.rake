@@ -102,6 +102,20 @@ def seed_events_for_page_hit!(page_hit, min: 0, max: RANDOM_NUM_OF_EVENTS_PER_PA
   NUM_NEW_EVENTS += num_events
 end
 
+def seed_billing_data!
+  puts "Seeding billing data..."
+  90.times do |i|
+    INSTANCE.billing_data_snapshots.create!(
+      mrr_in_cents: rand(0..50_000),
+      total_revenue_in_cents: rand(0..1_000_000),
+      num_active_subscriptions: rand(0..1_000),
+      num_free_trial_subscriptions: rand(0..250),
+      num_canceled_subscriptions: rand(0..1_000),
+      captured_at: Time.current - i.days,
+    )
+  end
+end
+
 namespace :seed do
   desc "Seeds the database with sample data"
   task dummy_data: [:environment] do
