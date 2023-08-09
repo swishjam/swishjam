@@ -10,10 +10,55 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2023_08_09_004634) do
+ActiveRecord::Schema.define(version: 2023_08_09_195719) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+
+  create_table "analytics_billing_data_snapshots", force: :cascade do |t|
+    t.bigint "instance_id"
+    t.integer "mrr_in_cents"
+    t.integer "total_revenue_in_cents"
+    t.integer "num_active_subscriptions"
+    t.integer "num_free_trial_subscriptions"
+    t.integer "num_canceled_subscriptions"
+    t.datetime "captured_at"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["instance_id"], name: "index_analytics_billing_data_snapshots_on_instance_id"
+  end
+
+  create_table "analytics_customer_billing_data_snapshots", force: :cascade do |t|
+    t.bigint "instance_id", null: false
+    t.string "customer_email"
+    t.string "customer_name"
+    t.integer "mrr_in_cents"
+    t.integer "total_revenue_in_cents"
+    t.datetime "captured_at"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["instance_id"], name: "index_analytics_customer_billing_data_snapshots_on_instance_id"
+  end
+
+  create_table "analytics_customer_subscriptions", force: :cascade do |t|
+    t.bigint "instance_id", null: false
+    t.string "payment_processor"
+    t.string "provider_id"
+    t.string "customer_email"
+    t.string "customer_name"
+    t.integer "amount_in_cents"
+    t.string "interval"
+    t.string "plan_name"
+    t.string "status"
+    t.datetime "started_at"
+    t.datetime "next_charge_runs_at"
+    t.datetime "ends_at"
+    t.datetime "free_trial_starts_at"
+    t.datetime "free_trial_ends_at"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["instance_id"], name: "index_analytics_customer_subscriptions_on_instance_id"
+  end
 
   create_table "analytics_devices", force: :cascade do |t|
     t.bigint "instance_id"
@@ -95,6 +140,20 @@ ActiveRecord::Schema.define(version: 2023_08_09_004634) do
     t.index ["unique_identifier"], name: "index_analytics_page_hits_on_unique_identifier"
   end
 
+  create_table "analytics_payments", force: :cascade do |t|
+    t.bigint "instance_id", null: false
+    t.string "payment_processor"
+    t.string "provider_id"
+    t.string "customer_email"
+    t.string "customer_name"
+    t.integer "amount_in_cents"
+    t.datetime "charged_at"
+    t.string "status"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["instance_id"], name: "index_analytics_payments_on_instance_id"
+  end
+
   create_table "analytics_sessions", force: :cascade do |t|
     t.bigint "organization_id"
     t.bigint "device_id"
@@ -120,17 +179,16 @@ ActiveRecord::Schema.define(version: 2023_08_09_004634) do
     t.index ["unique_identifier"], name: "index_analytics_users_on_unique_identifier"
   end
 
-  create_table "billing_data_snapshots", force: :cascade do |t|
-    t.bigint "instance_id"
-    t.integer "mrr_in_cents"
-    t.integer "total_revenue_in_cents"
-    t.integer "num_active_subscriptions"
-    t.integer "num_free_trial_subscriptions"
-    t.integer "num_canceled_subscriptions"
-    t.datetime "captured_at"
+  create_table "data_syncs", force: :cascade do |t|
+    t.bigint "instance_id", null: false
+    t.string "provider", null: false
+    t.datetime "started_at"
+    t.datetime "completed_at"
+    t.integer "duration_in_seconds"
+    t.text "error_message"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
-    t.index ["instance_id"], name: "index_billing_data_snapshots_on_instance_id"
+    t.index ["instance_id"], name: "index_data_syncs_on_instance_id"
   end
 
   create_table "instances", force: :cascade do |t|
@@ -150,4 +208,8 @@ ActiveRecord::Schema.define(version: 2023_08_09_004634) do
     t.index ["instance_id"], name: "index_integrations_on_instance_id"
   end
 
+  add_foreign_key "analytics_customer_billing_data_snapshots", "instances"
+  add_foreign_key "analytics_customer_subscriptions", "instances"
+  add_foreign_key "analytics_payments", "instances"
+  add_foreign_key "data_syncs", "instances"
 end

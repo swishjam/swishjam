@@ -6,7 +6,8 @@ RANDOM_NUM_OF_EVENTS_PER_PAGE_HIT_MAX = 10
 def seed_users!
   puts "Seeding #{NUMBER_OF_USERS} users..."
   NUMBER_OF_USERS.times.map do
-    user = INSTANCE.users.create!(
+    user = Analytics::User.create!(
+      instance: INSTANCE,
       unique_identifier: SecureRandom.uuid,
       email: Faker::Internet.email,
       first_name: Faker::Name.first_name,
@@ -28,10 +29,10 @@ def seed_devices_for_user!(user, min: 0, max: RANDOM_NUM_OF_DEVICES_PER_USER_MAX
   num_devices = rand(min..max)
   puts "Seeding #{num_devices} devices for user #{user.id}..."
   num_devices.times do
-    device = Device.create!(
-      fingerprint: SecureRandom.uuid,
+    device = Analytics::Device.create!(
       instance: INSTANCE,
       user: user,
+      fingerprint: SecureRandom.uuid,
       user_agent: Faker::Internet.user_agent,
       browser: ['Chrome', 'Firefox', 'Safari', 'Internet Explorer', 'Edge', 'Opera'].sample,
       browser_version: rand(100..150),
@@ -47,7 +48,7 @@ def seed_sessions_for_device!(device, min: 0, max: RANDOM_NUM_OF_SESSIONS_PER_DE
   num_sessions = rand(min..max)
   puts "Seeding #{num_sessions} sessions for device #{device.id}..."
   num_sessions.times do
-    session = Session.create!(
+    session = Analytics::Session.create!(
       device: device,
       unique_identifier: SecureRandom.uuid,
       start_time: Faker::Time.between(from: 1.year.ago, to: Time.now)
@@ -62,7 +63,7 @@ def seed_hits_for_session!(session, min: 1, max: RANDOM_NUM_OF_PAGE_HITS_PER_SES
   puts "Seeding #{num_hits} page hits for session #{session.id}..."
   num_hits.times do
     url_path = URL_PATHS[rand(0..URL_PATHS.count - 1)]
-    page_hit = PageHit.create!(
+    page_hit = Analytics::PageHit.create!(
       device: session.device,
       session: session,
       unique_identifier: SecureRandom.uuid,
@@ -85,7 +86,7 @@ def seed_events_for_page_hit!(page_hit, min: 0, max: RANDOM_NUM_OF_EVENTS_PER_PA
   num_events = rand(min..max)
   puts "Seeding #{num_events} events for page hit #{page_hit.id}..."
   num_events.times do
-    event = Event.create!(
+    event = Analytics::Event.create!(
       device: page_hit.device,
       session: page_hit.session,
       page_hit: page_hit,
@@ -105,7 +106,8 @@ end
 def seed_billing_data!
   puts "Seeding billing data..."
   90.times do |i|
-    INSTANCE.billing_data_snapshots.create!(
+    Analytics::BillingDataSnapshot.create!(
+      instance: INSTANCE,
       mrr_in_cents: rand(0..50_000),
       total_revenue_in_cents: rand(0..1_000_000),
       num_active_subscriptions: rand(0..1_000),
