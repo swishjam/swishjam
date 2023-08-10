@@ -1,4 +1,5 @@
 'use client';
+
 import { useEffect, useState } from 'react';
 import cn from 'classnames';
 import { Field, Form, Formik } from 'formik';
@@ -8,13 +9,13 @@ import * as Yup from 'yup';
 import Logo from '@components/Logo';
 import LoadingSpinner from '@components/LoadingSpinner';
 import { useAuth } from '@components/AuthProvider';
-import supabase from '@lib/supabase-browser';
-import { ProjectPageUrlsAPI } from '@/lib/api-client/project-page-urls';
+// import supabase from '@lib/supabase-browser';
+import { API } from '@lib/api-client/base'
 
 const SignUpSchema = Yup.object().shape({
   email: Yup.string().email('Invalid email').required('Required'),
-  company: Yup.string().required('Required'),
-  url: Yup.string().required('Required'),
+  organization_name: Yup.string().required('Required'),
+  organization_url: Yup.string().required('Required'),
   password: Yup.string().required('Required'),
 });
 
@@ -34,29 +35,20 @@ const SignUp = () => {
   async function signUp(formData) {
     try {
       setLoading(true);
-      const { data, error } = await supabase.auth.signUp({ email: formData.email, password: formData.password });
-      const { user } = data;
-
-      if (error) throw error;
-      const newUser = await supabase.from('users').insert({ id: user.id, email: user.email });
-      if (newUser.error) throw newUser.error;
-
-      const newOrg = await supabase.from('organizations').insert({ name: formData.company, owner_uuid: user.id }).select();
-      if (newOrg.error) throw newOrg.error;
-
-      const newOrganizationUser = await supabase.from('organization_users').insert({ organization_id: newOrg.data[0].id, user_id: user.id });
-      if (newOrganizationUser.error) throw newOrg.error;
-
-      const newProject = await supabase.from('projects').insert({ name: newOrg.data[0].name, created_by: user.id, organization_id: newOrg.data[0].id }).select();
-      if (newProject.error) throw newProject.error;
-
-      updateCurrentOrganization(newOrg.data[0]);
-      updateCurrentProject(newProject.data[0]);
-      setProjects([newProject.data[0]]);
-      setUserOrgs([newOrg.data[0]]);
+      const { token, user, error } = await API.post('/auth/register', formData);
+      debugger;
+      // const { data, error } = await supabase.auth.signUp({ email: formData.email, password: formData.password });
+      // const { user } = data;
+      // if (error) throw error;
+      // const newUser = await supabase.from('users').insert({ id: user.id, email: user.email });
+      // if (newUser.error) throw newUser.error;
+      // const newOrg = await supabase.from('organizations').insert({ name: formData.company, owner_uuid: user.id }).select();
+      // if (newOrg.error) throw newOrg.error;
+      // const newOrganizationUser = await supabase.from('organization_users').insert({ organization_id: newOrg.data[0].id, user_id: user.id });
+      // if (newOrganizationUser.error) throw newOrg.error;
+      // updateCurrentOrganization(newOrg.data[0]);
+      // setUserOrgs([newOrg.data[0]]);
       
-      await ProjectPageUrlsAPI.create({ url: formData.url, cadence: '1-day', enabled: true });
-
       router.push('/');
     } catch (error) {
       console.error('Sign Up Error', error);
@@ -112,44 +104,37 @@ const SignUp = () => {
                   </label>
                   <div className="mt-1">
                     <Field
-                      className={cn('input', errors.company && touched.company && 'border-red-400')}
-                      id="company"
-                      name="company"
+                      className={cn('input', errors.organization_name && touched.organization_name && 'border-red-400')}
+                      id="organization_name"
+                      name="organization_name"
                       placeholder="Company Name"
                       type="text"
                     />
-                    {errors.company && touched.company ? (
-                      <div className="text-red-600 mt-1 text-sm text-right">{errors.company}</div>
+                    {errors.organization_name && touched.organization_name ? (
+                      <div className="text-red-600 mt-1 text-sm text-right">{errors.organization_name}</div>
                     ) : null}
                   </div>
                 </div>{/* End Company Name input */}
 
                 <div>
                   <label htmlFor="company" className="block text-sm font-medium text-gray-700">
-                    URL to monitor
+                    Company URL
                   </label>
                   <div className="mt-1">
                     <div
-                      className={`flex w-full rounded-md border px-1 py-1 text-base text-gray-900 placeholder-gray-500 shadow-sm focus:border-swishjam focus:ring-swishjam ${errors.url && touched.url ? 'border-red-400' : 'border-gray-300'}`}
+                      className={`flex w-full rounded-md border px-1 py-1 text-base text-gray-900 placeholder-gray-500 shadow-sm focus:border-swishjam focus:ring-swishjam ${errors.organization_url && touched.organization_url ? 'border-red-400' : 'border-gray-300'}`}
                     >
                       <span className="flex select-none items-center pl-3 py-0.5 text-gray-500 sm:text-sm">https://</span>
                       <Field
                         className="block flex-1 border-0 bg-transparent pl-1 py-0.5 text-gray-900 placeholder:text-gray-400 focus:ring-0 sm:text-sm sm:leading-6"
-                        id="url"
-                        name="url"
+                        id="organization_url"
+                        name="organization_url"
                         placeholder="google.com"
                         type="text"
                       />
                     </div>
-                    {/* <Field
-                      className={cn('input', errors.url && touched.url && 'border-red-400')}
-                      id="url"
-                      name="url"
-                      placeholder="URL to monitor"
-                      type="text"
-                    /> */}
-                    {errors.url && touched.url ? (
-                      <div className="text-red-600 mt-1 text-sm text-right">{errors.url}</div>
+                    {errors.organization_url && touched.organization_url ? (
+                      <div className="text-red-600 mt-1 text-sm text-right">{errors.organization_url}</div>
                     ) : null}
                   </div>
                 </div>

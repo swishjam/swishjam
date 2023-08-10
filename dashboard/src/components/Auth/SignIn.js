@@ -7,6 +7,7 @@ import * as Yup from 'yup';
 import supabase from '@lib/supabase-browser';
 import Logo from '@components/Logo';
 import LoadingSpinner from '@components/LoadingSpinner';
+import { API } from '@lib/api-client/base'
 
 const SignInSchema = Yup.object().shape({
   email: Yup.string().email('Invalid email').required('Required'),
@@ -19,10 +20,12 @@ const SignIn = () => {
 
   async function signIn(formData) {
     setLoading(true);
-    const { error } = await supabase.auth.signInWithPassword({
-      email: formData.email,
-      password: formData.password,
-    });
+    const { error, user, token } = await API.post('/auth/login', formData);
+    debugger;
+    // const { error } = await supabase.auth.signInWithPassword({
+    //   email: formData.email,
+    //   password: formData.password,
+    // });
     setLoading(false);
     if (error) {
       setErrorMsg(error.message);

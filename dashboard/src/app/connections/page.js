@@ -221,14 +221,21 @@ export default function Connections() {
                   <li key={i} className="rounded-xl border border-gray-200 bg-gray-100 animate-pulse h-24" />
                 ))
               ) : (
-                availableConnections.map((connection) => (
-                  <AddConnectionButton 
-                    key={connection.id} 
-                    connection={connection} 
-                    apiKey='INSTANCE-7da3a8bc' 
-                    onConnectionClick={() => setConnectionForModal(connection)}
-                  />
-                ))
+                availableConnections.length === 0 
+                ? (
+                  <div className='text-center my-4 text-md text-gray-600'>
+                      You have installed all supported Swishjam connections. Looking for a connection that is not yet supported? Reach out to us <a href='mailto:founders@swishjam.com'>founders@swishjam.com</a>
+                  </div>
+                ) : (
+                  availableConnections.map((connection) => (
+                    <AddConnectionButton 
+                      key={connection.id} 
+                      connection={connection} 
+                      apiKey='INSTANCE-7da3a8bc' 
+                      onConnectionClick={() => setConnectionForModal(connection)}
+                    />
+                  ))
+                )
               )
             }
           </ul>

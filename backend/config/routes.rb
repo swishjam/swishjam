@@ -1,4 +1,7 @@
 Rails.application.routes.draw do
+  post '/auth/register' => 'users#create'
+  post '/auth/login' => 'sessions#create'
+
   get '/oauth/stripe/callback' => 'oauth/stripe#callback'
 
   namespace :api do
