@@ -24,7 +24,7 @@ const LoadingView = () => (
 
 export default function ChartCardWithNumberAndLine({ title, value, valueChange, timeseries }) {
 
-  if(!title && !value)
+  if(!title || !value)
     return <LoadingView />;
 
   return (
@@ -58,7 +58,7 @@ export default function ChartCardWithNumberAndLine({ title, value, valueChange, 
             />
             <Line
               type="natural"
-              dataKey='total'
+              dataKey='value'
               stroke="#7487F7"
               dot={{ r: 2 }}
               activeDot={{ r: 2 }}
