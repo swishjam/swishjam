@@ -84,6 +84,7 @@ export default function Home() {
         <div className='grid grid-cols-3 gap-6 pt-8'>
           {dashboardComponents.map((dc) => (
             <ChartCardWithNumberAndLine
+              key={dc.title}
               title={dc.title}
               value={dc.value}
               valueChange={dc.valueChange}
@@ -91,6 +92,19 @@ export default function Home() {
             />
           ))}
         </div> 
+          <div
+            className="mt-6" 
+          >
+
+        <ChartCardWithNumberAndLine
+          key={dashboardComponents[0].title}
+          title={dashboardComponents[0].title}
+          value={dashboardComponents[0].value}
+          valueChange={dashboardComponents[0].valueChange}
+          timeseries={dashboardComponents[0].timeseries}
+        />
+
+          </div>
       </main>
     </AuthenticatedView>
   );

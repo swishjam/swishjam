@@ -21,7 +21,7 @@ def seed_users!
     )
     seed_devices_for_user!(user)
   end
-  num_new_users_created += NUMBER_OF_USERS
+  # num_new_users_created += NUMBER_OF_USERS
 end
 alias run_seed! seed_users!
 
@@ -41,7 +41,7 @@ def seed_devices_for_user!(user, min: 0, max: RANDOM_NUM_OF_DEVICES_PER_USER_MAX
     )
     seed_sessions_for_device!(device)
   end
-  num_new_devices_created += num_devices
+  # num_new_devices_created += num_devices
 end
 
 def seed_sessions_for_device!(device, min: 0, max: RANDOM_NUM_OF_SESSIONS_PER_DEVICE_MAX)
@@ -55,7 +55,7 @@ def seed_sessions_for_device!(device, min: 0, max: RANDOM_NUM_OF_SESSIONS_PER_DE
     )
     seed_hits_for_session!(session)
   end
-  num_new_sessions_created += num_sessions
+  # num_new_sessions_created += num_sessions
 end
 
 def seed_hits_for_session!(session, min: 1, max: RANDOM_NUM_OF_PAGE_HITS_PER_SESSION_MAX)
@@ -79,7 +79,7 @@ def seed_hits_for_session!(session, min: 1, max: RANDOM_NUM_OF_PAGE_HITS_PER_SES
     )
     seed_events_for_page_hit!(page_hit)
   end
-  num_new_page_hits_created += num_hits
+  # num_new_page_hits_created += num_hits
 end
 
 def seed_events_for_page_hit!(page_hit, min: 0, max: RANDOM_NUM_OF_EVENTS_PER_PAGE_HIT_MAX)
@@ -100,7 +100,7 @@ def seed_events_for_page_hit!(page_hit, min: 0, max: RANDOM_NUM_OF_EVENTS_PER_PA
       end
     )
   end
-  num_new_events_created += num_events
+  # num_new_events_created += num_events
 end
 
 def seed_billing_data!
@@ -128,7 +128,7 @@ namespace :seed do
     HOST_URL = Faker::Internet.domain_name
     NUMBER_OF_USERS = 100
     URL_PATHS = 50.times.map{ URI.parse(Faker::Internet.url).path }
-    EVENT_NAMES = 100.times{ Faker::Lorem.word }
+    EVENT_NAMES = 100.times.map{ Faker::Lorem.word }
 
     num_new_devices_created = 0
     num_new_users_created = 0

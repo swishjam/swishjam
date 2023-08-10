@@ -24,7 +24,7 @@ export class API {
       method: method,
       headers: {
         'Content-Type': 'application/json',
-        'X-Swishjam-Api-Key': 'INSTANCE-7da3a8bc' // TODO: hardcoded for now...
+        'X-Swishjam-Api-Key': 'INSTANCE-9fb58dcd' // TODO: hardcoded for now...
       },
     };
     if (method !== 'GET') {

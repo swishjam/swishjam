@@ -117,6 +117,7 @@ export default function Connections() {
   const [disabledConnections, setDisabledConnections] = useState();
   const [availableConnections, setAvailableConnections] = useState();
   const [connectionForModal, setConnectionForModal] = useState(null);
+  const instanceKey = 'INSTANCE-9fb58dcd';
 
   const disableConnection = async connectionId => {
     const result = await API.patch(`/api/v1/integrations/${connectionId}/disable`);
@@ -167,7 +168,7 @@ export default function Connections() {
             <p className='text-gray-600 text-center mb-8'>{CONNECTION_DESCRIPTIONS[connectionForModal.name]}</p>
             <a 
               className='w-full mt-6 flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white focus:outline-none focus:ring-2 bg-swishjam hover:bg-swishjam-dark'
-              href={CONNECTION_OAUTH_URLS[connectionForModal.name]('INSTANCE-7da3a8bc')}
+              href={CONNECTION_OAUTH_URLS[connectionForModal.name](instanceKey)}
             >
               Connect {connectionForModal.name}
             </a>
@@ -225,7 +226,7 @@ export default function Connections() {
                   <AddConnectionButton 
                     key={connection.id} 
                     connection={connection} 
-                    apiKey='INSTANCE-7da3a8bc' 
+                    apiKey={instanceKey} 
                     onConnectionClick={() => setConnectionForModal(connection)}
                   />
                 ))
