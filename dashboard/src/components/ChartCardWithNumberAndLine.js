@@ -24,7 +24,7 @@ const LoadingView = () => (
   </Card>
 )
 
-const CustomTooltip = ({ active, payload, label }) => {
+const CustomTooltip = ({ active, payload, label, formatter }) => {
   if (active && payload && payload.length) {
     // console.log(active)
     //console.log(label)
@@ -32,7 +32,7 @@ const CustomTooltip = ({ active, payload, label }) => {
     return (
       <Card>
         <CardHeader className="p-2">
-          <CardTitle className="text-sm font-medium">{(data.value/100).toLocaleString('en-US', { style: "currency", currency: "USD" })}</CardTitle>
+          <CardTitle className="text-sm font-medium">{formatter(data.value)}</CardTitle>
           <CardDescription>{new Date(data.date).toLocaleDateString('en-us', { weekday:"long", year:"numeric", month:"short", day:"numeric"})}</CardDescription>
         </CardHeader>
       </Card>
@@ -52,7 +52,7 @@ const CustomTooltip = ({ active, payload, label }) => {
       </div>*/
 }
 
-export default function ChartCardWithNumberAndLine({ title, value, valueChange, timeseries }) {
+export default function ChartCardWithNumberAndLine({ title, value, valueChange, timeseries, formatter = (a) => a }) {
 
   if(!title || !value)
     return <LoadingView />;
@@ -86,7 +86,7 @@ export default function ChartCardWithNumberAndLine({ title, value, valueChange, 
               animationBegin={200}
               animationDuration={400}
               wrapperStyle={{ outline: "none" }}
-              content={<CustomTooltip />}
+              content={<CustomTooltip formatter={formatter}/>}
               allowEscapeViewBox={{x: true, y: true}}
               animationEasing={'ease-in-out'}
             />

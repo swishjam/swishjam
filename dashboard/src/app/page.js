@@ -16,6 +16,7 @@ function DashboardComponent(name) {
 export default function Home() {
   // const { dashboardComponents, setDashboardComponents} = useState([]);
   const [mrrChart, setMrrChart] = useState(DashboardComponent('MRR'))
+  const [activeSubsChart, setActiveSubsChart] = useState(DashboardComponent('Active Subscriptions'))
   useEffect(() => {
     const getDashboard = async () => {
       const paymentData = API.get('/api/v1/billing_data_snapshots').then((paymentData) =>{
@@ -23,6 +24,12 @@ export default function Home() {
           ...mrrChart,
           value: (paymentData.current_mrr/100).toLocaleString('en-US', { style: "currency", currency: "USD" }),
           timeseries: paymentData.current_mrr_timeseries
+        })
+      
+        setActiveSubsChart({
+          ...activeSubsChart,
+          value: paymentData.current_num_active_subscriptions,
+          timeseries: paymentData.current_num_active_subscriptions_timeseries
         })
       });
     }
@@ -49,6 +56,14 @@ export default function Home() {
             value={mrrChart.value}
             valueChange={mrrChart.valueChange}
             timeseries={mrrChart.timeseries}
+            formatter={(a) => (a/100).toLocaleString('en-US', { style: "currency", currency: "USD" })}
+          />}
+          {activeSubsChart && <ChartCardWithNumberAndLine
+            key={activeSubsChart.title}
+            title={activeSubsChart.title}
+            value={activeSubsChart.value}
+            valueChange={activeSubsChart.valueChange}
+            timeseries={activeSubsChart.timeseries}
           />}
            
           {/*dashboardComponents && dashboardComponents.map((dc) => (
