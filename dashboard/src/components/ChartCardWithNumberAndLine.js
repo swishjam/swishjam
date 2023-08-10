@@ -3,11 +3,13 @@
 import {
   Card,
   CardContent,
+  CardDescription,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
 import { LineChart, Tooltip, Line, ResponsiveContainer } from 'recharts';
+
 
 const LoadingView = () => (
   <Card>
@@ -21,6 +23,34 @@ const LoadingView = () => (
     </CardContent>
   </Card>
 )
+
+const CustomTooltip = ({ active, payload, label }) => {
+  if (active && payload && payload.length) {
+    // console.log(active)
+    //console.log(label)
+    const data = payload[0].payload;
+    return (
+      <Card>
+        <CardHeader className="p-2">
+          <CardTitle className="text-sm font-medium">{(data.value/100).toLocaleString('en-US', { style: "currency", currency: "USD" })}</CardTitle>
+          <CardDescription>{new Date(data.date).toLocaleDateString('en-us', { weekday:"long", year:"numeric", month:"short", day:"numeric"})}</CardDescription>
+        </CardHeader>
+      </Card>
+    );
+  }
+  return null;  
+      /*<div className="custom-tooltip">
+        <p className="label">{`${label} : ${payload[0].value}`}</p>
+        <div>
+          {payload.map((pld) => (
+            <div style={{ display: "inline-block", padding: 10 }}>
+              <div style={{ color: pld.fill }}>{pld.value}</div>
+              <div>{pld.dataKey}</div>
+            </div>
+          ))}
+        </div>
+      </div>*/
+}
 
 export default function ChartCardWithNumberAndLine({ title, value, valueChange, timeseries }) {
 
@@ -53,8 +83,12 @@ export default function ChartCardWithNumberAndLine({ title, value, valueChange, 
             }}
           >
             <Tooltip
+              animationBegin={200}
+              animationDuration={400}
+              wrapperStyle={{ outline: "none" }}
+              content={<CustomTooltip />}
               allowEscapeViewBox={{x: true, y: true}}
-              animationEasing={'ease-in-out'} 
+              animationEasing={'ease-in-out'}
             />
             <Line
               type="natural"

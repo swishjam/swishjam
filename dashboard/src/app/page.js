@@ -22,11 +22,9 @@ export default function Home() {
         setMrrChart({
           ...mrrChart,
           value: (paymentData.current_mrr/100).toLocaleString('en-US', { style: "currency", currency: "USD" }),
-          timeseries: paymentData.comparison_mrr_timeseries
+          timeseries: paymentData.current_mrr_timeseries
         })
       });
-      //console.log(paymentData)
-      //console.log('timeseries', paymentData.comparison_mrr_timeseries)
     }
     getDashboard();
   }, []);
