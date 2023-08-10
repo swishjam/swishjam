@@ -23,10 +23,6 @@ const LoadingView = () => (
 )
 
 export default function ChartCardWithNumberAndLine({ title, value, valueChange, timeseries }) {
-  /*console.log(title)
-  console.log(timeseries)
-  console.log(value)
-  console.log(valueChange)*/
 
   if(!title && !value)
     return <LoadingView />;
