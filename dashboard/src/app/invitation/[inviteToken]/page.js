@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { API } from "@/lib/api-client/base";
 import Logo from '@/components/Logo';
 import LoadingSpinner from '@/components/LoadingSpinner';
-import { ONE_DAY_IN_MS } from '@/lib/utilities/timeHelpers';
+import { ONE_DAY_IN_MS } from '@/lib/utils/timeHelpers';
 import { CheckCircleIcon, ExclamationCircleIcon } from '@heroicons/react/24/outline';
 import supabase from '@/lib/supabase-browser';
 import { useAuth } from '@/components/AuthProvider';
