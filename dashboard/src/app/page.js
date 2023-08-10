@@ -1,57 +1,74 @@
 'use client';
-
 import AuthenticatedView from '@/components/AuthenticatedView';
-
-//import { Card, Metric, Text, AreaChart, BadgeDelta, Flex, DeltaType } from "@tremor/react"
+import ChartCardWithNumberAndLine from '@/components/ChartCardWithNumberAndLine';
 
 const data = [
   {
-    Month: "Jan 21",
-    MRR: 2890,
-    "Active Users": 2400,
-    Customers: 4938,
+    name: "Jan",
+    total: Math.floor(Math.random() * 5000) + 1000,
   },
   {
-    Month: "Feb 21",
-    MRR: 1890,
-    "Active Users": 1398,
-    Customers: 2938,
+    name: "Feb",
+    total: Math.floor(Math.random() * 5000) + 1000,
   },
-  // ...
   {
-    Month: "Jul 21",
-    MRR: 3490,
-    "Active Users": 4300,
-    Customers: 2345,
+    name: "Mar",
+    total: Math.floor(Math.random() * 5000) + 1000,
   },
-];
+  {
+    name: "Apr",
+    total: Math.floor(Math.random() * 5000) + 1000,
+  },
+  {
+    name: "May",
+    total: Math.floor(Math.random() * 5000) + 1000,
+  },
+  {
+    name: "Jun",
+    total: Math.floor(Math.random() * 5000) + 1000,
+  },
+  {
+    name: "Jul",
+    total: Math.floor(Math.random() * 5000) + 1000,
+  },
+  {
+    name: "Aug",
+    total: Math.floor(Math.random() * 5000) + 1000,
+  },
+  {
+    name: "Sep",
+    total: Math.floor(Math.random() * 5000) + 1000,
+  },
+  {
+    name: "Oct",
+    total: Math.floor(Math.random() * 5000) + 1000,
+  },
+  {
+    name: "Nov",
+    total: Math.floor(Math.random() * 5000) + 1000,
+  },
+  {
+    name: "Dec",
+    total: Math.floor(Math.random() * 5000) + 1000,
+  },
+]
 
-const categories = [
+const dashboardComponents = [
   {
     title: "MRR",
-    metric: "$ 12,699",
-    metricPrev: "$ 9,456",
-    delta: "34.3%",
-    deltaType: "moderateIncrease",
+    value: "$4,250",
+    valueChange: '',
+    timeseries: data
   },
   {
     title: "Active Users",
-    metric: "$ 12,348",
-    metricPrev: "$ 10,456",
-    delta: "18.1%",
-    deltaType: "moderateIncrease",
-  },
-  {
-    title: "Customers",
-    metric: "948",
-    metricPrev: "1,082",
-    delta: "12.3%",
-    deltaType: "moderateDecrease",
+    value: "250",
+    valueChange: '+20.1%',
+    timeseries: data
   },
 ];
 
 export default function Home() {
-
 
   return (
     <AuthenticatedView>
@@ -64,35 +81,30 @@ export default function Home() {
           <div className="w-full flex items-center justify-end">
           </div>
         </div>
-        <div className='grid grid-cols-3 gap-6 pt-12'>
-          {/*categories.map((item) => (
-        <Card key={item.title}>
-          <Flex alignItems="start">
-            <Text>{item.title}</Text>
-            <BadgeDelta deltaType={item.deltaType}>{item.delta}</BadgeDelta>
-          </Flex>
-          <Flex className="space-x-3 truncate" justifyContent="start" alignItems="baseline">
-            <Metric>{item.metric}</Metric>
-            <Text>from {item.metricPrev}</Text>
-          </Flex>
-          <AreaChart
-            className="mt-6 "
-            data={data}
-            index="Month"
-            valueFormatter={(num) =>
-              `$ ${Intl.NumberFormat("us").format(num).toString()}`
-            }
-            categories={[item.title]}
-            colors={["blue"]}
-            showXAxis={true}
-            showGridLines={false}
-            startEndOnly={true}
-            showYAxis={false}
-            showLegend={false}
-          />
-        </Card>
-          ))*/}
+        <div className='grid grid-cols-3 gap-6 pt-8'>
+          {dashboardComponents.map((dc) => (
+            <ChartCardWithNumberAndLine
+              key={dc.title}
+              title={dc.title}
+              value={dc.value}
+              valueChange={dc.valueChange}
+              timeseries={dc.timeseries}
+            />
+          ))}
         </div> 
+          <div
+            className="mt-6" 
+          >
+
+        <ChartCardWithNumberAndLine
+          key={dashboardComponents[0].title}
+          title={dashboardComponents[0].title}
+          value={dashboardComponents[0].value}
+          valueChange={dashboardComponents[0].valueChange}
+          timeseries={dashboardComponents[0].timeseries}
+        />
+
+          </div>
       </main>
     </AuthenticatedView>
   );

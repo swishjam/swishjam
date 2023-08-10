@@ -1,4 +1,4 @@
-import { ONE_DAY_IN_MS } from '@/lib/utilities/timeHelpers';
+import { ONE_DAY_IN_MS } from '@/lib/utils/timeHelpers';
 import { createClient } from '@supabase/supabase-js';
 
 export default async (req, res) => {
