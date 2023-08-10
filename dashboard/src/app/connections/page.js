@@ -1,45 +1,35 @@
 'use client';
 
+import { useState, useEffect, Fragment } from 'react';
+import { API } from '@/lib/api-client/base';
 import Image from 'next/image';
-import Link from 'next/link';
 import AuthenticatedView from '@/components/AuthenticatedView';
-import { Fragment } from 'react'
 import { Menu, Transition } from '@headlessui/react'
-import { 
-  EllipsisHorizontalIcon
-} from '@heroicons/react/20/solid'
-import { 
-  PlusCircleIcon,
-} from '@heroicons/react/24/outline'
+import { EllipsisHorizontalIcon } from '@heroicons/react/20/solid'
+import { PlusCircleIcon, PauseCircleIcon, TrashIcon, PlayCircleIcon } from '@heroicons/react/24/outline'
 import StripeImg from '@public/stripe-logo.jpeg'
+import Modal from '@/components/utils/Modal';
 
-
-const statuses = {
-  Paid: 'text-green-700 bg-green-50 ring-green-600/20',
-  Withdraw: 'text-gray-600 bg-gray-50 ring-gray-500/10',
-  Overdue: 'text-red-700 bg-red-50 ring-red-600/10',
+const CONNECTION_IMAGES = {
+  Stripe: StripeImg,
 }
 
-const availableConnections = [
-  {
-    id: 1,
-    name: 'Stripe',
-    image: StripeImg,
-    oAuthLink: "https://connect.stripe.com/oauth/authorize?response_type=code&client_id=ca_ONSwwqiCfDZHQzg1hURYH5pfTVj1PrAe&scope=read_write"
-  },
-]
-
-function classNames(...classes) {
-  return classes.filter(Boolean).join(' ')
+const CONNECTION_OAUTH_URLS = {
+  Stripe: apiKey => `https://connect.stripe.com/oauth/authorize?response_type=code&client_id=ca_ONSwwqiCfDZHQzg1hURYH5pfTVj1PrAe&scope=read_write&redirect_uri=http://localhost:8080/oauth/stripe/callback&state={"instance":"${apiKey}"}`
 }
 
-const AddConnectionButton = ({ connection }) => (
-  <Link
-    href={connection.oAuthLink} 
-    key={connection.id} className="rounded-xl border border-gray-200 bg-white group cursor-pointer hover:bg-gray-50 duration-300 transition">
+const CONNECTION_DESCRIPTIONS = {
+  Stripe: 'Connect your Stripe account to Swishjam to automatically import your Stripe customers and subscriptions.',
+}
+
+const AddConnectionButton = ({ connection, onConnectionClick }) => (
+  <div 
+    className="rounded-xl border border-gray-200 bg-white group cursor-pointer hover:bg-gray-50 duration-300 transition"
+    onClick={onConnectionClick}
+  >
     <div className="flex items-center gap-x-4 p-6">
       <Image
-        src={connection.image}
+        src={CONNECTION_IMAGES[connection.name]}
         alt={connection.name}
         className="h-12 w-12 flex-none rounded-lg bg-white object-cover ring-1 ring-gray-900/10"
       />
@@ -48,18 +38,25 @@ const AddConnectionButton = ({ connection }) => (
         <PlusCircleIcon className='h-6 w-6 text-gray-900 group-hover:text-swishjam duration-300 transition' /> 
       </div> 
     </div>
-  </Link>
+  </div>
 )
 
-const ConnectionDisplay = ({ connection }) => (
-  <li key={connection.id} className="rounded-xl border border-gray-200 bg-white">
+const ExistingConnectionItem = ({ connection, enabled, onRemoveClick, onDisableClick, onEnableClick }) => (
+  <li key={connection.id} className={`rounded-xl border border-gray-200 ${enabled ? 'bg-white' : 'bg-gray-200'}`}>
     <div className="flex items-center gap-x-4 p-6">
       <Image
-        src={connection.image}
+        src={CONNECTION_IMAGES[connection.name]}
         alt={connection.name}
         className="h-12 w-12 flex-none rounded-lg bg-white object-cover ring-1 ring-gray-900/10"
       />
-      <div className="text-sm font-medium leading-6 text-gray-900">{connection.name}</div>
+      <div className="text-sm font-medium leading-6 text-gray-900">
+        {connection.name}
+        {!enabled && (
+          <span className="ml-2 inline-flex items-center rounded-md bg-orange-50 px-2 py-1 text-xs font-medium text-orange-800 ring-1 ring-inset ring-orange-600/20">
+            Disabled
+          </span>
+        )}
+      </div>
       <Menu as="div" className="relative ml-auto">
         <Menu.Button className="-m-2.5 block p-2.5 text-gray-400 hover:text-gray-500">
           <span className="sr-only">Open options</span>
@@ -76,17 +73,37 @@ const ConnectionDisplay = ({ connection }) => (
         >
           <Menu.Items className="absolute right-0 z-10 mt-0.5 w-32 origin-top-right rounded-md bg-white py-2 shadow-lg ring-1 ring-gray-900/5 focus:outline-none">
             <Menu.Item>
-              {({ active }) => (
+              <>
+                {enabled 
+                  ? (
+                    <a
+                      href="#"
+                      onClick={() => onDisableClick(connection.id)}
+                      className='block px-3 py-2 text-sm leading-6 text-gray-900 flex items-center justify-around hover:bg-orange-50 hover:text-orange-500'
+                    >
+                      Disable<span className="sr-only">, {connection.name}</span>
+                      <PauseCircleIcon className='h-6 w-6 inline-block' />
+                    </a>
+                  ) : (
+                    <a
+                      href="#"
+                      onClick={() => onEnableClick(connection.id)}
+                      className='block px-3 py-2 text-sm leading-6 text-gray-900 flex items-center justify-around hover:bg-green-50 hover:text-green-500'
+                    >
+                      Enable<span className="sr-only">, {connection.name}</span>
+                      <PlayCircleIcon className='h-6 w-6 inline-block' />
+                    </a>
+                  )
+                }
                 <a
                   href="#"
-                  className={classNames(
-                    active ? 'bg-gray-50' : '',
-                    'block px-3 py-1 text-sm leading-6 text-gray-900'
-                  )}
+                  onClick={() => onRemoveClick(connection.id)}
+                  className='block px-3 py-2 text-sm leading-6 text-gray-900 flex items-center justify-around hover:bg-red-50 hover:text-red-500'
                 >
                   Remove<span className="sr-only">, {connection.name}</span>
+                  <TrashIcon className='h-6 w-6 inline-block' />
                 </a>
-              )}
+              </>
             </Menu.Item>
           </Menu.Items>
         </Transition>
@@ -96,9 +113,67 @@ const ConnectionDisplay = ({ connection }) => (
 )
 
 export default function Connections() {
+  const [enabledConnections, setEnabledConnections] = useState();
+  const [disabledConnections, setDisabledConnections] = useState();
+  const [availableConnections, setAvailableConnections] = useState();
+  const [connectionForModal, setConnectionForModal] = useState(null);
+
+  const disableConnection = async connectionId => {
+    const result = await API.patch(`/api/v1/integrations/${connectionId}/disable`);
+    if (result.success) {
+      setEnabledConnections(enabledConnections.filter(connection => connection.id !== connectionId));
+      setDisabledConnections([...disabledConnections, enabledConnections.find(connection => connection.id === connectionId)]);
+    }
+  }
+
+  const enableConnection = async connectionId => {
+    const result = await API.patch(`/api/v1/integrations/${connectionId}/enable`);
+    if (result.success) {
+      setDisabledConnections(disabledConnections.filter(connection => connection.id !== connectionId));
+      setEnabledConnections([...enabledConnections, disabledConnections.find(connection => connection.id === connectionId)]);
+    }
+  }
+  
+  const removeConnection = async connectionId => {
+    const result = await API.delete(`/api/v1/integrations/${connectionId}`);
+    if (result.success) {
+      setAvailableConnections([...availableConnections, enabledConnections.find(connection => connection.id === connectionId)]);
+      setEnabledConnections(enabledConnections.filter(connection => connection.id !== connectionId));
+      setDisabledConnections(disabledConnections.filter(connection => connection.id !== connectionId));
+    }
+  }
+
+  useEffect(() => {
+    const getConnections = async () => {
+      const { enabled_integrations, disabled_integrations, available_integrations } = await API.get('/api/v1/integrations');
+      setEnabledConnections(enabled_integrations);
+      setDisabledConnections(disabled_integrations);
+      setAvailableConnections(available_integrations);
+    }
+    getConnections();
+  }, []);
 
   return (
     <AuthenticatedView>
+      {connectionForModal && (
+        <Modal isOpen={true} onClose={() => setConnectionForModal(null)}>
+          <div className='flex flex-col items-center justify-center'>
+            <Image
+              src={CONNECTION_IMAGES[connectionForModal.name]}
+              alt={connectionForModal.name}
+              className="h-12 w-12 flex-none rounded-lg bg-white object-cover ring-1 ring-gray-900/10"
+            />
+            <h1 className='text-2xl font-medium mb-4 mt-4'>Connect {connectionForModal.name}</h1>
+            <p className='text-gray-600 text-center mb-8'>{CONNECTION_DESCRIPTIONS[connectionForModal.name]}</p>
+            <a 
+              className='w-full mt-6 flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white focus:outline-none focus:ring-2 bg-swishjam hover:bg-swishjam-dark'
+              href={CONNECTION_OAUTH_URLS[connectionForModal.name]('INSTANCE-7da3a8bc')}
+            >
+              Connect {connectionForModal.name}
+            </a>
+          </div>
+        </Modal>
+      )}
       <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mb-8">
         <div className='grid grid-cols-2 mt-8 flex items-center'>
           <div>
@@ -110,16 +185,52 @@ export default function Connections() {
         <div className='pt-12'>
           <h5 className='py-2'>Connected Apps</h5>
           <ul role="list" className="grid grid-cols-1 gap-x-6 gap-y-8 lg:grid-cols-3 xl:gap-x-8">
-            {availableConnections.map((connection) => (
-              <ConnectionDisplay key={connection.id} connection={connection} />
+            {enabledConnections === undefined 
+              ? (
+                Array.from({ length: 3 }, (_, i) => (
+                  <li key={i} className="rounded-xl border border-gray-200 bg-gray-100 animate-pulse h-24" />
+                ))
+              ) : (
+                enabledConnections.map(connection => (
+                  <ExistingConnectionItem 
+                    key={connection.id} 
+                    connection={connection} 
+                    onDisableClick={disableConnection}
+                    onRemoveClick={removeConnection}
+                    enabled={true}
+                  />
+                ))
+              )
+            }
+            {(disabledConnections || []).map(connection => (
+              <ExistingConnectionItem
+                key={connection.id}
+                connection={connection}
+                onRemoveClick={removeConnection}
+                onEnableClick={enableConnection}
+                enabled={false}
+              />
             ))}
           </ul>
 
           <h5 className='pt-8 pb-2'>Available Connections</h5>
           <ul role="list" className="grid grid-cols-1 gap-x-6 gap-y-8 lg:grid-cols-3 xl:gap-x-8">
-            {availableConnections.map((connection) => (
-              <AddConnectionButton key={connection.id} connection={connection} />
-            ))}
+            {availableConnections === undefined
+              ? (
+                Array.from({ length: 3 }, (_, i) => (
+                  <li key={i} className="rounded-xl border border-gray-200 bg-gray-100 animate-pulse h-24" />
+                ))
+              ) : (
+                availableConnections.map((connection) => (
+                  <AddConnectionButton 
+                    key={connection.id} 
+                    connection={connection} 
+                    apiKey='INSTANCE-7da3a8bc' 
+                    onConnectionClick={() => setConnectionForModal(connection)}
+                  />
+                ))
+              )
+            }
           </ul>
 
         </div>

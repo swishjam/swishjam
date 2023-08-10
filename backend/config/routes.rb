@@ -1,4 +1,6 @@
 Rails.application.routes.draw do
+  get '/oauth/stripe/callback' => 'oauth/stripe#callback'
+
   namespace :api do
     namespace :v1 do
 
@@ -35,9 +37,12 @@ Rails.application.routes.draw do
         end
       end
 
-      resources :billing_data_snapshots, only: [] do
-        collection do
-          get :get
+      resources :billing_data_snapshots, only: [:index]
+
+      resources :integrations, only: [:destroy, :index] do
+        member do
+          patch :enable
+          patch :disable
         end
       end
       
