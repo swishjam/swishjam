@@ -1,7 +1,7 @@
 module Api
   module V1
     class BillingDataSnapshotsController < BaseController
-      def get
+      def index
         current_billing_data = get_billing_data(30.days.ago.beginning_of_day, Time.current)
         comparison_billing_data = get_billing_data(60.days.ago.beginning_of_day, 30.days.ago.beginning_of_day)
         render json: {
