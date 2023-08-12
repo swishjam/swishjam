@@ -13,8 +13,9 @@ class SessionsController < ApplicationController
     log_user_out
     render json: { message: 'logged out' }, status: :ok
   rescue => e
-    Rails.logger.error "Failed to log user out."
+    Rails.logger.error "Failed to log user out, but going to return 200 anyway to allow it."
     Rails.logger.error e.message
-    render json: { error: e.message }, status: :unauthorized
+    render json: { message: 'logged out' }, status: :ok
+    # render json: { error: e.message }, status: :unauthorized
   end
 end

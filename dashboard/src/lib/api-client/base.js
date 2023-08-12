@@ -22,7 +22,6 @@ export class API {
       method: method,
       headers: {
         'Content-Type': 'application/json',
-        'X-Swishjam-Api-Key': 'INSTANCE-7da3a8bc', // TODO: hardcoded for now...
         'X-Swishjam-Token': localStorage.getItem('swishjam-token'),
       },
     };

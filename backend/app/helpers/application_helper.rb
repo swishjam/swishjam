@@ -23,16 +23,16 @@ module ApplicationHelper
       expires_at_epoch: (ENV['AUTH_LENGTH_IN_MINUTES'] || 24 * 60 * 7).to_i.minutes.from_now.to_i,
     }
     token = JWT.encode(data_to_encode, user.jwt_secret_key, 'HS256')
-    Swishjam::Session.create!(user: user, jwt_id: token)
+    Swishjam::Session.create!(user: user, jwt_value: token)
     token
   end
 
   def log_user_out
-    Swishjam::Session.find_by!(jwt_id: jwt_token).destroy!
+    Swishjam::Session.find_by!(jwt_value: jwt_token).destroy!
   end
 
   def is_valid_session?
     return false if jwt_token.blank?
-    Swishjam::Session.exists?(jwt_id: jwt_token)
+    Swishjam::Session.exists?(jwt_value: jwt_token)
   end
 end

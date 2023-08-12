@@ -7,7 +7,7 @@ import Sidebar from '@/components/SideNav/Nav';
 import LoadingSpinner from './LoadingSpinner';
 import { useAuthData, clearToken } from './AuthProvider';
 
-export default function AuthenticatedView(WrappedComponent) {
+export default function AuthenticatedView(WrappedComponent, LoadingViewComponent) {
   return (props) => {
     const [sideNavIsCollapsed, setSideNavIsCollapsed] = useState(typeof SwishjamMemory.get('isNavCollapsed') === 'boolean' ? SwishjamMemory.get('isNavCollapsed') : false);
     const router = useRouter();
@@ -27,14 +27,14 @@ export default function AuthenticatedView(WrappedComponent) {
     if (isAwaitingData) {
       return (
         <>
-          <Sidebar 
-            onCollapse={() => setSideNavIsCollapsed(true)} 
-            onExpand={() => setSideNavIsCollapsed(false)} 
-            authData={authData}
-          />
+          <Sidebar onCollapse={() => setSideNavIsCollapsed(true)} onExpand={() => setSideNavIsCollapsed(false)} authData={authData} />
           <main className={`${sideNavIsCollapsed ? 'lg:pl-10' : 'lg:pl-72'}`}>
-            <div className="px-4 sm:px-6 lg:px-8 flex min-h-screen items-center justify-center">
-              <LoadingSpinner size={8} />
+            <div className="px-4 sm:px-6 lg:px-8">
+              {LoadingViewComponent ? <LoadingViewComponent /> : (
+                <div className="flex min-h-screen items-center justify-center">
+                  <LoadingSpinner size={8} />
+                </div>
+              )}
             </div>
           </main>
         </>
@@ -42,12 +42,8 @@ export default function AuthenticatedView(WrappedComponent) {
     } else if(authData && !authData.isExpired()) {
       return (
         <>
-          <Sidebar 
-            onCollapse={() => setSideNavIsCollapsed(true)} 
-            onExpand={() => setSideNavIsCollapsed(false)} 
-            authData={authData}
-          />
-          <main className={`transition-all duration-500 ${sideNavIsCollapsed ? 'lg:pl-10' : 'lg:pl-72'}`}>
+          <Sidebar onCollapse={() => setSideNavIsCollapsed(true)} onExpand={() => setSideNavIsCollapsed(false)} authData={authData} />
+          <main className={`${sideNavIsCollapsed ? 'lg:pl-10' : 'lg:pl-72'}`}>
             <div className="px-4 sm:px-6 lg:px-8">
               <WrappedComponent {...props} user={{ id: 'foo?' }} />
             </div>

@@ -51,8 +51,8 @@ export default function Sidebar({ onCollapse, onExpand, authData }) {
       <div>
         <SidebarMobile sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} userEmail={authData?.email()} />
         <div className={`hidden lg:fixed lg:inset-y-0 lg:z-20 lg:flex lg:flex-col transition-all duration-300 ease-in-out ${isCollapsed ? 'lg:w-10' : 'lg:w-72'}`}>
-          <div className={`flex grow flex-col gap-y-5 overflow-y-auto border-r border-gray-200 bg-white transition-all duration-300 ${isCollapsed ? 'px-1' : 'px-6'}`}>
-            <div className={`flex h-16 shrink-0 items-center transition-all duration-300 ${isCollapsed ? 'justify-center' : ''}`}>
+          <div className={`flex grow flex-col gap-y-5 overflow-y-auto border-r border-gray-200 bg-white ${isCollapsed ? 'px-1' : 'px-6'}`}>
+            <div className={`flex h-16 shrink-0 items-center ${isCollapsed ? 'justify-center' : ''}`}>
               <Link href="/">
                 <Logo className="h-8"/>
               </Link>
@@ -82,14 +82,14 @@ export default function Sidebar({ onCollapse, onExpand, authData }) {
         </div>
       </div>
       <div
-        className={`fixed text-gray-700 p-1 top-0 cursor-pointer transition-all duration-500 border-b rounded-br-lg border-r z-30 bg-white -ml-[1px] border-gray-200 hover:text-swishjam hover:bg-gray-50 ${isCollapsed ? 'left-10' : 'left-72'}`}
+        className={`transition-left duration-300 ease-in-out fixed text-gray-700 p-1 top-0 cursor-pointer border-b rounded-br-lg border-r z-30 bg-white -ml-[1px] border-gray-200 hover:text-swishjam hover:bg-gray-50 ${isCollapsed ? 'left-10' : 'left-72'}`}
         onClick={() => {
           setIsCollapsed(!isCollapsed);
           isCollapsed ? onExpand() : onCollapse();
           SwishjamMemory.set('isNavCollapsed', !isCollapsed);
         }}
         >
-        {isCollapsed ? <ChevronRightIcon className="h-4 w-4 transition hover:scale-110" /> : <ChevronLeftIcon className="h-4 w-4 transition hover:scale-110" />}
+        {isCollapsed ? <ChevronRightIcon className="h-4 w-4 hover:scale-110" /> : <ChevronLeftIcon className="h-4 w-4 hover:scale-110" />}
       </div>
     </>
   );

@@ -16,7 +16,7 @@ module Oauth
     def validate_token_and_return_organization
       # make sure a session exists for the token
       token = JSON.parse(params[:state])['authToken']
-      Swishjam::Session.find_by!(jwt_id: token) 
+      Swishjam::Session.find_by!(jwt_value: token) 
 
       # make sure the token is valid
       decoded_token = JWT.decode(token, nil, false)[0]
