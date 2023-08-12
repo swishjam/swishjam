@@ -31,11 +31,4 @@ export class API {
     const response = await fetch(`${API_HOST}${urlPath}`, opts);
     return await response.json();
   }
-
-  // static _params(data) {
-  //   const projectKey = SwishjamMemory.get('currentProjectKey');
-  //   const project = SwishjamMemory.get('currentProjectName');
-  //   const organizationId = SwishjamMemory.get('currentOrganization');
-  //   return { projectKey, project, organizationId, ...data };
-  // }
 }
