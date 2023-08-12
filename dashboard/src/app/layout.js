@@ -1,4 +1,4 @@
-import 'src/styles/globals.css';
+import 'src/app/globals.css';
 
 export const revalidate = 0;
 

@@ -30,7 +30,7 @@ module Api
       private
       
       def get_billing_data(start_time, end_time)
-        current_organization.billing_data_snapshots
+        current_organization.analytics_billing_data_snapshots
                             .where(captured_at: start_time..end_time)
                             .order(captured_at: :asc)
                             .select(:mrr_in_cents, :total_revenue_in_cents, :num_active_subscriptions, :num_free_trial_subscriptions, :num_canceled_subscriptions, :captured_at)
