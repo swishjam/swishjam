@@ -9,21 +9,21 @@ import 'src/styles/globals.css';
 export const revalidate = 0;
 
 export default async function RootLayout({ children, ...props}) {
-  const supabase = createClient();
+  // const supabase = createClient();
 
-  //console.log(props)
-  const {
-    data: { session },
-  } = await supabase.auth.getSession();
+  // //console.log(props)
+  // const {
+  //   data: { session },
+  // } = await supabase.auth.getSession();
 
-  const accessToken = session?.access_token || null;
+  // const accessToken = session?.access_token || null;
 
   return (
     <html lang="en">
       <body>
-        <AuthProvider accessToken={accessToken}>
+        {/* <AuthProvider accessToken={accessToken}> */}
           {children}
-        </AuthProvider>
+        {/* </AuthProvider> */}
       </body>
     </html>
   );

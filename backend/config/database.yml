@@ -11,10 +11,10 @@ development:
 
 test:
   <<: *default
-  database: database_test
+  database: swishjam_test_db
 
 production:
   <<: *default
-  database: database_production
+  database: swishjam
   username: database
   password: <%= ENV['DATABASE_DATABASE_PASSWORD'] %>

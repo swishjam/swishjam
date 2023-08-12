@@ -6,8 +6,8 @@ module Api
       private
 
       def authenticate_request!
-        if !requested_instance
-          render json: { error: 'Not Authorized' }, status: :unauthorized
+        if !is_valid_session?
+          render json: { error: 'Not Authorized', logged_out: true }, status: :unauthorized
         end
       end
     end

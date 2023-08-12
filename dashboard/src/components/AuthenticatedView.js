@@ -1,43 +1,59 @@
 'use client';
-import { useState } from 'react';
-import Sidebar from '@components/Sidebar';
-import { useAuth } from '@components/AuthProvider';
-import LoadingFullScreen from '@components/LoadingFullScreen';
-import SignIn from '@components/Auth/SignIn';
+
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { SwishjamMemory } from '@/lib/swishjam-memory';
+import Sidebar from '@/components/SideNav/Nav';
 import LoadingSpinner from './LoadingSpinner';
+import { useAuthData, clearToken } from './AuthProvider';
 
-export default function AuthenticatedView({ LoadingView, children }) {
-  const { initial, user, currentProject, isAwaitingData } = useAuth();
-  const [sideNavIsCollapsed, setSideNavIsCollapsed] = useState(typeof SwishjamMemory.get('isNavCollapsed') === 'boolean' ? SwishjamMemory.get('isNavCollapsed') : false);
+export default function AuthenticatedView(WrappedComponent) {
+  return (props) => {
+    const [sideNavIsCollapsed, setSideNavIsCollapsed] = useState(typeof SwishjamMemory.get('isNavCollapsed') === 'boolean' ? SwishjamMemory.get('isNavCollapsed') : false);
+    const router = useRouter();
+    const { isAwaitingData, authData, isLoggedOut } = useAuthData();
 
-  if (isAwaitingData) {
-    return (
-      <>
-        <Sidebar onCollapse={() => setSideNavIsCollapsed(true)} onExpand={() => setSideNavIsCollapsed(false)} />
-        <main className={`py-10 flex h-screen items-center transition ${sideNavIsCollapsed ? 'lg:pl-10' : 'lg:pl-72'}`}>
-          {LoadingView || <div className='w-fit mx-auto'><LoadingSpinner size={8} /></div>}
-        </main> 
-      </>
-    );
-  } else if(user && !currentProject) {
-    return <></>
-  } else if (user) {
-    return(
-      <>
-        <Sidebar onCollapse={() => setSideNavIsCollapsed(true)} onExpand={() => setSideNavIsCollapsed(false)} />
-        <main className={`transition-all duration-500 ${sideNavIsCollapsed ? 'lg:pl-10' : 'lg:pl-72'}`}>
-          <div className="px-4 sm:px-6 lg:px-8">
-            {children}
-          </div>
-        </main> 
-        
-      </>
-    );
-  } else if (!initial && !user) {
-    return <SignIn />
-  } else {
-    // This is back up for now... 
-    return <LoadingFullScreen />;
-  } 
-}
+    useEffect(() => {
+      if (isLoggedOut) {
+        router.push('/login');
+        return;
+      } else if (authData && authData.isExpired()) {
+        clearToken();
+        router.push('/login');
+        return;
+      }
+    }, [isAwaitingData, authData, isLoggedOut]);
+
+    if (isAwaitingData) {
+      return (
+        <>
+          <Sidebar 
+            onCollapse={() => setSideNavIsCollapsed(true)} 
+            onExpand={() => setSideNavIsCollapsed(false)} 
+            authData={authData}
+          />
+          <main className={`${sideNavIsCollapsed ? 'lg:pl-10' : 'lg:pl-72'}`}>
+            <div className="px-4 sm:px-6 lg:px-8 flex min-h-screen items-center justify-center">
+              <LoadingSpinner size={8} />
+            </div>
+          </main>
+        </>
+      )
+    } else if(authData && !authData.isExpired()) {
+      return (
+        <>
+          <Sidebar 
+            onCollapse={() => setSideNavIsCollapsed(true)} 
+            onExpand={() => setSideNavIsCollapsed(false)} 
+            authData={authData}
+          />
+          <main className={`transition-all duration-500 ${sideNavIsCollapsed ? 'lg:pl-10' : 'lg:pl-72'}`}>
+            <div className="px-4 sm:px-6 lg:px-8">
+              <WrappedComponent {...props} user={{ id: 'foo?' }} />
+            </div>
+          </main>
+        </>
+      )
+    }
+  };
+};

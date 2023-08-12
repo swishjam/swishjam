@@ -1,8 +1,8 @@
 module Analytics
   class Session < ApplicationRecord
     self.table_name = :analytics_sessions
-    belongs_to :device, class_name: Analytics::Device.to_s
-    belongs_to :organization, class_name: Analytics::Organization.to_s, optional: true
+    belongs_to :device, class_name: Analytics::Device.to_s, foreign_key: :analytics_device_id
+    belongs_to :organization, class_name: Analytics::Organization.to_s, foreign_key: :analytics_organization_id, optional: true
     has_many :page_hits, class_name: Analytics::PageHit.to_s, dependent: :destroy
     has_many :events, class_name: Analytics::Event.to_s, dependent: :destroy
 

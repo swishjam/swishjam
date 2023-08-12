@@ -1,8 +1,8 @@
 module Analytics
   class PageHit < ApplicationRecord
     self.table_name = :analytics_page_hits
-    belongs_to :device, class_name: Analytics::Device.to_s
-    belongs_to :session, class_name: Analytics::Session.to_s
+    belongs_to :device, class_name: Analytics::Device.to_s, foreign_key: :analytics_device_id
+    belongs_to :session, class_name: Analytics::Session.to_s, foreign_key: :analytics_session_id
     has_many :events, class_name: Analytics::Event.to_s, dependent: :destroy
 
     def self.first_of_sessions(instance)

@@ -50,50 +50,48 @@ const categories = [
   },
 ];
 
-export default function Home() {
-
-
+const Home = () => {
   return (
-    <AuthenticatedView>
-      <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mb-8">
-        <div className='grid grid-cols-2 mt-8 flex items-center'>
-          <div>
-            <h1 className="text-lg font-medium text-gray-700 mb-0">Dashboard</h1>
-          </div>
-
-          <div className="w-full flex items-center justify-end">
-          </div>
+    <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mb-8">
+      <div className='grid grid-cols-2 mt-8 flex items-center'>
+        <div>
+          <h1 className="text-lg font-medium text-gray-700 mb-0">Dashboard</h1>
         </div>
-        <div className='grid grid-cols-3 gap-6 pt-12'>
-          {/*categories.map((item) => (
-        <Card key={item.title}>
-          <Flex alignItems="start">
-            <Text>{item.title}</Text>
-            <BadgeDelta deltaType={item.deltaType}>{item.delta}</BadgeDelta>
-          </Flex>
-          <Flex className="space-x-3 truncate" justifyContent="start" alignItems="baseline">
-            <Metric>{item.metric}</Metric>
-            <Text>from {item.metricPrev}</Text>
-          </Flex>
-          <AreaChart
-            className="mt-6 "
-            data={data}
-            index="Month"
-            valueFormatter={(num) =>
-              `$ ${Intl.NumberFormat("us").format(num).toString()}`
-            }
-            categories={[item.title]}
-            colors={["blue"]}
-            showXAxis={true}
-            showGridLines={false}
-            startEndOnly={true}
-            showYAxis={false}
-            showLegend={false}
-          />
-        </Card>
-          ))*/}
-        </div> 
-      </main>
-    </AuthenticatedView>
+
+        <div className="w-full flex items-center justify-end">
+        </div>
+      </div>
+      <div className='grid grid-cols-3 gap-6 pt-12'>
+        {/*categories.map((item) => (
+      <Card key={item.title}>
+        <Flex alignItems="start">
+          <Text>{item.title}</Text>
+          <BadgeDelta deltaType={item.deltaType}>{item.delta}</BadgeDelta>
+        </Flex>
+        <Flex className="space-x-3 truncate" justifyContent="start" alignItems="baseline">
+          <Metric>{item.metric}</Metric>
+          <Text>from {item.metricPrev}</Text>
+        </Flex>
+        <AreaChart
+          className="mt-6 "
+          data={data}
+          index="Month"
+          valueFormatter={(num) =>
+            `$ ${Intl.NumberFormat("us").format(num).toString()}`
+          }
+          categories={[item.title]}
+          colors={["blue"]}
+          showXAxis={true}
+          showGridLines={false}
+          startEndOnly={true}
+          showYAxis={false}
+          showLegend={false}
+        />
+      </Card>
+        ))*/}
+      </div> 
+    </main>
   );
 }
+
+export default AuthenticatedView(Home);

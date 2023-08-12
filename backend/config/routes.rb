@@ -1,6 +1,7 @@
 Rails.application.routes.draw do
   post '/auth/register' => 'users#create'
   post '/auth/login' => 'sessions#create'
+  post '/auth/logout' => 'sessions#destroy'
 
   get '/oauth/stripe/callback' => 'oauth/stripe#callback'
 

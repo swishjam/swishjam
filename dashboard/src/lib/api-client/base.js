@@ -1,5 +1,3 @@
-import { SwishjamMemory } from "@/lib/swishjam-memory";
-
 const API_HOST = process.env.NEXT_PUBLIC_API_HOST || 'https://api.swishjam.com';
 
 export class API {
@@ -24,7 +22,8 @@ export class API {
       method: method,
       headers: {
         'Content-Type': 'application/json',
-        'X-Swishjam-Api-Key': 'INSTANCE-7da3a8bc' // TODO: hardcoded for now...
+        'X-Swishjam-Api-Key': 'INSTANCE-7da3a8bc', // TODO: hardcoded for now...
+        'X-Swishjam-Token': localStorage.getItem('swishjam-token'),
       },
     };
     if (method !== 'GET') {

@@ -1,11 +1,11 @@
 class SessionsController < ApplicationController
   def create
-    user = User.find_by(email: params[:email])
+    user = Swishjam::User.find_by(email: params[:email])
     if user && user.authenticate(params[:password])
-      token = log_user_in(user)
+      token = log_user_in(user, user.organizations.first)
       render json: { user: user, token: token }, status: :ok
     else
-      render json: { error: 'unauthorized' }, status: :unauthorized
+      render json: { error: 'Invalid email or password.' }, status: :unauthorized
     end
   end
 
