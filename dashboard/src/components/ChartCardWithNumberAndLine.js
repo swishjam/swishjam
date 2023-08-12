@@ -30,7 +30,7 @@ const CustomTooltip = ({ active, payload, label, formatter }) => {
     //console.log(label)
     const data = payload[0].payload;
     return (
-      <Card>
+      <Card className="z-[50000]">
         <CardHeader className="p-2">
           <CardTitle className="text-sm font-medium">{formatter(data.value)}</CardTitle>
           <CardDescription>{new Date(data.date).toLocaleDateString('en-us', { weekday:"long", year:"numeric", month:"short", day:"numeric"})}</CardDescription>
@@ -87,14 +87,14 @@ export default function ChartCardWithNumberAndLine({ title, value, valueChange, 
               animationDuration={400}
               wrapperStyle={{ outline: "none" }}
               content={<CustomTooltip formatter={formatter}/>}
-              allowEscapeViewBox={{x: true, y: true}}
+              allowEscapeViewBox={{x: false, y: true}}
               animationEasing={'ease-in-out'}
             />
             <Line
               type="natural"
               dataKey='value'
               stroke="#7487F7"
-              dot={{ r: 2 }}
+              dot={{ r: 0 }}
               activeDot={{ r: 2 }}
               strokeWidth={2}
             />

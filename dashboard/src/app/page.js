@@ -17,9 +17,12 @@ export default function Home() {
   // const { dashboardComponents, setDashboardComponents} = useState([]);
   const [mrrChart, setMrrChart] = useState(DashboardComponent('MRR'))
   const [activeSubsChart, setActiveSubsChart] = useState(DashboardComponent('Active Subscriptions'))
+  const [sessionsChart, setSessionsChart] = useState(DashboardComponent('User Sessions'))
+
+
   useEffect(() => {
     const getDashboard = async () => {
-      const paymentData = API.get('/api/v1/billing_data_snapshots').then((paymentData) =>{
+      API.get('/api/v1/billing_data_snapshots').then((paymentData) =>{
         setMrrChart({
           ...mrrChart,
           value: (paymentData.current_mrr/100).toLocaleString('en-US', { style: "currency", currency: "USD" }),
@@ -32,11 +35,17 @@ export default function Home() {
           timeseries: paymentData.current_num_active_subscriptions_timeseries
         })
       });
+    
+      API.get('/api/v1/session/count').then((sessionCount) =>{
+        
+      })
+      API.get('/api/v1/session/timeseries').then((sessionTimeseries) =>{
+      
+      })
+    
     }
     getDashboard();
   }, []);
-
-  console.log(mrrChart)
 
   return (
     <AuthenticatedView>
@@ -93,69 +102,3 @@ export default function Home() {
     </AuthenticatedView>
   );
 }
-
-const data = [
-  {
-    name: "Jan",
-    total: Math.floor(Math.random() * 5000) + 1000,
-  },
-  {
-    name: "Feb",
-    total: Math.floor(Math.random() * 5000) + 1000,
-  },
-  {
-    name: "Mar",
-    total: Math.floor(Math.random() * 5000) + 1000,
-  },
-  {
-    name: "Apr",
-    total: Math.floor(Math.random() * 5000) + 1000,
-  },
-  {
-    name: "May",
-    total: Math.floor(Math.random() * 5000) + 1000,
-  },
-  {
-    name: "Jun",
-    total: Math.floor(Math.random() * 5000) + 1000,
-  },
-  {
-    name: "Jul",
-    total: Math.floor(Math.random() * 5000) + 1000,
-  },
-  {
-    name: "Aug",
-    total: Math.floor(Math.random() * 5000) + 1000,
-  },
-  {
-    name: "Sep",
-    total: Math.floor(Math.random() * 5000) + 1000,
-  },
-  {
-    name: "Oct",
-    total: Math.floor(Math.random() * 5000) + 1000,
-  },
-  {
-    name: "Nov",
-    total: Math.floor(Math.random() * 5000) + 1000,
-  },
-  {
-    name: "Dec",
-    total: Math.floor(Math.random() * 5000) + 1000,
-  },
-]
-
-const dashboardComponents = [
-  {
-    title: "MRR",
-    value: "$4,250",
-    valueChange: '',
-    timeseries: data
-  },
-  {
-    title: "Active Users",
-    value: "250",
-    valueChange: '+20.1%',
-    timeseries: data
-  },
-];
