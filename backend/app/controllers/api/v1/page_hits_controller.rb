@@ -6,7 +6,7 @@ module Api
         end_time = params[:end_time] || Time.zone.now
 
         render json: {
-          top_pages: instance.page_hits.where(start_time: start_time..end_time).group_by{ |ph| ph.friendly_url }.transform_values(&:count),
+          top_pages: current_organization.page_hits.where(start_time: start_time..end_time).group_by{ |ph| ph.friendly_url }.transform_values(&:count),
           start_time: start_time,
           end_time: end_time,
         }, status: :ok

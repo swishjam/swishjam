@@ -39,15 +39,13 @@ export default function Home() {
   console.log(mrrChart)
 
   return (
-    <AuthenticatedView>
-      <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mb-8">
-        <div className='grid grid-cols-2 mt-8 flex items-center'>
-          <div>
-            <h1 className="text-lg font-medium text-gray-700 mb-0">Dashboard</h1>
-          </div>
+    <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mb-8">
+      <div className='grid grid-cols-2 mt-8 flex items-center'>
+        <div>
+          <h1 className="text-lg font-medium text-gray-700 mb-0">Dashboard</h1>
+        </div>
 
-          <div className="w-full flex items-center justify-end">
-          </div>
+        <div className="w-full flex items-center justify-end">
         </div>
         <div className='grid grid-cols-3 gap-6 pt-8'>
           {mrrChart && <ChartCardWithNumberAndLine
