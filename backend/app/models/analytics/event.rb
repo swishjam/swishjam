@@ -7,7 +7,7 @@ module Analytics
     has_many :metadata, as: :parent, class_name: Analytics::Metadata.to_s, dependent: :destroy
     accepts_nested_attributes_for :metadata
 
-    scope :for_instance, -> (instance) { joins(:device).where(devices: { instance_id: instance.id }) }
+    scope :for_user, -> (user) { joins(:device).where(analytics_devices: { analytics_user_id: user.id }) }
 
     def formatted_metadata
       Hash.new.tap do |hash|

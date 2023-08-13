@@ -7,7 +7,7 @@ import { Field, Form, Formik } from 'formik';
 import * as Yup from 'yup';
 import Logo from '@components/Logo';
 import LoadingSpinner from '@components/LoadingSpinner';
-import { logUserIn } from '@/components/AuthProvider';
+import { logUserIn } from '@/components/Auth/AuthProvider';
 import { useRouter } from 'next/navigation';
 
 const SignInSchema = Yup.object().shape({
