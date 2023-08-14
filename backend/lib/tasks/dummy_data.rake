@@ -21,9 +21,39 @@ def seed_users!
     )
     seed_devices_for_user!(user)
   end
+  seed_organizations!
+  assign_users_to_organizations!
+  assign_sessions_to_organization!
   # num_new_users_created += NUMBER_OF_USERS
 end
 alias run_seed! seed_users!
+
+def seed_organizations!
+  puts "Seeding #{NUMBER_OF_USERS} organizations."
+  NUMBER_OF_USERS.times do
+    Analytics::Organization.create!(swishjam_organization: ORGANIZATION, name: Faker::Company.name)
+  end
+  # num_new_organizations_created += NUMBER_OF_ORGANIZATIONS_PER_USER_MAX
+end
+
+def assign_users_to_organizations!
+  puts "Assigning users to organizations..."
+  Analytics::User.all.each do |user|
+    rand(1..4).times do
+      Analytics::OrganizationUser.create(user: user, organization: Analytics::Organization.all.sample)
+    end
+  end
+end
+
+def assign_sessions_to_organization!
+  puts "Assigning sessions to organizations..."
+  Analytics::Session.all.each do |session|
+    user = session.device.user
+    if user && user.organizations.any?
+      session.update!(organization: user.organizations.sample)
+    end
+  end
+end
 
 def seed_devices_for_user!(user, min: 0, max: RANDOM_NUM_OF_DEVICES_PER_USER_MAX)
   num_devices = rand(min..max)
@@ -118,13 +148,28 @@ def seed_billing_data!
   end
 end
 
+def prompt_user_with_required_value(attribute)
+  puts "Enter your #{attribute} for your new user login:"
+  value = STDIN.gets.chomp
+  if value.blank?
+    puts "#{attribute} cannot be blank!"
+    prompt_user_with_required_value(attribute)
+  end
+  value
+end
+
 namespace :seed do
   desc "Seeds the database with sample data"
   task dummy_data: [:environment] do
     start = Time.now
 
+    email = prompt_user_with_required_value('email')
+    password = prompt_user_with_required_value('password')
+
     PUBLIC_KEY = "ORGANIZATION-#{SecureRandom.hex(4)}"
+    USER = Swishjam::User.create!(email: email, password: password)
     ORGANIZATION = Swishjam::Organization.create!(public_key: PUBLIC_KEY, name: Faker::Company.name, url: Faker::Internet.domain_name)
+    USER.organizations << ORGANIZATION
     HOST_URL = Faker::Internet.domain_name
     NUMBER_OF_USERS = 100
     URL_PATHS = 50.times.map{ URI.parse(Faker::Internet.url).path }

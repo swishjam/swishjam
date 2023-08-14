@@ -12,6 +12,10 @@ Rails.application.routes.draw do
       post :capture, to: 'capture#process_data'
 
       resources :organizations, only: [:index, :show] do
+        member do
+          get :events
+          get :users
+        end
         collection do
           # get :count
           # get :timeseries

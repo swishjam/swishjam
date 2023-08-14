@@ -8,6 +8,7 @@ module Analytics
     accepts_nested_attributes_for :metadata
 
     scope :for_user, -> (user) { joins(:device).where(analytics_devices: { analytics_user_id: user.id }) }
+    scope :for_organization, -> (organization) { joins(:session).where(analytics_sessions: { analytics_organization_id: organization.id }) }
 
     def formatted_metadata
       Hash.new.tap do |hash|

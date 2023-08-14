@@ -32,13 +32,12 @@ export default function SignUp() {
 
   async function signUp(formData) {
     setLoading(true);
-    const { token, user, organization, error } = await signUserUp(formData);
-    setLoading(false);
+    const { error } = await signUserUp(formData);
     if (error) {
+      setLoading(false);
       setErrorMsg(error);
     } else {
       router.push('/');
-      console.log('Got a user and token???', user, token);
     }
   }
 

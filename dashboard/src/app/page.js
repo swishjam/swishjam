@@ -45,8 +45,8 @@ const LoadingState = () => (
     </div>
     <div className='grid grid-cols-2 gap-6 pt-8'>
       {/* TODO: does this still try to fetch data? we just want it to stay in a loading state... */}
-      <ItemizedUsersList /> 
-      <ItemizedOrganizationsList />
+      <ItemizedUsersList loadingStateOnly={true} /> 
+      <ItemizedOrganizationsList loadingStateOnly={true} />
     </div>
   </main>
 )

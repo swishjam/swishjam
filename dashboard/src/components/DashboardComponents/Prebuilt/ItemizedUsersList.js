@@ -4,12 +4,14 @@ import { useState, useEffect } from 'react';
 import { API } from '@/lib/api-client/base';
 import ItemizedList from '@/components/DashboardComponents/ItemizedList';
 
-export default function ItemizedUsersList() {
+export default function ItemizedUsersList({ loadingStateOnly = false }) {
   const [recentUsers, setRecentUsers] = useState();
 
   useEffect(() => {
-    API.get('/api/v1/users').then(setRecentUsers);
-  }, []);
+    if (!loadingStateOnly) {
+      API.get('/api/v1/users').then(setRecentUsers);
+    }
+  }, [loadingStateOnly]);
 
   return (
     <ItemizedList

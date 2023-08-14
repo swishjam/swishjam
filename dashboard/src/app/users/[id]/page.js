@@ -5,6 +5,7 @@ import AuthenticatedView from "@/components/Auth/AuthenticatedView";
 import { API } from "@/lib/api-client/base";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton";
+import { HoverCard, HoverCardTrigger, HoverCardContent } from "@/components/ui/hover-card";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import EventFeed from "@/components/DashboardComponents/EventFeed";
 import { UsersIcon, CalendarIcon } from "@heroicons/react/24/outline";
@@ -69,9 +70,27 @@ const UserProfile = ({ params }) => {
                       <UsersIcon className='h-4 w-4 text-gray-500 inline-block mr-2' />
                       <span className='text-base'>{userData.organizations[0].name}</span>
                       {userData.organizations.length > 1 && (
-                        <span className="inline-flex items-center rounded-full bg-gray-50 px-2 py-1 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-500/10">
-                          +{userData.organizations.length - 1} others
-                        </span>
+                        <HoverCard className="inline-block">
+                          <HoverCardTrigger>
+                            <span className="inline-flex cursor-default items-center rounded-full bg-gray-50 px-2 py-1 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-500/10 ml-2">
+                              +{userData.organizations.length - 1} others
+                            </span>
+                          </HoverCardTrigger>
+                          <HoverCardContent>
+                            <span className='text-gray-500 text-sm'>
+                              Also a member of{' '}
+                              {userData.organizations.slice(1).map((org, i) => {
+                                return (
+                                  <>
+                                    <span className='font-medium italic'>{org.name}</span>
+                                    {i !== userData.organizations.length - 2 ? ', ' : ''}
+                                    {i === userData.organizations.length - 3 ? ' and ' : ''}
+                                  </>
+                                )
+                              })}
+                            </span>.
+                          </HoverCardContent>
+                        </HoverCard>
                       )}
                     </div>
                   )}
