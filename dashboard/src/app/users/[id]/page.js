@@ -7,6 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Skeleton } from "@/components/ui/skeleton";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import EventFeed from "@/components/DashboardComponents/EventFeed";
+import { UsersIcon, CalendarIcon } from "@heroicons/react/24/outline";
 
 const LoadingState = () => (
   <main className="mx-auto max-w-7xl px-4 mt-8 sm:px-6 lg:px-8 mb-8">
@@ -32,6 +33,7 @@ const UserProfile = ({ params }) => {
   useEffect(() => {
     API.get(`/api/v1/users/${userId}`).then(setUserData);
     API.get(`/api/v1/users/${userId}/events`).then(setRecentEvents);
+    // API.get(`/api/v1`)
   }, [userId])
 
   return (
@@ -39,20 +41,41 @@ const UserProfile = ({ params }) => {
       <main className="mx-auto max-w-7xl px-4 mt-8 sm:px-6 lg:px-8 mb-8">
         <Card>
           <CardHeader>
-            <div className='flex items-center'>
-              <Avatar className="h-20 w-20 mr-4">
-                {userData.avatar_url
-                  ? <AvatarImage src={userData.avatar_url} alt="Avatar" />
-                  : <AvatarFallback className="text-lg">{userData.full_name.split(' ').map(word => word[0]).join('').toUpperCase()}</AvatarFallback>
-                }
-              </Avatar>
-              <div>
-                <CardTitle className='text-4xl'>
-                  {userData.full_name}
-                </CardTitle>
-                <CardDescription className='text-lg text-gray-500'>
-                  {userData.email}
-                </CardDescription>
+            <div className='grid grid-cols-2 items-center'>
+              <div className='flex items-center'>
+                <Avatar className="h-20 w-20 mr-4">
+                  {userData.avatar_url
+                    ? <AvatarImage src={userData.avatar_url} alt="Avatar" />
+                    : <AvatarFallback className="text-lg">{userData.full_name.split(' ').map(word => word[0]).join('').toUpperCase()}</AvatarFallback>
+                  }
+                </Avatar>
+                <div>
+                  <CardTitle className='text-4xl'>
+                    {userData.full_name}
+                  </CardTitle>
+                  <CardDescription className='text-base text-gray-500'>
+                    {userData.email}
+                  </CardDescription>
+                </div>
+              </div>
+              <div className='flex flex-col items-end justify-end text-base text-gray-500'>
+                <div className='space-y-2'>
+                  <div className='flex items-center'>
+                    <CalendarIcon className='h-4 w-4 text-gray-500 inline-block mr-2' />
+                    <span className='text-base'>{new Date(userData.created_at).toLocaleDateString('en-us', { weekday: "short", year: "numeric", month: "short", day: "numeric" })}</span>
+                  </div>
+                  {userData.organizations && userData.organizations.length > 0 && (
+                    <div className='flex items-center'>
+                      <UsersIcon className='h-4 w-4 text-gray-500 inline-block mr-2' />
+                      <span className='text-base'>{userData.organizations[0].name}</span>
+                      {userData.organizations.length > 1 && (
+                        <span className="inline-flex items-center rounded-full bg-gray-50 px-2 py-1 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-500/10">
+                          +{userData.organizations.length - 1} others
+                        </span>
+                      )}
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           </CardHeader>

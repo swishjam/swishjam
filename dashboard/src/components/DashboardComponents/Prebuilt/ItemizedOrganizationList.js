@@ -22,8 +22,8 @@ export default function ItemizedUsersList() {
           .toLocaleDateString('en-us', { weekday: "short", year: "numeric", month: "short", day: "numeric" })
           .replace(`, ${new Date(date).getFullYear()}`, '')
       }}
-      fallbackAvatarGenerator={user => (user.full_name || user.email).split(' ').map(name => name[0]).join('').toUpperCase()}
-      linkFormatter={user => `/users/${user.id}`}
+      fallbackAvatarGenerator={org => org.name.split(' ').map(name => name[0]).join('').toUpperCase()}
+      linkFormatter={org => `/organizations/${organization.id}`}
       noDataMsg='No organizations identified yet.'
     />
   )

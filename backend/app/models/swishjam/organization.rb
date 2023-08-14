@@ -13,6 +13,7 @@ module Swishjam
     has_many :analytics_billing_data_snapshots, class_name: Analytics::BillingDataSnapshot.to_s, foreign_key: :swishjam_organization_id, dependent: :destroy
     has_many :analytics_customer_billing_data_snapshots, class_name: Analytics::CustomerBillingDataSnapshot.to_s, foreign_key: :swishjam_organization_id, dependent: :destroy
     has_many :analytics_payments, class_name: Analytics::Payment.to_s, foreign_key: :swishjam_organization_id, dependent: :destroy
+    has_many :analytics_customer_subscriptions, class_name: Analytics::CustomerSubscription.to_s, foreign_key: :swishjam_organization_id, dependent: :destroy
 
     validates :public_key, presence: true, uniqueness: true
 

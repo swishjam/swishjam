@@ -50,6 +50,8 @@ Rails.application.routes.draw do
 
       resources :billing_data_snapshots, only: [:index]
 
+      resources :customer_subscriptions, only: [:index]
+
       resources :integrations, only: [:destroy, :index] do
         member do
           patch :enable
