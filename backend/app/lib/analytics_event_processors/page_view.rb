@@ -1,7 +1,7 @@
 module AnalyticsEventProcessors
   class PageView < Base
     def process!
-      PageHit.create!(
+      Analytics::PageHit.create!(
         device: find_or_create_device,
         session: find_or_create_session,
         unique_identifier: page_view_id,

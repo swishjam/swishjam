@@ -9,10 +9,10 @@ module AnalyticsEventProcessors
       raise "Subclass #{self.class.name} must implement #process! method."
     end
 
-    def instance
-      @instance ||= Instance.find_by!(public_key: @api_key)
-    rescue => e
-      raise "Instance not found for api_key: #{@api_key}"
+    def swishjam_organization
+      @swishjam_organization ||= Swishjam::Organization.find_by!(public_key: @api_key)
+    rescue ActiveRecord::RecordNotFound => e
+      raise ActiveRecord::RecordNotFound, "Could not find organization with provided public key: #{@api_key}"
     end
 
     def find_or_create_session
@@ -23,7 +23,7 @@ module AnalyticsEventProcessors
     end
 
     def find_or_create_device
-      @device ||= instance.devices.find_or_create_by!(fingerprint: fingerprint_value) do |new_device|
+      @device ||= swishjam_organization.analytics_devices.find_or_create_by!(fingerprint: fingerprint_value) do |new_device|
         new_device.user_agent = device_data['userAgent']
         new_device.browser = device_data['browser']
         new_device.browser_version = device_data['browserVersion']
