@@ -24,7 +24,7 @@ export default function ItemizedList({
       </CardHeader>
       <CardContent>
         <div className="space-y-0">
-          {items === undefined
+          {[undefined, null].includes(items)
             ? (
               Array.from({ length: 5 }).map((_, i) => (
                 <div className="flex items-center py-4 px-2" key={i}>

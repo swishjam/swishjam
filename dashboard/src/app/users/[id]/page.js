@@ -6,6 +6,7 @@ import { API } from "@/lib/api-client/base";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import EventFeed from "@/components/DashboardComponents/EventFeed";
 
 const LoadingState = () => (
   <main className="mx-auto max-w-7xl px-4 mt-8 sm:px-6 lg:px-8 mb-8">
@@ -26,9 +27,11 @@ const LoadingState = () => (
 const UserProfile = ({ params }) => {
   const { id: userId } = params;
   const [userData, setUserData] = useState(null);
+  const [recentEvents, setRecentEvents] = useState(null);
 
   useEffect(() => {
     API.get(`/api/v1/users/${userId}`).then(setUserData);
+    API.get(`/api/v1/users/${userId}/events`).then(setRecentEvents);
   }, [userId])
 
   return (
@@ -54,6 +57,30 @@ const UserProfile = ({ params }) => {
             </div>
           </CardHeader>
         </Card>
+        <div className='grid grid-cols-3 gap-4 mt-4'>
+          <Card className='col-span-2'>
+            <CardHeader>
+              <CardTitle className='text-lg'>
+                MRR
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+            </CardContent>
+          </Card>
+          
+
+          <EventFeed 
+            title='Recent Events' 
+            events={recentEvents} 
+            leftItemHeaderKey='name'
+            rightItemKey='created_at'
+            rightItemKeyFormatter={date => {
+              return new Date(date)
+                .toLocaleDateString('en-us', { weekday: "short", year: "numeric", month: "short", day: "numeric" })
+                .replace(`, ${new Date(date).getFullYear()}`, '')
+            }}
+          />
+        </div>
       </main>
     ) : <LoadingState />
   )

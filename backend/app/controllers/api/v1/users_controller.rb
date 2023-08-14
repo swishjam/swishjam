@@ -15,7 +15,8 @@ module Api
       def events
         limit = params[:limit] || 10
         user = current_organization.analytics_users.find(params[:id])
-        render json: user.events.limit(limit), each_serializer: Analytics::EventSerializer, status: :ok
+        events = Analytics::Event.for_user(user).limit(10)
+        render json: events, each_serializer: Analytics::EventSerializer, status: :ok
       end
 
       def count
