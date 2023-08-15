@@ -1,5 +1,3 @@
-import { SwishjamMemory } from "@/lib/swishjam-memory";
-
 const API_HOST = process.env.NEXT_PUBLIC_API_HOST || 'https://api.swishjam.com';
 
 export class API {
@@ -24,7 +22,7 @@ export class API {
       method: method,
       headers: {
         'Content-Type': 'application/json',
-        'X-Swishjam-Api-Key': 'INSTANCE-9fb58dcd' // TODO: hardcoded for now...
+        'X-Swishjam-Token': localStorage.getItem('swishjam-token'),
       },
     };
     if (method !== 'GET') {
@@ -33,11 +31,4 @@ export class API {
     const response = await fetch(`${API_HOST}${urlPath}`, opts);
     return await response.json();
   }
-
-  // static _params(data) {
-  //   const projectKey = SwishjamMemory.get('currentProjectKey');
-  //   const project = SwishjamMemory.get('currentProjectName');
-  //   const organizationId = SwishjamMemory.get('currentOrganization');
-  //   return { projectKey, project, organizationId, ...data };
-  // }
 }

@@ -26,8 +26,6 @@ const LoadingView = () => (
 
 const CustomTooltip = ({ active, payload, label, formatter }) => {
   if (active && payload && payload.length) {
-    // console.log(active)
-    //console.log(label)
     const data = payload[0].payload;
     return (
       <Card className="z-[50000]">
@@ -38,18 +36,7 @@ const CustomTooltip = ({ active, payload, label, formatter }) => {
       </Card>
     );
   }
-  return null;  
-      /*<div className="custom-tooltip">
-        <p className="label">{`${label} : ${payload[0].value}`}</p>
-        <div>
-          {payload.map((pld) => (
-            <div style={{ display: "inline-block", padding: 10 }}>
-              <div style={{ color: pld.fill }}>{pld.value}</div>
-              <div>{pld.dataKey}</div>
-            </div>
-          ))}
-        </div>
-      </div>*/
+  return null;
 }
 
 export default function ChartCardWithNumberAndLine({ title, value, valueChange, timeseries, formatter = (a) => a }) {

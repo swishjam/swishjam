@@ -1,13 +1,13 @@
-RANDOM_NUM_OF_DEVICES_PER_USER_MAX = 10
-RANDOM_NUM_OF_SESSIONS_PER_DEVICE_MAX = 20
-RANDOM_NUM_OF_PAGE_HITS_PER_SESSION_MAX = 20
-RANDOM_NUM_OF_EVENTS_PER_PAGE_HIT_MAX = 10
+RANDOM_NUM_OF_DEVICES_PER_USER_MAX = 5
+RANDOM_NUM_OF_SESSIONS_PER_DEVICE_MAX = 5
+RANDOM_NUM_OF_PAGE_HITS_PER_SESSION_MAX = 10
+RANDOM_NUM_OF_EVENTS_PER_PAGE_HIT_MAX = 5
 
 def seed_users!
   puts "Seeding #{NUMBER_OF_USERS} users..."
   NUMBER_OF_USERS.times.map do
     user = Analytics::User.create!(
-      instance: INSTANCE,
+      swishjam_organization: ORGANIZATION,
       unique_identifier: SecureRandom.uuid,
       email: Faker::Internet.email,
       first_name: Faker::Name.first_name,
@@ -30,7 +30,7 @@ def seed_devices_for_user!(user, min: 0, max: RANDOM_NUM_OF_DEVICES_PER_USER_MAX
   puts "Seeding #{num_devices} devices for user #{user.id}..."
   num_devices.times do
     device = Analytics::Device.create!(
-      instance: INSTANCE,
+      swishjam_organization: ORGANIZATION,
       user: user,
       fingerprint: SecureRandom.uuid,
       user_agent: Faker::Internet.user_agent,
@@ -107,7 +107,7 @@ def seed_billing_data!
   puts "Seeding billing data..."
   90.times do |i|
     Analytics::BillingDataSnapshot.create!(
-      instance: INSTANCE,
+      swishjam_organization: ORGANIZATION,
       mrr_in_cents: rand(0..50_000),
       total_revenue_in_cents: rand(0..1_000_000),
       num_active_subscriptions: rand(0..1_000),
@@ -123,8 +123,8 @@ namespace :seed do
   task dummy_data: [:environment] do
     start = Time.now
 
-    PUBLIC_KEY = "INSTANCE-#{SecureRandom.hex(4)}"
-    INSTANCE = Instance.find_or_create_by!(public_key: PUBLIC_KEY)
+    PUBLIC_KEY = "ORGANIZATION-#{SecureRandom.hex(4)}"
+    ORGANIZATION = Swishjam::Organization.create!(public_key: PUBLIC_KEY, name: Faker::Company.name, url: Faker::Internet.domain_name)
     HOST_URL = Faker::Internet.domain_name
     NUMBER_OF_USERS = 100
     URL_PATHS = 50.times.map{ URI.parse(Faker::Internet.url).path }
@@ -145,9 +145,10 @@ namespace :seed do
       { key: 'Favorite hobby', faker_klass: Faker::Hobby, faker_method: 'activity' },
     ]
     
-    puts "Seeding DB with new dummy instance (#{PUBLIC_KEY}) with #{NUMBER_OF_USERS} users, and #{HOST_URL} as the host URL."
+    puts "Seeding DB with new dummy organization (#{PUBLIC_KEY}) with #{NUMBER_OF_USERS} users, and #{HOST_URL} as the host URL."
 
-    run_seed! 
+    run_seed!
+    seed_billing_data!
 
     puts "Seed completed in #{Time.now - start} seconds."
     puts "Created #{num_new_users_created} new users."

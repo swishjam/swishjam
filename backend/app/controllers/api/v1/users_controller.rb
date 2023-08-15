@@ -10,8 +10,8 @@ module Api
 
         # TODO: how do we capture _actual_ registration date, rather than when the user was first created?
         render json: {
-          count: instance.users.where(created_at: start_time..end_time).count,
-          comparison_count: instance.users.where(created_at: comparison_start_time..comparison_end_time).count,
+          count: current_organization.users.where(created_at: start_time..end_time).count,
+          comparison_count: current_organization.users.where(created_at: comparison_start_time..comparison_end_time).count,
           start_time: start_time,
           end_time: end_time,
           comparison_start_time: comparison_start_time,
@@ -41,17 +41,17 @@ module Api
 
         case interval
         when 'hour'
-          json[:timeseries] = instance.users.where(created_at: start_time..end_time).group_by_hour(:created_at).count
-          json[:comparison_timeseries] = instance.users.where(created_at: comparison_start_time..comparison_end_time - 1.second).group_by_hour(:created_at).count
+          json[:timeseries] = current_organization.users.where(created_at: start_time..end_time).group_by_hour(:created_at).count
+          json[:comparison_timeseries] = current_organization.users.where(created_at: comparison_start_time..comparison_end_time - 1.second).group_by_hour(:created_at).count
         when 'day'
-          json[:timeseries] = instance.users.where(created_at: start_time..end_time).group_by_day(:created_at).count
-          json[:comparison_timeseries] = instance.users.where(created_at: comparison_start_time..comparison_end_time - 1.second).group_by_day(:created_at).count
+          json[:timeseries] = current_organization.users.where(created_at: start_time..end_time).group_by_day(:created_at).count
+          json[:comparison_timeseries] = current_organization.users.where(created_at: comparison_start_time..comparison_end_time - 1.second).group_by_day(:created_at).count
         when 'week'
-          json[:timeseries] = instance.users.where(created_at: start_time..end_time).group_by_week(:created_at).count
-          json[:comparison_timeseries] = instance.users.where(created_at: comparison_start_time..comparison_end_time - 1.second).group_by_week(:created_at).count
+          json[:timeseries] = current_organization.users.where(created_at: start_time..end_time).group_by_week(:created_at).count
+          json[:comparison_timeseries] = current_organization.users.where(created_at: comparison_start_time..comparison_end_time - 1.second).group_by_week(:created_at).count
         when 'month'
-          json[:timeseries] = instance.users.where(created_at: start_time..end_time).group_by_month(:created_at).count
-          json[:comparison_timeseries] = instance.users.where(created_at: comparison_start_time..comparison_end_time - 1.second).group_by_month(:created_at).count
+          json[:timeseries] = current_organization.users.where(created_at: start_time..end_time).group_by_month(:created_at).count
+          json[:comparison_timeseries] = current_organization.users.where(created_at: comparison_start_time..comparison_end_time - 1.second).group_by_month(:created_at).count
         else
           render json: { error: "Invalid interval #{interval}, supported values are: 'hour', 'day', 'week', or 'month'." }, status: :bad_request
           return
