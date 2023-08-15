@@ -1,9 +1,9 @@
 module AnalyticsEventProcessors
   class PageView < Base
     def process!
-      PageHit.create!(
+      Analytics::PageHit.create!(
         device: find_or_create_device,
-        session: find_or_create_session,
+        session: create_or_update_session,
         unique_identifier: page_view_id,
         full_url: full_url,
         url_host: url_host,
@@ -17,8 +17,10 @@ module AnalyticsEventProcessors
       )
     end
 
+    private
+
     def referrer_url
-      data['previousUrl']
+      data['previousUrl'] || data['referrerUrl'] || data['referrer'] || data['previous_url'] || data['referrer_url']
     end
 
     def parsed_referrer

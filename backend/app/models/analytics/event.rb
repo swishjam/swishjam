@@ -11,9 +11,7 @@ module Analytics
     scope :for_organization, -> (organization) { joins(:session).where(analytics_sessions: { analytics_organization_id: organization.id }) }
 
     def formatted_metadata
-      Hash.new.tap do |hash|
-        metadata.each{ |meta| hash[meta.key] = meta.value }
-      end.with_indifferent_access
+      metadata.as_hash
     end
   end
 end
