@@ -22,19 +22,33 @@ export default class Swishjam {
   static newSession = () => MemoryHandler.set('sessionId', UUID.generate('s'));
 
   static identify = (userId, traits) => {
-    const { organizationId, organization, org, orgId } = traits;
-    if (organizationId || organization || org || orgId) {
-      this.setOrganization(organizationId || organization || org || orgId);
-    }
+    this._extractOrganizationFromIdentifyCall(traits);
     this._record('identify', { userId, ...traits });
   }
 
-  static setOrganization = organizationIdentifier => {
+  static setOrganization = (organizationIdentifier, traits = {}) => {
     const currentOrganization = MemoryHandler.get('organizationId');
-    MemoryHandler.set('organizationId', organizationIdentifier);
     if (currentOrganization && currentOrganization !== organizationIdentifier) {
       // do we want to assume anytime setOrganization is called with a new org, we want a new session?
       this.newSession();
+    }
+    MemoryHandler.set('organizationId', organizationIdentifier);
+    this._record('organization', { organizationIdentifier, ...traits })
+  }
+
+  static _extractOrganizationFromIdentifyCall = identifyTraits => {
+    const { organization, org } = identifyTraits;
+    if (organization || org) {
+      const extractedOrganizationData = organization || org;
+      const { organizationId, orgId, id } = extractedOrganizationData;
+      const organizationIdentifier = organizationId || orgId || id;
+      const traits = Object.keys(extractedOrganizationData).reduce((result, key) => {
+        if (key !== 'organizationId' && key !== 'orgId' && key !== 'id') {
+          result[key] = extractedOrganizationData[key];
+        }
+        return result;
+      });
+      this.setOrganization(organizationIdentifier, traits);
     }
   }
 

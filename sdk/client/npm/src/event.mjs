@@ -8,7 +8,6 @@ export class Event {
     this.ts = Date.now();
     this.sessionId = MemoryHandler.get('sessionId');
     this.pageViewId = MemoryHandler.get('pageViewId');
-    this.organizationIdentifier = MemoryHandler.get('organizationId');
     this.url = window.location.href;
     this.fingerprint = fingerprinter.getFingerprint();
     this.data = data;
@@ -16,7 +15,6 @@ export class Event {
 
   toJSON() {
     return {
-      organizationIdentifier: this.organizationIdentifier,
       sessionId: this.sessionId,
       pageViewId: this.pageViewId,
       type: this.type,
