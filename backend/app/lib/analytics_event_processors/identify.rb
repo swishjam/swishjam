@@ -1,25 +1,29 @@
 module AnalyticsEventProcessors
   class Identify < Base
     def process!
-      user = find_or_update_user!
+      user = create_or_update_user!
       create_or_update_metadata!(user)
       update_devices_owner_if_necessary!(user)
     end
 
     private
 
-    def find_or_update_user!
+    def create_or_update_user!
       unique_identifier = data['user_id'] || data['userId']
       existing_user = swishjam_organization.analytics_users.find_by(unique_identifier: unique_identifier)
       if existing_user
-        existing_user.update!(email: data['email'], first_name: data['firstName'], last_name: data['lastName'])
+        existing_user.update!(
+          email: data['email'], 
+          first_name: data['firstName'] || data['last_name'], 
+          last_name: data['lastName'] || data['last_name']
+        )
         existing_user
       else
         user = swishjam_organization.analytics_users.create!(
           unique_identifier: unique_identifier, 
           email: data['email'], 
-          first_name: data['firstName'], 
-          last_name: data['lastName']
+          first_name: data['firstName'] || data['first_name'], 
+          last_name: data['lastName'] || data['last_name']
         )
         user
       end
@@ -35,8 +39,22 @@ module AnalyticsEventProcessors
 
     def create_or_update_metadata!(user)
       existing_metadata = user.metadata
-      reserved_user_attributes = %w[user_id userId organizationId organization org orgId email firstName lastName]
-      provided_metadata = data.except(reserved_user_attributes)
+      reserved_user_attributes = %w[
+        user_id 
+        userId 
+        organizationId 
+        organization_id 
+        organization 
+        org 
+        orgId 
+        org_id 
+        email 
+        firstName 
+        first_name 
+        lastName 
+        last_name
+      ]
+      provided_metadata = data.except(*reserved_user_attributes)
       provided_metadata.each do |key, value|
         new_or_exsting_metadata = user.metadata.find_or_initialize_by(key: key)
         new_or_exsting_metadata.value = value

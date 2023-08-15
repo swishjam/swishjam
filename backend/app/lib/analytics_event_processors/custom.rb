@@ -12,6 +12,8 @@ module AnalyticsEventProcessors
       )
     end
 
+    private
+
     def find_or_create_page_hit
       session = find_or_create_session
       session.page_hits.find_or_create_by!(unique_identifier: page_view_id) do |page_hit|

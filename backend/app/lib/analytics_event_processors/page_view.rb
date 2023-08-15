@@ -17,8 +17,10 @@ module AnalyticsEventProcessors
       )
     end
 
+    private
+
     def referrer_url
-      data['previousUrl']
+      data['previousUrl'] || data['referrerUrl'] || data['referrer'] || data['previous_url'] || data['referrer_url']
     end
 
     def parsed_referrer

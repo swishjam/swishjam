@@ -18,6 +18,7 @@ module AnalyticsEventProcessors
     def find_or_create_session
       @session ||= find_or_create_device.sessions.find_or_create_by!(unique_identifier: session_id) do |new_session|
         new_session.device = find_or_create_device
+        # this assumes the page_hit that creates the session is the first page_hit of the session, which may not necessarily be the case...
         new_session.start_time = timestamp
       end
     end
