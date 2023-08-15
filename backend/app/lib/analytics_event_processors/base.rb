@@ -15,11 +15,13 @@ module AnalyticsEventProcessors
       raise ActiveRecord::RecordNotFound, "Could not find organization with provided public key: #{@api_key}"
     end
 
-    def find_or_create_session
-      @session ||= find_or_create_device.sessions.find_or_create_by!(unique_identifier: session_id) do |new_session|
-        new_session.device = find_or_create_device
-        # this assumes the page_hit that creates the session is the first page_hit of the session, which may not necessarily be the case...
-        new_session.start_time = timestamp
+    def create_or_update_session
+      existing_session = find_or_create_device.sessions.find_by(unique_identifier: unique_session_identifier)
+      if existing_session
+        existing_session.update!(start_time: timestamp) if timestamp < existing_session.start_time
+        existing_session
+      else
+        find_or_create_device.sessions.create!(unique_identifier: unique_session_identifier, start_time: timestamp)
       end
     end
 
@@ -37,7 +39,7 @@ module AnalyticsEventProcessors
       @event_json['type']
     end
 
-    def session_id
+    def unique_session_identifier
       @event_json['sessionId']
     end
 

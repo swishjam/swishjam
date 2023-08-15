@@ -3,7 +3,7 @@ module AnalyticsEventProcessors
     def process!
       Analytics::PageHit.create!(
         device: find_or_create_device,
-        session: find_or_create_session,
+        session: create_or_update_session,
         unique_identifier: page_view_id,
         full_url: full_url,
         url_host: url_host,
