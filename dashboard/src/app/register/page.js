@@ -8,7 +8,7 @@ import { useRouter } from 'next/navigation';
 import * as Yup from 'yup';
 import Logo from '@components/Logo';
 import LoadingSpinner from '@components/LoadingSpinner';
-import { signUserUp, useAuthData } from '@components/AuthProvider';
+import { signUserUp, useAuthData } from '@components/Auth/AuthProvider';
 
 const SignUpSchema = Yup.object().shape({
   email: Yup.string().email('Invalid email').required('Required'),
@@ -32,14 +32,12 @@ export default function SignUp() {
 
   async function signUp(formData) {
     setLoading(true);
-    const { token, user, organization, error } = await signUserUp(formData);
-    debugger;
-    setLoading(false);
+    const { error } = await signUserUp(formData);
     if (error) {
+      setLoading(false);
       setErrorMsg(error);
     } else {
       router.push('/');
-      console.log('Got a user and token???', user, token);
     }
   }
 

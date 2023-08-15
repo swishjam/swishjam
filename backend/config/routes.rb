@@ -11,10 +11,21 @@ Rails.application.routes.draw do
       get :capture, to: 'capture#process_data'
       post :capture, to: 'capture#process_data'
 
-      resources :organizations, only: [] do
+      resources :organizations, only: [:index, :show] do
+        member do
+          get :events
+          get :users
+        end
+        collection do
+          # get :count
+          # get :timeseries
+        end
       end
 
-      resources :users, only: [] do
+      resources :users, only: [:index, :show] do
+        member do
+          get :events
+        end
         collection do
           get :count
           get :timeseries
@@ -42,6 +53,8 @@ Rails.application.routes.draw do
       end
 
       resources :billing_data_snapshots, only: [:index]
+
+      resources :customer_subscriptions, only: [:index]
 
       resources :integrations, only: [:destroy, :index] do
         member do

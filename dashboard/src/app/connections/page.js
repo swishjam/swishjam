@@ -3,13 +3,13 @@
 import { useState, useEffect, Fragment } from 'react';
 import { API } from '@/lib/api-client/base';
 import Image from 'next/image';
-import AuthenticatedView from '@/components/AuthenticatedView';
+import AuthenticatedView from '@/components/Auth/AuthenticatedView';
 import { Menu, Transition } from '@headlessui/react'
 import { EllipsisHorizontalIcon } from '@heroicons/react/20/solid'
 import { PlusCircleIcon, PauseCircleIcon, TrashIcon, PlayCircleIcon } from '@heroicons/react/24/outline'
 import StripeImg from '@public/stripe-logo.jpeg'
 import Modal from '@/components/utils/Modal';
-import { useAuthData } from '@/components/AuthProvider';
+import { useAuthData } from '@/components/Auth/AuthProvider';
 
 const CONNECTION_IMAGES = {
   Stripe: StripeImg,

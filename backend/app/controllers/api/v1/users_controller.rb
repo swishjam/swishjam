@@ -1,6 +1,24 @@
 module Api
   module V1
     class UsersController < BaseController
+      def index
+        limit = params[:limit] || 10
+        users = current_organization.analytics_users.order(created_at: :desc).limit(limit)
+        render json: users, each_serializer: Analytics::UserSerializer, status: :ok
+      end
+
+      def show
+        user = current_organization.analytics_users.find(params[:id])
+        render json: user, serializer: Analytics::UserSerializer, status: :ok
+      end
+
+      def events
+        limit = params[:limit] || 10
+        user = current_organization.analytics_users.find(params[:id])
+        events = Analytics::Event.for_user(user).limit(10)
+        render json: events, each_serializer: Analytics::EventSerializer, status: :ok
+      end
+
       def count
         start_time = params[:start_time] || 7.days.ago
         end_time = params[:end_time] || Time.zone.now

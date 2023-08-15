@@ -2,10 +2,13 @@
 
 import { useState, useEffect } from 'react';
 import { API } from '@/lib/api-client/base';
-import AuthenticatedView from '@/components/AuthenticatedView';
-import ChartCardWithNumberAndLine from '@/components/ChartCardWithNumberAndLine';
+import AuthenticatedView from '@/components/Auth/AuthenticatedView';
+import LineChartWithValue from '@/components/DashboardComponents/LineChartWithValue';
+// import ItemizedList from '@/components/DashboardComponents/ItemizedList';
+import ItemizedUsersList from '@/components/DashboardComponents/Prebuilt/ItemizedUsersList';
+import ItemizedOrganizationsList from '@/components/DashboardComponents/Prebuilt/ItemizedOrganizationList';
 
-function DashboardComponent(name) {
+function FormattedLineChartData(name) {
   return {
     title: name, 
     value: null,
@@ -25,14 +28,14 @@ const LoadingState = () => (
       </div>
     </div>
     <div className='grid grid-cols-3 gap-6 pt-8'>
-      <ChartCardWithNumberAndLine
+      <LineChartWithValue
         key='MRR'
         title='MRR'
         value={null}
         valueChange={null}
         timeseries={null}
       />
-      <ChartCardWithNumberAndLine
+      <LineChartWithValue
         key='subs'
         title='Active Subscriptions'
         value={null}
@@ -40,40 +43,55 @@ const LoadingState = () => (
         timeseries={null}
       />
     </div>
+    <div className='grid grid-cols-2 gap-6 pt-8'>
+      {/* TODO: does this still try to fetch data? we just want it to stay in a loading state... */}
+      <ItemizedUsersList loadingStateOnly={true} /> 
+      <ItemizedOrganizationsList loadingStateOnly={true} />
+    </div>
   </main>
 )
 
 const Home = () => {
-  const [mrrChart, setMrrChart] = useState(DashboardComponent('MRR'))
-  const [activeSubsChart, setActiveSubsChart] = useState(DashboardComponent('Active Subscriptions'))
-  const [sessionsChart, setSessionsChart] = useState(DashboardComponent('User Sessions'))
+  const [mrrChart, setMrrChart] = useState(FormattedLineChartData('MRR'));
+  const [activeSubsChart, setActiveSubsChart] = useState(FormattedLineChartData('Active Subscriptions'));
+  const [sessionsChart, setSessionsChart] = useState(FormattedLineChartData('User Sessions'));
+  //const [sessionsChart, setSessionsChart] = useState(DashboardComponent('User Sessions'))
 
+  const getData = async () => {
+    API.get('/api/v1/billing_data_snapshots').then(paymentData => {
+      setMrrChart({
+        ...mrrChart,
+        value: paymentData.current_mrr,
+        previousValue: paymentData.comparison_mrr,
+        previousValueDate: paymentData.comparison_end_time,
+        valueChange: paymentData.change_in_mrr,
+        timeseries: paymentData.current_mrr_timeseries
+      })
+
+      setActiveSubsChart({
+        ...activeSubsChart,
+        value: paymentData.current_num_active_subscriptions,
+        previousValue: paymentData.comparison_num_active_subscriptions,
+        previousValueDate: paymentData.comparison_end_time,
+        valueChange: paymentData.change_in_num_active_subscriptions,
+        timeseries: paymentData.current_num_active_subscriptions_timeseries
+      })
+    });
+    
+    Promise.all([
+      API.get('/api/v1/session/count'),
+      API.get('/api/v1/session/timeseries')
+    ]).then((data) => {
+      console.log('data', data) 
+      //.then((sessionCount) =>{})
+      //.then((sessionTimeseries) =>{})
+    })
+
+
+  }
 
   useEffect(() => {
-    const getDashboard = async () => {
-      API.get('/api/v1/billing_data_snapshots').then(paymentData =>{
-        setMrrChart({
-          ...mrrChart,
-          value: (paymentData.current_mrr/100).toLocaleString('en-US', { style: "currency", currency: "USD" }),
-          timeseries: paymentData.current_mrr_timeseries
-        })
-      
-        setActiveSubsChart({
-          ...activeSubsChart,
-          value: paymentData.current_num_active_subscriptions,
-          timeseries: paymentData.current_num_active_subscriptions_timeseries
-        })
-      });
-    
-      API.get('/api/v1/session/count').then((sessionCount) =>{
-        
-      })
-      API.get('/api/v1/session/timeseries').then((sessionTimeseries) =>{
-      
-      })
-    
-    }
-    getDashboard();
+    getData();
   }, []);
 
   return (
@@ -87,22 +105,29 @@ const Home = () => {
         </div>
       </div>
       <div className='grid grid-cols-3 gap-6 pt-8'>
-        {mrrChart && <ChartCardWithNumberAndLine
+        <LineChartWithValue
           key={mrrChart.title}
           title={mrrChart.title}
           value={mrrChart.value}
-          valueChange={mrrChart.valueChange}
+          previousValue={mrrChart.previousValue}
+          previousValueDate={mrrChart.previousValueDate}
           timeseries={mrrChart.timeseries}
-          formatter={(a) => (a/100).toLocaleString('en-US', { style: "currency", currency: "USD" })}
-        />}
-        {activeSubsChart && <ChartCardWithNumberAndLine
+          formatter={mrr => (mrr/100).toLocaleString('en-US', { style: "currency", currency: "USD" })}
+        />
+        <LineChartWithValue
           key={activeSubsChart.title}
           title={activeSubsChart.title}
           value={activeSubsChart.value}
-          valueChange={activeSubsChart.valueChange}
+          previousValue={mrrChart.previousValue}
+          previousValueDate={mrrChart.previousValueDate}
           timeseries={activeSubsChart.timeseries}
-        />}
+          formatter={numSubs => numSubs.toLocaleString('en-US')}
+        />
       </div> 
+      <div className='grid grid-cols-2 gap-6 pt-8'>
+        <ItemizedUsersList />
+        <ItemizedOrganizationsList />
+      </div>
     </main>
   );
 }

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { API } from "@/lib/api-client/base";
-import AuthenticatedView from "@/components/AuthenticatedView";
+import AuthenticatedView from "@/components/Auth/AuthenticatedView";
 import LoadingSpinner from "@/components/LoadingSpinner";
 import Logo from "@/components/Logo";
 

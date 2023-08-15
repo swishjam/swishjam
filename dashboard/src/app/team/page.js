@@ -1,8 +1,8 @@
 'use client';
 
 import { useState, useEffect, Fragment } from 'react';
-import AuthenticatedView from "@/components/AuthenticatedView";
-import { useAuth } from "@/components/AuthProvider";
+import AuthenticatedView from "@/components/Auth/AuthenticatedView";
+import { useAuth } from "@/components/Auth/AuthProvider";
 import { API } from "@/lib/api-client/base";
 import Modal from '@/components/utils/Modal';
 import { formattedDate } from '@/lib/utils';

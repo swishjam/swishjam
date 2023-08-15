@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { SwishjamMemory } from '@/lib/swishjam-memory';
 import Sidebar from '@/components/SideNav/Nav';
-import LoadingSpinner from './LoadingSpinner';
+import LoadingSpinner from '../LoadingSpinner';
 import { useAuthData, clearToken } from './AuthProvider';
 
 export default function AuthenticatedView(WrappedComponent, LoadingViewComponent) {
