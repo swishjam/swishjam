@@ -56,8 +56,8 @@ module Api
           return
         end
 
-        json[:count] = json[:timeseries].values.sum
-        json[:comparison_count] = json[:comparison_timeseries].values.sum
+        json[:count] = json[:timeseries].collect{ |h| h[:value] }.sum
+        json[:comparison_count] = json[:comparison_timeseries].collect{ |h| h[:value] }.sum
 
         render json: json, status: :ok
       end
