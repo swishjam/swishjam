@@ -21,7 +21,16 @@ module AnalyticsEventProcessors
         existing_session.update!(start_time: timestamp) if timestamp < existing_session.start_time
         existing_session
       else
-        find_or_create_device.sessions.create!(unique_identifier: unique_session_identifier, start_time: timestamp)
+        find_or_create_device.sessions.create!(
+          unique_identifier: unique_session_identifier,
+          start_time: timestamp,
+          latitude: geo_data&.latitude,
+          longitude: geo_data&.longitude,
+          city: geo_data&.city,
+          region: geo_data&.region,
+          country: geo_data&.country,
+          postal_code: geo_data&.postal_code
+        )
       end
     end
 
@@ -61,6 +70,11 @@ module AnalyticsEventProcessors
     
     def data
       (@event_json['data'] || {}).with_indifferent_access
+    end
+
+    def geo_data
+      return if @event_json['ip_address'].blank?
+      @geo_data ||= Geocoder.search(@event_json['ip_address'])&.first
     end
 
     def fingerprint_value

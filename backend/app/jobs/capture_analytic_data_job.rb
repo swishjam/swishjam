@@ -9,13 +9,13 @@ class CaptureAnalyticDataJob
   include Sidekiq::Job
   queue_as :default
 
-  def perform(api_key, event_payload)
+  def perform(api_key, event_payload, requesting_ip_address)
     start = Time.now
     verify_api_key!(api_key)
     event_payload.each do |event_json|
       processor_klass = EVENT_PROCESSOR_KLASS_DICT.with_indifferent_access[event_json['type']] || AnalyticsEventProcessors::Custom
       begin
-        processor_klass.new(api_key, event_json).process!
+        processor_klass.new(api_key, event_json.merge({ 'ip_address' => requesting_ip_address })).process!
       rescue => e
         Rails.logger.error "Error processing event: #{e.message}"
         Rails.logger.error event_json

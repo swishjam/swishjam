@@ -100,6 +100,7 @@ GEM
     faker (2.22.0)
       i18n (>= 1.8.11, < 2)
     ffi (1.15.5)
+    geocoder (1.8.2)
     globalid (1.1.0)
       activesupport (>= 5.0)
     groupdate (5.2.2)
@@ -232,6 +233,7 @@ DEPENDENCIES
   dotenv
   factory_bot_rails
   faker
+  geocoder
   groupdate
   jwt
   listen (~> 3.3)

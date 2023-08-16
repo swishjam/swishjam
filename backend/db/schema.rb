@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2023_08_12_165610) do
+ActiveRecord::Schema.define(version: 2023_08_15_231354) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
@@ -163,6 +163,12 @@ ActiveRecord::Schema.define(version: 2023_08_12_165610) do
     t.datetime "end_time"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.float "latitude"
+    t.float "longitude"
+    t.string "city"
+    t.string "region"
+    t.string "country"
+    t.string "postal_code"
     t.index ["analytics_device_id"], name: "index_analytics_sessions_on_analytics_device_id"
     t.index ["analytics_organization_id"], name: "index_analytics_sessions_on_analytics_organization_id"
     t.index ["unique_identifier"], name: "index_analytics_sessions_on_unique_identifier"
