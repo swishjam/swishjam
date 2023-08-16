@@ -21,8 +21,7 @@ module Swishjam
     has_many :analytics_sessions, 
               through: :analytics_devices, 
               class_name: Analytics::Session.to_s, 
-              foreign_key: :swishjam_organization_id, 
-              source: :swishjam_organization, 
+              source: :sessions, 
               dependent: :destroy
     has_many :analytics_billing_data_snapshots, 
               class_name: Analytics::BillingDataSnapshot.to_s, 
