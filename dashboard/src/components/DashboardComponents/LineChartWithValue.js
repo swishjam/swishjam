@@ -1,11 +1,13 @@
 "use client"
 
-import { LineChart, Tooltip, Line, ResponsiveContainer } from 'recharts';
+import { XAxis, LineChart, Tooltip, Line, ResponsiveContainer } from 'recharts';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
 import { HoverCard, HoverCardTrigger, HoverCardContent } from "@/components/ui/hover-card";
 import { ArrowTrendingDownIcon, ArrowTrendingUpIcon, CalendarIcon } from "@heroicons/react/24/outline";
-
+import {
+  CircleIcon,
+} from "@radix-ui/react-icons"
 
 const LoadingView = ({ title }) => (
   <Card>
@@ -20,16 +22,28 @@ const LoadingView = ({ title }) => (
 )
 
 const CustomTooltip = ({ active, payload, label, formatter }) => {
+  // console.log('payload', payload) 
   if (active && payload && payload.length) {
-    const data = payload[0].payload;
+    let data = payload[0].payload; 
+    
     return (
-      <Card>
-        <CardHeader className="p-2">
-          <CardTitle className="text-sm font-medium">{formatter(data.value)}</CardTitle>
-          <CardDescription>
-            {new Date(data.date).toLocaleDateString('en-us', { weekday: "long", year: "numeric", month: "short", day: "numeric"})}
-          </CardDescription>
-        </CardHeader>
+      <Card className="z-[50000] bg-white">
+        <CardContent className="py-2">
+          <div className="flex space-x-4 text-sm text-muted-foreground">
+            <div className="flex items-center">
+              <CircleIcon className="mr-1 h-3 w-3 fill-swishjam text-swishjam" />
+              {formatter(data.value)} - {new Date(data.date).toLocaleDateString('en-us', { weekday: "long", year: "numeric", month: "short", day: "numeric"})}
+            </div>
+          </div>
+          {data.comparisonValue && 
+            <div className="flex space-x-4 text-sm text-muted-foreground">
+              <div className="flex items-center">
+                <CircleIcon className="mr-1 h-3 w-3 fill-slate-200 text-slate-200" />
+                {formatter(data.comparisonValue)} - {new Date(data.comparisonDate).toLocaleDateString('en-us', { weekday: "long", year: "numeric", month: "short", day: "numeric"})}
+              </div>
+            </div>
+          }
+        </CardContent>
       </Card>
     );
   }
@@ -55,7 +69,7 @@ export default function LineChartWithValue({ title, value, previousValue, previo
             <HoverCardTrigger>
               <p className="text-xs text-muted-foreground cursor-default">
                 {changeInValue < 0 ? <ArrowTrendingDownIcon className="h-4 w-4 inline-block text-red-500 mr-1" /> : <ArrowTrendingUpIcon className="h-4 w-4 inline-block text-green-500 mr-1" />}
-                <span className='underline decoration-dashed'>{formatter(Math.abs(changeInValue))}</span>
+                <span className='underline decoration-dotted'>{formatter(Math.abs(changeInValue))}</span>
               </p>
             </HoverCardTrigger>
             <HoverCardContent className='flex items-center text-gray-500'>
@@ -82,14 +96,24 @@ export default function LineChartWithValue({ title, value, previousValue, previo
               animationDuration={400}
               wrapperStyle={{ outline: "none" }}
               content={<CustomTooltip formatter={formatter}/>}
-              allowEscapeViewBox={{x: true, y: true}}
+              allowEscapeViewBox={{x: false, y: true}}
               animationEasing={'ease-in-out'}
             />
             <Line
               type="natural"
+              dataKey='comparisonValue'
+              xAxisId={'index'} 
+              stroke="#E2E8F0"
+              dot={{ r: 0 }}
+              activeDot={{ r: 2 }}
+              strokeWidth={2}
+            />
+            <Line
+              type="natural"
               dataKey='value'
+              xAxisId={'index'} 
               stroke="#7487F7"
-              dot={{ r: 2 }}
+              dot={{ r: 0 }}
               activeDot={{ r: 2 }}
               strokeWidth={2}
             />

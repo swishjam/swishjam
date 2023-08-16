@@ -55,17 +55,17 @@ const Home = () => {
   const [mrrChart, setMrrChart] = useState(FormattedLineChartData('MRR'));
   const [activeSubsChart, setActiveSubsChart] = useState(FormattedLineChartData('Active Subscriptions'));
   const [sessionsChart, setSessionsChart] = useState(FormattedLineChartData('User Sessions'));
-  //const [sessionsChart, setSessionsChart] = useState(DashboardComponent('User Sessions'))
 
   const getData = async () => {
     API.get('/api/v1/billing_data_snapshots').then(paymentData => {
+      console.log('paymentData', paymentData) 
       setMrrChart({
         ...mrrChart,
         value: paymentData.current_mrr,
         previousValue: paymentData.comparison_mrr,
         previousValueDate: paymentData.comparison_end_time,
         valueChange: paymentData.change_in_mrr,
-        timeseries: paymentData.current_mrr_timeseries
+        timeseries: paymentData.current_mrr_timeseries.map((timeseries, index) => ({ ...timeseries, index, comparisonDate: paymentData.comparison_mrr_timeseries[index].date, comparisonValue: paymentData.comparison_mrr_timeseries[index].value})),
       })
 
       setActiveSubsChart({
@@ -79,15 +79,22 @@ const Home = () => {
     });
     
     Promise.all([
-      API.get('/api/v1/session/count'),
-      API.get('/api/v1/session/timeseries')
+      API.get('/api/v1/sessions/count'),
+      API.get('/api/v1/sessions/timeseries')
     ]).then((data) => {
-      console.log('data', data) 
-      //.then((sessionCount) =>{})
-      //.then((sessionTimeseries) =>{})
+      console.log('Session Data', data) 
+      const sessionsCount = data[0];
+      const sessionTimeseries = data[1]; 
+      setSessionsChart({
+        ...sessionsChart,
+        value: sessionsCount.count,
+        previousValue: sessionsCount.comparison_count,
+        previousValueDate: sessionsCount.comparison_end_time,
+        valueChange: sessionsCount.count - sessionsCount.comparison_count,
+        timeseries: sessionTimeseries.timeseries 
+      })     
+
     })
-
-
   }
 
   useEffect(() => {
@@ -121,6 +128,15 @@ const Home = () => {
           previousValue={mrrChart.previousValue}
           previousValueDate={mrrChart.previousValueDate}
           timeseries={activeSubsChart.timeseries}
+          formatter={numSubs => numSubs.toLocaleString('en-US')}
+        />
+        <LineChartWithValue
+          key={sessionsChart.title}
+          title={sessionsChart.title}
+          value={sessionsChart.value}
+          previousValue={sessionsChart.previousValue}
+          previousValueDate={sessionsChart.previousValueDate}
+          timeseries={sessionsChart.timeseries}
           formatter={numSubs => numSubs.toLocaleString('en-US')}
         />
       </div> 

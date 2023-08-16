@@ -1,4 +1,5 @@
 'use client';
+import { usePathname } from 'next/navigation'
 import { ChartBarSquareIcon, SquaresPlusIcon, ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline'
 import SidebarMobile from './MobileNav';
 import ProfileFlyout from './ProfileFlyout';
@@ -13,11 +14,12 @@ const appNav = [
   { name: 'Connections', href: '/connections', icon: SquaresPlusIcon},
 ]
 
-const isCurrentPage = menuItemHref => typeof window === 'undefined' ? false : menuItemHref === window.location.pathname;
 
 const classNames = (...classes) => classes.filter(Boolean).join(' ')
 
-const DesktopNavItem = ({ item, isCollapsed, category}) => {
+const DesktopNavItem = ({ item, isCollapsed, category, currentPath}) => {
+  const isCurrentPage = menuItemHref => currentPath == menuItemHref;
+
   return (
     <li key={item.name}>
       <a
@@ -43,6 +45,7 @@ const DesktopNavItem = ({ item, isCollapsed, category}) => {
 }
 
 export default function Sidebar({ onCollapse, onExpand, authData }) {
+  const pathname = usePathname();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(typeof SwishjamMemory.get('isNavCollapsed') === 'boolean' ? SwishjamMemory.get('isNavCollapsed') : false);
 
@@ -61,7 +64,7 @@ export default function Sidebar({ onCollapse, onExpand, authData }) {
               <ul role="list" className="flex flex-1 flex-col gap-y-7">
                 <li>
                   <ul role="list" className="space-y-1">
-                    {appNav.map((item) => <DesktopNavItem item={item} key={item.name} isCollapsed={isCollapsed} category=""/>)}
+                    {appNav.map((item) => <DesktopNavItem item={item} key={item.name} isCollapsed={isCollapsed} category="" currentPath={pathname}/>)}
                   </ul>
                 </li>
                 {authData && !isCollapsed && (
