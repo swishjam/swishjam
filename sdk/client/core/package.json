@@ -1,0 +1,21 @@
+{
+  "name": "@swishjam/client",
+  "description": "The official Swishjam JS client to instrument your webpages with.",
+  "homepage": "https://swishjam.com",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/swishjam/swishjam/tree/main/sdk/client/npm"
+  },
+  "version": "0.0.13",
+  "main": "src/swishjam.mjs",
+  "scripts": {},
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "clientjs": "^0.2.1"
+  },
+  "devDependencies": {
+    "jest": "^29.6.2",
+    "jest-environment-jsdom": "^29.6.2"
+  }
+}
