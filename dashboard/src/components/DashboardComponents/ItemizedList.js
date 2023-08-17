@@ -1,4 +1,5 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Skeleton } from "@/components/ui/skeleton"
 import Link from "next/link"
@@ -14,6 +15,7 @@ export default function ItemizedList({
   fallbackAvatarGenerator,
   hoverable = true,
   linkFormatter,
+  viewMoreUrl,
   noDataMsg
 }) {
   return (
@@ -69,6 +71,10 @@ export default function ItemizedList({
             )
           }
         </div>
+        {viewMoreUrl && items && items.length > 0 && 
+        <Link href={viewMoreUrl}>
+          <Button variant="outline" className="w-full mt-4">View More</Button>
+        </Link>}
       </CardContent>
     </Card>
   )
