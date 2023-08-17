@@ -13,7 +13,6 @@ module AnalyticsEventProcessors
       email = data['email']
       first_name = data['firstName'] || data['first_name']
       last_name = data['lastName'] || data['last_name']
-      # existing_user = swishjam_organization.analytics_users.find_by(unique_identifier: unique_identifier)
       existing_user = CustomerProfileDataMappers::WebAnalytics.new(swishjam_organization).find_user(unique_identifier: unique_identifier, email: email, full_name: "#{first_name} #{last_name}")
       if existing_user
         existing_user.unique_identifier = unique_identifier if existing_user.unique_identifier != unique_identifier
