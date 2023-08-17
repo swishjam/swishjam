@@ -27,9 +27,9 @@ module StripeHelpers
     end
 
     def mrr
-      return @mrr if @mrr.present?
+      return @total_mrr if @total_mrr.present?
       calculate_mrr_and_subscription_counts
-      @mrr
+      @total_mrr
     end
     alias total_mrr mrr
 
@@ -38,24 +38,6 @@ module StripeHelpers
       calculate_total_revenue
     end
     alias total_revenue revenue
-
-    def total_active_subscriptions
-      return @total_active_subscriptions if @total_active_subscriptions.present?
-      calculate_mrr_and_subscription_counts
-      @total_active_subscriptions
-    end
-
-    def total_free_trial_subscriptions
-      return @total_free_trial_subscriptions if @total_free_trial_subscriptions.present?
-      calculate_mrr_and_subscription_counts
-      @total_free_trial_subscriptions
-    end
-
-    def total_canceled_subscriptions
-      return @total_canceled_subscriptions if @total_canceled_subscriptions.present?
-      calculate_mrr_and_subscription_counts
-      @total_canceled_subscriptions
-    end
 
     def mrr_for_subscription(subscription)
       return @subscription_mrr_map[subscription.id] if @subscription_mrr_map[subscription.id].present?
@@ -68,6 +50,27 @@ module StripeHelpers
       @subscription_revenue_map[subscription.id] = calculate_total_revenue_for_subscription(subscription)
     end
     alias total_revenue_for_subscription revenue_for_subscription
+
+    def total_active_subscriptions
+      return @total_active_subscriptions if @total_active_subscriptions.present?
+      calculate_mrr_and_subscription_counts
+      @total_active_subscriptions
+    end
+    alias num_active_subscriptions total_active_subscriptions
+
+    def total_free_trial_subscriptions
+      return @total_free_trial_subscriptions if @total_free_trial_subscriptions.present?
+      calculate_mrr_and_subscription_counts
+      @total_free_trial_subscriptions
+    end
+    alias num_free_trial_subscriptions total_free_trial_subscriptions
+
+    def total_canceled_subscriptions
+      return @total_canceled_subscriptions if @total_canceled_subscriptions.present?
+      calculate_mrr_and_subscription_counts
+      @total_canceled_subscriptions
+    end
+    alias num_canceled_subscriptions total_canceled_subscriptions
 
     private
 
@@ -99,16 +102,16 @@ module StripeHelpers
       mrr = 0
       return 0 unless subscription.status == 'active'
       subscription.items.each do |subscription_item|
-        case subscription_item.plan.interval
+        case subscription_item.price.recurring.interval
         when 'day'
           num_days_in_this_month = (Time.current.next_month.beginning_of_month - Time.current.beginning_of_month) / (60 * 60 * 24)
-          mrr += subscription_item.plan.amount * subscription_item.quantity * num_days_in_this_month
+          mrr += subscription_item.price.unit_amount * subscription_item.quantity * num_days_in_this_month
         when 'month'
-          mrr += subscription_item.plan.amount * subscription_item.quantity
+          mrr += subscription_item.price.unit_amount * subscription_item.quantity
         when 'year'
-          mrr += subscription_item.plan.amount * subscription_item.quantity / 12
+          mrr += subscription_item.price.unit_amount * subscription_item.quantity / 12
         else
-          raise "Unknown interval: #{subscription_item.plan.interval}, cannot calculate MRR."
+          raise "Unknown interval: #{subscription_item.price.recurring.interval}, cannot calculate MRR."
         end
       end
       mrr

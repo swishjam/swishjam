@@ -3,5 +3,6 @@ FactoryBot.define do
     association :swishjam_organization
     name { 'A Waffle Shop customer!' }
     unique_identifier { 'unique-organization-identifier' }
+    url { 'https://example.com' }
   end
 end

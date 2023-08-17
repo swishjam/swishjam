@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2023_08_16_184404) do
+ActiveRecord::Schema.define(version: 2023_08_17_015804) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
@@ -39,7 +39,7 @@ ActiveRecord::Schema.define(version: 2023_08_16_184404) do
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.string "owner_type"
-    t.bigint "owner_id"
+    t.uuid "owner_id"
     t.index ["owner_type", "owner_id"], name: "index_analytics_customer_billing_data_snapshots_on_owner"
     t.index ["swishjam_organization_id"], name: "index_a_customer_billing_data_snapshots_on_sj_organization_id"
   end
@@ -56,9 +56,20 @@ ActiveRecord::Schema.define(version: 2023_08_16_184404) do
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.string "owner_type"
-    t.bigint "owner_id"
+    t.uuid "owner_id"
     t.index ["owner_type", "owner_id"], name: "index_analytics_customer_payments_on_owner"
     t.index ["swishjam_organization_id"], name: "index_analytics_customer_payments_on_swishjam_organization_id"
+  end
+
+  create_table "analytics_customer_subscription_items", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "analytics_customer_subscription_id"
+    t.integer "quantity"
+    t.integer "unit_amount_in_cents"
+    t.string "interval"
+    t.string "plan_name"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["analytics_customer_subscription_id"], name: "index_a_customer_subscription_items_on_subscription_id"
   end
 
   create_table "analytics_customer_subscriptions", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -79,7 +90,7 @@ ActiveRecord::Schema.define(version: 2023_08_16_184404) do
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.string "owner_type"
-    t.bigint "owner_id"
+    t.uuid "owner_id"
     t.index ["owner_type", "owner_id"], name: "index_analytics_customer_subscriptions_on_owner"
     t.index ["swishjam_organization_id"], name: "index_a_customer_subscriptions_on_sj_organization_id"
   end
@@ -139,6 +150,7 @@ ActiveRecord::Schema.define(version: 2023_08_16_184404) do
     t.string "unique_identifier"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.string "url"
     t.index ["swishjam_organization_id"], name: "index_analytics_organizations_on_swishjam_organization_id"
     t.index ["unique_identifier"], name: "index_analytics_organizations_on_unique_identifier"
   end
