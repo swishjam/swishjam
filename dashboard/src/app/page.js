@@ -78,22 +78,16 @@ const Home = () => {
       })
     });
     
-    Promise.all([
-      API.get('/api/v1/sessions/count'),
-      API.get('/api/v1/sessions/timeseries')
-    ]).then((data) => {
-      console.log('Session Data', data) 
-      const sessionsCount = data[0];
-      const sessionTimeseries = data[1]; 
+    API.get('/api/v1/sessions/timeseries').then((sessionData) => {
+      console.log('Session Data', sessionData)
       setSessionsChart({
         ...sessionsChart,
-        value: sessionsCount.count,
-        previousValue: sessionsCount.comparison_count,
-        previousValueDate: sessionsCount.comparison_end_time,
-        valueChange: sessionsCount.count - sessionsCount.comparison_count,
-        timeseries: sessionTimeseries.timeseries 
-      })     
-
+        value: sessionData.count,
+        previousValue: sessionData.comparison_count,
+        previousValueDate: sessionData.comparison_end_time,
+        valueChange: sessionData.count - sessionData.comparison_count,
+        timeseries: sessionData.timeseries 
+      })
     })
   }
 

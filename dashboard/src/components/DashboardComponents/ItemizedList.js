@@ -43,11 +43,11 @@ export default function ItemizedList({
                     <p className="text-sm text-gray-700 leading-none">{noDataMsg || 'No data to display.'}</p>
                   </div>
                 ) : (
-                  items.map(item => (
+                  items.slice(0, 5).map(item => (
                     <Link 
                       key={item.id}
                       href={linkFormatter ? linkFormatter(item) : '#'} 
-                      className={`flex items-center py-4 px-2 rounded-sm ${hoverable ? 'hover:bg-gray-100' : ''}`}
+                      className={`transition duration-500 flex items-center py-4 px-2 rounded-sm border border-transparent ${hoverable ? 'hover:bg-gray-50 hover:border-gray-200' : ''}`}
                     >
                         {(item.avatar_url || fallbackAvatarGenerator) && (
                           <Avatar className="h-9 w-9">

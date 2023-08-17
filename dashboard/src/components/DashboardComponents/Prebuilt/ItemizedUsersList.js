@@ -16,6 +16,7 @@ export default function ItemizedUsersList({ loadingStateOnly = false }) {
   return (
     <ItemizedList
       title='New Users'
+      subTitle='Pooop New Users'
       items={recentUsers}
       leftItemHeaderKey='full_name'
       leftItemSubHeaderKey='email'
