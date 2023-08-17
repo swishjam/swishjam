@@ -1,4 +1,10 @@
 ENV['RAILS_ENV'] ||= 'test'
+
+require 'simplecov'
+SimpleCov.start 'rails' do
+  # add_filter '/spec/'
+end
+
 require_relative "../config/environment"
 require 'factory_bot_rails'
 require 'database_cleaner'

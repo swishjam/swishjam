@@ -112,4 +112,53 @@ describe CustomerProfileDataMappers::Base do
       expect(@mapper.send(:find_organization_by_name, 'sOmE nAmE')).to eq(org_1)
     end
   end
+
+  describe '#find_user_by_email' do
+    it 'returns nil if email is blank' do
+      expect(@mapper.send(:find_user_by_email, nil)).to be(nil)
+    end
+
+    it 'returns nil if no user is found' do
+      FactoryBot.create(:analytics_user, swishjam_organization: @swishjam_organization, email: 'no-match@gmail.com')
+      expect(@mapper.send(:find_user_by_email, 'different-email@gmail.com')).to be(nil)
+    end
+
+    it 'returns nil if multiple users are found' do
+      FactoryBot.create(:analytics_user, swishjam_organization: @swishjam_organization, email: 'duplicate@gmail.com')
+      FactoryBot.create(:analytics_user, swishjam_organization: @swishjam_organization, email: 'duplicate@gmail.com')
+      expect(@mapper.send(:find_user_by_email, 'duplicate@gmail.com')).to be(nil)
+    end
+
+    it 'returns the user if one is found with a matching email' do
+      user_1 = FactoryBot.create(:analytics_user, swishjam_organization: @swishjam_organization, email: 'match@gmail.com')
+      expect(@mapper.send(:find_user_by_email, 'match@gmail.com')).to eq(user_1)
+    end
+  end
+
+  describe '#find_user_by_full_name' do
+    it 'returns nil if full_name is blank' do
+      expect(@mapper.send(:find_user_by_full_name, nil)).to be(nil)
+    end
+
+    it 'returns nil if no user is found' do
+      FactoryBot.create(:analytics_user, swishjam_organization: @swishjam_organization, first_name: 'John', last_name: 'Doe')
+      expect(@mapper.send(:find_user_by_full_name, 'Jane Doe')).to be(nil)
+    end
+
+    it 'returns nil if multiple users are found' do
+      FactoryBot.create(:analytics_user, swishjam_organization: @swishjam_organization, first_name: 'John', last_name: 'Doe')
+      FactoryBot.create(:analytics_user, swishjam_organization: @swishjam_organization, first_name: 'John', last_name: 'Doe')
+      expect(@mapper.send(:find_user_by_full_name, 'John Doe')).to be(nil)
+    end
+
+    it 'returns the user if one is found with a matching full name' do
+      user_1 = FactoryBot.create(:analytics_user, swishjam_organization: @swishjam_organization, first_name: 'John', last_name: 'Doe')
+      expect(@mapper.send(:find_user_by_full_name, 'John Doe')).to eq(user_1)
+    end
+
+    it 'returns the user if one is found with a matching full name without case sensitivity' do
+      user_1 = FactoryBot.create(:analytics_user, swishjam_organization: @swishjam_organization, first_name: 'John', last_name: 'Doe')
+      expect(@mapper.send(:find_user_by_full_name, 'jOhN dOe')).to eq(user_1)
+    end
+  end
 end

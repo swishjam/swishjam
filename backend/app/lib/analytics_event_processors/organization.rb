@@ -9,8 +9,9 @@ module AnalyticsEventProcessors
     private
 
     def create_or_update_organization!
-      existing_organization = Analytics::Organization.find_by(unique_identifier: organization_identifier)
+      existing_organization = CustomerProfileDataMappers::WebAnalytics.new(swishjam_organization).find_organization(unique_identifier: organization_identifier, name: organization_name, url: organization_url)
       if existing_organization
+        existing_organization.unique_identifier = organization_identifier if existing_organization.unique_identifier != organization_identifier
         existing_organization.name = organization_name if existing_organization.name != organization_name
         existing_organization.url = organization_url if existing_organization.url != organization_url
         existing_organization.save! if existing_organization.changed?

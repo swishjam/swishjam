@@ -12,6 +12,10 @@ module Analytics
     has_many :metadata, as: :parent, class_name: Analytics::Metadata.to_s, dependent: :destroy
     accepts_nested_attributes_for :metadata
 
+    before_validation { self.unique_identifier = unique_identifier.downcase.strip if unique_identifier.present? }
+    before_validation { self.email = email.downcase.strip if email.present? }
+    validates :unique_identifier, uniqueness: { scope: :swishjam_organization_id }, if: -> { unique_identifier.present? }
+
     def full_name
       "#{first_name} #{last_name}"
     end

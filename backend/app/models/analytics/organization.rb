@@ -10,5 +10,8 @@ module Analytics
     has_many :customer_subscriptions, class_name: Analytics::CustomerSubscription.to_s, as: :owner, dependent: :destroy
     has_many :metadata, as: :parent, class_name: Analytics::Metadata.to_s, dependent: :destroy
     accepts_nested_attributes_for :metadata
+
+    before_validation { self.unique_identifier = unique_identifier.downcase.strip if unique_identifier.present? }
+    validates :unique_identifier, presence: true, uniqueness: { scope: :swishjam_organization_id }, if: -> { unique_identifier.present? }
   end
 end
