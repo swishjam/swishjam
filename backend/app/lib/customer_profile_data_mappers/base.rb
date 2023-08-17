@@ -14,8 +14,7 @@ module CustomerProfileDataMappers
                         .analytics_organizations
                         .joins(:metadata)
                         .where("LOWER(analytics_metadata.key) in (?) AND LOWER(analytics_metadata.value) in (?)", keys, values)
-      return organizations.first if organizations.count == 1
-      Rails.logger.warn "Multiple organizations found with metadata keys: #{keys} and values: #{values} for Swishjam organization #{@swishjam_organization.id}, cannot associate it to an organization." if organizations.count > 1
+      return_organization_if_found_one(organizations)
     end
 
     def find_organization_by_domain(domain)
@@ -23,18 +22,22 @@ module CustomerProfileDataMappers
       organizations = @swishjam_organization
                         .analytics_organizations
                         .where(
-                          'LOWER(url) LIKE ? OR LOWER(url) LIKE ? OR LOWER(url) LIKE ?', 
-                          "%#{domain.downcase}%", "#{domain.downcase}%", "%#{domain.downcase}"
+                          'LOWER(url) LIKE ? OR LOWER(url) LIKE ? OR LOWER(url) LIKE ? OR LOWER(url) = ?', 
+                          "%#{domain.downcase}%", "#{domain.downcase}%", "%#{domain.downcase}", domain.downcase
                         )
-      return organizations.first if organizations.count == 1
-      Rails.logger.warn "Multiple organizations found with URL like: #{domain} for Swishjam organization #{@swishjam_organization}, cannot associate it to an organization." if organizations.count > 1
+      return_organization_if_found_one(organizations)
     end
 
     def find_organization_by_name(name)
       return if name.blank?
       organizations = @swishjam_organization.analytics_organizations.where('LOWER(name) = ?', name.downcase)
+      return_organization_if_found_one(organizations)
+    end
+
+    def return_organization_if_found_one(organizations)
       return organizations.first if organizations.count == 1
-      Rails.logger.warn "Multiple organizations found with name: #{name} for Swishjam organization #{@swishjam_organization}, cannot associate it to an organization." if organizations.count > 1
+      Rails.logger.warn "Multiple organizations matched in #{self.class.to_s} for Swishjam organization #{@swishjam_organization}, cannot associate it to an organization. Found orgs: #{organizations.collect(&:id).join(', ')}" if organizations.count > 1
+      nil
     end
   end
 end

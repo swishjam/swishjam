@@ -8,9 +8,16 @@ class AddSubscriptionItems < ActiveRecord::Migration[6.1]
       t.string :plan_name
       t.timestamps
     end
+
+    remove_column :analytics_customer_subscriptions, :amount_in_cents
+    remove_column :analytics_customer_subscriptions, :interval
+    remove_column :analytics_customer_subscriptions, :plan_name
   end
 
   def down
     drop_table :analytics_customer_subscription_items
+    add_column :analytics_customer_subscriptions, :amount_in_cents, :integer
+    add_column :analytics_customer_subscriptions, :interval, :string
+    add_column :analytics_customer_subscriptions, :plan_name, :string
   end
 end

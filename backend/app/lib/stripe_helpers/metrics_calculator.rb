@@ -89,7 +89,9 @@ module StripeHelpers
 
     def calculate_total_revenue
       @total_revenue = 0
-      charges.each{ |charge| @total_revenue += charge.amount }
+      charges.each do |charge| 
+        @total_revenue += charge.amount if charge.status == 'succeeded'
+      end
       @total_revenue
     end
 
@@ -99,22 +101,22 @@ module StripeHelpers
     end
 
     def calculate_mrr_for_subscription(subscription)
-      mrr = 0
+      @subscription_mrr_map[subscription.id] = 0
       return 0 unless subscription.status == 'active'
       subscription.items.each do |subscription_item|
         case subscription_item.price.recurring.interval
         when 'day'
           num_days_in_this_month = (Time.current.next_month.beginning_of_month - Time.current.beginning_of_month) / (60 * 60 * 24)
-          mrr += subscription_item.price.unit_amount * subscription_item.quantity * num_days_in_this_month
+          @subscription_mrr_map[subscription.id] += subscription_item.price.unit_amount * subscription_item.quantity * num_days_in_this_month
         when 'month'
-          mrr += subscription_item.price.unit_amount * subscription_item.quantity
+          @subscription_mrr_map[subscription.id] += subscription_item.price.unit_amount * subscription_item.quantity
         when 'year'
-          mrr += subscription_item.price.unit_amount * subscription_item.quantity / 12
+          @subscription_mrr_map[subscription.id] += subscription_item.price.unit_amount * subscription_item.quantity / 12
         else
           raise "Unknown interval: #{subscription_item.price.recurring.interval}, cannot calculate MRR."
         end
       end
-      mrr
+      @subscription_mrr_map[subscription.id]
     end
   end
 end

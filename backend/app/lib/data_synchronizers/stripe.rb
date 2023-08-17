@@ -46,6 +46,7 @@ module DataSynchronizers
         existing_customer_subscription = Analytics::CustomerSubscription.find_by(swishjam_organization: @swishjam_organization, provider_id: stripe_subscription.id)
         attrs = {
           owner: @customer_profile_data_mapper.find_or_create_owner(stripe_subscription.customer),
+          provider_id: stripe_subscription.id,
           customer_email: stripe_subscription.customer.email,
           customer_name: stripe_subscription.customer.name,
           status: stripe_subscription.status,
@@ -62,6 +63,7 @@ module DataSynchronizers
           }}
         }
         if existing_customer_subscription
+          existing_customer_subscription.subscription_items.destroy_all
           existing_customer_subscription.update!(attrs)
         else
           @swishjam_organization.analytics_customer_subscriptions.create!(attrs)
