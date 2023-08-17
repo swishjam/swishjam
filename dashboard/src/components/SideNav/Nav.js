@@ -7,10 +7,12 @@ import { useState } from 'react'
 import Link from 'next/link'
 import Logo from '@components/Logo'
 import { Bars3Icon } from '@heroicons/react/24/outline'
+import { RxBarChart } from 'react-icons/rx'
 import { SwishjamMemory } from '@/lib/swishjam-memory';
 
 const appNav = [
   { name: 'Dashboard', href: '/', icon: ChartBarSquareIcon },
+  { name: 'Site Metrics', href: '/site-metrics', icon: RxBarChart },
   { name: 'Connections', href: '/connections', icon: SquaresPlusIcon},
 ]
 

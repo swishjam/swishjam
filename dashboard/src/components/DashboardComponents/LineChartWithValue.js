@@ -32,14 +32,14 @@ const CustomTooltip = ({ active, payload, label, formatter }) => {
           <div className="flex space-x-4 text-sm text-muted-foreground">
             <div className="flex items-center">
               <CircleIcon className="mr-1 h-3 w-3 fill-swishjam text-swishjam" />
-              {formatter(data.value)} - {new Date(data.date).toLocaleDateString('en-us', { weekday: "long", year: "numeric", month: "short", day: "numeric"})}
+              {formatter(data.value)} - {new Date(data.date).toLocaleDateString('en-us', {year: "2-digit", month: "2-digit", day: "2-digit"})}
             </div>
           </div>
           {data.comparisonValue && 
             <div className="flex space-x-4 text-sm text-muted-foreground">
               <div className="flex items-center">
                 <CircleIcon className="mr-1 h-3 w-3 fill-slate-200 text-slate-200" />
-                {formatter(data.comparisonValue)} - {new Date(data.comparisonDate).toLocaleDateString('en-us', { weekday: "long", year: "numeric", month: "short", day: "numeric"})}
+                {formatter(data.comparisonValue)} - {new Date(data.comparisonDate).toLocaleDateString('en-us', {year: "2-digit", month: "2-digit", day: "2-digit"})}
               </div>
             </div>
           }
