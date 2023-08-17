@@ -7,7 +7,7 @@ module Api
         render json: {
           current_mrr: current_billing_data.last.mrr_in_cents,
           comparison_mrr: comparison_billing_data.last.mrr_in_cents,
-          change_in_mrr: current_billing_data.last.mrr_in_cents - comparison_billing_data.last.mrr_in_cents,
+          change_in_mrr: current_billing_data.last.present? && comparison_billing_data.last.present? ? current_billing_data.last.mrr_in_cents - comparison_billing_data.last.mrr_in_cents : nil,
           current_mrr_timeseries: current_billing_data.map{ |data| { date: data.captured_at, value: data.mrr_in_cents }},
           comparison_mrr_timeseries: comparison_billing_data.map{ |data| { date: data.captured_at, value: data.mrr_in_cents }},
           current_total_revenue: current_billing_data.last.total_revenue_in_cents,
