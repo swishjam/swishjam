@@ -16,11 +16,11 @@ module DataSyncJobs
         )
         begin
           run!(integration)
-          sync.update!(completed_at: Time.current, duration_in_seconds: Time.current - sync.started_at)
+          sync.completed!
         rescue => e
           Rails.logger.error "#{self.class.to_s} sync failed for organization #{integration.organization.id} with error: #{e.message}"
           Rails.logger.error e.backtrace.join("\n")
-          sync.update!(error_message: e.message, completed_at: Time.current, duration_in_seconds: Time.current - sync.started_at)
+          sync.failed!(e.message)
         end
       end
     end
