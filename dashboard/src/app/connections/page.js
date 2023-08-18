@@ -16,7 +16,7 @@ const CONNECTION_IMAGES = {
 }
 
 const CONNECTION_OAUTH_URLS = {
-  Stripe: authToken => `https://connect.stripe.com/oauth/authorize?response_type=code&client_id=ca_ONSwwqiCfDZHQzg1hURYH5pfTVj1PrAe&scope=read_write&redirect_uri=http://localhost:8080/oauth/stripe/callback&state={"authToken":"${authToken}"}`
+  Stripe: authToken => `https://connect.stripe.com/oauth/authorize?response_type=code&client_id=ca_ONSwwqiCfDZHQzg1hURYH5pfTVj1PrAe&scope=read_write&redirect_uri=http://localhost:4242/oauth/stripe/callback&state={"authToken":"${authToken}"}`
 }
 
 const CONNECTION_DESCRIPTIONS = {

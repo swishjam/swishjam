@@ -10,22 +10,25 @@ module AnalyticsEventProcessors
 
     def create_or_update_user!
       unique_identifier = data['user_id'] || data['userId']
-      existing_user = swishjam_organization.analytics_users.find_by(unique_identifier: unique_identifier)
+      email = data['email']
+      first_name = data['firstName'] || data['first_name']
+      last_name = data['lastName'] || data['last_name']
+      existing_user = CustomerProfileDataMappers::WebAnalytics.new(swishjam_organization).find_user(unique_identifier: unique_identifier, email: email, full_name: "#{first_name} #{last_name}")
       if existing_user
-        existing_user.update!(
-          email: data['email'], 
-          first_name: data['firstName'] || data['last_name'], 
-          last_name: data['lastName'] || data['last_name']
-        )
+        existing_user.unique_identifier = unique_identifier if existing_user.unique_identifier != unique_identifier
+        existing_user.email = email if existing_user.email != email
+        existing_user.first_name = first_name if existing_user.first_name != first_name
+        existing_user.last_name = last_name if existing_user.last_name != last_name
+        existing_user.save! if existing_user.changed?
         existing_user
       else
-        user = swishjam_organization.analytics_users.create!(
+        swishjam_organization.analytics_users.create!(
           unique_identifier: unique_identifier, 
-          email: data['email'], 
-          first_name: data['firstName'] || data['first_name'], 
-          last_name: data['lastName'] || data['last_name']
+          email: email, 
+          first_name: first_name, 
+          last_name: last_name,
+          metadata_attributes: [{ key: 'created_by', value: 'sdk' }]
         )
-        user
       end
     end
 
