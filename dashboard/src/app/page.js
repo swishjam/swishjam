@@ -63,15 +63,19 @@ const Home = () => {
   const [sessionsChart, setSessionsChart] = useState(FormattedLineChartData('User Sessions'));
 
   const getData = async () => {
-    API.get('/api/v1/billing_data_snapshots').then(paymentData => {
-      console.log('paymentData', paymentData) 
+    API.get('/api/v1/billing_data_snapshots', { timeframe: '30_days' }).then(paymentData => {
       setMrrChart({
         ...mrrChart,
         value: paymentData.current_mrr,
         previousValue: paymentData.comparison_mrr,
         previousValueDate: paymentData.comparison_end_time,
         valueChange: paymentData.change_in_mrr,
-        timeseries: paymentData.current_mrr_timeseries.map((timeseries, index) => ({ ...timeseries, index, comparisonDate: paymentData.comparison_mrr_timeseries[index].date, comparisonValue: paymentData.comparison_mrr_timeseries[index].value})),
+        timeseries: paymentData.current_mrr_timeseries.map((timeseries, index) => ({ 
+          ...timeseries, 
+          index, 
+          comparisonDate: paymentData.comparison_mrr_timeseries[index]?.date, 
+          comparisonValue: paymentData.comparison_mrr_timeseries[index]?.value
+        })),
       })
 
       setActiveSubsChart({
@@ -80,19 +84,28 @@ const Home = () => {
         previousValue: paymentData.comparison_num_active_subscriptions,
         previousValueDate: paymentData.comparison_end_time,
         valueChange: paymentData.change_in_num_active_subscriptions,
-        timeseries: paymentData.current_num_active_subscriptions_timeseries
+        timeseries: paymentData.current_num_active_subscriptions_timeseries.map((timeseries, index) => ({
+          ...timeseries,
+          index,
+          comparisonDate: paymentData.comparison_num_active_subscriptions_timeseries[index]?.date,
+          comparisonValue: paymentData.comparison_num_active_subscriptions_timeseries[index]?.value
+        }))
       })
     });
     
-    API.get('/api/v1/sessions/timeseries').then((sessionData) => {
-      console.log('Session Data', sessionData)
+    API.get('/api/v1/sessions/timeseries', { timeframe: '30_days' }).then((sessionData) => {
       setSessionsChart({
         ...sessionsChart,
         value: sessionData.count,
         previousValue: sessionData.comparison_count,
         previousValueDate: sessionData.comparison_end_time,
         valueChange: sessionData.count - sessionData.comparison_count,
-        timeseries: sessionData.timeseries 
+        timeseries: sessionData.timeseries.map((timeseries, index) => ({
+          ...timeseries,
+          index,
+          comparisonDate: sessionData.comparison_timeseries[index]?.date,
+          comparisonValue: sessionData.comparison_timeseries[index]?.value
+        }))
       })
     })
   }
