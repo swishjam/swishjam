@@ -3,8 +3,8 @@ module Api
     class SessionsController < BaseController
       def count
         render json: {
-          count: current_organization.analytics_sessions.where(start_time: start_timestamp..end_timestamp).count,
-          comparison_count: current_organization.analytics_sessions.where(start_time: comparison_start_timestamp..comparison_end_timestamp).count,
+          count: current_organization.analytics_sessions.starting_after(start_timestamp).starting_at_or_before(end_timestamp).count,
+          comparison_count: current_organization.analytics_sessions.starting_after(comparison_start_timestamp).starting_at_or_before(comparison_end_timestamp).count,
           start_time: start_timestamp,
           end_time: end_timestamp,
           comparison_start_time: comparison_start_timestamp,
@@ -43,26 +43,30 @@ module Api
 
       def referrers
         render json: {
-          referrers: Analytics::PageHit.first_of_sessions(current_organization).where(start_time: start_timestamp..end_timestamp).group(:referrer_url_host).count,
+          referrers: Analytics::PageHit.first_of_sessions(current_organization).starting_after(start_timestamp).starting_at_or_before(end_timestamp).group(:referrer_url_host).count,
           start_time: start_timestamp,
           end_time: end_timestamp,
         }, status: :ok
       end
 
-      def device_types
+      def demographics
+        limit = params[:limit] = 10
+        sessions = current_organization.analytics_sessions.starting_after(start_timestamp).starting_at_or_before(end_timestamp).joins(:device)
+        num_mobile_sessions = sessions.mobile.count
+        num_desktop_sessions = sessions.not_mobile.count
+        browser_breakdown = sessions.limit(limit).group('analytics_devices.browser').count
+        cities = sessions.limit(limit).group(:city).select(:city, 'COUNT(city) AS count').order(count: :DESC).map{ |s| { city: s.city, count: s.count }}
+        regions = sessions.limit(limit).group(:region).select(:region, 'COUNT(region) AS count').order(count: :DESC).map{ |s| { region: s.region, count: s.count }}
+        countries = sessions.limit(limit).group(:country).select(:country, 'COUNT(country) AS count').order(count: :DESC).map{ |s| { country: s.country, count: s.count }}
         render json: {
-          mobile_count: current_organization.analytics_sessions.joins(:device).where(start_time: start_timestamp..end_timestamp, is_mobile: true).count,
-          desktop_count: current_organization.analytics_sessions.joins(:device).where(start_time: start_timestamp..end_timestamp, is_mobile: false).count,
+          mobile_count: num_mobile_sessions,
+          desktop_count: num_desktop_sessions,
+          browsers:browser_breakdown,
+          cities: cities,
+          regions: regions,
+          countries: countries,
           start_time: start_timestamp,
           end_time: end_timestamp,
-        }, status: :ok
-      end
-
-      def browsers
-        render json: {
-          browsers: current_organization.analytics_sessions.joins(:device).where(start_time: start_timestamp..end_timestamp).group('analytics_devices.browser').count,
-          start_time: start_time,
-          end_time: end_time,
         }, status: :ok
       end
     end

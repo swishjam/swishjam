@@ -17,6 +17,8 @@ module Analytics
     scope :starting_at_or_before, -> (timestamp) { where('start_time <= ?', timestamp.to_datetime) }
     scope :starting_after, -> (timestamp) { where('start_time > ?', timestamp.to_datetime) }
     scope :starting_at_or_after, -> (timestamp) { where('start_time >= ?', timestamp.to_datetime) }
+    scope :mobile, -> { joins(:device).where(analytics_devices: { is_mobile: true }) }
+    scope :not_mobile, -> { joins(:device).where(analytics_devices: { is_mobile: false }) }
 
     def first_page_hit
       page_hits.order(start_time: :asc).limit(1).first

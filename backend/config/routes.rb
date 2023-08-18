@@ -37,6 +37,7 @@ Rails.application.routes.draw do
           get :count
           get :timeseries
           get :referrers
+          get :demographics
         end
       end
 
