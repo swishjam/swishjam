@@ -1,8 +1,15 @@
 ENV['RAILS_ENV'] ||= 'test'
+
+require 'simplecov'
+SimpleCov.start 'rails' do
+  # add_filter '/spec/'
+end
+
 require_relative "../config/environment"
 require 'factory_bot_rails'
 require 'database_cleaner'
-require 'helper_utils'
+require 'helpers/utils'
+require 'helpers/stripe_mocks'
 
 RSpec.configure do |config|
   config.include FactoryBot::Syntax::Methods

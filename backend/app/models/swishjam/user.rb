@@ -4,7 +4,7 @@ module Swishjam
     has_secure_password
 
     has_many :sessions, class_name: Swishjam::Session.to_s, foreign_key: :swishjam_user_id, dependent: :destroy
-    has_many :organization_users, class_name: Swishjam::OrganizationUser.to_s, foreign_key: :swishjam_user_id, dependent: :destroy, dependent: :destroy
+    has_many :organization_users, class_name: Swishjam::OrganizationUser.to_s, foreign_key: :swishjam_user_id, dependent: :destroy
     has_many :organizations, class_name: Swishjam::Organization.to_s, through: :organization_users, dependent: :destroy
 
     validates :email, presence: true, uniqueness: true, format: { with: URI::MailTo::EMAIL_REGEXP, message: "Must be a valid email address." }

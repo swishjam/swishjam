@@ -20,6 +20,7 @@ gem 'rack-cors'
 gem 'bcrypt'
 gem 'jwt'
 gem 'active_model_serializers'
+gem 'geocoder'
 
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
 gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]
@@ -41,4 +42,5 @@ group :test do
   gem 'rspec'
   gem 'factory_bot_rails'
   gem 'database_cleaner'
+  gem 'simplecov'
 end

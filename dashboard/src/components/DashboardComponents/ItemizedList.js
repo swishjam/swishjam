@@ -61,8 +61,8 @@ export default function ItemizedList({
                           </Avatar>
                         )}
                         <div className="ml-4 space-y-1 truncate">
-                          <p className="text-sm font-medium leading-none">{item[leftItemHeaderKey]}</p>
-                          <p className="text-sm text-muted-foreground">{item[leftItemSubHeaderKey]}</p>
+                          <p className="text-sm font-medium leading-none">{item[leftItemHeaderKey] || item[leftItemSubHeaderKey]}</p>
+                          {item[leftItemHeaderKey]  && <p className="text-sm text-muted-foreground">{item[leftItemSubHeaderKey]}</p>}
                         </div>
                         <div className="ml-auto text-sm font-medium">{rightItemKeyFormatter(item[rightItemKey])}</div>
                     </Link>

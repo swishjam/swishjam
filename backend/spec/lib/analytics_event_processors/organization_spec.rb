@@ -15,6 +15,7 @@ describe AnalyticsEventProcessors::PageView do
       'pageViewId' => @page_view_identifier,
       'timestamp' => @timestamp,
       'url' => 'http://www.waffleshop.com/hello-world',
+      'ip_address' => '::1',
       'deviceData' => {
         'fingerprint' => @device_fingerprint,
         'userAgent' => 'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36',

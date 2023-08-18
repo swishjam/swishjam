@@ -11,6 +11,7 @@ describe AnalyticsEventProcessors::Identify do
       'pageViewId' => 'swishjam-generated-page-view-id',
       'timestamp' => 1.minute.ago,
       'url' => 'http://www.waffleshop.com',
+      'ip_address' => '::1',
       'deviceData' => {
         'fingerprint' => @event_payload_device_fingerprint,
         'userAgent' => 'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36',
@@ -40,9 +41,8 @@ describe AnalyticsEventProcessors::Identify do
       expect(new_user.email).to eq('hello@example.com')
       expect(new_user.first_name).to eq('John')
       expect(new_user.last_name).to eq('Doe')
-      expect(new_user.metadata.count).to be(1)
-      expect(new_user.metadata.first.key).to eq('birthday')
-      expect(new_user.metadata.first.value).to eq('1980-01-01')
+      expect(new_user.metadata.count).to be(2)
+      expect(new_user.metadata.formatted['birthday']).to eq('1980-01-01')
     end
 
     it 'updates an existing user if one already exists for the provided `unique_identifier`' do
@@ -63,8 +63,47 @@ describe AnalyticsEventProcessors::Identify do
       expect(existing_user.first_name).to eq('John')
       expect(existing_user.last_name).to eq('Doe')
       expect(existing_user.metadata.count).to be(1)
-      expect(existing_user.metadata.first.key).to eq('birthday')
-      expect(existing_user.metadata.first.value).to eq('1980-01-01')
+      expect(existing_user.metadata.formatted['birthday']).to eq('1980-01-01')
+    end
+
+    it 'updates an existing user if it is unable to find the user by the provided `unique_identifier` but it is able to find the user by the provided `email`' do
+      existing_user = FactoryBot.create(:analytics_user, 
+        swishjam_organization: @swishjam_organization, 
+        unique_identifier: nil, 
+        email: 'hello@example.com'
+      )
+      expect(@swishjam_organization.analytics_users.count).to be(1)
+      AnalyticsEventProcessors::Identify.new(@swishjam_organization.public_key, @identify_event_payload).process!
+      existing_user.reload
+      expect(@swishjam_organization.analytics_users.count).to be(1)
+      expect(@swishjam_organization.analytics_users.last).to eq(existing_user)
+      expect(existing_user.unique_identifier).to eq(@event_payload_user_id)
+      expect(existing_user.email).to eq('hello@example.com')
+      expect(existing_user.first_name).to eq('John')
+      expect(existing_user.last_name).to eq('Doe')
+      expect(existing_user.metadata.count).to be(1)
+      expect(existing_user.metadata.formatted['birthday']).to eq('1980-01-01')
+    end
+
+    it 'updates an existing user if it is unable to find the user by the provided `unique_identifier` but it is able to find the user by the provided full name' do
+      existing_user = FactoryBot.create(:analytics_user, 
+        swishjam_organization: @swishjam_organization, 
+        unique_identifier: nil, 
+        email: 'something-different@example.com',
+        first_name: 'John',
+        last_name: 'Doe',
+      )
+      expect(@swishjam_organization.analytics_users.count).to be(1)
+      AnalyticsEventProcessors::Identify.new(@swishjam_organization.public_key, @identify_event_payload).process!
+      existing_user.reload
+      expect(@swishjam_organization.analytics_users.count).to be(1)
+      expect(@swishjam_organization.analytics_users.last).to eq(existing_user)
+      expect(existing_user.unique_identifier).to eq(@event_payload_user_id)
+      expect(existing_user.email).to eq('hello@example.com')
+      expect(existing_user.first_name).to eq('John')
+      expect(existing_user.last_name).to eq('Doe')
+      expect(existing_user.metadata.count).to be(1)
+      expect(existing_user.metadata.formatted['birthday']).to eq('1980-01-01')
     end
 
     it 'also excepts underscored attributes for `userId`, `firstName`, and `lastName`' do
@@ -84,9 +123,8 @@ describe AnalyticsEventProcessors::Identify do
       expect(new_user.email).to eq('hello@example.com')
       expect(new_user.first_name).to eq('John')
       expect(new_user.last_name).to eq('Doe')
-      expect(new_user.metadata.count).to be(1)
-      expect(new_user.metadata.first.key).to eq('birthday')
-      expect(new_user.metadata.first.value).to eq('1980-01-01')
+      expect(new_user.metadata.count).to be(2)
+      expect(new_user.metadata.formatted['birthday']).to eq('1980-01-01')
     end
 
     it 'creates a new device if one does not yet exist for the provided `fingerprint`' do

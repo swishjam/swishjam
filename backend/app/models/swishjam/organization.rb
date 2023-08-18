@@ -31,8 +31,8 @@ module Swishjam
               class_name: Analytics::CustomerBillingDataSnapshot.to_s, 
               foreign_key: :swishjam_organization_id, 
               dependent: :destroy
-    has_many :analytics_payments, 
-              class_name: Analytics::Payment.to_s, 
+    has_many :analytics_customer_payments, 
+              class_name: Analytics::CustomerPayment.to_s, 
               foreign_key: :swishjam_organization_id, 
               dependent: :destroy
     has_many :analytics_customer_subscriptions, 
