@@ -13,10 +13,10 @@ module Analytics
     #     .joins(:page_hits)
     #     .where("page_hits.start_time = min_times.min_start_time")
     # end
-    scope :starting_before, -> (timestamp) { where('start_time < ?', timestamp.to_datetime) }
-    scope :starting_at_or_before, -> (timestamp) { where('start_time <= ?', timestamp.to_datetime) }
-    scope :starting_after, -> (timestamp) { where('start_time > ?', timestamp.to_datetime) }
-    scope :starting_at_or_after, -> (timestamp) { where('start_time >= ?', timestamp.to_datetime) }
+    scope :starting_before, -> (timestamp) { where('analytics_sessions.start_time < ?', timestamp.to_datetime) }
+    scope :starting_at_or_before, -> (timestamp) { where('analytics_sessions.start_time <= ?', timestamp.to_datetime) }
+    scope :starting_after, -> (timestamp) { where('analytics_sessions.start_time > ?', timestamp.to_datetime) }
+    scope :starting_at_or_after, -> (timestamp) { where('analytics_sessions.start_time >= ?', timestamp.to_datetime) }
     scope :mobile, -> { joins(:device).where(analytics_devices: { is_mobile: true }) }
     scope :not_mobile, -> { joins(:device).where(analytics_devices: { is_mobile: false }) }
 

@@ -1,6 +1,22 @@
 import Link from "next/link";
+import { Skeleton } from "../ui/skeleton";
 
-export default function BarListNoCard({ items = [] }) {
+const LoadingState = () => (
+  <div>
+    <div className="flex justify-between space-x-6">
+      <div className="relative w-full">
+        <Skeleton className="w-[80%] rounded h-9 mb-2" />
+        <Skeleton className="w-[75%] rounded h-9 mb-2" />
+        <Skeleton className="w-[40%] rounded h-9 mb-2" />
+        <Skeleton className="w-[35%] rounded h-9 mb-2" />
+        <Skeleton className="w-[10%] rounded h-9 mb-2" />
+      </div>
+    </div>
+  </div>
+)
+
+export default function BarListNoCard({ items }) {
+  if (!items) return <LoadingState />
   const total = items.reduce((acc, item) => acc + item.value, 0)
   const sortedItems = items.sort((item1, item2) => item2.value - item1.value)
   
@@ -15,14 +31,18 @@ export default function BarListNoCard({ items = [] }) {
               style={{ width: (item.value/total)*100 +'%', transition: 'all 1s ease 0s' }}
             >
               <div className="absolute max-w-full flex left-2">
-                {item.icon && 
-                  <item.icon className="h-4 w-4 mr-2" /> 
+                {item.icon &&  <item.icon className="h-4 w-4 mr-2" />}
+                {item.href 
+                  ? (
+                    <Link className="hover:underline delay-75 duration-300 transition whitespace-nowrap truncate text-sm font-medium leading-none" href={item.href} target="_blank">
+                      {item.name}
+                    </Link> 
+                  ) : (
+                    <p className="whitespace-nowrap truncate text-sm font-medium leading-none">
+                      {item.name}
+                    </p>
+                  ) 
                 }
-                {item.href ?
-                  <Link className="hover:underline delay-75 duration-300 transition whitespace-nowrap truncate text-sm font-medium leading-none" href={item.href}>{item.name}</Link> 
-                :<p className="whitespace-nowrap truncate text-sm font-medium leading-none">
-                  {item.name}
-                </p>}
               </div>
             </div>
           ))}

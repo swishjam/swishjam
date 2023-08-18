@@ -42,8 +42,17 @@ module Api
       end
 
       def referrers
+        limit = params[:limit] || 10
+        referrers = Analytics::PageHit.first_of_sessions(current_organization)
+                                        .starting_after(start_timestamp)
+                                        .starting_at_or_before(end_timestamp)
+                                        .group(:referrer_url_host)
+                                        .select(:referrer_url_host, 'COUNT(referrer_url_host) AS count')
+                                        .order(count: :DESC)
+                                        .limit(limit)
+                                        .map{ |p| { referrer: p.referrer_url_host, count: p.count }}
         render json: {
-          referrers: Analytics::PageHit.first_of_sessions(current_organization).starting_after(start_timestamp).starting_at_or_before(end_timestamp).group(:referrer_url_host).count,
+          referrers: referrers,
           start_time: start_timestamp,
           end_time: end_timestamp,
         }, status: :ok
@@ -54,7 +63,7 @@ module Api
         sessions = current_organization.analytics_sessions.starting_after(start_timestamp).starting_at_or_before(end_timestamp).joins(:device)
         num_mobile_sessions = sessions.mobile.count
         num_desktop_sessions = sessions.not_mobile.count
-        browser_breakdown = sessions.limit(limit).group('analytics_devices.browser').count
+        browser_breakdown = sessions.limit(limit).group('analytics_devices.browser').select('analytics_devices.browser', 'COUNT(analytics_devices.browser) AS count').order(count: :DESC).map{ |s| { browser: s.browser, count: s.count } }
         cities = sessions.limit(limit).group(:city).select(:city, 'COUNT(city) AS count').order(count: :DESC).map{ |s| { city: s.city, count: s.count }}
         regions = sessions.limit(limit).group(:region).select(:region, 'COUNT(region) AS count').order(count: :DESC).map{ |s| { region: s.region, count: s.count }}
         countries = sessions.limit(limit).group(:country).select(:country, 'COUNT(country) AS count').order(count: :DESC).map{ |s| { country: s.country, count: s.count }}

@@ -41,11 +41,7 @@ Rails.application.routes.draw do
         end
       end
 
-      resources :page_hits, only: [] do
-        collection do
-          get :top_pages
-        end
-      end
+      resources :page_hits, only: [:index]
       
       resources :events, only: [] do
         collection do

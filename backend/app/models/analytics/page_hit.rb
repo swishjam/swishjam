@@ -5,6 +5,12 @@ module Analytics
     belongs_to :session, class_name: Analytics::Session.to_s, foreign_key: :analytics_session_id
     has_many :events, class_name: Analytics::Event.to_s, foreign_key: :analytics_page_hit_id, dependent: :destroy
 
+    scope :for_swishjam_organization, -> (swishjam_organization) { joins(session: :device).where(analytics_devices: { swishjam_organization_id: swishjam_organization.id }) }
+    scope :starting_before, -> (timestamp) { where('analytics_page_hits.start_time < ?', timestamp.to_datetime) }
+    scope :starting_at_or_before, -> (timestamp) { where('analytics_page_hits.start_time <= ?', timestamp.to_datetime) }
+    scope :starting_after, -> (timestamp) { where('analytics_page_hits.start_time > ?', timestamp.to_datetime) }
+    scope :starting_at_or_after, -> (timestamp) { where('analytics_page_hits.start_time >= ?', timestamp.to_datetime) }
+
     def self.first_of_sessions(swishjam_organization)
       subquery = select("analytics_session_id, MIN(start_time) AS min_start_time").group(:analytics_session_id)
 
