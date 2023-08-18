@@ -15,6 +15,7 @@ describe AnalyticsEventProcessors::PageView do
       'pageViewId' => @page_view_identifier,
       'timestamp' => @timestamp,
       'url' => 'http://www.waffleshop.com/hello-world',
+      'ip_address' => '::1',
       'deviceData' => {
         'fingerprint' => @device_fingerprint,
         'userAgent' => 'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36',
@@ -57,6 +58,13 @@ describe AnalyticsEventProcessors::PageView do
       expect(Analytics::Session.count).to be(1)
       expect(new_session.unique_identifier).to eq(@session_identifier)
       expect(new_session.device.fingerprint).to eq(@device_fingerprint)
+      expect(new_session.latitude).to eq(36.1659)
+      expect(new_session.longitude).to eq(-86.7844)
+      expect(new_session.city).to eq('Nashville')
+      expect(new_session.region).to eq('Tennessee')
+      expect(new_session.country).to eq('US')
+      expect(new_session.postal_code).to eq('37201')
+      expect(new_session.start_time).to eq(Time.at(@timestamp / 1_000))
     end
 
     it 'uses an existing session and device if one already exists for the provided session_unique_identifier' do

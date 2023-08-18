@@ -7,10 +7,31 @@ def setup_test_data( stub_data: { stripe: { customer_email: 'fake@example.com', 
 end
 
 def stub_external_apis(stripe_customer_email: 'fake@example.com', stripe_customer_name: 'Fake Name')
+  stub_geocoder
   stub_stripe_subscription_list_call(customer_email: stripe_customer_email, customer_name: stripe_customer_name)
   stub_stripe_charge_list_call(customer_email: stripe_customer_email, customer_name: stripe_customer_name)
   stub_stripe_invoice_list_call(customer_email: stripe_customer_email, customer_name: stripe_customer_name)
   stub_stripe_product_retrieve_call(product_name: 'fake_stripe_product_name')
+end
+
+def stub_geocoder
+  allow(Geocoder).to receive(:search).and_return(
+    [
+      OpenStruct.new(
+        ip: "172.56.21.89", 
+        city: "Nashville", 
+        region: "Tennessee", 
+        country: "US", 
+        loc: "36.1659,-86.7844", 
+        latitude: 36.1659,
+        longitude: -86.7844,
+        org: "AS21928 T-Mobile USA, Inc.", 
+        postal_code: "37201", 
+        timezone: "America/Chicago", 
+        readme: "https://ipinfo.io/missingauth"
+      )
+    ]
+  )
 end
 
 def stub_stripe_subscription_list_call(customer_email: 'fake@example.com', customer_name: 'Fake Name')
