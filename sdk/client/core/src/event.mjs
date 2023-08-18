@@ -32,7 +32,6 @@ export class Event {
         timezone: fingerprinter.getTimeZone(),
         language: fingerprinter.getLanguage(),
         isMobile: fingerprinter.isMobile(),
-        foo: 'bar'
       },
       data: this.data,
     }
