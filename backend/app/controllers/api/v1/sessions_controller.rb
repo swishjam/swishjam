@@ -2,60 +2,39 @@ module Api
   module V1
     class SessionsController < BaseController
       def count
-        start_time = params[:start_time] || 7.days.ago
-        end_time = params[:end_time] || Time.zone.now
-
-        comparison_start_time = start_time - (end_time - start_time)
-        comparison_end_time = start_time
-
         render json: {
-          count: current_organization.analytics_sessions.where(start_time: start_time..end_time).count,
-          comparison_count: current_organization.analytics_sessions.where(start_time: comparison_start_time..comparison_end_time).count,
-          start_time: start_time,
-          end_time: end_time,
-          comparison_start_time: comparison_start_time,
-          comparison_end_time: comparison_end_time,
+          count: current_organization.analytics_sessions.starting_after(start_timestamp).starting_at_or_before(end_timestamp).count,
+          comparison_count: current_organization.analytics_sessions.starting_after(comparison_start_timestamp).starting_at_or_before(comparison_end_timestamp).count,
+          start_time: start_timestamp,
+          end_time: end_timestamp,
+          comparison_start_time: comparison_start_timestamp,
+          comparison_end_time: comparison_end_timestamp,
         }, status: :ok
       end
 
       def timeseries
-        interval = params[:interval] || 'day'
-        start_time = { 
-          'hour' => Time.zone.now.beginning_of_hour - 1.day, 
-          'day' => Time.zone.now.beginning_of_day - 7.days, 
-          'week' => Time.zone.now.beginning_of_week - 6.weeks, 
-          'month' => Time.zone.now.beginning_of_month - 6.months
-        }[interval]
-        end_time = Time.zone.now
-
-        comparison_start_time = start_time - (end_time - start_time)
-        comparison_end_time = start_time
-
+        group_by_method = case Time.current - start_timestamp
+                          when 0..(7.days + 1.minute)
+                            :group_by_hour
+                          when (7.days + 1.minute)..(1.month + 1.day)
+                            :group_by_day
+                          when (1.month + 1.day)..3.months
+                            :group_by_week
+                          else
+                            :group_by_month
+                          end
+        current_sessions = current_organization.analytics_sessions.starting_after(start_timestamp).starting_at_or_before(end_timestamp)
+        comparison_sessions = current_organization.analytics_sessions.starting_after(comparison_start_timestamp).starting_at_or_before(comparison_end_timestamp)
         json = {
-          start_time: start_time,
-          end_time: end_time,
-          comparison_start_time: comparison_start_time,
-          comparison_end_time: comparison_end_time,
+          timeseries: format_timeseries(current_sessions.send(group_by_method, :start_time).count),
+          comparison_timeseries: format_timeseries(comparison_sessions.send(group_by_method, :start_time).count),
+          start_time: start_timestamp,
+          end_time: end_timestamp,
+          comparison_start_time: comparison_start_timestamp,
+          comparison_end_time: comparison_end_timestamp,
+          grouped_by: group_by_method.to_s.split('_').last,
         }
-
-        case interval
-        when 'hour'
-          json[:timeseries] = format_timeseries(current_organization.analytics_sessions.where(start_time: start_time..end_time).group_by_hour(:start_time).count)
-          json[:comparison_timeseries] = format_timeseries(current_organization.analytics_sessions.where(start_time: comparison_start_time..comparison_end_time - 1.second).group_by_hour(:start_time).count)
-        when 'day'
-          json[:timeseries] = format_timeseries(current_organization.analytics_sessions.where(start_time: start_time..end_time).group_by_day(:start_time).count)
-          json[:comparison_timeseries] = format_timeseries(current_organization.analytics_sessions.where(start_time: comparison_start_time..comparison_end_time - 1.second).group_by_day(:start_time).count)
-        when 'week'
-          json[:timeseries] = format_timeseries(current_organization.analytics_sessions.where(start_time: start_time..end_time).group_by_week(:start_time).count)
-          json[:comparison_timeseries] = format_timeseries(current_organization.analytics_sessions.where(start_time: comparison_start_time..comparison_end_time - 1.second).group_by_week(:start_time).count)
-        when 'month'
-          json[:timeseries] = format_timeseries(current_organization.analytics_sessions.where(start_time: start_time..end_time).group_by_month(:start_time).count)
-          json[:comparison_timeseries] = format_timeseries(current_organization.analytics_sessions.where(start_time: comparison_start_time..comparison_end_time - 1.second).group_by_month(:start_time).count)
-        else
-          render json: { error: "Invalid interval #{interval}, supported values are: 'hour', 'day', 'week', or 'month'." }, status: :bad_request
-          return
-        end
-
+        
         json[:count] = json[:timeseries].collect{ |h| h[:value] }.sum
         json[:comparison_count] = json[:comparison_timeseries].collect{ |h| h[:value] }.sum
 
@@ -63,13 +42,31 @@ module Api
       end
 
       def referrers
-        start_time = params[:start_time] || 7.days.ago
-        end_time = params[:end_time] || Time.zone.now
-
         render json: {
-          referrers: Analytics::PageHit.first_of_sessions(current_organization).where(start_time: start_time..end_time).group(:referrer_url_host).count,
-          start_time: start_time,
-          end_time: end_time,
+          referrers: Analytics::PageHit.first_of_sessions(current_organization).starting_after(start_timestamp).starting_at_or_before(end_timestamp).group(:referrer_url_host).count,
+          start_time: start_timestamp,
+          end_time: end_timestamp,
+        }, status: :ok
+      end
+
+      def demographics
+        limit = params[:limit] = 10
+        sessions = current_organization.analytics_sessions.starting_after(start_timestamp).starting_at_or_before(end_timestamp).joins(:device)
+        num_mobile_sessions = sessions.mobile.count
+        num_desktop_sessions = sessions.not_mobile.count
+        browser_breakdown = sessions.limit(limit).group('analytics_devices.browser').count
+        cities = sessions.limit(limit).group(:city).select(:city, 'COUNT(city) AS count').order(count: :DESC).map{ |s| { city: s.city, count: s.count }}
+        regions = sessions.limit(limit).group(:region).select(:region, 'COUNT(region) AS count').order(count: :DESC).map{ |s| { region: s.region, count: s.count }}
+        countries = sessions.limit(limit).group(:country).select(:country, 'COUNT(country) AS count').order(count: :DESC).map{ |s| { country: s.country, count: s.count }}
+        render json: {
+          mobile_count: num_mobile_sessions,
+          desktop_count: num_desktop_sessions,
+          browsers:browser_breakdown,
+          cities: cities,
+          regions: regions,
+          countries: countries,
+          start_time: start_timestamp,
+          end_time: end_timestamp,
         }, status: :ok
       end
     end

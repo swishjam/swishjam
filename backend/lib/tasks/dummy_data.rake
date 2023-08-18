@@ -81,7 +81,13 @@ def seed_sessions_for_device!(device, min: 0, max: RANDOM_NUM_OF_SESSIONS_PER_DE
     session = Analytics::Session.create!(
       device: device,
       unique_identifier: SecureRandom.uuid,
-      start_time: Faker::Time.between(from: 1.year.ago, to: Time.now)
+      start_time: Faker::Time.between(from: 1.year.ago, to: Time.now),
+      latitude: Faker::Address.latitude,
+      longitude: Faker::Address.longitude,
+      city: Faker::Address.city,
+      region: Faker::Address.state,
+      country: Faker::Address.country,
+      postal_code: Faker::Address.postcode
     )
     seed_hits_for_session!(session)
   end
@@ -93,6 +99,7 @@ def seed_hits_for_session!(session, min: 1, max: RANDOM_NUM_OF_PAGE_HITS_PER_SES
   puts "Seeding #{num_hits} page hits for session #{session.id}..."
   num_hits.times do
     url_path = URL_PATHS[rand(0..URL_PATHS.count - 1)]
+    referrer_url = Faker::Internet.url
     page_hit = Analytics::PageHit.create!(
       device: session.device,
       session: session,
@@ -101,9 +108,9 @@ def seed_hits_for_session!(session, min: 1, max: RANDOM_NUM_OF_PAGE_HITS_PER_SES
       url_host: HOST_URL,
       url_path: url_path,
       # url_query: '',
-      # referrer_full_url: '',
-      # referrer_url_host: '',
-      # referrer_url_path: '',
+      referrer_full_url: referrer_url,
+      referrer_url_host: URI.parse(referrer_url).host,
+      referrer_url_path: URI.parse(referrer_url).path,
       # referrer_url_query: '',
       start_time: Faker::Time.between(from: session.start_time, to: session.start_time + 1.hour), # this doesnt prevent sessions from overlapping, but oh well
     )

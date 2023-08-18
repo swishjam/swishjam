@@ -25,7 +25,9 @@ export class API {
         'X-Swishjam-Token': localStorage.getItem('swishjam-token'),
       },
     };
-    if (method !== 'GET') {
+    if (method === 'GET') {
+      urlPath += '?' + new URLSearchParams(data).toString();
+    } else {
       opts.body = JSON.stringify(data);
     }
     const response = await fetch(`${API_HOST}${urlPath}`, opts);

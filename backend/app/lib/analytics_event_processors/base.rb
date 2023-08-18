@@ -41,6 +41,7 @@ module AnalyticsEventProcessors
         new_device.browser_version = device_data['browserVersion']
         new_device.os = device_data['os']
         new_device.os_version = device_data['osVersion']
+        new_device.is_mobile = device_data['isMobile']
       end
     end
 

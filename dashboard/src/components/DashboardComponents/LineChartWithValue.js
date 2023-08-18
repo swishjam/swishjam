@@ -1,13 +1,11 @@
 "use client"
 
-import { XAxis, LineChart, Tooltip, Line, ResponsiveContainer } from 'recharts';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { LineChart, Tooltip, Line, ResponsiveContainer } from 'recharts';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
 import { HoverCard, HoverCardTrigger, HoverCardContent } from "@/components/ui/hover-card";
 import { ArrowTrendingDownIcon, ArrowTrendingUpIcon, CalendarIcon } from "@heroicons/react/24/outline";
-import {
-  CircleIcon,
-} from "@radix-ui/react-icons"
+import { CircleIcon } from "@radix-ui/react-icons"
 
 const LoadingView = ({ title }) => (
   <Card>
@@ -79,46 +77,47 @@ export default function LineChartWithValue({ title, value, previousValue, previo
           </HoverCard>
         }
         {timeseries.length > 0 &&
-        <ResponsiveContainer width="100%" aspect={3} className="mt-4">
-          <LineChart
-            width={500}
-            height={300}
-            data={timeseries}
-            margin={{
-              top: 10,
-              right: 5,
-              left: 5,
-              bottom: 5,
-            }}
-          >
-            <Tooltip
-              animationBegin={200}
-              animationDuration={400}
-              wrapperStyle={{ outline: "none" }}
-              content={<CustomTooltip formatter={formatter}/>}
-              allowEscapeViewBox={{x: false, y: true}}
-              animationEasing={'ease-in-out'}
-            />
-            <Line
-              type="natural"
-              dataKey='comparisonValue'
-              xAxisId={'index'} 
-              stroke="#E2E8F0"
-              dot={{ r: 0 }}
-              activeDot={{ r: 2 }}
-              strokeWidth={2}
-            />
-            <Line
-              type="natural"
-              dataKey='value'
-              xAxisId={'index'} 
-              stroke="#7487F7"
-              dot={{ r: 0 }}
-              activeDot={{ r: 2 }}
-              strokeWidth={2}
-            />
-          </LineChart>
-        </ResponsiveContainer>}
+          <ResponsiveContainer width="100%" aspect={3} className="mt-4">
+            <LineChart
+              width={500}
+              height={300}
+              data={timeseries}
+              margin={{
+                top: 10,
+                right: 5,
+                left: 5,
+                bottom: 5,
+              }}
+            >
+              <Tooltip
+                animationBegin={200}
+                animationDuration={400}
+                wrapperStyle={{ outline: "none" }}
+                content={<CustomTooltip formatter={formatter}/>}
+                allowEscapeViewBox={{x: false, y: true}}
+                animationEasing={'ease-in-out'}
+              />
+              <Line
+                type="natural"
+                dataKey='comparisonValue'
+                xAxisId='index'
+                stroke="#E2E8F0"
+                dot={{ r: 0 }}
+                activeDot={{ r: 2 }}
+                strokeWidth={2}
+              />
+              <Line
+                type="natural"
+                dataKey='value'
+                xAxisId='index'
+                stroke="#7487F7"
+                dot={{ r: 0 }}
+                activeDot={{ r: 2 }}
+                strokeWidth={2}
+              />
+            </LineChart>
+          </ResponsiveContainer>
+        }
       </CardContent>
     </Card>
   )

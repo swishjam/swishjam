@@ -2,8 +2,8 @@ module Api
   module V1
     class BillingDataSnapshotsController < BaseController
       def index
-        current_billing_data = get_billing_data(30.days.ago.beginning_of_day, Time.current)
-        comparison_billing_data = get_billing_data(60.days.ago.beginning_of_day, 30.days.ago.beginning_of_day)
+        current_billing_data = get_billing_data(start_timestamp, end_timestamp)
+        comparison_billing_data = get_billing_data(comparison_start_timestamp, comparison_end_timestamp)
         render json: {
           current_mrr: current_billing_data.last&.mrr_in_cents || 0,
           comparison_mrr: comparison_billing_data.last&.mrr_in_cents || 0,
@@ -30,10 +30,10 @@ module Api
           change_in_num_canceled_subscriptions: current_billing_data.last.present? && comparison_billing_data.present? ? current_billing_data.last.num_canceled_subscriptions - comparison_billing_data.last.num_canceled_subscriptions : 0,
           current_num_canceled_subscriptions_timeseries: current_billing_data.map{ |data| { date: data.captured_at, value: data.num_canceled_subscriptions }},
           comparison_num_canceled_subscriptions_timeseries: comparison_billing_data.map{ |data| { date: data.captured_at, value: data.num_canceled_subscriptions }},
-          start_time: 30.days.ago.beginning_of_day,
-          end_time: Time.current,
-          comparison_start_time: 60.days.ago.beginning_of_day,
-          comparison_end_time: 30.days.ago.beginning_of_day,
+          start_time: start_timestamp,
+          end_time: end_timestamp,
+          comparison_start_time: start_timestamp,
+          comparison_end_time: end_timestamp,
         }
       end
 
@@ -41,7 +41,8 @@ module Api
       
       def get_billing_data(start_time, end_time)
         current_organization.analytics_billing_data_snapshots
-                            .where(captured_at: start_time..end_time)
+                            .captured_after(start_time)
+                            .captured_at_or_before(end_time)
                             .order(captured_at: :asc)
                             .select(:mrr_in_cents, :total_revenue_in_cents, :num_active_subscriptions, :num_free_trial_subscriptions, :num_canceled_subscriptions, :captured_at)
       end

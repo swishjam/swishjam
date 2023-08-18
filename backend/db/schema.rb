@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2023_08_15_231354) do
+ActiveRecord::Schema.define(version: 2023_08_18_022059) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
@@ -104,6 +104,7 @@ ActiveRecord::Schema.define(version: 2023_08_15_231354) do
     t.string "device"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.boolean "is_mobile"
     t.index ["analytics_user_id"], name: "index_analytics_devices_on_analytics_user_id"
     t.index ["fingerprint"], name: "index_analytics_devices_on_fingerprint"
     t.index ["swishjam_organization_id"], name: "index_analytics_devices_on_swishjam_organization_id"
