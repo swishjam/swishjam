@@ -17,6 +17,9 @@ module Analytics
     validates :unique_identifier, uniqueness: { scope: :swishjam_organization_id }, if: -> { unique_identifier.present? }
 
     def full_name
+      return nil if first_name.blank? && last_name.blank?
+      return first_name if last_name.blank?
+      return last_name if first_name.blank?
       "#{first_name} #{last_name}"
     end
   end
