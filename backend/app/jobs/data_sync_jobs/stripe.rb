@@ -1,0 +1,9 @@
+module DataSyncJobs
+  class Stripe < Base
+    self.integration_model_klass = Swishjam::Integrations::Stripe
+
+    def run!(stripe_integration)
+      DataSynchronizers::Stripe.new(stripe_integration.organization, stripe_integration.account_id).sync!
+    end
+  end
+end

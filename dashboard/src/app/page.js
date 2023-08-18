@@ -54,16 +54,18 @@ const LoadingState = () => (
 const Home = () => {
   const [mrrChart, setMrrChart] = useState(FormattedLineChartData('MRR'));
   const [activeSubsChart, setActiveSubsChart] = useState(FormattedLineChartData('Active Subscriptions'));
+  const [sessionsChart, setSessionsChart] = useState(FormattedLineChartData('User Sessions'));
 
-  const getMrrAndSubscriptionData = async () => {
+  const getData = async () => {
     API.get('/api/v1/billing_data_snapshots').then(paymentData => {
+      console.log('paymentData', paymentData) 
       setMrrChart({
         ...mrrChart,
         value: paymentData.current_mrr,
         previousValue: paymentData.comparison_mrr,
         previousValueDate: paymentData.comparison_end_time,
         valueChange: paymentData.change_in_mrr,
-        timeseries: paymentData.current_mrr_timeseries
+        timeseries: paymentData.current_mrr_timeseries.map((timeseries, index) => ({ ...timeseries, index, comparisonDate: paymentData.comparison_mrr_timeseries[index].date, comparisonValue: paymentData.comparison_mrr_timeseries[index].value})),
       })
 
       setActiveSubsChart({
@@ -75,10 +77,22 @@ const Home = () => {
         timeseries: paymentData.current_num_active_subscriptions_timeseries
       })
     });
+    
+    API.get('/api/v1/sessions/timeseries').then((sessionData) => {
+      console.log('Session Data', sessionData)
+      setSessionsChart({
+        ...sessionsChart,
+        value: sessionData.count,
+        previousValue: sessionData.comparison_count,
+        previousValueDate: sessionData.comparison_end_time,
+        valueChange: sessionData.count - sessionData.comparison_count,
+        timeseries: sessionData.timeseries 
+      })
+    })
   }
 
   useEffect(() => {
-    getMrrAndSubscriptionData();
+    getData();
   }, []);
 
   return (
@@ -108,6 +122,15 @@ const Home = () => {
           previousValue={mrrChart.previousValue}
           previousValueDate={mrrChart.previousValueDate}
           timeseries={activeSubsChart.timeseries}
+          formatter={numSubs => numSubs.toLocaleString('en-US')}
+        />
+        <LineChartWithValue
+          key={sessionsChart.title}
+          title={sessionsChart.title}
+          value={sessionsChart.value}
+          previousValue={sessionsChart.previousValue}
+          previousValueDate={sessionsChart.previousValueDate}
+          timeseries={sessionsChart.timeseries}
           formatter={numSubs => numSubs.toLocaleString('en-US')}
         />
       </div> 

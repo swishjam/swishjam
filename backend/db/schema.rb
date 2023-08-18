@@ -10,7 +10,11 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
+<<<<<<< HEAD
 ActiveRecord::Schema.define(version: 2023_08_15_231354) do
+=======
+ActiveRecord::Schema.define(version: 2023_08_17_015804) do
+>>>>>>> v2
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
@@ -38,7 +42,38 @@ ActiveRecord::Schema.define(version: 2023_08_15_231354) do
     t.datetime "captured_at"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.string "owner_type"
+    t.uuid "owner_id"
+    t.index ["owner_type", "owner_id"], name: "index_analytics_customer_billing_data_snapshots_on_owner"
     t.index ["swishjam_organization_id"], name: "index_a_customer_billing_data_snapshots_on_sj_organization_id"
+  end
+
+  create_table "analytics_customer_payments", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "swishjam_organization_id"
+    t.string "payment_processor"
+    t.string "provider_id"
+    t.string "customer_email"
+    t.string "customer_name"
+    t.integer "amount_in_cents"
+    t.datetime "charged_at"
+    t.string "status"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.string "owner_type"
+    t.uuid "owner_id"
+    t.index ["owner_type", "owner_id"], name: "index_analytics_customer_payments_on_owner"
+    t.index ["swishjam_organization_id"], name: "index_analytics_customer_payments_on_swishjam_organization_id"
+  end
+
+  create_table "analytics_customer_subscription_items", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "analytics_customer_subscription_id"
+    t.integer "quantity"
+    t.integer "unit_amount_in_cents"
+    t.string "interval"
+    t.string "plan_name"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["analytics_customer_subscription_id"], name: "index_a_customer_subscription_items_on_subscription_id"
   end
 
   create_table "analytics_customer_subscriptions", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -47,9 +82,6 @@ ActiveRecord::Schema.define(version: 2023_08_15_231354) do
     t.string "provider_id"
     t.string "customer_email"
     t.string "customer_name"
-    t.integer "amount_in_cents"
-    t.string "interval"
-    t.string "plan_name"
     t.string "status"
     t.datetime "started_at"
     t.datetime "next_charge_runs_at"
@@ -58,6 +90,9 @@ ActiveRecord::Schema.define(version: 2023_08_15_231354) do
     t.datetime "free_trial_ends_at"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.string "owner_type"
+    t.uuid "owner_id"
+    t.index ["owner_type", "owner_id"], name: "index_analytics_customer_subscriptions_on_owner"
     t.index ["swishjam_organization_id"], name: "index_a_customer_subscriptions_on_sj_organization_id"
   end
 
@@ -116,6 +151,7 @@ ActiveRecord::Schema.define(version: 2023_08_15_231354) do
     t.string "unique_identifier"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.string "url"
     t.index ["swishjam_organization_id"], name: "index_analytics_organizations_on_swishjam_organization_id"
     t.index ["unique_identifier"], name: "index_analytics_organizations_on_unique_identifier"
   end
@@ -139,20 +175,6 @@ ActiveRecord::Schema.define(version: 2023_08_15_231354) do
     t.index ["analytics_device_id"], name: "index_analytics_page_hits_on_analytics_device_id"
     t.index ["analytics_session_id"], name: "index_analytics_page_hits_on_analytics_session_id"
     t.index ["unique_identifier"], name: "index_analytics_page_hits_on_unique_identifier"
-  end
-
-  create_table "analytics_payments", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
-    t.uuid "swishjam_organization_id"
-    t.string "payment_processor"
-    t.string "provider_id"
-    t.string "customer_email"
-    t.string "customer_name"
-    t.integer "amount_in_cents"
-    t.datetime "charged_at"
-    t.string "status"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
-    t.index ["swishjam_organization_id"], name: "index_analytics_payments_on_swishjam_organization_id"
   end
 
   create_table "analytics_sessions", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -246,6 +268,7 @@ ActiveRecord::Schema.define(version: 2023_08_15_231354) do
 
   add_foreign_key "analytics_billing_data_snapshots", "swishjam_organizations"
   add_foreign_key "analytics_customer_billing_data_snapshots", "swishjam_organizations"
+  add_foreign_key "analytics_customer_payments", "swishjam_organizations"
   add_foreign_key "analytics_customer_subscriptions", "swishjam_organizations"
   add_foreign_key "analytics_devices", "analytics_users"
   add_foreign_key "analytics_devices", "swishjam_organizations"
@@ -257,7 +280,6 @@ ActiveRecord::Schema.define(version: 2023_08_15_231354) do
   add_foreign_key "analytics_organizations", "swishjam_organizations"
   add_foreign_key "analytics_page_hits", "analytics_devices"
   add_foreign_key "analytics_page_hits", "analytics_sessions"
-  add_foreign_key "analytics_payments", "swishjam_organizations"
   add_foreign_key "analytics_sessions", "analytics_devices"
   add_foreign_key "analytics_sessions", "analytics_organizations"
   add_foreign_key "analytics_users", "swishjam_organizations"

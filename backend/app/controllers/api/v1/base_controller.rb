@@ -31,6 +31,15 @@ module Api
         return false if jwt_token.blank?
         Swishjam::Session.exists?(jwt_value: jwt_token)
       end
+
+      def format_timeseries(timeseries_data, key_name = :date, value_name = :value)
+        timeseries_data.map do |key, val|
+          obj = {}
+          obj[key_name] = key
+          obj[value_name] = val
+          obj
+        end
+      end
     end
   end
 end

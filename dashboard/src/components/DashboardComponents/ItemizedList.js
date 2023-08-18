@@ -1,4 +1,5 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Skeleton } from "@/components/ui/skeleton"
 import Link from "next/link"
@@ -14,6 +15,7 @@ export default function ItemizedList({
   fallbackAvatarGenerator,
   hoverable = true,
   linkFormatter,
+  viewMoreUrl,
   noDataMsg
 }) {
   return (
@@ -43,11 +45,11 @@ export default function ItemizedList({
                     <p className="text-sm text-gray-700 leading-none">{noDataMsg || 'No data to display.'}</p>
                   </div>
                 ) : (
-                  items.map(item => (
+                  items.slice(0, 5).map(item => (
                     <Link 
                       key={item.id}
                       href={linkFormatter ? linkFormatter(item) : '#'} 
-                      className={`flex items-center py-4 px-2 rounded-sm ${hoverable ? 'hover:bg-gray-100' : ''}`}
+                      className={`transition duration-500 flex items-center py-4 px-2 rounded-sm border border-transparent ${hoverable ? 'hover:bg-gray-50 hover:border-gray-200' : ''}`}
                     >
                         {(item.avatar_url || fallbackAvatarGenerator) && (
                           <Avatar className="h-9 w-9">
@@ -69,6 +71,10 @@ export default function ItemizedList({
             )
           }
         </div>
+        {viewMoreUrl && items && items.length > 0 && 
+        <Link href={viewMoreUrl}>
+          <Button variant="outline" className="w-full mt-4">View More</Button>
+        </Link>}
       </CardContent>
     </Card>
   )

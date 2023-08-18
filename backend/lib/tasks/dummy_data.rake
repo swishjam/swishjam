@@ -166,9 +166,17 @@ namespace :seed do
     email = prompt_user_with_required_value('email')
     password = prompt_user_with_required_value('password')
 
-    PUBLIC_KEY = "ORGANIZATION-#{SecureRandom.hex(4)}"
-    USER = Swishjam::User.create!(email: email, password: password)
-    ORGANIZATION = Swishjam::Organization.create!(public_key: PUBLIC_KEY, name: Faker::Company.name, url: Faker::Internet.domain_name)
+    existing_user = Swishjam::User.find_by(email: email)
+    if existing_user
+      if exsting_user.authenticate(password)
+        USER = existing_user
+      else
+        raise "A user already exists with an email of #{email}, but the provided password was incorrect. Either provide the correct password for #{email}, or you can create a new user by providing a new email."
+      end
+    else
+      USER = Swishjam::User.create!(email: email, password: password)
+    end
+    ORGANIZATION = Swishjam::Organization.create!(name: Faker::Company.name, url: Faker::Internet.domain_name)
     USER.organizations << ORGANIZATION
     HOST_URL = Faker::Internet.domain_name
     NUMBER_OF_USERS = 100
@@ -190,7 +198,7 @@ namespace :seed do
       { key: 'Favorite hobby', faker_klass: Faker::Hobby, faker_method: 'activity' },
     ]
     
-    puts "Seeding DB with new dummy organization (#{PUBLIC_KEY}) with #{NUMBER_OF_USERS} users, and #{HOST_URL} as the host URL."
+    puts "Seeding DB with new dummy organization #{ORGANIZATION.name} (#{ORGANIZATION.id}) with #{NUMBER_OF_USERS} users, and #{HOST_URL} as the host URL."
 
     run_seed!
     seed_billing_data!
