@@ -1,6 +1,8 @@
 module Api
   module V1
     class SessionsController < BaseController
+      include TimeseriesHelper
+
       def count
         render json: {
           count: current_organization.analytics_sessions.starting_after(start_timestamp).starting_at_or_before(end_timestamp).count,
@@ -13,16 +15,6 @@ module Api
       end
 
       def timeseries
-        group_by_method = case Time.current - start_timestamp
-                          when 0..(7.days + 1.minute)
-                            :group_by_hour
-                          when (7.days + 1.minute)..(1.month + 1.day)
-                            :group_by_day
-                          when (1.month + 1.day)..3.months
-                            :group_by_week
-                          else
-                            :group_by_month
-                          end
         current_sessions = current_organization.analytics_sessions.starting_after(start_timestamp).starting_at_or_before(end_timestamp)
         comparison_sessions = current_organization.analytics_sessions.starting_after(comparison_start_timestamp).starting_at_or_before(comparison_end_timestamp)
         json = {

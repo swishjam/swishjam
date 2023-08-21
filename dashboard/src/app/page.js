@@ -7,15 +7,7 @@ import LineChartWithValue from '@/components/DashboardComponents/LineChartWithVa
 // import ItemizedList from '@/components/DashboardComponents/ItemizedList';
 import ItemizedUsersList from '@/components/DashboardComponents/Prebuilt/ItemizedUsersList';
 import ItemizedOrganizationsList from '@/components/DashboardComponents/Prebuilt/ItemizedOrganizationList';
-
-function FormattedLineChartData(name) {
-  return {
-    title: name, 
-    value: null,
-    valueChange: null,
-    timeseries: []
-  }
-}
+import ActiveUsersLineChart from '@/components/DashboardComponents/Prebuilt/ActiveUsersLineChart';
 
 const LoadingState = () => (
   <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mb-8">
@@ -27,28 +19,13 @@ const LoadingState = () => (
       <div className="w-full flex items-center justify-end">
       </div>
     </div>
-    <div className='grid grid-cols-3 gap-6 pt-8'>
-      <LineChartWithValue
-        key='MRR'
-        title='MRR'
-        value={null}
-        valueChange={null}
-        timeseries={null}
-      />
-      <LineChartWithValue
-        key='subs'
-        title='Active Subscriptions'
-        value={null}
-        valueChange={null}
-        timeseries={null}
-      />
-      <LineChartWithValue
-        key='sessions'
-        title='User Sessions'
-        value={null}
-        valueChange={null}
-        timeseries={null}
-      />
+    <div className='grid grid-cols-2 gap-6 pt-8'>
+      <ActiveUsersLineChart loadingStateOnly={true} />
+      <LineChartWithValue title='Sessions' />
+    </div>
+    <div className='grid grid-cols-2 gap-6 pt-8'>
+      <LineChartWithValue title='MRR' />
+      <LineChartWithValue title='Active Subscriptions' />
     </div>
     <div className='grid grid-cols-2 gap-6 pt-8'>
       <ItemizedUsersList loadingStateOnly={true} /> 
@@ -58,28 +35,26 @@ const LoadingState = () => (
 )
 
 const Home = () => {
-  const [mrrChart, setMrrChart] = useState(FormattedLineChartData('MRR'));
-  const [activeSubsChart, setActiveSubsChart] = useState(FormattedLineChartData('Active Subscriptions'));
-  const [sessionsChart, setSessionsChart] = useState(FormattedLineChartData('User Sessions'));
+  const [mrrChart, setMrrChart] = useState();
+  const [activeSubsChart, setActiveSubsChart] = useState();
+  const [sessionsChart, setSessionsChart] = useState();
 
-  const getData = async () => {
+  const getBillingData = async () => {
     API.get('/api/v1/billing_data_snapshots', { timeframe: '30_days' }).then(paymentData => {
       setMrrChart({
-        ...mrrChart,
         value: paymentData.current_mrr,
         previousValue: paymentData.comparison_mrr,
         previousValueDate: paymentData.comparison_end_time,
         valueChange: paymentData.change_in_mrr,
-        timeseries: paymentData.current_mrr_timeseries.map((timeseries, index) => ({ 
-          ...timeseries, 
-          index, 
-          comparisonDate: paymentData.comparison_mrr_timeseries[index]?.date, 
+        timeseries: paymentData.current_mrr_timeseries.map((timeseries, index) => ({
+          ...timeseries,
+          index,
+          comparisonDate: paymentData.comparison_mrr_timeseries[index]?.date,
           comparisonValue: paymentData.comparison_mrr_timeseries[index]?.value
         })),
       })
 
       setActiveSubsChart({
-        ...activeSubsChart,
         value: paymentData.current_num_active_subscriptions,
         previousValue: paymentData.comparison_num_active_subscriptions,
         previousValueDate: paymentData.comparison_end_time,
@@ -92,7 +67,9 @@ const Home = () => {
         }))
       })
     });
-    
+  }
+
+  const getSessionsData = async () => {
     API.get('/api/v1/sessions/timeseries', { timeframe: '30_days' }).then((sessionData) => {
       setSessionsChart({
         ...sessionsChart,
@@ -111,7 +88,8 @@ const Home = () => {
   }
 
   useEffect(() => {
-    getData();
+    getSessionsData();
+    getBillingData();
   }, []);
 
   return (
@@ -124,33 +102,33 @@ const Home = () => {
         <div className="w-full flex items-center justify-end">
         </div>
       </div>
-      <div className='grid grid-cols-3 gap-6 pt-8'>
+      <div className='grid grid-cols-2 gap-6 pt-8'>
+        <ActiveUsersLineChart />
         <LineChartWithValue
-          key={mrrChart.title}
-          title={mrrChart.title}
-          value={mrrChart.value}
-          previousValue={mrrChart.previousValue}
-          previousValueDate={mrrChart.previousValueDate}
-          timeseries={mrrChart.timeseries}
-          formatter={mrr => (mrr/100).toLocaleString('en-US', { style: "currency", currency: "USD" })}
+          title='Sessions'
+          value={sessionsChart?.value}
+          previousValue={sessionsChart?.previousValue}
+          previousValueDate={sessionsChart?.previousValueDate}
+          timeseries={sessionsChart?.timeseries}
+          valueFormatter={numSubs => numSubs.toLocaleString('en-US')}
+        />
+      </div>
+      <div className='grid grid-cols-2 gap-6 pt-8'>
+        <LineChartWithValue
+          title='MRR'
+          value={mrrChart?.value}
+          previousValue={mrrChart?.previousValue}
+          previousValueDate={mrrChart?.previousValueDate}
+          timeseries={mrrChart?.timeseries}
+          valueFormatter={mrr => (mrr/100).toLocaleString('en-US', { style: "currency", currency: "USD" })}
         />
         <LineChartWithValue
-          key={activeSubsChart.title}
-          title={activeSubsChart.title}
-          value={activeSubsChart.value}
-          previousValue={mrrChart.previousValue}
-          previousValueDate={mrrChart.previousValueDate}
-          timeseries={activeSubsChart.timeseries}
-          formatter={numSubs => numSubs.toLocaleString('en-US')}
-        />
-        <LineChartWithValue
-          key={sessionsChart.title}
-          title={sessionsChart.title}
-          value={sessionsChart.value}
-          previousValue={sessionsChart.previousValue}
-          previousValueDate={sessionsChart.previousValueDate}
-          timeseries={sessionsChart.timeseries}
-          formatter={numSubs => numSubs.toLocaleString('en-US')}
+          title='Active Subscriptions'
+          value={activeSubsChart?.value}
+          previousValue={mrrChart?.previousValue}
+          previousValueDate={mrrChart?.previousValueDate}
+          timeseries={activeSubsChart?.timeseries}
+          valueFormatter={numSubs => numSubs.toLocaleString('en-US')}
         />
       </div> 
       <div className='grid grid-cols-2 gap-6 pt-8'>

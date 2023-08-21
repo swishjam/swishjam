@@ -19,6 +19,20 @@ module Api
         render json: events, each_serializer: Analytics::EventSerializer, status: :ok
       end
 
+      def active
+        params[:type] ||= 'weekly'
+        raise "Invalid `type` provided: #{params[:type]}" unless %w(daily weekly monthly).include?(params[:type])
+        active_users_calculator = {
+          'daily' => ActiveUserCalculators::Daily,
+          'weekly' => ActiveUserCalculators::Weekly,
+          'monthly' => ActiveUserCalculators::Monthly
+        }[params[:type]].new(current_organization)
+        render json: {
+          current_value: active_users_calculator.current_value,
+          timeseries: active_users_calculator.timeseries
+        }, status: :ok
+      end
+
       def count
         start_time = params[:start_time] || 7.days.ago
         end_time = params[:end_time] || Time.zone.now

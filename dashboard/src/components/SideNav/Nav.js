@@ -1,6 +1,6 @@
 'use client';
 import { usePathname } from 'next/navigation'
-import { ChartBarSquareIcon, SquaresPlusIcon, ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline'
+import { SquaresPlusIcon, ChevronLeftIcon, ChevronRightIcon, HomeIcon } from '@heroicons/react/24/outline'
 import SidebarMobile from './MobileNav';
 import ProfileFlyout from './ProfileFlyout';
 import { useState, useEffect } from 'react'
@@ -11,7 +11,7 @@ import { RxBarChart } from 'react-icons/rx'
 import { SwishjamMemory } from '@/lib/swishjam-memory';
 
 const appNav = [
-  { name: 'Dashboard', href: '/', icon: ChartBarSquareIcon },
+  { name: 'Home', href: '/', icon: HomeIcon },
   { name: 'Site Metrics', href: '/site-metrics', icon: RxBarChart },
   { name: 'Connections', href: '/connections', icon: SquaresPlusIcon},
 ]

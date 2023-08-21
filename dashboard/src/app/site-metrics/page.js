@@ -115,7 +115,7 @@ const Home = () => {
             previousValue={sessionsChart.previousValue}
             previousValueDate={sessionsChart.previousValueDate}
             timeseries={sessionsChart.timeseries}
-            formatter={numSubs => numSubs.toLocaleString('en-US')}
+            valueFormatter={numSubs => numSubs.toLocaleString('en-US')}
           />
         </div>
         <LineChartWithValue
@@ -125,7 +125,7 @@ const Home = () => {
           previousValue={sessionsChart.previousValue}
           previousValueDate={sessionsChart.previousValueDate}
           timeseries={sessionsChart.timeseries}
-          formatter={numSubs => numSubs.toLocaleString('en-US')}
+          valueFormatter={numSubs => numSubs.toLocaleString('en-US')}
         />
       </div> 
       <div className='grid grid-cols-2 gap-6 pt-8'>
