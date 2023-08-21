@@ -20,6 +20,19 @@ Rails.application.routes.draw do
           # get :count
           # get :timeseries
         end
+        resources :users, only: [:index], controller: :'organizations/users' do
+          collection do
+            get :top
+            get :active
+          end
+        end
+        resources :sessions, only: [:index], controller: :'organizations/sessions' do
+          collection do
+            get :timeseries
+          end
+        end
+        resources :page_hits, only: [:index], controller: :'organizations/page_hits'
+        resources :billing, only: [:index], controller: :'organizations/billing'
       end
 
       resources :users, only: [:index, :show] do
@@ -29,6 +42,7 @@ Rails.application.routes.draw do
         collection do
           get :count
           get :timeseries
+          get :active
         end
       end
 

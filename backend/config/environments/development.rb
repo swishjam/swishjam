@@ -37,6 +37,24 @@ Rails.application.configure do
 
   # Print deprecation notices to the Rails logger.
   config.active_support.deprecation = :log
+  config.logger = ActiveSupport::Logger.new(STDOUT)
+  config.logger.formatter = proc do |severity, datetime, progname, msg|
+    colored_msg = case severity
+                  when "DEBUG"
+                    msg.colorize(:orange)
+                  when "INFO"
+                    msg.colorize(:green)
+                  when "WARN"
+                    msg.colorize(:yellow)
+                  when "ERROR"
+                    msg.colorize(:red)
+                  when "FATAL"
+                    msg.colorize(:red).bold
+                  else
+                    msg
+                  end
+    "#{colored_msg}\n"
+  end
 
   # Raise exceptions for disallowed deprecations.
   config.active_support.disallowed_deprecation = :raise

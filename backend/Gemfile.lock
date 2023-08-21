@@ -78,6 +78,7 @@ GEM
     byebug (11.1.3)
     case_transform (0.2)
       activesupport
+    colorize (1.1.0)
     concurrent-ruby (1.2.2)
     connection_pool (2.4.1)
     crass (1.0.6)
@@ -236,6 +237,7 @@ DEPENDENCIES
   binding_of_caller
   bootsnap (>= 1.4.4)
   byebug
+  colorize
   database_cleaner
   dotenv
   factory_bot_rails
