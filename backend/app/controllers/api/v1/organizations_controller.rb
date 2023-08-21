@@ -19,9 +19,6 @@ module Api
         render json: events, each_serializer: Analytics::EventSerializer, status: :ok  
       end
 
-      def users
-      end
-
       private
 
       def get_organization
