@@ -4,10 +4,12 @@ import { useState, useEffect } from 'react';
 import { API } from '@/lib/api-client/base';
 import AuthenticatedView from '@/components/Auth/AuthenticatedView';
 import LineChartWithValue from '@/components/DashboardComponents/LineChartWithValue';
+import ClickableValueCard from '@/components/DashboardComponents/ClickableValueCard';
 // import ItemizedList from '@/components/DashboardComponents/ItemizedList';
 import ItemizedUsersList from '@/components/DashboardComponents/Prebuilt/ItemizedUsersList';
 import ItemizedOrganizationsList from '@/components/DashboardComponents/Prebuilt/ItemizedOrganizationList';
 import ActiveUsersLineChart from '@/components/DashboardComponents/Prebuilt/ActiveUsersLineChart';
+import { Separator } from "@/components/ui/separator"
 
 const LoadingState = () => (
   <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mb-8">
@@ -34,10 +36,22 @@ const LoadingState = () => (
   </main>
 )
 
+const currentChart = (selected, mrrChart, sessionsChart, activeSubsChart) => {
+  if (selected === 'MRR') {
+    return mrrChart;
+  } else if (selected === 'Sessions') {
+    return sessionsChart;
+  } else if (selected === 'Active Users') {
+    return activeSubsChart;
+  }
+}
+
+
 const Home = () => {
   const [mrrChart, setMrrChart] = useState();
   const [activeSubsChart, setActiveSubsChart] = useState();
   const [sessionsChart, setSessionsChart] = useState();
+  const [currentSelectedChart, setCurrentSelectedChart] = useState('MRR');
 
   const getBillingData = async () => {
     API.get('/api/v1/billing_data_snapshots', { timeframe: '30_days' }).then(paymentData => {
@@ -92,6 +106,8 @@ const Home = () => {
     getBillingData();
   }, []);
 
+  const selectedChart = currentChart(currentSelectedChart, mrrChart, sessionsChart, activeSubsChart)
+  
   return (
     <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mb-8">
       <div className='grid grid-cols-2 mt-8 flex items-center'>
@@ -101,6 +117,49 @@ const Home = () => {
 
         <div className="w-full flex items-center justify-end">
         </div>
+      </div>
+      <div className='grid grid-cols-3 gap-6 pt-8'>
+        <ClickableValueCard
+          title='MRR'
+          value={mrrChart?.value}
+          selected={currentSelectedChart == 'MRR'}
+          previousValue={mrrChart?.previousValue}
+          previousValueDate={mrrChart?.previousValueDate}
+          valueFormatter={mrr => (mrr/100).toLocaleString('en-US', { style: "currency", currency: "USD" })}
+          onClick={() => setCurrentSelectedChart('MRR')}
+        /> 
+        <ClickableValueCard
+          title='Temp Active Users'
+          value={sessionsChart?.value}
+          selected={currentSelectedChart == 'Active Users'}
+          previousValue={sessionsChart?.previousValue}
+          previousValueDate={sessionsChart?.previousValueDate}
+          valueFormatter={numSubs => numSubs.toLocaleString('en-US')}
+          onClick={() => setCurrentSelectedChart('Active Users')} 
+        /> 
+        <ClickableValueCard
+          title='Sessions'
+          value={sessionsChart?.value}
+          selected={currentSelectedChart == 'Sessions'}
+          previousValue={sessionsChart?.previousValue}
+          previousValueDate={sessionsChart?.previousValueDate}
+          valueFormatter={numSubs => numSubs.toLocaleString('en-US')}
+          onClick={() => setCurrentSelectedChart('Sessions')}
+        /> 
+      </div>
+      <div className='grid grid-cols-1 gap-6 pt-8'>
+        {selectedChart && 
+        <LineChartWithValue
+          title={currentSelectedChart}
+          value={selectedChart?.value}
+          previousValue={selectedChart?.previousValue}
+          previousValueDate={selectedChart?.previousValueDate}
+          timeseries={selectedChart?.timeseries}
+          valueFormatter={numSubs => numSubs.toLocaleString('en-US')}
+          showAxis={true}  
+        />}
+        <Separator className="my-6"/>
+
       </div>
       <div className='grid grid-cols-2 gap-6 pt-8'>
         <ActiveUsersLineChart />

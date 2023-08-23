@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from 'react';
-import { LineChart, Tooltip, Line, ResponsiveContainer, XAxis, YAxis } from 'recharts';
+import { LineChart, Tooltip, Line, ResponsiveContainer, XAxis, YAxis, CartesianGrid } from 'recharts';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
 import { HoverCard, HoverCardTrigger, HoverCardContent } from "@/components/ui/hover-card";
@@ -35,7 +35,7 @@ const CustomTooltip = ({ active, payload, label, valueFormatter, dateFormatter }
               {valueFormatter(data.value)} - {dateFormatter(data.date)}
             </div>
           </div>
-          {data.comparisonValue && 
+          {data.comparisonValue >= 0 && 
             <div className="flex space-x-4 text-sm text-muted-foreground">
               <div className="flex items-center">
                 <CircleIcon className="mr-1 h-3 w-3 fill-slate-200 text-slate-200" />
@@ -57,26 +57,26 @@ export default function LineChartWithValue({
   previousValueDate, 
   timeseries, 
   valueFormatter = val => val,
-  dateFormatter = date => new Date(date).toLocaleDateString('en-us', { year: "2-digit", month: "2-digit", day: "2-digit" }),
+  dateFormatter = date => new Date(date).toLocaleDateString('en-us', { month: "2-digit", day: "2-digit" }),
   noDataMessage = 'No data available.',
   includeSettingsDropdown = true,
-  onSettingChange = () => {}
+  onSettingChange = () => {},
+  showAxis = false
 }) {
-  const [showXAxis, setShowXAxis] = useState(false);
-  const [showYAxis, setShowYAxis] = useState(false);
+  const [showXAxis, setShowXAxis] = useState(showAxis);
+  const [showYAxis, setShowYAxis] = useState(showAxis);
   if ([null, undefined].includes(value) || [null, undefined].includes(timeseries)) return <LoadingState title={title} />;
-  
   
   const changeInValue = typeof previousValue !== 'undefined' ? value - previousValue : null;
 
   return (
-    <Card>
+    <Card className="group">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <CardTitle className="text-sm font-medium cursor-default">{title}</CardTitle>
         {includeSettingsDropdown && (
           <DropdownMenu>
             <DropdownMenuTrigger>
-              <Cog8ToothIcon className="h-5 w-5 text-gray-500 cursor-pointer" />
+              <Cog8ToothIcon className="active:opacity-100 focus:opacity-100 group-hover:opacity-100 ring-0 opacity-0 duration-500 transition h-5 w-5 text-gray-500 cursor-pointer" />
             </DropdownMenuTrigger>
             <DropdownMenuContent>
               <DropdownMenuItem 
@@ -120,30 +120,43 @@ export default function LineChartWithValue({
         )}
       </CardHeader>
       <CardContent>
-        <div className="text-2xl font-bold cursor-default">
-          {valueFormatter(value)}
+        <div className="flex">
+          <div className="text-2xl font-bold cursor-default">
+            {valueFormatter(value)}
+          </div>
+          {changeInValue && changeInValue !== 0 &&
+            <HoverCard>
+              <HoverCardTrigger className='block w-fit ml-2 pt-2'>
+                <p className="text-xs text-muted-foreground cursor-default">
+                  {changeInValue < 0 ? <ArrowTrendingDownIcon className="h-4 w-4 inline-block text-red-500 mr-1" /> : <ArrowTrendingUpIcon className="h-4 w-4 inline-block text-green-500 mr-1" />}
+                  <span className='underline decoration-dotted'>{valueFormatter(Math.abs(changeInValue))}</span>
+                </p>
+              </HoverCardTrigger>
+              <HoverCardContent className='flex items-center text-gray-500'>
+                <CalendarIcon className="h-6 w-6 inline-block mr-2" />
+                <span className='text-xs'>{title} was measured at {valueFormatter(previousValue)} on {new Date(previousValueDate).toLocaleDateString('en-us', { weekday: "long", year: "numeric", month: "short", day: "numeric" })}.</span>
+              </HoverCardContent>
+            </HoverCard>
+          }
         </div>
-        {changeInValue && changeInValue !== 0 &&
-          <HoverCard>
-            <HoverCardTrigger className='block w-fit'>
-              <p className="text-xs text-muted-foreground cursor-default">
-                {changeInValue < 0 ? <ArrowTrendingDownIcon className="h-4 w-4 inline-block text-red-500 mr-1" /> : <ArrowTrendingUpIcon className="h-4 w-4 inline-block text-green-500 mr-1" />}
-                <span className='underline decoration-dotted'>{valueFormatter(Math.abs(changeInValue))}</span>
-              </p>
-            </HoverCardTrigger>
-            <HoverCardContent className='flex items-center text-gray-500'>
-              <CalendarIcon className="h-6 w-6 inline-block mr-2" />
-              <span className='text-xs'>{title} was measured at {valueFormatter(previousValue)} on {new Date(previousValueDate).toLocaleDateString('en-us', { weekday: "long", year: "numeric", month: "short", day: "numeric" })}.</span>
-            </HoverCardContent>
-          </HoverCard>
-        }
         {timeseries.length > 0 
           ? (
-            <ResponsiveContainer width="100%" aspect={3} className="mt-4">
-              <LineChart width={500} height={300} data={timeseries} margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>
+            <div className='flex align-center justify-center mt-4'>
+            <ResponsiveContainer width="100%" aspect={3} margin={{ top: 5, right: 5, left: 5, bottom: 5 }}>
+              <LineChart data={timeseries} margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>
                 {/* <CartesianGrid strokeDasharray="3 3" /> */}
-                <XAxis dataKey="date" hide={!showXAxis} tickFormatter={dateFormatter} tick={{ fontSize: 12, fill: "#9CA3AF" }} />
-                <YAxis dataKey="value" hide={!showYAxis} tickFormatter={valueFormatter} tick={{ fontSize: 12, fill: "#9CA3AF" }} />
+                <XAxis 
+                  className='group-hover:opacity-100 opacity-0 duration-500 transition'
+                  dataKey="date"
+                  hide={!showXAxis}
+                  tickLine={false}
+                  tickFormatter={dateFormatter}
+                  tick={{ fontSize: 12, fill: "#9CA3AF" }}
+                  includeHidden
+                  interval={'preserveStartEnd'}
+                />
+                {/*<YAxis dataKey="value" hide={!showYAxis} tickFormatter={valueFormatter} tick={{ fontSize: 12, fill: "#9CA3AF" }} />*/}
+                {showYAxis && <CartesianGrid strokeDasharray="3 3" vertical={false}/>}
                 <Tooltip
                   animationBegin={200}
                   animationDuration={400}
@@ -154,7 +167,7 @@ export default function LineChartWithValue({
                 />
                 <Line
                   // type="natural"
-                  type="basis"
+                  type="monotone"
                   dataKey='comparisonValue'
                   stroke="#E2E8F0"
                   dot={{ r: 0 }}
@@ -162,7 +175,7 @@ export default function LineChartWithValue({
                   strokeWidth={2}
                 />
                 <Line
-                  type="natural"
+                  type="monotone"
                   dataKey='value'
                   stroke="#7487F7"
                   dot={{ r: 0 }}
@@ -171,6 +184,7 @@ export default function LineChartWithValue({
                 />
               </LineChart>
             </ResponsiveContainer>
+            </div> 
           ) : (
             <div className="flex items-center justify-center h-20">
               <span className="text-sm text-gray-500">{noDataMessage}</span>
