@@ -3,7 +3,7 @@ import { usePathname } from 'next/navigation'
 import { SquaresPlusIcon, ChevronLeftIcon, ChevronRightIcon, HomeIcon } from '@heroicons/react/24/outline'
 import SidebarMobile from './MobileNav';
 import ProfileFlyout from './ProfileFlyout';
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Logo from '@components/Logo'
 import { Bars3Icon } from '@heroicons/react/24/outline'
@@ -15,7 +15,6 @@ const appNav = [
   { name: 'Site Metrics', href: '/site-metrics', icon: RxBarChart },
   { name: 'Connections', href: '/connections', icon: SquaresPlusIcon},
 ]
-
 
 const classNames = (...classes) => classes.filter(Boolean).join(' ')
 
@@ -49,7 +48,14 @@ const DesktopNavItem = ({ item, isCollapsed, category, currentPath}) => {
 export default function Sidebar({ onCollapse, onExpand, authData }) {
   const pathname = usePathname();
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [isCollapsed, setIsCollapsed] = useState(typeof SwishjamMemory.get('isNavCollapsed') === 'boolean' ? SwishjamMemory.get('isNavCollapsed') : false);
+  const [isCollapsed, setIsCollapsed] = useState(false)
+  //typeof SwishjamMemory.get('isNavCollapsed') === 'boolean' ? SwishjamMemory.get('isNavCollapsed') : false);
+
+  useEffect(() => {
+    if(typeof SwishjamMemory.get('isNavCollapsed') === 'boolean') {
+      setIsCollapsed(SwishjamMemory.get('isNavCollapsed'));
+    }
+  }, [])
 
   return (
     <>
