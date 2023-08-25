@@ -7,12 +7,13 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Logo from '@components/Logo'
 import { Bars3Icon } from '@heroicons/react/24/outline'
-import { RxBarChart } from 'react-icons/rx'
+import { RxBarChart, RxPerson } from 'react-icons/rx'
 import { SwishjamMemory } from '@/lib/swishjam-memory';
 
 const appNav = [
   { name: 'Home', href: '/', icon: HomeIcon },
   { name: 'Site Metrics', href: '/site-metrics', icon: RxBarChart },
+  { name: 'Users', href: '/users', icon: RxPerson },
   { name: 'Connections', href: '/connections', icon: SquaresPlusIcon},
 ]
 
@@ -61,7 +62,7 @@ export default function Sidebar({ onCollapse, onExpand, authData }) {
     <>
       <div>
         <SidebarMobile sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} userEmail={authData?.email()} />
-        <div className={`hidden lg:fixed lg:inset-y-0 lg:z-20 lg:flex lg:flex-col transition-all duration-300 ease-in-out ${isCollapsed ? 'lg:w-10' : 'lg:w-72'}`}>
+        <div className={`hidden lg:fixed lg:inset-y-0 lg:z-20 lg:flex lg:flex-col transition-all duration-300 ease-in-out ${isCollapsed ? 'lg:w-12' : 'lg:w-64'}`}>
           <div className={`flex grow flex-col gap-y-5 overflow-y-auto border-r border-gray-200 bg-white ${isCollapsed ? 'px-1' : 'px-6'}`}>
             <div className={`flex h-16 shrink-0 items-center ${isCollapsed ? 'justify-center' : ''}`}>
               <Link href="/">
@@ -93,7 +94,7 @@ export default function Sidebar({ onCollapse, onExpand, authData }) {
         </div>
       </div>
       <div
-        className={`transition-left duration-300 ease-in-out fixed text-gray-700 p-1 top-0 cursor-pointer border-b rounded-br-lg border-r z-30 bg-white -ml-[1px] border-gray-200 hover:text-swishjam hover:bg-gray-50 ${isCollapsed ? 'left-10' : 'left-72'}`}
+        className={`transition-left duration-300 ease-in-out fixed text-gray-700 p-1 top-0 cursor-pointer border-b rounded-br-lg border-r z-30 bg-white -ml-[1px] border-gray-200 hover:text-swishjam hover:bg-gray-50 ${isCollapsed ? 'left-12' : 'left-64'}`}
         onClick={() => {
           setIsCollapsed(!isCollapsed);
           isCollapsed ? onExpand() : onCollapse();

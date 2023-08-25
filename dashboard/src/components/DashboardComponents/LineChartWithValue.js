@@ -141,8 +141,8 @@ export default function LineChartWithValue({
         </div>
         {timeseries.length > 0 
           ? (
-            <div className='flex align-center justify-center mt-4'>
-            <ResponsiveContainer width="100%" aspect={3} margin={{ top: 5, right: 5, left: 5, bottom: 5 }}>
+            <div className='flex align-center justify-center my-6'>
+            <ResponsiveContainer width="100%" aspect={3}>
               <LineChart data={timeseries} margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>
                 {/* <CartesianGrid strokeDasharray="3 3" /> */}
                 <XAxis 
@@ -177,7 +177,7 @@ export default function LineChartWithValue({
                 <Line
                   type="monotone"
                   dataKey='value'
-                  stroke="#7487F7"
+                  stroke="#7dd3fc"
                   dot={{ r: 0 }}
                   activeDot={{ r: 2 }}
                   strokeWidth={2}
