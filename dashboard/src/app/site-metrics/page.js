@@ -44,7 +44,7 @@ const LoadingState = () => (
 )
 
 const Home = () => {
-  const [sessionsChart, setSessionsChart] = useState(FormattedLineChartData('Sessions'));
+  const [sessionsChart, setSessionsChart] = useState();
   const [topReferrers, setTopReferrers] = useState();
   const [topPages, setTopPages] = useState();
   const [topDevices, setTopDevices] = useState();
@@ -54,11 +54,10 @@ const Home = () => {
   const getSessionData = async () => {
     API.get('/api/v1/sessions/timeseries', { timeframe: '30_days' }).then((sessionData) => {
       setSessionsChart({
-        ...sessionsChart,
-        value: sessionData.count,
+        value: sessionData.current_count,
         previousValue: sessionData.comparison_count,
         previousValueDate: sessionData.comparison_end_time,
-        valueChange: sessionData.count - sessionData.comparison_count,
+        valueChange: sessionData.current_count - sessionData.comparison_count,
         timeseries: sessionData.timeseries.map((timeseries, index) => ({
           ...timeseries,
           index,
@@ -77,9 +76,11 @@ const Home = () => {
 
   const getDemographicData = async () => {
     API.get('/api/v1/sessions/demographics', { timeframe: '30_days' }).then(demographics => {
-      setTopBrowsers(demographics.browsers.map(({ browser, count }) => ({ name: browser, value: count }))),
+      const topBrowsers = Object.entries(demographics.browsers).map(([browser, count]) => ({ name: browser, value: count }));
+      const topCountries = Object.entries(demographics.countries).map(([country, count]) => ({ name: country, value: count }));
+      setTopBrowsers(topBrowsers);
       setTopDevices([{ name: 'Desktop', value: demographics.desktop_count }, { name: 'Mobile', value: demographics.mobile_count }])
-      setTopCountries(demographics.countries.map(({ country, count }) => ({ name: country, value: count })))
+      setTopCountries(topCountries)
     });
   }
 
@@ -109,22 +110,20 @@ const Home = () => {
       <div className='grid grid-cols-3 gap-6 pt-8'>
         <div className='col-span-2'>
           <LineChartWithValue
-            key={sessionsChart.title}
-            title={sessionsChart.title}
-            value={sessionsChart.value}
-            previousValue={sessionsChart.previousValue}
-            previousValueDate={sessionsChart.previousValueDate}
-            timeseries={sessionsChart.timeseries}
+            title='Sessions'
+            value={sessionsChart?.value}
+            previousValue={sessionsChart?.previousValue}
+            previousValueDate={sessionsChart?.previousValueDate}
+            timeseries={sessionsChart?.timeseries}
             valueFormatter={numSubs => numSubs.toLocaleString('en-US')}
           />
         </div>
         <LineChartWithValue
-          key={sessionsChart.title}
-          title={sessionsChart.title}
-          value={sessionsChart.value}
-          previousValue={sessionsChart.previousValue}
-          previousValueDate={sessionsChart.previousValueDate}
-          timeseries={sessionsChart.timeseries}
+          title='Sessions'
+          value={sessionsChart?.value}
+          previousValue={sessionsChart?.previousValue}
+          previousValueDate={sessionsChart?.previousValueDate}
+          timeseries={sessionsChart?.timeseries}
           valueFormatter={numSubs => numSubs.toLocaleString('en-US')}
         />
       </div> 

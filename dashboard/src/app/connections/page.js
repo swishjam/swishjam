@@ -119,7 +119,6 @@ const Connections = () => {
   const [disabledConnections, setDisabledConnections] = useState();
   const [availableConnections, setAvailableConnections] = useState();
   const [connectionForModal, setConnectionForModal] = useState(null);
-  const instanceKey = 'INSTANCE-9fb58dcd';
 
   const disableConnection = async connectionId => {
     const result = await API.patch(`/api/v1/integrations/${connectionId}/disable`);

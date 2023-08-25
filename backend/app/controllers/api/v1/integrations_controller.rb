@@ -4,9 +4,9 @@ module Api
       before_action :get_integration, only: [:show, :enable, :disable, :destroy]
 
       def index
-        enabled_integrations = current_organization.integrations.enabled
-        disabled_integrations = current_organization.integrations.disabled
-        available_integrations = Swishjam::Integration.TYPES - enabled_integrations.collect(&:class) - disabled_integrations.collect(&:class)
+        enabled_integrations = current_workspace.integrations.enabled
+        disabled_integrations = current_workspace.integrations.disabled
+        available_integrations = Integration.TYPES - enabled_integrations.collect(&:class) - disabled_integrations.collect(&:class)
         render json: { 
           enabled_integrations: enabled_integrations.collect{ |integration| { name: integration.class.friendly_name, enabled: true, id: integration.id }},
           disabled_integrations: disabled_integrations.collect{ |integration| { name: integration.class.friendly_name, enabled: false, id: integration.id }},
@@ -59,12 +59,9 @@ module Api
       private
 
       def get_integration
-        @integration = current_organization.integrations.find(params[:id])
+        @integration = current_workspace.integrations.find(params[:id])
         if !@integration
-          return render json: {
-            success: false,
-            message: "Integration not found."
-          }, status: :not_found
+          return render json: { success: false, message: "Integration not found." }, status: :not_found
         end
       end
 

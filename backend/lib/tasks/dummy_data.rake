@@ -1,220 +1,240 @@
-RANDOM_NUM_OF_DEVICES_PER_USER_MAX = 5
-RANDOM_NUM_OF_SESSIONS_PER_DEVICE_MAX = 5
-RANDOM_NUM_OF_PAGE_HITS_PER_SESSION_MAX = 10
-RANDOM_NUM_OF_EVENTS_PER_PAGE_HIT_MAX = 5
+require "tty-PROMPT"
+require 'tty-progressbar'
 
-def seed_users!
-  puts "Seeding #{NUMBER_OF_USERS} users..."
-  NUMBER_OF_USERS.times.map do
-    user = Analytics::User.create!(
-      swishjam_organization: ORGANIZATION,
-      unique_identifier: SecureRandom.uuid,
+PROMPT = TTY::Prompt.new
+
+def seed_user_profiles!
+  progress_bar = TTY::ProgressBar.new("Seeding #{NUMBER_OF_USERS} user profiles [:bar]", total: NUMBER_OF_USERS, bar_format: :block, )
+  NUMBER_OF_USERS.to_i.times.map do
+    AnalyticsUserProfile.create!(
+      workspace: WORKSPACE,
+      user_unique_identifier: SecureRandom.uuid,
       email: Faker::Internet.email,
       first_name: Faker::Name.first_name,
       last_name: Faker::Name.last_name,
-      metadata_attributes: rand(1..USER_METADATA_OPTIONS.count).times.map do |m|
-        { 
-          key: USER_METADATA_OPTIONS[m][:key],
-          value: USER_METADATA_OPTIONS[m][:faker_klass].send(USER_METADATA_OPTIONS[m][:faker_method])
-        }
+      metadata: rand(1..USER_ATTRIBUTE_OPTIONS.count).times.map do |m|
+        obj = {}
+        obj[USER_ATTRIBUTE_OPTIONS[m][:key]] = USER_ATTRIBUTE_OPTIONS[m][:faker_klass].send(USER_ATTRIBUTE_OPTIONS[m][:faker_method])
       end
     )
-    seed_devices_for_user!(user)
+    progress_bar.advance
   end
-  seed_organizations!
-  assign_users_to_organizations!
-  assign_sessions_to_organization!
-  # num_new_users_created += NUMBER_OF_USERS
-end
-alias run_seed! seed_users!
-
-def seed_organizations!
-  puts "Seeding #{NUMBER_OF_USERS} organizations."
-  NUMBER_OF_USERS.times do
-    Analytics::Organization.create!(swishjam_organization: ORGANIZATION, name: Faker::Company.name)
-  end
-  # num_new_organizations_created += NUMBER_OF_ORGANIZATIONS_PER_USER_MAX
+  puts "\n"
 end
 
-def assign_users_to_organizations!
-  puts "Assigning users to organizations..."
-  Analytics::User.all.each do |user|
+def seed_organization_profiles!
+  progress_bar = TTY::ProgressBar.new("Seeding #{NUMBER_OF_USERS} organization profiles [:bar]", total: NUMBER_OF_USERS, bar_format: :block, )
+  NUMBER_OF_USERS.to_i.times.map do
+    AnalyticsOrganizationProfile.create!(
+      workspace: WORKSPACE, 
+      name: Faker::Company.name, 
+      organization_unique_identifier: SecureRandom.uuid,
+      metadata: rand(1..USER_ATTRIBUTE_OPTIONS.count).times.map do |m|
+        obj = {}
+        obj[USER_ATTRIBUTE_OPTIONS[m][:key]] = USER_ATTRIBUTE_OPTIONS[m][:faker_klass].send(USER_ATTRIBUTE_OPTIONS[m][:faker_method])
+      end
+    )
+    progress_bar.advance
+  end
+  puts "\n"
+end
+
+def assign_user_profiles_to_organization_profiles!
+  progress_bar = TTY::ProgressBar.new("Assigning #{NUMBER_OF_USERS} user profiles to a random number of organization profiles (1-4) [:bar]", total: AnalyticsUserProfile.count, bar_format: :block)
+  WORKSPACE.analytics_user_profiles.each do |user_profile|
     rand(1..4).times do
-      Analytics::OrganizationUser.create(user: user, organization: Analytics::Organization.all.sample)
+      AnalyticsOrganizationProfileUser.create(analytics_user_profile_id: user_profile.id, analytics_organization_profile_id:  WORKSPACE.analytics_organization_profiles.sample.id)
     end
+    progress_bar.advance
   end
+  puts "\n"
 end
 
-def assign_sessions_to_organization!
-  puts "Assigning sessions to organizations..."
-  Analytics::Session.all.each do |session|
-    user = session.device.user
-    if user && user.organizations.any?
-      session.update!(organization: user.organizations.sample)
+def create_user_identify_events!
+  progress_bar = TTY::ProgressBar.new("Creating random number of user identify events for #{NUMBER_OF_USERS} users [:bar]", total: NUMBER_OF_USERS, bar_format: :block)
+  AnalyticsUserProfile.all.each do |user_profile|
+    num_of_devices_for_user = rand(1..5)
+    identify_events_for_user = num_of_devices_for_user.times.map do |i|
+      Analytics::UserIdentifyEvent.create!(
+        swishjam_api_key: WORKSPACE.public_key,
+        device_identifier: SecureRandom.uuid,
+        swishjam_user_id: user_profile.id,
+        occurred_at: Faker::Time.between(from: 1.year.ago, to: Time.now),
+      )
     end
-  end
-end
-
-def seed_devices_for_user!(user, min: 0, max: RANDOM_NUM_OF_DEVICES_PER_USER_MAX)
-  num_devices = rand(min..max)
-  puts "Seeding #{num_devices} devices for user #{user.id}..."
-  num_devices.times do
-    device = Analytics::Device.create!(
-      swishjam_organization: ORGANIZATION,
-      user: user,
-      fingerprint: SecureRandom.uuid,
-      user_agent: Faker::Internet.user_agent,
-      browser: ['Chrome', 'Firefox', 'Safari', 'Internet Explorer', 'Edge', 'Opera'].sample,
-      browser_version: rand(100..150),
-      os: ['Windows', 'Mac OS X', 'Linux', 'Android', 'iOS'].sample,
-      os_version: rand(1..20),
+    progress_bar.advance
+    # create a login from a different user in the past for 10% of users
+    # this ensures our logic for attributing events to users is correct
+    next unless rand() < 0.1 
+    other_user = AnalyticsUserProfile.where.not(id: user_profile.id).sample
+    Analytics::UserIdentifyEvent.create!(
+      swishjam_api_key: WORKSPACE.public_key,
+      device_identifier: SecureRandom.uuid,
+      swishjam_user_id: other_user.id,
+      occurred_at: identify_events_for_user.first.occurred_at - 10.minutes,
     )
-    seed_sessions_for_device!(device)
   end
-  # num_new_devices_created += num_devices
+  puts "\n"
 end
 
-def seed_sessions_for_device!(device, min: 0, max: RANDOM_NUM_OF_SESSIONS_PER_DEVICE_MAX)
-  num_sessions = rand(min..max)
-  puts "Seeding #{num_sessions} sessions for device #{device.id}..."
-  num_sessions.times do
-    session = Analytics::Session.create!(
-      device: device,
-      unique_identifier: SecureRandom.uuid,
-      start_time: Faker::Time.between(from: 1.year.ago, to: Time.now),
-      latitude: Faker::Address.latitude,
-      longitude: Faker::Address.longitude,
-      city: Faker::Address.city,
-      region: Faker::Address.state,
-      country: Faker::Address.country,
-      postal_code: Faker::Address.postcode
-    )
-    seed_hits_for_session!(session)
+def seed_events!
+  progress_bar = TTY::ProgressBar.new("Generating #{NUMBER_OF_SESSIONS_TO_GENERATE} sessions with random number of page views and events [:bar]", total: NUMBER_OF_SESSIONS_TO_GENERATE, bar_format: :block)
+  device_identifiers = (NUMBER_OF_USERS * 1.05).to_i.times.map{ SecureRandom.uuid }
+
+  NUMBER_OF_SESSIONS_TO_GENERATE.times do
+    session_identifier = SecureRandom.uuid
+    user_profile = AnalyticsUserProfile.all.sample
+    user_is_anonymous = rand() < 0.75
+    swishjam_user_id = user_is_anonymous ? nil : user_profile.id
+    swishjam_organization_id = user_is_anonymous ? nil : user_profile.analytics_organization_profiles.sample.id
+    device_identifier = device_identifiers.sample
+    session_start_time = Time.current - rand(0..365).days
+
+    rand(1..10).times do |i|
+      page_view_event = create_page_view_event!(
+        session_identifier: session_identifier, 
+        device_identifier: device_identifier, 
+        swishjam_organization_id: swishjam_organization_id,
+        occurred_at: session_start_time + (i * 2).minutes,
+      )
+    end
+    rand(1..10).times do |i|
+      create_rand_event!(
+        session_identifier: session_identifier, 
+        device_identifier: device_identifier, 
+        swishjam_organization_id: swishjam_organization_id,
+        occurred_at: session_start_time + (i * 2).minutes + 30.seconds,
+      )
+    end
+    progress_bar.advance
   end
-  # num_new_sessions_created += num_sessions
+  puts "\n"
 end
 
-def seed_hits_for_session!(session, min: 1, max: RANDOM_NUM_OF_PAGE_HITS_PER_SESSION_MAX)
-  num_hits = rand(min..max)
-  puts "Seeding #{num_hits} page hits for session #{session.id}..."
-  num_hits.times do
-    url_path = URL_PATHS[rand(0..URL_PATHS.count - 1)]
-    referrer_url = Faker::Internet.url
-    page_hit = Analytics::PageHit.create!(
-      device: session.device,
-      session: session,
-      unique_identifier: SecureRandom.uuid,
+def create_page_view_event!(session_identifier:, device_identifier:, swishjam_organization_id:, occurred_at:)
+  url_path = URL_PATHS[rand(0..URL_PATHS.count - 1)]
+  referrer_url = "https://#{REFERRER_HOSTS[rand(0..REFERRER_HOSTS.count - 1)]}#{URL_PATHS[rand(0..URL_PATHS.count - 1)]}"
+  Analytics::Event.create!(
+    swishjam_api_key: WORKSPACE.public_key,
+    device_identifier: device_identifier,
+    session_identifier: session_identifier,
+    uuid: SecureRandom.uuid,
+    swishjam_organization_id: swishjam_organization_id,
+    name: Analytics::Event::ReservedNames.PAGE_VIEW,
+    occurred_at: occurred_at,
+    properties: {
       full_url: "https://#{HOST_URL}#{url_path}",
       url_host: HOST_URL,
       url_path: url_path,
-      # url_query: '',
       referrer_full_url: referrer_url,
       referrer_url_host: URI.parse(referrer_url).host,
       referrer_url_path: URI.parse(referrer_url).path,
-      # referrer_url_query: '',
-      start_time: Faker::Time.between(from: session.start_time, to: session.start_time + 1.hour), # this doesnt prevent sessions from overlapping, but oh well
-    )
-    seed_events_for_page_hit!(page_hit)
-  end
-  # num_new_page_hits_created += num_hits
+      referrer_url_query: URI.parse(referrer_url).query,
+      utm_source: Faker::Lorem.word,
+      utm_medium: Faker::Lorem.word,
+      utm_campaign: Faker::Lorem.word,
+      utm_term: Faker::Lorem.word,
+      utm_content: Faker::Lorem.word,
+      device_type: ['mobile', 'desktop'].sample,
+      browser: ['Chrome', 'Firefox', 'Safari', 'Internet Explorer'].sample,
+      browser_version: rand(1..10).to_s,
+      os: ['Mac OS X', 'Windows', 'Linux'].sample,
+      os_version: rand(1..10).to_s,
+      user_agent: Faker::Internet.user_agent,
+    }
+  )
 end
 
-def seed_events_for_page_hit!(page_hit, min: 0, max: RANDOM_NUM_OF_EVENTS_PER_PAGE_HIT_MAX)
-  num_events = rand(min..max)
-  puts "Seeding #{num_events} events for page hit #{page_hit.id}..."
-  num_events.times do
-    event = Analytics::Event.create!(
-      device: page_hit.device,
-      session: page_hit.session,
-      page_hit: page_hit,
-      name: EVENT_NAMES[rand(0..EVENT_NAMES.count - 1)],
-      timestamp: Faker::Time.between(from: page_hit.start_time, to: page_hit.start_time + 10.minutes),
-      metadata_attributes: rand(0..10).times.map do |m|
-        {
-          key: Faker::Lorem.word,
-          value: Faker::Lorem.word,
-        }
-      end
-    )
-  end
-  # num_new_events_created += num_events
+def create_rand_event!(session_identifier:, device_identifier:, swishjam_organization_id:, occurred_at:)
+  url_path = URL_PATHS[rand(0..URL_PATHS.count - 1)]
+  random_props = {} 
+  rand(0..7).times{ |m| random_props[Faker::Lorem.word] = Faker::Lorem.word }
+  Analytics::Event.create!(
+    swishjam_api_key: WORKSPACE.public_key,
+    uuid: SecureRandom.uuid,
+    device_identifier: device_identifier,
+    session_identifier: session_identifier,
+    swishjam_organization_id: swishjam_organization_id,
+    name: EVENT_NAMES[rand(0..EVENT_NAMES.count - 1)],
+    occurred_at: occurred_at,
+    properties: random_props.merge({
+      full_url: "https://#{HOST_URL}#{url_path}",
+      url_host: HOST_URL,
+      url_path: url_path,
+    })
+  )
 end
 
-def seed_billing_data!
-  puts "Seeding billing data..."
-  90.times do |i|
-    Analytics::BillingDataSnapshot.create!(
-      swishjam_organization: ORGANIZATION,
-      mrr_in_cents: rand(0..50_000),
-      total_revenue_in_cents: rand(0..1_000_000),
-      num_active_subscriptions: rand(0..1_000),
-      num_free_trial_subscriptions: rand(0..250),
-      num_canceled_subscriptions: rand(0..1_000),
-      captured_at: Time.current - i.days,
-    )
-  end
-end
+# def seed_billing_data!
+#   puts "Seeding billing data..."
+#   90.times do |i|
+#     Analytics::BillingDataSnapshot.create!(
+#       workspace: WORKSPACE,
+#       mrr_in_cents: rand(0..50_000),
+#       total_revenue_in_cents: rand(0..1_000_000),
+#       num_active_subscriptions: rand(0..1_000),
+#       num_free_trial_subscriptions: rand(0..250),
+#       num_canceled_subscriptions: rand(0..1_000),
+#       captured_at: Time.current - i.days,
+#     )
+#   end
+# end
 
-def prompt_user_with_required_value(attribute)
-  puts "Enter your #{attribute} for your new user login:"
-  value = STDIN.gets.chomp
-  if value.blank?
-    puts "#{attribute} cannot be blank!"
-    prompt_user_with_required_value(attribute)
+def prompt_and_find_or_create_user!
+  email = PROMPT.ask("Enter your email for your new user login:"){ |q| q.required true }
+  password = PROMPT.mask("Enter your password for your new user login:"){ |q| q.required true }
+
+  existing_user = User.find_by(email: email)
+  if existing_user
+    if existing_user.authenticate(password)
+      puts "Going to use existing user with email #{email}."
+      return existing_user
+    else
+      raise "A user already exists with an email of #{email}, but the provided password was incorrect. Either provide the correct password for #{email}, or you can create a new user by providing a new email."
+    end
+  else
+    puts "Creating new user with email #{email}."
+    User.create!(email: email, password: password)
   end
-  value
+  puts "\n"
 end
 
 namespace :seed do
   desc "Seeds the database with sample data"
   task dummy_data: [:environment] do
-    start = Time.now
+    ActiveRecord::Base.logger.silence do
+      START_TIME = Time.current
 
-    email = prompt_user_with_required_value('email')
-    password = prompt_user_with_required_value('password')
+      USER = prompt_and_find_or_create_user!
+      NUMBER_OF_SESSIONS_TO_GENERATE = PROMPT.select("How many sessions would you like to backfill?", [100, 500, 1_000, 5_000, 10_000, 20_000]){ |q| q.default 3 }
 
-    existing_user = Swishjam::User.find_by(email: email)
-    if existing_user
-      if exsting_user.authenticate(password)
-        USER = existing_user
-      else
-        raise "A user already exists with an email of #{email}, but the provided password was incorrect. Either provide the correct password for #{email}, or you can create a new user by providing a new email."
-      end
-    else
-      USER = Swishjam::User.create!(email: email, password: password)
+      WORKSPACE = USER.workspaces.first || Workspace.create!(name: Faker::Company.name, company_url: Faker::Internet.domain_name)
+      HOST_URL = Faker::Internet.domain_name
+      NUMBER_OF_USERS = (NUMBER_OF_SESSIONS_TO_GENERATE * 0.75).to_i
+      URL_PATHS = 50.times.map{ URI.parse(Faker::Internet.url).path }
+      REFERRER_HOSTS = 50.times.map{ URI.parse(Faker::Internet.url).host }
+      EVENT_NAMES = 100.times.map{ Faker::Lorem.word }
+      USER_ATTRIBUTE_OPTIONS = [
+        { key: 'Favorite beer', faker_klass: Faker::Beer, faker_method: 'name' },
+        { key: 'Personal bank', faker_klass: Faker::Bank, faker_method: 'name' },
+        { key: 'College attended', faker_klass: Faker::University, faker_method: 'name' },
+        { key: 'Favorite color', faker_klass: Faker::Color, faker_method: 'color_name' },
+        { key: 'Favorite superhero', faker_klass: Faker::DcComics, faker_method: 'hero' },
+        { key: 'Favorite hobby', faker_klass: Faker::Hobby, faker_method: 'activity' },
+      ]
+
+      USER.workspaces << WORKSPACE unless USER.workspaces.include?(WORKSPACE)
+
+      puts "Seeding workspace #{WORKSPACE.name} (#{WORKSPACE.id}) with #{NUMBER_OF_USERS} users, and #{HOST_URL} as the host URL.\n"
+
+      seed_user_profiles!
+      seed_organization_profiles!
+      assign_user_profiles_to_organization_profiles!
+      create_user_identify_events!
+      seed_events!
+      # seed_billing_data!
+
+      puts "Seed completed in #{Time.now - START_TIME} seconds."
     end
-    ORGANIZATION = Swishjam::Organization.create!(name: Faker::Company.name, url: Faker::Internet.domain_name)
-    USER.organizations << ORGANIZATION
-    HOST_URL = Faker::Internet.domain_name
-    NUMBER_OF_USERS = 100
-    URL_PATHS = 50.times.map{ URI.parse(Faker::Internet.url).path }
-    EVENT_NAMES = 100.times.map{ Faker::Lorem.word }
-
-    num_new_devices_created = 0
-    num_new_users_created = 0
-    num_new_sessions_created = 0
-    num_new_page_hits_created = 0
-    num_new_events_created = 0
-
-    USER_METADATA_OPTIONS = [
-      { key: 'Favorite beer', faker_klass: Faker::Beer, faker_method: 'name' },
-      { key: 'Personal bank', faker_klass: Faker::Bank, faker_method: 'name' },
-      { key: 'College attended', faker_klass: Faker::University, faker_method: 'name' },
-      { key: 'Favorite color', faker_klass: Faker::Color, faker_method: 'color_name' },
-      { key: 'Favorite superhero', faker_klass: Faker::DcComics, faker_method: 'hero' },
-      { key: 'Favorite hobby', faker_klass: Faker::Hobby, faker_method: 'activity' },
-    ]
-    
-    puts "Seeding DB with new dummy organization #{ORGANIZATION.name} (#{ORGANIZATION.id}) with #{NUMBER_OF_USERS} users, and #{HOST_URL} as the host URL."
-
-    run_seed!
-    seed_billing_data!
-
-    puts "Seed completed in #{Time.now - start} seconds."
-    puts "Created #{num_new_users_created} new users."
-    puts "Created #{num_new_devices_created} new devices."
-    puts "Created #{num_new_sessions_created} new sessions."
-    puts "Created #{num_new_page_hits_created} new page hits."
-    puts "Created #{num_new_events_created} new events."
   end
 end

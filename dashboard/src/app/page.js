@@ -72,8 +72,7 @@ const Home = () => {
   const getSessionsData = async () => {
     API.get('/api/v1/sessions/timeseries', { timeframe: '30_days' }).then((sessionData) => {
       setSessionsChart({
-        ...sessionsChart,
-        value: sessionData.count,
+        value: sessionData.current_count,
         previousValue: sessionData.comparison_count,
         previousValueDate: sessionData.comparison_end_time,
         valueChange: sessionData.count - sessionData.comparison_count,

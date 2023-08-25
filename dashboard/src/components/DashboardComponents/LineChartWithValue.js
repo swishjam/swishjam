@@ -66,7 +66,6 @@ export default function LineChartWithValue({
   const [showYAxis, setShowYAxis] = useState(false);
   if ([null, undefined].includes(value) || [null, undefined].includes(timeseries)) return <LoadingState title={title} />;
   
-  
   const changeInValue = typeof previousValue !== 'undefined' ? value - previousValue : null;
 
   return (

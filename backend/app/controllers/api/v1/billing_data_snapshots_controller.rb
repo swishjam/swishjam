@@ -40,7 +40,7 @@ module Api
       private
       
       def get_billing_data(start_time, end_time)
-        current_organization.analytics_billing_data_snapshots
+        current_workspace.analytics_billing_data_snapshots
                             .captured_after(start_time)
                             .captured_at_or_before(end_time)
                             .order(captured_at: :asc)

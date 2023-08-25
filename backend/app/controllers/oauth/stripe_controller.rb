@@ -5,26 +5,26 @@ module Oauth
         redirect_to "#{ENV['FRONTEND_URL'] || 'http://localhost:3000'}/connections?success=false&message=#{params[:error_description]}"
         return
       end
-      organization = validate_token_and_return_organization
+      workspace = validate_token_and_return_workspace
       configuration = get_oauth_response_data
-      create_or_update_swishjam_integration(organization, configuration)
+      create_or_update_swishjam_integration(workspace, configuration)
       redirect_to "#{ENV['FRONTEND_URL'] || 'http://localhost:3000'}/connections?success=true"
     end
 
     private
 
-    def validate_token_and_return_organization
+    def validate_token_and_return_workspace
       # make sure a session exists for the token
       token = JSON.parse(params[:state])['authToken']
-      Swishjam::Session.find_by!(jwt_value: token) 
+      AuthSession.find_by!(jwt_value: token) 
 
       # make sure the token is valid
       decoded_token = JWT.decode(token, nil, false)[0]
       raise "Session has expired." if decoded_token['expires_at_epoch'] < Time.now.to_i
-      user = Swishjam::User.find(decoded_token['user']['id'])
+      user = User.find(decoded_token['user']['id'])
       JWT.decode(token, user.jwt_secret_key, true, { algorithm: 'HS256' }) 
 
-      Swishjam::Organization.find(decoded_token['current_organization']['id'])
+      Workspace.find(decoded_token['current_workspace']['id'])
     # rescue => e
     #   raise "Session has expired."
     end
@@ -42,12 +42,12 @@ module Oauth
       }
     end
 
-    def create_or_update_swishjam_integration(organization, config)
-      pre_existing_integration = Swishjam::Integrations::Stripe.for_organization(organization)
+    def create_or_update_swishjam_integration(workspace, config)
+      pre_existing_integration = Integrations::Stripe.for_workspace(workspace)
       if pre_existing_integration.present?
         pre_existing_integration.update!(config: config)
       else
-        organization.integrations.create!(type: Swishjam::Integrations::Stripe.to_s, config: config, enabled: true)
+        workspace.integrations.create!(type: Integrations::Stripe.to_s, config: config, enabled: true)
       end
     end
   end
