@@ -5,6 +5,7 @@ import { API } from '@/lib/api-client/base';
 import AuthenticatedView from '@/components/Auth/AuthenticatedView';
 import LineChartWithValue from '@/components/DashboardComponents/LineChartWithValue';
 import BarListCard from '@/components/DashboardComponents/Prebuilt/BarListCard';
+import Timefilter from '@/components/Timefilter';
 
 function FormattedLineChartData(name) {
   return {
@@ -21,8 +22,8 @@ const LoadingState = () => (
       <div>
         <h1 className="text-lg font-medium text-gray-700 mb-0">Marketing Site Metrics</h1>
       </div>
-
       <div className="w-full flex items-center justify-end">
+        <Timefilter/>
       </div>
     </div>
     <div className='grid grid-cols-3 gap-6 pt-8'>
@@ -50,9 +51,10 @@ const Home = () => {
   const [topDevices, setTopDevices] = useState();
   const [topBrowsers, setTopBrowsers] = useState();
   const [topCountries, setTopCountries] = useState();
+  const [timeframeFilter, setTimeframeFilter] = useState('thirty_days');
 
-  const getSessionData = async () => {
-    API.get('/api/v1/sessions/timeseries', { timeframe: '30_days' }).then((sessionData) => {
+  const getSessionData = async (tf) => {
+    API.get('/api/v1/sessions/timeseries', { timeframe: tf }).then((sessionData) => {
       setSessionsChart({
         ...sessionsChart,
         value: sessionData.count,
@@ -69,31 +71,36 @@ const Home = () => {
     })
   }
 
-  const getReferrerData = async () => {
-    API.get('/api/v1/sessions/referrers', { timeframe: '30_days' }).then(({ referrers }) => {
+  const getReferrerData = async (tf) => {
+    API.get('/api/v1/sessions/referrers', { timeframe: tf }).then(({ referrers }) => {
       setTopReferrers(referrers.map(({ referrer, count }) => ({ name: referrer, value: count })));
     });
   }
 
-  const getDemographicData = async () => {
-    API.get('/api/v1/sessions/demographics', { timeframe: '30_days' }).then(demographics => {
+  const getDemographicData = async (tf) => {
+    API.get('/api/v1/sessions/demographics', { timeframe: tf }).then(demographics => {
       setTopBrowsers(demographics.browsers.map(({ browser, count }) => ({ name: browser, value: count }))),
       setTopDevices([{ name: 'Desktop', value: demographics.desktop_count }, { name: 'Mobile', value: demographics.mobile_count }])
       setTopCountries(demographics.countries.map(({ country, count }) => ({ name: country, value: count })))
     });
   }
 
-  const getTopPages = async () => {
-    API.get('/api/v1/page_hits', { timeframe: '30_days' }).then(({ top_pages }) => {
+  const getTopPages = async (tf) => {
+    API.get('/api/v1/page_hits', { timeframe: tf }).then(({ top_pages }) => {
       setTopPages(top_pages.map(({ url, count }) => ({ name: url, value: count })));
     });
   }
 
+  const getAllData = (t) => {
+    getSessionData(t);
+    getTopPages(t);
+    getDemographicData(t);
+    getReferrerData(t);
+  }
+
+
   useEffect(() => {
-    getSessionData();
-    getTopPages();
-    getDemographicData();
-    getReferrerData();
+    getAllData(timeframeFilter)
   }, []);
 
   return (
@@ -104,6 +111,10 @@ const Home = () => {
         </div>
 
         <div className="w-full flex items-center justify-end">
+          <Timefilter
+            selection={timeframeFilter}
+            onSelection={(d) => {setTimeframeFilter(d);getAllData(d)}} 
+          />
         </div>
       </div>
       <div className='grid grid-cols-3 gap-6 pt-8'>
