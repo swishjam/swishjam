@@ -124,8 +124,8 @@ const Home = () => {
         <LineChartWithValue
           title='Active Subscriptions'
           value={activeSubsChart?.value}
-          previousValue={mrrChart?.previousValue}
-          previousValueDate={mrrChart?.previousValueDate}
+          previousValue={activeSubsChart?.previousValue}
+          previousValueDate={activeSubsChart?.previousValueDate}
           timeseries={activeSubsChart?.timeseries}
           valueFormatter={numSubs => numSubs.toLocaleString('en-US')}
         />

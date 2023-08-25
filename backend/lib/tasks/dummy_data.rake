@@ -165,20 +165,30 @@ def create_rand_event!(session_identifier:, device_identifier:, swishjam_organiz
   )
 end
 
-# def seed_billing_data!
-#   puts "Seeding billing data..."
-#   90.times do |i|
-#     Analytics::BillingDataSnapshot.create!(
-#       workspace: WORKSPACE,
-#       mrr_in_cents: rand(0..50_000),
-#       total_revenue_in_cents: rand(0..1_000_000),
-#       num_active_subscriptions: rand(0..1_000),
-#       num_free_trial_subscriptions: rand(0..250),
-#       num_canceled_subscriptions: rand(0..1_000),
-#       captured_at: Time.current - i.days,
-#     )
-#   end
-# end
+def seed_billing_data!
+  progress_bar = TTY::ProgressBar.new("Generating billing data for the last 365 days [:bar]", total: 90, bar_format: :block)
+  
+  previous_mrr = 1_000_000 * 100
+  previous_total_revenue = 5_000_000 * 100
+  previous_num_active_subscriptions = 1_000
+  previous_num_free_trial_subscriptions = 250
+  previous_num_canceled_subscriptions = 1_000
+
+  last_snapshot = nil
+  365.times do |i|
+    last_snapshot = Analytics::BillingDataSnapshot.create!(
+      swishjam_api_key: WORKSPACE.public_key,
+      mrr_in_cents: (last_snapshot&.mrr_in_cents || 1_000_000 * 100) * 0.95,
+      total_revenue_in_cents: (last_snapshot&.total_revenue_in_cents || 5_000_000 * 100) * 0.95,
+      num_active_subscriptions: (last_snapshot&.num_active_subscriptions || 1_000) * 0.95,
+      num_free_trial_subscriptions: (last_snapshot&.num_free_trial_subscriptions || 250) * 0.95,
+      num_canceled_subscriptions: (last_snapshot&.num_canceled_subscriptions || 1_000) * 0.95,
+      captured_at: Time.current - i.days,
+    )
+    progress_bar.advance
+  end
+  puts "\n"
+end
 
 def prompt_and_find_or_create_user!
   email = PROMPT.ask("Enter your email for your new user login:"){ |q| q.required true }
@@ -225,14 +235,14 @@ namespace :seed do
 
       USER.workspaces << WORKSPACE unless USER.workspaces.include?(WORKSPACE)
 
-      puts "Seeding workspace #{WORKSPACE.name} (#{WORKSPACE.id}) with #{NUMBER_OF_USERS} users, and #{HOST_URL} as the host URL.\n"
+      puts "Seeding workspace #{WORKSPACE.name} (#{WORKSPACE.id}) with #{NUMBER_OF_USERS} users, and #{HOST_URL} as the host URL.\n\n"
 
-      seed_user_profiles!
-      seed_organization_profiles!
-      assign_user_profiles_to_organization_profiles!
-      create_user_identify_events!
-      seed_events!
-      # seed_billing_data!
+      # seed_user_profiles!
+      # seed_organization_profiles!
+      # assign_user_profiles_to_organization_profiles!
+      # create_user_identify_events!
+      # seed_events!
+      seed_billing_data!
 
       puts "Seed completed in #{Time.now - START_TIME} seconds."
     end
