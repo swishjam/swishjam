@@ -7,6 +7,7 @@ function classNames(...classes) {
 
 const EventFeed = ({ 
   title, 
+  className,
   subTitle,
   events, 
   leftItemHeaderKey, 
@@ -15,13 +16,15 @@ const EventFeed = ({
   rightItemKeyFormatter = value => value, 
   noDataMsg = 'No events triggered.'
 }) => (
-  <Card>
+  <div
+    className={className} 
+  >
     <CardHeader>
       <CardTitle>{title}</CardTitle>
       {subTitle && <CardDescription>{subTitle}</CardDescription>}
     </CardHeader>
     <CardContent>
-      <div className="flow-rzzoot">
+      <div className="flow-root">
         {events && events.length === 0 && (
           <div className="flex flex-col items-center justify-center py-12">
             <p className="text-sm text-gray-500">{noDataMsg}</p>
@@ -38,7 +41,7 @@ const EventFeed = ({
               >
                 <div className="w-px bg-gray-200" />
               </div>
-              <div className="relative flex h-6 w-6 flex-none items-center justify-center bg-white">
+              <div className="relative flex h-6 w-6 flex-none items-center justify-center">
                 <div className="h-1.5 w-1.5 rounded-full bg-gray-100 ring-1 ring-gray-300" />
               </div>
               <p className="flex-auto py-0.5 text-xs leading-5 text-gray-500">
@@ -50,9 +53,10 @@ const EventFeed = ({
             </li>
           ))}
         </ul>
+
       </div>
     </CardContent>
-  </Card>
+  </div>
 )
 
 export default EventFeed;

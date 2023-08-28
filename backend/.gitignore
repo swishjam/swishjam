@@ -27,4 +27,5 @@
 /config/master.key
 
 coverage/
-clickhouse-server/
+clickhouse-server/*
+clickhouse/*
