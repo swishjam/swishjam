@@ -21,9 +21,19 @@ RSpec.configure do |config|
 
   config.before(:each) do |example|
     DatabaseCleaner.start
+
+    # this sucks, how come I cant use DatabaseCleaner or at least purge data
+    system('rails db:drop:clickhouse')
+    system('rails db:create:clickhouse')
+    system('rails db:migrate:clickhouse')
   end
 
   config.after(:each) do |example|
     DatabaseCleaner.clean
+
+    # this sucks, how come I cant use DatabaseCleaner or at least purge data
+    system('rails db:drop:clickhouse')
+    system('rails db:create:clickhouse')
+    system('rails db:migrate:clickhouse')
   end
 end

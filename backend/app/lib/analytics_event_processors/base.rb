@@ -10,7 +10,7 @@ module AnalyticsEventProcessors
     end
 
     def swishjam_organization
-      @swishjam_organization ||= Swishjam::Organization.find_by!(public_key: @api_key)
+      @swishjam_organization ||= Workspace.find_by!(public_key: @api_key)
     rescue ActiveRecord::RecordNotFound => e
       raise ActiveRecord::RecordNotFound, "Could not find organization with provided public key: #{@api_key}"
     end

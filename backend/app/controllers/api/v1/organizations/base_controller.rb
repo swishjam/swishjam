@@ -7,7 +7,7 @@ module Api
         private
 
         def set_organization
-          @organization ||= current_organization.analytics_organizations.find(params[:organization_id])
+          @organization ||= current_workspace.analytics_organization_profiles.find(params[:organization_id])
         end
       end
     end

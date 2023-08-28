@@ -25,10 +25,10 @@ module ActiveUserCalculators
       return @timeseries_data if @timeseries_data.present?
       if @organization.is_a?(Analytics::Organization)
         @timeseries_data = for_analytics_organization
-      elsif @organization.is_a?(Swishjam::Organization)
+      elsif @organization.is_a?(Workspace)
         @timeseries_data = for_swishjam_organization
       else
-        raise ArgumentError, "`ActiveUserCalculators::Daily.for` expected `Analytics::Organization` or `Swishjam::Organization`, got #{@organization.class}"
+        raise ArgumentError, "`ActiveUserCalculators::Daily.for` expected `Analytics::Organization` or `Workspace`, got #{@organization.class}"
       end
     end
 

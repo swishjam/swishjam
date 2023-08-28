@@ -1,5 +1,5 @@
 module Analytics
   class EventSerializer < ActiveModel::Serializer
-    attributes :id, :name, :formatted_metadata, :created_at
+    attributes :uuid, :name, :properties, :occurred_at, :ingested_at, :device_identifier
   end
 end

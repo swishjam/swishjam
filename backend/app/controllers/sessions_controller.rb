@@ -1,9 +1,21 @@
 class SessionsController < ApplicationController
+  include AuthenticationHelper
+  # why is this necessary?? current_user keeps getting called on render for some reason, and there isn't a JWT token present.
+  # skip_before_action :authenticate_request!, only: [:create, :destroy]
+
   def create
-    user = Swishjam::User.find_by(email: params[:email])
+    user = User.find_by(email: params[:email])
     if user && user.authenticate(params[:password])
-      token = log_user_in(user, user.organizations.first)
-      render json: { user: user, token: token }, status: :ok
+      token = log_user_in(user, user.workspaces.first)
+      render json: { 
+        token: token, 
+        user: { 
+          id: user.id, 
+          email: user.email, 
+          first_name: user.first_name, 
+          last_name: user.last_name 
+        }, 
+      }, status: :ok
     else
       render json: { error: 'Invalid email or password.' }, status: :unauthorized
     end
