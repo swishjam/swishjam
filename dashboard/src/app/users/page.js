@@ -7,7 +7,8 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import Link from "next/link";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
+import { KeySquareIcon } from "lucide-react";
 
 
 const LoadingState = () => (
@@ -28,10 +29,10 @@ const LoadingState = () => (
 
 const Users = ({ }) => {
   const [usersData, setUsersData] = useState([]);
+  const router = useRouter();
 
-  const handleClick = (e, ) => {
-    e.preventDefault();
-    router.push();
+  const handleClick = (id) => {
+    router.push(`/users/${id}`);
   };
 
   useEffect(() => {
@@ -77,14 +78,14 @@ const Users = ({ }) => {
                         <tr
                           key={user.email}
                           className="group hover:bg-gray-50 duration-300 transition cursor-pointer"
-                          onClick={() => console.log('click', user.id)} 
+                          onClick={() => handleClick(user.id)}
                         >
                           <td className="whitespace-nowrap py-3 pl-4 pr-3 text-sm sm:pl-6 lg:pl-8">
                             <div className="flex items-center">
                               <div className="flex-shrink-0">
                                 <Avatar>
                                   <AvatarImage src={user.image} />
-                                  <AvatarFallback>zz</AvatarFallback>
+                                  <AvatarFallback>{user.first_name ? user.first_name.substring(0, 1):'Z'}{user.last_name ? user.last_name.substring(0, 1):'Z'}</AvatarFallback>
                                 </Avatar>
                               </div>
                               <div className="ml-4">
