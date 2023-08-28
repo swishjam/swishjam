@@ -204,7 +204,7 @@ def prompt_and_find_or_create_user!
     end
   else
     puts "Creating new user with email #{email}."
-    User.create!(email: email, password: password)
+    return User.create!(email: email, password: password)
   end
   puts "\n"
 end
