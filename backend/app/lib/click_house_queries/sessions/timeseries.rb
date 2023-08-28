@@ -41,7 +41,6 @@ module ClickHouseQueries
             events
           WHERE
             events.swishjam_api_key = '#{@public_key}' AND
-            events.name = '#{Analytics::Event::ReservedNames.PAGE_VIEW}' AND
             events.occurred_at BETWEEN '#{formatted_time(@start_time)}' AND '#{formatted_time(@end_time)}'
           GROUP BY
             group_by_date

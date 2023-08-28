@@ -54,7 +54,7 @@ def create_user_identify_events!
   profiles = AnalyticsUserProfile.all
   progress_bar = TTY::ProgressBar.new("Creating random number of user identify events for #{profiles.count} users [:bar]", total: profiles.count, bar_format: :block)
   profiles.each do |user_profile|
-    num_of_devices_for_user = rand(1..5)
+    num_of_devices_for_user = rand(1..2)
     identify_events_for_user = num_of_devices_for_user.times.map do |i|
       Analytics::UserIdentifyEvent.create!(
         swishjam_api_key: WORKSPACE.public_key,
@@ -152,8 +152,8 @@ def create_rand_event!(session_identifier:, device_identifier:, swishjam_organiz
   Analytics::Event.create!(
     swishjam_api_key: WORKSPACE.public_key,
     uuid: SecureRandom.uuid,
-    occurred_at: occurred_at,
     name: EVENT_NAMES[rand(0..EVENT_NAMES.count - 1)],
+    occurred_at: occurred_at,
     properties: random_props.merge({
       device_identifier: device_identifier,
       session_identifier: session_identifier,

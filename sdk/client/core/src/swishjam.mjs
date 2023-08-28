@@ -21,9 +21,9 @@ export default class Swishjam {
   static getPageView = () => MemoryHandler.get('pageViewId');
   static newSession = () => MemoryHandler.set('sessionId', UUID.generate('s'));
 
-  static identify = (userId, traits) => {
+  static identify = (userIdentifier, traits) => {
     this._extractOrganizationFromIdentifyCall(traits);
-    this._record('identify', { userId, ...traits });
+    this._record('identify', { userIdentifier, ...traits });
   }
 
   static setOrganization = (organizationIdentifier, traits = {}) => {
@@ -70,7 +70,7 @@ export default class Swishjam {
   static _initPageViewTracker = () => {
     new PageViewManager(({ previousUrl }) => {
       MemoryHandler.set('pageViewId', UUID.generate('pv'));
-      const pageViewEvent = new Event('page', { previousUrl });
+      const pageViewEvent = new Event('page_view', { previousUrl });
       window.Swishjam.dataHandler.add(pageViewEvent);
     }).trackPageView();
   }

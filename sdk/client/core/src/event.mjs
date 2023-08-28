@@ -1,9 +1,11 @@
+import { UUID } from './uuid.mjs';
 import { MemoryHandler } from './memoryHandler.mjs';
 import { ClientJS } from 'clientjs';
 const fingerprinter = new ClientJS();
 
 export class Event {
   constructor(type, data) {
+    this.uuid = UUID.generate(`e-${Date.now()}`);
     this.type = type;
     this.ts = Date.now();
     this.sessionId = MemoryHandler.get('sessionId');
@@ -15,11 +17,14 @@ export class Event {
 
   toJSON() {
     return {
+      deviceId: this.fingerprint,
       sessionId: this.sessionId,
       pageViewId: this.pageViewId,
       type: this.type,
+      name: this.type,
       url: this.url,
       timestamp: this.ts,
+      data: this.data,
       deviceData: {
         fingerprint: this.fingerprint,
         userAgent: fingerprinter.getUserAgent(),
@@ -33,7 +38,6 @@ export class Event {
         language: fingerprinter.getLanguage(),
         isMobile: fingerprinter.isMobile(),
       },
-      data: this.data,
     }
   }
 }

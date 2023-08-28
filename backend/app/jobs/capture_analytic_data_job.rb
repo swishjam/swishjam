@@ -1,7 +1,6 @@
 EVENT_PROCESSOR_KLASS_DICT = {
-  page: AnalyticsEventProcessors::PageView,
-  identify: AnalyticsEventProcessors::Identify,
-  organization: AnalyticsEventProcessors::Organization,
+  identify: WebEventProcessors::Identify,
+  organization: WebEventProcessors::Organization,
 }
 
 class CaptureAnalyticDataJob
@@ -11,18 +10,24 @@ class CaptureAnalyticDataJob
 
   def perform(api_key, event_payload, requesting_ip_address)
     start = Time.now
-    verify_api_key!(api_key)
+    workspace = verify_api_key!(api_key)
+
+    success_count = 0
+    failed_count = 0
     event_payload.each do |event_json|
-      processor_klass = EVENT_PROCESSOR_KLASS_DICT.with_indifferent_access[event_json['type']] || AnalyticsEventProcessors::Custom
       begin
-        processor_klass.new(api_key, event_json.merge({ 'ip_address' => requesting_ip_address })).process!
+        event_type = event_json['type']
+        processor_klass = EVENT_PROCESSOR_KLASS_DICT[event_type.to_sym] || WebEventProcessors::Event
+        processor_klass.new(workspace, event_json).capture!
+        success_count += 1
       rescue => e
         Rails.logger.error "Error processing event: #{e.message}"
         Rails.logger.error event_json
         Rails.logger.error e.backtrace.join("\n")
+        failed_count += 1
       end
     end
-    Rails.logger.info "Processed #{event_payload.length} events in #{Time.now - start} seconds for #{api_key} instance."
+    Rails.logger.info "Processed #{success_count} events in #{Time.now - start} seconds for #{api_key} instance. #{failed_count} failed."
   end
 
   private

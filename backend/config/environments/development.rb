@@ -54,6 +54,8 @@ Rails.application.configure do
                     msg
                   end
     "#{colored_msg}\n"
+  rescue => e
+    "#{msg}\n"
   end
 
   # Raise exceptions for disallowed deprecations.
