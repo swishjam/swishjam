@@ -36,11 +36,14 @@ module ClickHouseQueries
               JSONExtractString(events.properties, '#{Analytics::Event::ReservedPropertyNames.SESSION_IDENTIFIER}') AS session_identifier,
               MIN(occurred_at) AS occurred_at
             FROM events
-            WHERE name = '#{Analytics::Event::ReservedNames.PAGE_VIEW}'
+            WHERE 
+              name = '#{Analytics::Event::ReservedNames.PAGE_VIEW}' AND
+              swishjam_api_key = '#{@public_key}'
             GROUP BY session_identifier
           ) AS first_page_views ON 
             first_page_views.session_identifier = JSONExtractString(e.properties, '#{Analytics::Event::ReservedPropertyNames.SESSION_IDENTIFIER}') AND 
-            first_page_views.occurred_at = e.occurred_at
+            first_page_views.occurred_at = e.occurred_at AND
+            e.name = '#{Analytics::Event::ReservedNames.PAGE_VIEW}'
           WHERE
             e.swishjam_api_key = '#{@public_key}' AND
             e.occurred_at BETWEEN '#{formatted_time(@start_time)}' AND '#{formatted_time(@end_time)}'

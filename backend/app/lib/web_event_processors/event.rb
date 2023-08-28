@@ -25,6 +25,7 @@ module WebEventProcessors
         user_provided_data['referrer_url_query'] = parsed_referrer_url.query
       end
       Analytics::Event.create!(
+        uuid: uuid,
         swishjam_api_key: @workspace.public_key,
         name: event_name,
         occurred_at: timestamp,

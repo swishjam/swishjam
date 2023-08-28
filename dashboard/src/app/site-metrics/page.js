@@ -63,7 +63,10 @@ const Home = () => {
 
   const getReferrerData = async (tf) => {
     API.get('/api/v1/sessions/referrers', { timeframe: tf }).then(({ referrers }) => {
-      setTopReferrers(referrers.map(({ referrer, count }) => ({ name: referrer, value: count })));
+      setTopReferrers(referrers.map(({ referrer, count }) => ({ 
+        name: [null, undefined, ''].includes(referrer) ? 'Direct' : referrer, 
+        value: count 
+      })));
     });
   }
 

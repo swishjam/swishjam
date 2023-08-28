@@ -136,7 +136,7 @@ const Users = ({ }) => {
                               <div className="flex-shrink-0">
                                 <Avatar>
                                   <AvatarImage src={user.image} />
-                                  <AvatarFallback>{user.first_name[0]}{user.last_name[0]}</AvatarFallback>
+                                  <AvatarFallback>{user.initials}</AvatarFallback>
                                 </Avatar>
                               </div>
                               <div className="ml-4">

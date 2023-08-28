@@ -44,8 +44,6 @@ const UserProfile = ({ params }) => {
     API.get(`/api/v1/users/${userId}/events`).then(setRecentEvents);
   }, [userId])
 
-  console.log(userData);
-  console.log(recentEvents);
   return (
     userData ? (
       <main className="mx-auto max-w-7xl px-4 mt-8 sm:px-6 lg:px-8 mb-8">
@@ -92,7 +90,7 @@ const UserProfile = ({ params }) => {
                   <Avatar className="h-16 w-16 mr-4">
                     {userData.avatar_url
                       ? <AvatarImage src={userData.avatar_url} alt="Avatar" />
-                      : <AvatarFallback className="text-lg">{userData.full_name.split(' ').map(word => word[0]).join('').toUpperCase()}</AvatarFallback>
+                      : <AvatarFallback className="text-lg">{userData.initials}</AvatarFallback>
                     }
                   </Avatar>
                   <div>

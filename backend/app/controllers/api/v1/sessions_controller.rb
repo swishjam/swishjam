@@ -52,9 +52,9 @@ module Api
         querier = ClickHouseQueries::Sessions::FirstPageViewPropertyCount.new(current_workspace.public_key, limit: limit, start_time: start_timestamp, end_time: end_timestamp)
 
         if params[:types].include?('device_type')
-          devices = querier.get(:device_type) 
-          json[:mobile_count] = devices['mobile'] || 0
-          json[:desktop_count] = devices['desktop'] || 0
+          devices = querier.get(:is_mobile) 
+          json[:mobile_count] = devices['true'] || 0
+          json[:desktop_count] = devices['false'] || 0
         end
         json[:browsers] = querier.get(:browser) if params[:types].include?('browser')
         json[:cities] = querier.get(:city) if params[:types].include?('city')
