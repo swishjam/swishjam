@@ -8,8 +8,7 @@ describe ClickHouseQueries::Sessions::FirstPageViewPropertyCount do
         swishjam_api_key: api_key,
         occurred_at: Time.current - num_days_ago.days - j.minutes, 
         name: Analytics::Event::ReservedNames.PAGE_VIEW, 
-        session_identifier: session_identifier,
-        properties: properties
+        properties: properties.merge({ session_identifier: session_identifier })
       )
     end
   end

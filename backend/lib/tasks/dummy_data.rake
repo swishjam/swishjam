@@ -1,4 +1,4 @@
-require "tty-PROMPT"
+require "tty-prompt"
 require 'tty-progressbar'
 
 PROMPT = TTY::Prompt.new
@@ -51,13 +51,14 @@ def assign_user_profiles_to_organization_profiles!
 end
 
 def create_user_identify_events!
-  progress_bar = TTY::ProgressBar.new("Creating random number of user identify events for #{NUMBER_OF_USERS} users [:bar]", total: NUMBER_OF_USERS, bar_format: :block)
-  AnalyticsUserProfile.all.each do |user_profile|
+  profiles = AnalyticsUserProfile.all
+  progress_bar = TTY::ProgressBar.new("Creating random number of user identify events for #{profiles.count} users [:bar]", total: profiles.count, bar_format: :block)
+  profiles.each do |user_profile|
     num_of_devices_for_user = rand(1..5)
     identify_events_for_user = num_of_devices_for_user.times.map do |i|
       Analytics::UserIdentifyEvent.create!(
         swishjam_api_key: WORKSPACE.public_key,
-        device_identifier: SecureRandom.uuid,
+        device_identifier: DEVICE_IDENTIFIERS.sample,
         swishjam_user_id: user_profile.id,
         occurred_at: Faker::Time.between(from: 1.year.ago, to: Time.now),
       )
@@ -69,7 +70,7 @@ def create_user_identify_events!
     other_user = AnalyticsUserProfile.where.not(id: user_profile.id).sample
     Analytics::UserIdentifyEvent.create!(
       swishjam_api_key: WORKSPACE.public_key,
-      device_identifier: SecureRandom.uuid,
+      device_identifier: DEVICE_IDENTIFIERS.sample,
       swishjam_user_id: other_user.id,
       occurred_at: identify_events_for_user.first.occurred_at - 10.minutes,
     )
@@ -79,7 +80,6 @@ end
 
 def seed_events!
   progress_bar = TTY::ProgressBar.new("Generating #{NUMBER_OF_SESSIONS_TO_GENERATE} sessions with random number of page views and events [:bar]", total: NUMBER_OF_SESSIONS_TO_GENERATE, bar_format: :block)
-  device_identifiers = (NUMBER_OF_USERS * 1.05).to_i.times.map{ SecureRandom.uuid }
 
   NUMBER_OF_SESSIONS_TO_GENERATE.times do
     session_identifier = SecureRandom.uuid
@@ -87,7 +87,7 @@ def seed_events!
     user_is_anonymous = rand() < 0.75
     swishjam_user_id = user_is_anonymous ? nil : user_profile.id
     swishjam_organization_id = user_is_anonymous ? nil : user_profile.analytics_organization_profiles.sample.id
-    device_identifier = device_identifiers.sample
+    device_identifier = DEVICE_IDENTIFIERS.sample
     session_start_time = Time.current - rand(0..365).days
 
     rand(1..10).times do |i|
@@ -116,13 +116,13 @@ def create_page_view_event!(session_identifier:, device_identifier:, swishjam_or
   referrer_url = "https://#{REFERRER_HOSTS[rand(0..REFERRER_HOSTS.count - 1)]}#{URL_PATHS[rand(0..URL_PATHS.count - 1)]}"
   Analytics::Event.create!(
     swishjam_api_key: WORKSPACE.public_key,
-    device_identifier: device_identifier,
-    session_identifier: session_identifier,
     uuid: SecureRandom.uuid,
-    swishjam_organization_id: swishjam_organization_id,
     name: Analytics::Event::ReservedNames.PAGE_VIEW,
     occurred_at: occurred_at,
     properties: {
+      device_identifier: device_identifier,
+      session_identifier: session_identifier,
+      swishjam_organization_id: swishjam_organization_id,
       full_url: "https://#{HOST_URL}#{url_path}",
       url_host: HOST_URL,
       url_path: url_path,
@@ -152,12 +152,12 @@ def create_rand_event!(session_identifier:, device_identifier:, swishjam_organiz
   Analytics::Event.create!(
     swishjam_api_key: WORKSPACE.public_key,
     uuid: SecureRandom.uuid,
-    device_identifier: device_identifier,
-    session_identifier: session_identifier,
-    swishjam_organization_id: swishjam_organization_id,
-    name: EVENT_NAMES[rand(0..EVENT_NAMES.count - 1)],
     occurred_at: occurred_at,
+    name: EVENT_NAMES[rand(0..EVENT_NAMES.count - 1)],
     properties: random_props.merge({
+      device_identifier: device_identifier,
+      session_identifier: session_identifier,
+      swishjam_organization_id: swishjam_organization_id,
       full_url: "https://#{HOST_URL}#{url_path}",
       url_host: HOST_URL,
       url_path: url_path,
@@ -217,10 +217,11 @@ namespace :seed do
 
       USER = prompt_and_find_or_create_user!
       NUMBER_OF_SESSIONS_TO_GENERATE = PROMPT.select("How many sessions would you like to backfill?", [100, 500, 1_000, 5_000, 10_000, 20_000]){ |q| q.default 3 }
-
+      
       WORKSPACE = USER.workspaces.first || Workspace.create!(name: Faker::Company.name, company_url: Faker::Internet.domain_name)
       HOST_URL = Faker::Internet.domain_name
       NUMBER_OF_USERS = (NUMBER_OF_SESSIONS_TO_GENERATE * 0.75).to_i
+      DEVICE_IDENTIFIERS = (NUMBER_OF_USERS * 1.05).to_i.times.map{ SecureRandom.uuid }
       URL_PATHS = 50.times.map{ URI.parse(Faker::Internet.url).path }
       REFERRER_HOSTS = 50.times.map{ URI.parse(Faker::Internet.url).host }
       EVENT_NAMES = 100.times.map{ Faker::Lorem.word }
@@ -237,11 +238,11 @@ namespace :seed do
 
       puts "Seeding workspace #{WORKSPACE.name} (#{WORKSPACE.id}) with #{NUMBER_OF_USERS} users, and #{HOST_URL} as the host URL.\n\n"
 
-      # seed_user_profiles!
-      # seed_organization_profiles!
-      # assign_user_profiles_to_organization_profiles!
-      # create_user_identify_events!
-      # seed_events!
+      seed_user_profiles!
+      seed_organization_profiles!
+      assign_user_profiles_to_organization_profiles!
+      create_user_identify_events!
+      seed_events!
       seed_billing_data!
 
       puts "Seed completed in #{Time.now - START_TIME} seconds."

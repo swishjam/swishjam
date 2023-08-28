@@ -19,10 +19,10 @@ describe ClickHouseQueries::Users::Active::Daily do
     end
 
     it 'correctly counts unique users' do
-      FactoryBot.create(:analytics_event, swishjam_api_key: 'my_workspace', device_identifier: 'anon-user')
+      FactoryBot.create(:analytics_event, swishjam_api_key: 'my_workspace', properties: { device_identifier: 'anon-user' })
       
-      FactoryBot.create(:analytics_event, swishjam_api_key: 'my_workspace', device_identifier: 'user-1-device-1')
-      FactoryBot.create(:analytics_event, swishjam_api_key: 'my_workspace', device_identifier: 'user-1-device-2')
+      FactoryBot.create(:analytics_event, swishjam_api_key: 'my_workspace', properties: { device_identifier: 'user-1-device-1' })
+      FactoryBot.create(:analytics_event, swishjam_api_key: 'my_workspace', properties: { device_identifier: 'user-1-device-2' })
       
       FactoryBot.create(:analytics_user_identify_event, device_identifier: 'user-1-device-1', swishjam_user_id: 'user-1')
       FactoryBot.create(:analytics_user_identify_event, device_identifier: 'user-1-device-2', swishjam_user_id: 'user-1')

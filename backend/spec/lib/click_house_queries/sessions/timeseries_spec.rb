@@ -9,7 +9,7 @@ RSpec.describe ClickHouseQueries::Sessions::Timeseries do
         swishjam_api_key: api_key,
         occurred_at: Time.current - num_days_ago.days - j.minutes, 
         name: Analytics::Event::ReservedNames.PAGE_VIEW, 
-        session_identifier: session_identifier
+        properties: { session_identifier: session_identifier }
       )
     end
   end

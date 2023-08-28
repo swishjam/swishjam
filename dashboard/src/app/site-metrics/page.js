@@ -7,15 +7,6 @@ import LineChartWithValue from '@/components/DashboardComponents/LineChartWithVa
 import BarListCard from '@/components/DashboardComponents/Prebuilt/BarListCard';
 import Timefilter from '@/components/Timefilter';
 
-function FormattedLineChartData(name) {
-  return {
-    title: name, 
-    value: null,
-    valueChange: null,
-    timeseries: []
-  }
-}
-
 const LoadingState = () => (
   <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mb-8">
     <div className='grid grid-cols-2 mt-8 flex items-center'>
@@ -78,9 +69,9 @@ const Home = () => {
 
   const getDemographicData = async (tf) => {
     API.get('/api/v1/sessions/demographics', { timeframe: tf }).then(demographics => {
-      setTopBrowsers(demographics.browsers.map(({ browser, count }) => ({ name: browser, value: count }))),
-      setTopDevices([{ name: 'Desktop', value: demographics.desktop_count }, { name: 'Mobile', value: demographics.mobile_count }])
-      setTopCountries(topCountries)
+      setTopBrowsers(Object.keys(demographics.browsers).map(browser => ({ name: browser, value: demographics.browsers[browser] })));
+      setTopDevices([{ name: 'Desktop', value: demographics.desktop_count }, { name: 'Mobile', value: demographics.mobile_count }]);
+      setTopCountries(Object.keys(demographics.countries).map(country => ({ name: country, value: demographics.countries[country] })));
     });
   }
 

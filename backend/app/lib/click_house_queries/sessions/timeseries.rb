@@ -35,7 +35,7 @@ module ClickHouseQueries
         join_query = ClickHouseQueries::PageViews::FirstOfSession.sql(@public_key, @start_time, @end_time)
         <<~SQL
           SELECT
-            CAST(COUNT(DISTINCT session_identifier) AS int) AS count,
+            CAST(COUNT(DISTINCT JSONExtractString(events.properties, '#{Analytics::Event::ReservedPropertyNames.SESSION_IDENTIFIER}')) AS int) AS count,
             DATE_TRUNC('#{@group_by}', events.occurred_at) AS group_by_date
           FROM
             events

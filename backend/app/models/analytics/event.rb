@@ -1,16 +1,34 @@
 module Analytics
   class Event < ClickHouseRecord
     class ReservedNames
-      def self.all
-        [PAGE_VIEW, PAGE_LEFT]
-      end
+      class << self
+        METHOD_NAMES = [:PAGE_VIEW, :PAGE_LEFT]
+        
+        METHOD_NAMES.each do |property_name|
+          define_method(property_name) do
+            property_name.to_s.downcase
+          end
+        end
 
-      def self.PAGE_VIEW
-        'page_view'
+        def all
+          METHOD_NAMES.collect{ |method_name| self.send(method_name) }
+        end
       end
+    end
 
-      def self.PAGE_LEFT
-        'page_left'
+    class ReservedPropertyNames
+      class << self
+        METHOD_NAMES = [:SESSION_IDENTIFIER, :DEVICE_IDENTIFIER, :SWISHJAM_ORGANIZATION_ID]
+
+        METHOD_NAMES.each do |property_name|
+          define_method(property_name) do
+            property_name.to_s.downcase
+          end
+        end
+        
+        def all
+          METHOD_NAMES.collect{ |method_name| self.send(method_name) }
+        end
       end
     end
 

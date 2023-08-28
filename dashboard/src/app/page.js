@@ -154,7 +154,7 @@ const Home = () => {
           previousValue={selectedChart?.previousValue}
           previousValueDate={selectedChart?.previousValueDate}
           timeseries={selectedChart?.timeseries}
-          valueFormatter={numSubs => numSubs.toLocaleString('en-US')}
+          valueFormatter={numSubs => currentSelectedChart === 'MRR' ? (numSubs/100).toLocaleString('en-US', { style: "currency", currency: "USD" }) : numSubs.toLocaleString('en-US')}
           showAxis={true}  
         />}
         <Separator className="my-6"/>

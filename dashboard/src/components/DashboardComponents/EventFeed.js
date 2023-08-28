@@ -13,7 +13,7 @@ const EventFeed = ({
   leftItemSubHeaderKey, 
   rightItemKey, 
   rightItemKeyFormatter = value => value, 
-  noDataMsg 
+  noDataMsg = 'No events triggered.'
 }) => (
   <Card>
     <CardHeader>
@@ -22,6 +22,11 @@ const EventFeed = ({
     </CardHeader>
     <CardContent>
       <div className="flow-rzzoot">
+        {events && events.length === 0 && (
+          <div className="flex flex-col items-center justify-center py-12">
+            <p className="text-sm text-gray-500">{noDataMsg}</p>
+          </div>
+        )}
         <ul role="list" className="space-y-6">
           {events && events.map((event, eventIdx) => (
             <li key={event.id} className="relative flex gap-x-4">

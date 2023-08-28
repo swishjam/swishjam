@@ -8,14 +8,22 @@ module Api
       end
 
       def show
-        user = current_workspace.analytics_users.find(params[:id])
+        user = current_workspace.analytics_user_profiles.find(params[:id])
         render json: user, serializer: Analytics::UserSerializer, status: :ok
       end
 
       def events
         limit = params[:limit] || 10
-        user = current_workspace.analytics_users.find(params[:id])
-        events = Analytics::Event.for_user(user).limit(10)
+        user = current_workspace.analytics_user_profiles.find(params[:id])
+        # events = Analytics::Event.for_user(user).limit(10)
+        events = ClickHouseQueries::Events::ForUser.new(
+          current_workspace.public_key, 
+          user_profile_id: user.id, 
+          limit: limit, 
+          # start_time: start_timestamp,
+          start_time: 6.years.ago,
+          end_time: end_timestamp
+        ).get
         render json: events, each_serializer: Analytics::EventSerializer, status: :ok
       end
 

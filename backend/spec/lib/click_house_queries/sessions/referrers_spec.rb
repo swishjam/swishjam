@@ -10,8 +10,8 @@ describe ClickHouseQueries::Sessions::Referrers do
         swishjam_api_key: api_key,
         occurred_at: Time.current - num_days_ago.days + j.minutes, 
         name: Analytics::Event::ReservedNames.PAGE_VIEW, 
-        session_identifier: session_identifier,
         properties: {
+          session_identifier: session_identifier,
           full_url: url,
           url_host: URI.parse(url).host,
           url_path: URI.parse(url).path,

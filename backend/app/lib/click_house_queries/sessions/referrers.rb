@@ -32,12 +32,14 @@ module ClickHouseQueries
             #{by_url_host ? '' : "JSONExtractString(e.properties, 'referrer_url_path') AS referrer_url_path"}
           FROM events e
           JOIN (
-            SELECT session_identifier, MIN(occurred_at) AS occurred_at
+            SELECT 
+              JSONExtractString(events.properties, '#{Analytics::Event::ReservedPropertyNames.SESSION_IDENTIFIER}') AS session_identifier,
+              MIN(occurred_at) AS occurred_at
             FROM events
             WHERE name = '#{Analytics::Event::ReservedNames.PAGE_VIEW}'
             GROUP BY session_identifier
           ) AS first_page_views ON 
-            first_page_views.session_identifier = e.session_identifier AND 
+            first_page_views.session_identifier = JSONExtractString(e.properties, '#{Analytics::Event::ReservedPropertyNames.SESSION_IDENTIFIER}') AND 
             first_page_views.occurred_at = e.occurred_at
           WHERE
             e.swishjam_api_key = '#{@public_key}' AND
