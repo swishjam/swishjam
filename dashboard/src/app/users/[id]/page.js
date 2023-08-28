@@ -42,9 +42,10 @@ const UserProfile = ({ params }) => {
   useEffect(() => {
     API.get(`/api/v1/users/${userId}`).then(setUserData);
     API.get(`/api/v1/users/${userId}/events`).then(setRecentEvents);
-    // API.get(`/api/v1`)
   }, [userId])
 
+  console.log(userData);
+  console.log(recentEvents);
   return (
     userData ? (
       <main className="mx-auto max-w-7xl px-4 mt-8 sm:px-6 lg:px-8 mb-8">
@@ -217,7 +218,7 @@ const UserProfile = ({ params }) => {
             title='Recent Events'
             events={recentEvents}
             leftItemHeaderKey='name'
-            rightItemKey='created_at'
+            rightItemKey='occurred_at'
             rightItemKeyFormatter={date => {
               return new Date(date)
                 .toLocaleDateString('en-us', { weekday: "short", year: "numeric", month: "short", day: "numeric" })

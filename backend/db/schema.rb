@@ -10,203 +10,55 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2023_08_18_022059) do
+ActiveRecord::Schema.define(version: 2023_08_21_225000) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
   enable_extension "plpgsql"
 
-  create_table "analytics_billing_data_snapshots", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
-    t.uuid "swishjam_organization_id"
-    t.integer "mrr_in_cents"
-    t.integer "total_revenue_in_cents"
-    t.integer "num_active_subscriptions"
-    t.integer "num_free_trial_subscriptions"
-    t.integer "num_canceled_subscriptions"
-    t.datetime "captured_at"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
-    t.index ["swishjam_organization_id"], name: "index_a_billing_data_snapshots_on_sj_organization_id"
-  end
-
-  create_table "analytics_customer_billing_data_snapshots", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
-    t.uuid "swishjam_organization_id"
-    t.string "customer_email"
-    t.string "customer_name"
-    t.integer "mrr_in_cents"
-    t.integer "total_revenue_in_cents"
-    t.datetime "captured_at"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
-    t.string "owner_type"
-    t.uuid "owner_id"
-    t.index ["owner_type", "owner_id"], name: "index_analytics_customer_billing_data_snapshots_on_owner"
-    t.index ["swishjam_organization_id"], name: "index_a_customer_billing_data_snapshots_on_sj_organization_id"
-  end
-
-  create_table "analytics_customer_payments", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
-    t.uuid "swishjam_organization_id"
-    t.string "payment_processor"
-    t.string "provider_id"
-    t.string "customer_email"
-    t.string "customer_name"
-    t.integer "amount_in_cents"
-    t.datetime "charged_at"
-    t.string "status"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
-    t.string "owner_type"
-    t.uuid "owner_id"
-    t.index ["owner_type", "owner_id"], name: "index_analytics_customer_payments_on_owner"
-    t.index ["swishjam_organization_id"], name: "index_analytics_customer_payments_on_swishjam_organization_id"
-  end
-
-  create_table "analytics_customer_subscription_items", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
-    t.uuid "analytics_customer_subscription_id"
-    t.integer "quantity"
-    t.integer "unit_amount_in_cents"
-    t.string "interval"
-    t.string "plan_name"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
-    t.index ["analytics_customer_subscription_id"], name: "index_a_customer_subscription_items_on_subscription_id"
-  end
-
-  create_table "analytics_customer_subscriptions", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
-    t.uuid "swishjam_organization_id"
-    t.string "payment_processor"
-    t.string "provider_id"
-    t.string "customer_email"
-    t.string "customer_name"
-    t.string "status"
-    t.datetime "started_at"
-    t.datetime "next_charge_runs_at"
-    t.datetime "ends_at"
-    t.datetime "free_trial_starts_at"
-    t.datetime "free_trial_ends_at"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
-    t.string "owner_type"
-    t.uuid "owner_id"
-    t.index ["owner_type", "owner_id"], name: "index_analytics_customer_subscriptions_on_owner"
-    t.index ["swishjam_organization_id"], name: "index_a_customer_subscriptions_on_sj_organization_id"
-  end
-
-  create_table "analytics_devices", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
-    t.uuid "swishjam_organization_id"
-    t.uuid "analytics_user_id"
-    t.string "fingerprint"
-    t.string "user_agent"
-    t.string "browser"
-    t.string "browser_version"
-    t.string "os"
-    t.string "os_version"
-    t.string "device"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
-    t.boolean "is_mobile"
-    t.index ["analytics_user_id"], name: "index_analytics_devices_on_analytics_user_id"
-    t.index ["fingerprint"], name: "index_analytics_devices_on_fingerprint"
-    t.index ["swishjam_organization_id"], name: "index_analytics_devices_on_swishjam_organization_id"
-  end
-
-  create_table "analytics_events", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
-    t.uuid "analytics_device_id"
-    t.uuid "analytics_session_id"
-    t.uuid "analytics_page_hit_id"
+  create_table "analytics_organization_profiles", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "workspace_id", null: false
+    t.string "organization_unique_identifier"
     t.string "name"
-    t.datetime "timestamp"
+    t.jsonb "metadata"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
-    t.index ["analytics_device_id"], name: "index_analytics_events_on_analytics_device_id"
-    t.index ["analytics_page_hit_id"], name: "index_analytics_events_on_analytics_page_hit_id"
-    t.index ["analytics_session_id"], name: "index_analytics_events_on_analytics_session_id"
+    t.index ["organization_unique_identifier"], name: "index_analytics_organization_profiles_unique_identifier"
+    t.index ["workspace_id"], name: "index_analytics_organization_profiles_on_workspace_id"
   end
 
-  create_table "analytics_metadata", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
-    t.string "parent_type"
-    t.uuid "parent_id"
-    t.string "key"
-    t.string "value"
+  create_table "analytics_organization_profiles_users", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "analytics_organization_profile_id", null: false
+    t.uuid "analytics_user_profile_id", null: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
-    t.index ["parent_type", "parent_id"], name: "index_analytics_metadata_on_parent"
+    t.index ["analytics_organization_profile_id"], name: "index_analytics_organization_profiles_users_organizations"
+    t.index ["analytics_user_profile_id"], name: "index_analytics_organization_profiles_users_users"
   end
 
-  create_table "analytics_organization_users", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
-    t.uuid "analytics_organization_id"
-    t.uuid "analytics_user_id"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
-    t.index ["analytics_organization_id"], name: "index_analytics_organization_users_on_analytics_organization_id"
-    t.index ["analytics_user_id"], name: "index_analytics_organization_users_on_analytics_user_id"
-  end
-
-  create_table "analytics_organizations", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
-    t.uuid "swishjam_organization_id"
-    t.string "name"
-    t.string "unique_identifier"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
-    t.string "url"
-    t.index ["swishjam_organization_id"], name: "index_analytics_organizations_on_swishjam_organization_id"
-    t.index ["unique_identifier"], name: "index_analytics_organizations_on_unique_identifier"
-  end
-
-  create_table "analytics_page_hits", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
-    t.uuid "analytics_device_id"
-    t.uuid "analytics_session_id"
-    t.string "unique_identifier"
-    t.string "full_url"
-    t.string "url_host"
-    t.string "url_path"
-    t.string "url_query"
-    t.string "referrer_full_url"
-    t.string "referrer_url_host"
-    t.string "referrer_url_path"
-    t.string "referrer_url_query"
-    t.datetime "start_time"
-    t.datetime "end_time"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
-    t.index ["analytics_device_id"], name: "index_analytics_page_hits_on_analytics_device_id"
-    t.index ["analytics_session_id"], name: "index_analytics_page_hits_on_analytics_session_id"
-    t.index ["unique_identifier"], name: "index_analytics_page_hits_on_unique_identifier"
-  end
-
-  create_table "analytics_sessions", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
-    t.uuid "analytics_organization_id"
-    t.uuid "analytics_device_id"
-    t.string "unique_identifier"
-    t.datetime "start_time"
-    t.datetime "end_time"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
-    t.float "latitude"
-    t.float "longitude"
-    t.string "city"
-    t.string "region"
-    t.string "country"
-    t.string "postal_code"
-    t.index ["analytics_device_id"], name: "index_analytics_sessions_on_analytics_device_id"
-    t.index ["analytics_organization_id"], name: "index_analytics_sessions_on_analytics_organization_id"
-    t.index ["unique_identifier"], name: "index_analytics_sessions_on_unique_identifier"
-  end
-
-  create_table "analytics_users", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
-    t.uuid "swishjam_organization_id"
-    t.string "unique_identifier"
+  create_table "analytics_user_profiles", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "workspace_id", null: false
+    t.string "user_unique_identifier"
     t.string "email"
     t.string "first_name"
     t.string "last_name"
+    t.jsonb "metadata"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
-    t.index ["swishjam_organization_id"], name: "index_analytics_users_on_swishjam_organization_id"
-    t.index ["unique_identifier"], name: "index_analytics_users_on_unique_identifier"
+    t.index ["user_unique_identifier"], name: "index_analytics_user_profiles_on_user_unique_identifier"
+    t.index ["workspace_id"], name: "index_analytics_user_profiles_on_workspace_id"
   end
 
-  create_table "swishjam_data_syncs", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
-    t.uuid "swishjam_organization_id"
+  create_table "auth_sessions", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "user_id"
+    t.string "jwt_value"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["user_id"], name: "index_auth_sessions_on_user_id"
+  end
+
+  create_table "data_syncs", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "workspace_id", null: false
     t.string "provider", null: false
     t.datetime "started_at"
     t.datetime "completed_at"
@@ -214,75 +66,56 @@ ActiveRecord::Schema.define(version: 2023_08_18_022059) do
     t.text "error_message"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
-    t.index ["swishjam_organization_id"], name: "index_swishjam_data_syncs_on_swishjam_organization_id"
+    t.index ["workspace_id"], name: "index_data_syncs_on_workspace_id"
   end
 
-  create_table "swishjam_integrations", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
-    t.uuid "swishjam_organization_id"
-    t.string "type"
+  create_table "integrations", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "workspace_id", null: false
+    t.string "type", null: false
     t.jsonb "config"
     t.boolean "enabled"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
-    t.index ["swishjam_organization_id"], name: "index_swishjam_integrations_on_swishjam_organization_id"
+    t.index ["workspace_id"], name: "index_integrations_on_workspace_id"
   end
 
-  create_table "swishjam_organization_users", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
-    t.uuid "swishjam_organization_id"
-    t.uuid "swishjam_user_id"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
-    t.index ["swishjam_organization_id"], name: "index_swishjam_organization_users_on_swishjam_organization_id"
-    t.index ["swishjam_user_id"], name: "index_swishjam_organization_users_on_swishjam_user_id"
-  end
-
-  create_table "swishjam_organizations", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
-    t.string "name"
-    t.string "url"
-    t.string "public_key"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
-    t.index ["public_key"], name: "index_swishjam_organizations_on_public_key"
-  end
-
-  create_table "swishjam_sessions", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
-    t.uuid "swishjam_user_id"
-    t.string "jwt_value"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
-    t.index ["swishjam_user_id"], name: "index_swishjam_sessions_on_swishjam_user_id"
-  end
-
-  create_table "swishjam_users", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
-    t.string "email"
+  create_table "users", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.string "email", null: false
+    t.string "password_digest", null: false
+    t.string "jwt_secret_key", null: false
     t.string "first_name"
     t.string "last_name"
-    t.string "password_digest"
-    t.string "jwt_secret_key"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.index ["email"], name: "index_users_on_email"
+    t.index ["jwt_secret_key"], name: "index_users_on_jwt_secret_key"
   end
 
-  add_foreign_key "analytics_billing_data_snapshots", "swishjam_organizations"
-  add_foreign_key "analytics_customer_billing_data_snapshots", "swishjam_organizations"
-  add_foreign_key "analytics_customer_payments", "swishjam_organizations"
-  add_foreign_key "analytics_customer_subscriptions", "swishjam_organizations"
-  add_foreign_key "analytics_devices", "analytics_users"
-  add_foreign_key "analytics_devices", "swishjam_organizations"
-  add_foreign_key "analytics_events", "analytics_devices"
-  add_foreign_key "analytics_events", "analytics_page_hits"
-  add_foreign_key "analytics_events", "analytics_sessions"
-  add_foreign_key "analytics_organization_users", "analytics_organizations"
-  add_foreign_key "analytics_organization_users", "analytics_users"
-  add_foreign_key "analytics_organizations", "swishjam_organizations"
-  add_foreign_key "analytics_page_hits", "analytics_devices"
-  add_foreign_key "analytics_page_hits", "analytics_sessions"
-  add_foreign_key "analytics_sessions", "analytics_devices"
-  add_foreign_key "analytics_sessions", "analytics_organizations"
-  add_foreign_key "analytics_users", "swishjam_organizations"
-  add_foreign_key "swishjam_data_syncs", "swishjam_organizations"
-  add_foreign_key "swishjam_integrations", "swishjam_organizations"
-  add_foreign_key "swishjam_organization_users", "swishjam_organizations"
-  add_foreign_key "swishjam_organization_users", "swishjam_users"
-  add_foreign_key "swishjam_sessions", "swishjam_users"
+  create_table "workspace_members", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "workspace_id", null: false
+    t.uuid "user_id", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["user_id"], name: "index_workspace_members_on_user_id"
+    t.index ["workspace_id"], name: "index_workspace_members_on_workspace_id"
+  end
+
+  create_table "workspaces", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.string "name", null: false
+    t.string "company_url"
+    t.string "public_key", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["public_key"], name: "index_workspaces_on_public_key"
+  end
+
+  add_foreign_key "analytics_organization_profiles", "workspaces"
+  add_foreign_key "analytics_organization_profiles_users", "analytics_organization_profiles"
+  add_foreign_key "analytics_organization_profiles_users", "analytics_user_profiles"
+  add_foreign_key "analytics_user_profiles", "workspaces"
+  add_foreign_key "auth_sessions", "users"
+  add_foreign_key "data_syncs", "workspaces"
+  add_foreign_key "integrations", "workspaces"
+  add_foreign_key "workspace_members", "users"
+  add_foreign_key "workspace_members", "workspaces"
 end

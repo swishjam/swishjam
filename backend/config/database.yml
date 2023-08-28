@@ -6,12 +6,32 @@ default: &default
   pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
 
 development:
-  <<: *default
-  database: swishjam_dev
+  transactional:
+    <<: *default
+    database: swishjam_dev
+  clickhouse:
+    adapter: clickhouse
+    database: swishjam_analytics_dev
+    host: localhost
+    port: 8123
+    username: default
+    debug: true
+    # ssl: true
+    # migrations_paths: db/clickhouse
+    # cluster_name: 'some_cluster_name'
+    # replica_name: '{replica_macros_name}'
 
 test:
-  <<: *default
-  database: swishjam_test_db
+  transactional:
+    <<: *default
+    database: swishjam_test
+  clickhouse:
+    adapter: clickhouse
+    database: swishjam_analytics_test
+    host: localhost
+    port: 8123
+    username: default
+    debug: true
 
 production:
   <<: *default

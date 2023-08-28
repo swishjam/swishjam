@@ -86,8 +86,7 @@ const Home = () => {
   const getSessionsData = async () => {
     API.get('/api/v1/sessions/timeseries', { timeframe: '30_days' }).then((sessionData) => {
       setSessionsChart({
-        ...sessionsChart,
-        value: sessionData.count,
+        value: sessionData.current_count,
         previousValue: sessionData.comparison_count,
         previousValueDate: sessionData.comparison_end_time,
         valueChange: sessionData.count - sessionData.comparison_count,
@@ -155,7 +154,7 @@ const Home = () => {
           previousValue={selectedChart?.previousValue}
           previousValueDate={selectedChart?.previousValueDate}
           timeseries={selectedChart?.timeseries}
-          valueFormatter={numSubs => numSubs.toLocaleString('en-US')}
+          valueFormatter={numSubs => currentSelectedChart === 'MRR' ? (numSubs/100).toLocaleString('en-US', { style: "currency", currency: "USD" }) : numSubs.toLocaleString('en-US')}
           showAxis={true}  
         />}
         <Separator className="my-6"/>
@@ -184,8 +183,8 @@ const Home = () => {
         <LineChartWithValue
           title='Active Subscriptions'
           value={activeSubsChart?.value}
-          previousValue={mrrChart?.previousValue}
-          previousValueDate={mrrChart?.previousValueDate}
+          previousValue={activeSubsChart?.previousValue}
+          previousValueDate={activeSubsChart?.previousValueDate}
           timeseries={activeSubsChart?.timeseries}
           valueFormatter={numSubs => numSubs.toLocaleString('en-US')}
         />

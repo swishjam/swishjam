@@ -5,7 +5,7 @@ module Api
 
       def index
         limit = params[:limit] || 10
-        organizations = current_organization.analytics_organizations.order(created_at: :desc).limit(limit)
+        organizations = current_workspace.analytics_organization_profiles.order(created_at: :desc).limit(limit)
         render json: organizations, each_serializer: Analytics::OrganizationSerializer, status: :ok
       end
 
@@ -22,7 +22,7 @@ module Api
       private
 
       def get_organization
-        @organization ||= current_organization.analytics_organizations.find(params[:id])
+        @organization ||= current_workspace.analytics_organizations.find(params[:id])
       end
     end
   end
