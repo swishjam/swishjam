@@ -92,12 +92,17 @@ export class Client {
 
   _setConfig = options => {
     if (!options.apiKey) throw new Error('Swishjam `apiKey` is required');
+    const validOptions = ['apiKey', 'apiEndpoint', 'maxEventsInMemory', 'reportingHeartbeatMs'];
+    Object.keys(options).forEach(key => {
+      if (!validOptions.includes(key)) console.warn(`Swishjam received unrecognized config: ${key}`);
+    });
     return {
       version: '0.0.01',
       apiKey: options.apiKey,
       apiEndpoint: options.apiEndpoint || 'http://localhost:3000/api/v1/capture',
       maxEventsInMemory: options.maxEventsInMemory || 20,
-      reportingHeartbeatMs: options.reportingHeartbeatMs || 10_000
+      reportingHeartbeatMs: options.reportingHeartbeatMs || 10_000,
+      debug: typeof options.debug === 'boolean' ? options.debug : false,
     }
   }
 }
