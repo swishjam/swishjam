@@ -6,7 +6,7 @@
     "type": "git",
     "url": "https://github.com/swishjam/swishjam/tree/main/sdk/client/npm"
   },
-  "version": "0.0.13",
+  "version": "0.0.14",
   "main": "src/swishjam.mjs",
   "scripts": {},
   "author": "",
