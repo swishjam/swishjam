@@ -22,8 +22,8 @@ class CaptureAnalyticDataJob
         success_count += 1
       rescue => e
         Rails.logger.error "Error processing event: #{e.message}"
-        Rails.logger.error event_json
         Rails.logger.error e.backtrace.join("\n")
+        Rails.logger.error event_json
         failed_count += 1
       end
     end
