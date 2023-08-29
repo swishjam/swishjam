@@ -39,7 +39,7 @@ export class Client {
   newSession = () => {
     const safeParsedReferrer = () => {
       try {
-        return new URL(this.pageViewManager.previousUrl());
+        return this.pageViewManager ? new URL(this.pageViewManager.previousUrl()) : new URL(document.referrer);
       } catch(err) {
         return {};
       }
@@ -47,7 +47,7 @@ export class Client {
     // important to set this first because the new Event reads from the MemoryHandler
     MemoryHandler.set('sessionId', UUID.generate('s'));
     this.record('new_session', { 
-      referrer_url: this.pageViewManager.previousUrl(),
+      referrer_url: safeParsedReferrer().href,
       referrer_url_host: safeParsedReferrer().host,
       referrer_url_path: safeParsedReferrer().pathname,
       referrer_url_query: safeParsedReferrer().search,
