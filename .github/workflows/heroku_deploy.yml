@@ -3,7 +3,7 @@ name: Deploy
 on:
   push:
     branches:
-      - master
+      - v2
 
 jobs:
   build:
@@ -13,5 +13,7 @@ jobs:
       - uses: akhileshns/heroku-deploy@v3.12.14
         with:
           heroku_api_key: ${{secrets.HEROKU_API_KEY}}
-          heroku_app_name: "swishjam-app"
-          heroku_email: "robot@swishjam.com"
+          heroku_app_name: swishjam-app
+          heroku_email: collin.thomas.schneider@swishjam.com
+          branch: v2
+          appdir: backend
