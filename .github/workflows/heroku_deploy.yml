@@ -16,4 +16,4 @@ jobs:
           heroku_app_name: swishjam-app
           heroku_email: collin.thomas.schneider@swishjam.com
           branch: v2
-          appdir: backend
+          appdir: ./backend
