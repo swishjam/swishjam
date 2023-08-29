@@ -33,7 +33,8 @@ module ClickHouseQueries
             GROUP BY session_identifier
           ) AS first_page_views ON 
             first_page_views.session_identifier = JSONExtractString(events.properties, '#{Analytics::Event::ReservedPropertyNames.SESSION_IDENTIFIER}') AND 
-            first_page_views.occurred_at = e.occurred_at
+            first_page_views.occurred_at = e.occurred_at AND
+            e.name = '#{Analytics::Event::ReservedNames.PAGE_VIEW}'
           WHERE
             e.swishjam_api_key = '#{@public_key}' AND
             e.occurred_at BETWEEN '#{formatted_time(@start_time)}' AND '#{formatted_time(@end_time)}' AND

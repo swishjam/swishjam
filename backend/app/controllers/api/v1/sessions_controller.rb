@@ -15,8 +15,8 @@ module Api
       end
 
       def timeseries
-        current_timeseries_querier = ClickHouseQueries::Sessions::Timeseries.new(current_workspace.public_key, start_time: start_timestamp, end_time: end_timestamp)
-        comparison_timeseries_querier = ClickHouseQueries::Sessions::Timeseries.new(current_workspace.public_key, start_time: comparison_start_timestamp, end_time: comparison_end_timestamp)
+        current_timeseries_querier = ClickHouseQueries::Sessions::Timeseries.new(current_workspace.public_key, url_host: 'swishjam.com', start_time: start_timestamp, end_time: end_timestamp)
+        comparison_timeseries_querier = ClickHouseQueries::Sessions::Timeseries.new(current_workspace.public_key, url_host: 'swishjam.com', start_time: comparison_start_timestamp, end_time: comparison_end_timestamp)
         json = {
           timeseries: current_timeseries_querier.timeseries,
           current_count: current_timeseries_querier.current_value,
