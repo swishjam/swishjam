@@ -1,14 +1,21 @@
 export class PageViewManager {
-  constructor(callback) {
-    this.callback = callback;
+  constructor() {
+    this.newPageCallbacks = [];
     this._listenForSoftNavigations();
+  }
+
+  currentUrl = () => this._currentUrl;
+  previousUrl = () => this._previousUrl;
+
+  onNewPage = callback => {
+    this.newPageCallbacks.push(callback);
   }
 
   trackPageView = () => {
     const url = window.location.href;
-    const previousUrl = this.currentUrl || document.referrer;
-    this.currentUrl = url;
-    this.callback({ url, previousUrl });
+    this._previousUrl = this._currentUrl || document.referrer;
+    this._currentUrl = url;
+    this.newPageCallbacks.forEach(func => func(this.currentUrl(), this.previousUrl()));
   }
 
   _listenForSoftNavigations = () => {
