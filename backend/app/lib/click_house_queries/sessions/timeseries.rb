@@ -4,7 +4,9 @@ module ClickHouseQueries
       include ClickHouseQueries::Helpers
       include TimeseriesHelper
 
-      def initialize(public_key, start_time: 6.months.ago, end_time: Time.current)
+      def initialize(public_key, url_hosts: nil, url_host: nil, start_time: 6.months.ago, end_time: Time.current)
+        raise ArgumentError, 'Must provide either url_host or url_hosts' if url_host.nil? && url_hosts.nil?
+        @url_hosts = url_hosts || [url_host].compact
         @public_key = public_key
         @group_by = derived_group_by(start_ts: start_time, end_ts: end_time)
         @start_time, @end_time = rounded_timestamps(start_ts: start_time, end_ts: end_time, group_by: @group_by)
@@ -41,7 +43,9 @@ module ClickHouseQueries
             events
           WHERE
             events.swishjam_api_key = '#{@public_key}' AND
-            events.occurred_at BETWEEN '#{formatted_time(@start_time)}' AND '#{formatted_time(@end_time)}'
+            events.occurred_at BETWEEN '#{formatted_time(@start_time)}' AND '#{formatted_time(@end_time)}' AND
+            events.name = '#{Analytics::Event::ReservedNames.NEW_SESSION}' AND
+            JSONExtractString(events.properties, 'url_host') IN (#{@url_hosts.map{ |host| "'#{host}'" }.join(', ')})
           GROUP BY
             group_by_date
           ORDER BY

@@ -51,6 +51,11 @@ export class Client {
       referrer_url_host: safeParsedReferrer().host,
       referrer_url_path: safeParsedReferrer().pathname,
       referrer_url_query: safeParsedReferrer().search,
+      utm_source: new URLSearchParams(document.location.search).get('utm_source'),
+      utm_medium: new URLSearchParams(document.location.search).get('utm_medium'),
+      utm_campaign: new URLSearchParams(document.location.search).get('utm_campaign'),
+      utm_term: new URLSearchParams(document.location.search).get('utm_term'),
+      utm_content: new URLSearchParams(document.location.search).get('utm_content'),
     });
   }
 

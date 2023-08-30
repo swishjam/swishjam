@@ -3,8 +3,9 @@ module Api
     class PageHitsController < BaseController
       def index
         limit = params[:limit] || 10
-        top_pages = ClickHouseQueries::PageViews::Top.new(current_workspace.public_key, limit: limit, start_time: start_timestamp, end_time: end_timestamp).top
-        render json: { top_pages: top_pages, start_time: start_timestamp, end_time: end_timestamp }, status: :ok
+        hosts_to_filter = current_workspace.url_segments.pluck(:url_host)
+        querier = ClickHouseQueries::PageViews::Top.new(current_workspace.public_key, url_hosts: hosts_to_filter, limit: limit, start_time: start_timestamp, end_time: end_timestamp)
+        render json: { top_pages: querier.top, start_time: start_timestamp, end_time: end_timestamp }, status: :ok
       end
     end
   end
