@@ -27,7 +27,7 @@ module AuthenticationHelper
   
   # current_user is called by Rails serializers for some reason, so we need to make sure it doesn't throw an error
   def current_user
-    @current_user ||= User.find_by(id: decoded_jwt_token['user_id'])
+    @current_user ||= User.find_by(id: decoded_jwt_token.dig('user', 'id'))
   rescue => e
   end
 

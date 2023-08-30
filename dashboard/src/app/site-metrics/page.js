@@ -7,6 +7,7 @@ import LineChartWithValue from '@/components/DashboardComponents/LineChartWithVa
 import BarListCard from '@/components/DashboardComponents/Prebuilt/BarListCard';
 import Timefilter from '@/components/Timefilter';
 import { MobileIcon, DesktopIcon } from '@radix-ui/react-icons';
+import Banner from '@/components/utils/TopBanner';
 
 const LoadingState = () => (
   <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mb-8">
@@ -44,6 +45,7 @@ const Home = () => {
   const [topBrowsers, setTopBrowsers] = useState();
   const [topCountries, setTopCountries] = useState();
   const [timeframeFilter, setTimeframeFilter] = useState('thirty_days');
+  const [isMissingUrlSegments, setIsMissingUrlSegments] = useState();
 
   const getSessionData = async (tf) => {
     API.get('/api/v1/sessions/timeseries', { timeframe: tf }).then((sessionData) => {
@@ -57,8 +59,9 @@ const Home = () => {
           index,
           comparisonDate: sessionData.comparison_timeseries[index]?.date,
           comparisonValue: sessionData.comparison_timeseries[index]?.value
-        })),
+        }))
       })
+      setIsMissingUrlSegments(sessionData.url_segments.length === 0);
     })
   }
 
@@ -102,6 +105,17 @@ const Home = () => {
 
   return (
     <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mb-8">
+      {isMissingUrlSegments && (
+        <Banner 
+          bgColor='bg-yellow-100'
+          textColor='yellow-800'
+          message={
+            <>
+              You haven't created any URL segments yet, so we are showing site metrics for <span className='italic'>all</span> of your data. Create a URL segment in <a className='underline cursor-pointer' href='/settings'>your settings</a> so that Swishjam will automatically filter your site metrics data for your marketing site, and your product analytics data for your application.
+            </>
+          } 
+        />
+      )}
       <div className='grid grid-cols-2 mt-8 flex items-center'>
         <div>
           <h1 className="text-lg font-medium text-gray-700 mb-0">Marketing Site Metrics</h1>

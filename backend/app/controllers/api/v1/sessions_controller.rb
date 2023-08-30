@@ -16,8 +16,18 @@ module Api
 
       def timeseries
         hosts_to_filter = current_workspace.url_segments.pluck(:url_host)
-        current_timeseries_querier = ClickHouseQueries::Sessions::Timeseries.new(current_workspace.public_key, url_hosts: hosts_to_filter, start_time: start_timestamp, end_time: end_timestamp)
-        comparison_timeseries_querier = ClickHouseQueries::Sessions::Timeseries.new(current_workspace.public_key, url_hosts: hosts_to_filter, start_time: comparison_start_timestamp, end_time: comparison_end_timestamp)
+        current_timeseries_querier = ClickHouseQueries::Sessions::Timeseries.new(
+          current_workspace.public_key, 
+          url_hosts: hosts_to_filter, 
+          start_time: start_timestamp, 
+          end_time: end_timestamp
+        )
+        comparison_timeseries_querier = ClickHouseQueries::Sessions::Timeseries.new(
+          current_workspace.public_key, 
+          url_hosts: hosts_to_filter, 
+          start_time: comparison_start_timestamp, 
+          end_time: comparison_end_timestamp
+        )
         json = {
           timeseries: current_timeseries_querier.timeseries,
           current_count: current_timeseries_querier.current_value,
@@ -27,6 +37,7 @@ module Api
           end_time: end_timestamp,
           comparison_start_time: comparison_start_timestamp,
           comparison_end_time: comparison_end_timestamp,
+          url_segments: hosts_to_filter,
           # grouped_by: group_by_method.to_s.split('_').last,
         }
         
@@ -42,6 +53,7 @@ module Api
         querier = ClickHouseQueries::Sessions::Referrers.new(current_workspace.public_key, url_hosts: hosts_to_filter, limit: params[:limit] || 10, start_time: start_timestamp, end_time: end_timestamp)
         render json: {
           referrers: params[:aggregate_by_host] ? querier.by_host : querier.by_full_url,
+          url_segments: hosts_to_filter,
           start_time: start_timestamp,
           end_time: end_timestamp,
         }, status: :ok

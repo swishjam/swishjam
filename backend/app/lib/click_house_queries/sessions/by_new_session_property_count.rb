@@ -21,6 +21,7 @@ module ClickHouseQueries
       end
 
       def sql(property)
+        url_hosts_filter = @url_hosts.any? ? " AND JSONExtractString(properties, 'url_host') IN (#{@url_hosts.map{ |host| "'#{host}'" }.join(', ')})" : ''
         <<~SQL
           SELECT 
             CAST(COUNT(*) AS int) AS count,
@@ -37,9 +38,9 @@ module ClickHouseQueries
               swishjam_api_key = '#{@public_key}' AND
               occurred_at BETWEEN '#{formatted_time(@start_time)}' AND '#{formatted_time(@end_time)}' AND
               name = '#{Analytics::Event::ReservedNames.NEW_SESSION}' AND
-              JSONExtractString(properties, 'url_host') IN (#{@url_hosts.map{ |host| "'#{host}'" }.join(', ')}) AND
               JSONExtractString(properties, '#{property}') != '' AND
               JSONExtractString(properties, '#{property}') IS NOT NULL
+              #{url_hosts_filter}
           ) AS filtered_sessions ON filtered_sessions.uuid = e.uuid
           GROUP BY #{property}
           ORDER BY count DESC

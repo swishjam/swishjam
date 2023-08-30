@@ -20,7 +20,7 @@ export const logUserOut = async () => {
   }
 }
 
-const setToken = tokenValue => {
+export const setAuthToken = tokenValue => {
   if (typeof localStorage !== 'undefined') {
     localStorage.setItem(LOCAL_STORAGE_TOKEN_KEY, tokenValue);
   } else {
@@ -31,7 +31,7 @@ const setToken = tokenValue => {
 export const signUserUp = async ({ email, password, organizationName, organizationUrl }) => {
   const { error, user, organization, token } = await API.post('/auth/register', { email, password, organization_name: organizationName, organization_url: organizationUrl });
   if (token) {
-    setToken(token);
+    setAuthToken(token);
   }
   return { error, user, organization, token };
 }
@@ -39,7 +39,7 @@ export const signUserUp = async ({ email, password, organizationName, organizati
 export const logUserIn = async ({ email, password }) => {
   const { error, user, token } = await API.post('/auth/login', { email, password });
   if (token) {
-    setToken(token);
+    setAuthToken(token);
   }
   return { error, user, token };
 }
@@ -80,9 +80,11 @@ export const useAuthData = () => {
             token: () => token,
             email: () => decoded.user.email,
             userId: () => decoded.user.id,
-            organizationId: () => decoded.current_workspace.id,
-            organizationName: () => decoded.current_workspace.name,
-            organizations: () => decoded.organizations,
+            workspaceId: () => decoded.current_workspace.id,
+            workspaceName: () => decoded.current_workspace.name,
+            currentWorkspaceName: () => decoded.current_workspace.name,
+            currentWorkspaceId: () => decoded.current_workspace.id,
+            workspaces: () => decoded.workspaces,
             epiresAtEpoch: () => decoded.expires_at_epoch,
             isExpired: () => decoded.expires_at_epoch < Date.now() / 1000,
           });

@@ -11,6 +11,12 @@ Rails.application.routes.draw do
       get :capture, to: 'capture#process_data'
       post :capture, to: 'capture#process_data'
 
+      resources :workspace, only: [] do
+        collection do
+          patch '/update', to: 'workspaces#update'
+        end
+      end
+
       resources :organizations, only: [:index, :show] do
         member do
           get :events

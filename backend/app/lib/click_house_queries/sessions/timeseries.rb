@@ -6,8 +6,8 @@ module ClickHouseQueries
 
       def initialize(public_key, url_hosts: nil, url_host: nil, start_time: 6.months.ago, end_time: Time.current)
         raise ArgumentError, 'Must provide either url_host or url_hosts' if url_host.nil? && url_hosts.nil?
-        @url_hosts = url_hosts || [url_host].compact
         @public_key = public_key
+        @url_hosts = url_hosts || [url_host].compact
         @group_by = derived_group_by(start_ts: start_time, end_ts: end_time)
         @start_time, @end_time = rounded_timestamps(start_ts: start_time, end_ts: end_time, group_by: @group_by)
       end
@@ -34,7 +34,7 @@ module ClickHouseQueries
       end
 
       def sql
-        join_query = ClickHouseQueries::PageViews::FirstOfSession.sql(@public_key, @start_time, @end_time)
+        url_host_filter = @url_hosts.any? ? " AND JSONExtractString(events.properties, 'url_host') IN (#{@url_hosts.map{ |host| "'#{host}'" }.join(', ')})" : ''
         <<~SQL
           SELECT
             CAST(COUNT(DISTINCT JSONExtractString(events.properties, '#{Analytics::Event::ReservedPropertyNames.SESSION_IDENTIFIER}')) AS int) AS count,
@@ -44,8 +44,8 @@ module ClickHouseQueries
           WHERE
             events.swishjam_api_key = '#{@public_key}' AND
             events.occurred_at BETWEEN '#{formatted_time(@start_time)}' AND '#{formatted_time(@end_time)}' AND
-            events.name = '#{Analytics::Event::ReservedNames.NEW_SESSION}' AND
-            JSONExtractString(events.properties, 'url_host') IN (#{@url_hosts.map{ |host| "'#{host}'" }.join(', ')})
+            events.name = '#{Analytics::Event::ReservedNames.NEW_SESSION}'
+            #{url_host_filter}
           GROUP BY
             group_by_date
           ORDER BY

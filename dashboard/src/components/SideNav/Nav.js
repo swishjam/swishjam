@@ -1,6 +1,6 @@
 'use client';
 import { usePathname } from 'next/navigation'
-import { SquaresPlusIcon, ChevronLeftIcon, ChevronRightIcon, HomeIcon } from '@heroicons/react/24/outline'
+import { SquaresPlusIcon, ChevronLeftIcon, ChevronRightIcon, HomeIcon, Cog6ToothIcon } from '@heroicons/react/24/outline'
 import SidebarMobile from './MobileNav';
 import ProfileFlyout from './ProfileFlyout';
 import { useState, useEffect } from 'react'
@@ -15,6 +15,7 @@ const appNav = [
   { name: 'Site Metrics', href: '/site-metrics', icon: RxBarChart },
   { name: 'Users', href: '/users', icon: RxPerson },
   { name: 'Connections', href: '/connections', icon: SquaresPlusIcon},
+  { name: 'Settings', href: '/settings', icon: Cog6ToothIcon},
 ]
 
 const classNames = (...classes) => classes.filter(Boolean).join(' ')

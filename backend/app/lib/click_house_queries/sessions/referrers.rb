@@ -27,6 +27,7 @@ module ClickHouseQueries
       end
 
       def sql(by_url_host: false)
+        url_host_filter = @url_hosts.any? ? " AND JSONExtractString(properties, 'url_host') IN (#{@url_hosts.map{ |host| "'#{host}'" }.join(', ')})" : ''
         <<~SQL
           SELECT
             CAST(COUNT(*) AS int) AS count,
@@ -44,13 +45,11 @@ module ClickHouseQueries
             WHERE
               swishjam_api_key = '#{@public_key}' AND
               occurred_at BETWEEN '#{formatted_time(@start_time)}' AND '#{formatted_time(@end_time)}' AND
-              name = '#{Analytics::Event::ReservedNames.NEW_SESSION}' AND
-              JSONExtractString(properties, 'url_host') IN (#{@url_hosts.map{ |host| "'#{host}'" }.join(', ')})
+              name = '#{Analytics::Event::ReservedNames.NEW_SESSION}'
+              #{url_host_filter}
           ) AS filtered_sessions ON filtered_sessions.uuid = e.uuid
-          GROUP BY
-            referrer_url_host#{by_url_host ? '' : ', referrer_url_path'}
-          ORDER BY
-            count DESC
+          GROUP BY referrer_url_host#{by_url_host ? '' : ', referrer_url_path'}
+          ORDER BY count DESC
           LIMIT #{@limit}
         SQL
       end

@@ -1,7 +1,5 @@
 class UsersController < ApplicationController
   include AuthenticationHelper
-  # why is this necessary?? current_user keeps getting called on render for some reason, and there isn't a JWT token present.
-  # skip_before_action :authenticate_request!, only: [:create]
 
   def create
     user = User.new(user_params)

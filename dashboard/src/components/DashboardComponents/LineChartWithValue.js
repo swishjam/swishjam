@@ -69,6 +69,7 @@ export default function LineChartWithValue({
   
   const changeInValue = typeof previousValue !== 'undefined' ? value - previousValue : null;
 
+  console.log('changeInValue', changeInValue);
   return (
     <Card className="group">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -124,7 +125,7 @@ export default function LineChartWithValue({
           <div className="text-2xl font-bold cursor-default">
             {valueFormatter(value)}
           </div>
-          {changeInValue && changeInValue !== 0 &&
+          {changeInValue && changeInValue !== 0 ? (
             <HoverCard>
               <HoverCardTrigger className='block w-fit ml-2 pt-2'>
                 <p className="text-xs text-muted-foreground cursor-default">
@@ -137,7 +138,7 @@ export default function LineChartWithValue({
                 <span className='text-xs'>{title} was measured at {valueFormatter(previousValue)} on {new Date(previousValueDate).toLocaleDateString('en-us', { weekday: "long", year: "numeric", month: "short", day: "numeric" })}.</span>
               </HoverCardContent>
             </HoverCard>
-          }
+          ) : <></>}
         </div>
         {timeseries.length > 0 
           ? (

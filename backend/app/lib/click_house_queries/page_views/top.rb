@@ -19,6 +19,7 @@ module ClickHouseQueries
       end
 
       def sql
+        url_hosts_filter = @url_hosts.any? ? " AND JSONExtractString(properties, 'url_host') IN (#{@url_hosts.map{ |host| "'#{host}'" }.join(', ')})" : ''
         <<~SQL
           SELECT
             CAST(COUNT(*) AS int) AS count,
@@ -29,8 +30,8 @@ module ClickHouseQueries
           WHERE
             swishjam_api_key = '#{@public_key}' AND
             name = '#{Analytics::Event::ReservedNames.PAGE_VIEW}' AND
-            events.occurred_at BETWEEN '#{formatted_time(@start_time)}' AND '#{formatted_time(@end_time)}' AND
-            JSONExtractString(properties, 'url_host') IN (#{@url_hosts.map{ |host| "'#{host}'" }.join(', ')})
+            events.occurred_at BETWEEN '#{formatted_time(@start_time)}' AND '#{formatted_time(@end_time)}'
+            #{url_hosts_filter}
           GROUP BY url_host, url_path
           ORDER BY count DESC
           LIMIT #{@limit}
