@@ -73,7 +73,8 @@ Rails.application.routes.draw do
           patch :disable
         end
       end
-      
+
+      resources :url_segments, only: [:index, :create, :destroy]
     end
   end
 end

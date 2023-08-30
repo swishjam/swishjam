@@ -44,8 +44,8 @@ module ClickHouseQueries
           WHERE
             events.swishjam_api_key = '#{@public_key}' AND
             events.occurred_at BETWEEN '#{formatted_time(@start_time)}' AND '#{formatted_time(@end_time)}' AND
-            events.name = '#{Analytics::Event::ReservedNames.PAGE_VIEW}' AND
-            JSONExtractString(events.properties, 'url_host') IN (#{@url_hosts.join(', ')})
+            events.name = '#{Analytics::Event::ReservedNames.NEW_SESSION}' AND
+            JSONExtractString(events.properties, 'url_host') IN (#{@url_hosts.map{ |host| "'#{host}'" }.join(', ')})
           GROUP BY
             group_by_date
           ORDER BY

@@ -51,7 +51,7 @@ def assign_user_profiles_to_organization_profiles!
 end
 
 def create_user_identify_events!
-  profiles = AnalyticsUserProfile.all
+  profiles = WORKSPACE.analytics_user_profiles
   progress_bar = TTY::ProgressBar.new("Creating random number of user identify events for #{profiles.count} users [:bar]", total: profiles.count, bar_format: :block)
   profiles.each do |user_profile|
     num_of_devices_for_user = rand(1..2)
@@ -89,6 +89,39 @@ def seed_events!
     swishjam_organization_id = user_is_anonymous ? nil : user_profile.analytics_organization_profiles.sample.id
     device_identifier = DEVICE_IDENTIFIERS.sample
     session_start_time = Time.current - rand(0..365).days
+
+    session_referrer = "https://#{REFERRER_HOSTS[rand(0..REFERRER_HOSTS.count - 1)]}#{URL_PATHS[rand(0..URL_PATHS.count - 1)]}"
+    session_start_url = "https://#{HOST_URL}#{URL_PATHS[rand(0..URL_PATHS.count - 1)]}"
+    Analytics::Event.create!(
+      uuid: SecureRandom.uuid,
+      swishjam_api_key: WORKSPACE.public_key,
+      name: Analytics::Event::ReservedNames.NEW_SESSION,
+      occurred_at: session_start_time,
+      properties: {
+        device_identifier: device_identifier,
+        session_identifier: session_identifier,
+        swishjam_organization_id: swishjam_organization_id,
+        url: session_start_url,
+        url_host: HOST_URL,
+        url_path: URI.parse(session_start_url).path,
+        referrer_url: session_referrer,
+        referrer_url_host: URI.parse(session_referrer).host,
+        referrer_url_path: URI.parse(session_referrer).path,
+        referrer_url_query: URI.parse(session_referrer).query,
+        utm_source: Faker::Lorem.word,
+        utm_medium: Faker::Lorem.word,
+        utm_campaign: Faker::Lorem.word,
+        utm_term: Faker::Lorem.word,
+        utm_content: Faker::Lorem.word,
+        is_mobile: [true, false].sample,
+        device_type: ['mobile', 'desktop'].sample,
+        browser: ['Chrome', 'Firefox', 'Safari', 'Internet Explorer'].sample,
+        browser_version: rand(1..10).to_s,
+        os: ['Mac OS X', 'Windows', 'Linux'].sample,
+        os_version: rand(1..10).to_s,
+        user_agent: Faker::Internet.user_agent,
+      }
+    )
 
     rand(1..10).times do |i|
       page_view_event = create_page_view_event!(

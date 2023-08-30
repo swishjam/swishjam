@@ -6,6 +6,7 @@ import AuthenticatedView from '@/components/Auth/AuthenticatedView';
 import LineChartWithValue from '@/components/DashboardComponents/LineChartWithValue';
 import BarListCard from '@/components/DashboardComponents/Prebuilt/BarListCard';
 import Timefilter from '@/components/Timefilter';
+import { MobileIcon, DesktopIcon } from '@radix-ui/react-icons';
 
 const LoadingState = () => (
   <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mb-8">
@@ -73,7 +74,10 @@ const Home = () => {
   const getDemographicData = async (tf) => {
     API.get('/api/v1/sessions/demographics', { timeframe: tf }).then(demographics => {
       setTopBrowsers(Object.keys(demographics.browsers).map(browser => ({ name: browser, value: demographics.browsers[browser] })));
-      setTopDevices([{ name: 'Desktop', value: demographics.desktop_count }, { name: 'Mobile', value: demographics.mobile_count }]);
+      setTopDevices([
+        { name: 'Desktop', value: demographics.desktop_count, icon: DesktopIcon }, 
+        { name: 'Mobile', value: demographics.mobile_count, icon: MobileIcon }
+      ]);
       setTopCountries(Object.keys(demographics.countries).map(country => ({ name: country, value: demographics.countries[country] })));
     });
   }

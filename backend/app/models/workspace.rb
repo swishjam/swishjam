@@ -3,6 +3,7 @@ class Workspace < Transactional
   has_many :users, through: :workspace_members
   has_many :integrations
   has_many :data_syncs
+  has_many :url_segments
   has_many :analytics_user_profiles
   has_many :analytics_organization_profiles
 

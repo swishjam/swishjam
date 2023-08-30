@@ -3,7 +3,9 @@ module ClickHouseQueries
     class Browsers
       include ClickHouseQueries::Helpers
 
-      def initialize(public_key, limit: 10, start_time: 6.months.ago, end_time: Time.current)
+      def initialize(public_key, url_host: nil, url_hosts: nil, limit: 10, start_time: 6.months.ago, end_time: Time.current)
+        raise ArgumentError, 'Must provide either url_host or url_hosts' if url_host.nil? && url_hosts.nil?
+        @url_hosts = url_hosts || [url_host].compact
         @public_key = public_key
         @start_time = start_time
         @end_time = end_time
@@ -21,23 +23,25 @@ module ClickHouseQueries
 
       def sql
         <<~SQL
-          SELECT 
+          SELECT
             CAST(COUNT(*) AS int) AS count,
-            JSONExtractString(events.properties, 'browser') AS browser
-          FROM events e
+            JSONExtractString(e.properties, 'browser') AS browser
+          FROM events AS e
           JOIN (
-            SELECT session_identifier, MIN(occurred_at) AS occurred_at
+            SELECT
+              uuid,
+              JSONExtractString(properties, 'url_host') AS url_host,
+              JSONExtractString(properties, 'url_path') AS url_path
             FROM events
-            WHERE name = '#{Analytics::Event::ReservedNames.PAGE_VIEW}'
-            GROUP BY session_identifier
-          ) AS first_page_views ON 
-            first_page_views.session_identifier = e.session_identifier AND 
-            first_page_views.occurred_at = e.occurred_at
-          WHERE
-            e.swishjam_api_key = '#{@public_key}' AND
-            e.occurred_at BETWEEN '#{formatted_time(@start_time)}' AND '#{formatted_time(@end_time)}'
-          GROUP BY
-            browser
+            WHERE
+              swishjam_api_key = '#{@public_key}' AND
+              occurred_at BETWEEN '#{formatted_time(@start_time)}' AND '#{formatted_time(@end_time)}' AND
+              name = '#{Analytics::Event::ReservedNames.NEW_SESSION}' AND
+              JSONExtractString(properties, 'url_host') IN (#{@url_hosts.map{ |host| "'#{host}'" }.join(', ')})
+          ) AS filtered_sessions ON filtered_sessions.uuid = e.uuid
+          GROUP BY browser
+          ORDER BY count DESC
+          LIMIT #{@limit}
         SQL
       end
 

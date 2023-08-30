@@ -2,7 +2,7 @@ module Analytics
   class Event < ClickHouseRecord
     class ReservedNames
       class << self
-        METHOD_NAMES = [:PAGE_VIEW, :PAGE_LEFT]
+        METHOD_NAMES = [:PAGE_VIEW, :PAGE_LEFT, :NEW_SESSION]
         
         METHOD_NAMES.each do |property_name|
           define_method(property_name) do

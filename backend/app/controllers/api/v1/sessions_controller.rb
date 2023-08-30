@@ -15,8 +15,9 @@ module Api
       end
 
       def timeseries
-        current_timeseries_querier = ClickHouseQueries::Sessions::Timeseries.new(current_workspace.public_key, url_host: 'swishjam.com', start_time: start_timestamp, end_time: end_timestamp)
-        comparison_timeseries_querier = ClickHouseQueries::Sessions::Timeseries.new(current_workspace.public_key, url_host: 'swishjam.com', start_time: comparison_start_timestamp, end_time: comparison_end_timestamp)
+        hosts_to_filter = current_workspace.url_segments.pluck(:url_host)
+        current_timeseries_querier = ClickHouseQueries::Sessions::Timeseries.new(current_workspace.public_key, url_hosts: hosts_to_filter, start_time: start_timestamp, end_time: end_timestamp)
+        comparison_timeseries_querier = ClickHouseQueries::Sessions::Timeseries.new(current_workspace.public_key, url_hosts: hosts_to_filter, start_time: comparison_start_timestamp, end_time: comparison_end_timestamp)
         json = {
           timeseries: current_timeseries_querier.timeseries,
           current_count: current_timeseries_querier.current_value,
@@ -37,7 +38,8 @@ module Api
 
       def referrers
         params[:aggregate_by_host] = params[:aggregate_by_host].nil? ? false : params[:aggregate_by_host]
-        querier = ClickHouseQueries::Sessions::Referrers.new(current_workspace.public_key, limit: params[:limit] || 10, start_time: start_timestamp, end_time: end_timestamp)
+        hosts_to_filter = current_workspace.url_segments.pluck(:url_host)
+        querier = ClickHouseQueries::Sessions::Referrers.new(current_workspace.public_key, url_hosts: hosts_to_filter, limit: params[:limit] || 10, start_time: start_timestamp, end_time: end_timestamp)
         render json: {
           referrers: params[:aggregate_by_host] ? querier.by_host : querier.by_full_url,
           start_time: start_timestamp,
@@ -49,10 +51,11 @@ module Api
         limit = params[:limit] = 10
         params[:types] = JSON.parse(params[:types] || ['device_type', 'browser', 'city', 'region', 'country'].to_s)
         json = { start_time: start_timestamp, end_time: end_timestamp }
-        querier = ClickHouseQueries::Sessions::FirstPageViewPropertyCount.new(current_workspace.public_key, limit: limit, start_time: start_timestamp, end_time: end_timestamp)
+        hosts_to_filter = current_workspace.url_segments.pluck(:url_host)
+        querier = ClickHouseQueries::Sessions::ByNewSessionPropertyCount.new(current_workspace.public_key, url_hosts: hosts_to_filter, limit: limit, start_time: start_timestamp, end_time: end_timestamp)
 
         if params[:types].include?('device_type')
-          devices = querier.get(:is_mobile) 
+          devices = querier.get(:is_mobile)
           json[:mobile_count] = devices['true'] || 0
           json[:desktop_count] = devices['false'] || 0
         end

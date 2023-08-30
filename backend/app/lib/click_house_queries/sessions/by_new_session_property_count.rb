@@ -1,6 +1,6 @@
 module ClickHouseQueries
   module Sessions
-    class Referrers
+    class ByNewSessionPropertyCount
       include ClickHouseQueries::Helpers
 
       def initialize(public_key, url_host: nil, url_hosts: nil, limit: 10, start_time: 6.months.ago, end_time: Time.current)
@@ -12,28 +12,20 @@ module ClickHouseQueries
         @limit = limit
       end
 
-      def by_full_url
-        return @full_url_results if @full_url_results.present?
-        @full_url_results = Analytics::Event.find_by_sql(sql.squish!).collect do |event|
-          { referrer: event.referrer_url_host + event.referrer_url_path, count: event.count }
+      def get(property)
+        @formatted_results = {}
+        Analytics::Event.find_by_sql(sql(property).squish!).each do |event|
+          @formatted_results[event.send(property)] = event.count
         end
+        @formatted_results
       end
 
-      def by_host
-        return @host_results if @host_results.present?
-        @host_results = Analytics::Event.find_by_sql(sql(by_url_host: true).squish!).collect do |event|
-          { referrer: event.referrer_url_host, count: event.count }
-        end
-      end
-
-      def sql(by_url_host: false)
+      def sql(property)
         <<~SQL
-          SELECT
+          SELECT 
             CAST(COUNT(*) AS int) AS count,
-            JSONExtractString(e.properties, 'referrer_url_host') AS referrer_url_host
-            #{by_url_host ? '' : ", JSONExtractString(e.properties, 'referrer_url_path') AS referrer_url_path"}
-          FROM
-            events AS e
+            JSONExtractString(e.properties, '#{property}') AS #{property}
+          FROM events AS e
           JOIN (
             SELECT
               uuid,
@@ -45,15 +37,16 @@ module ClickHouseQueries
               swishjam_api_key = '#{@public_key}' AND
               occurred_at BETWEEN '#{formatted_time(@start_time)}' AND '#{formatted_time(@end_time)}' AND
               name = '#{Analytics::Event::ReservedNames.NEW_SESSION}' AND
-              JSONExtractString(properties, 'url_host') IN (#{@url_hosts.map{ |host| "'#{host}'" }.join(', ')})
+              JSONExtractString(properties, 'url_host') IN (#{@url_hosts.map{ |host| "'#{host}'" }.join(', ')}) AND
+              JSONExtractString(properties, '#{property}') != '' AND
+              JSONExtractString(properties, '#{property}') IS NOT NULL
           ) AS filtered_sessions ON filtered_sessions.uuid = e.uuid
-          GROUP BY
-            referrer_url_host#{by_url_host ? '' : ', referrer_url_path'}
-          ORDER BY
-            count DESC
+          GROUP BY #{property}
+          ORDER BY count DESC
           LIMIT #{@limit}
         SQL
       end
+
     end
   end
 end
