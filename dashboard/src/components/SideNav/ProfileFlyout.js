@@ -70,14 +70,13 @@ export default function UserFlyout({ userEmail, currentOrganization, organizatio
             <div className="py-1">
               <Menu.Item>
                 {({ active }) => (
-                  <button
-                    type="submit"
-                    onClick={logout}
+                  <a
+                    href='/logout'
                     className={`${active ? 'bg-red-100 text-red-500' : 'text-gray-700'} block w-full px-4 py-2 text-left text-sm`}
                   >
                     <ArrowLeftOnRectangleIcon className='h-6 w-6 inline-block mr-2' />
                     Sign out
-                  </button>
+                  </a>
                 )}
               </Menu.Item>
             </div>

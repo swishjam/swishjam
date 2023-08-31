@@ -25,15 +25,14 @@ module ClickHouseQueries
           <<~SQL
             SELECT
               CAST(COUNT(*) AS int) AS count,
-              url_host,
-              url_path
+              e.url_host AS url_host,
+              e.url_path AS url_path
             FROM events AS e
             JOIN (
               SELECT
                 uie.device_identifier,
                 MAX(uie.occurred_at) AS max_occurred_at
               FROM user_identify_events AS uie
-              WHERE uie.swishjam_user_id = '#{@user_profile_id}'
               GROUP BY uie.device_identifier
             ) AS latest_identify_per_device ON e.device_identifier = latest_identify_per_device.device_identifier
             LEFT JOIN user_identify_events AS uie ON
@@ -42,7 +41,8 @@ module ClickHouseQueries
             WHERE
               e.swishjam_api_key = '#{@public_key}' AND
               e.name = '#{Analytics::Event::ReservedNames.PAGE_VIEW}' AND
-              e.occurred_at BETWEEN '#{formatted_time(@start_time)}' AND '#{formatted_time(@end_time)}'
+              e.occurred_at BETWEEN '#{formatted_time(@start_time)}' AND '#{formatted_time(@end_time)}' AND
+              uie.swishjam_user_id = '#{@user_profile_id}'
               #{url_hosts_filter}
             GROUP BY url_host, url_path
             ORDER BY count DESC

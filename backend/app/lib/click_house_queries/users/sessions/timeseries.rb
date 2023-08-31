@@ -36,30 +36,27 @@ module ClickHouseQueries
         end
 
         def sql
-          url_host_filter = @url_hosts.any? ? " AND url_host IN (#{@url_hosts.map{ |host| "'#{host}'" }.join(', ')})" : ''
+          url_host_filter = @url_hosts.any? ? " AND e.url_host IN (#{@url_hosts.map{ |host| "'#{host}'" }.join(', ')})" : ''
           <<~SQL
             SELECT
-              CAST(COUNT(DISTINCT session_identifier) AS int) AS count,
-              DATE_TRUNC('#{@group_by}', occurred_at) AS group_by_date
-            FROM events
+              CAST(COUNT(DISTINCT e.session_identifier) AS int) AS count,
+              DATE_TRUNC('#{@group_by}', e.occurred_at) AS group_by_date
+            FROM events AS e
             JOIN (
               SELECT 
-                device_identifier,
-                MAX(
-                  CASE
-                    WHEN occurred_at IS NOT NULL
-                    THEN occurred_at
-                    ELSE NULL
-                  END
-                ) AS occurred_at
-              FROM user_identify_events
-              WHERE swishjam_user_id = '#{@user_profile_id}'
-              GROUP BY device_identifier
-            ) AS users_identify_events ON users_identify_events.device_identifier = events.device_identifier
+                device_identifier, 
+                MAX(uie.occurred_at) AS max_occurred_at
+              FROM user_identify_events AS uie
+              GROUP BY uie.device_identifier
+            ) AS latest_identify_per_device ON e.device_identifier = latest_identify_per_device.device_identifier
+            LEFT JOIN user_identify_events AS uie ON 
+                        e.device_identifier = uie.device_identifier AND 
+                        latest_identify_per_device.max_occurred_at = uie.occurred_at
             WHERE
-              swishjam_api_key = '#{@public_key}' AND
-              occurred_at BETWEEN '#{formatted_time(@start_time)}' AND '#{formatted_time(@end_time)}' AND
-              name = '#{Analytics::Event::ReservedNames.NEW_SESSION}'
+              e.swishjam_api_key = '#{@public_key}' AND
+              e.occurred_at BETWEEN '#{formatted_time(@start_time)}' AND '#{formatted_time(@end_time)}' AND
+              e.name = '#{Analytics::Event::ReservedNames.NEW_SESSION}' AND
+              uie.swishjam_user_id = '#{@user_profile_id}' 
               #{url_host_filter}
             GROUP BY group_by_date
             ORDER BY group_by_date
