@@ -225,9 +225,6 @@ const UserProfile = ({ params }) => {
                 .replace(`, ${new Date(date).getFullYear()}`, '')
             }}
           />
-          <Card className="col-span-10">
-              poasdfapsdof
-          </Card>
         </div>
       </main>
     ) : <LoadingState />

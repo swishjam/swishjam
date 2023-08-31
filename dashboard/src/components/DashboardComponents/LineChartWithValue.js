@@ -141,7 +141,6 @@ export default function LineChartWithValue({
             <div className='flex align-center justify-center my-6'>
             <ResponsiveContainer width="100%" aspect={3}>
               <LineChart data={timeseries} margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>
-                {/* <CartesianGrid strokeDasharray="3 3" /> */}
                 <XAxis 
                   className='group-hover:opacity-100 opacity-0 duration-500 transition'
                   dataKey="date"
@@ -153,7 +152,7 @@ export default function LineChartWithValue({
                   interval={'preserveStartEnd'}
                 />
                 {/*<YAxis dataKey="value" hide={!showYAxis} tickFormatter={valueFormatter} tick={{ fontSize: 12, fill: "#9CA3AF" }} />*/}
-                {showYAxis && <CartesianGrid strokeDasharray="3 3" vertical={false} />}
+                {showYAxis && <CartesianGrid strokeDasharray="4 4" vertical={false} opacity={0.75}/>}
                 <Tooltip
                   animationBegin={200}
                   animationDuration={400}
