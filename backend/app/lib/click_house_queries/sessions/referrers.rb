@@ -27,12 +27,12 @@ module ClickHouseQueries
       end
 
       def sql(by_url_host: false)
-        url_host_filter = @url_hosts.any? ? " AND JSONExtractString(properties, 'url_host') IN (#{@url_hosts.map{ |host| "'#{host}'" }.join(', ')})" : ''
+        url_host_filter = @url_hosts.any? ? " AND url_host IN (#{@url_hosts.map{ |host| "'#{host}'" }.join(', ')})" : ''
         <<~SQL
           SELECT
             CAST(COUNT(*) AS int) AS count,
-            JSONExtractString(e.properties, 'referrer_url_host') AS referrer_url_host
-            #{by_url_host ? '' : ", JSONExtractString(e.properties, 'referrer_url_path') AS referrer_url_path"}
+            referrer_url_host AS referrer_url_host
+            #{by_url_host ? '' : ", referrer_url_path AS referrer_url_path"}
           FROM
             events AS e
           JOIN (

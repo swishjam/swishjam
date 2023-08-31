@@ -69,7 +69,6 @@ export default function LineChartWithValue({
   
   const changeInValue = typeof previousValue !== 'undefined' ? value - previousValue : null;
 
-  console.log('changeInValue', changeInValue);
   return (
     <Card className="group">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">

@@ -1,11 +1,11 @@
 class Workspace < Transactional
   has_many :workspace_members, dependent: :destroy
   has_many :users, through: :workspace_members
-  has_many :integrations
-  has_many :data_syncs
-  has_many :url_segments
-  has_many :analytics_user_profiles
-  has_many :analytics_organization_profiles
+  has_many :integrations, dependent: :destroy
+  has_many :data_syncs, dependent: :destroy
+  has_many :url_segments, dependent: :destroy
+  has_many :analytics_user_profiles, dependent: :destroy
+  has_many :analytics_organization_profiles, dependent: :destroy
 
   validates :public_key, presence: true, uniqueness: true
   before_validation :generate_public_key, on: :create

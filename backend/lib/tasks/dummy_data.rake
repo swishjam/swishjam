@@ -5,8 +5,8 @@ PROMPT = TTY::Prompt.new
 
 def seed_user_profiles!
   progress_bar = TTY::ProgressBar.new("Seeding #{NUMBER_OF_USERS} user profiles [:bar]", total: NUMBER_OF_USERS, bar_format: :block, )
-  NUMBER_OF_USERS.to_i.times.map do
-    AnalyticsUserProfile.create!(
+  users = NUMBER_OF_USERS.to_i.times.map do
+    user = AnalyticsUserProfile.create!(
       workspace: WORKSPACE,
       user_unique_identifier: SecureRandom.uuid,
       email: Faker::Internet.email,
@@ -18,14 +18,16 @@ def seed_user_profiles!
       end
     )
     progress_bar.advance
+    user
   end
   puts "\n"
+  users
 end
 
 def seed_organization_profiles!
   progress_bar = TTY::ProgressBar.new("Seeding #{NUMBER_OF_USERS} organization profiles [:bar]", total: NUMBER_OF_USERS, bar_format: :block, )
-  NUMBER_OF_USERS.to_i.times.map do
-    AnalyticsOrganizationProfile.create!(
+  organizations = NUMBER_OF_USERS.to_i.times.map do
+    org = AnalyticsOrganizationProfile.create!(
       workspace: WORKSPACE, 
       name: Faker::Company.name, 
       organization_unique_identifier: SecureRandom.uuid,
@@ -35,25 +37,27 @@ def seed_organization_profiles!
       end
     )
     progress_bar.advance
+    org
   end
   puts "\n"
+  organizations
 end
 
-def assign_user_profiles_to_organization_profiles!
-  progress_bar = TTY::ProgressBar.new("Assigning #{NUMBER_OF_USERS} user profiles to a random number of organization profiles (1-4) [:bar]", total: AnalyticsUserProfile.count, bar_format: :block)
-  WORKSPACE.analytics_user_profiles.each do |user_profile|
+def assign_user_profiles_to_organization_profiles!(users, organizations)
+  progress_bar = TTY::ProgressBar.new("Assigning #{NUMBER_OF_USERS} user profiles to a random number of organization profiles (1-4) [:bar]", total: users.count, bar_format: :block)
+  users.each do |user_profile|
     rand(1..4).times do
-      AnalyticsOrganizationProfileUser.create(analytics_user_profile_id: user_profile.id, analytics_organization_profile_id:  WORKSPACE.analytics_organization_profiles.sample.id)
+      AnalyticsOrganizationProfileUser.create(analytics_user_profile_id: user_profile.id, analytics_organization_profile_id:  organizations.sample.id)
     end
     progress_bar.advance
   end
   puts "\n"
 end
 
-def create_user_identify_events!
-  profiles = WORKSPACE.analytics_user_profiles
-  progress_bar = TTY::ProgressBar.new("Creating random number of user identify events for #{profiles.count} users [:bar]", total: profiles.count, bar_format: :block)
-  profiles.each do |user_profile|
+def create_user_identify_events!(user_profiles)
+  # profiles = WORKSPACE.analytics_user_profiles
+  progress_bar = TTY::ProgressBar.new("Creating random number of user identify events for #{user_profiles.count} users [:bar]", total: user_profiles.count, bar_format: :block)
+  user_profiles.each do |user_profile|
     num_of_devices_for_user = rand(1..2)
     identify_events_for_user = num_of_devices_for_user.times.map do |i|
       Analytics::UserIdentifyEvent.create!(
@@ -67,7 +71,8 @@ def create_user_identify_events!
     # create a login from a different user in the past for 10% of users
     # this ensures our logic for attributing events to users is correct
     next unless rand() < 0.1 
-    other_user = AnalyticsUserProfile.where.not(id: user_profile.id).sample
+    # other_user = user_profiles.where.not(id: user_profile.id).sample
+    other_user = user_profiles.sample
     Analytics::UserIdentifyEvent.create!(
       swishjam_api_key: WORKSPACE.public_key,
       device_identifier: DEVICE_IDENTIFIERS.sample,
@@ -81,14 +86,23 @@ end
 def seed_events!
   progress_bar = TTY::ProgressBar.new("Generating #{NUMBER_OF_SESSIONS_TO_GENERATE} sessions with random number of page views and events [:bar]", total: NUMBER_OF_SESSIONS_TO_GENERATE, bar_format: :block)
 
+  max_days_ago = {
+    100 => 30,
+    500 => 60,
+    1_000 => 90,
+    5_000 => 180,
+    10_000 => 365,
+    20_000 => 365,
+  }[NUMBER_OF_SESSIONS_TO_GENERATE]
+
   NUMBER_OF_SESSIONS_TO_GENERATE.times do
     session_identifier = SecureRandom.uuid
     user_profile = AnalyticsUserProfile.all.sample
     user_is_anonymous = rand() < 0.75
     swishjam_user_id = user_is_anonymous ? nil : user_profile.id
-    swishjam_organization_id = user_is_anonymous ? nil : user_profile.analytics_organization_profiles.sample.id
+    swishjam_organization_id = user_is_anonymous ? nil : user_profile.reload.analytics_organization_profiles&.sample&.id
     device_identifier = DEVICE_IDENTIFIERS.sample
-    session_start_time = Time.current - rand(0..365).days
+    session_start_time = Time.current - rand(0..max_days_ago).days
 
     session_referrer = "https://#{REFERRER_HOSTS[rand(0..REFERRER_HOSTS.count - 1)]}#{URL_PATHS[rand(0..URL_PATHS.count - 1)]}"
     session_start_url = "https://#{HOST_URL}#{URL_PATHS[rand(0..URL_PATHS.count - 1)]}"
@@ -97,30 +111,27 @@ def seed_events!
       swishjam_api_key: WORKSPACE.public_key,
       name: Analytics::Event::ReservedNames.NEW_SESSION,
       occurred_at: session_start_time,
-      properties: {
-        device_identifier: device_identifier,
-        session_identifier: session_identifier,
-        swishjam_organization_id: swishjam_organization_id,
-        url: session_start_url,
-        url_host: HOST_URL,
-        url_path: URI.parse(session_start_url).path,
-        referrer_url: session_referrer,
-        referrer_url_host: URI.parse(session_referrer).host,
-        referrer_url_path: URI.parse(session_referrer).path,
-        referrer_url_query: URI.parse(session_referrer).query,
-        utm_source: Faker::Lorem.word,
-        utm_medium: Faker::Lorem.word,
-        utm_campaign: Faker::Lorem.word,
-        utm_term: Faker::Lorem.word,
-        utm_content: Faker::Lorem.word,
-        is_mobile: [true, false].sample,
-        device_type: ['mobile', 'desktop'].sample,
-        browser: ['Chrome', 'Firefox', 'Safari', 'Internet Explorer'].sample,
-        browser_version: rand(1..10).to_s,
-        os: ['Mac OS X', 'Windows', 'Linux'].sample,
-        os_version: rand(1..10).to_s,
-        user_agent: Faker::Internet.user_agent,
-      }
+      device_identifier: device_identifier,
+      session_identifier: session_identifier,
+      swishjam_organization_id: swishjam_organization_id,
+      url: session_start_url,
+      url_host: HOST_URL,
+      url_path: URI.parse(session_start_url).path,
+      referrer_url: session_referrer,
+      referrer_url_host: URI.parse(session_referrer).host,
+      referrer_url_path: URI.parse(session_referrer).path,
+      referrer_url_query: URI.parse(session_referrer).query,
+      utm_source: Faker::Lorem.word,
+      utm_medium: Faker::Lorem.word,
+      utm_campaign: Faker::Lorem.word,
+      utm_term: Faker::Lorem.word,
+      is_mobile: [true, false].sample,
+      device_type: ['mobile', 'desktop'].sample,
+      browser: ['Chrome', 'Firefox', 'Safari', 'Internet Explorer'].sample,
+      browser_version: rand(1..10).to_s,
+      os: ['Mac OS X', 'Windows', 'Linux'].sample,
+      os_version: rand(1..10).to_s,
+      user_agent: Faker::Internet.user_agent,
     )
 
     rand(1..10).times do |i|
@@ -128,7 +139,7 @@ def seed_events!
         session_identifier: session_identifier, 
         device_identifier: device_identifier, 
         swishjam_organization_id: swishjam_organization_id,
-        occurred_at: session_start_time + (i * 2).minutes,
+        occurred_at: session_start_time + (i * 2).minutes + 1.second,
       )
     end
     rand(1..10).times do |i|
@@ -152,29 +163,27 @@ def create_page_view_event!(session_identifier:, device_identifier:, swishjam_or
     uuid: SecureRandom.uuid,
     name: Analytics::Event::ReservedNames.PAGE_VIEW,
     occurred_at: occurred_at,
-    properties: {
-      device_identifier: device_identifier,
-      session_identifier: session_identifier,
-      swishjam_organization_id: swishjam_organization_id,
-      full_url: "https://#{HOST_URL}#{url_path}",
-      url_host: HOST_URL,
-      url_path: url_path,
-      referrer_full_url: referrer_url,
-      referrer_url_host: URI.parse(referrer_url).host,
-      referrer_url_path: URI.parse(referrer_url).path,
-      referrer_url_query: URI.parse(referrer_url).query,
-      utm_source: Faker::Lorem.word,
-      utm_medium: Faker::Lorem.word,
-      utm_campaign: Faker::Lorem.word,
-      utm_term: Faker::Lorem.word,
-      utm_content: Faker::Lorem.word,
-      device_type: ['mobile', 'desktop'].sample,
-      browser: ['Chrome', 'Firefox', 'Safari', 'Internet Explorer'].sample,
-      browser_version: rand(1..10).to_s,
-      os: ['Mac OS X', 'Windows', 'Linux'].sample,
-      os_version: rand(1..10).to_s,
-      user_agent: Faker::Internet.user_agent,
-    }
+    device_identifier: device_identifier,
+    session_identifier: session_identifier,
+    swishjam_organization_id: swishjam_organization_id,
+    url: "https://#{HOST_URL}#{url_path}",
+    url_host: HOST_URL,
+    url_path: url_path,
+    referrer_url: referrer_url,
+    referrer_url_host: URI.parse(referrer_url).host,
+    referrer_url_path: URI.parse(referrer_url).path,
+    referrer_url_query: URI.parse(referrer_url).query,
+    utm_source: Faker::Lorem.word,
+    utm_medium: Faker::Lorem.word,
+    utm_campaign: Faker::Lorem.word,
+    utm_term: Faker::Lorem.word,
+    is_mobile: [true, false].sample,
+    device_type: ['mobile', 'desktop'].sample,
+    browser: ['Chrome', 'Firefox', 'Safari', 'Internet Explorer'].sample,
+    browser_version: rand(1..10).to_s,
+    os: ['Mac OS X', 'Windows', 'Linux'].sample,
+    os_version: rand(1..10).to_s,
+    user_agent: Faker::Internet.user_agent,
   )
 end
 
@@ -187,14 +196,13 @@ def create_rand_event!(session_identifier:, device_identifier:, swishjam_organiz
     uuid: SecureRandom.uuid,
     name: EVENT_NAMES[rand(0..EVENT_NAMES.count - 1)],
     occurred_at: occurred_at,
-    properties: random_props.merge({
-      device_identifier: device_identifier,
-      session_identifier: session_identifier,
-      swishjam_organization_id: swishjam_organization_id,
-      full_url: "https://#{HOST_URL}#{url_path}",
-      url_host: HOST_URL,
-      url_path: url_path,
-    })
+    device_identifier: device_identifier,
+    session_identifier: session_identifier,
+    swishjam_organization_id: swishjam_organization_id,
+    url: "https://#{HOST_URL}#{url_path}",
+    url_host: HOST_URL,
+    url_path: url_path,
+    properties: random_props,
   )
 end
 
@@ -271,10 +279,10 @@ namespace :seed do
 
       puts "Seeding workspace #{WORKSPACE.name} (#{WORKSPACE.id}) with #{NUMBER_OF_USERS} users, and #{HOST_URL} as the host URL.\n\n"
 
-      seed_user_profiles!
-      seed_organization_profiles!
-      assign_user_profiles_to_organization_profiles!
-      create_user_identify_events!
+      users = seed_user_profiles!
+      organizations = seed_organization_profiles!
+      assign_user_profiles_to_organization_profiles!(users, organizations)
+      create_user_identify_events!(users)
       seed_events!
       seed_billing_data!
 

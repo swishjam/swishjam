@@ -18,7 +18,7 @@ module ClickHouseQueries
       alias most_recent_value current_value
 
       def timeseries
-        return @timeseries_data if defined?(@timeseries_data)
+        return @filled_in_results if defined?(@filled_in_results)
         formatted_results = Analytics::Event.find_by_sql(sql.squish!).collect do |event|
           { date: event.group_by_date, value: event.count }
         end
@@ -34,10 +34,10 @@ module ClickHouseQueries
       end
 
       def sql
-        url_host_filter = @url_hosts.any? ? " AND JSONExtractString(events.properties, 'url_host') IN (#{@url_hosts.map{ |host| "'#{host}'" }.join(', ')})" : ''
+        url_host_filter = @url_hosts.any? ? " AND url_host IN (#{@url_hosts.map{ |host| "'#{host}'" }.join(', ')})" : ''
         <<~SQL
           SELECT
-            CAST(COUNT(DISTINCT JSONExtractString(events.properties, '#{Analytics::Event::ReservedPropertyNames.SESSION_IDENTIFIER}')) AS int) AS count,
+            CAST(COUNT(DISTINCT session_identifier) AS int) AS count,
             DATE_TRUNC('#{@group_by}', events.occurred_at) AS group_by_date
           FROM
             events

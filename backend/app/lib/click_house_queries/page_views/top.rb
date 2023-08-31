@@ -19,12 +19,12 @@ module ClickHouseQueries
       end
 
       def sql
-        url_hosts_filter = @url_hosts.any? ? " AND JSONExtractString(properties, 'url_host') IN (#{@url_hosts.map{ |host| "'#{host}'" }.join(', ')})" : ''
+        url_hosts_filter = @url_hosts.any? ? " AND url_host IN (#{@url_hosts.map{ |host| "'#{host}'" }.join(', ')})" : ''
         <<~SQL
           SELECT
             CAST(COUNT(*) AS int) AS count,
-            JSONExtractString(events.properties, 'url_host') AS url_host,
-            JSONExtractString(events.properties, 'url_path') AS url_path
+            url_host AS url_host,
+            url_path AS url_path
           FROM
             events
           WHERE

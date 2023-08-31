@@ -104,11 +104,12 @@ const Home = () => {
   }, []);
 
   return (
-    <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mb-8">
+    <>
       {isMissingUrlSegments && (
         <Banner 
           bgColor='bg-yellow-100'
           textColor='yellow-800'
+          dismissable={false}
           message={
             <>
               You haven't created any URL segments yet, so we are showing site metrics for <span className='italic'>all</span> of your data. Create a URL segment in <a className='underline cursor-pointer' href='/settings'>your settings</a> so that Swishjam will automatically filter your site metrics data for your marketing site, and your product analytics data for your application.
@@ -116,20 +117,30 @@ const Home = () => {
           } 
         />
       )}
-      <div className='grid grid-cols-2 mt-8 flex items-center'>
-        <div>
-          <h1 className="text-lg font-medium text-gray-700 mb-0">Marketing Site Metrics</h1>
-        </div>
+      <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mb-8">
+        <div className='grid grid-cols-2 mt-8 flex items-center'>
+          <div>
+            <h1 className="text-lg font-medium text-gray-700 mb-0">Marketing Site Metrics</h1>
+          </div>
 
-        <div className="w-full flex items-center justify-end">
-          <Timefilter
-            selection={timeframeFilter}
-            onSelection={(d) => {setTimeframeFilter(d);getAllData(d)}} 
-          />
+          <div className="w-full flex items-center justify-end">
+            <Timefilter
+              selection={timeframeFilter}
+              onSelection={(d) => {setTimeframeFilter(d);getAllData(d)}} 
+            />
+          </div>
         </div>
-      </div>
-      <div className='grid grid-cols-3 gap-6 pt-8'>
-        <div className='col-span-2'>
+        <div className='grid grid-cols-3 gap-6 pt-8'>
+          <div className='col-span-2'>
+            <LineChartWithValue
+              title='Sessions'
+              value={sessionsChart?.value}
+              previousValue={sessionsChart?.previousValue}
+              previousValueDate={sessionsChart?.previousValueDate}
+              timeseries={sessionsChart?.timeseries}
+              valueFormatter={numSubs => numSubs.toLocaleString('en-US')}
+            />
+          </div>
           <LineChartWithValue
             title='Sessions'
             value={sessionsChart?.value}
@@ -138,26 +149,18 @@ const Home = () => {
             timeseries={sessionsChart?.timeseries}
             valueFormatter={numSubs => numSubs.toLocaleString('en-US')}
           />
+        </div> 
+        <div className='grid grid-cols-2 gap-6 pt-8'>
+          <BarListCard title='Referrers' items={topReferrers} /> 
+          <BarListCard title='Top Pages' items={topPages} /> 
         </div>
-        <LineChartWithValue
-          title='Sessions'
-          value={sessionsChart?.value}
-          previousValue={sessionsChart?.previousValue}
-          previousValueDate={sessionsChart?.previousValueDate}
-          timeseries={sessionsChart?.timeseries}
-          valueFormatter={numSubs => numSubs.toLocaleString('en-US')}
-        />
-      </div> 
-      <div className='grid grid-cols-2 gap-6 pt-8'>
-        <BarListCard title='Referrers' items={topReferrers} /> 
-        <BarListCard title='Top Pages' items={topPages} /> 
-      </div>
-      <div className='grid grid-cols-3 gap-6 pt-8'>
-        <BarListCard title='Devices' items={topDevices} /> 
-        <BarListCard title='Browsers' items={topBrowsers} />
-        <BarListCard title='Countries' items={topCountries} /> 
-      </div>
-    </main>
+        <div className='grid grid-cols-3 gap-6 pt-8'>
+          <BarListCard title='Devices' items={topDevices} /> 
+          <BarListCard title='Browsers' items={topBrowsers} />
+          <BarListCard title='Countries' items={topCountries} /> 
+        </div>
+      </main>
+    </>
   );
 }
 

@@ -36,12 +36,11 @@ module ClickHouseQueries
                     CASE
                       WHEN identify.swishjam_user_id IS NOT NULL
                       THEN identify.swishjam_user_id
-                      ELSE JSONExtractString(events.properties, 'swishjam_user_id')
+                      ELSE events.device_identifier
                     END
                 )
               AS int) AS num_unique_users
-            FROM 
-              events
+            FROM events
             LEFT JOIN (
               SELECT 
                 IF(device_identifier IS NULL, NULL, device_identifier) AS device_identifier,
@@ -55,14 +54,12 @@ module ClickHouseQueries
                 ) AS occurred_at
               FROM user_identify_events
               GROUP BY device_identifier, swishjam_user_id
-            ) AS identify ON identify.device_identifier = JSONExtractString(events.properties, 'device_identifier')
+            ) AS identify ON identify.device_identifier = events.device_identifier
             WHERE
               events.swishjam_api_key = '#{@public_key}' AND
               events.occurred_at BETWEEN '#{formatted_time(@start_time)}' AND '#{formatted_time(@end_time)}'
-            GROUP BY
-              group_by_date, year
-            ORDER BY
-              group_by_date ASC
+            GROUP BY group_by_date, year
+            ORDER BY group_by_date ASC
           SQL
         end
 

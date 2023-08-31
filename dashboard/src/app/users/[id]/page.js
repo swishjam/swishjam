@@ -5,12 +5,12 @@ import AuthenticatedView from "@/components/Auth/AuthenticatedView";
 import { API } from "@/lib/api-client/base";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton";
-import { HoverCard, HoverCardTrigger, HoverCardContent } from "@/components/ui/hover-card";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import EventFeed from "@/components/DashboardComponents/EventFeed";
-import { UsersIcon, CalendarIcon } from "@heroicons/react/24/outline";
 import { PaperClipIcon } from '@heroicons/react/20/solid'
 import { HomeIcon } from '@heroicons/react/20/solid'
+import LineChartWithValue from '@/components/DashboardComponents/LineChartWithValue';
+import BarListCard from "@/components/DashboardComponents/BarListCard";
 
 const LoadingState = () => (
   <main className="mx-auto max-w-7xl px-4 mt-8 sm:px-6 lg:px-8 mb-8">
@@ -29,21 +29,33 @@ const LoadingState = () => (
 )
 
 const pages = [
-  { name: 'Projects', href: '#', current: false },
-  { name: 'Project Nero', href: '#', current: true },
+  { name: 'Users', href: '/users', current: false },
+  { name: 'User Profile', href: '#', current: true },
 ]
-
 
 const UserProfile = ({ params }) => {
   const { id: userId } = params;
-  const [userData, setUserData] = useState(null);
-  const [recentEvents, setRecentEvents] = useState(null);
+  const [userData, setUserData] = useState();
+  const [sessionTimeseriesData, setSessionTimeseriesData] = useState();
+  const [recentEvents, setRecentEvents] = useState();
+  const [pageViewsData, setPageViewsData] = useState();
+  const [organizationsListExpanded, setOrganizationsListExpanded] = useState(false);
 
   useEffect(() => {
     API.get(`/api/v1/users/${userId}`).then(setUserData);
     API.get(`/api/v1/users/${userId}/events`).then(setRecentEvents);
-  }, [userId])
+    API.get(`/api/v1/users/${userId}/page_views`).then(pageViews => {
+      setPageViewsData(pageViews.map(({ url, count }) => ({ name: url, value: count })));
+    });
+    API.get(`/api/v1/users/${userId}/sessions/timeseries`).then(({ timeseries }) => {
+      setSessionTimeseriesData({ 
+        timeseries,
+        value: timeseries.map(({ value }) => value).reduce((a, b) => a + b, 0),  
+      })
+    });
+  }, [])
 
+  console.log(pageViewsData);
   return (
     userData ? (
       <main className="mx-auto max-w-7xl px-4 mt-8 sm:px-6 lg:px-8 mb-8">
@@ -105,109 +117,93 @@ const UserProfile = ({ params }) => {
               </div>
             </CardHeader>
             <CardContent>
-                <div className='flex flex-col items-end justify-end text-base text-gray-500'>
-                  <div className='space-y-2'>
-                    {userData.organizations && userData.organizations.length > 0 && (
-                      <div className='flex items-center'>
-                        <UsersIcon className='h-4 w-4 text-gray-500 inline-block mr-2' />
-                        <span className='text-base'>{userData.organizations[0].name}</span>
+              <div>
+                <div className="mt-4">
+                  <dl className="grid grid-cols-1 sm:grid-cols-2">
+                    <div className="px-4 py-6 sm:col-span-1 sm:px-0">
+                      <dt className="text-sm font-medium leading-6 text-gray-900">Full name</dt>
+                      <dd className="mt-1 text-sm leading-6 text-gray-700 sm:mt-2">{userData?.full_name}</dd>
+                    </div>
+                    <div className="px-4 py-6 sm:col-span-1 sm:px-0">
+                      <dt className="text-sm font-medium leading-6 text-gray-900">Organizations</dt>
+                      <dd className="mt-1 text-sm leading-6 text-gray-700 sm:mt-2">
+                        <a href={`/organizations/${userData.organizations[0]?.id}`} className='text-sm text-gray-700 hover:underline'>
+                          {userData.organizations[0]?.name}
+                        </a>
                         {userData.organizations.length > 1 && (
-                          <HoverCard className="inline-block">
-                            <HoverCardTrigger>
-                              <span className="inline-flex cursor-default items-center rounded-full bg-gray-50 px-2 py-1 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-500/10 ml-2">
-                                +{userData.organizations.length - 1} others
-                              </span>
-                            </HoverCardTrigger>
-                            <HoverCardContent>
-                              <span className='text-gray-500 text-sm'>
-                                Also a member of{' '}
-                                {userData.organizations.slice(1).map((org, i) => {
-                                  return (
-                                    <>
-                                      <span className='font-medium italic'>{org.name}</span>
-                                      {i !== userData.organizations.length - 2 ? ', ' : ''}
-                                      {i === userData.organizations.length - 3 ? ' and ' : ''}
-                                    </>
-                                  )
-                                })}
-                              </span>.
-                            </HoverCardContent>
-                          </HoverCard>
+                          <span 
+                            className='cursor-pointer underline ml-2 hover:text-swishjam'
+                            onClick={() => setOrganizationsListExpanded(!organizationsListExpanded)}
+                          >+{userData.organizations.length - 1} others</span>
                         )}
-                      </div>
-                    )}
-                  </div>
+                        {organizationsListExpanded && (
+                          <div className='mt-2'>
+                            {userData.organizations.slice(1).map(org => (
+                              <div key={org.id} className='flex items-center'>
+                                <a href={`/organizations/${org.id}`} className='text-sm text-gray-700 hover:underline'>
+                                  {org.name}
+                                </a>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </dd>
+                    </div>
+                    {/* <div className="border-t border-gray-100 px-4 py-6 sm:col-span-1 sm:px-0">
+                      <dt className="text-sm font-medium leading-6 text-gray-900">Email address</dt>
+                      <dd className="mt-1 text-sm leading-6 text-gray-700 sm:mt-2">margotfoster@example.com</dd>
+                    </div>
+                    <div className="border-t border-gray-100 px-4 py-6 sm:col-span-1 sm:px-0">
+                      <dt className="text-sm font-medium leading-6 text-gray-900">Salary expectation</dt>
+                      <dd className="mt-1 text-sm leading-6 text-gray-700 sm:mt-2">$120,000</dd>
+                    </div> */}
+                    <div className="border-t border-gray-100 px-4 py-6 sm:col-span-2 sm:px-0">
+                      <LineChartWithValue
+                        title='Sessions'
+                        value={sessionTimeseriesData?.value}
+                        timeseries={sessionTimeseriesData?.timeseries}
+                        valueFormatter={numSessions => numSessions.toLocaleString('en-US')}
+                      />
+                    </div>
+                    <div className="border-t border-gray-100 px-4 py-6 sm:col-span-2 sm:px-0">
+                      <BarListCard title='Page Views' items={pageViewsData} />
+                      {/* <dt className="text-sm font-medium leading-6 text-gray-900">Attachments</dt>
+                      <dd className="mt-2 text-sm text-gray-900">
+                        <ul role="list" className="divide-y divide-gray-100 rounded-md border border-gray-200">
+                          <li className="flex items-center justify-between py-4 pl-4 pr-5 text-sm leading-6">
+                            <div className="flex w-0 flex-1 items-center">
+                              <PaperClipIcon className="h-5 w-5 flex-shrink-0 text-gray-400" aria-hidden="true" />
+                              <div className="ml-4 flex min-w-0 flex-1 gap-2">
+                                <span className="truncate font-medium">resume_back_end_developer.pdf</span>
+                                <span className="flex-shrink-0 text-gray-400">2.4mb</span>
+                              </div>
+                            </div>
+                            <div className="ml-4 flex-shrink-0">
+                              <a href="#" className="font-medium text-indigo-600 hover:text-indigo-500">
+                                Download
+                              </a>
+                            </div>
+                          </li>
+                          <li className="flex items-center justify-between py-4 pl-4 pr-5 text-sm leading-6">
+                            <div className="flex w-0 flex-1 items-center">
+                              <PaperClipIcon className="h-5 w-5 flex-shrink-0 text-gray-400" aria-hidden="true" />
+                              <div className="ml-4 flex min-w-0 flex-1 gap-2">
+                                <span className="truncate font-medium">coverletter_back_end_developer.pdf</span>
+                                <span className="flex-shrink-0 text-gray-400">4.5mb</span>
+                              </div>
+                            </div>
+                            <div className="ml-4 flex-shrink-0">
+                              <a href="#" className="font-medium text-indigo-600 hover:text-indigo-500">
+                                Download
+                              </a>
+                            </div>
+                          </li>
+                        </ul>
+                      </dd> */}
+                    </div>
+                  </dl>
                 </div>
-
-
-                <div>
-      <div className="mt-4">
-        <dl className="grid grid-cols-1 sm:grid-cols-2">
-          <div className="px-4 py-6 sm:col-span-1 sm:px-0">
-            <dt className="text-sm font-medium leading-6 text-gray-900">Full name</dt>
-            <dd className="mt-1 text-sm leading-6 text-gray-700 sm:mt-2">Margot Foster</dd>
-          </div>
-          <div className="px-4 py-6 sm:col-span-1 sm:px-0">
-            <dt className="text-sm font-medium leading-6 text-gray-900">Application for</dt>
-            <dd className="mt-1 text-sm leading-6 text-gray-700 sm:mt-2">Backend Developer</dd>
-          </div>
-          <div className="border-t border-gray-100 px-4 py-6 sm:col-span-1 sm:px-0">
-            <dt className="text-sm font-medium leading-6 text-gray-900">Email address</dt>
-            <dd className="mt-1 text-sm leading-6 text-gray-700 sm:mt-2">margotfoster@example.com</dd>
-          </div>
-          <div className="border-t border-gray-100 px-4 py-6 sm:col-span-1 sm:px-0">
-            <dt className="text-sm font-medium leading-6 text-gray-900">Salary expectation</dt>
-            <dd className="mt-1 text-sm leading-6 text-gray-700 sm:mt-2">$120,000</dd>
-          </div>
-          <div className="border-t border-gray-100 px-4 py-6 sm:col-span-2 sm:px-0">
-            <dt className="text-sm font-medium leading-6 text-gray-900">About</dt>
-            <dd className="mt-1 text-sm leading-6 text-gray-700 sm:mt-2">
-              Fugiat ipsum ipsum deserunt culpa aute sint do nostrud anim incididunt cillum culpa consequat. Excepteur
-              qui ipsum aliquip consequat sint. Sit id mollit nulla mollit nostrud in ea officia proident. Irure nostrud
-              pariatur mollit ad adipisicing reprehenderit deserunt qui eu.
-            </dd>
-          </div>
-          <div className="border-t border-gray-100 px-4 py-6 sm:col-span-2 sm:px-0">
-            <dt className="text-sm font-medium leading-6 text-gray-900">Attachments</dt>
-            <dd className="mt-2 text-sm text-gray-900">
-              <ul role="list" className="divide-y divide-gray-100 rounded-md border border-gray-200">
-                <li className="flex items-center justify-between py-4 pl-4 pr-5 text-sm leading-6">
-                  <div className="flex w-0 flex-1 items-center">
-                    <PaperClipIcon className="h-5 w-5 flex-shrink-0 text-gray-400" aria-hidden="true" />
-                    <div className="ml-4 flex min-w-0 flex-1 gap-2">
-                      <span className="truncate font-medium">resume_back_end_developer.pdf</span>
-                      <span className="flex-shrink-0 text-gray-400">2.4mb</span>
-                    </div>
-                  </div>
-                  <div className="ml-4 flex-shrink-0">
-                    <a href="#" className="font-medium text-indigo-600 hover:text-indigo-500">
-                      Download
-                    </a>
-                  </div>
-                </li>
-                <li className="flex items-center justify-between py-4 pl-4 pr-5 text-sm leading-6">
-                  <div className="flex w-0 flex-1 items-center">
-                    <PaperClipIcon className="h-5 w-5 flex-shrink-0 text-gray-400" aria-hidden="true" />
-                    <div className="ml-4 flex min-w-0 flex-1 gap-2">
-                      <span className="truncate font-medium">coverletter_back_end_developer.pdf</span>
-                      <span className="flex-shrink-0 text-gray-400">4.5mb</span>
-                    </div>
-                  </div>
-                  <div className="ml-4 flex-shrink-0">
-                    <a href="#" className="font-medium text-indigo-600 hover:text-indigo-500">
-                      Download
-                    </a>
-                  </div>
-                </li>
-              </ul>
-            </dd>
-          </div>
-        </dl>
-      </div>
-    </div>
-            
-            
-            
+              </div>
             </CardContent>
           </Card>
 
