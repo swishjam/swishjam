@@ -88,6 +88,14 @@ The configuration is all maintained and built using an AWS CloudFormation templa
 - Use the created API Gateway endpoint as your reporting URL in instrumentation.
 4. The Swishjam Reporting API URL is outputted in the console. Use this value as the `reportingUrl` option in your `Swishjam.init` JS method.
 
+### How to run in local development
+- Turn on the dashboard in /dashboard run `npm run dev`
+- Turn on the server, in /backend run `bundle exec rails s`
+- Make sure Postgres turned on (We use macOS Postgres app that's always running)
+- Turn on redis server, in /backend run `redis-server`
+- Turn on the worker, in /backend run `bundle exec sidekiq`
+- Turn on clickhouse, in /backend/clickhouse-server (or where you installed clickhouse) run `./clickhouse server`
+
 ## Contributing
 - Send us a PR, github issue, or email at founders@tagsafe.io
 

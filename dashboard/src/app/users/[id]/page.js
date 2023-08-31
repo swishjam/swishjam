@@ -7,8 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Skeleton } from "@/components/ui/skeleton";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import EventFeed from "@/components/DashboardComponents/EventFeed";
-import { PaperClipIcon } from '@heroicons/react/20/solid'
-import { HomeIcon } from '@heroicons/react/20/solid'
+import Link from "next/link";
 import LineChartWithValue from '@/components/DashboardComponents/LineChartWithValue';
 import BarListCard from "@/components/DashboardComponents/BarListCard";
 
@@ -32,6 +31,16 @@ const pages = [
   { name: 'Users', href: '/users', current: false },
   { name: 'User Profile', href: '#', current: true },
 ]
+
+const LinkBadge = ({ name, href }) => {
+
+  return (
+    <Link href={href} className="inline-flex items-center rounded-md bg-blue-50 mx-2 my-1 px-2 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10 hover:text-blue-900 hover:bg-blue-100 duration-300 transition cursor-pointer">
+      {name}
+    </Link>
+  )
+}
+
 
 const UserProfile = ({ params }) => {
   const { id: userId } = params;
@@ -63,11 +72,8 @@ const UserProfile = ({ params }) => {
         <nav className="flex" aria-label="Breadcrumb">
       <ol role="list" className="flex items-center space-x-4">
         <li>
-          <div>
-            <a href="/" className="text-gray-400 hover:text-gray-500">
-              <HomeIcon className="h-5 w-5 flex-shrink-0" aria-hidden="true" />
-              <span className="sr-only">Home</span>
-            </a>
+          <div className="flex items-center">
+            <a href='/users' className="text-sm font-medium text-gray-500 hover:text-swishjam duration-300 transition">Users</a>
           </div>
         </li>
         <li>
@@ -80,20 +86,7 @@ const UserProfile = ({ params }) => {
             >
               <path d="M5.555 17.776l8-16 .894.448-8 16-.894-.448z" />
             </svg>
-            <a href='/users' className="ml-4 text-sm font-medium text-gray-500 hover:text-gray-700">Users</a>
-          </div>
-        </li>
-        <li>
-          <div className="flex items-center">
-            <svg
-              className="h-5 w-5 flex-shrink-0 text-gray-300"
-              fill="currentColor"
-              viewBox="0 0 20 20"
-              aria-hidden="true"
-            >
-              <path d="M5.555 17.776l8-16 .894.448-8 16-.894-.448z" />
-            </svg>
-            <a href='#' className="ml-4 text-sm font-medium text-gray-500 hover:text-gray-700">{userData.full_name}</a>
+            <span className="ml-4 text-sm font-medium text-gray-500">{userData.full_name}</span>
           </div>
         </li>
       </ol>
@@ -125,23 +118,28 @@ const UserProfile = ({ params }) => {
               <div>
                 <div className="mt-4">
                   <dl className="grid grid-cols-1 sm:grid-cols-2">
-                    <div className="px-4 py-6 sm:col-span-1 sm:px-0">
+                    <div className="px-4 py-4 sm:col-span-1 sm:px-0">
                       <dt className="text-sm font-medium leading-6 text-gray-900">Full name</dt>
                       <dd className="mt-1 text-sm leading-6 text-gray-700 sm:mt-2">{userData?.full_name}</dd>
                     </div>
-                    <div className="px-4 py-6 sm:col-span-1 sm:px-0">
+                    <div className="px-4 py-4 sm:col-span-2 sm:px-0">
                       <dt className="text-sm font-medium leading-6 text-gray-900">Organizations</dt>
-                      <dd className="mt-1 text-sm leading-6 text-gray-700 sm:mt-2">
-                        <a href={`/organizations/${userData.organizations[0]?.id}`} className='text-sm text-gray-700 hover:underline'>
-                          {userData.organizations[0]?.name}
-                        </a>
-                        {userData.organizations.length > 1 && (
+                      <dd className="mt-1 sm:mt-2 -ml-2">
+                        {userData.organizations.map(org => (
+                          <LinkBadge
+                            key={org.id}
+                            name={org.name}
+                            href={`/organizations/${org.id}`}
+                          /> 
+                        ))}
+                  
+                        {/*userData.organizations.length > 1 && (
                           <span 
                             className='cursor-pointer underline ml-2 hover:text-swishjam'
                             onClick={() => setOrganizationsListExpanded(!organizationsListExpanded)}
                           >+{userData.organizations.length - 1} others</span>
-                        )}
-                        {organizationsListExpanded && (
+                        )*/}
+                        {/*organizationsListExpanded && (
                           <div className='mt-2'>
                             {userData.organizations.slice(1).map(org => (
                               <div key={org.id} className='flex items-center'>
@@ -151,7 +149,7 @@ const UserProfile = ({ params }) => {
                               </div>
                             ))}
                           </div>
-                        )}
+                        )*/}
                       </dd>
                     </div>
                     {/* <div className="border-t border-gray-100 px-4 py-6 sm:col-span-1 sm:px-0">
@@ -162,17 +160,8 @@ const UserProfile = ({ params }) => {
                       <dt className="text-sm font-medium leading-6 text-gray-900">Salary expectation</dt>
                       <dd className="mt-1 text-sm leading-6 text-gray-700 sm:mt-2">$120,000</dd>
                     </div> */}
-                    <div className="border-t border-gray-100 px-4 py-6 sm:col-span-2 sm:px-0">
-                      <LineChartWithValue
-                        title='Sessions'
-                        value={sessionTimeseriesData?.value}
-                        timeseries={sessionTimeseriesData?.timeseries}
-                        valueFormatter={numSessions => numSessions.toLocaleString('en-US')}
-                      />
-                    </div>
-                    <div className="border-t border-gray-100 px-4 py-6 sm:col-span-2 sm:px-0">
-                      <BarListCard title='Page Views' items={pageViewsData} />
-                      {/* <dt className="text-sm font-medium leading-6 text-gray-900">Attachments</dt>
+                    {/* <div className="border-t border-gray-100 px-4 py-6 sm:col-span-2 sm:px-0">
+                      <dt className="text-sm font-medium leading-6 text-gray-900">Attachments</dt>
                       <dd className="mt-2 text-sm text-gray-900">
                         <ul role="list" className="divide-y divide-gray-100 rounded-md border border-gray-200">
                           <li className="flex items-center justify-between py-4 pl-4 pr-5 text-sm leading-6">
@@ -204,16 +193,28 @@ const UserProfile = ({ params }) => {
                             </div>
                           </li>
                         </ul>
-                      </dd> */}
-                    </div>
+                      </dd>
+                    </div> */}
                   </dl>
                 </div>
               </div>
             </CardContent>
           </Card>
 
+
+          <div className="col-span-4">
+            <LineChartWithValue
+              title='Sessions'
+              value={sessionTimeseriesData?.value}
+              timeseries={sessionTimeseriesData?.timeseries}
+              valueFormatter={numSessions => numSessions.toLocaleString('en-US')}
+            />
+          </div>
+          <div className="col-span-5">
+            <BarListCard title='Page Views' items={pageViewsData} />
+          </div>
           <EventFeed
-            className="col-span-4"
+            className="col-span-5"
             title='Recent Events'
             events={recentEvents}
             leftItemHeaderKey='name'
@@ -224,6 +225,9 @@ const UserProfile = ({ params }) => {
                 .replace(`, ${new Date(date).getFullYear()}`, '')
             }}
           />
+          <Card className="col-span-10">
+              poasdfapsdof
+          </Card>
         </div>
       </main>
     ) : <LoadingState />

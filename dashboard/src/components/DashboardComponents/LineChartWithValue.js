@@ -9,6 +9,7 @@ import { ArrowTrendingDownIcon, ArrowTrendingUpIcon, CalendarIcon, Cog8ToothIcon
 import { CircleIcon } from "@radix-ui/react-icons"
 import { CheckCircleIcon } from '@heroicons/react/20/solid';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import EmptyState from '@/components/EmptyState';
 
 const LoadingState = ({ title }) => (
   <Card>
@@ -75,10 +76,10 @@ export default function LineChartWithValue({
         <CardTitle className="text-sm font-medium cursor-default">{title}</CardTitle>
         {includeSettingsDropdown && (
           <DropdownMenu>
-            <DropdownMenuTrigger>
-              <Cog8ToothIcon className="active:opacity-100 focus:opacity-100 group-hover:opacity-100 ring-0 opacity-0 duration-500 transition h-5 w-5 text-gray-500 cursor-pointer" />
+            <DropdownMenuTrigger asChild>
+              <Cog8ToothIcon className={`group-active:opacity-100 group-focus:opacity-100 group-hover:opacity-100 ring-0 opacity-0 duration-500 transition h-5 w-5 text-gray-500 cursor-pointer`} />
             </DropdownMenuTrigger>
-            <DropdownMenuContent>
+            <DropdownMenuContent align="end">
               <DropdownMenuItem 
                 className={`cursor-pointer ${showXAxis ? 'text-swishjam font-medium hover:text-swishjam' : ''}`}
                 onClick={() => {
@@ -92,9 +93,7 @@ export default function LineChartWithValue({
                   })
                 }}
               >
-                {showXAxis && (
-                  <CheckCircleIcon className='h-4 w-4 absolute' />
-                )}
+                {showXAxis ? <CheckCircleIcon className='h-4 w-4 absolute' />:<CircleIcon className='h-4 w-4 absolute' />}
                 <span className='mx-6'>Show X-Axis</span>
               </DropdownMenuItem>
               <DropdownMenuItem 
@@ -110,9 +109,7 @@ export default function LineChartWithValue({
                   })
                 }}
               >
-                {showYAxis && (
-                  <CheckCircleIcon className='h-4 w-4 absolute' />
-                )}
+                {showYAxis ? <CheckCircleIcon className='h-4 w-4 absolute' />:<CircleIcon className='h-4 w-4 absolute' />}
                 <span className='ml-6'>Show Y-Axis</span>
               </DropdownMenuItem>
             </DropdownMenuContent>
@@ -156,7 +153,7 @@ export default function LineChartWithValue({
                   interval={'preserveStartEnd'}
                 />
                 {/*<YAxis dataKey="value" hide={!showYAxis} tickFormatter={valueFormatter} tick={{ fontSize: 12, fill: "#9CA3AF" }} />*/}
-                {showYAxis && <CartesianGrid strokeDasharray="3 3" vertical={false}/>}
+                {showYAxis && <CartesianGrid strokeDasharray="3 3" vertical={false} />}
                 <Tooltip
                   animationBegin={200}
                   animationDuration={400}
@@ -186,9 +183,7 @@ export default function LineChartWithValue({
             </ResponsiveContainer>
             </div> 
           ) : (
-            <div className="flex items-center justify-center h-20">
-              <span className="text-sm text-gray-500">{noDataMessage}</span>
-            </div>
+            <EmptyState msg={noDataMessage} />
           )
         }
       </CardContent>
