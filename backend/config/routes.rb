@@ -5,6 +5,8 @@ Rails.application.routes.draw do
 
   get '/oauth/stripe/callback' => 'oauth/stripe#callback'
 
+  get :ping, to: 'application#ping'
+
   namespace :api do
     namespace :v1 do
 
