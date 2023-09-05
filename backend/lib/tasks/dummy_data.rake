@@ -1,7 +1,7 @@
 require "tty-prompt"
 require 'tty-progressbar'
 
-PROMPT = TTY::Prompt.new
+PROMPTER = TTY::Prompt.new
 
 def seed_user_profiles!
   progress_bar = TTY::ProgressBar.new("Seeding #{NUMBER_OF_USERS} user profiles [:bar]", total: NUMBER_OF_USERS, bar_format: :block, )
@@ -47,7 +47,9 @@ def assign_user_profiles_to_organization_profiles!(users, organizations)
   progress_bar = TTY::ProgressBar.new("Assigning #{NUMBER_OF_USERS} user profiles to a random number of organization profiles (1-4) [:bar]", total: users.count, bar_format: :block)
   users.each do |user_profile|
     rand(1..4).times do
-      AnalyticsOrganizationProfileUser.create(analytics_user_profile_id: user_profile.id, analytics_organization_profile_id:  organizations.sample.id)
+      if !AnalyticsOrganizationProfileUser.create(analytics_user_profile_id: user_profile.id, analytics_organization_profile_id:  organizations.sample.id)
+        puts "Failed to assign user profile #{user_profile.id} to organization profile #{organizations.sample.id}".colorize(:red)
+      end
     end
     progress_bar.advance
   end
@@ -57,15 +59,19 @@ end
 def create_user_identify_events!(user_profiles)
   # profiles = WORKSPACE.analytics_user_profiles
   progress_bar = TTY::ProgressBar.new("Creating random number of user identify events for #{user_profiles.count} users [:bar]", total: user_profiles.count, bar_format: :block)
+  total_identify_events = 0
+
   user_profiles.each do |user_profile|
     num_of_devices_for_user = rand(1..2)
     identify_events_for_user = num_of_devices_for_user.times.map do |i|
-      Analytics::UserIdentifyEvent.create!(
+      identify = Analytics::UserIdentifyEvent.create!(
         swishjam_api_key: WORKSPACE.public_key,
         device_identifier: DEVICE_IDENTIFIERS.sample,
         swishjam_user_id: user_profile.id,
         occurred_at: Faker::Time.between(from: 1.year.ago, to: Time.now),
       )
+      total_identify_events += 1
+      identify
     end
     progress_bar.advance
     # create a login from a different user in the past for 10% of users
@@ -79,7 +85,9 @@ def create_user_identify_events!(user_profiles)
       swishjam_user_id: other_user.id,
       occurred_at: identify_events_for_user.first.occurred_at - 10.minutes,
     )
+    total_identify_events += 1
   end
+  puts "Created #{total_identify_events} user identify events!"
   puts "\n"
 end
 
@@ -232,8 +240,8 @@ def seed_billing_data!
 end
 
 def prompt_and_find_or_create_user!
-  email = PROMPT.ask("Enter your email for your new user login:"){ |q| q.required true }
-  password = PROMPT.mask("Enter your password for your new user login:"){ |q| q.required true }
+  email = PROMPTER.ask("Enter your email for your new user login:"){ |q| q.required true }
+  password = PROMPTER.mask("Enter your password for your new user login:"){ |q| q.required true }
 
   existing_user = User.find_by(email: email)
   if existing_user
@@ -257,7 +265,7 @@ namespace :seed do
       START_TIME = Time.current
 
       USER = prompt_and_find_or_create_user!
-      NUMBER_OF_SESSIONS_TO_GENERATE = PROMPT.select("How many sessions would you like to backfill?", [100, 500, 1_000, 5_000, 10_000, 20_000]){ |q| q.default 3 }
+      NUMBER_OF_SESSIONS_TO_GENERATE = PROMPTER.select("How many sessions would you like to backfill?", [100, 500, 1_000, 5_000, 10_000, 20_000]){ |q| q.default 3 }
       
       WORKSPACE = USER.workspaces.first || Workspace.create!(name: Faker::Company.name, company_url: Faker::Internet.domain_name)
       HOST_URL = Faker::Internet.domain_name
@@ -282,7 +290,7 @@ namespace :seed do
       users = seed_user_profiles!
       organizations = seed_organization_profiles!
       assign_user_profiles_to_organization_profiles!(users, organizations)
-      create_user_identify_events!(users)
+      # create_user_identify_events!(users)
       seed_events!
       seed_billing_data!
 

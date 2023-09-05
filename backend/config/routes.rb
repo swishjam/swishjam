@@ -18,14 +18,10 @@ Rails.application.routes.draw do
       end
 
       resources :organizations, only: [:index, :show] do
-        member do
-          get :events
-          get :users
-        end
-        collection do
-          # get :count
-          # get :timeseries
-        end
+        # collection do
+        #   get :count
+        #   get :timeseries
+        # end
         resources :users, only: [:index], controller: :'organizations/users' do
           collection do
             get :top
@@ -37,7 +33,7 @@ Rails.application.routes.draw do
             get :timeseries
           end
         end
-        resources :page_hits, only: [:index], controller: :'organizations/page_hits'
+        resources :page_views, only: [:index], controller: :'organizations/page_views'
         resources :billing, only: [:index], controller: :'organizations/billing'
       end
 

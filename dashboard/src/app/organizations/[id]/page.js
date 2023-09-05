@@ -89,36 +89,27 @@ const OrganizationProfile = ({ params }) => {
 
   const [organizationData, setOrganizationData] = useState();
   const [topUsers, setTopUsers] = useState();
-  const [pageHitData, setPageHitData] = useState();
-  // const [sessionsTimeseriesData, setSessionsTimeseriesData] = useState();
+  const [pageHitData, setPageViewData] = useState();
+  const [sessionsTimeseriesData, setSessionsTimeseriesData] = useState();
   const [billingData, setBillingData] = useState();
 
   useEffect(() => {
     API.get(`/api/v1/organizations/${id}`).then(setOrganizationData);
-    API.get(`/api/v1/organizations/${id}/billing`).then(setBillingData);
-    API.get(`/api/v1/organizations/${id}/page_hits`).then(pageHitData => {
-      const formattedPageHitData = pageHitData.map(pageHit => ({
-        name: pageHit.url_host + pageHit.url_path,
-        value: pageHit.view_count
+    // API.get(`/api/v1/organizations/${id}/billing`).then(setBillingData);
+    API.get(`/api/v1/organizations/${id}/page_views`).then(pageViewData => {
+      const formattedPageViewData = pageViewData.map(pageView => ({
+        name: pageView.url,
+        value: pageView.count
       }));
-      debugger;
-      setPageHitData(formattedPageHitData);
+      setPageViewData(formattedPageViewData);
     });
-    // API.get(`/api/v1/organizations/${id}/sessions/timeseries`, { timeframe: '1_year' }).then(timeseriesData => {
-    //   setSessionsTimeseriesData({
-    //     value: timeseriesData.count,
-    //     previousValue: timeseriesData.comparison_count,
-    //     previousValueDate: timeseriesData.comparison_end_time,
-    //     valueChange: timeseriesData.count - timeseriesData.comparison_count,
-    //     timeseries: timeseriesData.timeseries.map((timeseries, index) => ({
-    //       ...timeseries,
-    //       index,
-    //       comparisonDate: timeseriesData.comparison_timeseries[index]?.date,
-    //       comparisonValue: timeseriesData.comparison_timeseries[index]?.value
-    //     }))
-    //   })
-    // })
-    API.get(`/api/v1/organizations/${id}/users/top`).then(setTopUsers);
+    API.get(`/api/v1/organizations/${id}/sessions/timeseries`, { timeframe: '1_year' }).then(({ timeseries }) => {
+      setSessionsTimeseriesData({
+        timeseries,
+        value: timeseries.map(({ value }) => value).reduce((a, b) => a + b, 0),  
+      })
+    })
+    API.get(`/api/v1/organizations/${id}/users`).then(setTopUsers);
   }, [])
 
   if (!organizationData) return <LoadingState />
