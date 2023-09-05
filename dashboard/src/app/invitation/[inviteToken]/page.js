@@ -6,12 +6,12 @@ import Logo from '@/components/Logo';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import { ONE_DAY_IN_MS } from '@/lib/utils/timeHelpers';
 import { CheckCircleIcon, ExclamationCircleIcon } from '@heroicons/react/24/outline';
-import supabase from '@/lib/supabase-browser';
-import { useAuth } from '@/components/Auth/AuthProvider';
+// import supabase from '@/lib/supabase-browser';
+// import { useAuth } from '@/components/Auth/AuthProvider';
 
 export default function Invitation({ params }) {
   const { inviteToken } = params;
-  const { user: loggedInUser, updateCurrentOrganization } = useAuth();
+  // const { user: loggedInUser, updateCurrentOrganization } = useAuth();
   const [userInvite, setUserInvite] = useState();
 
   const isExpired = userInvite
@@ -100,7 +100,7 @@ function AcceptForm({ userInvite, loggedInUser, updateCurrentOrganization }) {
         setLoading(false);
         setErrorMsg(error);
       } else {
-        await supabase.auth.signInWithPassword({ email, password });
+        // await supabase.auth.signInWithPassword({ email, password });
         await updateCurrentOrganization(userInvite.organization);
         setSuccess(true);
         setTimeout(() => window.location.href = '/', 5_000);
