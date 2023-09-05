@@ -10,10 +10,10 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ClickhouseActiverecord::Schema.define(version: 2023_08_25_161953) do
+ClickhouseActiverecord::Schema.define(version: 2023_08_31_203703) do
 
   # TABLE: billing_data_snapshots
-  # SQL: CREATE TABLE swishjam_analytics_dev.billing_data_snapshots ( `swishjam_api_key` String, `captured_at` DateTime, `mrr_in_cents` UInt32, `total_revenue_in_cents` UInt32, `num_active_subscriptions` UInt32, `num_free_trial_subscriptions` UInt32, `num_canceled_subscriptions` UInt32 ) ENGINE = MergeTree ORDER BY (swishjam_api_key, captured_at) SETTINGS index_granularity = 8192
+  # SQL: CREATE TABLE swishjam_analytics_test.billing_data_snapshots ( `swishjam_api_key` String, `captured_at` DateTime, `mrr_in_cents` UInt32, `total_revenue_in_cents` UInt32, `num_active_subscriptions` UInt32, `num_free_trial_subscriptions` UInt32, `num_canceled_subscriptions` UInt32 ) ENGINE = MergeTree ORDER BY (swishjam_api_key, captured_at) SETTINGS index_granularity = 8192
   create_table "billing_data_snapshots", id: false, options: "MergeTree ORDER BY (swishjam_api_key, captured_at) SETTINGS index_granularity = 8192", force: :cascade do |t|
     t.string "swishjam_api_key", null: false
     t.datetime "captured_at", null: false
@@ -25,7 +25,7 @@ ClickhouseActiverecord::Schema.define(version: 2023_08_25_161953) do
   end
 
   # TABLE: events
-  # SQL: CREATE TABLE swishjam_analytics_dev.events ( `swishjam_api_key` String, `uuid` String, `name` String, `device_identifier` Nullable(String), `session_identifier` Nullable(String), `swishjam_organization_id` Nullable(String), `url` Nullable(String), `url_host` Nullable(String), `url_path` Nullable(String), `url_query` Nullable(String), `referrer_url` Nullable(String), `referrer_url_host` Nullable(String), `referrer_url_path` Nullable(String), `referrer_url_query` Nullable(String), `utm_source` Nullable(String), `utm_medium` Nullable(String), `utm_campaign` Nullable(String), `utm_term` Nullable(String), `is_mobile` Nullable(UInt8), `device_type` Nullable(String), `browser` Nullable(String), `browser_version` Nullable(String), `os` Nullable(String), `os_version` Nullable(String), `user_agent` Nullable(String), `properties` String, `occurred_at` DateTime, `ingested_at` DateTime ) ENGINE = MergeTree ORDER BY (swishjam_api_key, name, toMonth(occurred_at)) SETTINGS index_granularity = 8192
+  # SQL: CREATE TABLE swishjam_analytics_test.events ( `swishjam_api_key` String, `uuid` String, `name` String, `device_identifier` Nullable(String), `session_identifier` Nullable(String), `swishjam_organization_id` Nullable(String), `url` Nullable(String), `url_host` Nullable(String), `url_path` Nullable(String), `url_query` Nullable(String), `referrer_url` Nullable(String), `referrer_url_host` Nullable(String), `referrer_url_path` Nullable(String), `referrer_url_query` Nullable(String), `utm_source` Nullable(String), `utm_medium` Nullable(String), `utm_campaign` Nullable(String), `utm_term` Nullable(String), `is_mobile` Nullable(UInt8), `device_type` Nullable(String), `browser` Nullable(String), `browser_version` Nullable(String), `os` Nullable(String), `os_version` Nullable(String), `user_agent` Nullable(String), `properties` String, `occurred_at` DateTime, `ingested_at` DateTime ) ENGINE = MergeTree ORDER BY (swishjam_api_key, name, toMonth(occurred_at)) SETTINGS index_granularity = 8192
   create_table "events", id: false, options: "MergeTree ORDER BY (swishjam_api_key, name, toMonth(occurred_at)) SETTINGS index_granularity = 8192", force: :cascade do |t|
     t.string "swishjam_api_key", null: false
     t.string "uuid", null: false
@@ -58,7 +58,7 @@ ClickhouseActiverecord::Schema.define(version: 2023_08_25_161953) do
   end
 
   # TABLE: user_identify_events
-  # SQL: CREATE TABLE swishjam_analytics_dev.user_identify_events ( `swishjam_api_key` String, `uuid` String, `device_identifier` String, `swishjam_user_id` String, `occurred_at` DateTime, `ingested_at` DateTime ) ENGINE = MergeTree ORDER BY (swishjam_api_key, toMonth(occurred_at)) SETTINGS index_granularity = 8192
+  # SQL: CREATE TABLE swishjam_analytics_test.user_identify_events ( `swishjam_api_key` String, `uuid` String, `device_identifier` String, `swishjam_user_id` String, `occurred_at` DateTime, `ingested_at` DateTime ) ENGINE = MergeTree ORDER BY (swishjam_api_key, toMonth(occurred_at)) SETTINGS index_granularity = 8192
   create_table "user_identify_events", id: false, options: "MergeTree ORDER BY (swishjam_api_key, toMonth(occurred_at)) SETTINGS index_granularity = 8192", force: :cascade do |t|
     t.string "swishjam_api_key", null: false
     t.string "uuid", null: false

@@ -3,32 +3,22 @@ module Api
     module Organizations
       class UsersController < BaseController
         def index
-          @users = @organization.users
-          render json: @users, status: :ok
+          render json: @organization.analytics_user_profiles, each_serializer: Analytics::UserSerializer, status: :ok
         end
 
         def active
           params[:type] ||= 'weekly'
           raise "Invalid `type` provided: #{params[:type]}" unless %w(daily weekly monthly).include?(params[:type])
-        active_users_calculator = {
-          'daily' => ClickHouseQueries::Users::Active::Daily,
-          'weekly' => ClickHouseQueries::Users::Active::Weekly,
-          'monthly' => ClickHouseQueries::Users::Active::Monthly
-        }[params[:type]].new(current_workspace.public_key)
-        render json: {
-          current_value: active_users_calculator.current_value,
-          timeseries: active_users_calculator.timeseries
-        }, status: :ok
-          # raise "Invalid `type` provided: #{params[:type]}" unless %w(daily weekly monthly).include?(params[:type])
-          # active_users_calculator = {
-          #   'daily' => ActiveUserCalculators::Daily,
-          #   'weekly' => ActiveUserCalculators::Weekly,
-          #   'monthly' => ActiveUserCalculators::Monthly
-          # }[params[:type]].new(@organization)
-          # render json: {
-          #   current_value: active_users_calculator.current_value,
-          #   timeseries: active_users_calculator.timeseries
-          # }, status: :ok
+          # TODO: Create a new ClickHouse query to scope this to organization
+          active_users_calculator = {
+            'daily' => ClickHouseQueries::Users::Active::Daily,
+            'weekly' => ClickHouseQueries::Users::Active::Weekly,
+            'monthly' => ClickHouseQueries::Users::Active::Monthly
+          }[params[:type]].new(current_workspace.public_key)
+          render json: {
+            current_value: active_users_calculator.current_value,
+            timeseries: active_users_calculator.timeseries
+          }, status: :ok
         end
 
         def top

@@ -34,8 +34,7 @@ module ClickHouseQueries
                 COUNT(
                   DISTINCT
                     CASE
-                      WHEN identify.swishjam_user_id IS NOT NULL
-                      THEN identify.swishjam_user_id
+                      WHEN identify.swishjam_user_id IS NOT NULL THEN identify.swishjam_user_id
                       ELSE events.device_identifier
                     END
                 )
@@ -53,6 +52,7 @@ module ClickHouseQueries
                   END
                 ) AS occurred_at
               FROM user_identify_events
+              WHERE swishjam_api_key = '#{@public_key}'
               GROUP BY device_identifier, swishjam_user_id
             ) AS identify ON identify.device_identifier = events.device_identifier
             WHERE
