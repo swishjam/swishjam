@@ -28,12 +28,12 @@ export const setAuthToken = tokenValue => {
   }
 }
 
-export const signUserUp = async ({ email, password, organizationName, organizationUrl }) => {
-  const { error, user, organization, token } = await API.post('/auth/register', { email, password, organization_name: organizationName, organization_url: organizationUrl });
+export const signUserUp = async ({ email, password, workspaceName, companyUrl }) => {
+  const { error, user, workspace, token } = await API.post('/auth/register', { email, password, workspace_name: workspaceName, company_url: companyUrl });
   if (token) {
     setAuthToken(token);
   }
-  return { error, user, organization, token };
+  return { error, user, workspace, token };
 }
 
 export const logUserIn = async ({ email, password }) => {
