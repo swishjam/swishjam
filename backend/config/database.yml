@@ -1,8 +1,6 @@
 default: &default
   adapter: postgresql
   encoding: unicode
-  # For details on connection pooling, see Rails configuration guide
-  # https://guides.rubyonrails.org/configuring.html#database-pooling
   pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
 
 development:
@@ -16,10 +14,6 @@ development:
     port: 8123
     username: default
     debug: true
-    # ssl: true
-    # migrations_paths: db/clickhouse
-    # cluster_name: 'some_cluster_name'
-    # replica_name: '{replica_macros_name}'
 
 test:
   transactional:
@@ -34,7 +28,18 @@ test:
     debug: true
 
 production:
-  <<: *default
-  database: swishjam
-  username: database
-  password: <%= ENV['DATABASE_DATABASE_PASSWORD'] %>
+  transactional:
+    <<: *default
+    host: <%= ENV['POSTGRES_DB_HOST'] %>
+    database: <%= ENV['POSTGRES_DB_NAME'] %>
+    username: <%= ENV['POSTGRES_DB_USERNAME'] %>
+    password: <%= ENV['POSTGRES_DB_PASSWORD'] %>
+    port: <%= ENV['POSTGRES_DB_PORT'] %>
+  clickhouse:
+    adapter: clickhouse
+    database: swishjam_analytics
+    host: <%= ENV['CLICKHOUSE_DB_HOST'] %>
+    port: 8123
+    username: <%= ENV['CLICKHOUSE_DB_USERNAME'] %>
+    password: <%= ENV['CLICKHOUSE_DB_PASSWORD'] %>
+    debug: false
