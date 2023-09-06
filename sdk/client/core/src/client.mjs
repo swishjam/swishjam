@@ -8,7 +8,7 @@ export class Client {
   constructor(options = {}) {
     this.config = this._setConfig(options);
     this.dataHandler = this._initDataHandler(this.config);
-    if (!this.getSession()) this.newSession();
+    if (!this.getSession()) this.newSession({ registerPageView: false });
     this.pageViewManager = this._initPageViewTracker();
   }
 
@@ -36,7 +36,7 @@ export class Client {
     return MemoryHandler.get('sessionId');
   }
 
-  newSession = () => {
+  newSession = ({ registerPageView = true }) => {
     const safeParsedReferrer = () => {
       try {
         return this.pageViewManager ? new URL(this.pageViewManager.previousUrl()) : new URL(document.referrer);
@@ -57,7 +57,8 @@ export class Client {
       utm_term: new URLSearchParams(document.location.search).get('utm_term'),
       utm_content: new URLSearchParams(document.location.search).get('utm_content'),
     });
-    this.pageViewManager.recordPageView();
+    if (registerPageView) this.pageViewManager.recordPageView();
+    return this.getSession();
   }
 
   _extractOrganizationFromIdentifyCall = identifyTraits => {
@@ -103,12 +104,12 @@ export class Client {
       if (!validOptions.includes(key)) console.warn(`Swishjam received unrecognized config: ${key}`);
     });
     return {
-      version: '0.0.01',
+      version: '0.0.12',
       apiKey: options.apiKey,
-      apiEndpoint: options.apiEndpoint || 'http://localhost:3000/api/v1/capture',
+      apiEndpoint: options.apiEndpoint || 'https://api2.swishjam.com/api/v1/capture',
       maxEventsInMemory: options.maxEventsInMemory || 20,
       reportingHeartbeatMs: options.reportingHeartbeatMs || 10_000,
-      debug: typeof options.debug === 'boolean' ? options.debug : false,
+      // debug: typeof options.debug === 'boolean' ? options.debug : false,
     }
   }
 }
