@@ -20,8 +20,6 @@
   document.head.appendChild(s);
   
   s.onload = () => {
-    // TODO: this is still the stubbed version, when it should be loaded at this point and overridden with the SDK
-    debugger;
     inMemoryEvents.forEach(event => {
       switch (event.name) {
         case 'identify':
@@ -37,4 +35,4 @@
     });
     onLoadCallbacks.forEach(callback => callback(window.Swishjam));
   }
-})('https://unpkg.com/@swishjam/cdn@latest/build.js', 'swishjam-644e978b-cd0b091c', { apiEndpoint: 'https://swishjam-prod-9a00662c420f75d5.onporter.run/api/v1/capture' })
+})('https://unpkg.com/@swishjam/cdn@latest/build.js', '{{SWISHJAM_PUBLIC_KEY}}', { apiEndpoint: 'https://swishjam-prod-9a00662c420f75d5.onporter.run/api/v1/capture' })

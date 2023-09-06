@@ -3,6 +3,7 @@ import { DataHandler } from "./dataHandler.mjs";
 import { Event } from "./event.mjs";
 import { MemoryHandler } from "./memoryHandler.mjs";
 import { UUID } from "./uuid.mjs";
+import { SDK_VERSION } from './version.mjs'
 
 export class Client {
   constructor(options = {}) {
@@ -104,7 +105,7 @@ export class Client {
       if (!validOptions.includes(key)) console.warn(`Swishjam received unrecognized config: ${key}`);
     });
     return {
-      version: '0.0.12',
+      version: SDK_VERSION,
       apiKey: options.apiKey,
       apiEndpoint: options.apiEndpoint || 'https://api2.swishjam.com/api/v1/capture',
       maxEventsInMemory: options.maxEventsInMemory || 20,

@@ -61,7 +61,7 @@ module WebEventProcessors
     end
 
     def referrer_url
-      @event_json['previousUrl']
+      @event_json['previousUrl'] || @event_json['referrer_url']
     end
 
     def parsed_referrer_url
