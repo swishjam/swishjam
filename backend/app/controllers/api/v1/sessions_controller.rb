@@ -68,8 +68,8 @@ module Api
 
         if params[:types].include?('device_type')
           devices = querier.get(:is_mobile)
-          json[:mobile_count] = devices[0] || 0
-          json[:desktop_count] = devices[1] || 0
+          json[:mobile_count] = devices[1] || 0
+          json[:desktop_count] = devices[0] || 0
         end
         json[:browsers] = querier.get(:browser) if params[:types].include?('browser')
         # json[:cities] = querier.get(:city) if params[:types].include?('city')
