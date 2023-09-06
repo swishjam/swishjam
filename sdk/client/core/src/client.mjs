@@ -57,6 +57,7 @@ export class Client {
       utm_term: new URLSearchParams(document.location.search).get('utm_term'),
       utm_content: new URLSearchParams(document.location.search).get('utm_content'),
     });
+    this.pageViewManager.recordPageView();
   }
 
   _extractOrganizationFromIdentifyCall = identifyTraits => {
@@ -91,7 +92,7 @@ export class Client {
       const pageViewEvent = new Event('page_view', { previousUrl });
       this.dataHandler.add(pageViewEvent);
     })
-    pageViewManager.trackPageView();
+    pageViewManager.recordPageView();
     return pageViewManager;
   }
 

@@ -36,12 +36,8 @@ module ClickHouseQueries
           FROM
             events AS e
           JOIN (
-            SELECT
-              uuid,
-              JSONExtractString(properties, 'url_host') AS url_host,
-              JSONExtractString(properties, 'url_path') AS url_path
-            FROM
-              events
+            SELECT uuid, url_host, url_path
+            FROM events
             WHERE
               swishjam_api_key = '#{@public_key}' AND
               occurred_at BETWEEN '#{formatted_time(@start_time)}' AND '#{formatted_time(@end_time)}' AND
