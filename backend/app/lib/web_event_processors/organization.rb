@@ -13,12 +13,12 @@ module WebEventProcessors
       end
 
       properties = { swishjam_organization_id: profile.id }
-      properties[Analytics::Event::ReservedPropertyNames.SESSION_IDENTIFIER.to_sym] = unique_session_identifier
-      properties[Analytics::Event::ReservedPropertyNames.DEVICE_IDENTIFIER.to_sym] = fingerprint_value
 
       Analytics::Event.create!(
         uuid: uuid,
         swishjam_api_key: @workspace.public_key,
+        session_identifier: unique_session_identifier,
+        device_identifier: fingerprint_value,
         name: event_name,
         occurred_at: timestamp,
         properties: properties.merge(metadata)

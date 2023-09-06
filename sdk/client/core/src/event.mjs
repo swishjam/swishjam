@@ -17,6 +17,7 @@ export class Event {
 
   toJSON() {
     return {
+      uuid: this.uuid,
       deviceId: this.fingerprint,
       sessionId: this.sessionId,
       pageViewId: this.pageViewId,

@@ -59,5 +59,13 @@ module WebEventProcessors
     def parsed_url
       @parsed_url ||= URI.parse(full_url || '')
     end
+
+    def referrer_url
+      @event_json['previousUrl']
+    end
+
+    def parsed_referrer_url
+      @parsed_referrer_url ||= URI.parse(referrer_url || '')
+    end
   end
 end
