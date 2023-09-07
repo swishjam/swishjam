@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from 'react';
-import { LineChart, Tooltip, Line, ResponsiveContainer, XAxis, YAxis, CartesianGrid } from 'recharts';
+import { AreaChart, Area, LineChart, Tooltip, Line, ResponsiveContainer, XAxis, YAxis, CartesianGrid } from 'recharts';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
 import { HoverCard, HoverCardTrigger, HoverCardContent } from "@/components/ui/hover-card";
@@ -140,7 +140,7 @@ export default function LineChartWithValue({
           ? (
             <div className='flex align-center justify-center my-6'>
             <ResponsiveContainer width="100%" aspect={3}>
-              <LineChart data={timeseries} margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>
+              <AreaChart data={timeseries} margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>
                 <XAxis 
                   className='group-hover:opacity-100 opacity-0 duration-500 transition'
                   dataKey="date"
@@ -161,24 +161,25 @@ export default function LineChartWithValue({
                   allowEscapeViewBox={{x: false, y: true}}
                   animationEasing='ease-in-out'
                 />
-                <Line
-                  // type="natural"
+                <Area
                   type="monotone"
                   dataKey='comparisonValue'
-                  stroke="#E2E8F0"
+                  stroke="#878b90"
                   dot={{ r: 0 }}
                   activeDot={{ r: 2 }}
                   strokeWidth={2}
+                  fill="#E2E8F0"
                 />
-                <Line
+                <Area
                   type="monotone"
                   dataKey='value'
                   stroke="#7dd3fc"
                   dot={{ r: 0 }}
                   activeDot={{ r: 2 }}
                   strokeWidth={2}
+                  fill="#F2FAFE"
                 />
-              </LineChart>
+              </AreaChart>
             </ResponsiveContainer>
             </div> 
           ) : (
