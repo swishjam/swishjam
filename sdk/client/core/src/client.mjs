@@ -93,6 +93,10 @@ export class Client {
       MemoryHandler.set('pageViewId', UUID.generate('pv'));
       const pageViewEvent = new Event('page_view', { previousUrl });
       this.dataHandler.add(pageViewEvent);
+    });
+    window.addEventListener('beforeunload', async () => {
+      this.dataHandler.add(new Event('page_left'));
+      await this.dataHandler.flushQueue();
     })
     pageViewManager.recordPageView();
     return pageViewManager;

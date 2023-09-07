@@ -1,6 +1,6 @@
 {
   "name": "@swishjam/cdn",
-  "version": "0.0.134",
+  "version": "0.0.135",
   "description": "",
   "main": "build.js",
   "scripts": {
@@ -10,7 +10,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@swishjam/core": "^0.0.122",
+    "@swishjam/core": "^0.0.123",
     "webpack": "^5.88.2",
     "webpack-cli": "^5.1.4"
   },
