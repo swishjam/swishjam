@@ -14,6 +14,7 @@ gem 'net-http'
 
 gem 'groupdate'
 gem 'sidekiq', '~> 6.5'
+gem 'sidekiq-failures'
 gem 'stripe'
 gem 'dotenv'
 gem 'rack-cors'
