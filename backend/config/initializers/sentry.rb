@@ -1,5 +1,7 @@
+return unless Rails.env.production? || ENV['SENTRY_ENABLED']
+
 Sentry.init do |config|
-  config.dsn = 'https://1d35705985f7d55655e8d860381328d0@o4505092626710528.ingest.sentry.io/4505836618448897'
+  config.dsn = ENV['SENTRY_DSN']
   config.breadcrumbs_logger = [:active_support_logger, :http_logger]
 
   # Set traces_sample_rate to 1.0 to capture 100%
