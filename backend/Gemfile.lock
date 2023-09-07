@@ -204,6 +204,11 @@ GEM
       diff-lcs (>= 1.2.0, < 2.0)
       rspec-support (~> 3.12.0)
     rspec-support (3.12.1)
+    sentry-rails (5.11.0)
+      railties (>= 5.0)
+      sentry-ruby (~> 5.11.0)
+    sentry-ruby (5.11.0)
+      concurrent-ruby (~> 1.0, >= 1.0.2)
     sidekiq (6.5.9)
       connection_pool (>= 2.2.5, < 3)
       rack (~> 2.0)
@@ -278,6 +283,8 @@ DEPENDENCIES
   rack-cors
   rails (~> 6.1.7, >= 6.1.7.4)
   rspec
+  sentry-rails
+  sentry-ruby
   sidekiq (~> 6.5)
   simplecov
   spring
