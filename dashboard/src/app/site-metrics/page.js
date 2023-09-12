@@ -86,8 +86,8 @@ const Home = () => {
   }
 
   const getTopPages = async (tf) => {
-    API.get('/api/v1/page_views', { timeframe: tf }).then(({ top_pages }) => {
-      setTopPages(top_pages.map(({ url, count }) => ({ name: url, value: count })));
+    API.get('/api/v1/page_views', { timeframe: tf }).then(({ page_view_counts  }) => {
+      setTopPages(page_view_counts.map(({ url, count }) => ({ name: url, value: count })));
     });
   }
 

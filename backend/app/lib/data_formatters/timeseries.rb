@@ -2,12 +2,13 @@ module DataFormatters
   class Timeseries
     attr_reader :data, :start_time, :end_time, :group_by
     
-    def initialize(data, start_time:, end_time:, group_by:, value_method: :count)
+    def initialize(data, start_time:, end_time:, group_by:, value_method: :count, date_method: :occurred_at)
       @data = data
       @start_time = start_time
       @end_time = end_time
       @group_by = group_by
       @value_method = value_method
+      @date_method = date_method
     end
 
     def raw_data
@@ -19,7 +20,7 @@ module DataFormatters
       current_time = start_time
       @filled_in_data = []
       while current_time <= end_time
-        matching_result = data.find{ |result| result.occurred_at == current_time }
+        matching_result = data.find{ |result| result.send(@date_method).to_datetime == current_time.to_datetime }
         @filled_in_data <<  { date: current_time, value: matching_result&.send(@value_method) || 0 }
         current_time += 1.send(group_by)
       end

@@ -6,13 +6,13 @@ class CreateEventsTable < ActiveRecord::Migration[6.1]
         `uuid` String,
         `swishjam_api_key` LowCardinality(String),
         `name` LowCardinality(String),
+        `analytics_family` Enum('marketing', 'product', 'other') DEFAULT 'other',
         `ingested_at` DateTime,
         `occurred_at` DateTime,
         `properties` String,
       )
       ENGINE = MergeTree()
-      PRIMARY KEY (swishjam_api_key, name)
-      ORDER BY (swishjam_api_key, name, occurred_at)
+      ORDER BY (analytics_family, swishjam_api_key, name, occurred_at)
     SQL
   end
 

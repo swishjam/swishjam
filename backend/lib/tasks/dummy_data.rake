@@ -119,13 +119,13 @@ def seed_events!
       swishjam_api_key: WORKSPACE.public_key,
       name: Analytics::Event::ReservedNames.NEW_SESSION,
       occurred_at: session_start_time,
+      analytics_family: ['marketing', 'product'].sample,
       properties: {
         device_identifier: device_identifier,
         session_identifier: session_identifier,
         swishjam_organization_id: swishjam_organization_id,
         url: session_start_url,
         referrer: session_referrer,
-        analytics_family: ['marketing', 'product'].sample,
         is_mobile: [true, false].sample,
         device_type: ['mobile', 'desktop'].sample,
         browser_name: ['Chrome', 'Firefox', 'Safari', 'Internet Explorer'].sample,
@@ -165,20 +165,14 @@ def create_page_view_event!(session_identifier:, device_identifier:, swishjam_or
     uuid: SecureRandom.uuid,
     name: Analytics::Event::ReservedNames.PAGE_VIEW,
     occurred_at: occurred_at,
+    analytics_family: ['marketing', 'product'].sample,
     properties: {
       device_identifier: device_identifier,
       session_identifier: session_identifier,
       swishjam_organization_id: swishjam_organization_id,
+      page_view_identifier: SecureRandom.uuid,
       url: "https://#{HOST_URL}#{url_path}",
       referrer: referrer_url,
-      analytics_family: ['marketing', 'product'].sample,
-      is_mobile: [true, false].sample,
-      device_type: ['mobile', 'desktop'].sample,
-      browser: ['Chrome', 'Firefox', 'Safari', 'Internet Explorer'].sample,
-      browser_version: rand(1..10).to_s,
-      os: ['Mac OS X', 'Windows', 'Linux'].sample,
-      os_version: rand(1..10).to_s,
-      user_agent: Faker::Internet.user_agent,
     }
   )
 end
@@ -192,12 +186,12 @@ def create_rand_event!(session_identifier:, device_identifier:, swishjam_organiz
     uuid: SecureRandom.uuid,
     name: EVENT_NAMES[rand(0..EVENT_NAMES.count - 1)],
     occurred_at: occurred_at,
+    analytics_family: ['marketing', 'product'].sample,
     properties: random_props.merge({
       device_identifier: device_identifier,
       session_identifier: session_identifier,
       swishjam_organization_id: swishjam_organization_id,
       url: "https://#{HOST_URL}#{url_path}",
-      analytics_family: ['marketing', 'product'].sample,
     })
   )
 end
@@ -213,15 +207,15 @@ def seed_billing_data!
 
   last_snapshot = nil
   365.times do |i|
-    # last_snapshot = Analytics::BillingDataSnapshot.create!(
-    #   swishjam_api_key: WORKSPACE.public_key,
-    #   mrr_in_cents: (last_snapshot&.mrr_in_cents || 1_000_000 * 100) * 0.95,
-    #   total_revenue_in_cents: (last_snapshot&.total_revenue_in_cents || 5_000_000 * 100) * 0.95,
-    #   num_active_subscriptions: (last_snapshot&.num_active_subscriptions || 1_000) * 0.95,
-    #   num_free_trial_subscriptions: (last_snapshot&.num_free_trial_subscriptions || 250) * 0.95,
-    #   num_canceled_subscriptions: (last_snapshot&.num_canceled_subscriptions || 1_000) * 0.95,
-    #   captured_at: Time.current - i.days,
-    # )
+    last_snapshot = Analytics::BillingDataSnapshot.create!(
+      swishjam_api_key: WORKSPACE.public_key,
+      mrr_in_cents: (last_snapshot&.mrr_in_cents || 1_000_000 * 100) * 0.95,
+      total_revenue_in_cents: (last_snapshot&.total_revenue_in_cents || 5_000_000 * 100) * 0.95,
+      num_active_subscriptions: (last_snapshot&.num_active_subscriptions || 1_000) * 0.95,
+      num_free_trial_subscriptions: (last_snapshot&.num_free_trial_subscriptions || 250) * 0.95,
+      num_canceled_subscriptions: (last_snapshot&.num_canceled_subscriptions || 1_000) * 0.95,
+      captured_at: Time.current - i.days,
+    )
     progress_bar.advance
   end
   puts "\n"
@@ -278,7 +272,7 @@ namespace :seed do
       users = seed_user_profiles!
       organizations = seed_organization_profiles!
       assign_user_profiles_to_organization_profiles!(users, organizations)
-      # create_user_identify_events!(users)
+      create_user_identify_events!(users)
       seed_events!
       seed_billing_data!
 

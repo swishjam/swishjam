@@ -1,6 +1,7 @@
 import { PageViewManager } from "./pageViewManager.mjs";
 import { EventManager } from "./eventManager.mjs";
 import { DataPersister } from "./dataPersister.mjs";
+import { DeviceDetails } from "./deviceDetails";
 import { UUID } from "./uuid.mjs";
 import { SDK_VERSION } from './version.mjs'
 
@@ -40,7 +41,10 @@ export class Client {
   newSession = ({ registerPageView = true }) => {
     // important to set this first because the new Event reads from the DataPersister
     DataPersister.set('sessionId', UUID.generate('s'));
-    this.record('new_session', { referrer: this.pageViewManager.previousUrl() });
+    this.record('new_session', { 
+      referrer: this.pageViewManager.previousUrl(),
+      ...DeviceDetails.all()
+    });
     if (registerPageView) this.pageViewManager.recordPageView();
     return this.getSession();
   }

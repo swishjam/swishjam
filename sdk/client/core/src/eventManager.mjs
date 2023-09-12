@@ -5,7 +5,7 @@ export class EventManager {
     this.data = [];
     this.numFailedReports = 0;
 
-    this.apiEndpoint = options.apiEndpoint || 'http://localhost:3000/api/v1/data';
+    this.apiEndpoint = options.apiEndpoint;
     this.apiKey = options.apiKey;
     this.maxSize = options.maxSize || 20;
     this.heartbeatMs = options.heartbeatMs || 10_000;
@@ -19,8 +19,8 @@ export class EventManager {
   getData = () => this.data;
 
   recordEvent = async (eventName, properties) => {
-    const eventType = this._determineEventType();
-    const event = new Event(eventName, eventType, properties);
+    const analyticsFamily = this._determineAnalyticsFamily();
+    const event = new Event(eventName, analyticsFamily, properties);
     this.data.push(event.toJSON());
     if (this.data.length >= this.maxSize) {
       await this._reportDataIfNecessary();
@@ -61,7 +61,7 @@ export class EventManager {
     }
   }
 
-  _determineEventType = () => {
+  _determineAnalyticsFamily = () => {
     if (this._isUrlMatch(this.marketingUrlRegExp)) return 'marketing';
     if (this._isUrlMatch(this.productUrlRegExp)) return 'product';
   }

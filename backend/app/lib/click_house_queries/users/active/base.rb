@@ -9,20 +9,24 @@ module ClickHouseQueries
         include ClickHouseQueries::Helpers
         include TimeseriesHelper
 
-        def initialize(public_key, start_time: self.class.default_start_time, end_time: self.class.default_end_time || Time.current)
+        def initialize(public_key, analytics_family: 'product', start_time: self.class.default_start_time, end_time: self.class.default_end_time || Time.current)
           @public_key = public_key
+          @analytics_family = analytics_family
           @start_time, @end_time = rounded_timestamps(start_ts: start_time, end_ts: end_time, group_by: self.class.sql_date_trunc_unit)
-        end
-
-        def current_value
-          timeseries.last[:value]
         end
 
         def timeseries
           raise ArgumentError, "#{self.class.to_s} must define `sql_date_trunc_unit` (ie: `day`, `week`, `month`)" if !self.class.sql_date_trunc_unit.present?
           return @timeseries_data if defined?(@timeseries_data)
           raw_results = Analytics::Event.find_by_sql(sql.squish!)
-          @timeseries_data = filled_in_results(raw_results)
+          @timeseries_data = DataFormatters::Timeseries.new(
+            raw_results, 
+            start_time: @start_time,
+            end_time: @end_time,
+            group_by: self.class.sql_date_trunc_unit, 
+            value_method: :num_unique_users,
+            date_method: :group_by_date
+          )
         end
 
         def sql
@@ -30,34 +34,27 @@ module ClickHouseQueries
             SELECT 
               DATE_TRUNC('#{self.class.sql_date_trunc_unit}', events.occurred_at) AS group_by_date,
               DATE_TRUNC('year', events.occurred_at) AS year,
-              CAST(
-                COUNT(
-                  DISTINCT
-                    CASE
-                      WHEN identify.swishjam_user_id IS NOT NULL THEN identify.swishjam_user_id
-                      ELSE events.device_identifier
-                    END
+              CAST(COUNT(DISTINCT
+                IF(
+                  identify.swishjam_user_id IS NOT NULL, 
+                  identify.swishjam_user_id, 
+                  JSONExtractString(events.properties, '#{Analytics::Event::ReservedPropertyNames.DEVICE_IDENTIFIER}')
                 )
-              AS int) AS num_unique_users
+              ) AS int) AS num_unique_users
             FROM events
             LEFT JOIN (
-              SELECT 
-                IF(device_identifier IS NULL, NULL, device_identifier) AS device_identifier,
-                IF(swishjam_user_id IS NULL, NULL, swishjam_user_id) AS swishjam_user_id,
-                MAX(
-                  CASE
-                    WHEN occurred_at IS NOT NULL
-                    THEN occurred_at
-                    ELSE NULL
-                  END
-                ) AS occurred_at
-              FROM user_identify_events
+              SELECT
+                device_identifier,
+                MAX(occurred_at) AS max_occurred_at,
+                argMax(swishjam_user_id, occurred_at) AS swishjam_user_id
+              FROM user_identify_events AS uie
               WHERE swishjam_api_key = '#{@public_key}'
-              GROUP BY device_identifier, swishjam_user_id
-            ) AS identify ON identify.device_identifier = events.device_identifier
+              GROUP BY device_identifier
+            ) AS identify ON identify.device_identifier = JSONExtractString(events.properties, '#{Analytics::Event::ReservedPropertyNames.DEVICE_IDENTIFIER}')
             WHERE
               events.swishjam_api_key = '#{@public_key}' AND
-              events.occurred_at BETWEEN '#{formatted_time(@start_time)}' AND '#{formatted_time(@end_time)}'
+              events.occurred_at BETWEEN '#{formatted_time(@start_time)}' AND '#{formatted_time(@end_time)}' AND
+              events.analytics_family = '#{@analytics_family}'
             GROUP BY group_by_date, year
             ORDER BY group_by_date ASC
           SQL
