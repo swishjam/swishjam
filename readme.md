@@ -37,7 +37,7 @@ Each folder: api, database, instrumentation, and dashboard [coming soon] will ha
 3. API
 3. Dashboard
 
-### Instrumentation
+### Adding Swishjam SDK
 The `instrumentation` directory is what houses all of the Swishjam javascript that collects your web page's performance data and sends it to the API. In order to self-host Swishjam, you must host the Swishjam JS where your host the rest of your client-side JS. In order to do this, you must:
 
 1. Run `npm install` within the `/instrumentation` directory.
@@ -67,6 +67,12 @@ Swishjam.init({
   shouldCapturePerformanceEntries // Disable performance entry capture entirely, and only report Core Web Vital metrics.
 })
 ```
+
+### Testing Swishjam SDK Locally
+1. In `/sdk/client/core` run `npm link`
+2. In `/sdk/client/next-js` run `npm link @swishjam/core`
+3. In `/sdk/client/next-js` run `npm link`
+4. In your site report run `npm link @swishjam/next-js`, and you should now be able to make changes locally and test
 
 ### Database
 The `database` directory is where your Postgres database is maintained. It uses Sequelize to run migrations against your DB. In order to get started you must:
