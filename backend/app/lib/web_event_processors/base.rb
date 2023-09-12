@@ -14,17 +14,17 @@ module WebEventProcessors
     end
 
     def event_type
-      @event_json['type']
+      @event_json['event_type']
     end
     alias name event_type
     alias event_name event_type
 
     def unique_session_identifier
-      @event_json['sessionId']
+      @event_json['session_identifier']
     end
 
     def page_view_id
-      @event_json['pageViewId']
+      @event_json['page_view_identifier']
     end
 
     def timestamp
@@ -34,38 +34,21 @@ module WebEventProcessors
     def epoch_timestamp
       @event_json['timestamp']
     end
-
-    def device_data
-      @event_json['deviceData'].with_indifferent_access
-    end
     
     def user_provided_data
       (@event_json['data'] || {}).with_indifferent_access
     end
 
-    def geo_data
-      return if @event_json['ip_address'].blank?
-      @geo_data ||= Geocoder.search(@event_json['ip_address'])&.first
-    end
-
-    def fingerprint_value
-      device_data['fingerprint']
+    def device_identifier
+      @event_json['device_identifier']
     end
 
     def full_url
       @event_json['url']
     end
 
-    def parsed_url
-      @parsed_url ||= URI.parse(full_url || '')
-    end
-
     def referrer_url
-      @event_json['previousUrl'] || @event_json['referrer_url']
-    end
-
-    def parsed_referrer_url
-      @parsed_referrer_url ||= URI.parse(referrer_url || '')
+      @event_json['referrer']
     end
   end
 end

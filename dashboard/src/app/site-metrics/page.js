@@ -76,7 +76,7 @@ const Home = () => {
 
   const getDemographicData = async (tf) => {
     API.get('/api/v1/sessions/demographics', { timeframe: tf }).then(demographics => {
-      setTopBrowsers(Object.keys(demographics.browsers).map(browser => ({ name: browser, value: demographics.browsers[browser] })));
+      setTopBrowsers(demographics.browsers.map(({ browser_name, count }) => ({ name: browser_name, value: count })));
       setTopDevices([
         { name: 'Desktop', value: demographics.desktop_count, icon: DesktopIcon }, 
         { name: 'Mobile', value: demographics.mobile_count, icon: MobileIcon }
@@ -86,7 +86,7 @@ const Home = () => {
   }
 
   const getTopPages = async (tf) => {
-    API.get('/api/v1/page_hits', { timeframe: tf }).then(({ top_pages }) => {
+    API.get('/api/v1/page_views', { timeframe: tf }).then(({ top_pages }) => {
       setTopPages(top_pages.map(({ url, count }) => ({ name: url, value: count })));
     });
   }

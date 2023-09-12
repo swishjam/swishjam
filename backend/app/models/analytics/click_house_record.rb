@@ -7,5 +7,9 @@ module Analytics
     scope :for_public_key, -> (public_key) { by_public_key(public_key) }
     scope :by_workspace, -> (workspace) { by_public_key(workspace.public_key) }
     scope :for_workspace, -> (workspace) { by_workspace(workspace) }
+
+    def self.formatted_time(time)
+      time.strftime('%Y-%m-%d %H:%M:%S')
+    end
   end
 end

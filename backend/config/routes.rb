@@ -77,7 +77,7 @@ Rails.application.routes.draw do
         end
       end
 
-      resources :page_hits, only: [:index]
+      resources :page_views, only: [:index]
       
       resources :events, only: [] do
         collection do

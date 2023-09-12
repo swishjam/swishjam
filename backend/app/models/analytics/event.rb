@@ -2,7 +2,7 @@ module Analytics
   class Event < ClickHouseRecord
     class ReservedNames
       class << self
-        METHOD_NAMES = [:PAGE_VIEW, :PAGE_LEFT, :NEW_SESSION]
+        METHOD_NAMES = %i[PAGE_VIEW PAGE_LEFT NEW_SESSION]
         
         METHOD_NAMES.each do |property_name|
           define_method(property_name) do
@@ -18,7 +18,7 @@ module Analytics
 
     class ReservedPropertyNames
       class << self
-        METHOD_NAMES = [:SESSION_IDENTIFIER, :DEVICE_IDENTIFIER, :SWISHJAM_ORGANIZATION_ID]
+        METHOD_NAMES = %i[ANALYTICS_FAMILY SESSION_IDENTIFIER DEVICE_IDENTIFIER PAGE_VIEW_IDENTIFIER SWISHJAM_ORGANIZATION_ID REFERRER URL]
 
         METHOD_NAMES.each do |property_name|
           define_method(property_name) do

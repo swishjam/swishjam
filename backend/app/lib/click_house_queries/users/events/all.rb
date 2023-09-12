@@ -28,7 +28,15 @@ module ClickHouseQueries
               e.occurred_at AS occurred_at, 
               e.ingested_at AS ingested_at
             FROM events AS e
-            #{join_statement}
+            JOIN (
+              SELECT
+                device_identifier,
+                MAX(occurred_at) AS max_occurred_at,
+                argMax(swishjam_user_id, occurred_at) AS swishjam_user_id
+              FROM user_identify_events AS uie
+              WHERE swishjam_api_key = '#{@public_key}'
+              GROUP BY device_identifier
+            ) AS uie ON e.device_identifier = uie.device_identifier AND uie.swishjam_user_id = '#{@user_profile_id}'
             WHERE 
               e.swishjam_api_key = '#{@public_key}' AND
               e.occurred_at BETWEEN '#{formatted_time(@start_time)}' AND '#{formatted_time(@end_time)}' AND

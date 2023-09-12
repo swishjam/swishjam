@@ -55,15 +55,15 @@ describe AnalyticsEventProcessors::Custom do
       expect(Analytics::PageHit.count).to be(0)
       AnalyticsEventProcessors::Custom.new(@swishjam_organization.public_key, @event_payload).process!
 
-      new_page_hit = Analytics::PageHit.last
+      new_page_view = Analytics::PageHit.last
       expect(Analytics::PageHit.count).to be(1)
-      expect(new_page_hit.session.unique_identifier).to eq(@session_identifier)
-      expect(new_page_hit.unique_identifier).to eq(@page_view_identifier)
-      expect(new_page_hit.full_url).to eq('http://www.waffleshop.com/hello-world')
-      expect(new_page_hit.url_host).to eq('www.waffleshop.com')
-      expect(new_page_hit.url_path).to eq('/hello-world')
-      expect(new_page_hit.url_query).to be_nil
-      expect(new_page_hit.start_time).to eq(Time.at(@timestamp / 1_000))
+      expect(new_page_view.session.unique_identifier).to eq(@session_identifier)
+      expect(new_page_view.unique_identifier).to eq(@page_view_identifier)
+      expect(new_page_view.full_url).to eq('http://www.waffleshop.com/hello-world')
+      expect(new_page_view.url_host).to eq('www.waffleshop.com')
+      expect(new_page_view.url_path).to eq('/hello-world')
+      expect(new_page_view.url_query).to be_nil
+      expect(new_page_view.start_time).to eq(Time.at(@timestamp / 1_000))
     end
 
     it 'creates a new device if one does not exist' do
@@ -100,7 +100,7 @@ describe AnalyticsEventProcessors::Custom do
         device: existing_device, 
         unique_identifier: @session_identifier
       )
-      existing_page_hit = FactoryBot.create(:analytics_page_hit, 
+      existing_page_view = FactoryBot.create(:analytics_page_view, 
         session: existing_session, 
         device: existing_device, 
         unique_identifier: @page_view_identifier
@@ -108,9 +108,9 @@ describe AnalyticsEventProcessors::Custom do
       expect(Analytics::PageHit.count).to be(1)
       AnalyticsEventProcessors::Custom.new(@swishjam_organization.public_key, @event_payload).process!
       expect(Analytics::PageHit.count).to be(1)
-      expect(Analytics::PageHit.last).to eq(existing_page_hit)
+      expect(Analytics::PageHit.last).to eq(existing_page_view)
       event = Analytics::Event.last
-      expect(event.page_hit).to eq(existing_page_hit)
+      expect(event.page_view).to eq(existing_page_view)
     end
 
     it 'uses an existing device if one already exists' do

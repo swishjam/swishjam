@@ -5,7 +5,7 @@ export class PageViewManager {
   }
 
   currentUrl = () => this._currentUrl;
-  previousUrl = () => this._previousUrl;
+  previousUrl = () => this._previousUrl || document.referrer;
 
   onNewPage = callback => {
     this.newPageCallbacks.push(callback);
