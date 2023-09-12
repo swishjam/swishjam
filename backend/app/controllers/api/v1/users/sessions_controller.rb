@@ -3,16 +3,20 @@ module Api
     module Users
       class SessionsController < BaseController
         def timeseries
-          url_hosts = current_workspace.url_segments.pluck(:url_host)
-          querier = ClickHouseQueries::Users::Sessions::Timeseries.new(
+          analytics_family = params[:analytics_family] || 'product'
+          if !['product', 'marketing'].include?(analytics_family)
+            render json: { error: 'Invalid analytics_family' }, status: :bad_request
+            return
+          end
+          timeseries = ClickHouseQueries::Users::Sessions::Timeseries.new(
             current_workspace.public_key, 
             @user.id, 
-            url_hosts: url_hosts, 
             # start_time: start_timestamp, 
             start_time: 3.months.ago,
-            end_time: end_timestamp
-          )
-          render json: { timeseries: querier.timeseries }, status: :ok
+            end_time: end_timestamp,
+            analytics_family: analytics_family
+          ).timeseries
+          render json: { timeseries: timeseries.formatted_data }, status: :ok
         end
       end
     end

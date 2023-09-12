@@ -4,7 +4,7 @@ module Api
       class EventsController < BaseController
         def index
           limit = params[:limit] || 10
-          events = ClickHouseQueries::Users::Events::All.new(
+          events = ClickHouseQueries::Users::Events::List.new(
             current_workspace.public_key, 
             user_profile_id: @user.id, 
             limit: limit, 
