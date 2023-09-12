@@ -6,16 +6,16 @@
     "type": "git",
     "url": "https://github.com/swishjam/swishjam/tree/main/sdk/client/npm"
   },
-  "version": "0.0.14",
+  "version": "0.0.123",
   "main": "src/swishjam.mjs",
   "scripts": {},
   "author": "",
   "license": "ISC",
-  "dependencies": {
-    "clientjs": "^0.2.1"
-  },
   "devDependencies": {
     "jest": "^29.6.2",
     "jest-environment-jsdom": "^29.6.2"
+  },
+  "dependencies": {
+    "@swishjam/clientjs": "^0.2.1"
   }
 }

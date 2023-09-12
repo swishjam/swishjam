@@ -1,4 +1,4 @@
-import Swishjam from '@swishjam/client';
+import Swishjam from '@swishjam/core';
 
 (function() {
   const apiKey = document.currentScript.getAttribute('data-api-key');

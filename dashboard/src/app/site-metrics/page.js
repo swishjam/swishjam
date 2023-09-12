@@ -30,10 +30,10 @@ const LoadingState = () => (
       <BarListCard title='Referrers' />
       <BarListCard title='Top Pages' />
     </div>
-    <div className='grid grid-cols-3 gap-6 pt-8'>
+    <div className='grid grid-cols-2 gap-6 pt-8'>
       <BarListCard title='Devices' />
       <BarListCard title='Browsers' />
-      <BarListCard title='Countries' />
+      {/* <BarListCard title='Countries' /> */}
     </div>
   </main>
 )
@@ -82,7 +82,7 @@ const Home = () => {
         { name: 'Desktop', value: demographics.desktop_count, icon: DesktopIcon }, 
         { name: 'Mobile', value: demographics.mobile_count, icon: MobileIcon }
       ]);
-      setTopCountries(Object.keys(demographics.countries).map(country => ({ name: country, value: demographics.countries[country] })));
+      // setTopCountries(Object.keys(demographics.countries).map(country => ({ name: country, value: demographics.countries[country] })));
     });
   }
 
@@ -156,10 +156,10 @@ const Home = () => {
           <BarListCard title='Referrers' items={topReferrers} /> 
           <BarListCard title='Top Pages' items={topPages} /> 
         </div>
-        <div className='grid grid-cols-3 gap-6 pt-8'>
+        <div className='grid grid-cols-2 gap-6 pt-8'>
           <BarListCard title='Devices' items={topDevices} /> 
           <BarListCard title='Browsers' items={topBrowsers} />
-          <BarListCard title='Countries' items={topCountries} /> 
+          {/* <BarListCard title='Countries' items={topCountries} />  */}
         </div>
       </main>
     </>

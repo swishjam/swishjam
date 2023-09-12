@@ -2,9 +2,10 @@ import { Client } from "./client.mjs";
 
 export default class Swishjam {
   static init = (options = {}) => {
-    if (window.Swishjam) return window.Swishjam;
-    window.Swishjam = Swishjam;
+    if (window.Swishjam && window.Swishjam._client) return window.Swishjam;
     Swishjam._client = new Client(options);
+    Swishjam.config = Swishjam._client.config;
+    window.Swishjam = Swishjam;
     return Swishjam;
   }
 

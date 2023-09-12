@@ -12,8 +12,8 @@ import { signUserUp, useAuthData } from '@components/Auth/AuthProvider';
 
 const SignUpSchema = Yup.object().shape({
   email: Yup.string().email('Invalid email').required('Required'),
-  organizationName: Yup.string().required('Required'),
-  organizationUrl: Yup.string().required('Required'),
+  workspaceName: Yup.string().required('Required'),
+  companyUrl: Yup.string().required('Required'),
   password: Yup.string().required('Required'),
 });
 
@@ -56,8 +56,8 @@ export default function SignUp() {
           <Formik
             initialValues={{
               email: '',
-              organizationName: '',
-              organizationUrl: '',
+              workspaceName: '',
+              companyUrl: '',
               password: '',
             }}
             validationSchema={SignUpSchema}
@@ -85,18 +85,18 @@ export default function SignUp() {
 
                 <div> {/* Company Name input */}
                   <label htmlFor="company" className="block text-sm font-medium text-gray-700">
-                    Company Name
+                    Workspace Name
                   </label>
                   <div className="mt-1">
                     <Field
-                      className={cn('input', errors.organizationName && touched.organizationName && 'border-red-400')}
-                      id="organizationName"
-                      name="organizationName"
-                      placeholder="Company Name"
+                      className={cn('input', errors.workspaceName && touched.workspaceName && 'border-red-400')}
+                      id="workspaceName"
+                      name="workspaceName"
+                      placeholder="Workspace Name"
                       type="text"
                     />
-                    {errors.organizationName && touched.organizationName ? (
-                      <div className="text-red-600 mt-1 text-sm text-right">{errors.organizationName}</div>
+                    {errors.workspaceName && touched.workspaceName ? (
+                      <div className="text-red-600 mt-1 text-sm text-right">{errors.workspaceName}</div>
                     ) : null}
                   </div>
                 </div>{/* End Company Name input */}
@@ -107,19 +107,19 @@ export default function SignUp() {
                   </label>
                   <div className="mt-1">
                     <div
-                      className={`flex w-full rounded-md border px-1 py-1 text-base text-gray-900 placeholder-gray-500 shadow-sm focus:border-swishjam focus:ring-swishjam ${errors.organizationUrl && touched.organizationUrl ? 'border-red-400' : 'border-gray-300'}`}
+                      className={`flex w-full rounded-md border px-1 py-1 text-base text-gray-900 placeholder-gray-500 shadow-sm focus:border-swishjam focus:ring-swishjam ${errors.companyUrl && touched.companyUrl ? 'border-red-400' : 'border-gray-300'}`}
                     >
                       <span className="flex select-none items-center pl-3 py-0.5 text-gray-500 sm:text-sm">https://</span>
                       <Field
                         className="block flex-1 border-0 bg-transparent pl-1 py-0.5 text-gray-900 placeholder:text-gray-400 focus:ring-0 sm:text-sm sm:leading-6"
-                        id="organizationUrl"
-                        name="organizationUrl"
+                        id="companyUrl"
+                        name="companyUrl"
                         placeholder="google.com"
                         type="text"
                       />
                     </div>
-                    {errors.organizationUrl && touched.organizationUrl ? (
-                      <div className="text-red-600 mt-1 text-sm text-right">{errors.organizationUrl}</div>
+                    {errors.companyUrl && touched.companyUrl ? (
+                      <div className="text-red-600 mt-1 text-sm text-right">{errors.companyUrl}</div>
                     ) : null}
                   </div>
                 </div>

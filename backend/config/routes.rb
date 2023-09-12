@@ -1,9 +1,24 @@
+require 'sidekiq/web'
+
 Rails.application.routes.draw do
+  Sidekiq::Web.use Rack::Auth::Basic do |username, password|
+    # Protect against timing attacks:
+    # - See https://codahale.com/a-lesson-in-timing-attacks/
+    # - See https://thisdata.com/blog/timing-attacks-against-string-comparison/
+    # - Use & (do not use &&) so that it doesn't short circuit.
+    # - Use digests to stop length information leaking (see also ActiveSupport::SecurityUtils.variable_size_secure_compare)
+    ActiveSupport::SecurityUtils.secure_compare(::Digest::SHA256.hexdigest(username), ::Digest::SHA256.hexdigest(ENV["SIDEKIQ_USERNAME"])) &
+      ActiveSupport::SecurityUtils.secure_compare(::Digest::SHA256.hexdigest(password), ::Digest::SHA256.hexdigest(ENV["SIDEKIQ_PASSWORD"]))
+  end if Rails.env.production?
+  mount Sidekiq::Web => '/sidekiq'
+
   post '/auth/register' => 'users#create'
   post '/auth/login' => 'sessions#create'
   post '/auth/logout' => 'sessions#destroy'
 
   get '/oauth/stripe/callback' => 'oauth/stripe#callback'
+
+  get :ping, to: 'application#ping'
 
   namespace :api do
     namespace :v1 do
@@ -18,14 +33,10 @@ Rails.application.routes.draw do
       end
 
       resources :organizations, only: [:index, :show] do
-        member do
-          get :events
-          get :users
-        end
-        collection do
-          # get :count
-          # get :timeseries
-        end
+        # collection do
+        #   get :count
+        #   get :timeseries
+        # end
         resources :users, only: [:index], controller: :'organizations/users' do
           collection do
             get :top
@@ -37,7 +48,7 @@ Rails.application.routes.draw do
             get :timeseries
           end
         end
-        resources :page_hits, only: [:index], controller: :'organizations/page_hits'
+        resources :page_views, only: [:index], controller: :'organizations/page_views'
         resources :billing, only: [:index], controller: :'organizations/billing'
       end
 

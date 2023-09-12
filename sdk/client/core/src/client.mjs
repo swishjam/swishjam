@@ -3,12 +3,13 @@ import { DataHandler } from "./dataHandler.mjs";
 import { Event } from "./event.mjs";
 import { MemoryHandler } from "./memoryHandler.mjs";
 import { UUID } from "./uuid.mjs";
+import { SDK_VERSION } from './version.mjs'
 
 export class Client {
   constructor(options = {}) {
     this.config = this._setConfig(options);
     this.dataHandler = this._initDataHandler(this.config);
-    if (!this.getSession()) this.newSession();
+    if (!this.getSession()) this.newSession({ registerPageView: false });
     this.pageViewManager = this._initPageViewTracker();
   }
 
@@ -36,7 +37,7 @@ export class Client {
     return MemoryHandler.get('sessionId');
   }
 
-  newSession = () => {
+  newSession = ({ registerPageView = true }) => {
     const safeParsedReferrer = () => {
       try {
         return this.pageViewManager ? new URL(this.pageViewManager.previousUrl()) : new URL(document.referrer);
@@ -57,6 +58,8 @@ export class Client {
       utm_term: new URLSearchParams(document.location.search).get('utm_term'),
       utm_content: new URLSearchParams(document.location.search).get('utm_content'),
     });
+    if (registerPageView) this.pageViewManager.recordPageView();
+    return this.getSession();
   }
 
   _extractOrganizationFromIdentifyCall = identifyTraits => {
@@ -90,8 +93,12 @@ export class Client {
       MemoryHandler.set('pageViewId', UUID.generate('pv'));
       const pageViewEvent = new Event('page_view', { previousUrl });
       this.dataHandler.add(pageViewEvent);
+    });
+    window.addEventListener('beforeunload', async () => {
+      this.dataHandler.add(new Event('page_left'));
+      await this.dataHandler.flushQueue();
     })
-    pageViewManager.trackPageView();
+    pageViewManager.recordPageView();
     return pageViewManager;
   }
 
@@ -102,12 +109,12 @@ export class Client {
       if (!validOptions.includes(key)) console.warn(`Swishjam received unrecognized config: ${key}`);
     });
     return {
-      version: '0.0.01',
+      version: SDK_VERSION,
       apiKey: options.apiKey,
-      apiEndpoint: options.apiEndpoint || 'http://localhost:3000/api/v1/capture',
+      apiEndpoint: options.apiEndpoint || 'https://api2.swishjam.com/api/v1/capture',
       maxEventsInMemory: options.maxEventsInMemory || 20,
       reportingHeartbeatMs: options.reportingHeartbeatMs || 10_000,
-      debug: typeof options.debug === 'boolean' ? options.debug : false,
+      // debug: typeof options.debug === 'boolean' ? options.debug : false,
     }
   }
 }

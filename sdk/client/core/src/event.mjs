@@ -1,6 +1,6 @@
 import { UUID } from './uuid.mjs';
 import { MemoryHandler } from './memoryHandler.mjs';
-import { ClientJS } from 'clientjs';
+import { ClientJS } from '@swishjam/clientjs';
 const fingerprinter = new ClientJS();
 
 export class Event {
@@ -17,6 +17,7 @@ export class Event {
 
   toJSON() {
     return {
+      uuid: this.uuid,
       deviceId: this.fingerprint,
       sessionId: this.sessionId,
       pageViewId: this.pageViewId,

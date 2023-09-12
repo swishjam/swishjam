@@ -16,8 +16,13 @@ module.exports = _env => ({
           loader: 'babel-loader',
           options: {
             presets: [
-              // ['@babel/preset-env', { targets: "defaults" }]
-              ['@babel/preset-env']
+              ['@babel/preset-env', {
+                targets: [
+                  'last 2 versions', // The last 2 versions of major browsers
+                  'not dead', // Exclude dead browsers (ones that are no longer being updated)
+                  'not ie <= 11', // Exclude Internet Explorer 11 and below
+                ],
+              },]
             ]
           }
         }

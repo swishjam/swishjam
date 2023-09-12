@@ -2,10 +2,11 @@
 
 import { useState, useEffect, Fragment } from 'react';
 import AuthenticatedView from "@/components/Auth/AuthenticatedView";
-import { useAuth } from "@/components/Auth/AuthProvider";
+// import { useAuth } from "@/components/Auth/AuthProvider";
 import { API } from "@/lib/api-client/base";
 import Modal from '@/components/utils/Modal';
-import { formattedDate } from '@/lib/utils';
+// import { formattedDate } from '@/lib/utils';
+const formattedDate = date => date;
 import { Menu, Transition } from '@headlessui/react';
 import { UserPlusIcon, EnvelopeIcon, ClipboardDocumentIcon, CheckCircleIcon, EllipsisVerticalIcon, TrashIcon } from '@heroicons/react/24/outline';
 import CopyToClipboard from 'react-copy-to-clipboard';
@@ -14,7 +15,7 @@ import LoadingSpinner from '@/components/LoadingSpinner';
 const classNames = (...classes) => classes.filter(Boolean).join(' ')
 
 export default function Team() {
-  const { user: currentUser, userOrg } = useAuth();
+  // const { user: currentUser, userOrg } = useAuth();
   const [users, setUsers] = useState();
   const [inviteModalIsOpen, setInviteModalIsOpen] = useState(false);
   const [userToDisplayInRemoveModal, setUserToDisplayInRemoveModal] = useState();

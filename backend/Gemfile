@@ -1,7 +1,7 @@
 source 'https://rubygems.org'
 git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 
-ruby '2.6.3'
+ruby '3.2.2'
 
 gem 'rails', '~> 6.1.7', '>= 6.1.7.4'
 gem 'pg', '~> 1.1'
@@ -13,7 +13,8 @@ gem 'bootsnap', '>= 1.4.4', require: false
 gem 'net-http' 
 
 gem 'groupdate'
-gem 'sidekiq'
+gem 'sidekiq', '~> 6.5'
+gem 'sidekiq-failures'
 gem 'stripe'
 gem 'dotenv'
 gem 'rack-cors'
@@ -24,6 +25,8 @@ gem 'geocoder'
 gem 'clickhouse-activerecord'
 gem "tty-prompt"
 gem 'tty-progressbar'
+gem "sentry-ruby"
+gem "sentry-rails"
 
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
 gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]

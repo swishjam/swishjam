@@ -15,14 +15,14 @@ module ClickHouseQueries
       def by_full_url
         return @full_url_results if @full_url_results.present?
         @full_url_results = Analytics::Event.find_by_sql(sql.squish!).collect do |event|
-          { referrer: event.referrer_url_host + event.referrer_url_path, count: event.count }
+          { referrer: (event.referrer_url_host || '') + (event.referrer_url_path || ''), count: event.count }
         end
       end
 
       def by_host
         return @host_results if @host_results.present?
         @host_results = Analytics::Event.find_by_sql(sql(by_url_host: true).squish!).collect do |event|
-          { referrer: event.referrer_url_host, count: event.count }
+          { referrer: event.referrer_url_host || '', count: event.count }
         end
       end
 
@@ -36,12 +36,8 @@ module ClickHouseQueries
           FROM
             events AS e
           JOIN (
-            SELECT
-              uuid,
-              JSONExtractString(properties, 'url_host') AS url_host,
-              JSONExtractString(properties, 'url_path') AS url_path
-            FROM
-              events
+            SELECT uuid, url_host, url_path
+            FROM events
             WHERE
               swishjam_api_key = '#{@public_key}' AND
               occurred_at BETWEEN '#{formatted_time(@start_time)}' AND '#{formatted_time(@end_time)}' AND

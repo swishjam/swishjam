@@ -1,0 +1,7 @@
+apps:
+  web-api:
+    type: web
+    run: "bundle exec rails server"
+  web-worker:
+    type: worker
+    run: "bundle exec sidekiq"
