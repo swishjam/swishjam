@@ -23,17 +23,16 @@ module WebEventProcessors
       Analytics::UserIdentifyEvent.create!(
         swishjam_api_key: workspace.public_key,
         swishjam_user_id: profile.id,
-        device_identifier: fingerprint_value,
+        device_identifier: properties[Analytics::Event::ReservedPropertyNames.DEVICE_IDENTIFIER],
         occurred_at: timestamp,
       )
       
       # probably not necessary? but why not...
       Analytics::Event.create!(
         uuid: uuid,
-        name: event_name,
         swishjam_api_key: workspace.public_key,
-        session_identifier: properties[Analytics::Event::ReservedPropertyNames.SESSION_IDENTIFIER],
-        device_identifier: properties[Analytics::Event::ReservedPropertyNames.DEVICE_IDENTIFIER],
+        name: event_name,
+        analytics_family: analytics_family,
         occurred_at: timestamp,
         properties: properties.merge({ swishjam_user_id: profile.id })
       )

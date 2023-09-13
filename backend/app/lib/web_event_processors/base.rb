@@ -18,8 +18,12 @@ module WebEventProcessors
     end
     alias name event_name
 
+    def source
+      event_json['source']
+    end
+
     def analytics_family
-      event_json['analytics_family']
+      @analytics_family ||= WebEventProcessors::AnalyticsFamilyDecider.decide(workspace, self)
     end
 
     def timestamp
