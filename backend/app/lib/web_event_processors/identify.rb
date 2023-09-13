@@ -32,10 +32,10 @@ module WebEventProcessors
         uuid: uuid,
         name: event_name,
         swishjam_api_key: workspace.public_key,
-        session_identifier: session_identifier,
-        device_identifier: device_identifier,
+        session_identifier: properties[Analytics::Event::ReservedPropertyNames.SESSION_IDENTIFIER],
+        device_identifier: properties[Analytics::Event::ReservedPropertyNames.DEVICE_IDENTIFIER],
         occurred_at: timestamp,
-        properties: properties.merge({ swishjam_user_id: profile.id }).merge(metadata)
+        properties: properties.merge({ swishjam_user_id: profile.id })
       )
     end
 

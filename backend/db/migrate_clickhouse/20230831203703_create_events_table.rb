@@ -7,7 +7,7 @@ class CreateEventsTable < ActiveRecord::Migration[6.1]
         `swishjam_api_key` LowCardinality(String),
         `name` LowCardinality(String),
         `analytics_family` Enum('marketing', 'product', 'other') DEFAULT 'other',
-        `ingested_at` DateTime,
+        `ingested_at` DateTime DEFAULT now(),
         `occurred_at` DateTime,
         `properties` String,
       )

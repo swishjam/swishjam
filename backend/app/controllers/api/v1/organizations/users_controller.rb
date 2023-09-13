@@ -9,16 +9,12 @@ module Api
         def active
           params[:type] ||= 'weekly'
           raise "Invalid `type` provided: #{params[:type]}" unless %w(daily weekly monthly).include?(params[:type])
-          # TODO: Create a new ClickHouse query to scope this to organization
-          active_users_calculator = {
-            'daily' => ClickHouseQueries::Users::Active::Daily,
-            'weekly' => ClickHouseQueries::Users::Active::Weekly,
-            'monthly' => ClickHouseQueries::Users::Active::Monthly
-          }[params[:type]].new(current_workspace.public_key)
-          render json: {
-            current_value: active_users_calculator.current_value,
-            timeseries: active_users_calculator.timeseries
-          }, status: :ok
+          active_users_timeseries = {
+            'daily' => ClickHouseQueries::Organizations::Users::Active::Daily,
+            'weekly' => ClickHouseQueries::Organizations::Users::Active::Weekly,
+            'monthly' => ClickHouseQueries::Organizations::Users::Active::Monthly
+          }[params[:type]].new(current_workspace.public_key, organization_profile_id: @organization.id).timeseries
+          render json: { current_value: active_users_timeseries.current_value, timeseries: active_users_timeseries.formatted_data }, status: :ok
         end
 
         def top

@@ -1,9 +1,9 @@
 module WebEventProcessors
   class Organization < Base
     def capture!
-      unique_identifier = user_provided_data['organizationIdentifier'] || user_provided_data['organization_identifier'] || user_provided_data['organizationId'] || user_provided_data['organization_id']
-      name = user_provided_data['name']
-      metadata = user_provided_data.except('organizationIdentifier', 'organization_identifier', 'organizationId', 'organization_id', 'name')
+      unique_identifier = properties['organizationIdentifier'] || properties['organization_identifier'] || properties['organizationId'] || properties['organization_id']
+      name = properties['name']
+      metadata = properties.except('organizationIdentifier', 'organization_identifier', 'organizationId', 'organization_id', 'name')
       
       profile = workspace.analytics_organization_profiles.find_by(organization_unique_identifier: unique_identifier)
       if profile
@@ -12,16 +12,21 @@ module WebEventProcessors
         profile = workspace.analytics_organization_profiles.create!(organization_unique_identifier: unique_identifier, name: name, metadata: metadata)
       end
 
-      properties = { swishjam_organization_id: profile.id }
-
+      Analytics::OrganizationIdentifyEvent.create!(
+        swishjam_api_key: workspace.public_key,
+        swishjam_organization_id: profile.id,
+        device_identifier: properties[Analytics::Event::ReservedPropertyNames.DEVICE_IDENTIFIER],
+        session_identifier: properties[Analytics::Event::ReservedPropertyNames.SESSION_IDENTIFIER],
+        occurred_at: timestamp,
+      )
+      
+      # probably not necessary? but why not...
       Analytics::Event.create!(
         uuid: uuid,
-        swishjam_api_key: @workspace.public_key,
-        session_identifier: unique_session_identifier,
-        device_identifier: fingerprint_value,
         name: event_name,
+        swishjam_api_key: workspace.public_key,
         occurred_at: timestamp,
-        properties: properties.merge(metadata)
+        properties: properties.merge({ swishjam_organization_id: profile.id })
       )
     end
   end

@@ -91,7 +91,7 @@ def create_user_identify_events!(user_profiles)
   puts "\n"
 end
 
-def seed_events!
+def seed_sessions_page_hits_and_events!
   progress_bar = TTY::ProgressBar.new("Generating #{NUMBER_OF_SESSIONS_TO_GENERATE} sessions with random number of page views and events [:bar]", total: NUMBER_OF_SESSIONS_TO_GENERATE, bar_format: :block)
 
   max_days_ago = {
@@ -103,18 +103,17 @@ def seed_events!
     20_000 => 365,
   }[NUMBER_OF_SESSIONS_TO_GENERATE]
 
-  NUMBER_OF_SESSIONS_TO_GENERATE.times do
+  sessions = NUMBER_OF_SESSIONS_TO_GENERATE.times.map do
     session_identifier = SecureRandom.uuid
     user_profile = AnalyticsUserProfile.all.sample
     user_is_anonymous = rand() < 0.75
     swishjam_user_id = user_is_anonymous ? nil : user_profile.id
-    swishjam_organization_id = user_is_anonymous ? nil : user_profile.reload.analytics_organization_profiles&.sample&.id
     device_identifier = DEVICE_IDENTIFIERS.sample
     session_start_time = Time.current - rand(0..max_days_ago).days
 
     session_referrer = "https://#{REFERRER_HOSTS[rand(0..REFERRER_HOSTS.count - 1)]}#{URL_PATHS[rand(0..URL_PATHS.count - 1)]}"
     session_start_url = "https://#{HOST_URL}#{URL_PATHS[rand(0..URL_PATHS.count - 1)]}"
-    Analytics::Event.create!(
+    session_event = Analytics::Event.create!(
       uuid: SecureRandom.uuid,
       swishjam_api_key: WORKSPACE.public_key,
       name: Analytics::Event::ReservedNames.NEW_SESSION,
@@ -123,7 +122,6 @@ def seed_events!
       properties: {
         device_identifier: device_identifier,
         session_identifier: session_identifier,
-        swishjam_organization_id: swishjam_organization_id,
         url: session_start_url,
         referrer: session_referrer,
         is_mobile: [true, false].sample,
@@ -140,7 +138,6 @@ def seed_events!
       page_view_event = create_page_view_event!(
         session_identifier: session_identifier, 
         device_identifier: device_identifier, 
-        swishjam_organization_id: swishjam_organization_id,
         occurred_at: session_start_time + (i * 2).minutes + 1.second,
       )
     end
@@ -148,16 +145,17 @@ def seed_events!
       create_rand_event!(
         session_identifier: session_identifier, 
         device_identifier: device_identifier, 
-        swishjam_organization_id: swishjam_organization_id,
         occurred_at: session_start_time + (i * 2).minutes + 30.seconds,
       )
     end
     progress_bar.advance
+    session_event
   end
   puts "\n"
+  sessions
 end
 
-def create_page_view_event!(session_identifier:, device_identifier:, swishjam_organization_id:, occurred_at:)
+def create_page_view_event!(session_identifier:, device_identifier:, occurred_at:)
   url_path = URL_PATHS[rand(0..URL_PATHS.count - 1)]
   referrer_url = "https://#{REFERRER_HOSTS[rand(0..REFERRER_HOSTS.count - 1)]}#{URL_PATHS[rand(0..URL_PATHS.count - 1)]}"
   Analytics::Event.create!(
@@ -169,7 +167,6 @@ def create_page_view_event!(session_identifier:, device_identifier:, swishjam_or
     properties: {
       device_identifier: device_identifier,
       session_identifier: session_identifier,
-      swishjam_organization_id: swishjam_organization_id,
       page_view_identifier: SecureRandom.uuid,
       url: "https://#{HOST_URL}#{url_path}",
       referrer: referrer_url,
@@ -177,7 +174,7 @@ def create_page_view_event!(session_identifier:, device_identifier:, swishjam_or
   )
 end
 
-def create_rand_event!(session_identifier:, device_identifier:, swishjam_organization_id:, occurred_at:)
+def create_rand_event!(session_identifier:, device_identifier:, occurred_at:)
   url_path = URL_PATHS[rand(0..URL_PATHS.count - 1)]
   random_props = {} 
   rand(0..7).times{ |m| random_props[Faker::Lorem.word] = Faker::Lorem.word }
@@ -190,10 +187,34 @@ def create_rand_event!(session_identifier:, device_identifier:, swishjam_organiz
     properties: random_props.merge({
       device_identifier: device_identifier,
       session_identifier: session_identifier,
-      swishjam_organization_id: swishjam_organization_id,
       url: "https://#{HOST_URL}#{url_path}",
     })
   )
+end
+
+def create_organization_identify_events_for_sessions!(sessions)
+  progress_bar = TTY::ProgressBar.new("Creating random number of organization identify events for #{sessions.count} sessions [:bar]", total: sessions.count, bar_format: :block)
+  total_identify_events = 0
+
+  sessions.each do |session|
+    most_recent_user_identify_event_for_session = Analytics::UserIdentifyEvent.where(device_identifier: session.properties[Analytics::Event::ReservedPropertyNames.DEVICE_IDENTIFIER]).order(occurred_at: :desc).first
+    # 10% of sessions that have a user_identify_event will have an organization_identify_event
+    # rand() < 0.9
+    if most_recent_user_identify_event_for_session
+      user = AnalyticsUserProfile.find(most_recent_user_identify_event_for_session.swishjam_user_id)
+      Analytics::OrganizationIdentifyEvent.create!(
+        swishjam_api_key: WORKSPACE.public_key,
+        swishjam_organization_id: user.analytics_organization_profiles.sample.id,
+        device_identifier: session.properties[Analytics::Event::ReservedPropertyNames.DEVICE_IDENTIFIER],
+        session_identifier: session.properties[Analytics::Event::ReservedPropertyNames.SESSION_IDENTIFIER],
+        occurred_at: Faker::Time.between(from: 1.year.ago, to: Time.now),
+      )
+      total_identify_events += 1
+    end
+    progress_bar.advance
+  end
+  puts "Created #{total_identify_events} organization identify events! (#{total_identify_events.to_f/sessions.count}% of sessions belongs to an organization)"
+  puts "\n"
 end
 
 def seed_billing_data!
@@ -273,7 +294,8 @@ namespace :seed do
       organizations = seed_organization_profiles!
       assign_user_profiles_to_organization_profiles!(users, organizations)
       create_user_identify_events!(users)
-      seed_events!
+      new_session_events = seed_sessions_page_hits_and_events!
+      create_organization_identify_events_for_sessions!(new_session_events)
       seed_billing_data!
 
       puts "Seed completed in #{Time.now - START_TIME} seconds."

@@ -7,7 +7,7 @@ class UserIdentifyEvents < ActiveRecord::Migration[6.1]
         `device_identifier` String,
         `swishjam_user_id` String,
         `occurred_at` DateTime,
-        `ingested_at` DateTime
+        `ingested_at` DateTime DEFAULT now()
       )
       ENGINE = ReplacingMergeTree()
       PRIMARY KEY (swishjam_api_key, device_identifier)
