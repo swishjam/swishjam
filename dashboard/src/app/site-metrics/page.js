@@ -124,10 +124,12 @@ const Home = () => {
           </div>
 
           <div className="w-full flex items-center justify-end">
-            <Timefilter
-              selection={timeframeFilter}
-              onSelection={(d) => {setTimeframeFilter(d);getAllData(d)}} 
-            />
+            <Timefilter 
+              selection={timeframeFilter} 
+              onSelection={d => {
+                setTimeframeFilter(d); 
+                getAllData(d)}
+              }  />
           </div>
         </div>
         <div className='grid grid-cols-3 gap-6 pt-8'>

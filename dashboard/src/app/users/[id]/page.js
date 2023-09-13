@@ -7,60 +7,33 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Skeleton } from "@/components/ui/skeleton";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import EventFeed from "@/components/DashboardComponents/EventFeed";
-import { PaperClipIcon } from '@heroicons/react/20/solid'
 import { HomeIcon } from '@heroicons/react/20/solid'
 import LineChartWithValue from '@/components/DashboardComponents/LineChartWithValue';
 import BarListCard from "@/components/DashboardComponents/BarListCard";
 
 const LoadingState = () => (
   <main className="mx-auto max-w-7xl px-4 mt-8 sm:px-6 lg:px-8 mb-8">
-    <Card>
-      <CardHeader>
-        <div className='flex items-center'>
-          <Skeleton className='rounded-full h-20 w-20 mr-4' />
-          <div>
-            <Skeleton className='h-12 w-24' />
-            <Skeleton className='h-6 w-48 mt-2' />
+    <BreadCrumbs userName={<Skeleton className='h-6 w-48' />} />
+    <div className='grid grid-cols-10 gap-4 mt-4'>
+      <Card className='col-span-6'>
+        <CardHeader>
+          <div className='flex items-center'>
+            <Skeleton className='rounded-full h-20 w-20 mr-4' />
+            <div>
+              <Skeleton className='h-12 w-24' />
+              <Skeleton className='h-6 w-48 mt-2' />
+            </div>
           </div>
-        </div>
-      </CardHeader>
-    </Card>
+        </CardHeader>
+      </Card>
+      <EventFeed className="col-span-4" title='Recent Events' />
+    </div>
   </main>
 )
 
-const pages = [
-  { name: 'Users', href: '/users', current: false },
-  { name: 'User Profile', href: '#', current: true },
-]
-
-const UserProfile = ({ params }) => {
-  const { id: userId } = params;
-  const [userData, setUserData] = useState();
-  const [sessionTimeseriesData, setSessionTimeseriesData] = useState();
-  const [recentEvents, setRecentEvents] = useState();
-  const [pageViewsData, setPageViewsData] = useState();
-  const [organizationsListExpanded, setOrganizationsListExpanded] = useState(false);
-
-  useEffect(() => {
-    API.get(`/api/v1/users/${userId}`).then(setUserData);
-    API.get(`/api/v1/users/${userId}/events`).then(setRecentEvents);
-    API.get(`/api/v1/users/${userId}/page_views`).then(pageViews => {
-      setPageViewsData(pageViews.map(({ url, count }) => ({ name: url, value: count })));
-    });
-    API.get(`/api/v1/users/${userId}/sessions/timeseries`).then(({ timeseries }) => {
-      setSessionTimeseriesData({ 
-        timeseries,
-        value: timeseries.map(({ value }) => value).reduce((a, b) => a + b, 0),  
-      })
-    });
-  }, [])
-
-  console.log(pageViewsData);
-  return (
-    userData ? (
-      <main className="mx-auto max-w-7xl px-4 mt-8 sm:px-6 lg:px-8 mb-8">
-        <div>
-        <nav className="flex" aria-label="Breadcrumb">
+const BreadCrumbs = ({ userName }) => (
+  <div>
+    <nav className="flex" aria-label="Breadcrumb">
       <ol role="list" className="flex items-center space-x-4">
         <li>
           <div>
@@ -93,12 +66,40 @@ const UserProfile = ({ params }) => {
             >
               <path d="M5.555 17.776l8-16 .894.448-8 16-.894-.448z" />
             </svg>
-            <a href='#' className="ml-4 text-sm font-medium text-gray-500 hover:text-gray-700">{userData.full_name}</a>
+            <a href='#' className="ml-4 text-sm font-medium text-gray-500 hover:text-gray-700">{userName}</a>
           </div>
         </li>
       </ol>
-    </nav> 
-        </div> 
+    </nav>
+  </div>
+)
+
+const UserProfile = ({ params }) => {
+  const { id: userId } = params;
+  const [userData, setUserData] = useState();
+  const [sessionTimeseriesData, setSessionTimeseriesData] = useState();
+  const [recentEvents, setRecentEvents] = useState();
+  const [pageViewsData, setPageViewsData] = useState();
+  const [organizationsListExpanded, setOrganizationsListExpanded] = useState(false);
+
+  useEffect(() => {
+    API.get(`/api/v1/users/${userId}`).then(setUserData);
+    API.get(`/api/v1/users/${userId}/events`).then(setRecentEvents);
+    API.get(`/api/v1/users/${userId}/page_views`).then(pageViews => {
+      setPageViewsData(pageViews.map(({ url, count }) => ({ name: url, value: count })));
+    });
+    API.get(`/api/v1/users/${userId}/sessions/timeseries`).then(({ timeseries }) => {
+      setSessionTimeseriesData({ 
+        timeseries,
+        value: timeseries.map(({ value }) => value).reduce((a, b) => a + b, 0),  
+      })
+    });
+  }, [])
+
+  return (
+    userData ? (
+      <main className="mx-auto max-w-7xl px-4 mt-8 sm:px-6 lg:px-8 mb-8">
+        <BreadCrumbs userName={userData.full_name} />
         <div className='grid grid-cols-10 gap-4 mt-4'>
           <Card className='col-span-6'>
             <CardHeader>
