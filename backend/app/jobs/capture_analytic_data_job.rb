@@ -16,8 +16,8 @@ class CaptureAnalyticDataJob
     failed_count = 0
     event_payload.each do |event_json|
       begin
-        event_type = event_json['type']
-        processor_klass = EVENT_PROCESSOR_KLASS_DICT[event_type.to_sym] || WebEventProcessors::Event
+        event_name = event_json['event']
+        processor_klass = EVENT_PROCESSOR_KLASS_DICT[event_name.to_sym] || WebEventProcessors::Event
         processor_klass.new(workspace, event_json).capture!
         success_count += 1
       rescue => e

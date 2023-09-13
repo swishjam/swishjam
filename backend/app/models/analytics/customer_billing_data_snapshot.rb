@@ -1,6 +1,5 @@
 module Analytics
-  class CustomerBillingDataSnapshot < ApplicationRecord
-    belongs_to :workspace
-    belongs_to :owner, polymorphic: true, optional: true
+  class CustomerBillingDataSnapshot < ClickHouseRecord
+    self.table_name = :customer_billing_data_snapshots
   end
 end

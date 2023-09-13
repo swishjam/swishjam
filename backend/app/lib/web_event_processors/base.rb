@@ -10,62 +10,24 @@ module WebEventProcessors
     private
 
     def uuid
-      @event_json['uuid']
+      event_json['uuid']
     end
 
-    def event_type
-      @event_json['type']
+    def event_name
+      event_json['event_name']
     end
-    alias name event_type
-    alias event_name event_type
+    alias name event_name
 
-    def unique_session_identifier
-      @event_json['sessionId']
-    end
-
-    def page_view_id
-      @event_json['pageViewId']
+    def analytics_family
+      event_json['analytics_family']
     end
 
     def timestamp
-      Time.at(epoch_timestamp / 1_000)
-    end
-
-    def epoch_timestamp
-      @event_json['timestamp']
-    end
-
-    def device_data
-      @event_json['deviceData'].with_indifferent_access
+      Time.at(event_json['timestamp'] / 1_000)
     end
     
-    def user_provided_data
-      (@event_json['data'] || {}).with_indifferent_access
-    end
-
-    def geo_data
-      return if @event_json['ip_address'].blank?
-      @geo_data ||= Geocoder.search(@event_json['ip_address'])&.first
-    end
-
-    def fingerprint_value
-      device_data['fingerprint']
-    end
-
-    def full_url
-      @event_json['url']
-    end
-
-    def parsed_url
-      @parsed_url ||= URI.parse(full_url || '')
-    end
-
-    def referrer_url
-      @event_json['previousUrl'] || @event_json['referrer_url']
-    end
-
-    def parsed_referrer_url
-      @parsed_referrer_url ||= URI.parse(referrer_url || '')
+    def properties
+      event_json.except('uuid', 'event_name', 'analytics_family', 'timestamp')
     end
   end
 end

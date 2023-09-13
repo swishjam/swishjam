@@ -34,7 +34,7 @@ export const useSwishjam = (options = {}) => {
   useEffect(() => {
     const init = async () => {
       if (typeof window !== 'undefined' && !swishjamInitialized) {
-        const swishjamClient = (await import('@swishjam/client')).default;
+        const swishjamClient = (await import('@swishjam/core')).default;
         swishjamClient.init(options);
         captureInMemoryEvents(swishjamClient);
         swishjamInitialized = true;
@@ -45,4 +45,9 @@ export const useSwishjam = (options = {}) => {
   }, [options.apiKey, options.apiEndpoint]);
 
   return swishjamClient;
+}
+
+export const SwishjamProvider = ({ children, apiKey, apiEndpoint }) => {
+  useSwishjam({ apiKey, apiEndpoint });
+  return children;
 }

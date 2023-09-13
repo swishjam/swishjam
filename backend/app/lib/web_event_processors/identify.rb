@@ -1,11 +1,11 @@
 module WebEventProcessors
   class Identify < Base
     def capture!
-      unique_identifier = user_provided_data['userIdentifier'] || user_provided_data['user_identifier'] || user_provided_data['userId'] || user_provided_data['user_id']
-      first_name = user_provided_data['firstName'] || user_provided_data['first_name']
-      last_name = user_provided_data['lastName'] || user_provided_data['last_name']
-      email = user_provided_data['email']
-      metadata = user_provided_data.except('userId', 'user_id', 'firstName', 'first_name', 'lastName', 'last_name', 'email')
+      unique_identifier = properties['userIdentifier'] || properties['user_identifier'] || properties['userId'] || properties['user_id']
+      first_name = properties['firstName'] || properties['first_name']
+      last_name = properties['lastName'] || properties['last_name']
+      email = properties['email']
+      metadata = properties.except('userId', 'user_id', 'firstName', 'first_name', 'lastName', 'last_name', 'email')
       
       profile = workspace.analytics_user_profiles.find_by(user_unique_identifier: unique_identifier)
       if profile
@@ -21,23 +21,32 @@ module WebEventProcessors
       end
 
       Analytics::UserIdentifyEvent.create!(
-        swishjam_api_key: @workspace.public_key,
+        swishjam_api_key: workspace.public_key,
         swishjam_user_id: profile.id,
         device_identifier: fingerprint_value,
         occurred_at: timestamp,
       )
       
       # probably not necessary? but why not...
-      properties = { swishjam_user_id: profile.id }
       Analytics::Event.create!(
         uuid: uuid,
-        swishjam_api_key: @workspace.public_key,
-        session_identifier: unique_session_identifier,
-        device_identifier: fingerprint_value,
         name: event_name,
+        swishjam_api_key: workspace.public_key,
+        session_identifier: properties[Analytics::Event::ReservedPropertyNames.SESSION_IDENTIFIER],
+        device_identifier: properties[Analytics::Event::ReservedPropertyNames.DEVICE_IDENTIFIER],
         occurred_at: timestamp,
-        properties: properties.merge(metadata)
+        properties: properties.merge({ swishjam_user_id: profile.id })
       )
+    end
+
+    private
+
+    def session_identifier
+      properties[Analytics::Event::ReservedPropertyNames.SESSION_IDENTIFIER]
+    end
+
+    def device_identifier
+      properties[Analytics::Event::ReservedPropertyNames.DEVICE_IDENTIFIER]
     end
   end
 end

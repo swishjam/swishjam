@@ -1,10 +1,10 @@
 module DataSynchronizers
   class Stripe
-    def initialize(swishjam_organization, stripe_account_id)
-      @swishjam_organization = swishjam_organization
+    def initialize(workspace, stripe_account_id)
+      @workspace = workspace
       @stripe_account_id = stripe_account_id
       @stripe_metrics = StripeHelpers::MetricsCalculator.new(stripe_account_id)
-      @customer_profile_data_mapper = CustomerProfileDataMappers::Stripe.new(swishjam_organization)
+      @customer_profile_data_mapper = CustomerProfileDataMappers::Stripe.new(workspace)
     end
     
     def sync!
@@ -17,7 +17,8 @@ module DataSynchronizers
     private
 
     def create_billing_data_snapshot!
-      @swishjam_organization.analytics_billing_data_snapshots.create!(
+      Analytics::BillingDataSnapshot.create!(
+        swishjam_api_key: @workspace.public_key,
         mrr_in_cents: @stripe_metrics.mrr,
         total_revenue_in_cents: @stripe_metrics.total_revenue,
         num_active_subscriptions: @stripe_metrics.total_active_subscriptions,
@@ -30,7 +31,7 @@ module DataSynchronizers
     def create_customer_billing_data_snapshots!
       @stripe_metrics.subscriptions.each do |stripe_subscription|
         Analytics::CustomerBillingDataSnapshot.create!(
-          swishjam_organization: @swishjam_organization,
+          swishjam_api_key: @workspace.public_key,
           owner: @customer_profile_data_mapper.find_or_create_owner(stripe_subscription.customer),
           customer_email: stripe_subscription.customer&.email,
           customer_name: stripe_subscription.customer&.name,
@@ -43,7 +44,7 @@ module DataSynchronizers
 
     def create_or_update_customer_subscriptions!
       @stripe_metrics.subscriptions.each do |stripe_subscription|
-        existing_customer_subscription = Analytics::CustomerSubscription.find_by(swishjam_organization: @swishjam_organization, provider_id: stripe_subscription.id)
+        existing_customer_subscription = Analytics::CustomerSubscription.find_by(workspace: @workspace, provider_id: stripe_subscription.id)
         attrs = {
           owner: @customer_profile_data_mapper.find_or_create_owner(stripe_subscription.customer),
           provider_id: stripe_subscription.id,
@@ -66,14 +67,14 @@ module DataSynchronizers
           existing_customer_subscription.subscription_items.destroy_all
           existing_customer_subscription.update!(attrs)
         else
-          @swishjam_organization.analytics_customer_subscriptions.create!(attrs)
+          @workspace.analytics_customer_subscriptions.create!(attrs)
         end
       end
     end
 
     def create_or_update_payments!
       @stripe_metrics.charges.each do |stripe_charge|
-        existing_payment = @swishjam_organization.analytics_customer_payments.find_by(provider_id: stripe_charge.id)
+        existing_payment = @workspace.analytics_customer_payments.find_by(provider_id: stripe_charge.id)
         attrs = {
           owner: @customer_profile_data_mapper.find_or_create_owner(stripe_charge.customer),
           payment_processor: 'stripe',
@@ -87,7 +88,7 @@ module DataSynchronizers
         if existing_payment
           existing_payment.update!(attrs)
         else
-          @swishjam_organization.analytics_customer_payments.create!(attrs)
+          @workspace.analytics_customer_payments.create!(attrs)
         end
       end
     end

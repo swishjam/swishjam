@@ -15,15 +15,12 @@ module Api
       def active
         params[:type] ||= 'weekly'
         raise "Invalid `type` provided: #{params[:type]}" unless %w(daily weekly monthly).include?(params[:type])
-        active_users_calculator = {
+        active_users = {
           'daily' => ClickHouseQueries::Users::Active::Daily,
           'weekly' => ClickHouseQueries::Users::Active::Weekly,
           'monthly' => ClickHouseQueries::Users::Active::Monthly
-        }[params[:type]].new(current_workspace.public_key)
-        render json: {
-          current_value: active_users_calculator.current_value,
-          timeseries: active_users_calculator.timeseries
-        }, status: :ok
+        }[params[:type]].new(current_workspace.public_key).timeseries
+        render json: { current_value: active_users.current_value, timeseries: active_users.formatted_data }, status: :ok
       end
 
       def count
