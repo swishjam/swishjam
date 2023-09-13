@@ -7,3 +7,5 @@ supabase/.temp
 # Sentry
 next.config.original.js
 database/credentials.json
+# Sentry Auth Token
+.sentryclirc

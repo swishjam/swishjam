@@ -1,18 +1,16 @@
-// This file configures the initialization of Sentry on the server.
-// The config you add here will be used whenever middleware or an Edge route handles a request.
+// This file configures the initialization of Sentry for edge features (middleware, edge routes, and so on).
+// The config you add here will be used whenever one of the edge features is loaded.
+// Note that this config is unrelated to the Vercel Edge Runtime and is also required when running locally.
 // https://docs.sentry.io/platforms/javascript/guides/nextjs/
 
-import * as Sentry from '@sentry/nextjs';
+import * as Sentry from "@sentry/nextjs";
 
-if (process.env.NEXT_PUBLIC_SENTRY_DSN) {
-  Sentry.init({
-    // dsn: SENTRY_DSN || 'https://433ba208ffa640179652394310c7f145@o4505092626710528.ingest.sentry.io/4505092628086784',
-    dsn: process.env.NEXT_PUBLIC_SENTRY_DSN,
-    // Adjust this value in production, or use tracesSampler for greater control
-    tracesSampleRate: process.env.NEXT_PUBLIC_VERCEL_ENV === 'development' ? 0 : 0.5,
-    // ...
-    // Note: if you want to override the automatic release value, do not set a
-    // `release` value here - use the environment variable `SENTRY_RELEASE`, so
-    // that it will also get attached to your source maps
-  });
-}
+Sentry.init({
+  dsn: "https://671e222a0c1a50b978e6ac7167f2bf80@o1079626.ingest.sentry.io/4505874615500800",
+
+  // Adjust this value in production, or use tracesSampler for greater control
+  tracesSampleRate: 1,
+
+  // Setting this option to true will print useful information to the console while you're setting up Sentry.
+  debug: false,
+});
