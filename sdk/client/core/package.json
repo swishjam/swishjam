@@ -1,4 +1,5 @@
 {
+  "version": "0.0.124",
   "name": "@swishjam/core",
   "description": "The official Swishjam JS client to instrument your webpages with.",
   "homepage": "https://swishjam.com",
@@ -6,7 +7,6 @@
     "type": "git",
     "url": "https://github.com/swishjam/swishjam/tree/main/sdk/client/npm"
   },
-  "version": "0.0.123",
   "main": "src/swishjam.mjs",
   "scripts": {},
   "author": "",

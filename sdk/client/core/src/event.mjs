@@ -1,44 +1,34 @@
 import { UUID } from './uuid.mjs';
-import { MemoryHandler } from './memoryHandler.mjs';
-import { ClientJS } from '@swishjam/clientjs';
-const fingerprinter = new ClientJS();
+import { DataPersister } from './dataPersister.mjs';
+import { DeviceDetails } from './deviceDetails';
+import { SDK_VERSION } from './version.mjs'
 
 export class Event {
-  constructor(type, data) {
+  constructor(eventName, analyticsFamily, data) {
+    this.eventName = eventName;
+    this.analyticsFamily = analyticsFamily;
     this.uuid = UUID.generate(`e-${Date.now()}`);
-    this.type = type;
     this.ts = Date.now();
-    this.sessionId = MemoryHandler.get('sessionId');
-    this.pageViewId = MemoryHandler.get('pageViewId');
+    this.sessionId = DataPersister.get('sessionId');
+    this.pageViewId = DataPersister.get('pageViewId');
+    this.fingerprint = DeviceDetails.deviceFingerprint();
     this.url = window.location.href;
-    this.fingerprint = fingerprinter.getFingerprint();
     this.data = data;
   }
 
   toJSON() {
     return {
       uuid: this.uuid,
-      deviceId: this.fingerprint,
-      sessionId: this.sessionId,
-      pageViewId: this.pageViewId,
-      type: this.type,
-      name: this.type,
-      url: this.url,
+      event: this.eventName,
       timestamp: this.ts,
-      data: this.data,
-      deviceData: {
-        fingerprint: this.fingerprint,
-        userAgent: fingerprinter.getUserAgent(),
-        browser: fingerprinter.getBrowser(),
-        browserVersion: fingerprinter.getBrowserVersion(),
-        os: fingerprinter.getOS(),
-        osVersion: fingerprinter.getOSVersion(),
-        device: fingerprinter.getDevice(),
-        deviceType: fingerprinter.getDeviceType(),
-        timezone: fingerprinter.getTimeZone(),
-        language: fingerprinter.getLanguage(),
-        isMobile: fingerprinter.isMobile(),
-      },
+      analytics_family: this.analyticsFamily,
+      device_identifier: this.fingerprint,
+      session_identifier: this.sessionId,
+      page_view_identifier: this.pageViewId,
+      url: this.url,
+      device_fingerprint: this.fingerprint,
+      ...this.data,
+      sdk_version: SDK_VERSION,
     }
   }
 }

@@ -3,15 +3,19 @@ module Api
     module Organizations
       class PageViewsController < BaseController
         def index
-          url_hosts = current_workspace.url_segments.pluck(:url_host)
-          querier = ClickHouseQueries::Organizations::PageViews::Counts.new(
+          analytics_family = params[:analytics_family] || 'product'
+          if !['product', 'marketing'].include?(analytics_family)
+            render json: { error: 'Invalid analytics_family' }, status: :bad_request
+            return
+          end
+          pages = ClickHouseQueries::Organizations::PageViews::MostVisited::List.new(
             current_workspace.public_key,
             organization_profile_id: @organization.id,
-            url_hosts: url_hosts,
+            analytics_family: analytics_family,
             start_time: start_timestamp,
             end_time: end_timestamp
-          )
-          render json: querier.get
+          ).get
+          render json: pages, status: :ok
         end
       end
     end

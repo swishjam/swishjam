@@ -1,1 +1,2 @@
-export const SDK_VERSION = '0.0.123';
+import packageJson from '../package.json';
+export const { version: SDK_VERSION } = packageJson;

@@ -1,13 +1,13 @@
-export class MemoryHandler {
+export class DataPersister {
   static set(key, value) {
-    const currentMemory = MemoryHandler.all();
+    const currentMemory = this.all();
     currentMemory[key] = value;
     sessionStorage.setItem('swishjam', JSON.stringify(currentMemory));
     return value;
   }
 
   static get(key) {
-    return MemoryHandler.all()[key];
+    return this.all()[key];
   }
 
   static all() {

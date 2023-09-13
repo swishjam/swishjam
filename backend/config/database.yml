@@ -7,6 +7,11 @@ development:
   transactional:
     <<: *default
     database: swishjam_dev
+    # host: <%= ENV['POSTGRES_DB_HOST'] %>
+    # database: <%= ENV['POSTGRES_DB_NAME'] %>
+    # username: <%= ENV['POSTGRES_DB_USERNAME'] %>
+    # password: <%= ENV['POSTGRES_DB_PASSWORD'] %>
+    # port: <%= ENV['POSTGRES_DB_PORT'] %>
   clickhouse:
     adapter: clickhouse
     database: swishjam_analytics_dev

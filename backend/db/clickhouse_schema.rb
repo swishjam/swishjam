@@ -10,62 +10,51 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ClickhouseActiverecord::Schema.define(version: 2023_08_31_203703) do
+ClickhouseActiverecord::Schema.define(version: 2023_09_13_020716) do
 
   # TABLE: billing_data_snapshots
-  # SQL: CREATE TABLE swishjam_analytics_test.billing_data_snapshots ( `swishjam_api_key` String, `captured_at` DateTime, `mrr_in_cents` UInt32, `total_revenue_in_cents` UInt32, `num_active_subscriptions` UInt32, `num_free_trial_subscriptions` UInt32, `num_canceled_subscriptions` UInt32 ) ENGINE = MergeTree ORDER BY (swishjam_api_key, captured_at) SETTINGS index_granularity = 8192
-  create_table "billing_data_snapshots", id: false, options: "MergeTree ORDER BY (swishjam_api_key, captured_at) SETTINGS index_granularity = 8192", force: :cascade do |t|
+  # SQL: CREATE TABLE swishjam_analytics_dev.billing_data_snapshots ( `swishjam_api_key` LowCardinality(String), `mrr_in_cents` UInt32, `total_revenue_in_cents` UInt32, `num_active_subscriptions` UInt32, `num_free_trial_subscriptions` UInt32, `num_canceled_subscriptions` UInt32, `captured_at` DateTime ) ENGINE = MergeTree PRIMARY KEY (swishjam_api_key, captured_at) ORDER BY (swishjam_api_key, captured_at) SETTINGS index_granularity = 8192
+  create_table "billing_data_snapshots", id: false, options: "MergeTree PRIMARY KEY (swishjam_api_key, captured_at) ORDER BY (swishjam_api_key, captured_at) SETTINGS index_granularity = 8192", force: :cascade do |t|
     t.string "swishjam_api_key", null: false
-    t.datetime "captured_at", null: false
     t.integer "mrr_in_cents", null: false
     t.integer "total_revenue_in_cents", null: false
     t.integer "num_active_subscriptions", null: false
     t.integer "num_free_trial_subscriptions", null: false
     t.integer "num_canceled_subscriptions", null: false
+    t.datetime "captured_at", null: false
   end
 
+  # TABLE: customer_billing_data_snapshots
+  # SQL: CREATE TABLE swishjam_analytics_dev.customer_billing_data_snapshots ( `swishjam_api_key` LowCardinality(String), `swishjam_owner_id` String, `swishjam_owner_type` Enum8('user' = 1, 'organization' = 2), `mrr_in_cents` UInt64, `total_revenue_in_cents` UInt64, `captured_at` DateTime DEFAULT now() ) ENGINE = MergeTree PRIMARY KEY (swishjam_owner_type, swishjam_api_key, swishjam_owner_id) ORDER BY (swishjam_owner_type, swishjam_api_key, swishjam_owner_id) SETTINGS index_granularity = 8192
+# Could not dump table "customer_billing_data_snapshots" because of following StandardError
+#   Unknown type 'Enum8('user' = 1, 'organization' = 2)' for column 'swishjam_owner_type'
+
   # TABLE: events
-  # SQL: CREATE TABLE swishjam_analytics_test.events ( `swishjam_api_key` String, `uuid` String, `name` String, `device_identifier` Nullable(String), `session_identifier` Nullable(String), `swishjam_organization_id` Nullable(String), `url` Nullable(String), `url_host` Nullable(String), `url_path` Nullable(String), `url_query` Nullable(String), `referrer_url` Nullable(String), `referrer_url_host` Nullable(String), `referrer_url_path` Nullable(String), `referrer_url_query` Nullable(String), `utm_source` Nullable(String), `utm_medium` Nullable(String), `utm_campaign` Nullable(String), `utm_term` Nullable(String), `is_mobile` Nullable(UInt8), `device_type` Nullable(String), `browser` Nullable(String), `browser_version` Nullable(String), `os` Nullable(String), `os_version` Nullable(String), `user_agent` Nullable(String), `properties` String, `occurred_at` DateTime, `ingested_at` DateTime ) ENGINE = MergeTree ORDER BY (swishjam_api_key, name, toMonth(occurred_at)) SETTINGS index_granularity = 8192
-  create_table "events", id: false, options: "MergeTree ORDER BY (swishjam_api_key, name, toMonth(occurred_at)) SETTINGS index_granularity = 8192", force: :cascade do |t|
-    t.string "swishjam_api_key", null: false
+  # SQL: CREATE TABLE swishjam_analytics_dev.events ( `uuid` String, `swishjam_api_key` LowCardinality(String), `name` LowCardinality(String), `analytics_family` Enum8('marketing' = 1, 'product' = 2, 'other' = 3) DEFAULT 'other', `ingested_at` DateTime DEFAULT now(), `occurred_at` DateTime, `properties` String ) ENGINE = MergeTree ORDER BY (analytics_family, swishjam_api_key, name, occurred_at) SETTINGS index_granularity = 8192
+# Could not dump table "events" because of following StandardError
+#   Unknown type 'Enum8('marketing' = 1, 'product' = 2, 'other' = 3)' for column 'analytics_family'
+
+  # TABLE: organization_identify_events
+  # SQL: CREATE TABLE swishjam_analytics_dev.organization_identify_events ( `uuid` String, `swishjam_api_key` LowCardinality(String), `session_identifier` String, `device_identifier` String, `swishjam_organization_id` String, `occurred_at` DateTime, `ingested_at` DateTime DEFAULT now() ) ENGINE = ReplacingMergeTree PRIMARY KEY (swishjam_api_key, session_identifier) ORDER BY (swishjam_api_key, session_identifier) SETTINGS index_granularity = 8192
+  create_table "organization_identify_events", id: false, options: "ReplacingMergeTree PRIMARY KEY (swishjam_api_key, session_identifier) ORDER BY (swishjam_api_key, session_identifier) SETTINGS index_granularity = 8192", force: :cascade do |t|
     t.string "uuid", null: false
-    t.string "name", null: false
-    t.string "device_identifier"
-    t.string "session_identifier"
-    t.string "swishjam_organization_id"
-    t.string "url"
-    t.string "url_host"
-    t.string "url_path"
-    t.string "url_query"
-    t.string "referrer_url"
-    t.string "referrer_url_host"
-    t.string "referrer_url_path"
-    t.string "referrer_url_query"
-    t.string "utm_source"
-    t.string "utm_medium"
-    t.string "utm_campaign"
-    t.string "utm_term"
-    t.integer "is_mobile", limit: 1
-    t.string "device_type"
-    t.string "browser"
-    t.string "browser_version"
-    t.string "os"
-    t.string "os_version"
-    t.string "user_agent"
-    t.string "properties", null: false
+    t.string "swishjam_api_key", null: false
+    t.string "session_identifier", null: false
+    t.string "device_identifier", null: false
+    t.string "swishjam_organization_id", null: false
     t.datetime "occurred_at", null: false
-    t.datetime "ingested_at", null: false
+    t.datetime "ingested_at", default: -> { "now()" }, null: false
   end
 
   # TABLE: user_identify_events
-  # SQL: CREATE TABLE swishjam_analytics_test.user_identify_events ( `swishjam_api_key` String, `uuid` String, `device_identifier` String, `swishjam_user_id` String, `occurred_at` DateTime, `ingested_at` DateTime ) ENGINE = MergeTree ORDER BY (swishjam_api_key, toMonth(occurred_at)) SETTINGS index_granularity = 8192
-  create_table "user_identify_events", id: false, options: "MergeTree ORDER BY (swishjam_api_key, toMonth(occurred_at)) SETTINGS index_granularity = 8192", force: :cascade do |t|
-    t.string "swishjam_api_key", null: false
+  # SQL: CREATE TABLE swishjam_analytics_dev.user_identify_events ( `uuid` String, `swishjam_api_key` LowCardinality(String), `device_identifier` String, `swishjam_user_id` String, `occurred_at` DateTime, `ingested_at` DateTime DEFAULT now() ) ENGINE = ReplacingMergeTree PRIMARY KEY (swishjam_api_key, device_identifier) ORDER BY (swishjam_api_key, device_identifier) SETTINGS index_granularity = 8192
+  create_table "user_identify_events", id: false, options: "ReplacingMergeTree PRIMARY KEY (swishjam_api_key, device_identifier) ORDER BY (swishjam_api_key, device_identifier) SETTINGS index_granularity = 8192", force: :cascade do |t|
     t.string "uuid", null: false
+    t.string "swishjam_api_key", null: false
     t.string "device_identifier", null: false
     t.string "swishjam_user_id", null: false
     t.datetime "occurred_at", null: false
-    t.datetime "ingested_at", null: false
+    t.datetime "ingested_at", default: -> { "now()" }, null: false
   end
 
 end

@@ -9,7 +9,7 @@ describe AnalyticsEventProcessors::PageView do
     @page_view_identifier = 'user-provided-page-view-identifier'
     @session_identifier = 'swishjam-generated-session-identifier'
     @timestamp = 1.minute.ago.to_i * 1_000
-    @page_hit_event_payload = {
+    @page_view_event_payload = {
       'type' => 'organization',
       'sessionId' => @session_identifier,
       'pageViewId' => @page_view_identifier,
@@ -37,7 +37,7 @@ describe AnalyticsEventProcessors::PageView do
       expect(@swishjam_organization.analytics_organizations.count).to be(0)
       expect(Analytics::Session.count).to be(0)
     
-      AnalyticsEventProcessors::Organization.new(@swishjam_organization.public_key, @page_hit_event_payload).process!
+      AnalyticsEventProcessors::Organization.new(@swishjam_organization.public_key, @page_view_event_payload).process!
       
       expect(@swishjam_organization.analytics_organizations.count).to be(1)
       new_organization = @swishjam_organization.analytics_organizations.last
@@ -58,7 +58,7 @@ describe AnalyticsEventProcessors::PageView do
       expect(@swishjam_organization.analytics_organizations.count).to be(1)
       expect(existing_organization.sessions.count).to be(0)
       
-      AnalyticsEventProcessors::Organization.new(@swishjam_organization.public_key, @page_hit_event_payload).process!
+      AnalyticsEventProcessors::Organization.new(@swishjam_organization.public_key, @page_view_event_payload).process!
 
       expect(@swishjam_organization.analytics_organizations.count).to be(1)
       existing_organization.reload
@@ -72,7 +72,7 @@ describe AnalyticsEventProcessors::PageView do
 
     it 'creates a new session if one does not exist' do
       expect(Analytics::Session.count).to be(0)
-      AnalyticsEventProcessors::Organization.new(@swishjam_organization.public_key, @page_hit_event_payload).process!
+      AnalyticsEventProcessors::Organization.new(@swishjam_organization.public_key, @page_view_event_payload).process!
       new_session = Analytics::Session.last
 
       expect(Analytics::Session.count).to be(1)
@@ -85,7 +85,7 @@ describe AnalyticsEventProcessors::PageView do
       expect(Analytics::Session.count).to be(1)
       expect(Analytics::Device.count).to be(1)
       
-      AnalyticsEventProcessors::Organization.new(@swishjam_organization.public_key, @page_hit_event_payload).process!
+      AnalyticsEventProcessors::Organization.new(@swishjam_organization.public_key, @page_view_event_payload).process!
 
       expect(Analytics::Session.count).to be(1)
       expect(Analytics::Device.count).to be(1)
@@ -96,7 +96,7 @@ describe AnalyticsEventProcessors::PageView do
 
     it 'creates a new device if one does not exist for the provided fingerprint' do
       expect(Analytics::Device.count).to be(0)
-      AnalyticsEventProcessors::Organization.new(@swishjam_organization.public_key, @page_hit_event_payload).process!
+      AnalyticsEventProcessors::Organization.new(@swishjam_organization.public_key, @page_view_event_payload).process!
       new_device = Analytics::Device.last
 
       expect(Analytics::Device.count).to be(1)

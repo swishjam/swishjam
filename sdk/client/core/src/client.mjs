@@ -1,21 +1,23 @@
 import { PageViewManager } from "./pageViewManager.mjs";
-import { DataHandler } from "./dataHandler.mjs";
-import { Event } from "./event.mjs";
-import { MemoryHandler } from "./memoryHandler.mjs";
+import { EventManager } from "./eventManager.mjs";
+import { DataPersister } from "./dataPersister.mjs";
+import { DeviceDetails } from "./deviceDetails";
 import { UUID } from "./uuid.mjs";
 import { SDK_VERSION } from './version.mjs'
 
 export class Client {
   constructor(options = {}) {
     this.config = this._setConfig(options);
-    this.dataHandler = this._initDataHandler(this.config);
+    this.eventManager = new EventManager(this.config);
+    this.pageViewManager = new PageViewManager;
+    // the order here is important, we want to make sure we have a session before we start listening for page views
     if (!this.getSession()) this.newSession({ registerPageView: false });
-    this.pageViewManager = this._initPageViewTracker();
+    this._initPageViewListeners();
+    console.log('SwishjamJS Version:', SDK_VERSION)
   }
 
   record = (eventName, properties) => {
-    const event = new Event(eventName, properties);
-    this.dataHandler.add(event);
+    return this.eventManager.recordEvent(eventName, properties);
   }
 
   identify = (userIdentifier, traits) => {
@@ -24,39 +26,24 @@ export class Client {
   }
 
   setOrganization = (organizationIdentifier, traits = {}) => {
-    const previouslySetOrganization = MemoryHandler.get('organizationId');
-    if (previouslySetOrganization !== organizationIdentifier) {
-      // do we want to assume anytime setOrganization is called with a new org, we want a new session?
-      this.newSession();
-    }
-    MemoryHandler.set('organizationId', organizationIdentifier);
+    const previouslySetOrganization = DataPersister.get('organizationId');
+    // set the new organization so the potential new session has the correct organization
+    DataPersister.set('organizationId', organizationIdentifier);
+    // we assume anytime setOrganization is called with a new org, we want a new session
+    if (previouslySetOrganization !== organizationIdentifier) this.newSession();
     this.record('organization', { organizationIdentifier, ...traits })
   }
 
   getSession = () => {
-    return MemoryHandler.get('sessionId');
+    return DataPersister.get('sessionId');
   }
 
   newSession = ({ registerPageView = true }) => {
-    const safeParsedReferrer = () => {
-      try {
-        return this.pageViewManager ? new URL(this.pageViewManager.previousUrl()) : new URL(document.referrer);
-      } catch(err) {
-        return {};
-      }
-    }
-    // important to set this first because the new Event reads from the MemoryHandler
-    MemoryHandler.set('sessionId', UUID.generate('s'));
+    // important to set this first because the new Event reads from the DataPersister
+    DataPersister.set('sessionId', UUID.generate('s'));
     this.record('new_session', { 
-      referrer_url: safeParsedReferrer().href,
-      referrer_url_host: safeParsedReferrer().host,
-      referrer_url_path: safeParsedReferrer().pathname,
-      referrer_url_query: safeParsedReferrer().search,
-      utm_source: new URLSearchParams(document.location.search).get('utm_source'),
-      utm_medium: new URLSearchParams(document.location.search).get('utm_medium'),
-      utm_campaign: new URLSearchParams(document.location.search).get('utm_campaign'),
-      utm_term: new URLSearchParams(document.location.search).get('utm_term'),
-      utm_content: new URLSearchParams(document.location.search).get('utm_content'),
+      referrer: this.pageViewManager.previousUrl(),
+      ...DeviceDetails.all()
     });
     if (registerPageView) this.pageViewManager.recordPageView();
     return this.getSession();
@@ -78,35 +65,24 @@ export class Client {
     }
   }
 
-  _initDataHandler = config => {
-    return new DataHandler({
-      apiEndpoint: config.apiEndpoint,
-      apiKey: config.apiKey,
-      maxSize: config.maxEventsInMemory,
-      heartbeatMs: config.reportingHeartbeatMs
+  _initPageViewListeners = () => {
+    this.pageViewManager.onNewPage((_newUrl, previousUrl) => {
+      DataPersister.set('pageViewId', UUID.generate('pv'));
+      this.eventManager.recordEvent('page_view', { referrer: previousUrl });
     });
-  }
-
-  _initPageViewTracker = () => {
-    const pageViewManager = new PageViewManager;
-    pageViewManager.onNewPage((_newUrl, previousUrl) => {
-      MemoryHandler.set('pageViewId', UUID.generate('pv'));
-      const pageViewEvent = new Event('page_view', { previousUrl });
-      this.dataHandler.add(pageViewEvent);
-    });
-    window.addEventListener('beforeunload', async () => {
-      this.dataHandler.add(new Event('page_left'));
-      await this.dataHandler.flushQueue();
+    window.addEventListener('pagehide', async () => {
+      debugger;
+      this.eventManager.recordEvent('page_left');
+      await this.eventManager.flushQueue();
     })
-    pageViewManager.recordPageView();
-    return pageViewManager;
+    this.pageViewManager.recordPageView();
   }
 
   _setConfig = options => {
     if (!options.apiKey) throw new Error('Swishjam `apiKey` is required');
-    const validOptions = ['apiKey', 'apiEndpoint', 'maxEventsInMemory', 'reportingHeartbeatMs'];
+    const validOptions = ['apiKey', 'apiEndpoint', 'maxEventsInMemory', 'reportingHeartbeatMs', 'marketingUrlPattern', 'productUrlPattern', 'debug'];
     Object.keys(options).forEach(key => {
-      if (!validOptions.includes(key)) console.warn(`Swishjam received unrecognized config: ${key}`);
+      if (!validOptions.includes(key)) console.warn(`SwishjamJS received unrecognized config: ${key}`);
     });
     return {
       version: SDK_VERSION,
@@ -114,7 +90,9 @@ export class Client {
       apiEndpoint: options.apiEndpoint || 'https://api2.swishjam.com/api/v1/capture',
       maxEventsInMemory: options.maxEventsInMemory || 20,
       reportingHeartbeatMs: options.reportingHeartbeatMs || 10_000,
-      // debug: typeof options.debug === 'boolean' ? options.debug : false,
+      marketingUrlRegExp: new RegExp(options.marketingUrlRegExp || "(www\.)?[^.]*\.[^.]*$"),
+      productUrlRegExp: new RegExp(options.productUrlRegExp || "app\.[^.]*\.[^.]*$"),
+      debug: typeof options.debug === 'boolean' ? options.debug : false,
     }
   }
 }
