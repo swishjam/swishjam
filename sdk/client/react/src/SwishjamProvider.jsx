@@ -1,22 +1,20 @@
-import { useEffect, createContext, useContext } from 'react';
-
-const SwishjamContext = createContext();
-
-export const useSwishjam = () => useContext(SwishjamContext);
+import { useState, useEffect } from 'react';
+import { SwishjamContext } from './SwishjamContext';
 
 export const SwishjamProvider = ({ apiKey, apiEndpoint, children }) => {
-  let swishjamClient;
+  const [swishjamClient, setSwishjamClient] = useState();
 
   useEffect(() => {
     const init = async () => {
       if (typeof window !== 'undefined' && !swishjamClient) {
-        swishjamClient = (await import('@swishjam/core')).default;
-        swishjamClient.init({ apiKey, apiEndpoint });
+        const SwishjamClient = (await import('@swishjam/core')).default;
+        const client = new SwishjamClient({ apiKey, apiEndpoint });
+        setSwishjamClient(client);
         return swishjamClient;
       }
     }
     init();
-  }, [apiKey, apiEndpoint]);
+  }, []);
 
   return (
     <SwishjamContext.Provider value={swishjamClient}>
