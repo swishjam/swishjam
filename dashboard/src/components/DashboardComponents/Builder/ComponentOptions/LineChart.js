@@ -5,7 +5,7 @@ import { ONE_DAY_IN_MS } from '@/lib/utils/timeHelpers';
 export default function LineChartOption({ onClick }) {
   const currentValue = randomNumberBetween(800, 900);
   return (
-    <div className='cursor-pointer transition-all hover:scale-110' onClick={() => { onClick && onClick() }}>
+    <div className='cursor-pointer transition-all hover:scale-105' onClick={() => { onClick && onClick() }}>
       <LineChartWithValue
         timeseries={[
           { date: new Date() - ONE_DAY_IN_MS * 7, value: randomNumberBetween(0, 100) },

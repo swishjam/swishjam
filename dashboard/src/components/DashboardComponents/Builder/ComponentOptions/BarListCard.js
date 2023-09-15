@@ -3,7 +3,7 @@ import { randomNumberBetween } from '@/lib/utils/numberHelpers';
 
 export default function BarListCardOption({ onClick }) {
   return (
-    <div className='cursor-pointer transition-all hover:scale-110' onClick={() => { onClick && onClick() }}>
+    <div className='cursor-pointer transition-all hover:scale-105' onClick={() => { onClick && onClick() }}>
       <BarListCard 
         title='Bar List Card' 
         items={[

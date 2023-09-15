@@ -2,7 +2,7 @@ import PieChartComponent from '@/components/DashboardComponents/PieChart'
 
 export default function PieChartOption({ onClick }) {
   return (
-    <div className='cursor-pointer hover:scale-110 transition-all' onClick={onClick}>
+    <div className='cursor-pointer hover:scale-105 transition-all' onClick={onClick}>
       <PieChartComponent 
         title='Pie Chart' 
         data={[

@@ -19,7 +19,7 @@ export default function BarChartOption({ onClick }) {
     }
   ]
   return (
-    <div className='cursor-pointer hover:scale-110 transition-all' onClick={onClick}>
+    <div className='cursor-pointer hover:scale-105 transition-all' onClick={onClick}>
       <BarChart title='Bar Chart' data={data} includeTooltip={false} includeLegend={false} />
     </div>
   )

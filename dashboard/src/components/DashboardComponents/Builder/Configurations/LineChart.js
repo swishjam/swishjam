@@ -7,10 +7,10 @@ export default function LineChartConfiguration({ eventOptions, onSaveClick = () 
   const [selectedEventName, setSelectedEventName] = useState();
   const [lineChartTitle, setLineChartTitle] = useState();
   const [lineChartData, setLineChartData] = useState();
-  const [dimensionOptions, setDimensionOptions] = useState();
-  const [dimension, setDimension] = useState();
-  const [aggregationType, setAggregationType] = useState('count');
-  const [aggregationOptions, setAggregationOptions] = useState(['count', 'sum', 'avg', 'min', 'max']);
+  const [propertyOptions, setPropertyOptions] = useState();
+  const [propertyToVisualize, setPropertyToVisualize] = useState();
+  const [selectedCalculation, setSelectedCalculation] = useState('count');
+  const [calculationOptions, setCalculationOptions] = useState(['count', 'sum', 'avg', 'min', 'max']);
   const [currentValue, setCurrentValue] = useState();
 
   useEffect(() => {
@@ -19,12 +19,12 @@ export default function LineChartConfiguration({ eventOptions, onSaveClick = () 
         setLineChartData(timeseries);
         setCurrentValue(timeseries[timeseries.length - 1].value);
       });
-      API.get(`/api/v1/events/${selectedEventName}/unique_properties`).then(setDimensionOptions);
+      API.get(`/api/v1/events/${selectedEventName}/unique_properties`).then(setPropertyOptions);
     } else {
       setLineChartData();
       setCurrentValue();
-      setDimensionOptions();
-      setAggregationType('count');
+      setPropertyOptions();
+      setSelectedCalculation('count');
     }
   }, [selectedEventName])
 
@@ -35,15 +35,14 @@ export default function LineChartConfiguration({ eventOptions, onSaveClick = () 
         <div>
           <input className='input' placeholder='Line Chart Title' value={lineChartTitle} onChange={e => setLineChartTitle(e.target.value)} />
         </div>
-        <div>
-          <Dropdown options={eventOptions} onSelect={setSelectedEventName} />
-        </div>
-        <div>
-          <Dropdown options={dimensionOptions || []} onSelect={setDimension} />
-        </div>
-        <div>
-          <Dropdown options={aggregationOptions || []} onSelect={setAggregationType} />
-        </div>
+      </div>
+      <div className='flex text-sm text-gray-700 items-center mt-2'>
+        <span className='mx-1'>Visualize the</span>
+        <Dropdown options={calculationOptions || []} onSelect={setSelectedCalculation} label='Select the calculation for the property' />
+        <span className='mx-1'>of</span>
+        <Dropdown options={eventOptions} onSelect={setSelectedEventName} label='Select an event to visualize' />
+        <span className='mx-1'>by</span>
+        <Dropdown options={propertyOptions || []} onSelect={setPropertyToVisualize} label="Select the event's property" />
       </div>
       <div className='mt-4'>
         <LineChartWithValue title={lineChartTitle} timeseries={lineChartData} value={currentValue} />
