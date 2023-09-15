@@ -61,7 +61,8 @@ export default function LineChartWithValue({
   noDataMessage = 'No data available.',
   includeSettingsDropdown = true,
   onSettingChange = () => {},
-  showAxis = false
+  showAxis = false,
+  showTooltip = true,
 }) {
   const [showXAxis, setShowXAxis] = useState(showAxis);
   const [showYAxis, setShowYAxis] = useState(showAxis);
@@ -153,18 +154,18 @@ export default function LineChartWithValue({
                   tickFormatter={dateFormatter}
                   tick={{ fontSize: 12, fill: "#9CA3AF" }}
                   includeHidden
-                  interval={'preserveStartEnd'}
+                  interval='preserveStartEnd'
                 />
                 {/*<YAxis dataKey="value" hide={!showYAxis} tickFormatter={valueFormatter} tick={{ fontSize: 12, fill: "#9CA3AF" }} />*/}
                 {showYAxis && <CartesianGrid strokeDasharray="3 3" vertical={false}/>}
-                <Tooltip
+                {showTooltip && <Tooltip
                   animationBegin={200}
                   animationDuration={400}
                   wrapperStyle={{ outline: "none" }}
                   content={<CustomTooltip valueFormatter={valueFormatter} dateFormatter={dateFormatter} />}
                   allowEscapeViewBox={{x: false, y: true}}
                   animationEasing='ease-in-out'
-                />
+                />}
                 <Line
                   // type="natural"
                   type="monotone"

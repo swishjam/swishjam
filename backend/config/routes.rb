@@ -79,9 +79,14 @@ Rails.application.routes.draw do
 
       resources :page_views, only: [:index]
       
-      resources :events, only: [] do
+      resources :events, only: [], param: :name do
         collection do
           get :feed
+          get :unique
+        end
+        member do
+          get :timeseries
+          get :unique_properties
         end
       end
 
