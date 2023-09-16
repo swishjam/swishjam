@@ -5,6 +5,7 @@ import BarChartOption from './BarChart'
 import BarListOption from './BarListCard'
 import LineChartOption from './LineChart'
 import PieChartOption from './PieChart'
+import ValueCardOption from './ValueCard'
 
 export default function OptionsSlideout({ isOpen, onSelect, onClose = () => {} }) {
   return (
@@ -59,6 +60,7 @@ export default function OptionsSlideout({ isOpen, onSelect, onClose = () => {} }
                       <BarListOption onClick={() => onSelect('BarList')} />
                       <LineChartOption onClick={() => onSelect('LineChart')} />
                       <PieChartOption onClick={() => onSelect('PieChart')} />
+                      <ValueCardOption onClick={() => onSelect('ValueCard')} />
                     </div>
                   </div>
                 </Dialog.Panel>

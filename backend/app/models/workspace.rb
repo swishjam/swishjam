@@ -6,6 +6,8 @@ class Workspace < Transactional
   has_many :analytics_family_configurations, dependent: :destroy
   has_many :analytics_user_profiles, dependent: :destroy
   has_many :analytics_organization_profiles, dependent: :destroy
+  has_many :dashboards, dependent: :destroy
+  has_many :dashboard_components, through: :dashboards
 
   validates :public_key, presence: true, uniqueness: true
   before_validation :generate_public_key, on: :create

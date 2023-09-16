@@ -3,7 +3,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
 import { HoverCard, HoverCardTrigger, HoverCardContent } from "@/components/ui/hover-card";
-import { ArrowTrendingDownIcon, ArrowTrendingUpIcon, CalendarIcon, Cog8ToothIcon } from "@heroicons/react/24/outline";
+import { ArrowTrendingDownIcon, ArrowTrendingUpIcon, CalendarIcon } from "@heroicons/react/24/outline";
 
 const LoadingState = ({ title }) => (
   <Card>
@@ -23,14 +23,13 @@ export default function ValueCard({
   previousValue,
   previousValueDate,
   valueFormatter = val => val,
-  onClick = () => {}
 }) {
   if ([null, undefined].includes(value)) return <LoadingState title={title} />;
 
   const changeInValue = typeof previousValue !== 'undefined' ? value - previousValue : null;
 
   return (
-    <Card className='group hover:ring-2 offset-2 ring-swishjam duration-300 transition'>
+    <Card className='group offset-2 ring-swishjam duration-300 transition'>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <CardTitle className="text-sm font-medium cursor-default">{title}</CardTitle>
       </CardHeader>

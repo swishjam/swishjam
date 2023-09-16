@@ -7,13 +7,6 @@ module Api
         render json: events, status: :ok
       end
 
-      def unique_properties
-        event_name = URI.decode_uri_component(params[:name])
-        limit = params[:limit] || 1_000
-        properties = ClickHouseQueries::Events::Properties::Unique.new(current_workspace.public_key, event_name: event_name, limit: limit, start_time: 6.months.ago, end_time: Time.current).get
-        render json: properties, status: :ok
-      end
-
       def timeseries
         event_name = URI.decode_uri_component(params[:name])
         timeseries = ClickHouseQueries::Events::Timeseries.new(current_workspace.public_key, event_name: event_name, start_time: 1.months.ago, end_time: Time.current).get

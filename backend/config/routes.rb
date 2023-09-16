@@ -86,9 +86,17 @@ Rails.application.routes.draw do
         end
         member do
           get :timeseries
-          get :unique_properties
+        end
+        resources :properties, only: [:index], param: :name, controller: :'events/properties' do
+          member do
+            get :counts, to: 'events/properties#counts'
+          end
         end
       end
+
+      resources :dashboards, only: [:index, :show, :create, :update, :destroy]
+      resources :dashboard_components, only: [:create, :update, :destroy]
+      resources :dashboards_dashboard_components, only: [:destroy]
 
       resources :billing_data_snapshots, only: [:index]
 
