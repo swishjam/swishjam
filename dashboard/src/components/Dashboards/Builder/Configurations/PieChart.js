@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { API } from '@/lib/api-client/base';
 import Dropdown from '@/components/utils/Dropdown'
 import { CheckCircleIcon } from '@heroicons/react/24/outline';
-import PieChartComponent from '@/components/DashboardComponents/PieChart';
+import PieChartComponent from '@/components/Dashboards/Components/PieChart';
 
 export default function PieChartConfiguration({ eventOptions, onSaveClick = () => {} }) {
   const [selectedEventName, setSelectedEventName] = useState();

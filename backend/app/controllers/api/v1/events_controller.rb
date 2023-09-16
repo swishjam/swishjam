@@ -9,8 +9,22 @@ module Api
 
       def timeseries
         event_name = URI.decode_uri_component(params[:name])
-        timeseries = ClickHouseQueries::Events::Timeseries.new(current_workspace.public_key, event_name: event_name, start_time: 1.months.ago, end_time: Time.current).get
+        timeseries = ClickHouseQueries::Events::Count::Timeseries.new(current_workspace.public_key, event_name: event_name, start_time: start_timestamp, end_time: end_timestamp).get
         render json: timeseries.formatted_data, status: :ok
+      end
+
+      def count
+        event_name = URI.decode_uri_component(params[:name])
+        count = ClickHouseQueries::Events::Count::Total.new(current_workspace.public_key, event_name: event_name, start_time: start_timestamp, end_time: end_timestamp).get
+        comparison_count = ClickHouseQueries::Events::Count::Total.new(current_workspace.public_key, event_name: event_name, start_time: comparison_start_timestamp, end_time: comparison_end_timestamp).get
+        render json: { 
+          count: count, 
+          comparison_count: comparison_count,
+          start_time: start_timestamp,
+          end_time: end_timestamp,
+          comparison_start_time: comparison_start_timestamp,
+          comparison_end_time: comparison_end_timestamp,
+        }, status: :ok
       end
 
       def feed

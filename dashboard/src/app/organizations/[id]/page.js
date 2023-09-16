@@ -8,9 +8,9 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { HomeIcon } from '@heroicons/react/20/solid'
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { CalendarIcon } from "@heroicons/react/24/outline";
-import ItemizedList from "@/components/DashboardComponents/ItemizedList";
-import ActiveUsersLineChart from "@/components/DashboardComponents/Prebuilt/ActiveUsersLineChart";
-import BarListCard from "@/components/DashboardComponents/BarListCard";
+import ItemizedList from "@/components/Dashboards/Components/ItemizedList";
+import ActiveUsersLineChart from "@/components/Dashboards/Components/Prebuilt/ActiveUsersLineChart";
+import BarListCard from "@/components/Dashboards/Components/BarListCard";
 
 const LoadingState = () => (
   <main className="mx-auto max-w-7xl px-4 mt-8 sm:px-6 lg:px-8 mb-8">

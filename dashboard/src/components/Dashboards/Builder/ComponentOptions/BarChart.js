@@ -1,4 +1,4 @@
-import BarChart from '@/components/DashboardComponents/BarChart'
+import BarChart from '@/components/Dashboards/Components/BarChart'
 
 export default function BarChartOption({ onClick }) {
   const data = [

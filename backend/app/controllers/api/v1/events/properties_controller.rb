@@ -5,7 +5,7 @@ module Api
         def index
           event_name = URI.decode_uri_component(params[:event_name])
           limit = params[:limit] || 1_000
-          properties = ClickHouseQueries::Events::Properties::Unique.new(current_workspace.public_key, event_name: event_name, limit: limit, start_time: 6.months.ago, end_time: Time.current).get
+          properties = ClickHouseQueries::Events::Properties::Unique.new(current_workspace.public_key, event_name: event_name, limit: limit, start_time: start_time, end_time: end_time).get
           render json: properties, status: :ok
         end
 
@@ -17,8 +17,8 @@ module Api
             current_workspace.public_key, 
             event_name: event_name, 
             property_name: property_name,
-            start_time: 6.months.ago, 
-            end_time: Time.current,
+            start_time: start_time, 
+            end_time: end_time,
             limit: limit
           ).get
           render json: properties_breakdown, status: :ok

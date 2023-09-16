@@ -3,8 +3,8 @@
 import { useState, useEffect } from 'react';
 import { API } from '@/lib/api-client/base';
 import AuthenticatedView from '@/components/Auth/AuthenticatedView';
-import LineChartWithValue from '@/components/DashboardComponents/LineChartWithValue';
-import BarListCard from '@/components/DashboardComponents/Prebuilt/BarListCard';
+import LineChartWithValue from '@/components/Dashboards/Components/LineChartWithValue';
+import BarListCard from '@/components/Dashboards/Components/Prebuilt/BarListCard';
 import Timefilter from '@/components/Timefilter';
 import { MobileIcon, DesktopIcon } from '@radix-ui/react-icons';
 import Banner from '@/components/utils/TopBanner';

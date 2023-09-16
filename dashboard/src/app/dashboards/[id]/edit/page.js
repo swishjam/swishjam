@@ -3,13 +3,13 @@
 import { useEffect, useState } from "react";
 import AuthenticatedView from "@/components/Auth/AuthenticatedView"
 import { API } from "@/lib/api-client/base";
-import RenderingEngine from "@/components/DashboardComponents/Builder/RenderingEngine";
-import LineChartConfiguration from "@/components/DashboardComponents/Builder/Configurations/LineChart";
-import ComponentOptionsSlideout from "@/components/DashboardComponents/Builder/ComponentOptions/OptionsSlideout";
+import RenderingEngine from "@/components/Dashboards/RenderingEngine";
+import LineChartConfiguration from "@/components/Dashboards/Builder/Configurations/LineChart";
+import ComponentOptionsSlideout from "@/components/Dashboards/Builder/ComponentOptions/OptionsSlideout";
 import { ChartPieIcon, PlusCircleIcon } from "@heroicons/react/24/outline";
 import Modal from "@/components/utils/Modal";
-import PieChartConfiguration from "@/components/DashboardComponents/Builder/Configurations/PieChart";
-import BarListConfiguration from "@/components/DashboardComponents/Builder/Configurations/BarList";
+import PieChartConfiguration from "@/components/Dashboards/Builder/Configurations/PieChart";
+import BarListConfiguration from "@/components/Dashboards/Builder/Configurations/BarList";
 
 const ConfigureDashboardComponent = ({ componentType, eventOptions, onSave, onClose }) => {
   const ConfigurationComponent = {

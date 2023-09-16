@@ -2,32 +2,31 @@
 
 import { useState, useEffect } from 'react';
 import { API } from '@/lib/api-client/base';
-import ItemizedList from '@/components/DashboardComponents/ItemizedList';
+import ItemizedList from '@/components/Dashboards/Components/ItemizedList';
 
 export default function ItemizedUsersList({ loadingStateOnly = false }) {
-  const [recentUsers, setRecentUsers] = useState();
+  const [recentOrganizations, setRecentOrganizations] = useState();
 
   useEffect(() => {
     if (!loadingStateOnly) {
-      API.get('/api/v1/users').then(setRecentUsers);
+      API.get('/api/v1/organizations').then(setRecentOrganizations);
     }
   }, [loadingStateOnly]);
 
   return (
     <ItemizedList
-      title='New Users'
-      viewMoreUrl={'/users'} 
-      items={recentUsers}
-      leftItemHeaderKey='full_name'
-      leftItemSubHeaderKey='email'
-      rightItemKey ='created_at'
+      title='New Organizations'
+      items={recentOrganizations}
+      leftItemHeaderKey='name'
+      rightItemKey='created_at'
       rightItemKeyFormatter={date => {
         return new Date(date)
           .toLocaleDateString('en-us', { weekday: "short", year: "numeric", month: "short", day: "numeric" })
           .replace(`, ${new Date(date).getFullYear()}`, '')
       }}
-      fallbackAvatarGenerator={user => (user.full_name || user.email).split(' ').map(name => name[0]).join('').toUpperCase()}
-      linkFormatter={user => `/users/${user.id}`}
+      fallbackAvatarGenerator={org => org.name.split(' ').map(name => name[0]).join('').toUpperCase()}
+      linkFormatter={org => `/organizations/${org.id}`}
+      noDataMsg='No organizations identified yet.'
     />
   )
 }

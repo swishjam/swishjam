@@ -1,4 +1,4 @@
-import PieChartComponent from '@/components/DashboardComponents/PieChart'
+import PieChartComponent from '@/components/Dashboards/Components/PieChart'
 
 export default function PieChartOption({ onClick }) {
   return (

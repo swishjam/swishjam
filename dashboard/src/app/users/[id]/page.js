@@ -6,10 +6,10 @@ import { API } from "@/lib/api-client/base";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import EventFeed from "@/components/DashboardComponents/EventFeed";
+import EventFeed from "@/components/Dashboards/Components/EventFeed";
 import { HomeIcon } from '@heroicons/react/20/solid'
-import LineChartWithValue from '@/components/DashboardComponents/LineChartWithValue';
-import BarListCard from "@/components/DashboardComponents/BarListCard";
+import LineChartWithValue from '@/components/Dashboards/Components/LineChartWithValue';
+import BarListCard from "@/components/Dashboards/Components/BarListCard";
 
 const LoadingState = () => (
   <main className="mx-auto max-w-7xl px-4 mt-8 sm:px-6 lg:px-8 mb-8">

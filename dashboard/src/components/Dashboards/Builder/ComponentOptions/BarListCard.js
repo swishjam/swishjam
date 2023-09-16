@@ -1,4 +1,4 @@
-import BarListCard from '@/components/DashboardComponents/BarListCard';
+import BarListCard from '@/components/Dashboards/Components/BarListCard';
 import { randomNumberBetween } from '@/lib/utils/numberHelpers';
 
 export default function BarListCardOption({ onClick }) {

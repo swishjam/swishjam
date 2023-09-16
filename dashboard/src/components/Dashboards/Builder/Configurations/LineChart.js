@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { API  } from '@/lib/api-client/base';
-import LineChartWithValue from '@/components/DashboardComponents/LineChartWithValue'
+import LineChartWithValue from '@/components/Dashboards/Components/LineChartWithValue'
 import Dropdown from '@/components/utils/Dropdown'
 import { CheckCircleIcon } from '@heroicons/react/24/outline';
 
@@ -32,7 +32,7 @@ export default function LineChartConfiguration({ eventOptions, onSaveClick = () 
         setLineChartData(timeseries);
         setCurrentValue(timeseries[timeseries.length - 1].value);
       });
-      API.get(`/api/v1/events/${selectedEventName}/properties/unique`).then(setPropertyOptions);
+      API.get(`/api/v1/events/${selectedEventName}/properties`).then(setPropertyOptions);
     } else {
       setLineChartData();
       setCurrentValue();

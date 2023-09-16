@@ -1,4 +1,4 @@
-import BarChartComponent from '@/components/DashboardComponents/BarChart';
+import BarChartComponent from '@/components/Dashboards/Components/BarChart';
 
 export default function BarChartConfiguration() {
   return (

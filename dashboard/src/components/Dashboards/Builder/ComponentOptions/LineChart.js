@@ -1,4 +1,4 @@
-import LineChartWithValue from '@/components/DashboardComponents/LineChartWithValue'
+import LineChartWithValue from '@/components/Dashboards/Components/LineChartWithValue'
 import { randomNumberBetween } from '@/lib/utils/numberHelpers';
 import { ONE_DAY_IN_MS } from '@/lib/utils/timeHelpers';
 

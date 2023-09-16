@@ -1,4 +1,4 @@
-import ValueCardComponent from '@/components/DashboardComponents/ValueCard'
+import ValueCardComponent from '@/components/Dashboards/Components/ValueCard'
 import { randomNumberBetween } from '@/lib/utils/numberHelpers';
 
 export default function ValueCardOption({ onClick }) {

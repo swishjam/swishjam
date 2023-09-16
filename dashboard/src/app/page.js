@@ -3,12 +3,12 @@
 import { useState, useEffect } from 'react';
 import { API } from '@/lib/api-client/base';
 import AuthenticatedView from '@/components/Auth/AuthenticatedView';
-import LineChartWithValue from '@/components/DashboardComponents/LineChartWithValue';
-import ClickableValueCard from '@/components/DashboardComponents/ClickableValueCard';
-// import ItemizedList from '@/components/DashboardComponents/ItemizedList';
-import ItemizedUsersList from '@/components/DashboardComponents/Prebuilt/ItemizedUsersList';
-import ItemizedOrganizationsList from '@/components/DashboardComponents/Prebuilt/ItemizedOrganizationList';
-import ActiveUsersLineChart from '@/components/DashboardComponents/Prebuilt/ActiveUsersLineChart';
+import LineChartWithValue from '@/components/Dashboards/Components/LineChartWithValue';
+import ClickableValueCard from '@/components/Dashboards/Components/ClickableValueCard';
+// import ItemizedList from '@/components/Dashboards/Components/ItemizedList';
+import ItemizedUsersList from '@/components/Dashboards/Components/Prebuilt/ItemizedUsersList';
+import ItemizedOrganizationsList from '@/components/Dashboards/Components/Prebuilt/ItemizedOrganizationList';
+import ActiveUsersLineChart from '@/components/Dashboards/Components/Prebuilt/ActiveUsersLineChart';
 import { Separator } from "@/components/ui/separator"
 
 const LoadingState = () => (
