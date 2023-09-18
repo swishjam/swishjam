@@ -14,7 +14,7 @@ module WebEventProcessors
     end
 
     def event_name
-      event_json['event_name']
+      event_json['event']
     end
     alias name event_name
 

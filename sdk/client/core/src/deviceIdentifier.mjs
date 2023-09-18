@@ -1,5 +1,5 @@
 import { UUID } from "./uuid.mjs";
-import { CookieHelper } from "./cookieHelper";
+import { CookieHelper } from "./cookieHelper.mjs";
 import { SWISHJAM_DEVICE_IDENTIFIER_COOKIE_NAME } from './constants.mjs'
 
 export class DeviceIdentifier {

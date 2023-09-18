@@ -7,5 +7,5 @@ import Swishjam from '@swishjam/core';
   const reportingHeartbeatMs = document.currentScript.getAttribute('data-reporting-heartbeat-ms');
   
   if (!apiKey) throw new Error('Missing Swishjam API key, you must provide it in the `data-api-key` attribute of the Swishjam CDN script tag.');
-  Swishjam.init({ apiKey, apiEndpoint, maxEventsInMemory, reportingHeartbeatMs });
+  new Swishjam({ apiKey, apiEndpoint, maxEventsInMemory, reportingHeartbeatMs });
 })();

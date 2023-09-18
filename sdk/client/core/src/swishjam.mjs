@@ -4,7 +4,7 @@ const _client = Symbol('client');
 
 export default class Swishjam {
   constructor (options) {
-    if (window.Swishjam) {
+    if (window.Swishjam && !window.Swishjam.stubbed) {
       console.warn('SwishjamJS already initialized. Returning existing instance.');
       return window.Swishjam;
     }

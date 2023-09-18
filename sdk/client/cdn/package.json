@@ -1,6 +1,6 @@
 {
   "name": "@swishjam/cdn",
-  "version": "0.0.135",
+  "version": "0.0.139",
   "description": "",
   "main": "build.js",
   "scripts": {
@@ -10,13 +10,13 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@swishjam/core": "^0.0.123",
-    "webpack": "^5.88.2",
-    "webpack-cli": "^5.1.4"
+    "@swishjam/core": "^0.0.213"
   },
   "devDependencies": {
     "@babel/core": "^7.22.15",
     "@babel/preset-env": "^7.22.15",
-    "babel-loader": "^9.1.3"
+    "babel-loader": "^9.1.3",
+    "webpack": "^5.88.2",
+    "webpack-cli": "^5.1.4"
   }
 }
