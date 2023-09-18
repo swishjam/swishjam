@@ -15,10 +15,10 @@ class AnalyticsFamilyConfiguration < Transactional
 
   default_scope { order(priority: :ASC) }
 
-  before_save :format_regex, if: :url_regex_changed?
-  before_create { self.priority = workspace.analytics_family_configurations.maximum(:priority).to_i + 1 if self.priority.blank? }
+  before_create { self.priority = (workspace.analytics_family_configurations.maximum(:priority).to_i + 1 || 0) if self.priority.blank? }
   before_save :re_prioritize_workspaces_configurations, if: :priority_changed?
-
+  before_save :format_regex, if: :url_regex_changed?
+  
   def self.clickhouse_formatted_family_name
     name.to_s.split('::').last.downcase
   end
