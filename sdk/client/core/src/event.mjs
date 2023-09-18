@@ -26,6 +26,7 @@ export class Event {
       url: this.url,
       ...this.data,
       sdk_version: SDK_VERSION,
+      source: 'web'
     }
   }
 }
