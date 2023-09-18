@@ -5,7 +5,7 @@ class AnalyticsFamilyConfiguration < Transactional
   validates :type, presence: true, inclusion: { in: TYPES.map(&:to_s) }
   validates :url_regex, presence: true
   validates :priority, presence: true, numericality: { only_integer: true, greater_than_or_equal_to: 0 }
-  validates :is_valid_regexp
+  validate :is_valid_regexp
 
   scope :by_type, -> (type) { where(type: type.to_s) }
   scope :marketing, -> { by_type(AnalyticsFamilyConfigurations::Marketing) }
