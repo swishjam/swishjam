@@ -5,6 +5,7 @@ class AnalyticsFamilyConfiguration < Transactional
   validates :type, presence: true, inclusion: { in: TYPES.map(&:to_s) }
   validates :url_regex, presence: true
   validates :priority, presence: true, numericality: { only_integer: true, greater_than_or_equal_to: 0 }
+  validates :is_valid_regexp
 
   scope :by_type, -> (type) { where(type: type.to_s) }
   scope :marketing, -> { by_type(AnalyticsFamilyConfigurations::Marketing) }
@@ -43,6 +44,14 @@ class AnalyticsFamilyConfiguration < Transactional
   end
 
   private
+
+  def is_valid_regexp
+    begin
+      Regexp.new(url_regex)
+    rescue RegexpError => e
+      errors.add(:url_regex, "Invalid Regular Expression: #{e.message}")
+    end
+  end
 
   def format_regex
     self.url_regex = url_regex.strip

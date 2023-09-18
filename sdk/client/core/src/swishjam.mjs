@@ -19,4 +19,5 @@ export default class Swishjam {
   setOrganization = (organizationIdentifier, traits) => this[_client].setOrganization(organizationIdentifier, traits);
   getSession = () => this[_client].getSession();
   newSession = () => this[_client].newSession();
+  logout = () => this[_client].logout();
 }
