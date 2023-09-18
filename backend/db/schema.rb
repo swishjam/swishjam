@@ -10,11 +10,22 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2023_08_30_011408) do
+ActiveRecord::Schema.define(version: 2023_09_13_163108) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
   enable_extension "plpgsql"
+
+  create_table "analytics_family_configurations", force: :cascade do |t|
+    t.uuid "workspace_id", null: false
+    t.string "type", null: false
+    t.string "url_regex", null: false
+    t.text "description"
+    t.integer "priority"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["workspace_id"], name: "index_analytics_family_configurations_on_workspace_id"
+  end
 
   create_table "analytics_organization_profiles", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.uuid "workspace_id", null: false
@@ -79,15 +90,6 @@ ActiveRecord::Schema.define(version: 2023_08_30_011408) do
     t.index ["workspace_id"], name: "index_integrations_on_workspace_id"
   end
 
-  create_table "url_segments", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
-    t.uuid "workspace_id", null: false
-    t.string "name", null: false
-    t.string "url_host", null: false
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
-    t.index ["workspace_id"], name: "index_url_segments_on_workspace_id"
-  end
-
   create_table "users", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.string "email", null: false
     t.string "password_digest", null: false
@@ -118,6 +120,7 @@ ActiveRecord::Schema.define(version: 2023_08_30_011408) do
     t.index ["public_key"], name: "index_workspaces_on_public_key"
   end
 
+  add_foreign_key "analytics_family_configurations", "workspaces"
   add_foreign_key "analytics_organization_profiles", "workspaces"
   add_foreign_key "analytics_organization_profiles_users", "analytics_organization_profiles"
   add_foreign_key "analytics_organization_profiles_users", "analytics_user_profiles"
@@ -125,7 +128,6 @@ ActiveRecord::Schema.define(version: 2023_08_30_011408) do
   add_foreign_key "auth_sessions", "users"
   add_foreign_key "data_syncs", "workspaces"
   add_foreign_key "integrations", "workspaces"
-  add_foreign_key "url_segments", "workspaces"
   add_foreign_key "workspace_members", "users"
   add_foreign_key "workspace_members", "workspaces"
 end

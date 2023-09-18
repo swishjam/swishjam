@@ -3,8 +3,8 @@
 import AuthenticatedView from "@/components/Auth/AuthenticatedView";
 import { useState, useEffect } from "react";
 import { API } from "@/lib/api-client/base";
-import NewUrlSegmentForm from "@/components/Settings/UrlSegmentForm";
-import UrlSegmentPill from "@/components/Settings/UrlSegmentPill";
+import NewUrlSegmentForm from "@/components/Settings/AnalyticsFamilyConfigurationForm";
+import AnalyticsFamilyConfigurationPill from "@/components/Settings/AnalyticsFamilyConfigurationPill";
 import WorkspaceForm from "@/components/Settings/WorkspaceForm";
 
 const Divider = () => (
@@ -32,14 +32,15 @@ const LoadingState = () => (
 )
 
 const SettingsPage = () => {
-  const [urlSegments, setUrlSegments] = useState();
+  const [analyticsFamilyConfigurations, setAnalyticsFamilyConfigurations] = useState();
 
   useEffect(() => {
-    API.get('/api/v1/url_segments').then(setUrlSegments);
+    API.get('/api/v1/analytics_family_configurations').then(setAnalyticsFamilyConfigurations);
   }, []);
 
+  console.log(analyticsFamilyConfigurations);
   return (
-    urlSegments === undefined 
+    analyticsFamilyConfigurations === undefined 
       ? <LoadingState />
       : (
         <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mb-8">
@@ -51,14 +52,14 @@ const SettingsPage = () => {
 
           <WorkspaceForm />
           <Divider />
-          <NewUrlSegmentForm onNewUrlSegment={urlSegment => setUrlSegments([urlSegment, ...urlSegments])} />
+          <NewUrlSegmentForm onNewAnalyticsFamilyConfiguration={afc => setAnalyticsFamilyConfigurations([afc, ...analyticsFamilyConfigurations])} />
 
           <div className='mt-4 space-x-4 space-y-4'>
-            {urlSegments.map((urlSegment, i) => (
-              <UrlSegmentPill 
+            {analyticsFamilyConfigurations.map((config, i) => (
+              <AnalyticsFamilyConfigurationPill 
                 key={i} 
-                urlSegment={urlSegment} 
-                onDelete={urlSegment => setUrlSegments(urlSegments.filter(us => us.id !== urlSegment.id))} 
+                analyticsFamilyConfiguration={config} 
+                onDelete={afc => setAnalyticsFamilyConfigurations(analyticsFamilyConfigurations.filter(a => a.id !== afc.id))} 
               />
             ))}
           </div>

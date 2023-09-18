@@ -7,7 +7,8 @@
     "type": "git",
     "url": "https://github.com/swishjam/swishjam/tree/main/sdk/client/npm"
   },
-  "main": "src/swishjam.mjs",
+  "main": "./src/swishjam.js",
+  "exports": "./src/swishjam.mjs",
   "scripts": {},
   "author": "",
   "license": "ISC",

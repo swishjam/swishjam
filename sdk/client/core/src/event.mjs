@@ -4,9 +4,8 @@ import { DeviceIdentifier } from './deviceIdentifier.mjs';
 import { SDK_VERSION } from './constants.mjs'
 
 export class Event {
-  constructor(eventName, analyticsFamily, data) {
+  constructor(eventName, data) {
     this.eventName = eventName;
-    this.analyticsFamily = analyticsFamily;
     this.uuid = UUID.generate(`e-${Date.now()}`);
     this.ts = Date.now();
     this.sessionId = DataPersister.get('sessionId');
@@ -21,7 +20,6 @@ export class Event {
       uuid: this.uuid,
       event: this.eventName,
       timestamp: this.ts,
-      analytics_family: this.analyticsFamily,
       device_identifier: this.deviceIdentifierValue,
       session_identifier: this.sessionId,
       page_view_identifier: this.pageViewId,
