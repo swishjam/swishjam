@@ -7,40 +7,70 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Skeleton } from "@/components/ui/skeleton";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import EventFeed from "@/components/DashboardComponents/EventFeed";
+import { HomeIcon } from '@heroicons/react/20/solid'
 import Link from "next/link";
 import LineChartWithValue from '@/components/DashboardComponents/LineChartWithValue';
 import BarListCard from "@/components/DashboardComponents/BarListCard";
 
 const LoadingState = () => (
   <main className="mx-auto max-w-7xl px-4 mt-8 sm:px-6 lg:px-8 mb-8">
-    <Card>
-      <CardHeader>
-        <div className='flex items-center'>
-          <Skeleton className='rounded-full h-20 w-20 mr-4' />
-          <div>
-            <Skeleton className='h-12 w-24' />
-            <Skeleton className='h-6 w-48 mt-2' />
+    <BreadCrumbs userName={<Skeleton className='h-6 w-48' />} />
+    <div className='grid grid-cols-10 gap-4 mt-4'>
+      <Card className='col-span-6'>
+        <CardHeader>
+          <div className='flex items-center'>
+            <Skeleton className='rounded-full h-20 w-20 mr-4' />
+            <div>
+              <Skeleton className='h-12 w-24' />
+              <Skeleton className='h-6 w-48 mt-2' />
+            </div>
           </div>
-        </div>
-      </CardHeader>
-    </Card>
+        </CardHeader>
+      </Card>
+      <EventFeed className="col-span-4" title='Recent Events' />
+    </div>
   </main>
 )
 
-const pages = [
-  { name: 'Users', href: '/users', current: false },
-  { name: 'User Profile', href: '#', current: true },
-]
-
-const LinkBadge = ({ name, href }) => {
-
-  return (
-    <Link href={href} className="inline-flex items-center rounded-md bg-blue-50 mx-2 my-1 px-2 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10 hover:text-blue-900 hover:bg-blue-100 duration-300 transition cursor-pointer">
-      {name}
-    </Link>
-  )
-}
-
+const BreadCrumbs = ({ userName }) => (
+  <div>
+    <nav className="flex" aria-label="Breadcrumb">
+      <ol role="list" className="flex items-center space-x-4">
+        <li>
+          <div className="flex items-center">
+            <a href='/users' className="text-sm font-medium text-gray-500 hover:text-swishjam duration-300 transition">Users</a>
+          </div>
+        </li>
+        <li>
+          <div className="flex items-center">
+            <svg
+              className="h-5 w-5 flex-shrink-0 text-gray-300"
+              fill="currentColor"
+              viewBox="0 0 20 20"
+              aria-hidden="true"
+            >
+              <path d="M5.555 17.776l8-16 .894.448-8 16-.894-.448z" />
+            </svg>
+            <a href='/users' className="ml-4 text-sm font-medium text-gray-500 hover:text-gray-700">Users</a>
+          </div>
+        </li>
+        <li>
+          <div className="flex items-center">
+            <svg
+              className="h-5 w-5 flex-shrink-0 text-gray-300"
+              fill="currentColor"
+              viewBox="0 0 20 20"
+              aria-hidden="true"
+            >
+              <path d="M5.555 17.776l8-16 .894.448-8 16-.894-.448z" />
+            </svg>
+            <a href='#' className="ml-4 text-sm font-medium text-gray-500 hover:text-gray-700">{userName}</a>
+          </div>
+        </li>
+      </ol>
+    </nav>
+  </div>
+)
 
 const UserProfile = ({ params }) => {
   const { id: userId } = params;
@@ -64,34 +94,10 @@ const UserProfile = ({ params }) => {
     });
   }, [])
 
-  console.log(pageViewsData);
   return (
     userData ? (
       <main className="mx-auto max-w-7xl px-4 mt-8 sm:px-6 lg:px-8 mb-8">
-        <div>
-        <nav className="flex" aria-label="Breadcrumb">
-      <ol role="list" className="flex items-center space-x-4">
-        <li>
-          <div className="flex items-center">
-            <a href='/users' className="text-sm font-medium text-gray-500 hover:text-swishjam duration-300 transition">Users</a>
-          </div>
-        </li>
-        <li>
-          <div className="flex items-center">
-            <svg
-              className="h-5 w-5 flex-shrink-0 text-gray-300"
-              fill="currentColor"
-              viewBox="0 0 20 20"
-              aria-hidden="true"
-            >
-              <path d="M5.555 17.776l8-16 .894.448-8 16-.894-.448z" />
-            </svg>
-            <span className="ml-4 text-sm font-medium text-gray-500">{userData.full_name}</span>
-          </div>
-        </li>
-      </ol>
-    </nav> 
-        </div> 
+        <BreadCrumbs userName={userData.full_name} />
         <div className='grid grid-cols-10 gap-4 mt-4'>
           <Card className='col-span-6'>
             <CardHeader>

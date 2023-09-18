@@ -96,7 +96,7 @@ Rails.application.routes.draw do
         end
       end
 
-      resources :url_segments, only: [:index, :create, :destroy]
+      resources :analytics_family_configurations, only: [:index, :create, :destroy]
     end
   end
 end

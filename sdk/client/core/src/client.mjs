@@ -1,7 +1,7 @@
 import { PageViewManager } from "./pageViewManager.mjs";
 import { EventManager } from "./eventManager.mjs";
 import { DataPersister } from "./dataPersister.mjs";
-import { DeviceDetails } from "./deviceDetails";
+import { DeviceDetails } from "./deviceDetails.mjs";
 import { UUID } from "./uuid.mjs";
 import { SDK_VERSION } from './version.mjs'
 
@@ -71,7 +71,6 @@ export class Client {
       this.eventManager.recordEvent('page_view', { referrer: previousUrl });
     });
     window.addEventListener('pagehide', async () => {
-      debugger;
       this.eventManager.recordEvent('page_left');
       await this.eventManager.flushQueue();
     })
@@ -80,7 +79,7 @@ export class Client {
 
   _setConfig = options => {
     if (!options.apiKey) throw new Error('Swishjam `apiKey` is required');
-    const validOptions = ['apiKey', 'apiEndpoint', 'maxEventsInMemory', 'reportingHeartbeatMs', 'marketingUrlPattern', 'productUrlPattern', 'debug'];
+    const validOptions = ['apiKey', 'apiEndpoint', 'maxEventsInMemory', 'reportingHeartbeatMs', 'debug'];
     Object.keys(options).forEach(key => {
       if (!validOptions.includes(key)) console.warn(`SwishjamJS received unrecognized config: ${key}`);
     });
@@ -90,8 +89,6 @@ export class Client {
       apiEndpoint: options.apiEndpoint || 'https://api2.swishjam.com/api/v1/capture',
       maxEventsInMemory: options.maxEventsInMemory || 20,
       reportingHeartbeatMs: options.reportingHeartbeatMs || 10_000,
-      marketingUrlRegExp: new RegExp(options.marketingUrlRegExp || "(www\.)?[^.]*\.[^.]*$"),
-      productUrlRegExp: new RegExp(options.productUrlRegExp || "app\.[^.]*\.[^.]*$"),
       debug: typeof options.debug === 'boolean' ? options.debug : false,
     }
   }

@@ -3,12 +3,14 @@ class Workspace < Transactional
   has_many :users, through: :workspace_members
   has_many :integrations, dependent: :destroy
   has_many :data_syncs, dependent: :destroy
-  has_many :url_segments, dependent: :destroy
+  has_many :analytics_family_configurations, dependent: :destroy
   has_many :analytics_user_profiles, dependent: :destroy
   has_many :analytics_organization_profiles, dependent: :destroy
 
   validates :public_key, presence: true, uniqueness: true
   before_validation :generate_public_key, on: :create
+
+  after_create_commit { AnalyticsFamilyConfiguration.generate_default_for_workspace(self) }
 
   private
 

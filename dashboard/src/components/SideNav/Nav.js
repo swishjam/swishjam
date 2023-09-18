@@ -1,19 +1,20 @@
 'use client';
 import { usePathname } from 'next/navigation'
-import { SquaresPlusIcon, ChevronLeftIcon, ChevronRightIcon, HomeIcon, Cog6ToothIcon } from '@heroicons/react/24/outline'
+import { SquaresPlusIcon, ChevronLeftIcon, ChevronRightIcon, HomeIcon, Cog6ToothIcon, UserGroupIcon, UserIcon } from '@heroicons/react/24/outline'
 import SidebarMobile from './MobileNav';
 import ProfileFlyout from './ProfileFlyout';
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Logo from '@components/Logo'
 import { Bars3Icon } from '@heroicons/react/24/outline'
-import { RxBarChart, RxPerson } from 'react-icons/rx'
+import { RxBarChart  } from 'react-icons/rx'
 import { SwishjamMemory } from '@/lib/swishjam-memory';
 
 const appNav = [
   { name: 'Home', href: '/', icon: HomeIcon },
   { name: 'Site Metrics', href: '/site-metrics', icon: RxBarChart },
-  { name: 'Users', href: '/users', icon: RxPerson },
+  { name: 'Users', href: '/users', icon: UserIcon },
+  { name: 'Organizations', href: '/organizations', icon: UserGroupIcon },
   { name: 'Connections', href: '/connections', icon: SquaresPlusIcon},
   { name: 'Settings', href: '/settings', icon: Cog6ToothIcon},
 ]
