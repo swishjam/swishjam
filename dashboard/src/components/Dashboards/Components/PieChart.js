@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { PieChart, Pie, Cell, Sector, ResponsiveContainer, Legend } from 'recharts';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import ConditionalCardWrapper from './ConditionalCardWrapper';
 
 const renderActiveShape = (props) => {
   const RADIAN = Math.PI / 180;
@@ -65,40 +66,36 @@ export default function PieChartComponent({
   colors = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042'],
   includeLegend = false,
   includeTooltips = true,
+  includeCard = true,
 }) {
   const [activeIndex, setActiveIndex] = useState(0);
   return (
-    <Card>
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
-        <CardTitle className="text-sm font-medium cursor-default">{title}</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <ResponsiveContainer width="100%" height="100%" aspect={3}>
-          <PieChart width={width * sizeMultiplier} height={height * sizeMultiplier}>
-            <Pie
-              data={data}
-              // cx={cx * sizeMultiplier}
-              // cy={cy * sizeMultiplier}
-              cx={width / 2}
-              cy={height / 2}
-              innerRadius={innerRadius * sizeMultiplier}
-              outerRadius={outerRadius * sizeMultiplier}
-              fill="#8884d8"
-              paddingAngle={paddingAngle * sizeMultiplier}
-              dataKey={valueKey}
-              activeIndex={includeTooltips ? activeIndex : null}
-              onMouseEnter={(_, i) => includeTooltips && setActiveIndex(i)}
-              activeShape={props => includeTooltips && renderActiveShape(props)}
-            >
-              {data 
-                ? data.map((_, index) => <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />)
-                : Array.from({ length: 4 }).map((_, index) => <Cell key={`cell-${index}`} fill='lightgrey' />)
-              }
-            </Pie>
-            {includeLegend && <Legend />}
-          </PieChart>
-        </ResponsiveContainer>
-      </CardContent>
-    </Card>
+    <ConditionalCardWrapper title={title} includeCard={includeCard}>
+      <ResponsiveContainer width="100%" height="100%" aspect={3}>
+        <PieChart width={width * sizeMultiplier} height={height * sizeMultiplier}>
+          <Pie
+            data={data}
+            // cx={cx * sizeMultiplier}
+            // cy={cy * sizeMultiplier}
+            cx={width / 2}
+            cy={height / 2}
+            innerRadius={innerRadius * sizeMultiplier}
+            outerRadius={outerRadius * sizeMultiplier}
+            fill="#8884d8"
+            paddingAngle={paddingAngle * sizeMultiplier}
+            dataKey={valueKey}
+            activeIndex={includeTooltips ? activeIndex : null}
+            onMouseEnter={(_, i) => includeTooltips && setActiveIndex(i)}
+            activeShape={props => includeTooltips && renderActiveShape(props)}
+          >
+            {data 
+              ? data.map((_, index) => <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />)
+              : Array.from({ length: 4 }).map((_, index) => <Cell key={`cell-${index}`} fill='lightgrey' />)
+            }
+          </Pie>
+          {includeLegend && <Legend />}
+        </PieChart>
+      </ResponsiveContainer>
+    </ConditionalCardWrapper>
   );
 }

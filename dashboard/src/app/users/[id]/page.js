@@ -9,7 +9,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import EventFeed from "@/components/Dashboards/Components/EventFeed";
 import { HomeIcon } from '@heroicons/react/20/solid'
 import LineChartWithValue from '@/components/Dashboards/Components/LineChartWithValue';
-import BarListCard from "@/components/Dashboards/Components/BarListCard";
+import BarList from "@/components/Dashboards/Components/BarList";
 
 const LoadingState = () => (
   <main className="mx-auto max-w-7xl px-4 mt-8 sm:px-6 lg:px-8 mb-8">
@@ -172,7 +172,7 @@ const UserProfile = ({ params }) => {
                       />
                     </div>
                     <div className="border-t border-gray-100 px-4 py-6 sm:col-span-2 sm:px-0">
-                      <BarListCard title='Page Views' items={pageViewsData} />
+                      <BarList title='Page Views' items={pageViewsData} />
                       {/* <dt className="text-sm font-medium leading-6 text-gray-900">Attachments</dt>
                       <dd className="mt-2 text-sm text-gray-900">
                         <ul role="list" className="divide-y divide-gray-100 rounded-md border border-gray-200">

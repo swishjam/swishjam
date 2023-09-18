@@ -1,10 +1,10 @@
-import BarListCard from '@/components/Dashboards/Components/BarListCard';
+import BarList from '@/components/Dashboards/Components/BarList';
 import { randomNumberBetween } from '@/lib/utils/numberHelpers';
 
-export default function BarListCardOption({ onClick }) {
+export default function BarListOption({ onClick }) {
   return (
     <div className='cursor-pointer transition-all hover:scale-105' onClick={() => { onClick && onClick() }}>
-      <BarListCard 
+      <BarList 
         title='Bar List Card' 
         items={[
         { name: 'A category', value: randomNumberBetween(75, 100) },

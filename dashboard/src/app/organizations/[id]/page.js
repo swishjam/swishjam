@@ -10,7 +10,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { CalendarIcon } from "@heroicons/react/24/outline";
 import ItemizedList from "@/components/Dashboards/Components/ItemizedList";
 import ActiveUsersLineChart from "@/components/Dashboards/Components/Prebuilt/ActiveUsersLineChart";
-import BarListCard from "@/components/Dashboards/Components/BarListCard";
+import BarList from "@/components/Dashboards/Components/BarList";
 
 const LoadingState = () => (
   <main className="mx-auto max-w-7xl px-4 mt-8 sm:px-6 lg:px-8 mb-8">
@@ -33,7 +33,7 @@ const LoadingState = () => (
       <ItemizedList title='Top Users' />
     </div>
     <div className='mt-4'>
-      <BarListCard title='Top pages' />
+      <BarList title='Top pages' />
     </div>
   </main>
 )
@@ -187,7 +187,7 @@ const OrganizationProfile = ({ params }) => {
         />
       </div>
       <div className='mt-4'>
-        <BarListCard title='Top pages' items={pageHitData} /> 
+        <BarList title='Top pages' items={pageHitData} /> 
       </div>
     </main>
   )
