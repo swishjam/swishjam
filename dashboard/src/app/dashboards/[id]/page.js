@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import AuthenticatedView from "@/components/Auth/AuthenticatedView"
 import { API } from "@/lib/api-client/base";
+import GridLayout from "react-grid-layout";
 
 import DashboardNameDisplayEditor from "@/components/Dashboards/DashboardNameDisplayEditor";
 import RenderingEngine from "@/components/Dashboards/RenderingEngine";
@@ -17,7 +18,7 @@ import { ChartPieIcon, PlusCircleIcon } from "@heroicons/react/24/outline";
 import { Skeleton } from "@/components/ui/skeleton";
 import Timefilter from "@/components/Timefilter";
 
-const ConfigureDashboardComponent = ({ componentType, eventOptions, onSave, onClose }) => {
+const ConfigureDashboardComponentModal = ({ componentType, eventOptions, onSave, onClose }) => {
   const ConfigurationComponent = {
     LineChart: LineChartConfiguration,
     PieChart: PieChartConfiguration,
@@ -65,26 +66,75 @@ const DashboardBuilder = ({ params }) => {
   const [componentSlideoutIsOpen, setComponentSlideoutIsOpen] = useState(false);
   const [currentTimeframe, setCurrentTimeframe] = useState('this_month');
 
-  const saveDashboard = async ({ dashboardName, dashboardComponents }) => {
-    API.patch(`/api/v1/dashboards/${dashboardId}`, { dashboard: { name: dashboardName }, dashboard_components: dashboardComponents }).then(({ error, dashboard, dashboard_components }) => {
+  const detectChangedComponentsFromLayoutAndSave = layout => {
+    const changedDashboardComponents = dashboardComponents.map(component => {
+      const layoutItemForComponent = layout.find(({ i }) => i === component.id);
+      if (!layoutItemForComponent) return;
+      if (
+        layoutItemForComponent.x !== component.x || 
+        layoutItemForComponent.y !== component.y || 
+        layoutItemForComponent.w !== component.w || 
+        layoutItemForComponent.h !== component.h
+      ) {
+        return {
+          was: component,
+          is: { ...component, configuration: { ...component.configuration, x: layoutItemForComponent.x, y: layoutItemForComponent.y, w: layoutItemForComponent.w, h: layoutItemForComponent.h }}
+        }
+      }
+    }).filter(Boolean);
+  }
+
+  const updateDashboardComponent = componentConfig => {
+    API.patch(`/api/v1/dashboard_components/${componentConfig.id}`, { dashboard_component: { configuration: componentConfig } }).then(({ error, dashboard_component }) => {
+      if (error) {
+
+      } else {
+        const newDashboardComponents = dashboardComponents.map(c => {
+          return c.id === dashboard_component.id ? dashboard_component : c;
+        });
+        setDashboardComponents(newDashboardComponents);
+      }
+    });
+  }
+
+  const updateDashboardComponents = components => {
+    API.patch(`/api/v1/dashboard_components/bulk_update`, { ids: components.map(({ id }) => id) }).then(({ errors, updated_components }) => {
+
+    })
+  }
+
+  const createDashboardComponent = componentConfiguration => {
+    API.post('/api/v1/dashboard_components', { dashboard_id: dashboardId, dashboard_component: { configuration: componentConfiguration } }).then(result => {
+      if (result.error) {
+
+      } else {
+        const newDashboardComponents = [...dashboardComponents, { ...result, configuration: { x: 0, y: 0, w: 4, h: 4, ...result.configuration } }];
+        setDashboardComponents(newDashboardComponents);
+      }
+    });
+  }
+
+  const saveDashboard = async dashboardName => {
+    API.patch(`/api/v1/dashboards/${dashboardId}`, { dashboard: { name: dashboardName }}).then(({ error, dashboard }) => {
       if (error) {
 
       } else {
         setDashboardName(dashboard.name);
-        const parsedComponentConfigs = (dashboard_components || []).map(({ configuration }) => JSON.parse(configuration));
-        setDashboardComponents(parsedComponentConfigs);
       }
     });
   }
 
   useEffect(() => {
     API.get('/api/v1/events/unique').then(setUniqueEvents);
-    API.get(`/api/v1/dashboards/${dashboardId}`).then(({ dashboard, dashboard_components }) => {
-      setDashboardName(dashboard.name);
-      const parsedComponentConfigs = (dashboard_components || []).map(({ configuration }) => JSON.parse(configuration));
-      setDashboardComponents(parsedComponentConfigs);
+    API.get(`/api/v1/dashboards/${dashboardId}`).then(({ name }) => setDashboardName(name));
+    API.get(`/api/v1/dashboard_components`, { dashboard_id: dashboardId }).then(dashboard_components => {
+      const parsedComponents = (dashboard_components || []).map(component => {
+        return { ...component, configuration: { x: 0, y: 0, w: 4, h: 4, ...component.configuration } }
+      });
+      console.log(parsedComponents);
+      setDashboardComponents(parsedComponents);
     });
-  }, [])
+  }, []);
 
   return (
     <main className="mx-auto max-w-7xl px-4 mt-8 sm:px-6 lg:px-8 mb-8">
@@ -97,15 +147,13 @@ const DashboardBuilder = ({ params }) => {
         }}
       />
       {dashboardComponentToConfigure && (
-        <ConfigureDashboardComponent
+        <ConfigureDashboardComponentModal
           componentType={dashboardComponentToConfigure}
           onClose={() => setDashboardComponentToConfigure()}
           eventOptions={uniqueEvents}
-          onSave={component => {
+          onSave={componentConfiguration => {
             setDashboardComponentToConfigure();
-            const newDashboardComponents = [...dashboardComponents, { type: dashboardComponentToConfigure, ...component }];
-            setDashboardComponents(newDashboardComponents);
-            saveDashboard({ dashboardName, dashboardComponents: newDashboardComponents });
+            createDashboardComponent({ type: dashboardComponentToConfigure, ...componentConfiguration });
           }}
         />
       )}
@@ -138,7 +186,11 @@ const DashboardBuilder = ({ params }) => {
           ? dashboardComponents.length > 0
             ? (
               <div className='grid xl:grid-cols-4 lg:grid-cols-3 md:grid-cols-2 sm:grid-cols-1 gap-4'>
-                <RenderingEngine components={dashboardComponents} timeframe={currentTimeframe} />
+                <RenderingEngine 
+                  components={dashboardComponents} 
+                  timeframe={currentTimeframe} 
+                  onLayoutChange={detectChangedComponentsFromLayoutAndSave} 
+                />
               </div>
             ) : <EmptyState onClick={() => setComponentSlideoutIsOpen(true)} />
           : <LoadingState />

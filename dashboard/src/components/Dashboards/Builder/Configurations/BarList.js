@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { API } from '@/lib/api-client/base';
 import Dropdown from '@/components/utils/Dropdown'
 import { CheckCircleIcon } from '@heroicons/react/24/outline';
-import BarListComponent from '@/components/Dashboards/Components/BarListCard';
+import BarListComponent from '@/components/Dashboards/Components/BarList';
 
 export default function BarListConfiguration({ eventOptions, onSaveClick = () => {} }) {
   const [selectedEventName, setSelectedEventName] = useState();

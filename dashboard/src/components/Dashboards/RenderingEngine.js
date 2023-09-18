@@ -1,11 +1,13 @@
 
 import { useState, useEffect } from 'react';
 import { API } from '@/lib/api-client/base';
+import GridLayout from 'react-grid-layout';
 import LineChartWithValue from "@/components/Dashboards/Components/LineChartWithValue";
 import BarChart from "@/components/Dashboards/Components/BarChart";
 import PieChart from "@/components/Dashboards/Components/PieChart";
 import ValueCard from '@/components/Dashboards/Components/ValueCard';
-import BarListCard from '@/components/Dashboards/Components/BarListCard';
+import BarList from '@/components/Dashboards/Components/BarList';
+import { Card } from '@/components/ui/card';
 
 const LineChartDashboardComponent = ({ title, event, property, calculation, timeframe }) => {
   const [timeseries, setTimeseries] = useState();
@@ -22,7 +24,7 @@ const LineChartDashboardComponent = ({ title, event, property, calculation, time
   }, [event, property, calculation, timeframe]);
 
   return (
-    <LineChartWithValue title={title} timeseries={timeseries} value={currentValue} />
+    <LineChartWithValue title={title} timeseries={timeseries} value={currentValue} includeCard={false} />
   )
 }
 
@@ -37,7 +39,7 @@ const PieChartDashboardComponent = ({ title, event, property, timeframe }) => {
   }, [event, property, timeframe]);
 
   return (
-    <PieChart title={title} data={pieChartData} />
+    <PieChart title={title} data={pieChartData} includeCard={false} />
   )
 }
 
@@ -52,7 +54,7 @@ const BarListDashboardComponent = ({ title, event, property, timeframe }) => {
   }, [event, property, timeframe]);
 
   return (
-    <BarListCard title={title} items={barListData} />
+    <BarList title={title} items={barListData} includeCard={false} />
   )
 }
 
@@ -77,26 +79,56 @@ const ValueCardDashboardComponent = ({ title, event, property, calculation, time
   }, [event, property, calculation, timeframe]);
 
   return (
-    <ValueCard title={title} value={value} previousValue={previousValue} previousValueDate={previousValueDate} />
+    <ValueCard title={title} value={value} previousValue={previousValue} previousValueDate={previousValueDate} includeCard={false} />
   )
 }
 
 
-export default function RenderingEngine({ components, timeframe }) {
+export default function RenderingEngine({ components, timeframe, onLayoutChange = () => {} }) {
+  // the grid layout hangs when not given in this format
+  const sanitizedLayout = components.map(({ i, configuration }) => ({ i, ...configuration }));
   return (
-    components.map(({ type, title, event, property, calculation }) => {
-      switch(type) {
-        case 'LineChart':
-          return <LineChartDashboardComponent title={title} event={event} property={property} calculation={calculation} timeframe={timeframe} />
-        case 'BarChart':
-          return <BarChart title={title} event={event} property={property} calculation={calculation} timeframe={timeframe} />
-        case 'PieChart':
-          return <PieChartDashboardComponent title={title} event={event} property={property} timeframe={timeframe} />
-        case 'ValueCard':
-          return <ValueCardDashboardComponent title={title} event={event} property={property} calculation={calculation} timeframe={timeframe} />
-        case 'BarList':
-          return <BarListDashboardComponent title={title} event={event} property={property} timeframe={timeframe} />
-      }
-    })
+    <GridLayout
+      layout={sanitizedLayout}
+      cols={8}
+      rowHeight={40}
+      width={1200}
+      onLayoutChange={onLayoutChange}
+    >
+      {components.map(({ i, configuration }) => {
+        switch(configuration.type) {
+          case 'LineChart':
+            return (
+              <Card key={i} className='p-4 overflow-hidden'>
+                <LineChartDashboardComponent title={configuration.title} event={configuration.event} property={configuration.property} calculation={configuration.calculation} timeframe={timeframe} />
+              </Card>
+            )
+          case 'BarChart':
+            return (
+              <Card key={i} className='p-4 overflow-hidden'>
+                <BarChart title={configuration.title} event={configuration.event} property={configuration.property} calculation={configuration.calculation} timeframe={timeframe} />
+              </Card>
+            )
+          case 'PieChart':
+            return (
+              <Card key={i} className='p-4 overflow-hidden'>
+                <PieChartDashboardComponent title={configuration.title} event={configuration.event} property={configuration.property} timeframe={timeframe} />
+              </Card>
+            )
+          case 'ValueCard':
+            return (
+              <Card key={i} className='p-4 overflow-hidden'>
+                <ValueCardDashboardComponent title={configuration.title} event={configuration.event} property={configuration.property} calculation={configuration.calculation} timeframe={timeframe} />
+              </Card>
+            )
+          case 'BarList':
+            return (
+              <Card key={i} className='p-4 overflow-hidden'>
+                <BarListDashboardComponent title={configuration.title} event={configuration.event} property={configuration.property} timeframe={timeframe} />
+              </Card>
+            )
+        }
+      })}
+    </GridLayout>
   )
 }

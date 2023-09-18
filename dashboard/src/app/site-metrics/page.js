@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { API } from '@/lib/api-client/base';
 import AuthenticatedView from '@/components/Auth/AuthenticatedView';
 import LineChartWithValue from '@/components/Dashboards/Components/LineChartWithValue';
-import BarListCard from '@/components/Dashboards/Components/Prebuilt/BarListCard';
+import BarList from '@/components/Dashboards/Components/BarList';
 import Timefilter from '@/components/Timefilter';
 import { MobileIcon, DesktopIcon } from '@radix-ui/react-icons';
 import Banner from '@/components/utils/TopBanner';
@@ -26,13 +26,13 @@ const LoadingState = () => (
       <LineChartWithValue title='Visitors' />
     </div>
     <div className='grid grid-cols-2 gap-6 pt-8'>
-      <BarListCard title='Referrers' />
-      <BarListCard title='Top Pages' />
+      <BarList title='Referrers' />
+      <BarList title='Top Pages' />
     </div>
     <div className='grid grid-cols-2 gap-6 pt-8'>
-      <BarListCard title='Devices' />
-      <BarListCard title='Browsers' />
-      {/* <BarListCard title='Countries' /> */}
+      <BarList title='Devices' />
+      <BarList title='Browsers' />
+      {/* <BarList title='Countries' /> */}
     </div>
   </main>
 )
@@ -153,13 +153,13 @@ const Home = () => {
           />
         </div> 
         <div className='grid grid-cols-2 gap-6 pt-8'>
-          <BarListCard title='Referrers' items={topReferrers} /> 
-          <BarListCard title='Top Pages' items={topPages} /> 
+          <BarList title='Referrers' items={topReferrers} /> 
+          <BarList title='Top Pages' items={topPages} /> 
         </div>
         <div className='grid grid-cols-2 gap-6 pt-8'>
-          <BarListCard title='Devices' items={topDevices} /> 
-          <BarListCard title='Browsers' items={topBrowsers} />
-          {/* <BarListCard title='Countries' items={topCountries} />  */}
+          <BarList title='Devices' items={topDevices} /> 
+          <BarList title='Browsers' items={topBrowsers} />
+          {/* <BarList title='Countries' items={topCountries} />  */}
         </div>
       </main>
     </>

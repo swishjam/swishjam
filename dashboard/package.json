@@ -39,6 +39,7 @@
     "react": "^18.2.0",
     "react-copy-to-clipboard": "^5.1.0",
     "react-dom": "^18.2.0",
+    "react-grid-layout": "^1.4.1",
     "react-popper-tooltip": "^4.4.2",
     "recharts": "^2.4.3",
     "tailwind-merge": "^1.14.0",
