@@ -15,7 +15,7 @@ class AnalyticsFamilyConfiguration < Transactional
 
   default_scope { order(priority: :ASC) }
 
-  before_create { self.priority = (workspace.analytics_family_configurations.maximum(:priority).to_i + 1 || 0) if self.priority.blank? }
+  before_validation :set_default_priority, on: :create
   before_save :re_prioritize_workspaces_configurations, if: :priority_changed?
   before_save :format_regex, if: :url_regex_changed?
   
@@ -55,5 +55,11 @@ class AnalyticsFamilyConfiguration < Transactional
     workspace.analytics_family_configurations.where('priority >= ? AND id != ?', self.priority, self.id).each do |configuration|
       configuration.update_column :priority, configuration.priority + 1
     end
+  end
+
+  def set_default_priority
+    return unless self.priority.blank?
+    max_priority = workspace.analytics_family_configurations.maximum(:priority)
+    self.priority = max_priority.blank? ? 0 : max_priority + 1
   end
 end
