@@ -13,10 +13,16 @@
 ActiveRecord::Schema.define(version: 2023_09_13_163108) do
 
   # These are extensions that must be enabled in order to support this database
+  enable_extension "pg_graphql"
+  enable_extension "pg_stat_statements"
   enable_extension "pgcrypto"
+  enable_extension "pgjwt"
+  enable_extension "pgsodium"
   enable_extension "plpgsql"
+  enable_extension "supabase_vault"
+  enable_extension "uuid-ossp"
 
-  create_table "analytics_family_configurations", force: :cascade do |t|
+  create_table "analytics_family_configurations", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.uuid "workspace_id", null: false
     t.string "type", null: false
     t.string "url_regex", null: false
@@ -100,6 +106,7 @@ ActiveRecord::Schema.define(version: 2023_09_13_163108) do
     t.datetime "updated_at", precision: 6, null: false
     t.index ["email"], name: "index_users_on_email"
     t.index ["jwt_secret_key"], name: "index_users_on_jwt_secret_key"
+    t.check_constraint "(email_change_confirm_status >= 0) AND (email_change_confirm_status <= 2)", name: "users_email_change_confirm_status_check"
   end
 
   create_table "workspace_members", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|

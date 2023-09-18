@@ -84,6 +84,7 @@ export const useAuthData = () => {
             workspaceName: () => decoded.current_workspace.name,
             currentWorkspaceName: () => decoded.current_workspace.name,
             currentWorkspaceId: () => decoded.current_workspace.id,
+            currentWorkspacePublicKey: () => decoded.current_workspace.api_key,
             workspaces: () => decoded.workspaces,
             epiresAtEpoch: () => decoded.expires_at_epoch,
             isExpired: () => decoded.expires_at_epoch < Date.now() / 1000,
