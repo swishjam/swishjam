@@ -35,20 +35,17 @@ module Api
       end
 
       def bulk_update
-        components = current_workspace.dashboard_components.where(id: params[:ids])
         updated_components = []
         errors = []
-        components.each do |component|
-          if component.update(component_params)
-            updated_components << component
+        (params[:dashboard_components] || []).each do |updated_component_attributes|
+          component = current_workspace.dashboard_components.find(updated_component_attributes[:id])
+          if component.update(configuration: updated_component_attributes[:configuration].as_json)
+            updated_components << DashboardComponentsSerializer.new(component).as_json
           else
             errors << component.errors.full_messages.join(' ')
           end
         end
-        render json: { 
-          updated_components: updated_components,
-          errors: errors
-        }, status: :ok
+        render json: { updated_components: updated_components, errors: errors }, status: :ok
       end
 
       private

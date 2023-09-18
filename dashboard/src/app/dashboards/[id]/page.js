@@ -71,10 +71,10 @@ const DashboardBuilder = ({ params }) => {
       const layoutItemForComponent = layout.find(({ i }) => i === component.id);
       if (!layoutItemForComponent) return;
       if (
-        layoutItemForComponent.x !== component.x || 
-        layoutItemForComponent.y !== component.y || 
-        layoutItemForComponent.w !== component.w || 
-        layoutItemForComponent.h !== component.h
+        layoutItemForComponent.x !== component.configuration.x || 
+        layoutItemForComponent.y !== component.configuration.y || 
+        layoutItemForComponent.w !== component.configuration.w || 
+        layoutItemForComponent.h !== component.configuration.h
       ) {
         return {
           was: component,
@@ -82,29 +82,34 @@ const DashboardBuilder = ({ params }) => {
         }
       }
     }).filter(Boolean);
+    if (changedDashboardComponents.length > 0) {
+      updateDashboardComponents(changedDashboardComponents.map(({ is }) => is));
+    }
   }
 
   const updateDashboardComponent = componentConfig => {
-    API.patch(`/api/v1/dashboard_components/${componentConfig.id}`, { dashboard_component: { configuration: componentConfig } }).then(({ error, dashboard_component }) => {
-      if (error) {
-
-      } else {
-        const newDashboardComponents = dashboardComponents.map(c => {
-          return c.id === dashboard_component.id ? dashboard_component : c;
-        });
-        setDashboardComponents(newDashboardComponents);
-      }
-    });
+    return updateDashboardComponents([componentConfig]);
   }
 
   const updateDashboardComponents = components => {
-    API.patch(`/api/v1/dashboard_components/bulk_update`, { ids: components.map(({ id }) => id) }).then(({ errors, updated_components }) => {
+    console.log('UPDATING COMPONENTS!!!')
+    API.patch(`/api/v1/dashboard_components/bulk_update`, { 
+      dashboard_components: components.map(({ configuration, id }) => ({ id, configuration })) 
+    }).then(({ errors, updated_components }) => {
+      if (errors) {
 
+      }
+      const updatedDashboardComponents = dashboardComponents.map(component => {
+        const updatedComponent = updated_components.find(({ id }) => id === component.id);
+        if (updatedComponent) return { ...updatedComponent, configuration: { x: 0, y: 0, w: 4, h: 4, ...updatedComponent.configuration }};
+        return component;
+      });
+      setDashboardComponents(updatedDashboardComponents);
     })
   }
 
   const createDashboardComponent = componentConfiguration => {
-    API.post('/api/v1/dashboard_components', { dashboard_id: dashboardId, dashboard_component: { configuration: componentConfiguration } }).then(result => {
+    API.post('/api/v1/dashboard_components', { dashboard_id: dashboardId, dashboard_component: { configuration: componentConfiguration }}).then(result => {
       if (result.error) {
 
       } else {
@@ -131,7 +136,6 @@ const DashboardBuilder = ({ params }) => {
       const parsedComponents = (dashboard_components || []).map(component => {
         return { ...component, configuration: { x: 0, y: 0, w: 4, h: 4, ...component.configuration } }
       });
-      console.log(parsedComponents);
       setDashboardComponents(parsedComponents);
     });
   }, []);

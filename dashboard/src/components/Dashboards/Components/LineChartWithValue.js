@@ -11,16 +11,24 @@ import { CheckCircleIcon } from '@heroicons/react/20/solid';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import ConditionalCardWrapper from './ConditionalCardWrapper';
 
-const LoadingState = ({ title }) => (
-  <Card>
-    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-      <CardTitle className="text-sm font-medium">{title}</CardTitle>
-    </CardHeader>
-    <CardContent>
+const LoadingState = ({ title, includeCard = true }) => (
+  includeCard ? (
+    <Card>
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+        <CardTitle className="text-sm font-medium">{title}</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <Skeleton className="w-[100px] h-[30px] rounded-sm" />
+        <Skeleton className="w-full h-20 rounded-sm mt-1" />
+      </CardContent>
+    </Card>
+  ) : (
+    <>
+      <CardTitle className="text-sm font-medium cursor-default pb-4">{title}</CardTitle>
       <Skeleton className="w-[100px] h-[30px] rounded-sm" />
       <Skeleton className="w-full h-20 rounded-sm mt-1" />
-    </CardContent>
-  </Card>
+    </>
+  )
 )
 
 const CustomTooltip = ({ active, payload, label, valueFormatter, dateFormatter }) => {
@@ -68,7 +76,7 @@ export default function LineChartWithValue({
 }) {
   const [showXAxis, setShowXAxis] = useState(showAxis);
   const [showYAxis, setShowYAxis] = useState(showAxis);
-  if ([null, undefined].includes(value) || [null, undefined].includes(timeseries)) return <LoadingState title={title} />;
+  if ([null, undefined].includes(value) || [null, undefined].includes(timeseries)) return <LoadingState title={title} includeCard={includeCard} />;
   
   const changeInValue = typeof previousValue !== 'undefined' ? value - previousValue : null;
 
