@@ -4,7 +4,7 @@ import AuthenticatedView from "@/components/Auth/AuthenticatedView";
 import { useState, useEffect } from "react";
 import { API } from "@/lib/api-client/base";
 import { useAuthData } from "@/components/Auth/AuthProvider";
-import NewUrlSegmentForm from "@/components/Settings/AnalyticsFamilyConfigurationForm";
+import NewAnalyticsFamilyConfigurationForm from "@/components/Settings/AnalyticsFamilyConfigurationForm";
 import AnalyticsFamilyConfigurationPill from "@/components/Settings/AnalyticsFamilyConfigurationPill";
 import WorkspaceForm from "@/components/Settings/WorkspaceForm";
 import CopyToClipboard from "react-copy-to-clipboard";
@@ -56,7 +56,7 @@ const LoadingState = () => (
 
     <WorkspaceForm isSubmittable={false} />
     <Divider />
-    <NewUrlSegmentForm isSubmittable={false} />
+    <NewAnalyticsFamilyConfigurationForm isSubmittable={false} />
 
     <div className='mt-4 space-x-4'>
       {Array.from({ length: 3 }).map((_, i) => (
@@ -64,13 +64,13 @@ const LoadingState = () => (
       ))}
     </div>
 
+    <Divider />
     <PublicKeySection />
   </main>
 )
 
 const SettingsPage = () => {
   const [analyticsFamilyConfigurations, setAnalyticsFamilyConfigurations] = useState();
-  const [publicKeyCopyText, setPublicKeyCopyText] = useState();
   const { authData } = useAuthData();
 
   useEffect(() => {
@@ -91,7 +91,7 @@ const SettingsPage = () => {
 
           <WorkspaceForm />
           <Divider />
-          <NewUrlSegmentForm onNewAnalyticsFamilyConfiguration={afc => setAnalyticsFamilyConfigurations([afc, ...analyticsFamilyConfigurations])} />
+          <NewAnalyticsFamilyConfigurationForm onNewAnalyticsFamilyConfiguration={afc => setAnalyticsFamilyConfigurations([afc, ...analyticsFamilyConfigurations])} />
 
           <div className='mt-4 space-x-4 space-y-4'>
             {analyticsFamilyConfigurations.map((config, i) => (
