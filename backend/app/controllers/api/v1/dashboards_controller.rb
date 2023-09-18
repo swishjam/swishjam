@@ -1,10 +1,9 @@
 module Api
   module V1
     class DashboardsController < BaseController
-
       def show
-        dashboard = current_workspace.dashboards.includes(:dashboard_components).find(params[:id])
-        render json: { dashboard: dashboard, dashboard_components: dashboard.dashboard_components }, status: :ok
+        dashboard = current_workspace.dashboards.find(params[:id])
+        render json: dashboard, status: :ok
       end
 
       def create

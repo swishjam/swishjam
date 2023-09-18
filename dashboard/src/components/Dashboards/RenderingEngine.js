@@ -85,10 +85,11 @@ const ValueCardDashboardComponent = ({ title, event, property, calculation, time
 
 
 export default function RenderingEngine({ components, timeframe, onLayoutChange = () => {} }) {
-  debugger;
+  // the grid layout hangs when not given in this format
+  const sanitizedLayout = components.map(({ i, configuration }) => ({ i, ...configuration }));
   return (
     <GridLayout
-      layout={components}
+      layout={sanitizedLayout}
       cols={8}
       rowHeight={40}
       width={1200}

@@ -96,7 +96,11 @@ Rails.application.routes.draw do
       end
 
       resources :dashboards, only: [:index, :show, :create, :update, :destroy]
-      resources :dashboard_components, only: [:create, :update, :destroy]
+      resources :dashboard_components, only: [:index, :create, :update, :destroy] do
+        collection do
+          patch :bulk_update
+        end
+      end
       resources :dashboards_dashboard_components, only: [:destroy]
 
       resources :billing_data_snapshots, only: [:index]

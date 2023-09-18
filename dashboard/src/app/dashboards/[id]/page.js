@@ -76,10 +76,12 @@ const DashboardBuilder = ({ params }) => {
         layoutItemForComponent.w !== component.w || 
         layoutItemForComponent.h !== component.h
       ) {
-        return { ...component, i: component.configuration, configuration: { ...component.configuration, x: layoutItemForComponent.x, y: layoutItemForComponent.y, w: layoutItemForComponent.w, h: layoutItemForComponent.h }};
+        return {
+          was: component,
+          is: { ...component, configuration: { ...component.configuration, x: layoutItemForComponent.x, y: layoutItemForComponent.y, w: layoutItemForComponent.w, h: layoutItemForComponent.h }}
+        }
       }
     }).filter(Boolean);
-    debugger;
   }
 
   const updateDashboardComponent = componentConfig => {
@@ -88,54 +90,50 @@ const DashboardBuilder = ({ params }) => {
 
       } else {
         const newDashboardComponents = dashboardComponents.map(c => {
-          return c.id === dashboard_component.id 
-            ? { ...dashboard_component, i: dashboard_component.id, configuration: JSON.parse(dashboard_configuration.configuration) } 
-            : c;
+          return c.id === dashboard_component.id ? dashboard_component : c;
         });
         setDashboardComponents(newDashboardComponents);
       }
     });
   }
 
-  const createDashboardComponent = component => {
-    API.post('/api/v1/dashboard_components', { dashboard_component: { configuration: component.configuration } }).then(({ error, dashboard_component }) => {
-      if (error) {
+  const updateDashboardComponents = components => {
+    API.patch(`/api/v1/dashboard_components/bulk_update`, { ids: components.map(({ id }) => id) }).then(({ errors, updated_components }) => {
+
+    })
+  }
+
+  const createDashboardComponent = componentConfiguration => {
+    API.post('/api/v1/dashboard_components', { dashboard_id: dashboardId, dashboard_component: { configuration: componentConfiguration } }).then(result => {
+      if (result.error) {
 
       } else {
-        const newDashboardComponents = [...dashboardComponents, { ...dashboard_component, i: configuration.id, configuration: JSON.parse(configuration) }];
+        const newDashboardComponents = [...dashboardComponents, { ...result, configuration: { x: 0, y: 0, w: 4, h: 4, ...result.configuration } }];
         setDashboardComponents(newDashboardComponents);
       }
     });
   }
 
-  const saveDashboard = async ({ dashboardName, dashboardComponents }) => {
-    API.patch(`/api/v1/dashboards/${dashboardId}`, { dashboard: { name: dashboardName }, dashboard_components: dashboardComponents }).then(({ error, dashboard, dashboard_components }) => {
+  const saveDashboard = async dashboardName => {
+    API.patch(`/api/v1/dashboards/${dashboardId}`, { dashboard: { name: dashboardName }}).then(({ error, dashboard }) => {
       if (error) {
 
       } else {
         setDashboardName(dashboard.name);
-        const parsedComponents = (dashboard_components || []).map(component => ({ ...component, i: configuration.id, configuration: JSON.parse(configuration) }));
-        setDashboardComponents(parsedComponents);
       }
     });
   }
 
-  const getDashboardDetails = async () => {
-    console.log('getting....')
-    API.get(`/api/v1/dashboards/${dashboardId}`).then(({ dashboard, dashboard_components }) => {
-      console.log('got!?', dashboard, dashboard_components)
-      setDashboardName(dashboard.name);
-      const parsedComponents = (dashboard_components || []).map((component, index) => {
-        return { ...component, i: component.id, configuration: { x: index, y: 0, w: 4, h: 4, ...JSON.parse(component.configuration) } }
-      });
-      setDashboardComponents(parsedComponents);
-    });
-  }
-
-
   useEffect(() => {
     API.get('/api/v1/events/unique').then(setUniqueEvents);
-    getDashboardDetails();
+    API.get(`/api/v1/dashboards/${dashboardId}`).then(({ name }) => setDashboardName(name));
+    API.get(`/api/v1/dashboard_components`, { dashboard_id: dashboardId }).then(dashboard_components => {
+      const parsedComponents = (dashboard_components || []).map(component => {
+        return { ...component, configuration: { x: 0, y: 0, w: 4, h: 4, ...component.configuration } }
+      });
+      console.log(parsedComponents);
+      setDashboardComponents(parsedComponents);
+    });
   }, []);
 
   return (
@@ -153,11 +151,9 @@ const DashboardBuilder = ({ params }) => {
           componentType={dashboardComponentToConfigure}
           onClose={() => setDashboardComponentToConfigure()}
           eventOptions={uniqueEvents}
-          onSave={component => {
+          onSave={componentConfiguration => {
             setDashboardComponentToConfigure();
-            const newDashboardComponents = [...dashboardComponents, { type: dashboardComponentToConfigure, ...component }];
-            setDashboardComponents(newDashboardComponents);
-            saveDashboard({ dashboardName, dashboardComponents: newDashboardComponents });
+            createDashboardComponent({ type: dashboardComponentToConfigure, ...componentConfiguration });
           }}
         />
       )}
