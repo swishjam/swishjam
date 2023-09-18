@@ -1,5 +1,9 @@
+import { useState } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
+import EmptyState from "@components/EmptyState"
+import { HiCursorArrowRays } from 'react-icons/hi2'
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(' ')
@@ -15,7 +19,11 @@ const EventFeed = ({
   rightItemKey, 
   rightItemKeyFormatter = value => value, 
   noDataMsg = 'No events triggered.'
-}) => (
+}) => {
+  
+  const [eventCount, setEventCount] = useState(5);
+
+  return (
   <div
     className={className} 
   >
@@ -26,12 +34,10 @@ const EventFeed = ({
     <CardContent>
       <div className="flow-root">
         {events && events.length === 0 && (
-          <div className="flex flex-col items-center justify-center py-12">
-            <p className="text-sm text-gray-500">{noDataMsg}</p>
-          </div>
+          <EmptyState msg={noDataMsg} border={true} icon={<HiCursorArrowRays className="mx-auto h-12 w-12 text-gray-300 group-hover:animate-pulse"/>} />
         )}
-        <ul role="list" className="space-y-6">
-          {events && events.map((event, eventIdx) => (
+        <ul role="list" className="space-y-6 mb-10">
+          {events && events.slice(0, eventCount).map((event, eventIdx) => (
             <li key={event.id} className="relative flex gap-x-4">
               <div
                 className={classNames(
@@ -53,10 +59,19 @@ const EventFeed = ({
             </li>
           ))}
         </ul>
-
+        
+        {events &&
+        <Button
+          onClick={() => setEventCount(eventCount+1)} 
+          variant="outline"
+          className={`${events.length > eventCount ? 'opacity-100':'opacity-0'} w-full transition duration-1000 ease-out`}
+        >
+          Show More Events
+        </Button>}
       </div>
     </CardContent>
   </div>
-)
+  )
+}
 
 export default EventFeed;

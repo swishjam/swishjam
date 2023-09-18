@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Skeleton } from "@/components/ui/skeleton"
 import Link from "next/link"
+import EmptyState from "@/components/EmptyState"
 
 export default function ItemizedList({ 
   title, 
@@ -41,9 +42,7 @@ export default function ItemizedList({
             ) : (
               items.length === 0
                 ? (
-                  <div className="flex items-center justify-center mt-4">
-                    <p className="text-sm text-gray-700 leading-none">{noDataMsg || 'No data to display.'}</p>
-                  </div>
+                  <EmptyState msg={noDataMsg || 'No data to display.'} />
                 ) : (
                   items.slice(0, 5).map(item => (
                     <Link 
