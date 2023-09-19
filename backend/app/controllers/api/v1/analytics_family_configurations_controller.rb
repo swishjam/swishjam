@@ -8,7 +8,10 @@ module Api
       def create
         analytics_family_configuration = current_workspace.analytics_family_configurations.new(analytics_family_configuration_params)
         if analytics_family_configuration.save
-          render json: { analytics_family_configuration: analytics_family_configuration }, status: :created
+          render json: { 
+            analytics_family_configuration: analytics_family_configuration,
+            analytics_family_configurations: current_workspace.reload.analytics_family_configurations.map{ |afc| AnalyticsFamilyConfigurationSerializer.new(afc) }
+          }, status: :created
         else
           render json: { error: analytics_family_configuration.errors.full_messages.join('. ')}, status: :unprocessable_entity
         end
@@ -17,7 +20,10 @@ module Api
       def destroy
         analytics_family_configuration = current_workspace.analytics_family_configurations.find(params[:id])
         if analytics_family_configuration.destroy
-          render json: { analytics_family_configuration: analytics_family_configuration }, status: :ok
+          render json: { 
+            analytics_family_configuration: analytics_family_configuration,
+            analytics_family_configurations: current_workspace.reload.analytics_family_configurations.map{ |afc| AnalyticsFamilyConfigurationSerializer.new(afc) }
+          }, status: :ok
         else
           render json: { error: analytics_family_configuration.errors.full_messages.join('. ')}, status: :unprocessable_entity
         end
