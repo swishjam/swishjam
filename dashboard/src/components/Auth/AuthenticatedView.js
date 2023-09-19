@@ -9,7 +9,8 @@ import { useAuthData, clearToken } from './AuthProvider';
 
 export default function AuthenticatedView(WrappedComponent, LoadingViewComponent) {
   return (props) => {
-    const [sideNavIsCollapsed, setSideNavIsCollapsed] = useState(typeof SwishjamMemory.get('isNavCollapsed') === 'boolean' ? SwishjamMemory.get('isNavCollapsed') : false);
+    // const [sideNavIsCollapsed, setSideNavIsCollapsed] = useState(typeof SwishjamMemory.get('isNavCollapsed') === 'boolean' ? SwishjamMemory.get('isNavCollapsed') : false);
+    const [sideNavIsCollapsed, setSideNavIsCollapsed] = useState(false);
     const router = useRouter();
     const { isAwaitingData, authData, isLoggedOut } = useAuthData();
 

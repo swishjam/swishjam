@@ -13,7 +13,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { CalendarDaysIcon } from '@heroicons/react/24/outline';
-import { SwishjamMemory } from '@/lib/swishjam-memory';
+// import { SwishjamMemory } from '@/lib/swishjam-memory';
 
 const GroupingDropdown = ({ currentGrouping, onSelection }) => (
   <DropdownMenu>
@@ -46,7 +46,8 @@ const GroupingDropdown = ({ currentGrouping, onSelection }) => (
 
 
 export default function ActiveUsersLineChart({ loadingStateOnly, scopedOrganizationId, includeSettingsDropdown = true }) {
-  const [grouping, setGrouping] = useState(SwishjamMemory.get('activeUsersGroupingPreference') || 'weekly');
+  // const [grouping, setGrouping] = useState(SwishjamMemory.get('activeUsersGroupingPreference') || 'weekly');
+  const [grouping, setGrouping] = useState('weekly');
   const [activeUserData, setActiveUserData] = useState();
   const apiEndpoint = scopedOrganizationId ? `/api/v1/organizations/${scopedOrganizationId}/users/active` : '/api/v1/users/active';
 
@@ -64,7 +65,7 @@ export default function ActiveUsersLineChart({ loadingStateOnly, scopedOrganizat
           currentGrouping={grouping} 
           onSelection={newGrouping => {
             setActiveUserData();
-            SwishjamMemory.set('activeUsersGroupingPreference', newGrouping);
+            // SwishjamMemory.set('activeUsersGroupingPreference', newGrouping);
             setGrouping(newGrouping)
           }}
         />
