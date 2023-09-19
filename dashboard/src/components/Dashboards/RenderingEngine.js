@@ -7,8 +7,8 @@ import BarChart from "@/components/Dashboards/Components/BarChart";
 import PieChart from "@/components/Dashboards/Components/PieChart";
 import ValueCard from '@/components/Dashboards/Components/ValueCard';
 import BarList from '@/components/Dashboards/Components/BarList';
+import ContextMenuableComponent from './DashboardComponentContextMenu';
 import { Card } from '@/components/ui/card';
-import { ContextMenuableComponent } from './DashboardComponentContextMenu';
 
 const LineChartDashboardComponent = ({ title, event, property, calculation, timeframe }) => {
   const [timeseries, setTimeseries] = useState();

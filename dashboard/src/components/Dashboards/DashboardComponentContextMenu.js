@@ -1,9 +1,8 @@
 import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuTrigger } from "@/components/ui/context-menu"
 import { ClipboardDocumentCheckIcon, PencilSquareIcon, TrashIcon } from "@heroicons/react/24/outline"
 
-export function ContextMenuableComponent({ children, isTriggerable, onEdit, onDuplicate, onDelete }) {
+export default function ContextMenuableComponent({ children, isTriggerable, onEdit, onDuplicate, onDelete }) {
   if(!isTriggerable) return children;
-  console.log('its triggerable!!');
   return (
     <ContextMenu>
       <ContextMenuTrigger>

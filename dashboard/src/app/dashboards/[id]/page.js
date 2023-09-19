@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import AuthenticatedView from "@/components/Auth/AuthenticatedView"
 import { API } from "@/lib/api-client/base";
-import GridLayout from "react-grid-layout";
 
 import DashboardNameDisplayEditor from "@/components/Dashboards/DashboardNameDisplayEditor";
 import RenderingEngine from "@/components/Dashboards/RenderingEngine";
@@ -73,6 +72,7 @@ const DashboardBuilder = ({ params }) => {
   const [componentSlideoutIsOpen, setComponentSlideoutIsOpen] = useState(false);
   const [currentTimeframe, setCurrentTimeframe] = useState('this_month');
   const [isInEditMode, setIsInEditMode] = useState(false);
+  const [pendingDashboardLayoutUpdates, setPendingDashboardLayoutUpdates] = useState([]);
 
   const detectChangedComponentsFromLayoutAndSave = layout => {
     const changedDashboardComponents = dashboardComponents.map(component => {
@@ -85,18 +85,23 @@ const DashboardBuilder = ({ params }) => {
         layoutItemForComponent.h !== component.configuration.h
       ) {
         return {
-          was: component,
-          is: { ...component, configuration: { ...component.configuration, x: layoutItemForComponent.x, y: layoutItemForComponent.y, w: layoutItemForComponent.w, h: layoutItemForComponent.h }}
+          ...component, 
+          configuration: { 
+            ...component.configuration, 
+            x: layoutItemForComponent.x, 
+            y: layoutItemForComponent.y, 
+            w: layoutItemForComponent.w, 
+            h: layoutItemForComponent.h 
+          }
         }
       }
     }).filter(Boolean);
-    if (changedDashboardComponents.length > 0) {
-      updateDashboardComponents(changedDashboardComponents.map(({ is }) => is));
-    }
+    const otherPendingUpdates = pendingDashboardLayoutUpdates.filter(pendingUpdateComponent => changedDashboardComponents.includes(({ id }) => id === pendingUpdateComponent.id));
+    setPendingDashboardLayoutUpdates([...otherPendingUpdates, ...changedDashboardComponents]);
   }
 
-  const updateDashboardComponents = components => {
-    API.patch(`/api/v1/dashboard_components/bulk_update`, { 
+  const updateDashboardComponents = async components => {
+    return API.patch(`/api/v1/dashboard_components/bulk_update`, { 
       dashboard_components: components.map(({ configuration, id }) => ({ id, configuration })) 
     }).then(({ errors, updated_components }) => {
       if (errors) {
@@ -161,16 +166,25 @@ const DashboardBuilder = ({ params }) => {
     });
   }
 
+  const updatePendingDashboardLayoutUpdates = () => {
+    if (pendingDashboardLayoutUpdates.length > 0) {
+      updateDashboardComponents(pendingDashboardLayoutUpdates).then(() => setPendingDashboardLayoutUpdates([]));
+    }
+  }
+
   useEffect(() => {
     API.get('/api/v1/events/unique').then(setUniqueEvents);
     API.get(`/api/v1/dashboards/${dashboardId}`).then(({ name }) => setDashboardName(name));
-    API.get(`/api/v1/dashboard_components`, { dashboard_id: dashboardId }).then(dashboard_components => {
-      // const parsedComponents = (dashboard_components || []).map(component => {
-      //   return { ...component, configuration: { x: 0, y: 0, w: 4, h: 4, ...component.configuration } }
-      // });
-      setDashboardComponents(dashboard_components);
-    });
+    API.get(`/api/v1/dashboard_components`, { dashboard_id: dashboardId }).then(setDashboardComponents);
   }, []);
+
+  // TODO: the setInterval doesnt have access to the latest state of pendingDashboardLayoutUpdates, so it never updates
+  // useEffect(() => {
+  //   const interval = setInterval(() => {
+  //     updatePendingDashboardLayoutUpdates()
+  //   }, 10_000);
+  //   return () => clearInterval(interval);
+  // }, [pendingDashboardLayoutUpdates]);
 
   return (
     <main className="mx-auto max-w-7xl px-4 mt-8 sm:px-6 lg:px-8 mb-8">
@@ -201,7 +215,7 @@ const DashboardBuilder = ({ params }) => {
               dashboardName={dashboardName || 'Untitled Dashboard'} 
               onDashboardNameSave={newDashboardName => {
                 if (newDashboardName === dashboardName) return;
-                saveDashboard({ dashboardName: newDashboardName, dashboardComponents })
+                saveDashboard({ dashboardName: newDashboardName })
               }} 
             />
           }
@@ -221,7 +235,10 @@ const DashboardBuilder = ({ params }) => {
                 <button
                   type="button"
                   className="ml-2 inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-swishjam hover:bg-swishjam-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-swishjam"
-                  onClick={() => setIsInEditMode(false)}
+                  onClick={() => {
+                    setIsInEditMode(false);
+                    updatePendingDashboardLayoutUpdates();
+                  }}
                 >
                   Done
                 </button>
@@ -249,7 +266,7 @@ const DashboardBuilder = ({ params }) => {
                 editable={isInEditMode}
                 onDashboardComponentEdit={({ id, configuration }) => () => setDashboardComponentToConfigure({ id, ...configuration.type })}
                 onDashboardComponentDelete={deleteDashboardComponent}
-                TODO: onDashboardComponentDuplicate breaks the rendering engine upon duplication currently
+                // TODO: onDashboardComponentDuplicate breaks the rendering engine upon duplication currently
                 // onDashboardComponentDuplicate={duplicateDashboardComponent}
               />
             ) : <EmptyState onClick={() => setComponentSlideoutIsOpen(true)} />
