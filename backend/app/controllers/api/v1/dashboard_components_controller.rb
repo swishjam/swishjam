@@ -48,6 +48,15 @@ module Api
         render json: { updated_components: updated_components, errors: errors }, status: :ok
       end
 
+      def destroy
+        component = current_workspace.dashboard_components.find(params[:id])
+        if component.destroy
+          render json: { dashboard_component: component }, status: :ok
+        else
+          render json: { error: component.errors.full_messages.join(' ') }, status: :unprocessable_entity
+        end
+      end
+
       private
 
       def component_params
