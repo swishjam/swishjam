@@ -36,10 +36,10 @@ export default function AnalyticsFamilyConfigurationPill({ analyticsFamilyConfig
 
   return (
     <span className="inline-flex items-center gap-x-0.5 rounded-md bg-gray-200 px-4 py-2 text-sm font-medium text-gray-700 ring-1 ring-inset ring-gray-500/10">
-      <TooltipOnHover msg={analyticsFamilyConfiguration.description}>
+      <TooltipOnHover msg={`${analyticsFamilyConfiguration.description} (Priority #${analyticsFamilyConfiguration.priority})`}>
         <InfoCircledIcon className="w-4 h-4 text-gray-700 mr-1" />
       </TooltipOnHover>
-      {analyticsFamilyConfiguration.friendly_name}: <span className='bg-gray-300 rounded px-2 py-1 italic text-xs'>/{analyticsFamilyConfiguration.url_regex}/</span>
+      {analyticsFamilyConfiguration.friendly_name}: <span className='bg-gray-300 rounded px-2 py-1 italic text-xs'>{analyticsFamilyConfiguration.url_regex}</span>
       {isDeleting && <LoadingSpinner color='gray' className='w-1 h-1 -mr-1' />}
       {!isDeleting && (
         <button type="button" className="group relative -mr-1 h-3.5 w-3.5 rounded-sm hover:bg-gray-500/20" onClick={handleDelete}>
