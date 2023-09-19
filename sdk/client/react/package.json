@@ -1,6 +1,6 @@
 {
   "name": "@swishjam/react",
-  "version": "0.0.15",
+  "version": "0.0.16",
   "description": "React wrapper for SwishjamJS.",
   "main": "./dist/cjs/index.js",
   "module": "./dist/esm/index.js",
@@ -16,30 +16,25 @@
   "sideEffects": false,
   "scripts": {
     "prebuild": "rm -rf dist",
-    "build": "rollup -c",
-    "lint": "eslint --ignore-path .gitignore --fix src",
-    "format": "prettier --write src"
+    "build": "rollup -c"
   },
   "keywords": [
-    "rollup",
-    "javascript",
-    "library",
-    "esm"
+    "analytics"
   ],
-  "author": "Mykhaylo Ryechkin (https://github.com/mryechkin)",
+  "author": "Swishjam",
   "license": "MIT",
   "dependencies": {
-    "@babel/runtime": "^7.17.9",
-    "@rollup/plugin-json": "^6.0.0",
     "@swishjam/core": "^0.0.214"
   },
   "devDependencies": {
     "@babel/plugin-transform-runtime": "^7.21.0",
     "@babel/preset-env": "^7.21.5",
     "@babel/preset-react": "^7.18.6",
+    "@babel/runtime": "^7.22.15",
     "@rollup/plugin-alias": "^5.0.0",
     "@rollup/plugin-babel": "^6.0.3",
     "@rollup/plugin-commonjs": "^24.1.0",
+    "@rollup/plugin-json": "^6.0.0",
     "@rollup/plugin-node-resolve": "^15.0.2",
     "@rollup/plugin-terser": "^0.4.0",
     "eslint": "^8.39.0",
