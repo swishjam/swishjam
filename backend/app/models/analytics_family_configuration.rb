@@ -19,6 +19,7 @@ class AnalyticsFamilyConfiguration < Transactional
   before_validation :set_default_priority, on: :create
   before_save :re_prioritize_workspaces_configurations, if: :priority_changed?
   before_save :format_regex, if: :url_regex_changed?
+  after_destroy :ensure_priority_ordering_starts_at_zero_and_incrementally_increases
   
   def self.clickhouse_formatted_family_name
     name.to_s.split('::').last.downcase
@@ -63,6 +64,13 @@ class AnalyticsFamilyConfiguration < Transactional
     # get all the configurations with an priority greater than or equal to this new priority and bump their priority up 1
     workspace.analytics_family_configurations.where('priority >= ? AND id != ?', self.priority, self.id).each do |configuration|
       configuration.update_column :priority, configuration.priority + 1
+    end
+  end
+
+  def ensure_priority_ordering_starts_at_zero_and_incrementally_increases
+    # make sure the ordering starts at 0 and proceeds from there
+    workspace.analytics_family_configurations.order(priority: :ASC).each_with_index do |configuration, index|
+      configuration.update_column :priority, index if configuration.priority != index
     end
   end
 

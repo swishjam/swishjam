@@ -104,14 +104,14 @@ export default function NewAnalyticsFamilyConfigurationForm({ onNewAnalyticsFami
           url_regex: newAnalyticsFamilyConfigurationUrlRegex,
           description: newAnalyticsFamilyConfigurationDescription
         } 
-      }).then(({ analytics_family_configuration, error }) => {
+      }).then(({ analytics_family_configuration, analytics_family_configurations, error }) => {
         setIsLoading(false);
         if (error) {
           setErrorMessage(error);
         } else {
           setNewAnalyticsFamilyConfigurationUrlRegex('');
           setNewAnalyticsFamilyConfigurationDescription('');
-          onNewAnalyticsFamilyConfiguration(analytics_family_configuration);
+          onNewAnalyticsFamilyConfiguration(analytics_family_configurations);
         }
       });
     }
