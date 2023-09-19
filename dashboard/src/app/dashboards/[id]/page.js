@@ -14,9 +14,16 @@ import BarListConfiguration from "@/components/Dashboards/Builder/Configurations
 import ValueCardConfiguration from "@/components/Dashboards/Builder/Configurations/ValueCard";
 
 import Modal from "@/components/utils/Modal";
-import { ChartPieIcon, PlusCircleIcon } from "@heroicons/react/24/outline";
+import { ChartPieIcon, PencilSquareIcon, PlusCircleIcon } from "@heroicons/react/24/outline";
 import { Skeleton } from "@/components/ui/skeleton";
 import Timefilter from "@/components/Timefilter";
+
+const DEFAULT_GRID_CONFIGURATIONS = {
+  LineChart: { w: 10, h: 8, y: 0, x: 0 },
+  PieChart: { w: 4, h: 4, y: 0, x: 0 },
+  BarList: { w: 4, h: 4, y: 0, x: 0 },
+  ValueCard: { w: 4, h: 2, y: 0, x: 0 },
+}
 
 const ConfigureDashboardComponentModal = ({ componentType, eventOptions, onSave, onClose }) => {
   const ConfigurationComponent = {
@@ -65,6 +72,7 @@ const DashboardBuilder = ({ params }) => {
   const [uniqueEvents, setUniqueEvents] = useState();
   const [componentSlideoutIsOpen, setComponentSlideoutIsOpen] = useState(false);
   const [currentTimeframe, setCurrentTimeframe] = useState('this_month');
+  const [isInEditMode, setIsInEditMode] = useState(false);
 
   const detectChangedComponentsFromLayoutAndSave = layout => {
     const changedDashboardComponents = dashboardComponents.map(component => {
@@ -87,12 +95,7 @@ const DashboardBuilder = ({ params }) => {
     }
   }
 
-  const updateDashboardComponent = componentConfig => {
-    return updateDashboardComponents([componentConfig]);
-  }
-
   const updateDashboardComponents = components => {
-    console.log('UPDATING COMPONENTS!!!')
     API.patch(`/api/v1/dashboard_components/bulk_update`, { 
       dashboard_components: components.map(({ configuration, id }) => ({ id, configuration })) 
     }).then(({ errors, updated_components }) => {
@@ -109,12 +112,19 @@ const DashboardBuilder = ({ params }) => {
   }
 
   const createDashboardComponent = componentConfiguration => {
-    API.post('/api/v1/dashboard_components', { dashboard_id: dashboardId, dashboard_component: { configuration: componentConfiguration }}).then(result => {
+    API.post('/api/v1/dashboard_components', { 
+      dashboard_id: dashboardId, 
+      dashboard_component: { 
+        configuration: { 
+          ...DEFAULT_GRID_CONFIGURATIONS[componentConfiguration.type], 
+          ...componentConfiguration
+        } 
+      }
+    }).then(result => {
       if (result.error) {
 
       } else {
-        const newDashboardComponents = [...dashboardComponents, { ...result, configuration: { x: 0, y: 0, w: 4, h: 4, ...result.configuration } }];
-        setDashboardComponents(newDashboardComponents);
+        setDashboardComponents([...dashboardComponents, result]);
       }
     });
   }
@@ -129,14 +139,36 @@ const DashboardBuilder = ({ params }) => {
     });
   }
 
+  const deleteDashboardComponent = id => {
+    setDashboardComponents(dashboardComponents.filter(({ id: componentId }) => componentId !== id));
+    API.delete(`/api/v1/dashboard_components/${id}`).then(({ error }) => {
+      if (error) {
+
+      }
+    });
+  }
+
+  const duplicateDashboardComponent = ({ id, configuration }) => {
+    const newConfiguration = { ...configuration, ...DEFAULT_GRID_CONFIGURATIONS[configuration.type], title: `${configuration.title} (copy)` };
+    API.post('/api/v1/dashboard_components', {
+      dashboard_id: dashboardId,
+      dashboard_component: { configuration: newConfiguration }
+    }).then(({ error, dashboard_component }) => {
+      if (error) {
+      } else {
+        setDashboardComponents([...dashboardComponents, dashboard_component]);
+      }
+    });
+  }
+
   useEffect(() => {
     API.get('/api/v1/events/unique').then(setUniqueEvents);
     API.get(`/api/v1/dashboards/${dashboardId}`).then(({ name }) => setDashboardName(name));
     API.get(`/api/v1/dashboard_components`, { dashboard_id: dashboardId }).then(dashboard_components => {
-      const parsedComponents = (dashboard_components || []).map(component => {
-        return { ...component, configuration: { x: 0, y: 0, w: 4, h: 4, ...component.configuration } }
-      });
-      setDashboardComponents(parsedComponents);
+      // const parsedComponents = (dashboard_components || []).map(component => {
+      //   return { ...component, configuration: { x: 0, y: 0, w: 4, h: 4, ...component.configuration } }
+      // });
+      setDashboardComponents(dashboard_components);
     });
   }, []);
 
@@ -176,26 +208,50 @@ const DashboardBuilder = ({ params }) => {
         </div>
         <div className='flex items-center justify-end'>
           <Timefilter selection={currentTimeframe} onSelection={setCurrentTimeframe} />
-          <button
-            type="button"
-            className="ml-2 inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-swishjam hover:bg-swishjam-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-swishjam"
-            onClick={() => setComponentSlideoutIsOpen(true)}
-          >
-            Add Component <PlusCircleIcon className='h-4 w-4 ml-1' />
-          </button>
+          {isInEditMode 
+            ? (
+              <>
+                <button
+                  type="button"
+                  className="ml-2 inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-swishjam hover:bg-swishjam-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-swishjam"
+                  onClick={() => setComponentSlideoutIsOpen(true)}
+                >
+                  Add Component <PlusCircleIcon className='h-4 w-4 ml-1' />
+                </button>
+                <button
+                  type="button"
+                  className="ml-2 inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-swishjam hover:bg-swishjam-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-swishjam"
+                  onClick={() => setIsInEditMode(false)}
+                >
+                  Done
+                </button>
+              </>
+            ) : (
+              <button
+                type="button"
+                className="ml-2 inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-swishjam hover:bg-swishjam-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-swishjam"
+                onClick={() => setIsInEditMode(true)}
+              >
+                Edit <PencilSquareIcon className='h-4 w-4 ml-1' />
+              </button>
+            )
+          }
         </div>
       </div>
       <div className="mt-8">
         {dashboardComponents 
           ? dashboardComponents.length > 0
             ? (
-              <div className='grid xl:grid-cols-4 lg:grid-cols-3 md:grid-cols-2 sm:grid-cols-1 gap-4'>
-                <RenderingEngine 
-                  components={dashboardComponents} 
-                  timeframe={currentTimeframe} 
-                  onLayoutChange={detectChangedComponentsFromLayoutAndSave} 
-                />
-              </div>
+              <RenderingEngine 
+                components={dashboardComponents} 
+                timeframe={currentTimeframe} 
+                onLayoutChange={detectChangedComponentsFromLayoutAndSave} 
+                editable={isInEditMode}
+                onDashboardComponentEdit={({ id, configuration }) => () => setDashboardComponentToConfigure({ id, ...configuration.type })}
+                onDashboardComponentDelete={deleteDashboardComponent}
+                TODO: onDashboardComponentDuplicate breaks the rendering engine upon duplication currently
+                // onDashboardComponentDuplicate={duplicateDashboardComponent}
+              />
             ) : <EmptyState onClick={() => setComponentSlideoutIsOpen(true)} />
           : <LoadingState />
         }

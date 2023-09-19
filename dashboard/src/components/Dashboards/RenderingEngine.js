@@ -8,6 +8,7 @@ import PieChart from "@/components/Dashboards/Components/PieChart";
 import ValueCard from '@/components/Dashboards/Components/ValueCard';
 import BarList from '@/components/Dashboards/Components/BarList';
 import { Card } from '@/components/ui/card';
+import { ContextMenuableComponent } from './DashboardComponentContextMenu';
 
 const LineChartDashboardComponent = ({ title, event, property, calculation, timeframe }) => {
   const [timeseries, setTimeseries] = useState();
@@ -84,47 +85,92 @@ const ValueCardDashboardComponent = ({ title, event, property, calculation, time
 }
 
 
-export default function RenderingEngine({ components, timeframe, onLayoutChange = () => {} }) {
+export default function RenderingEngine({ 
+  components, 
+  timeframe, 
+  editable, 
+  onDashboardComponentEdit = () => {}, 
+  onDashboardComponentDelete = () => {}, 
+  onDashboardComponentDuplicate = () => {},
+  onLayoutChange = () => {} 
+}) {
   // the grid layout hangs when not given in this format
   const sanitizedLayout = components.map(({ i, configuration }) => ({ i, ...configuration }));
   return (
     <GridLayout
       layout={sanitizedLayout}
-      cols={8}
+      cols={30}
       rowHeight={40}
       width={1200}
       onLayoutChange={onLayoutChange}
+      isDraggable={editable}
+      isResizable={editable}
     >
       {components.map(({ i, configuration }) => {
         switch(configuration.type) {
           case 'LineChart':
             return (
               <Card key={i} className='p-4 overflow-hidden'>
-                <LineChartDashboardComponent title={configuration.title} event={configuration.event} property={configuration.property} calculation={configuration.calculation} timeframe={timeframe} />
+                <ContextMenuableComponent 
+                  isTriggerable={editable} 
+                  onEdit={() => onDashboardComponentEdit({ id: configuration.i, configuration })} 
+                  onDelete={() => onDashboardComponentDelete(i)}
+                  onDuplicate={() => onDashboardComponentDuplicate({ id: configuration.i, configuration })}
+                >
+                  <LineChartDashboardComponent title={configuration.title} event={configuration.event} property={configuration.property} calculation={configuration.calculation} timeframe={timeframe} />
+                </ContextMenuableComponent>
               </Card>
             )
           case 'BarChart':
             return (
               <Card key={i} className='p-4 overflow-hidden'>
-                <BarChart title={configuration.title} event={configuration.event} property={configuration.property} calculation={configuration.calculation} timeframe={timeframe} />
+                <ContextMenuableComponent 
+                  isTriggerable={editable} 
+                  onEdit={() => onDashboardComponentEdit({ id: configuration.i, configuration })} 
+                  onDelete={() => onDashboardComponentDelete(i)}
+                  onDuplicate={() => onDashboardComponentDuplicate({ id: configuration.i, configuration })}
+                >
+                  <BarChart title={configuration.title} event={configuration.event} property={configuration.property} calculation={configuration.calculation} timeframe={timeframe} />
+                </ContextMenuableComponent>
               </Card>
             )
           case 'PieChart':
             return (
               <Card key={i} className='p-4 overflow-hidden'>
-                <PieChartDashboardComponent title={configuration.title} event={configuration.event} property={configuration.property} timeframe={timeframe} />
+                <ContextMenuableComponent 
+                  isTriggerable={editable} 
+                  onEdit={() => onDashboardComponentEdit({ id: configuration.i, configuration })} 
+                  onDelete={() => onDashboardComponentDelete(i)}
+                  onDuplicate={() => onDashboardComponentDuplicate({ id: configuration.i, configuration })}
+                >
+                  <PieChartDashboardComponent title={configuration.title} event={configuration.event} property={configuration.property} timeframe={timeframe} />
+                </ContextMenuableComponent>
               </Card>
             )
           case 'ValueCard':
             return (
               <Card key={i} className='p-4 overflow-hidden'>
-                <ValueCardDashboardComponent title={configuration.title} event={configuration.event} property={configuration.property} calculation={configuration.calculation} timeframe={timeframe} />
+                <ContextMenuableComponent 
+                  isTriggerable={editable} 
+                  onEdit={() => onDashboardComponentEdit({ id: i, configuration })} 
+                  onDelete={() => onDashboardComponentDelete(i)}
+                  onDuplicate={() => onDashboardComponentDuplicate({ id: configuration.i, configuration })}
+                >
+                  <ValueCardDashboardComponent title={configuration.title} event={configuration.event} property={configuration.property} calculation={configuration.calculation} timeframe={timeframe} />
+                </ContextMenuableComponent>
               </Card>
             )
           case 'BarList':
             return (
               <Card key={i} className='p-4 overflow-hidden'>
-                <BarListDashboardComponent title={configuration.title} event={configuration.event} property={configuration.property} timeframe={timeframe} />
+                <ContextMenuableComponent 
+                  isTriggerable={editable} 
+                  onEdit={() => onDashboardComponentEdit({ id: configuration.i, configuration })} 
+                  onDelete={() => onDashboardComponentDelete(i)}
+                  onDuplicate={() => onDashboardComponentDuplicate({ id: configuration.i, configuration })}
+                >
+                  <BarListDashboardComponent title={configuration.title} event={configuration.event} property={configuration.property} timeframe={timeframe} />
+                </ContextMenuableComponent>
               </Card>
             )
         }
