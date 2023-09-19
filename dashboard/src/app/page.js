@@ -41,7 +41,7 @@ const currentChart = (selected, mrrChart, sessionsChart, activeSubsChart) => {
     return mrrChart;
   } else if (selected === 'Sessions') {
     return sessionsChart;
-  } else if (selected === 'Active Users') {
+  } else if (selected === 'Active Subscriptions') {
     return activeSubsChart;
   }
 }
@@ -128,13 +128,13 @@ const Home = () => {
           onClick={() => setCurrentSelectedChart('MRR')}
         /> 
         <ClickableValueCard
-          title='Temp Active Users'
-          value={sessionsChart?.value}
-          selected={currentSelectedChart == 'Active Users'}
-          previousValue={sessionsChart?.previousValue}
+          title='Active Subscriptions'
+          value={activeSubsChart?.value}
+          selected={currentSelectedChart == 'Active Subscriptions'}
+          previousValue={activeSubsChart?.previousValue}
           previousValueDate={sessionsChart?.previousValueDate}
           valueFormatter={numSubs => numSubs.toLocaleString('en-US')}
-          onClick={() => setCurrentSelectedChart('Active Users')} 
+          onClick={() => setCurrentSelectedChart('Active Subscriptions')} 
         /> 
         <ClickableValueCard
           title='Sessions'

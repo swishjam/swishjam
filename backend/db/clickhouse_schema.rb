@@ -30,9 +30,9 @@ ClickhouseActiverecord::Schema.define(version: 2023_09_13_020716) do
 #   Unknown type 'Enum8('user' = 1, 'organization' = 2)' for column 'swishjam_owner_type'
 
   # TABLE: events
-  # SQL: CREATE TABLE swishjam_analytics_dev.events ( `uuid` String, `swishjam_api_key` LowCardinality(String), `name` LowCardinality(String), `analytics_family` Enum8('marketing' = 1, 'product' = 2, 'other' = 3) DEFAULT 'other', `ingested_at` DateTime DEFAULT now(), `occurred_at` DateTime, `properties` String ) ENGINE = MergeTree ORDER BY (analytics_family, swishjam_api_key, name, occurred_at) SETTINGS index_granularity = 8192
+  # SQL: CREATE TABLE swishjam_analytics_dev.events ( `uuid` String, `swishjam_api_key` LowCardinality(String), `name` LowCardinality(String), `analytics_family` Enum8('marketing' = 1, 'product' = 2, 'blog' = 3, 'docs' = 4, 'other' = 5) DEFAULT 'other', `ingested_at` DateTime DEFAULT now(), `occurred_at` DateTime, `properties` String ) ENGINE = MergeTree ORDER BY (analytics_family, swishjam_api_key, name, occurred_at) SETTINGS index_granularity = 8192
 # Could not dump table "events" because of following StandardError
-#   Unknown type 'Enum8('marketing' = 1, 'product' = 2, 'other' = 3)' for column 'analytics_family'
+#   Unknown type 'Enum8('marketing' = 1, 'product' = 2, 'blog' = 3, 'docs' = 4, 'other' = 5)' for column 'analytics_family'
 
   # TABLE: organization_identify_events
   # SQL: CREATE TABLE swishjam_analytics_dev.organization_identify_events ( `uuid` String, `swishjam_api_key` LowCardinality(String), `session_identifier` String, `device_identifier` String, `swishjam_organization_id` String, `occurred_at` DateTime, `ingested_at` DateTime DEFAULT now() ) ENGINE = ReplacingMergeTree PRIMARY KEY (swishjam_api_key, session_identifier) ORDER BY (swishjam_api_key, session_identifier) SETTINGS index_granularity = 8192
