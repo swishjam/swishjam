@@ -1,43 +1,64 @@
 {
   "name": "@swishjam/react",
-  "version": "0.0.13",
-  "description": "Provides the React components and hooks to install and interact with SwishjamJS",
-  "type": "module",
-  "main": "dist/umd/index.js",
-  "module": "dist/esm/index.js",
-  "types": "dist/types",
-  "files": [
-    "dist/*",
-    "README.md"
-  ],
-  "scripts": {
-    "rollup": "rollup -c rollup.config.js",
-    "vite": "vite build",
-    "build": "rm -rf dist && mkdir dist &&  babel ./index.js -d dist --presets=@babel/preset-env,@babel/preset-react --plugins=@babel/plugin-syntax-dynamic-import",
-    "buildOLD": "rm -rf dist/ && webpack --mode production --config webpack.config.js"
+  "version": "2.0.0",
+  "description": "Starter template for building JS libraries using Rollup",
+  "main": "./dist/cjs/index.js",
+  "module": "./dist/esm/index.js",
+  "exports": {
+    ".": {
+      "import": "./dist/esm/index.js",
+      "require": "./dist/cjs/index.js"
+    }
   },
-  "author": "",
-  "license": "ISC",
+  "files": [
+    "dist"
+  ],
+  "sideEffects": false,
+  "scripts": {
+    "prebuild": "rm -rf dist",
+    "build": "rollup -c",
+    "lint": "eslint --ignore-path .gitignore --fix src",
+    "format": "prettier --write src"
+  },
+  "keywords": [
+    "rollup",
+    "javascript",
+    "library",
+    "esm"
+  ],
+  "author": "Mykhaylo Ryechkin (https://github.com/mryechkin)",
+  "license": "MIT",
   "dependencies": {
-    "@swishjam/core": "*"
+    "@babel/runtime": "^7.17.9",
+    "@rollup/plugin-json": "^6.0.0",
+    "@swishjam/core": "^0.0.211"
   },
   "devDependencies": {
-    "@babel/core": "^7.22.19",
-    "@babel/preset-env": "^7.22.15",
-    "@babel/preset-react": "^7.22.15",
-    "@rollup/plugin-commonjs": "^25.0.4",
-    "@rollup/plugin-json": "^6.0.0",
-    "@rollup/plugin-node-resolve": "^15.2.1",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "rollup": "^2.78.0",
-    "rollup-plugin-babel": "^4.4.0",
-    "rollup-plugin-node-resolve": "^5.2.0",
-    "rollup-plugin-replace": "^2.2.0",
-    "vite": "^4.4.9"
+    "@babel/plugin-transform-runtime": "^7.21.0",
+    "@babel/preset-env": "^7.21.5",
+    "@babel/preset-react": "^7.18.6",
+    "@rollup/plugin-alias": "^5.0.0",
+    "@rollup/plugin-babel": "^6.0.3",
+    "@rollup/plugin-commonjs": "^24.1.0",
+    "@rollup/plugin-node-resolve": "^15.0.2",
+    "@rollup/plugin-terser": "^0.4.0",
+    "eslint": "^8.39.0",
+    "eslint-plugin-react": "^7.32.2",
+    "lint-staged": "^13.2.2",
+    "prettier": "^2.8.8",
+    "rollup": "^3.23.0",
+    "rollup-plugin-analyzer": "^4.0.0",
+    "rollup-plugin-preserve-directives": "^0.2.0"
   },
   "peerDependencies": {
-    "@swishjam/core": "*",
-    "react": ">=16.0.0"
+    "react": "^16.14.0 || ^17.0.0 || ^18.2.0",
+    "react-dom": "^16.14.0 || ^17.0.0 || ^18.2.0"
+  },
+  "engines": {
+    "node": ">=16.0.0 || >=18.0.0 || >=19.0.0 || >=20.0.0"
+  },
+  "lint-staged": {
+    "*.js": "npm run lint",
+    "*.{js,css,md*}": "npm run format"
   }
 }

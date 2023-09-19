@@ -10,7 +10,6 @@ export const SwishjamProvider = ({ apiKey, apiEndpoint, children }) => {
         const SwishjamClient = (await import('@swishjam/core')).default;
         const client = new SwishjamClient({ apiKey, apiEndpoint });
         setSwishjamClient(client);
-        return swishjamClient;
       }
     }
     init();

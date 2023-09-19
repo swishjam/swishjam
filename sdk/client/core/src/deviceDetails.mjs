@@ -30,6 +30,22 @@ export class DeviceDetails {
   static isMobile = () => this._clientJS().isMobile();
 
   static _clientJS = () => {
+    /*if (this._clientJSInstance) return this._clientJSInstance;
+    this._clientJSInstance = {
+      getFingerprint: () => { },
+      getUserAgent: () => { },
+      getBrowser: () => { },
+      getBrowserVersion: () => { },
+      getOS: () => { },
+      getOSVersion: () => { },
+      getDevice: () => { },
+      getDeviceType: () => { },
+      getTimeZone: () => { },
+      getLanguage: () => { },
+      isMobile: () => { },
+    };
+    return this._clientJSInstance;*/
+     
     if(this._clientJSInstance) return this._clientJSInstance;
     this._clientJSInstance = new ClientJS();
     return this._clientJSInstance;
