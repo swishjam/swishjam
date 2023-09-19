@@ -75,14 +75,12 @@ module Api
         json = { start_time: start_timestamp, end_time: end_timestamp }
 
         if params[:types].include?('device_type')
-          devices = ClickHouseQueries::Sessions::DeviceTypes::List.new(
+          json[:device_types] = ClickHouseQueries::Sessions::DeviceTypes::List.new(
             current_workspace.public_key,
             analytics_family: analytics_family,
             start_time: start_timestamp,
             end_time: end_timestamp,
           ).get
-          json[:mobile_count] = devices.find{ |event| event.device_type == 'mobile' }&.count || 0
-          json[:desktop_count] = devices.find{ |event| event.device_type == 'desktop' }&.count || 0
         end
         if params[:types].include?('browser')
           json[:browsers] = ClickHouseQueries::Sessions::Browsers::List.new(

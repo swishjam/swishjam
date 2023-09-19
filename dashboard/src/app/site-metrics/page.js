@@ -78,10 +78,7 @@ const Home = () => {
   const getDemographicData = async (tf) => {
     API.get('/api/v1/sessions/demographics', { timeframe: tf }).then(demographics => {
       setTopBrowsers(demographics.browsers.map(({ browser_name, count }) => ({ name: browser_name, value: count })));
-      setTopDevices([
-        { name: 'Desktop', value: demographics.desktop_count, icon: DesktopIcon }, 
-        { name: 'Mobile', value: demographics.mobile_count, icon: MobileIcon }
-      ]);
+      setTopDevices(demographics.device_types.map(({ device_type, count }) => ({ name: device_type, value: count })));
       // setTopCountries(Object.keys(demographics.countries).map(country => ({ name: country, value: demographics.countries[country] })));
     });
   }

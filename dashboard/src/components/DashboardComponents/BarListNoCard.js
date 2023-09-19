@@ -16,8 +16,6 @@ const LoadingState = () => (
 )
 
 export default function BarListNoCard({ items }) {
-  console.log('items', items) 
-  
   if (!items) return <LoadingState />
   const total = items.reduce((acc, item) => acc + item.value, 0)
   const sortedItems = items.sort((item1, item2) => item2.value - item1.value)

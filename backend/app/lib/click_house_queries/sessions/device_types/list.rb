@@ -12,16 +12,15 @@ module ClickHouseQueries
         end
 
         def get
-          return @full_url_results if @full_url_results.present?
-          @full_url_results = Analytics::Event.find_by_sql(sql.squish!)
+          return @results if @results.present?
+          @results = Analytics::Event.find_by_sql(sql.squish!).collect{ |e| { device_type: e.device_type, count: e.count }}
         end
 
         def sql(by_url_host: false)
-          # IF(JSONExtractString(properties, 'is_mobile') = 1, 'mobile', 'desktop')  AS device_type
           <<~SQL
             SELECT
               CAST(COUNT(*) AS int) AS count,
-              JSONExtractString(properties, 'device_type') AS device_type
+              CASE WHEN JSONExtractString(properties, 'is_mobile') = 'true' THEN 'mobile' ELSE 'desktop' END AS device_type
             FROM events
             WHERE
               swishjam_api_key = '#{@public_key}' AND

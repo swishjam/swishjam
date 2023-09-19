@@ -77,7 +77,6 @@ const SettingsPage = () => {
     API.get('/api/v1/analytics_family_configurations').then(setAnalyticsFamilyConfigurations);
   }, []);
 
-  console.log(analyticsFamilyConfigurations);
   return (
     analyticsFamilyConfigurations === undefined 
       ? <LoadingState />
