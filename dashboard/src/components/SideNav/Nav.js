@@ -8,7 +8,7 @@ import Link from 'next/link'
 import Logo from '@components/Logo'
 import { Bars3Icon } from '@heroicons/react/24/outline'
 import { RxBarChart  } from 'react-icons/rx'
-import { SwishjamMemory } from '@/lib/swishjam-memory';
+// import { SwishjamMemory } from '@/lib/swishjam-memory';
 
 const appNav = [
   { name: 'Home', href: '/', icon: HomeIcon },
@@ -55,9 +55,9 @@ export default function Sidebar({ onCollapse, onExpand, authData }) {
   //typeof SwishjamMemory.get('isNavCollapsed') === 'boolean' ? SwishjamMemory.get('isNavCollapsed') : false);
 
   useEffect(() => {
-    if(typeof SwishjamMemory.get('isNavCollapsed') === 'boolean') {
-      setIsCollapsed(SwishjamMemory.get('isNavCollapsed'));
-    }
+    // if(typeof SwishjamMemory.get('isNavCollapsed') === 'boolean') {
+    //   setIsCollapsed(SwishjamMemory.get('isNavCollapsed'));
+    // }
   }, [])
 
   return (
@@ -100,7 +100,7 @@ export default function Sidebar({ onCollapse, onExpand, authData }) {
         onClick={() => {
           setIsCollapsed(!isCollapsed);
           isCollapsed ? onExpand() : onCollapse();
-          SwishjamMemory.set('isNavCollapsed', !isCollapsed);
+          // SwishjamMemory.set('isNavCollapsed', !isCollapsed);
         }}
         >
         {isCollapsed ? <ChevronRightIcon className="h-4 w-4 hover:scale-110" /> : <ChevronLeftIcon className="h-4 w-4 hover:scale-110" />}

@@ -62,7 +62,7 @@ const Home = () => {
           comparisonValue: sessionData.comparison_timeseries[index]?.value
         }))
       })
-      setIsMissingUrlSegments(sessionData.url_segments.length === 0);
+      // setIsMissingUrlSegments(sessionData.url_segments.length === 0);
     })
   }
 

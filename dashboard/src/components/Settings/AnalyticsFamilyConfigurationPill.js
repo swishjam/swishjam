@@ -25,11 +25,11 @@ export default function AnalyticsFamilyConfigurationPill({ analyticsFamilyConfig
 
   const handleDelete = () => {
     setIsDeleting(true);
-    API.delete(`/api/v1/analytics_family_configurations/${analyticsFamilyConfiguration.id}`).then(({ error }) => {
+    API.delete(`/api/v1/analytics_family_configurations/${analyticsFamilyConfiguration.id}`).then(({ error, analytics_family_configurations }) => {
       setIsDeleting(false);
       if (error) {
       } else {
-        onDelete(analyticsFamilyConfiguration);
+        onDelete(analytics_family_configurations);
       }
     })
   }

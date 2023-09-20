@@ -90,14 +90,14 @@ const SettingsPage = () => {
 
           <WorkspaceForm />
           <Divider />
-          <NewAnalyticsFamilyConfigurationForm onNewAnalyticsFamilyConfiguration={afc => setAnalyticsFamilyConfigurations([afc, ...analyticsFamilyConfigurations])} />
+          <NewAnalyticsFamilyConfigurationForm onNewAnalyticsFamilyConfiguration={setAnalyticsFamilyConfigurations} />
 
           <div className='mt-4 space-x-4 space-y-4'>
             {analyticsFamilyConfigurations.map((config, i) => (
               <AnalyticsFamilyConfigurationPill 
                 key={i} 
                 analyticsFamilyConfiguration={config} 
-                onDelete={afc => setAnalyticsFamilyConfigurations(analyticsFamilyConfigurations.filter(a => a.id !== afc.id))} 
+                onDelete={setAnalyticsFamilyConfigurations} 
               />
             ))}
           </div>
