@@ -198,6 +198,6 @@ const Home = () => {
   );
 }
 
-export default Home;
+//export default Home;
 
-//export default AuthenticatedView(Home, (<div>loading</div>));
+export default AuthenticatedView(Home, LoadingState);

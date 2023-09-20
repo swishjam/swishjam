@@ -19,6 +19,9 @@ export default function AuthenticatedView(WrappedComponent, LoadingViewComponent
       try {
         //const typeof SwishjamMemory.get('isNavCollapsed') === 'boolean' ? SwishjamMemory.get('isNavCollapsed') : false);     
       } catch(e) {} 
+      console.log('is logged out', isAwaitingData)
+      console.log('auth data', authData)
+      if(authData) {console.log('auth data expired', authData.isExpired())}
 
       if (isLoggedOut) {
         router.push('/login');
