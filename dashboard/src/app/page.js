@@ -1,4 +1,4 @@
-import AuthenticatedView from '@components/Auth/AuthenticatedView';
+//import AuthenticatedView from '@components/Auth/AuthenticatedView';
 
 const Home = () => {
   return (
@@ -8,4 +8,6 @@ const Home = () => {
   );
 }
 
-export default AuthenticatedView(Home, (<div>loading</div>));
+export default Home;
+
+//export default AuthenticatedView(Home, (<div>loading</div>));
