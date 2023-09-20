@@ -1,4 +1,4 @@
-import AuthenticatedView from 'path/to/AuthenticatedView';
+import AuthenticatedView from '@components/Auth/AuthenticatedView';
 
 const Home = () => {
   return (
