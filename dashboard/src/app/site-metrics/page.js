@@ -40,7 +40,7 @@ const LoadingState = () => (
   </main>
 )
 
-const Home = () => {
+const PageMetrics = () => {
   const [sessionsChart, setSessionsChart] = useState();
   const [topReferrers, setTopReferrers] = useState();
   const [topPages, setTopPages] = useState();
@@ -169,4 +169,4 @@ const Home = () => {
   );
 }
 
-export default AuthenticatedView(Home, LoadingState);
+export default PageMetrics 
