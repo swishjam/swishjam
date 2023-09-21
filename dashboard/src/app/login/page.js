@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useAuthData, logUserIn } from '@/components/Auth/AuthProvider';
+import { useAuthData, logUserIn } from '@/lib/auth';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import cn from 'classnames';

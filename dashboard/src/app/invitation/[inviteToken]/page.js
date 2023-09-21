@@ -7,7 +7,7 @@ import LoadingSpinner from '@/components/LoadingSpinner';
 import { ONE_DAY_IN_MS } from '@/lib/utils/timeHelpers';
 import { CheckCircleIcon, ExclamationCircleIcon } from '@heroicons/react/24/outline';
 // import supabase from '@/lib/supabase-browser';
-// import { useAuth } from '@/components/Auth/AuthProvider';
+// import { useAuth } from '@/lib/auth';
 
 export default function Invitation({ params }) {
   const { inviteToken } = params;

@@ -9,7 +9,7 @@ import { EllipsisHorizontalIcon } from '@heroicons/react/20/solid'
 import { PlusCircleIcon, PauseCircleIcon, TrashIcon, PlayCircleIcon } from '@heroicons/react/24/outline'
 import StripeImg from '@public/stripe-logo.jpeg'
 import Modal from '@/components/utils/Modal';
-import { useAuthData } from '@/components/Auth/AuthProvider';
+import { useAuthData } from '@/lib/auth';
 
 const CONNECTION_IMAGES = {
   Stripe: StripeImg,
