@@ -202,5 +202,3 @@ export default function Home() {
     </AuthenticationProvider>
   );
 }
-
-// export default AuthenticatedView(Home, LoadingState);

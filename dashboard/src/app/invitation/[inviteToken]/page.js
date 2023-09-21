@@ -1,17 +1,16 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation'
 import { API } from "@/lib/api-client/base";
 import Logo from '@/components/Logo';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import { ONE_DAY_IN_MS } from '@/lib/utils/timeHelpers';
 import { CheckCircleIcon, ExclamationCircleIcon } from '@heroicons/react/24/outline';
-// import supabase from '@/lib/supabase-browser';
-// import { useAuth } from '@/lib/auth';
 
 export default function Invitation({ params }) {
   const { inviteToken } = params;
-  // const { user: loggedInUser, updateCurrentOrganization } = useAuth();
+  const router = useRouter()
   const [userInvite, setUserInvite] = useState();
 
   const isExpired = userInvite
@@ -19,7 +18,15 @@ export default function Invitation({ params }) {
                       : false;
 
   useEffect(() => {
-    API.get('/api/user-invites/get', { inviteToken }).then(({ userInvite, error }) => setUserInvite(userInvite));
+    API.get('/api/user-invites/get', { inviteToken })
+      .then(({ userInvite, error }) => {
+        if(error) {
+          console.log(error)
+          router.push('/login')
+        } else {
+          setUserInvite(userInvite)
+        } 
+      });
   }, [])
 
   return (

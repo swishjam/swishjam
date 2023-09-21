@@ -1,7 +1,6 @@
 'use client'
 
 import { useEffect, useState } from "react";
-import AuthenticatedView from "@/components/Auth/AuthenticatedView";
 import { API } from "@/lib/api-client/base";
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton";
@@ -165,21 +164,4 @@ const Users = ({ }) => {
   )
 }
 
-const placeholder = () => {
-  const [text, setText] = useState('Waiting on useEffect!?!?!?!?!');
-
-  useEffect(() => {
-    setTimeout(() => {
-      setText('useEffect is done!');
-    }, 1000);
-  }, []);
-
-  return (
-    <div className='h-screen w-full flex items-center justify-center'>
-      <h1>{text}</h1>
-    </div>
-  )
-}
-
-export default AuthenticatedView(placeholder, LoadingState);
-// export default placeholder;
+export default Users;

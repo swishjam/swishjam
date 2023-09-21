@@ -1,6 +1,5 @@
 'use client';
 
-import AuthenticatedView from "@/components/Auth/AuthenticatedView";
 import { useState, useEffect } from "react";
 import { API } from "@/lib/api-client/base";
 import { useAuthData } from "@/lib/auth";
@@ -110,4 +109,4 @@ const SettingsPage = () => {
   )
 }
 
-export default AuthenticatedView(SettingsPage, LoadingState);
+export default SettingsPage
