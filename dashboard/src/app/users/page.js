@@ -165,4 +165,12 @@ const Users = ({ }) => {
   )
 }
 
-export default AuthenticatedView(<>Users list goes here???</>, LoadingState);
+const placeholder = () => {
+  return (
+    <div className='h-screen w-full flex items-center justify-center'>
+      <h1>Users list goes here??</h1>
+    </div>
+  )
+}
+
+export default AuthenticatedView(placeholder, LoadingState);
