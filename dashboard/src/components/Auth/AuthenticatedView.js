@@ -25,6 +25,10 @@ export default function AuthenticatedView(WrappedComponent, LoadingViewComponent
       }
     }, [isAwaitingData, authData, isLoggedOut]);
 
+    console.log('STATE OF AUTHENTICATED VIEW');
+    console.log('isAwaitingData', isAwaitingData);
+    console.log('authData', authData);
+    console.log('isLoggedOut', isLoggedOut);
     if (isAwaitingData) {
       return (
         <>
