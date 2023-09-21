@@ -173,4 +173,5 @@ const placeholder = () => {
   )
 }
 
-export default AuthenticatedView(placeholder, LoadingState);
+// export default AuthenticatedView(placeholder, LoadingState);
+export default placeholder;
