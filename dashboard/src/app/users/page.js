@@ -165,4 +165,4 @@ const Users = ({ }) => {
   )
 }
 
-export default AuthenticatedView(Users, LoadingState);
+export default AuthenticatedView(<>Users list goes here???</>, LoadingState);
