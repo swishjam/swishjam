@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect } from "react";
-import { logUserOut } from "@/components/Auth/AuthProvider";
+import { logUserOut } from "@/lib/auth";
 import { useRouter } from "next/navigation";
 import LoadingSpinner from "@/components/LoadingSpinner";
 

@@ -2,13 +2,15 @@
 
 import { useState, useEffect } from 'react';
 import { API } from '@/lib/api-client/base';
-import AuthenticatedView from '@/components/Auth/AuthenticatedView';
 import LineChartWithValue from '@/components/DashboardComponents/LineChartWithValue';
 import BarListCard from '@/components/DashboardComponents/Prebuilt/BarListCard';
 import Timefilter from '@/components/Timefilter';
 import { MobileIcon, DesktopIcon } from '@radix-ui/react-icons';
 import Banner from '@/components/utils/TopBanner';
 import { RxTokens } from 'react-icons/rx';
+
+import { AuthenticationProvider } from '@/components/Auth/AuthenticationProvider'
+import AuthenticatedView from '@/components/Auth/AuthenticatedView';
 
 const LoadingState = () => (
   <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mb-8">
@@ -102,37 +104,47 @@ const Home = () => {
   }, []);
 
   return (
-    <>
-      {isMissingUrlSegments && (
-        <Banner 
-          bgColor='bg-yellow-100'
-          textColor='yellow-800'
-          dismissable={false}
-          icon={<RxTokens className="h-6 w-6 shrink-0"/>}
-          message={
-            <>
-              Create a URL segment in <a className='underline cursor-pointer' href='/settings'>your settings</a> so that Swishjam will automatically filter your site metrics data for your marketing site, and your product analytics data for your application.
-            </>
-          } 
-        />
-      )}
-      <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mb-8">
-        <div className='grid grid-cols-2 mt-8 flex items-center'>
-          <div>
-            <h1 className="text-lg font-medium text-gray-700 mb-0">Marketing Site Metrics</h1>
-          </div>
+    <AuthenticationProvider>
+      <AuthenticatedView>
+        {isMissingUrlSegments && (
+          <Banner 
+            bgColor='bg-yellow-100'
+            textColor='yellow-800'
+            dismissable={false}
+            icon={<RxTokens className="h-6 w-6 shrink-0"/>}
+            message={
+              <>
+                Create a URL segment in <a className='underline cursor-pointer' href='/settings'>your settings</a> so that Swishjam will automatically filter your site metrics data for your marketing site, and your product analytics data for your application.
+              </>
+            } 
+          />
+        )}
+        <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mb-8">
+          <div className='grid grid-cols-2 mt-8 flex items-center'>
+            <div>
+              <h1 className="text-lg font-medium text-gray-700 mb-0">Marketing Site Metrics</h1>
+            </div>
 
-          <div className="w-full flex items-center justify-end">
-            <Timefilter 
-              selection={timeframeFilter} 
-              onSelection={d => {
-                setTimeframeFilter(d); 
-                getAllData(d)}
-              }  />
+            <div className="w-full flex items-center justify-end">
+              <Timefilter 
+                selection={timeframeFilter} 
+                onSelection={d => {
+                  setTimeframeFilter(d); 
+                  getAllData(d)}
+                }  />
+            </div>
           </div>
-        </div>
-        <div className='grid grid-cols-3 gap-6 pt-8'>
-          <div className='col-span-2'>
+          <div className='grid grid-cols-3 gap-6 pt-8'>
+            <div className='col-span-2'>
+              <LineChartWithValue
+                title='Sessions'
+                value={sessionsChart?.value}
+                previousValue={sessionsChart?.previousValue}
+                previousValueDate={sessionsChart?.previousValueDate}
+                timeseries={sessionsChart?.timeseries}
+                valueFormatter={numSubs => numSubs.toLocaleString('en-US')}
+              />
+            </div>
             <LineChartWithValue
               title='Sessions'
               value={sessionsChart?.value}
@@ -141,27 +153,19 @@ const Home = () => {
               timeseries={sessionsChart?.timeseries}
               valueFormatter={numSubs => numSubs.toLocaleString('en-US')}
             />
+          </div> 
+          <div className='grid grid-cols-2 gap-6 pt-8'>
+            <BarListCard title='Referrers' items={topReferrers} /> 
+            <BarListCard title='Top Pages' items={topPages} /> 
           </div>
-          <LineChartWithValue
-            title='Sessions'
-            value={sessionsChart?.value}
-            previousValue={sessionsChart?.previousValue}
-            previousValueDate={sessionsChart?.previousValueDate}
-            timeseries={sessionsChart?.timeseries}
-            valueFormatter={numSubs => numSubs.toLocaleString('en-US')}
-          />
-        </div> 
-        <div className='grid grid-cols-2 gap-6 pt-8'>
-          <BarListCard title='Referrers' items={topReferrers} /> 
-          <BarListCard title='Top Pages' items={topPages} /> 
-        </div>
-        <div className='grid grid-cols-2 gap-6 pt-8'>
-          <BarListCard title='Devices' items={topDevices} /> 
-          <BarListCard title='Browsers' items={topBrowsers} />
-          {/* <BarListCard title='Countries' items={topCountries} />  */}
-        </div>
-      </main>
-    </>
+          <div className='grid grid-cols-2 gap-6 pt-8'>
+            <BarListCard title='Devices' items={topDevices} /> 
+            <BarListCard title='Browsers' items={topBrowsers} />
+            {/* <BarListCard title='Countries' items={topCountries} />  */}
+          </div>
+        </main>
+      </AuthenticatedView>
+    </AuthenticationProvider>
   );
 }
 

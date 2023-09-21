@@ -2,7 +2,7 @@
 
 import { useState, useEffect, Fragment } from 'react';
 import AuthenticatedView from "@/components/Auth/AuthenticatedView";
-// import { useAuth } from "@/components/Auth/AuthProvider";
+// import { useAuth } from "@/lib/auth";
 import { API } from "@/lib/api-client/base";
 import Modal from '@/components/utils/Modal';
 // import { formattedDate } from '@/lib/utils';

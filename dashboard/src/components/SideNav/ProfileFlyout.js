@@ -1,7 +1,7 @@
 import { Fragment } from "react"
 import { Menu, Transition } from "@headlessui/react";
 import { UserCircleIcon, ChevronDownIcon, UserGroupIcon, ArrowLeftOnRectangleIcon } from "@heroicons/react/24/outline";
-import { logUserOut } from "@components/Auth/AuthProvider";
+import { logUserOut } from "@/components/Auth/AuthProviderOLD";
 import { useRouter } from "next/navigation";
 
 export default function UserFlyout({ userEmail, currentOrganization, organizations }) {
