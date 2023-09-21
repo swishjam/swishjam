@@ -51,6 +51,8 @@ export default function AuthenticatedView(WrappedComponent, LoadingViewComponent
           </main>
         </>
       )
+    } else {
+      throw new Error('AuthenticatedView component was rendered without authData or isAwaitingData being set.');
     }
   };
 };
