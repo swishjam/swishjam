@@ -166,9 +166,17 @@ const Users = ({ }) => {
 }
 
 const placeholder = () => {
+  const [text, setText] = useState('Waiting on useEffect!?!?!?!?!');
+
+  useEffect(() => {
+    setTimeout(() => {
+      setText('useEffect is done!');
+    }, 1000);
+  }, []);
+
   return (
     <div className='h-screen w-full flex items-center justify-center'>
-      <h1>Users list goes here??</h1>
+      <h1>{text}</h1>
     </div>
   )
 }
