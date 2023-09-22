@@ -8,7 +8,7 @@ import { useRouter } from 'next/navigation';
 import * as Yup from 'yup';
 import Logo from '@components/Logo';
 import LoadingSpinner from '@components/LoadingSpinner';
-import { signUserUp, useAuthData } from '@components/Auth/AuthProvider';
+import { signUserUp, useAuthData } from '@/components/Auth/AuthProviderOLD';
 
 const SignUpSchema = Yup.object().shape({
   email: Yup.string().email('Invalid email').required('Required'),

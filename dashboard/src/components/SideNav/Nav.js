@@ -48,7 +48,7 @@ const DesktopNavItem = ({ item, isCollapsed, category, currentPath}) => {
   )
 }
 
-export default function Sidebar({ onCollapse, onExpand, authData }) {
+export default function Sidebar({ onCollapse, onExpand, email }) {
   const pathname = usePathname();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false)
@@ -63,7 +63,7 @@ export default function Sidebar({ onCollapse, onExpand, authData }) {
   return (
     <>
       <div>
-        <SidebarMobile sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} userEmail={authData?.email()} />
+        <SidebarMobile sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} userEmail={email} />
         <div className={`hidden lg:fixed lg:inset-y-0 lg:z-20 lg:flex lg:flex-col transition-all duration-300 ease-in-out ${isCollapsed ? 'lg:w-12' : 'lg:w-64'}`}>
           <div className={`flex grow flex-col gap-y-5 overflow-y-auto border-r border-gray-200 bg-white ${isCollapsed ? 'px-1' : 'px-6'}`}>
             <div className={`flex h-16 shrink-0 items-center ${isCollapsed ? 'justify-center' : ''}`}>
@@ -78,9 +78,9 @@ export default function Sidebar({ onCollapse, onExpand, authData }) {
                     {appNav.map((item) => <DesktopNavItem item={item} key={item.name} isCollapsed={isCollapsed} category="" currentPath={pathname}/>)}
                   </ul>
                 </li>
-                {authData && !isCollapsed && (
+                {email && !isCollapsed && (
                   <li className="-mx-6 mt-auto">
-                    <ProfileFlyout userEmail={authData.email()} />
+                    <ProfileFlyout userEmail={email} />
                   </li>
                 )}
               </ul>

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import LoadingSpinner from '@/components/LoadingSpinner';
-import { useAuthData, setAuthToken } from '@/components/Auth/AuthProvider';
+import { useAuthData, setAuthToken } from '@/lib/auth';
 import { API } from '@/lib/api-client/base';
 import { CheckCircleIcon } from '@heroicons/react/24/outline';
 

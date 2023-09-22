@@ -1,7 +1,6 @@
 'use client'
 
 import { useEffect, useState } from "react";
-import AuthenticatedView from "@/components/Auth/AuthenticatedView";
 import { API } from "@/lib/api-client/base";
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton";
@@ -165,4 +164,4 @@ const Users = ({ }) => {
   )
 }
 
-export default AuthenticatedView(Users, LoadingState);
+export default Users;

@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react';
 import { API } from '@/lib/api-client/base';
-import AuthenticatedView from '@/components/Auth/AuthenticatedView';
 import LineChartWithValue from '@/components/DashboardComponents/LineChartWithValue';
 import BarListCard from '@/components/DashboardComponents/Prebuilt/BarListCard';
 import Timefilter from '@/components/Timefilter';
@@ -17,7 +16,7 @@ const LoadingState = () => (
         <h1 className="text-lg font-medium text-gray-700 mb-0">Marketing Site Metrics</h1>
       </div>
       <div className="w-full flex items-center justify-end">
-        <Timefilter/>
+        <Timefilter />
       </div>
     </div>
     <div className='grid grid-cols-3 gap-6 pt-8'>
@@ -38,7 +37,7 @@ const LoadingState = () => (
   </main>
 )
 
-const Home = () => {
+const PageMetrics = () => {
   const [sessionsChart, setSessionsChart] = useState();
   const [topReferrers, setTopReferrers] = useState();
   const [topPages, setTopPages] = useState();
@@ -68,9 +67,9 @@ const Home = () => {
 
   const getReferrerData = async (tf) => {
     API.get('/api/v1/sessions/referrers', { timeframe: tf }).then(({ referrers }) => {
-      setTopReferrers(referrers.map(({ referrer, count }) => ({ 
-        name: [null, undefined, ''].includes(referrer) ? 'Direct' : referrer, 
-        value: count 
+      setTopReferrers(referrers.map(({ referrer, count }) => ({
+        name: [null, undefined, ''].includes(referrer) ? 'Direct' : referrer,
+        value: count
       })));
     });
   }
@@ -84,7 +83,7 @@ const Home = () => {
   }
 
   const getTopPages = async (tf) => {
-    API.get('/api/v1/page_views', { timeframe: tf }).then(({ page_view_counts  }) => {
+    API.get('/api/v1/page_views', { timeframe: tf }).then(({ page_view_counts }) => {
       setTopPages(page_view_counts.map(({ url, count }) => ({ name: url, value: count })));
     });
   }
@@ -104,18 +103,18 @@ const Home = () => {
   return (
     <>
       {isMissingUrlSegments && (
-        <Banner 
-          bgColor='bg-yellow-100'
-          textColor='yellow-800'
-          dismissable={false}
-          icon={<RxTokens className="h-6 w-6 shrink-0"/>}
-          message={
-            <>
-              Create a URL segment in <a className='underline cursor-pointer' href='/settings'>your settings</a> so that Swishjam will automatically filter your site metrics data for your marketing site, and your product analytics data for your application.
-            </>
-          } 
-        />
-      )}
+      <Banner
+        bgColor='bg-yellow-100'
+        textColor='yellow-800'
+        dismissable={false}
+        icon={<RxTokens className="h-6 w-6 shrink-0" />}
+        message={
+          <>
+            Create a URL segment in <a className='underline cursor-pointer' href='/settings'>your settings</a> so that Swishjam will automatically filter your site metrics data for your marketing site, and your product analytics data for your application.
+          </>
+        }
+      />
+        )}
       <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mb-8">
         <div className='grid grid-cols-2 mt-8 flex items-center'>
           <div>
@@ -123,12 +122,13 @@ const Home = () => {
           </div>
 
           <div className="w-full flex items-center justify-end">
-            <Timefilter 
-              selection={timeframeFilter} 
+            <Timefilter
+              selection={timeframeFilter}
               onSelection={d => {
-                setTimeframeFilter(d); 
-                getAllData(d)}
-              }  />
+                setTimeframeFilter(d);
+                getAllData(d)
+              }
+              } />
           </div>
         </div>
         <div className='grid grid-cols-3 gap-6 pt-8'>
@@ -150,13 +150,13 @@ const Home = () => {
             timeseries={sessionsChart?.timeseries}
             valueFormatter={numSubs => numSubs.toLocaleString('en-US')}
           />
-        </div> 
-        <div className='grid grid-cols-2 gap-6 pt-8'>
-          <BarListCard title='Referrers' items={topReferrers} /> 
-          <BarListCard title='Top Pages' items={topPages} /> 
         </div>
         <div className='grid grid-cols-2 gap-6 pt-8'>
-          <BarListCard title='Devices' items={topDevices} /> 
+          <BarListCard title='Referrers' items={topReferrers} />
+          <BarListCard title='Top Pages' items={topPages} />
+        </div>
+        <div className='grid grid-cols-2 gap-6 pt-8'>
+          <BarListCard title='Devices' items={topDevices} />
           <BarListCard title='Browsers' items={topBrowsers} />
           {/* <BarListCard title='Countries' items={topCountries} />  */}
         </div>
@@ -165,4 +165,4 @@ const Home = () => {
   );
 }
 
-export default AuthenticatedView(Home, LoadingState);
+export default PageMetrics

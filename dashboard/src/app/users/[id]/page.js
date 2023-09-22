@@ -1,7 +1,6 @@
 'use client'
 
 import { useEffect, useState } from "react";
-import AuthenticatedView from "@/components/Auth/AuthenticatedView";
 import { API } from "@/lib/api-client/base";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton";
@@ -131,13 +130,13 @@ const UserProfile = ({ params }) => {
                     <div className="px-4 py-4 sm:col-span-2 sm:px-0">
                       <dt className="text-sm font-medium leading-6 text-gray-900">Organizations</dt>
                       <dd className="mt-1 sm:mt-2 -ml-2">
-                        {userData.organizations.map(org => (
+                        {/*userData.organizations.map(org => (
                           <LinkBadge
                             key={org.id}
                             name={org.name}
                             href={`/organizations/${org.id}`}
                           /> 
-                        ))}
+                        ))*/}
                   
                         {/*userData.organizations.length > 1 && (
                           <span 
@@ -237,4 +236,4 @@ const UserProfile = ({ params }) => {
   )
 }
 
-export default AuthenticatedView(UserProfile, LoadingState);
+export default UserProfile;

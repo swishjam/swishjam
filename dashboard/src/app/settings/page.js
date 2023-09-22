@@ -1,9 +1,8 @@
 'use client';
 
-import AuthenticatedView from "@/components/Auth/AuthenticatedView";
 import { useState, useEffect } from "react";
 import { API } from "@/lib/api-client/base";
-import { useAuthData } from "@/components/Auth/AuthProvider";
+import { useAuthData } from "@/lib/auth";
 import NewAnalyticsFamilyConfigurationForm from "@/components/Settings/AnalyticsFamilyConfigurationForm";
 import AnalyticsFamilyConfigurationPill from "@/components/Settings/AnalyticsFamilyConfigurationPill";
 import WorkspaceForm from "@/components/Settings/WorkspaceForm";
@@ -110,4 +109,4 @@ const SettingsPage = () => {
   )
 }
 
-export default AuthenticatedView(SettingsPage, LoadingState);
+export default SettingsPage

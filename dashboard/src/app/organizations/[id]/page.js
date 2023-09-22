@@ -1,7 +1,8 @@
 'use client'
 
 import { useEffect, useState } from "react";
-import AuthenticatedView from "@/components/Auth/AuthenticatedView";
+import { AuthenticationProvider } from '@/components/Auth/AuthenticationProvider'
+import AuthenticatedView from '@/components/Auth/AuthenticatedView';
 import { API } from "@/lib/api-client/base";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton";
@@ -80,7 +81,6 @@ const BreadCrumbs = ({ organizationName }) => (
     </nav>
   </div>
 )
-
 
 const HeaderCard = ({ avatarUrl, name, mrr, lifetimeRevenue, createdAt }) => {
   return (    
@@ -193,4 +193,4 @@ const OrganizationProfile = ({ params }) => {
   )
 }
 
-export default AuthenticatedView(OrganizationProfile, LoadingState);
+export default OrganizationProfile;
