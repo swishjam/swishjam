@@ -8,7 +8,7 @@ import Link from 'next/link';
 import * as Yup from 'yup';
 import Logo from '@components/Logo';
 import LoadingSpinner from '@components/LoadingSpinner';
-import { signUserUp } from '@/components/Auth/AuthProviderOLD';
+import { signUserUp } from '@/lib/auth';
 
 const SignUpSchema = Yup.object().shape({
   email: Yup.string().email('Invalid email').required('Required'),
