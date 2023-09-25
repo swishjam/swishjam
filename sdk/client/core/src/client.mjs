@@ -77,7 +77,7 @@ export class Client {
       DataPersister.set('pageViewId', UUID.generate('pv'));
       this.eventManager.recordEvent('page_view', { referrer: previousUrl });
     });
-    window.addEventListener('pagehide', async () => {
+    window.addEventListener('beforeunload', async () => {
       this.eventManager.recordEvent('page_left');
       await this.eventManager.flushQueue();
     })

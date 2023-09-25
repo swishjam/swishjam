@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { SwishjamMemory } from '@/lib/swishjam-memory';
+// import { SwishjamMemory } from '@/lib/swishjam-memory';
 import Sidebar from '@/components/SideNav/Nav';
 import LoadingSpinner from '../LoadingSpinner';
 import { useAuthData } from '@/components/Auth/AuthenticationProvider';
@@ -12,7 +12,7 @@ export default function AuthenticatedView({ children, LoadingView }) {
   const [sideNavIsCollapsed, setSideNavIsCollapsed] = useState(false);
   const router = useRouter();
   const { isAwaitingData, isLoggedOut, email } = useAuthData();
-
+  
   if (isLoggedOut) {
     router.push('/login');
   } else if (isAwaitingData) {
