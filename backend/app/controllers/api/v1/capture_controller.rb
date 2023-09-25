@@ -4,7 +4,6 @@ module Api
       def process_data
         payload = JSON.parse(request.body.read || '{}')
         api_key = request.headers['X-Swishjam-Api-Key'] || payload['public_key']
-        byebug
         if api_key.blank?
           render json: { error: 'Not Authorized' }, status: :unauthorized
           return
