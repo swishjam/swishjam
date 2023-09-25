@@ -5,7 +5,7 @@ import LoadingView from './LoadingView';
 export default function layout({ children }) {
   return (
     <AuthenticationProvider>
-      <AuthenticatedView LoadingView={<LoadingView />}>
+      <AuthenticatedView>
         {children}
       </AuthenticatedView>
     </AuthenticationProvider>
