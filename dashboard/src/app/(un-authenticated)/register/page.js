@@ -1,14 +1,14 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import cn from 'classnames';
 import { Field, Form, Formik } from 'formik';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+// import { useRouter } from 'next/navigation';
 import * as Yup from 'yup';
 import Logo from '@components/Logo';
 import LoadingSpinner from '@components/LoadingSpinner';
-import { signUserUp, useAuthData } from '@/components/Auth/AuthProviderOLD';
+import { signUserUp } from '@/components/Auth/AuthProviderOLD';
 
 const SignUpSchema = Yup.object().shape({
   email: Yup.string().email('Invalid email').required('Required'),
@@ -18,17 +18,9 @@ const SignUpSchema = Yup.object().shape({
 });
 
 export default function SignUp() {
-  const { isLoggedIn } = useAuthData();
-  const router = useRouter();
+  // const router = useRouter();
   const [errorMsg, setErrorMsg] = useState(null);
-  const [successMsg, setSuccessMsg] = useState(null);
   const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    if (isLoggedIn !== null && isLoggedIn) {
-      router.push('/');
-    }
-  }, [isLoggedIn])
 
   async function signUp(formData) {
     setLoading(true);
@@ -37,7 +29,8 @@ export default function SignUp() {
       setLoading(false);
       setErrorMsg(error);
     } else {
-      router.push('/');
+      // router.push('/');
+      window.location.href = '/';
     }
   }
 
@@ -156,8 +149,6 @@ export default function SignUp() {
             )}
           </Formik>
           {errorMsg && <div className="text-red-600 text-sm text-center mt-2">{errorMsg}</div>}
-          {successMsg && <div className="text-black">{successMsg}</div>}
-
         </div>
       </div>
 

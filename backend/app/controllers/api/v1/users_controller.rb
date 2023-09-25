@@ -3,12 +3,12 @@ module Api
     class UsersController < BaseController
       def index
         limit = params[:limit] || 10
-        users = current_workspace.analytics_user_profiles.order(created_at: :desc).limit(limit)
+        users = current_workspace.analytics_user_profiles.includes(:analytics_organization_profiles).order(created_at: :desc).limit(limit)
         render json: users, each_serializer: Analytics::UserSerializer, status: :ok
       end
 
       def show
-        user = current_workspace.analytics_user_profiles.find(params[:id])
+        user = current_workspace.analytics_user_profiles.includes(:analytics_organization_profiles).find(params[:id])
         render json: user, serializer: Analytics::UserSerializer, status: :ok
       end
 
