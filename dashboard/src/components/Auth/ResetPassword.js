@@ -5,7 +5,7 @@ import cn from 'classnames';
 import { Field, Form, Formik } from 'formik';
 import * as Yup from 'yup';
 
-import { useAuth, VIEWS } from '@/lib/auth';
+import { useAuth, VIEWS } from '@/components/Auth/AuthProviderOLD';
 import supabase from 'src/lib/supabase-browser';
 
 const ResetPasswordSchema = Yup.object().shape({
