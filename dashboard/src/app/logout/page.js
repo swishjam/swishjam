@@ -10,11 +10,7 @@ export default function Logout() {
   const router = useRouter();
 
   useEffect(() => {
-    logUserOut().then(() => { 
-      // router.push('/login')
-      // the auth state is not getting updated on logout, so we need to force a refresh
-      window.location.href = '/login';
-    });
+    logUserOut().then(() => router.push('/login'));
   }, []);
 
   return (

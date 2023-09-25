@@ -1,8 +1,6 @@
 'use client';
 
-import { useState } from "react";
-import useLoggedInEffect from "@/lib/hooks/useLoggedInEffect";
-import AuthenticatedView from "@/components/Auth/AuthenticatedView";
+import { useState, useEffect } from "react";
 import { API } from "@/lib/api-client/base";
 import { useAuthData } from "@/lib/auth";
 import NewAnalyticsFamilyConfigurationForm from "@/components/Settings/AnalyticsFamilyConfigurationForm";
@@ -70,46 +68,45 @@ const LoadingState = () => (
   </main>
 )
 
-export default function SettingsPage() {
+const SettingsPage = () => {
   const [analyticsFamilyConfigurations, setAnalyticsFamilyConfigurations] = useState();
   const { authData } = useAuthData();
 
-  useLoggedInEffect(() => {
+  useEffect(() => {
     API.get('/api/v1/analytics_family_configurations').then(setAnalyticsFamilyConfigurations);
   }, []);
 
   return (
-    <AuthenticatedView LoadingView={<LoadingState />}>
-      {analyticsFamilyConfigurations === undefined 
-        ? <LoadingState />
-        : (
-          <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mb-8">
-            <div className='grid grid-cols-2 my-8 flex items-center'>
-              <div>
-                <h1 className="text-lg font-medium text-gray-700 mb-0">Settings</h1>
-              </div>
+    analyticsFamilyConfigurations === undefined 
+      ? <LoadingState />
+      : (
+        <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mb-8">
+          <div className='grid grid-cols-2 my-8 flex items-center'>
+            <div>
+              <h1 className="text-lg font-medium text-gray-700 mb-0">Settings</h1>
             </div>
-  
-            <WorkspaceForm />
-            <Divider />
-            <NewAnalyticsFamilyConfigurationForm onNewAnalyticsFamilyConfiguration={setAnalyticsFamilyConfigurations} />
-  
-            <div className='mt-4 space-x-4 space-y-4'>
-              {analyticsFamilyConfigurations.map((config, i) => (
-                <AnalyticsFamilyConfigurationPill 
-                  key={i} 
-                  analyticsFamilyConfiguration={config} 
-                  onDelete={setAnalyticsFamilyConfigurations} 
-                />
-              ))}
-            </div>
-  
-            <Divider />
-            
-            <PublicKeySection publicKey={authData?.currentWorkspacePublicKey()} />
-          </main>
-        )
-      }
-    </AuthenticatedView>
+          </div>
+
+          <WorkspaceForm />
+          <Divider />
+          <NewAnalyticsFamilyConfigurationForm onNewAnalyticsFamilyConfiguration={setAnalyticsFamilyConfigurations} />
+
+          <div className='mt-4 space-x-4 space-y-4'>
+            {analyticsFamilyConfigurations.map((config, i) => (
+              <AnalyticsFamilyConfigurationPill 
+                key={i} 
+                analyticsFamilyConfiguration={config} 
+                onDelete={setAnalyticsFamilyConfigurations} 
+              />
+            ))}
+          </div>
+
+          <Divider />
+          
+          <PublicKeySection publicKey={authData?.currentWorkspacePublicKey()} />
+        </main>
+      )
   )
 }
+
+export default SettingsPage

@@ -1,7 +1,7 @@
 'use client'
 
-import { useState } from "react";
-import useLoggedInEffect from "@/lib/hooks/useLoggedInEffect";
+import { useEffect, useState } from "react";
+import { AuthenticationProvider } from '@/components/Auth/AuthenticationProvider'
 import AuthenticatedView from '@/components/Auth/AuthenticatedView';
 import { API } from "@/lib/api-client/base";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card"
@@ -130,7 +130,7 @@ const HeaderCard = ({ avatarUrl, name, mrr, lifetimeRevenue, createdAt }) => {
   )
 }
 
-export default function OrganizationProfile({ params }) {
+const OrganizationProfile = ({ params }) => {
   const { id } = params;
 
   const [organizationData, setOrganizationData] = useState();
@@ -139,7 +139,7 @@ export default function OrganizationProfile({ params }) {
   // const [sessionsTimeseriesData, setSessionsTimeseriesData] = useState();
   const [billingData, setBillingData] = useState();
 
-  useLoggedInEffect(() => {
+  useEffect(() => {
     API.get(`/api/v1/organizations/${id}`).then(setOrganizationData);
     API.get(`/api/v1/organizations/${id}/users`).then(setTopUsers);
     API.get(`/api/v1/organizations/${id}/page_views`).then(pageViewData => {
@@ -161,36 +161,36 @@ export default function OrganizationProfile({ params }) {
   if (!organizationData) return <LoadingState />
 
   return (
-    <AuthenticatedView LoadingView={<LoadingState />}>
-      <main className="mx-auto max-w-7xl px-4 mt-8 sm:px-6 lg:px-8 mb-8">
-        <BreadCrumbs organizationName={organizationData.name} />
-        <div className='mt-4'>
-          <HeaderCard 
-            name={organizationData.name} 
-            createdAt={organizationData.created_at} 
-            mrr={billingData?.current_mrr}
-            lifetimeRevenue={billingData?.lifetime_revenue}
-          />
+    <main className="mx-auto max-w-7xl px-4 mt-8 sm:px-6 lg:px-8 mb-8">
+      <BreadCrumbs organizationName={organizationData.name} />
+      <div className='mt-4'>
+        <HeaderCard 
+          name={organizationData.name} 
+          createdAt={organizationData.created_at} 
+          mrr={billingData?.current_mrr}
+          lifetimeRevenue={billingData?.lifetime_revenue}
+        />
+      </div>
+      <div className='grid grid-cols-3 gap-4 mt-4'>
+        <div className='col-span-2'>
+          <ActiveUsersLineChart scopedOrganizationId={id} />
         </div>
-        <div className='grid grid-cols-3 gap-4 mt-4'>
-          <div className='col-span-2'>
-            <ActiveUsersLineChart scopedOrganizationId={id} />
-          </div>
-          <ItemizedList
-            title='Top Users'
-            items={topUsers}
-            leftItemHeaderKey='name'
-            leftItemSubHeaderKey='email'
-            rightItemKey='session_count'
-            rightItemKeyFormatter={value => `${value} sessions`}
-            fallbackAvatarGenerator={item => item.full_name.split(' ').map(word => word[0]).join('').toUpperCase()}
-            linkFormatter={user => `/users/${user.id}`}
-          />
-        </div>
-        <div className='mt-4'>
-          <BarListCard title='Top pages' items={pageHitData} /> 
-        </div>
-      </main>
-    </AuthenticatedView>
+        <ItemizedList
+          title='Top Users'
+          items={topUsers}
+          leftItemHeaderKey='name'
+          leftItemSubHeaderKey='email'
+          rightItemKey='session_count'
+          rightItemKeyFormatter={value => `${value} sessions`}
+          fallbackAvatarGenerator={item => item.full_name.split(' ').map(word => word[0]).join('').toUpperCase()}
+          linkFormatter={user => `/users/${user.id}`}
+        />
+      </div>
+      <div className='mt-4'>
+        <BarListCard title='Top pages' items={pageHitData} /> 
+      </div>
+    </main>
   )
 }
+
+export default OrganizationProfile;

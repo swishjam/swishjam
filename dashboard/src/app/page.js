@@ -1,15 +1,18 @@
 'use client';
 
-import { useState } from 'react';
-import useLoggedInEffect from '@/lib/hooks/useLoggedInEffect';
-import AuthenticatedView from '@components/Auth/AuthenticatedView';
+import { useState, useEffect } from 'react';
+//import AuthenticatedView from '@components/Auth/AuthenticatedView';
 import { API } from '@/lib/api-client/base';
 import LineChartWithValue from '@/components/DashboardComponents/LineChartWithValue';
 import ClickableValueCard from '@/components/DashboardComponents/ClickableValueCard';
+// import ItemizedList from '@/components/DashboardComponents/ItemizedList';
 import ItemizedUsersList from '@/components/DashboardComponents/Prebuilt/ItemizedUsersList';
 import ItemizedOrganizationsList from '@/components/DashboardComponents/Prebuilt/ItemizedOrganizationList';
 import ActiveUsersLineChart from '@/components/DashboardComponents/Prebuilt/ActiveUsersLineChart';
 import { Separator } from "@/components/ui/separator"
+
+import { AuthenticationProvider } from '@/components/Auth/AuthenticationProvider'
+import AuthenticatedView from '@/components/Auth/AuthenticatedView';
 
 const LoadingState = () => (
   <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mb-8">
@@ -99,7 +102,7 @@ export default function Home() {
     })
   }
 
-  useLoggedInEffect(() => {
+  useEffect(() => {
     getSessionsData();
     getBillingData();
   }, []);
@@ -107,93 +110,95 @@ export default function Home() {
   const selectedChart = currentChart(currentSelectedChart, mrrChart, sessionsChart, activeSubsChart)
   
   return (
-    <AuthenticatedView LoadingView={<LoadingState />}>
-      <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mb-8">
-        <div className='grid grid-cols-2 mt-8 flex items-center'>
-          <div>
-            <h1 className="text-lg font-medium text-gray-700 mb-0">Dashboard</h1>
-          </div>
+    <AuthenticationProvider>
+      <AuthenticatedView>
+        <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mb-8">
+          <div className='grid grid-cols-2 mt-8 flex items-center'>
+            <div>
+              <h1 className="text-lg font-medium text-gray-700 mb-0">Dashboard</h1>
+            </div>
 
-          <div className="w-full flex items-center justify-end">
+            <div className="w-full flex items-center justify-end">
+            </div>
           </div>
-        </div>
-        <div className='grid grid-cols-3 gap-6 pt-8'>
-          <ClickableValueCard
-            title='MRR'
-            value={mrrChart?.value}
-            selected={currentSelectedChart == 'MRR'}
-            previousValue={mrrChart?.previousValue}
-            previousValueDate={mrrChart?.previousValueDate}
-            valueFormatter={mrr => (mrr/100).toLocaleString('en-US', { style: "currency", currency: "USD" })}
-            onClick={() => setCurrentSelectedChart('MRR')}
-          /> 
-          <ClickableValueCard
-            title='Active Subscriptions'
-            value={activeSubsChart?.value}
-            selected={currentSelectedChart == 'Active Subscriptions'}
-            previousValue={activeSubsChart?.previousValue}
-            previousValueDate={sessionsChart?.previousValueDate}
-            valueFormatter={numSubs => numSubs.toLocaleString('en-US')}
-            onClick={() => setCurrentSelectedChart('Active Subscriptions')} 
-          /> 
-          <ClickableValueCard
-            title='Sessions'
-            value={sessionsChart?.value}
-            selected={currentSelectedChart == 'Sessions'}
-            previousValue={sessionsChart?.previousValue}
-            previousValueDate={sessionsChart?.previousValueDate}
-            valueFormatter={numSubs => numSubs.toLocaleString('en-US')}
-            onClick={() => setCurrentSelectedChart('Sessions')}
-          /> 
-        </div>
-        <div className='grid grid-cols-1 gap-6 pt-8'>
-          {selectedChart && 
-          <LineChartWithValue
-            title={currentSelectedChart}
-            value={selectedChart?.value}
-            previousValue={selectedChart?.previousValue}
-            previousValueDate={selectedChart?.previousValueDate}
-            timeseries={selectedChart?.timeseries}
-            valueFormatter={numSubs => currentSelectedChart === 'MRR' ? (numSubs/100).toLocaleString('en-US', { style: "currency", currency: "USD" }) : numSubs.toLocaleString('en-US')}
-            showAxis={true}  
-          />}
-          <Separator className="my-6"/>
+          <div className='grid grid-cols-3 gap-6 pt-8'>
+            <ClickableValueCard
+              title='MRR'
+              value={mrrChart?.value}
+              selected={currentSelectedChart == 'MRR'}
+              previousValue={mrrChart?.previousValue}
+              previousValueDate={mrrChart?.previousValueDate}
+              valueFormatter={mrr => (mrr/100).toLocaleString('en-US', { style: "currency", currency: "USD" })}
+              onClick={() => setCurrentSelectedChart('MRR')}
+            /> 
+            <ClickableValueCard
+              title='Active Subscriptions'
+              value={activeSubsChart?.value}
+              selected={currentSelectedChart == 'Active Subscriptions'}
+              previousValue={activeSubsChart?.previousValue}
+              previousValueDate={sessionsChart?.previousValueDate}
+              valueFormatter={numSubs => numSubs.toLocaleString('en-US')}
+              onClick={() => setCurrentSelectedChart('Active Subscriptions')} 
+            /> 
+            <ClickableValueCard
+              title='Sessions'
+              value={sessionsChart?.value}
+              selected={currentSelectedChart == 'Sessions'}
+              previousValue={sessionsChart?.previousValue}
+              previousValueDate={sessionsChart?.previousValueDate}
+              valueFormatter={numSubs => numSubs.toLocaleString('en-US')}
+              onClick={() => setCurrentSelectedChart('Sessions')}
+            /> 
+          </div>
+          <div className='grid grid-cols-1 gap-6 pt-8'>
+            {selectedChart && 
+            <LineChartWithValue
+              title={currentSelectedChart}
+              value={selectedChart?.value}
+              previousValue={selectedChart?.previousValue}
+              previousValueDate={selectedChart?.previousValueDate}
+              timeseries={selectedChart?.timeseries}
+              valueFormatter={numSubs => currentSelectedChart === 'MRR' ? (numSubs/100).toLocaleString('en-US', { style: "currency", currency: "USD" }) : numSubs.toLocaleString('en-US')}
+              showAxis={true}  
+            />}
+            <Separator className="my-6"/>
 
-        </div>
-        <div className='grid grid-cols-2 gap-6 pt-8'>
-          <ActiveUsersLineChart />
-          <LineChartWithValue
-            title='Sessions'
-            value={sessionsChart?.value}
-            previousValue={sessionsChart?.previousValue}
-            previousValueDate={sessionsChart?.previousValueDate}
-            timeseries={sessionsChart?.timeseries}
-            valueFormatter={numSubs => numSubs.toLocaleString('en-US')}
-          />
-        </div>
-        <div className='grid grid-cols-2 gap-6 pt-8'>
-          <LineChartWithValue
-            title='MRR'
-            value={mrrChart?.value}
-            previousValue={mrrChart?.previousValue}
-            previousValueDate={mrrChart?.previousValueDate}
-            timeseries={mrrChart?.timeseries}
-            valueFormatter={mrr => (mrr/100).toLocaleString('en-US', { style: "currency", currency: "USD" })}
-          />
-          <LineChartWithValue
-            title='Active Subscriptions'
-            value={activeSubsChart?.value}
-            previousValue={activeSubsChart?.previousValue}
-            previousValueDate={activeSubsChart?.previousValueDate}
-            timeseries={activeSubsChart?.timeseries}
-            valueFormatter={numSubs => numSubs.toLocaleString('en-US')}
-          />
-        </div> 
-        <div className='grid grid-cols-2 gap-6 pt-8'>
-          <ItemizedUsersList />
-          <ItemizedOrganizationsList />
-        </div>
-      </main>
-    </AuthenticatedView>
+          </div>
+          <div className='grid grid-cols-2 gap-6 pt-8'>
+            <ActiveUsersLineChart />
+            <LineChartWithValue
+              title='Sessions'
+              value={sessionsChart?.value}
+              previousValue={sessionsChart?.previousValue}
+              previousValueDate={sessionsChart?.previousValueDate}
+              timeseries={sessionsChart?.timeseries}
+              valueFormatter={numSubs => numSubs.toLocaleString('en-US')}
+            />
+          </div>
+          <div className='grid grid-cols-2 gap-6 pt-8'>
+            <LineChartWithValue
+              title='MRR'
+              value={mrrChart?.value}
+              previousValue={mrrChart?.previousValue}
+              previousValueDate={mrrChart?.previousValueDate}
+              timeseries={mrrChart?.timeseries}
+              valueFormatter={mrr => (mrr/100).toLocaleString('en-US', { style: "currency", currency: "USD" })}
+            />
+            <LineChartWithValue
+              title='Active Subscriptions'
+              value={activeSubsChart?.value}
+              previousValue={activeSubsChart?.previousValue}
+              previousValueDate={activeSubsChart?.previousValueDate}
+              timeseries={activeSubsChart?.timeseries}
+              valueFormatter={numSubs => numSubs.toLocaleString('en-US')}
+            />
+          </div> 
+          <div className='grid grid-cols-2 gap-6 pt-8'>
+            <ItemizedUsersList />
+            <ItemizedOrganizationsList />
+          </div>
+        </main>
+      </AuthenticatedView>
+    </AuthenticationProvider>
   );
 }

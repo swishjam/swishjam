@@ -1,8 +1,6 @@
 'use client';
 
-import { useState, Fragment } from 'react';
-import useLoggedInEffect from '@/lib/hooks/useLoggedInEffect';
-import AuthenticatedView from '@/components/Auth/AuthenticatedView';
+import { useState, useEffect, Fragment } from 'react';
 import { API } from "@/lib/api-client/base";
 import Modal from '@/components/utils/Modal';
 // import { formattedDate } from '@/lib/utils';
@@ -20,7 +18,7 @@ export default function Team() {
   const [inviteModalIsOpen, setInviteModalIsOpen] = useState(false);
   const [userToDisplayInRemoveModal, setUserToDisplayInRemoveModal] = useState();
 
-  useLoggedInEffect(() => {
+  useEffect(() => {
     setUsers();
     API.get('/api/users/all').then(({ users, error }) => {
       setUsers(users);
@@ -28,7 +26,7 @@ export default function Team() {
   }, [userOrg?.id])
 
   return (
-    <AuthenticatedView>
+    <>
       <InviteModal 
         isOpen={inviteModalIsOpen} 
         onClose={() => setInviteModalIsOpen(false)} 
@@ -117,7 +115,7 @@ export default function Team() {
           </tbody>
         </table>
       </main>
-    </AuthenticatedView>
+    </>
   )
 }
 
