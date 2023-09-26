@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { API } from '@/lib/api-client/base';
 import LineChartWithValue from '@/components/DashboardComponents/LineChartWithValue';
+import ClickableValueCard from '@/components/DashboardComponents/ClickableValueCard';
 import BarListCard from '@/components/DashboardComponents/Prebuilt/BarListCard';
 import Timefilter from '@/components/Timefilter';
 import { MobileIcon, DesktopIcon } from '@radix-ui/react-icons';
@@ -46,6 +47,7 @@ const PageMetrics = () => {
   const [topCountries, setTopCountries] = useState();
   const [timeframeFilter, setTimeframeFilter] = useState('thirty_days');
   const [isMissingUrlSegments, setIsMissingUrlSegments] = useState();
+  const [currentSelectedChart, setCurrentSelectedChart] = useState('sessions');
 
   const getSessionData = async (tf) => {
     API.get('/api/v1/sessions/timeseries', { timeframe: tf }).then((sessionData) => {
@@ -131,8 +133,38 @@ const PageMetrics = () => {
               } />
           </div>
         </div>
-        <div className='grid grid-cols-3 gap-6 pt-8'>
-          <div className='col-span-2'>
+        <div className='grid grid-cols-4 gap-6 pt-8'>
+          <div className='grid gap-6'>
+            <ClickableValueCard
+              title='Sessions'
+              selected={currentSelectedChart == 'sessions'}
+              value={sessionsChart?.value}
+              previousValue={sessionsChart?.previousValue}
+              previousValueDate={sessionsChart?.previousValueDate}
+              timeseries={sessionsChart?.timeseries}
+              valueFormatter={numSubs => numSubs.toLocaleString('en-US')}
+              onClick={() => setCurrentSelectedChart('MRR')}
+            /> 
+            <ClickableValueCard
+              title='Unique Vistors'
+              value={sessionsChart?.value}
+              previousValue={sessionsChart?.previousValue}
+              previousValueDate={sessionsChart?.previousValueDate}
+              timeseries={sessionsChart?.timeseries}
+              valueFormatter={numSubs => numSubs.toLocaleString('en-US')}
+              onClick={() => setCurrentSelectedChart('MRR')}
+            /> 
+            <ClickableValueCard
+              title='Page Views'
+              value={sessionsChart?.value}
+              previousValue={sessionsChart?.previousValue}
+              previousValueDate={sessionsChart?.previousValueDate}
+              timeseries={sessionsChart?.timeseries}
+              valueFormatter={numSubs => numSubs.toLocaleString('en-US')}
+              onClick={() => setCurrentSelectedChart('MRR')}
+            /> 
+          </div>
+          <div className='col-span-3'>
             <LineChartWithValue
               title='Sessions'
               value={sessionsChart?.value}
@@ -142,14 +174,6 @@ const PageMetrics = () => {
               valueFormatter={numSubs => numSubs.toLocaleString('en-US')}
             />
           </div>
-          <LineChartWithValue
-            title='Sessions'
-            value={sessionsChart?.value}
-            previousValue={sessionsChart?.previousValue}
-            previousValueDate={sessionsChart?.previousValueDate}
-            timeseries={sessionsChart?.timeseries}
-            valueFormatter={numSubs => numSubs.toLocaleString('en-US')}
-          />
         </div>
         <div className='grid grid-cols-2 gap-6 pt-8'>
           <BarListCard title='Referrers' items={topReferrers} />
