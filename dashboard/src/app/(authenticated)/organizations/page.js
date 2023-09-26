@@ -55,43 +55,41 @@ export default function Organizations() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-200 bg-white">
-                    {organizationsData.length === 0 
-                      ? (
-                        <div className='text-sm text-gray-500 text-center'>
-                          No organizations identified yet, once you begin identifying organizations in your app, they will show up here.
-                        </div>
-                      ): (
-                        organizationsData.map(organization => (
-                          <tr
-                            key={organization.id}
-                            className="group hover:bg-gray-50 duration-300 transition cursor-pointer"
-                            onClick={() => handleClick(organization.id)}
-                          >
-                            <td className="whitespace-nowrap py-3 pl-4 pr-3 text-sm sm:pl-6 lg:pl-8">
-                              <div className="flex items-center">
-                                <div className="flex-shrink-0">
-                                  <Avatar>
-                                    <AvatarImage src={organization.image} />
-                                    <AvatarFallback>{organization.name.split(' ').map(word => word[0]).join('').toUpperCase()}</AvatarFallback>
-                                  </Avatar>
-                                </div>
-                                <div className="ml-4">
-                                  <div className="font-medium text-gray-900">{organization.name}</div>
-                                </div>
+                    {organizationsData.map(organization => (
+                        <tr
+                          key={organization.id}
+                          className="group hover:bg-gray-50 duration-300 transition cursor-pointer"
+                          onClick={() => handleClick(organization.id)}
+                        >
+                          <td className="whitespace-nowrap py-3 pl-4 pr-3 text-sm sm:pl-6 lg:pl-8">
+                            <div className="flex items-center">
+                              <div className="flex-shrink-0">
+                                <Avatar>
+                                  <AvatarImage src={organization.image} />
+                                  <AvatarFallback>{organization.name.split(' ').map(word => word[0]).join('').toUpperCase()}</AvatarFallback>
+                                </Avatar>
                               </div>
-                            </td>
-                            <td className="whitespace-nowrap px-3 py-3 text-sm text-gray-500">{organization.analytics_user_profiles.length} users</td>
-                            <td className="relative whitespace-nowrap py-3 pl-3 pr-4 text-right text-sm font-medium sm:pr-6 lg:pr-8">
-                              <Link href={`/organizations/${organization.id}`} className="text-swishjam hover:text-swishjam-dark duration-300 transition">
-                                View<span className="sr-only">, {organization.name}</span>
-                              </Link>
-                            </td>
-                          </tr>
-                        )
-                      )
-                    )}
+                              <div className="ml-4">
+                                <div className="font-medium text-gray-900">{organization.name}</div>
+                              </div>
+                            </div>
+                          </td>
+                          <td className="whitespace-nowrap px-3 py-3 text-sm text-gray-500">{organization.analytics_user_profiles.length} users</td>
+                          <td className="relative whitespace-nowrap py-3 pl-3 pr-4 text-right text-sm font-medium sm:pr-6 lg:pr-8">
+                            <Link href={`/organizations/${organization.id}`} className="text-swishjam hover:text-swishjam-dark duration-300 transition">
+                              View<span className="sr-only">, {organization.name}</span>
+                            </Link>
+                          </td>
+                        </tr>
+                      ))
+                    }
                   </tbody>
                 </table>
+                  {organizationsData.length === 0 && (
+                    <div className='text-sm text-gray-500 text-center'>
+                      No organizations identified yet, once you begin identifying organizations in your app, they will show up here.
+                    </div>
+                  )}
               </div>
             </div>
           </div>

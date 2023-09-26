@@ -14,6 +14,7 @@ export default function layout({ children }) {
 }
 
 const getLoadingView = children => {
+  if (process.env.NEXT_PUBLIC_DISABLE_LOADING_STATES) return () => <></>;
   return dynamic(() => {
     return import(`./${children.props.childProp.segment}/LoadingView`).catch(_err => (
       () => (
