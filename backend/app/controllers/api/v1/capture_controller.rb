@@ -2,12 +2,12 @@ module Api
   module V1
     class CaptureController < ApplicationController
       def process_data
-        payload = JSON.parse(request.body.read || '{}')
-        api_key = request.headers['X-Swishjam-Api-Key'] || payload['public_key']
+        api_key = request.headers['X-Swishjam-Api-Key']
         if api_key.blank?
           render json: { error: 'Not Authorized' }, status: :unauthorized
           return
         end
+        payload = JSON.parse(request.body.read || '{}')
         CaptureAnalyticDataJob.perform_async(api_key, payload, request.ip)
         render json: { message: 'ok' }, status: :ok
       rescue => e

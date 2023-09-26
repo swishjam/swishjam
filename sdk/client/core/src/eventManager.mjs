@@ -64,15 +64,15 @@ export class EventManager {
     }
   }
 
-  _sendDataViaBeacon = async () => {
-    const blob = new Blob([JSON.stringify({ public_key: this.apiKey,  ...this.data})], { type: 'application/json' });
-    const success = navigator.sendBeacon(this.apiEndpoint, blob);
-    if (success) {
-      this.data = [];
-      return success;
-    } else {
-      this.numFailedReports += 1;
-      return success;
-    }
-  }
+  // _sendDataViaBeacon = async () => {
+  //   const blob = new Blob([JSON.stringify({ public_key: this.apiKey,  ...this.data})], { type: 'application/json' });
+  //   const success = navigator.sendBeacon(this.apiEndpoint, blob);
+  //   if (success) {
+  //     this.data = [];
+  //     return success;
+  //   } else {
+  //     this.numFailedReports += 1;
+  //     return success;
+  //   }
+  // }
 }
