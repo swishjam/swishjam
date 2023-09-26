@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Skeleton } from "../ui/skeleton";
+import { Skeleton } from '@/components/ui/skeleton'
 
 const LoadingState = () => (
   <div>

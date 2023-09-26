@@ -6,6 +6,7 @@ import ItemizedOrganizationsList from "@/components/DashboardComponents/Prebuilt
 import LineChartWithValue from "@/components/DashboardComponents/LineChartWithValue"
 import ClickableValueCard from "@/components/DashboardComponents/ClickableValueCard"
 import { Separator } from "@/components/ui/separator"
+import { Skeleton } from "@/components/ui/skeleton"
 
 export default function LoadingView() {
   return (
@@ -16,6 +17,8 @@ export default function LoadingView() {
         </div>
 
         <div className="w-full flex items-center justify-end">
+          <Skeleton className='w-32 h-10 bg-gray-100' />
+          <Skeleton className='ml-4 w-12 h-10 bg-gray-100' />
         </div>
       </div>
       <div className='grid grid-cols-3 gap-6 pt-8'>

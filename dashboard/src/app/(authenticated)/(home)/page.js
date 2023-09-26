@@ -8,6 +8,9 @@ import ItemizedUsersList from '@/components/DashboardComponents/Prebuilt/Itemize
 import ItemizedOrganizationsList from '@/components/DashboardComponents/Prebuilt/ItemizedOrganizationList';
 import ActiveUsersLineChart from '@/components/DashboardComponents/Prebuilt/ActiveUsersLineChart';
 import { Separator } from "@/components/ui/separator"
+import Timefilter from '@/components/Timefilter';
+import { Button } from '@/components/ui/button';
+import { ArrowPathIcon } from '@heroicons/react/24/outline';
 
 const currentChart = (selected, mrrChart, sessionsChart, activeSubsChart) => {
   if (selected === 'MRR') {
@@ -24,9 +27,11 @@ export default function Home() {
   const [activeSubsChart, setActiveSubsChart] = useState();
   const [sessionsChart, setSessionsChart] = useState();
   const [currentSelectedChart, setCurrentSelectedChart] = useState('MRR');
+  const [timeframeFilter, setTimeframeFilter] = useState('thirty_days');
+  const [isRefreshing, setIsRefreshing] = useState();
 
-  const getBillingData = async () => {
-    API.get('/api/v1/billing_data_snapshots', { timeframe: '30_days' }).then(paymentData => {
+  const getBillingData = async timeframe => {
+    await API.get('/api/v1/billing_data_snapshots', { timeframe }).then(paymentData => {
       setMrrChart({
         value: paymentData.current_mrr,
         previousValue: paymentData.comparison_mrr,
@@ -55,8 +60,8 @@ export default function Home() {
     });
   }
 
-  const getSessionsData = async () => {
-    API.get('/api/v1/sessions/timeseries', { timeframe: '30_days' }).then((sessionData) => {
+  const getSessionsData = async timeframe => {
+    await API.get('/api/v1/sessions/timeseries', { timeframe }).then((sessionData) => {
       setSessionsChart({
         value: sessionData.current_count,
         previousValue: sessionData.comparison_count,
@@ -72,9 +77,20 @@ export default function Home() {
     })
   }
 
+  const getAllData = async timeframe => {
+    setSessionsChart();
+    setMrrChart();
+    setActiveSubsChart();
+    setIsRefreshing(true);
+    await Promise.all([
+      getSessionsData(timeframe),
+      getBillingData(timeframe)
+    ])
+    setIsRefreshing(false);
+  }
+
   useEffect(() => {
-    getSessionsData();
-    getBillingData();
+    getAllData(timeframeFilter);
   }, []);
 
   const selectedChart = currentChart(currentSelectedChart, mrrChart, sessionsChart, activeSubsChart)
@@ -87,6 +103,15 @@ export default function Home() {
         </div>
 
         <div className="w-full flex items-center justify-end">
+          <Timefilter selection={timeframeFilter} onSelection={timeframe => { setTimeframeFilter(timeframe); getAllData(timeframe) }} />
+          <Button 
+            variant='outline' 
+            className={`ml-4 bg-white ${isRefreshing ? 'cursor-not-allowed' : ''}`} 
+            onClick={() => getAllData(timeframeFilter)} 
+            disabled={isRefreshing}
+          >
+            <ArrowPathIcon className={`h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+          </Button>
         </div>
       </div>
       <div className='grid grid-cols-3 gap-6 pt-8'>
@@ -132,7 +157,7 @@ export default function Home() {
 
       </div>
       <div className='grid grid-cols-2 gap-6 pt-8'>
-        <ActiveUsersLineChart />
+        <ActiveUsersLineChart timeframe={timeframeFilter} />
         <LineChartWithValue
           title='Sessions'
           value={sessionsChart?.value}

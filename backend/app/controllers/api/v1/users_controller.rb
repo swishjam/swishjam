@@ -19,7 +19,7 @@ module Api
           'daily' => ClickHouseQueries::Users::Active::Daily,
           'weekly' => ClickHouseQueries::Users::Active::Weekly,
           'monthly' => ClickHouseQueries::Users::Active::Monthly
-        }[params[:type]].new(current_workspace.public_key).timeseries
+        }[params[:type]].new(current_workspace.public_key, start_time: start_timestamp, end_time: end_timestamp).timeseries
         render json: { current_value: active_users.current_value, timeseries: active_users.formatted_data }, status: :ok
       end
 

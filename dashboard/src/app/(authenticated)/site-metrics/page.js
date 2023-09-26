@@ -3,52 +3,23 @@
 import { useState, useEffect } from 'react';
 import { API } from '@/lib/api-client/base';
 import LineChartWithValue from '@/components/DashboardComponents/LineChartWithValue';
-import BarListCard from '@/components/DashboardComponents/Prebuilt/BarListCard';
+import BarListCard from '@/components/DashboardComponents/BarListCard';
 import Timefilter from '@/components/Timefilter';
-import { MobileIcon, DesktopIcon } from '@radix-ui/react-icons';
-import Banner from '@/components/utils/TopBanner';
-import { RxTokens } from 'react-icons/rx';
+import { Button } from '@/components/ui/button';
+import { ArrowPathIcon } from '@heroicons/react/24/outline';
+// import LoadingView from './LoadingView'
 
-const LoadingState = () => (
-  <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mb-8">
-    <div className='grid grid-cols-2 mt-8 flex items-center'>
-      <div>
-        <h1 className="text-lg font-medium text-gray-700 mb-0">Marketing Site Metrics</h1>
-      </div>
-      <div className="w-full flex items-center justify-end">
-        <Timefilter />
-      </div>
-    </div>
-    <div className='grid grid-cols-3 gap-6 pt-8'>
-      <div className='col-span-2'>
-        <LineChartWithValue title='Sessions' />
-      </div>
-      <LineChartWithValue title='Visitors' />
-    </div>
-    <div className='grid grid-cols-2 gap-6 pt-8'>
-      <BarListCard title='Referrers' />
-      <BarListCard title='Top Pages' />
-    </div>
-    <div className='grid grid-cols-2 gap-6 pt-8'>
-      <BarListCard title='Devices' />
-      <BarListCard title='Browsers' />
-      {/* <BarListCard title='Countries' /> */}
-    </div>
-  </main>
-)
-
-const PageMetrics = () => {
+export default function PageMetrics() {
   const [sessionsChart, setSessionsChart] = useState();
   const [topReferrers, setTopReferrers] = useState();
   const [topPages, setTopPages] = useState();
   const [topDevices, setTopDevices] = useState();
   const [topBrowsers, setTopBrowsers] = useState();
-  const [topCountries, setTopCountries] = useState();
   const [timeframeFilter, setTimeframeFilter] = useState('thirty_days');
-  const [isMissingUrlSegments, setIsMissingUrlSegments] = useState();
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
-  const getSessionData = async (tf) => {
-    API.get('/api/v1/sessions/timeseries', { timeframe: tf }).then((sessionData) => {
+  const getSessionData = async timeframe => {
+    await API.get('/api/v1/sessions/timeseries', { timeframe }).then(sessionData => {
       setSessionsChart({
         value: sessionData.current_count,
         previousValue: sessionData.comparison_count,
@@ -61,12 +32,11 @@ const PageMetrics = () => {
           comparisonValue: sessionData.comparison_timeseries[index]?.value
         }))
       })
-      // setIsMissingUrlSegments(sessionData.url_segments.length === 0);
     })
   }
 
-  const getReferrerData = async (tf) => {
-    API.get('/api/v1/sessions/referrers', { timeframe: tf }).then(({ referrers }) => {
+  const getReferrerData = async timeframe => {
+    await API.get('/api/v1/sessions/referrers', { timeframe }).then(({ referrers }) => {
       setTopReferrers(referrers.map(({ referrer, count }) => ({
         name: [null, undefined, ''].includes(referrer) ? 'Direct' : referrer,
         value: count
@@ -74,25 +44,34 @@ const PageMetrics = () => {
     });
   }
 
-  const getDemographicData = async (tf) => {
-    API.get('/api/v1/sessions/demographics', { timeframe: tf }).then(demographics => {
+  const getDemographicData = async timeframe => {
+    await API.get('/api/v1/sessions/demographics', { timeframe }).then(demographics => {
       setTopBrowsers(demographics.browsers.map(({ browser_name, count }) => ({ name: browser_name, value: count })));
       setTopDevices(demographics.device_types.map(({ device_type, count }) => ({ name: device_type, value: count })));
       // setTopCountries(Object.keys(demographics.countries).map(country => ({ name: country, value: demographics.countries[country] })));
     });
   }
 
-  const getTopPages = async (tf) => {
-    API.get('/api/v1/page_views', { timeframe: tf }).then(({ page_view_counts }) => {
+  const getTopPages = async timeframe => {
+    await API.get('/api/v1/page_views', { timeframe }).then(({ page_view_counts }) => {
       setTopPages(page_view_counts.map(({ url, count }) => ({ name: url, value: count })));
     });
   }
 
-  const getAllData = (t) => {
-    getSessionData(t);
-    getTopPages(t);
-    getDemographicData(t);
-    getReferrerData(t);
+  const getAllData = async timeframe => {
+    setIsRefreshing(true);
+    setSessionsChart();
+    setTopReferrers();
+    setTopPages();
+    setTopDevices();
+    setTopBrowsers();
+    await Promise.all([
+      getSessionData(timeframe),
+      getTopPages(timeframe),
+      getDemographicData(timeframe),
+      getReferrerData(timeframe),
+    ]);
+    setIsRefreshing(false);
   }
 
 
@@ -101,47 +80,32 @@ const PageMetrics = () => {
   }, []);
 
   return (
-    <>
-      {isMissingUrlSegments && (
-      <Banner
-        bgColor='bg-yellow-100'
-        textColor='yellow-800'
-        dismissable={false}
-        icon={<RxTokens className="h-6 w-6 shrink-0" />}
-        message={
-          <>
-            Create a URL segment in <a className='underline cursor-pointer' href='/settings'>your settings</a> so that Swishjam will automatically filter your site metrics data for your marketing site, and your product analytics data for your application.
-          </>
-        }
-      />
-        )}
-      <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mb-8">
-        <div className='grid grid-cols-2 mt-8 flex items-center'>
-          <div>
-            <h1 className="text-lg font-medium text-gray-700 mb-0">Marketing Site Metrics</h1>
-          </div>
-
-          <div className="w-full flex items-center justify-end">
-            <Timefilter
-              selection={timeframeFilter}
-              onSelection={d => {
-                setTimeframeFilter(d);
-                getAllData(d)
-              }
-              } />
-          </div>
+    <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mb-8">
+      <div className='grid grid-cols-2 mt-8 flex items-center'>
+        <div>
+          <h1 className="text-lg font-medium text-gray-700 mb-0">Marketing Site Metrics</h1>
         </div>
-        <div className='grid grid-cols-3 gap-6 pt-8'>
-          <div className='col-span-2'>
-            <LineChartWithValue
-              title='Sessions'
-              value={sessionsChart?.value}
-              previousValue={sessionsChart?.previousValue}
-              previousValueDate={sessionsChart?.previousValueDate}
-              timeseries={sessionsChart?.timeseries}
-              valueFormatter={numSubs => numSubs.toLocaleString('en-US')}
+
+        <div className="w-full flex items-center justify-end">
+          <Timefilter
+            selection={timeframeFilter}
+            onSelection={d => {
+              setTimeframeFilter(d);
+              getAllData(d)
+            }} 
             />
-          </div>
+          <Button
+            variant='outline'
+            className={`ml-4 bg-white ${isRefreshing ? 'cursor-not-allowed' : ''}`}
+            onClick={() => getAllData(timeframeFilter)}
+            disabled={isRefreshing}
+          >
+            <ArrowPathIcon className={`h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+          </Button>
+        </div>
+      </div>
+      <div className='grid grid-cols-3 gap-6 pt-8'>
+        <div className='col-span-2'>
           <LineChartWithValue
             title='Sessions'
             value={sessionsChart?.value}
@@ -151,18 +115,24 @@ const PageMetrics = () => {
             valueFormatter={numSubs => numSubs.toLocaleString('en-US')}
           />
         </div>
-        <div className='grid grid-cols-2 gap-6 pt-8'>
-          <BarListCard title='Referrers' items={topReferrers} />
-          <BarListCard title='Top Pages' items={topPages} />
-        </div>
-        <div className='grid grid-cols-2 gap-6 pt-8'>
-          <BarListCard title='Devices' items={topDevices} />
-          <BarListCard title='Browsers' items={topBrowsers} />
-          {/* <BarListCard title='Countries' items={topCountries} />  */}
-        </div>
-      </main>
-    </>
+        <LineChartWithValue
+          title='Sessions'
+          value={sessionsChart?.value}
+          previousValue={sessionsChart?.previousValue}
+          previousValueDate={sessionsChart?.previousValueDate}
+          timeseries={sessionsChart?.timeseries}
+          valueFormatter={numSubs => numSubs.toLocaleString('en-US')}
+        />
+      </div>
+      <div className='grid grid-cols-2 gap-6 pt-8'>
+        <BarListCard title='Referrers' items={topReferrers} />
+        <BarListCard title='Top Pages' items={topPages} />
+      </div>
+      <div className='grid grid-cols-2 gap-6 pt-8'>
+        <BarListCard title='Devices' items={topDevices} />
+        <BarListCard title='Browsers' items={topBrowsers} />
+        {/* <BarListCard title='Countries' items={topCountries} />  */}
+      </div>
+    </main>
   );
 }
-
-export default PageMetrics
