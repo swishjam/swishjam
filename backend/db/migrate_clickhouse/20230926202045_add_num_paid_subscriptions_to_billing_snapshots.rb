@@ -1,13 +1,9 @@
 class AddNumPaidSubscriptionsToBillingSnapshots < ActiveRecord::Migration[6.1]
   def up
-    execute <<~SQL
-      ALTER TABLE billing_data_snapshots ADD COLUMN num_paid_subscriptions UInt32
-    SQL
+    add_column :billing_data_snapshots, :num_paid_subscriptions, 'Int32'
   end
 
   def down
-    execute <<~SQL
-      ALTER TABLE billing_data_snapshots DROP COLUMN num_paid_subscriptions
-    SQL
+    drop_column :billing_data_snapshots, :num_paid_subscriptions
   end
 end
