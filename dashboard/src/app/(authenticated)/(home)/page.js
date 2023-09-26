@@ -2,39 +2,15 @@
 
 import { useState, useEffect } from 'react';
 import { API } from '@/lib/api-client/base';
-import AuthenticatedView from '@/components/Auth/AuthenticatedView';
 import LineChartWithValue from '@/components/DashboardComponents/LineChartWithValue';
 import ClickableValueCard from '@/components/DashboardComponents/ClickableValueCard';
-// import ItemizedList from '@/components/DashboardComponents/ItemizedList';
 import ItemizedUsersList from '@/components/DashboardComponents/Prebuilt/ItemizedUsersList';
 import ItemizedOrganizationsList from '@/components/DashboardComponents/Prebuilt/ItemizedOrganizationList';
 import ActiveUsersLineChart from '@/components/DashboardComponents/Prebuilt/ActiveUsersLineChart';
 import { Separator } from "@/components/ui/separator"
-
-const LoadingState = () => (
-  <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mb-8">
-    <div className='grid grid-cols-2 mt-8 flex items-center'>
-      <div>
-        <h1 className="text-lg font-medium text-gray-700 mb-0">Dashboard</h1>
-      </div>
-
-      <div className="w-full flex items-center justify-end">
-      </div>
-    </div>
-    <div className='grid grid-cols-2 gap-6 pt-8'>
-      <ActiveUsersLineChart loadingStateOnly={true} />
-      <LineChartWithValue title='Sessions' />
-    </div>
-    <div className='grid grid-cols-2 gap-6 pt-8'>
-      <LineChartWithValue title='MRR' />
-      <LineChartWithValue title='Active Subscriptions' />
-    </div>
-    <div className='grid grid-cols-2 gap-6 pt-8'>
-      <ItemizedUsersList loadingStateOnly={true} /> 
-      <ItemizedOrganizationsList loadingStateOnly={true} />
-    </div>
-  </main>
-)
+import Timefilter from '@/components/Timefilter';
+import { Button } from '@/components/ui/button';
+import { ArrowPathIcon } from '@heroicons/react/24/outline';
 
 const currentChart = (selected, mrrChart, sessionsChart, activeSubsChart) => {
   if (selected === 'MRR') {
@@ -46,15 +22,16 @@ const currentChart = (selected, mrrChart, sessionsChart, activeSubsChart) => {
   }
 }
 
-
-const Home = () => {
+export default function Home() {
   const [mrrChart, setMrrChart] = useState();
   const [activeSubsChart, setActiveSubsChart] = useState();
   const [sessionsChart, setSessionsChart] = useState();
   const [currentSelectedChart, setCurrentSelectedChart] = useState('MRR');
+  const [timeframeFilter, setTimeframeFilter] = useState('thirty_days');
+  const [isRefreshing, setIsRefreshing] = useState();
 
-  const getBillingData = async () => {
-    API.get('/api/v1/billing_data_snapshots', { timeframe: '30_days' }).then(paymentData => {
+  const getBillingData = async timeframe => {
+    await API.get('/api/v1/billing_data_snapshots', { timeframe }).then(paymentData => {
       setMrrChart({
         value: paymentData.current_mrr,
         previousValue: paymentData.comparison_mrr,
@@ -83,8 +60,8 @@ const Home = () => {
     });
   }
 
-  const getSessionsData = async () => {
-    API.get('/api/v1/sessions/timeseries', { timeframe: '30_days' }).then((sessionData) => {
+  const getSessionsData = async timeframe => {
+    await API.get('/api/v1/sessions/timeseries', { timeframe }).then((sessionData) => {
       setSessionsChart({
         value: sessionData.current_count,
         previousValue: sessionData.comparison_count,
@@ -100,9 +77,20 @@ const Home = () => {
     })
   }
 
+  const getAllData = async timeframe => {
+    setSessionsChart();
+    setMrrChart();
+    setActiveSubsChart();
+    setIsRefreshing(true);
+    await Promise.all([
+      getSessionsData(timeframe),
+      getBillingData(timeframe)
+    ])
+    setIsRefreshing(false);
+  }
+
   useEffect(() => {
-    getSessionsData();
-    getBillingData();
+    getAllData(timeframeFilter);
   }, []);
 
   const selectedChart = currentChart(currentSelectedChart, mrrChart, sessionsChart, activeSubsChart)
@@ -115,6 +103,15 @@ const Home = () => {
         </div>
 
         <div className="w-full flex items-center justify-end">
+          <Timefilter selection={timeframeFilter} onSelection={timeframe => { setTimeframeFilter(timeframe); getAllData(timeframe) }} />
+          <Button 
+            variant='outline' 
+            className={`ml-4 bg-white ${isRefreshing ? 'cursor-not-allowed' : ''}`} 
+            onClick={() => getAllData(timeframeFilter)} 
+            disabled={isRefreshing}
+          >
+            <ArrowPathIcon className={`h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+          </Button>
         </div>
       </div>
       <div className='grid grid-cols-3 gap-6 pt-8'>
@@ -147,7 +144,6 @@ const Home = () => {
         /> 
       </div>
       <div className='grid grid-cols-1 gap-6 pt-8'>
-        {selectedChart && 
         <LineChartWithValue
           title={currentSelectedChart}
           value={selectedChart?.value}
@@ -156,12 +152,12 @@ const Home = () => {
           timeseries={selectedChart?.timeseries}
           valueFormatter={numSubs => currentSelectedChart === 'MRR' ? (numSubs/100).toLocaleString('en-US', { style: "currency", currency: "USD" }) : numSubs.toLocaleString('en-US')}
           showAxis={true}  
-        />}
+        />
         <Separator className="my-6"/>
 
       </div>
       <div className='grid grid-cols-2 gap-6 pt-8'>
-        <ActiveUsersLineChart />
+        <ActiveUsersLineChart timeframe={timeframeFilter} />
         <LineChartWithValue
           title='Sessions'
           value={sessionsChart?.value}
@@ -196,5 +192,3 @@ const Home = () => {
     </main>
   );
 }
-
-export default AuthenticatedView(Home, LoadingState);

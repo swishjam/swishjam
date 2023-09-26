@@ -45,7 +45,7 @@ const GroupingDropdown = ({ currentGrouping, onSelection }) => (
 )
 
 
-export default function ActiveUsersLineChart({ loadingStateOnly, scopedOrganizationId, includeSettingsDropdown = true }) {
+export default function ActiveUsersLineChart({ timeframe = '30_days', loadingStateOnly, scopedOrganizationId, includeSettingsDropdown = true }) {
   // const [grouping, setGrouping] = useState(SwishjamMemory.get('activeUsersGroupingPreference') || 'weekly');
   const [grouping, setGrouping] = useState('weekly');
   const [activeUserData, setActiveUserData] = useState();
@@ -53,10 +53,11 @@ export default function ActiveUsersLineChart({ loadingStateOnly, scopedOrganizat
 
   useEffect(() => {
     if (loadingStateOnly) return;
-    API.get(apiEndpoint, { type: grouping }).then(({ current_value, timeseries }) => {
+    setActiveUserData();
+    API.get(apiEndpoint, { timeframe, type: grouping }).then(({ current_value, timeseries }) => {
       setActiveUserData({ currentValue: current_value, timeseries })
     })
-  }, [grouping, loadingStateOnly, scopedOrganizationId]);
+  }, [timeframe, grouping, loadingStateOnly, scopedOrganizationId]);
 
   return (
     <LineChartWithValue
@@ -73,7 +74,16 @@ export default function ActiveUsersLineChart({ loadingStateOnly, scopedOrganizat
       value={activeUserData?.currentValue}
       timeseries={activeUserData?.timeseries}
       valueFormatter={n => n.toLocaleString('en-US')}
-      dateFormatter={date => date}
+      dateFormatter={date => {
+        switch(grouping) {
+          case 'daily':
+            return new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+          case 'weekly':
+            return `Week of ${new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`;
+          case 'monthly':
+            return `${new Date(date).toLocaleDateString('en-US', { month: 'long' })}`
+        }
+      }}
       includeSettingsDropdown={includeSettingsDropdown}
     />
   )

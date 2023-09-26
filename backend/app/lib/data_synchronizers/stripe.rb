@@ -9,9 +9,9 @@ module DataSynchronizers
     
     def sync!
       create_billing_data_snapshot!
-      create_customer_billing_data_snapshots!
-      create_or_update_customer_subscriptions!
-      create_or_update_payments!
+      # create_customer_billing_data_snapshots!
+      # create_or_update_customer_subscriptions!
+      # create_or_update_payments!
     end
 
     private
@@ -21,9 +21,10 @@ module DataSynchronizers
         swishjam_api_key: @workspace.public_key,
         mrr_in_cents: @stripe_metrics.mrr,
         total_revenue_in_cents: @stripe_metrics.total_revenue,
-        num_active_subscriptions: @stripe_metrics.total_active_subscriptions,
-        num_free_trial_subscriptions: @stripe_metrics.total_free_trial_subscriptions,
-        num_canceled_subscriptions: @stripe_metrics.total_canceled_subscriptions,
+        num_active_subscriptions: @stripe_metrics.total_num_active_subscriptions,
+        num_paid_subscriptions: @stripe_metrics.total_num_paid_subscriptions,
+        num_free_trial_subscriptions: @stripe_metrics.total_num_free_trial_subscriptions,
+        num_canceled_subscriptions: @stripe_metrics.total_num_canceled_subscriptions,
         captured_at: Time.current
       )
     end

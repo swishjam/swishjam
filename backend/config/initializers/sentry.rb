@@ -1,4 +1,4 @@
-return unless Rails.env.production? || ENV['SENTRY_ENABLED']
+return unless (Rails.env.production? || ENV['SENTRY_ENABLED']) && ENV['SENTRY_DSN']
 
 Sentry.init do |config|
   config.dsn = ENV['SENTRY_DSN']

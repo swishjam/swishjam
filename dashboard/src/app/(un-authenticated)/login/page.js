@@ -1,8 +1,8 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { useAuthData, logUserIn } from '@/lib/auth';
-import { useRouter } from 'next/navigation';
+import { useState } from 'react';
+import { logUserIn } from '@/lib/auth';
+// import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import cn from 'classnames';
 import { Field, Form, Formik } from 'formik';
@@ -16,17 +16,9 @@ const SignInSchema = Yup.object().shape({
 });
 
 export default function Login() {
+  // const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState(null);
-
-  const { isLoggedIn } = useAuthData();
-  const router = useRouter();
-
-  useEffect(() => {
-    if (isLoggedIn !== null && isLoggedIn) {
-      router.push('/');
-    }
-  }, [isLoggedIn]);
 
   async function signIn(formData) {
     setLoading(true);
@@ -35,7 +27,8 @@ export default function Login() {
       setLoading(false);
       setErrorMsg(error);
     } else {
-      router.push('/');
+      // router.push('/');
+      window.location.href = '/';
     }
   }
 

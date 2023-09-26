@@ -11,8 +11,7 @@ const LoadingState = ({ title }) => (
       <CardTitle className="text-sm font-medium">{title}</CardTitle>
     </CardHeader>
     <CardContent>
-      <Skeleton className="w-[100px] h-[30px] rounded-sm" />
-      <Skeleton className="w-full h-20 rounded-sm mt-1" />
+      <Skeleton className="w-full h-12 rounded-sm mt-1" />
     </CardContent>
   </Card>
 )
