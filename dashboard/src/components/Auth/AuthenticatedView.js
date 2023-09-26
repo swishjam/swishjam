@@ -20,7 +20,7 @@ export default function AuthenticatedView({ children, LoadingView }) {
       <>
         <Sidebar onCollapse={() => setSideNavIsCollapsed(true)} onExpand={() => setSideNavIsCollapsed(false)} email={email} />
         <main className={`${sideNavIsCollapsed ? 'lg:pl-12' : 'lg:pl-64'}`}>
-          {!process.env.NEXT_PUBLIC_DISABLE_LOADING_STATES && (
+          {process.env.NEXT_PUBLIC_ENABLE_LOADING_STATES_BETWEEN_AUTH && (
             <div className="pr-4 sm:pr-6 lg:pr-8">
               {LoadingView ? <LoadingView /> : (
                 <div className="flex min-h-screen items-center justify-center">

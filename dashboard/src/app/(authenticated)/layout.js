@@ -14,12 +14,15 @@ export default function layout({ children }) {
 }
 
 const getLoadingView = children => {
-  if (process.env.NEXT_PUBLIC_DISABLE_LOADING_STATES) return <></>;
-  return dynamic(() => {
-    return import(`./${children.props.childProp.segment}/LoadingView`).catch(_err => (
-      <div className='w-full h-screen flex items-center justify-center'>
-        <LoadingSpinner size={8} />
-      </div>
-    ))
-  });
+  if (process.env.NEXT_PUBLIC_ENABLE_LOADING_STATES_BETWEEN_AUTH) {
+    return dynamic(() => {
+      return import(`./${children.props.childProp.segment}/LoadingView`).catch(_err => (
+        <div className='w-full h-screen flex items-center justify-center'>
+          <LoadingSpinner size={8} />
+        </div>
+      ))
+    });
+  } else {
+    return <></>
+  }
 }
