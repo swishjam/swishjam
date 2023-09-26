@@ -19,9 +19,10 @@ module StripeHelpers
       @stripe_charges = nil
       @mrr = nil
       @total_revenue = nil
-      @total_active_subscriptions = nil
-      @total_free_trial_subscriptions = nil
-      @total_canceled_subscriptions = nil
+      @total_num_active_subscriptions = nil
+      @total_num_paid_subscriptions = nil
+      @total_num_free_trial_subscriptions = nil
+      @total_num_canceled_subscriptions = nil
       @subscription_mrr_map = {}
       @subscription_revenue_map = {}
     end
@@ -51,39 +52,47 @@ module StripeHelpers
     end
     alias total_revenue_for_subscription revenue_for_subscription
 
-    def total_active_subscriptions
-      return @total_active_subscriptions if @total_active_subscriptions.present?
+    def total_num_active_subscriptions
+      return @total_num_active_subscriptions if @total_num_active_subscriptions.present?
       calculate_mrr_and_subscription_counts
-      @total_active_subscriptions
+      @total_num_active_subscriptions
     end
-    alias num_active_subscriptions total_active_subscriptions
+    alias num_active_subscriptions total_num_active_subscriptions
 
-    def total_free_trial_subscriptions
-      return @total_free_trial_subscriptions if @total_free_trial_subscriptions.present?
+    def total_num_paid_subscriptions
+      return @total_num_paid_subscriptions if @total_num_paid_subscriptions.present?
       calculate_mrr_and_subscription_counts
-      @total_free_trial_subscriptions
+      @total_num_paid_subscriptions
     end
-    alias num_free_trial_subscriptions total_free_trial_subscriptions
 
-    def total_canceled_subscriptions
-      return @total_canceled_subscriptions if @total_canceled_subscriptions.present?
+    def total_num_free_trial_subscriptions
+      return @total_num_free_trial_subscriptions if @total_num_free_trial_subscriptions.present?
       calculate_mrr_and_subscription_counts
-      @total_canceled_subscriptions
+      @total_num_free_trial_subscriptions
     end
-    alias num_canceled_subscriptions total_canceled_subscriptions
+    alias num_free_trial_subscriptions total_num_free_trial_subscriptions
+
+    def total_num_canceled_subscriptions
+      return @total_num_canceled_subscriptions if @total_num_canceled_subscriptions.present?
+      calculate_mrr_and_subscription_counts
+      @total_num_canceled_subscriptions
+    end
+    alias num_canceled_subscriptions total_num_canceled_subscriptions
 
     private
 
     def calculate_mrr_and_subscription_counts
       @total_mrr = 0
-      @total_active_subscriptions = 0
-      @total_free_trial_subscriptions = 0
-      @total_canceled_subscriptions = 0
+      @total_num_active_subscriptions = 0
+      @total_num_free_trial_subscriptions = 0
+      @total_num_canceled_subscriptions = 0
+      @total_num_paid_subscriptions = 0
       subscriptions.each do |subscription|
         @total_mrr += calculate_mrr_for_subscription(subscription)
-        @total_active_subscriptions += 1 if subscription.status == 'active'
-        @total_free_trial_subscriptions += 1 if subscription.status == 'trialing'
-        @total_canceled_subscriptions += 1 if subscription.status == 'canceled'
+        @total_num_active_subscriptions += 1 if subscription.status == 'active'
+        @total_num_free_trial_subscriptions += 1 if subscription.status == 'trialing'
+        @total_num_canceled_subscriptions += 1 if subscription.status == 'canceled'
+        @total_num_paid_subscriptions += 1 if subscription.status == 'active' && subscription.items.sum{ |item| item.price.unit_amount * item.quantity } > 0
       end
     end
 
