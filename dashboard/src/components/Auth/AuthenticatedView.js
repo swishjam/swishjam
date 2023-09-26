@@ -22,7 +22,7 @@ export default function AuthenticatedView({ children, LoadingView }) {
         <main className={`${sideNavIsCollapsed ? 'lg:pl-12' : 'lg:pl-64'}`}>
           {!process.env.NEXT_PUBLIC_DISABLE_LOADING_STATES && (
             <div className="pr-4 sm:pr-6 lg:pr-8">
-              {LoadingView || (
+              {LoadingView ? <LoadingView /> : (
                 <div className="flex min-h-screen items-center justify-center">
                   <LoadingSpinner size={8} />
                 </div>
