@@ -10,7 +10,10 @@ export default function Logout() {
   const router = useRouter();
 
   useEffect(() => {
-    logUserOut().then(() => router.push('/login'));
+    logUserOut().then(() => {
+      // router.push('/login')
+      window.location.href = '/login';
+    });
   }, []);
 
   return (

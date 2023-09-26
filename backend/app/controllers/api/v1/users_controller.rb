@@ -3,12 +3,12 @@ module Api
     class UsersController < BaseController
       def index
         limit = params[:limit] || 10
-        users = current_workspace.analytics_user_profiles.order(created_at: :desc).limit(limit)
+        users = current_workspace.analytics_user_profiles.includes(:analytics_organization_profiles).order(created_at: :desc).limit(limit)
         render json: users, each_serializer: Analytics::UserSerializer, status: :ok
       end
 
       def show
-        user = current_workspace.analytics_user_profiles.find(params[:id])
+        user = current_workspace.analytics_user_profiles.includes(:analytics_organization_profiles).find(params[:id])
         render json: user, serializer: Analytics::UserSerializer, status: :ok
       end
 
@@ -19,7 +19,7 @@ module Api
           'daily' => ClickHouseQueries::Users::Active::Daily,
           'weekly' => ClickHouseQueries::Users::Active::Weekly,
           'monthly' => ClickHouseQueries::Users::Active::Monthly
-        }[params[:type]].new(current_workspace.public_key).timeseries
+        }[params[:type]].new(current_workspace.public_key, start_time: start_timestamp, end_time: end_timestamp).timeseries
         render json: { current_value: active_users.current_value, timeseries: active_users.formatted_data }, status: :ok
       end
 
