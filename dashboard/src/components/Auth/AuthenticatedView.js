@@ -24,7 +24,7 @@ export default function AuthenticatedView({ children, LoadingView }) {
             <div className="pr-4 sm:pr-6 lg:pr-8">
               {LoadingView ? <LoadingView /> : (
                 <div className="flex min-h-screen items-center justify-center">
-                  <LoadingSpinner size={8} />
+                  <LoadingSpinner size={10} />
                 </div>
               )}
             </div>
