@@ -1,10 +1,12 @@
 module DataSynchronizers
   class Stripe
-    def initialize(workspace, stripe_account_id)
+    def initialize(workspace, stripe_account_id, start_date:, end_date: Time.current)
       @workspace = workspace
       @stripe_account_id = stripe_account_id
-      @stripe_metrics = StripeHelpers::MetricsCalculator.new(stripe_account_id)
+      @stripe_metrics = StripeHelpers::MetricsCalculator.new(stripe_account_id, start_date: start_date, end_date: end_date)
       @customer_profile_data_mapper = CustomerProfileDataMappers::Stripe.new(workspace)
+      @start_date = start_date
+      @end_date = end_date
     end
     
     def sync!
@@ -19,12 +21,27 @@ module DataSynchronizers
     def create_billing_data_snapshot!
       Analytics::BillingDataSnapshot.create!(
         swishjam_api_key: @workspace.public_key,
-        mrr_in_cents: @stripe_metrics.mrr,
+        start_time_period: @start_date,
+        end_time_period: @end_date,
+        mrr_in_cents: @stripe_metrics.current_mrr,
         total_revenue_in_cents: @stripe_metrics.total_revenue,
         num_active_subscriptions: @stripe_metrics.total_num_active_subscriptions,
         num_paid_subscriptions: @stripe_metrics.total_num_paid_subscriptions,
         num_free_trial_subscriptions: @stripe_metrics.total_num_free_trial_subscriptions,
         num_canceled_subscriptions: @stripe_metrics.total_num_canceled_subscriptions,
+        num_new_customers_for_time_period: @stripe_metrics.num_new_customers_for_time_period,
+        num_new_subscriptions_for_time_period: @stripe_metrics.num_new_subscriptions_for_time_period,
+        num_new_paid_subscriptions_for_time_period: @stripe_metrics.num_new_paid_subscriptions_for_time_period,
+        num_new_free_trial_subscriptions_for_time_period: @stripe_metrics.num_new_free_trial_subscriptions_for_time_period,
+        num_downgraded_subscriptions_for_time_period: @stripe_metrics.num_downgraded_subscriptions_for_time_period,
+        num_upgraded_subscriptions_for_time_period: @stripe_metrics.num_upgraded_subscriptions_for_time_period,
+        num_canceled_subscriptions_for_time_period: @stripe_metrics.num_canceled_subscriptions_for_time_period,
+        num_canceled_paid_subscriptions_for_time_period: @stripe_metrics.num_canceled_paid_subscriptions_for_time_period,
+        num_paused_subscriptions_for_time_period: @stripe_metrics.num_paused_subscriptions_for_time_period,
+        num_resumed_subscriptions_for_time_period: @stripe_metrics.num_resumed_subscriptions_for_time_period,
+        upgraded_mrr_amount_in_cents_for_time_period: @stripe_metrics.upgraded_mrr_amount_in_cents_for_time_period,
+        downgraded_mrr_amount_in_cents_for_time_period: @stripe_metrics.downgraded_mrr_amount_in_cents_for_time_period,
+        churned_mrr_amount_in_cents_for_time_period: @stripe_metrics.churned_mrr_amount_in_cents_for_time_period,
         captured_at: Time.current
       )
     end
@@ -37,7 +54,7 @@ module DataSynchronizers
           customer_email: stripe_subscription.customer&.email,
           customer_name: stripe_subscription.customer&.name,
           mrr_in_cents: @stripe_metrics.mrr_for_subscription(stripe_subscription),
-          total_revenue_in_cents: @stripe_metrics.revenue_for_subscription(stripe_subscription),
+          total_revenue_in_cents: @stripe_metrics.total_revenue_for_subscription(stripe_subscription),
           captured_at: Time.current
         )
       end
