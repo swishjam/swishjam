@@ -4,6 +4,6 @@ class AddNumPaidSubscriptionsToBillingSnapshots < ActiveRecord::Migration[6.1]
   end
 
   def down
-    drop_column :billing_data_snapshots, :num_paid_subscriptions
+    remove_column :billing_data_snapshots, :num_paid_subscriptions
   end
 end
