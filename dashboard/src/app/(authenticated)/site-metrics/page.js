@@ -10,29 +10,40 @@ import { Button } from '@/components/ui/button';
 import { ArrowPathIcon } from '@heroicons/react/24/outline';
 // import LoadingView from './LoadingView'
 
+const sessionsFormatter = (num) => num.toLocaleString('en-US');
+
 export default function PageMetrics() {
   const [sessionsChart, setSessionsChart] = useState();
+  const [uniqueVisitorsChart, setUniqueVisitorsChart] = useState();
+  const [pageViewsChart, setPageViewsChart] = useState();
   const [topReferrers, setTopReferrers] = useState();
   const [topPages, setTopPages] = useState();
   const [topDevices, setTopDevices] = useState();
   const [topBrowsers, setTopBrowsers] = useState();
   const [timeframeFilter, setTimeframeFilter] = useState('thirty_days');
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const [currentSelectedChart, setCurrentSelectedChart] = useState('sessions');
+  const [currentSelectedChart, setCurrentSelectedChart] = useState('Sessions');
+
+  const currentChartLookup = {
+    'Sessions': sessionsChart,
+    'Unique Visitors': uniqueVisitorsChart,
+    'Page Views': pageViewsChart,
+  }
 
   const getSessionData = async timeframe => {
     await API.get('/api/v1/sessions/timeseries', { timeframe }).then(sessionData => {
       setSessionsChart({
-        value: sessionData.current_count,
-        previousValue: sessionData.comparison_count,
-        previousValueDate: sessionData.comparison_end_time,
-        valueChange: sessionData.current_count - sessionData.comparison_count,
-        timeseries: sessionData.timeseries.map((timeseries, index) => ({
+        value: sessionData?.current_count,
+        previousValue: sessionData?.comparison_count,
+        previousValueDate: sessionData?.comparison_end_time,
+        valueChange: sessionData?.current_count - sessionData?.comparison_count,
+        timeseries: sessionData?.timeseries.map((timeseries, index) => ({
           ...timeseries,
           index,
-          comparisonDate: sessionData.comparison_timeseries[index]?.date,
-          comparisonValue: sessionData.comparison_timeseries[index]?.value
-        }))
+          comparisonDate: sessionData?.comparison_timeseries[index]?.date,
+          comparisonValue: sessionData?.comparison_timeseries[index]?.value
+        })),
+        valueFormatter: sessionsFormatter
       })
     })
   }
@@ -54,21 +65,46 @@ export default function PageMetrics() {
     });
   }
 
+  const getTopPagesTimeseries = async timeframe => {
+    await API.get('/api/v1/page_views/timeseries', { timeframe }).then(( pageViewData ) => {
+      console.log('page views timeseries', pageViewData)
+      //setTopPages(page_view_counts.map(({ url, count }) => ({ name: url, value: count })));
+    });
+  }
+  
+  const getUniqueVisitors = async ( timeframe = '30_days') => {
+    await API.get('/api/v1/users/active', { timeframe, type: 'weekly' }).then(( uv ) => {
+      console.log('unique visitors', uv)
+      setUniqueVisitorsChart({
+        value: uv?.current_value || 0,
+        timeseries: uv?.timeseries,
+        valueFormatter: sessionsFormatter
+      }) 
+    });
+  }
+
   const getTopPages = async timeframe => {
-    await API.get('/api/v1/page_views', { timeframe }).then(({ page_view_counts }) => {
+    await API.get('/api/v1/page_views/', { timeframe }).then(({ page_view_counts }) => {
       setTopPages(page_view_counts.map(({ url, count }) => ({ name: url, value: count })));
     });
   }
 
   const getAllData = async timeframe => {
+    // Reset All Data
     setIsRefreshing(true);
     setSessionsChart();
+    setPageViewsChart();
+    setUniqueVisitorsChart();
     setTopReferrers();
     setTopPages();
     setTopDevices();
     setTopBrowsers();
+   
+    // Reload all the data
     await Promise.all([
       getSessionData(timeframe),
+      getTopPagesTimeseries(timeframe),
+      getUniqueVisitors(timeframe),
       getTopPages(timeframe),
       getDemographicData(timeframe),
       getReferrerData(timeframe),
@@ -94,8 +130,8 @@ export default function PageMetrics() {
             onSelection={d => {
               setTimeframeFilter(d);
               getAllData(d)
-            }} 
-            />
+            }}
+          />
           <Button
             variant='outline'
             className={`ml-4 bg-white ${isRefreshing ? 'cursor-not-allowed' : ''}`}
@@ -107,68 +143,49 @@ export default function PageMetrics() {
         </div>
       </div>
       <div className='grid grid-cols-4 gap-6 pt-8'>
-          <div className='grid gap-6'>
-            <ClickableValueCard
-              title='Sessions'
-              selected={currentSelectedChart == 'sessions'}
-              value={sessionsChart?.value}
-              previousValue={sessionsChart?.previousValue}
-              previousValueDate={sessionsChart?.previousValueDate}
-              timeseries={sessionsChart?.timeseries}
-              valueFormatter={numSubs => numSubs.toLocaleString('en-US')}
-              onClick={() => setCurrentSelectedChart('MRR')}
-            /> 
-            <ClickableValueCard
-              title='Unique Vistors'
-              value={sessionsChart?.value}
-              previousValue={sessionsChart?.previousValue}
-              previousValueDate={sessionsChart?.previousValueDate}
-              timeseries={sessionsChart?.timeseries}
-              valueFormatter={numSubs => numSubs.toLocaleString('en-US')}
-              onClick={() => setCurrentSelectedChart('MRR')}
-            /> 
-            <ClickableValueCard
-              title='Page Views'
-              value={sessionsChart?.value}
-              previousValue={sessionsChart?.previousValue}
-              previousValueDate={sessionsChart?.previousValueDate}
-              timeseries={sessionsChart?.timeseries}
-              valueFormatter={numSubs => numSubs.toLocaleString('en-US')}
-              onClick={() => setCurrentSelectedChart('MRR')}
-            /> 
-          </div>
-          <div className='col-span-3'>
-            <LineChartWithValue
-              title='Sessions'
-              value={sessionsChart?.value}
-              previousValue={sessionsChart?.previousValue}
-              previousValueDate={sessionsChart?.previousValueDate}
-              timeseries={sessionsChart?.timeseries}
-              valueFormatter={numSubs => numSubs.toLocaleString('en-US')}
-            />
-          </div>
-        </div>
-      
-      <div className='grid grid-cols-3 gap-6 pt-8'>
-        <div className='col-span-2'>
-          <LineChartWithValue
+        <div className='grid gap-6'>
+          <ClickableValueCard
             title='Sessions'
+            selected={currentSelectedChart == 'Sessions'}
             value={sessionsChart?.value}
             previousValue={sessionsChart?.previousValue}
             previousValueDate={sessionsChart?.previousValueDate}
             timeseries={sessionsChart?.timeseries}
             valueFormatter={numSubs => numSubs.toLocaleString('en-US')}
+            onClick={() => setCurrentSelectedChart('Sessions')}
+          />
+          <ClickableValueCard
+            title='Unique Vistors'
+            value={uniqueVisitorsChart?.value}
+            previousValue={uniqueVisitorsChart?.previousValue}
+            previousValueDate={uniqueVisitorsChart?.previousValueDate}
+            timeseries={uniqueVisitorsChart?.timeseries}
+            valueFormatter={numSubs => numSubs.toLocaleString('en-US')}
+            onClick={() => setCurrentSelectedChart('Unique Visitors')}
+          />
+          <ClickableValueCard
+            title='Page Views'
+            value={sessionsChart?.value}
+            previousValue={sessionsChart?.previousValue}
+            previousValueDate={sessionsChart?.previousValueDate}
+            timeseries={sessionsChart?.timeseries}
+            valueFormatter={numSubs => numSubs.toLocaleString('en-US')}
+            onClick={() => setCurrentSelectedChart('Page Views')}
           />
         </div>
-        <LineChartWithValue
-          title='Sessions'
-          value={sessionsChart?.value}
-          previousValue={sessionsChart?.previousValue}
-          previousValueDate={sessionsChart?.previousValueDate}
-          timeseries={sessionsChart?.timeseries}
-          valueFormatter={numSubs => numSubs.toLocaleString('en-US')}
-        />
+        <div className='col-span-3'>
+          <LineChartWithValue
+            title={currentSelectedChart}
+            value={currentChartLookup[currentSelectedChart]?.value}
+            previousValue={currentChartLookup[currentSelectedChart]?.previousValue}
+            previousValueDate={currentChartLookup[currentSelectedChart]?.previousValueDate}
+            timeseries={currentChartLookup[currentSelectedChart]?.timeseries}
+            valueFormatter={currentChartLookup[currentSelectedChart]?.valueFormatter}
+            showAxis={true}
+          />
+        </div>
       </div>
+
       <div className='grid grid-cols-2 gap-6 pt-8'>
         <BarListCard title='Referrers' items={topReferrers} />
         <BarListCard title='Top Pages' items={topPages} />
