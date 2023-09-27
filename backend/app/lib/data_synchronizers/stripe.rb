@@ -3,14 +3,16 @@ module DataSynchronizers
     def initialize(workspace, stripe_account_id, start_date:, end_date: Time.current)
       @workspace = workspace
       @stripe_account_id = stripe_account_id
-      @stripe_metrics = StripeHelpers::MetricsCalculator.new(stripe_account_id, start_date: start_date, end_date: end_date)
+      @stripe_metrics_calculator = StripeHelpers::MetricsCalculator.new(stripe_account_id, start_date: start_date, end_date: end_date)
       @customer_profile_data_mapper = CustomerProfileDataMappers::Stripe.new(workspace)
+      @billing_events_generator = BillingEventsGenerator.new(workspace, @stripe_metrics_calculator)
       @start_date = start_date
       @end_date = end_date
     end
     
     def sync!
       create_billing_data_snapshot!
+      @billing_events_generator.create_billing_events!
       # create_customer_billing_data_snapshots!
       # create_or_update_customer_subscriptions!
       # create_or_update_payments!
@@ -23,45 +25,45 @@ module DataSynchronizers
         swishjam_api_key: @workspace.public_key,
         start_time_period: @start_date,
         end_time_period: @end_date,
-        mrr_in_cents: @stripe_metrics.current_mrr,
-        total_revenue_in_cents: @stripe_metrics.total_revenue,
-        num_active_subscriptions: @stripe_metrics.total_num_active_subscriptions,
-        num_paid_subscriptions: @stripe_metrics.total_num_paid_subscriptions,
-        num_free_trial_subscriptions: @stripe_metrics.total_num_free_trial_subscriptions,
-        num_canceled_subscriptions: @stripe_metrics.total_num_canceled_subscriptions,
-        num_new_customers_for_time_period: @stripe_metrics.num_new_customers_for_time_period,
-        num_new_subscriptions_for_time_period: @stripe_metrics.num_new_subscriptions_for_time_period,
-        num_new_paid_subscriptions_for_time_period: @stripe_metrics.num_new_paid_subscriptions_for_time_period,
-        num_new_free_trial_subscriptions_for_time_period: @stripe_metrics.num_new_free_trial_subscriptions_for_time_period,
-        num_downgraded_subscriptions_for_time_period: @stripe_metrics.num_downgraded_subscriptions_for_time_period,
-        num_upgraded_subscriptions_for_time_period: @stripe_metrics.num_upgraded_subscriptions_for_time_period,
-        num_canceled_subscriptions_for_time_period: @stripe_metrics.num_canceled_subscriptions_for_time_period,
-        num_canceled_paid_subscriptions_for_time_period: @stripe_metrics.num_canceled_paid_subscriptions_for_time_period,
-        num_paused_subscriptions_for_time_period: @stripe_metrics.num_paused_subscriptions_for_time_period,
-        num_resumed_subscriptions_for_time_period: @stripe_metrics.num_resumed_subscriptions_for_time_period,
-        upgraded_mrr_amount_in_cents_for_time_period: @stripe_metrics.upgraded_mrr_amount_in_cents_for_time_period,
-        downgraded_mrr_amount_in_cents_for_time_period: @stripe_metrics.downgraded_mrr_amount_in_cents_for_time_period,
-        churned_mrr_amount_in_cents_for_time_period: @stripe_metrics.churned_mrr_amount_in_cents_for_time_period,
+        mrr_in_cents: @stripe_metrics_calculator.current_mrr,
+        total_revenue_in_cents: @stripe_metrics_calculator.total_revenue,
+        num_active_subscriptions: @stripe_metrics_calculator.total_num_active_subscriptions,
+        num_paid_subscriptions: @stripe_metrics_calculator.total_num_paid_subscriptions,
+        num_free_trial_subscriptions: @stripe_metrics_calculator.total_num_free_trial_subscriptions,
+        num_canceled_subscriptions: @stripe_metrics_calculator.total_num_canceled_subscriptions,
+        num_new_customers_for_time_period: @stripe_metrics_calculator.num_new_customers_for_time_period,
+        num_new_subscriptions_for_time_period: @stripe_metrics_calculator.num_new_subscriptions_for_time_period,
+        num_new_paid_subscriptions_for_time_period: @stripe_metrics_calculator.num_new_paid_subscriptions_for_time_period,
+        num_new_free_trial_subscriptions_for_time_period: @stripe_metrics_calculator.num_new_free_trial_subscriptions_for_time_period,
+        num_downgraded_subscriptions_for_time_period: @stripe_metrics_calculator.num_downgraded_subscriptions_for_time_period,
+        num_upgraded_subscriptions_for_time_period: @stripe_metrics_calculator.num_upgraded_subscriptions_for_time_period,
+        num_canceled_subscriptions_for_time_period: @stripe_metrics_calculator.num_canceled_subscriptions_for_time_period,
+        num_canceled_paid_subscriptions_for_time_period: @stripe_metrics_calculator.num_canceled_paid_subscriptions_for_time_period,
+        num_paused_subscriptions_for_time_period: @stripe_metrics_calculator.num_paused_subscriptions_for_time_period,
+        num_resumed_subscriptions_for_time_period: @stripe_metrics_calculator.num_resumed_subscriptions_for_time_period,
+        upgraded_mrr_amount_in_cents_for_time_period: @stripe_metrics_calculator.upgraded_mrr_amount_in_cents_for_time_period,
+        downgraded_mrr_amount_in_cents_for_time_period: @stripe_metrics_calculator.downgraded_mrr_amount_in_cents_for_time_period,
+        churned_mrr_amount_in_cents_for_time_period: @stripe_metrics_calculator.churned_mrr_amount_in_cents_for_time_period,
         captured_at: Time.current
       )
     end
 
     def create_customer_billing_data_snapshots!
-      @stripe_metrics.subscriptions.each do |stripe_subscription|
+      @stripe_metrics_calculator.subscriptions.each do |stripe_subscription|
         Analytics::CustomerBillingDataSnapshot.create!(
           swishjam_api_key: @workspace.public_key,
           owner: @customer_profile_data_mapper.find_or_create_owner(stripe_subscription.customer),
           customer_email: stripe_subscription.customer&.email,
           customer_name: stripe_subscription.customer&.name,
-          mrr_in_cents: @stripe_metrics.mrr_for_subscription(stripe_subscription),
-          total_revenue_in_cents: @stripe_metrics.total_revenue_for_subscription(stripe_subscription),
+          mrr_in_cents: @stripe_metrics_calculator.mrr_for_subscription(stripe_subscription),
+          total_revenue_in_cents: @stripe_metrics_calculator.total_revenue_for_subscription(stripe_subscription),
           captured_at: Time.current
         )
       end
     end
 
     def create_or_update_customer_subscriptions!
-      @stripe_metrics.subscriptions.each do |stripe_subscription|
+      @stripe_metrics_calculator.subscriptions.each do |stripe_subscription|
         existing_customer_subscription = Analytics::CustomerSubscription.find_by(workspace: @workspace, provider_id: stripe_subscription.id)
         attrs = {
           owner: @customer_profile_data_mapper.find_or_create_owner(stripe_subscription.customer),
@@ -91,7 +93,7 @@ module DataSynchronizers
     end
 
     def create_or_update_payments!
-      @stripe_metrics.charges.each do |stripe_charge|
+      @stripe_metrics_calculator.charges.each do |stripe_charge|
         existing_payment = @workspace.analytics_customer_payments.find_by(provider_id: stripe_charge.id)
         attrs = {
           owner: @customer_profile_data_mapper.find_or_create_owner(stripe_charge.customer),

@@ -228,13 +228,31 @@ def seed_billing_data!
 
   last_snapshot = nil
   365.times do |i|
+    # generate a random number between 0.9 and 1
+    # this will be used to decrease the previous day's values by a random amount
+    # this will simulate the natural churn of a business
     last_snapshot = Analytics::BillingDataSnapshot.create!(
       swishjam_api_key: WORKSPACE.public_key,
-      mrr_in_cents: (last_snapshot&.mrr_in_cents || 1_000_000 * 100) * 0.95,
-      total_revenue_in_cents: (last_snapshot&.total_revenue_in_cents || 5_000_000 * 100) * 0.95,
-      num_active_subscriptions: (last_snapshot&.num_active_subscriptions || 1_000) * 0.95,
-      num_free_trial_subscriptions: (last_snapshot&.num_free_trial_subscriptions || 250) * 0.95,
-      num_canceled_subscriptions: (last_snapshot&.num_canceled_subscriptions || 1_000) * 0.95,
+      start_time_period: Time.current - (i - 1).days,
+      end_time_period: Time.current - i.days,
+      mrr_in_cents: (last_snapshot&.mrr_in_cents || 1_000_000 * 100) * rand(0.9..1.1),
+      total_revenue_in_cents: (last_snapshot&.total_revenue_in_cents || 5_000_000 * 100) * rand(0.9..1.1),
+      num_active_subscriptions: (last_snapshot&.num_active_subscriptions || 1_000) * rand(0.9..1.1),
+      num_free_trial_subscriptions: (last_snapshot&.num_free_trial_subscriptions || 250) * rand(0.9..1.1),
+      num_canceled_subscriptions: (last_snapshot&.num_canceled_subscriptions || 1_000) * rand(0.9..1.1),
+      num_new_customers_for_time_period: (last_snapshot&.num_new_customers_for_time_period || 1_000) * rand(0.9..1.1),
+      num_new_subscriptions_for_time_period: (last_snapshot&.num_new_subscriptions_for_time_period || 1_000) * rand(0.9..1.1),
+      num_new_paid_subscriptions_for_time_period: (last_snapshot&.num_new_paid_subscriptions_for_time_period || 500) * rand(0.9..1.1),
+      num_new_free_trial_subscriptions_for_time_period: (last_snapshot&.num_new_free_trial_subscriptions_for_time_period || 500) * rand(0.9..1.1),
+      num_downgraded_subscriptions_for_time_period: (last_snapshot&.num_downgraded_subscriptions_for_time_period || 100) * rand(0.9..1.1),
+      num_upgraded_subscriptions_for_time_period: (last_snapshot&.num_upgraded_subscriptions_for_time_period || 100) * rand(0.9..1.1),
+      num_canceled_subscriptions_for_time_period: (last_snapshot&.num_canceled_subscriptions_for_time_period || 100) * rand(0.9..1.1),
+      num_canceled_paid_subscriptions_for_time_period: (last_snapshot&.num_canceled_paid_subscriptions_for_time_period || 75) * rand(0.9..1.1),
+      num_paused_subscriptions_for_time_period: (last_snapshot&.num_paused_subscriptions_for_time_period || 50) * rand(0.9..1.1),
+      num_resumed_subscriptions_for_time_period: (last_snapshot&.num_resumed_subscriptions_for_time_period || 35) * rand(0.9..1.1),
+      upgraded_mrr_amount_in_cents_for_time_period: (last_snapshot&.upgraded_mrr_amount_in_cents_for_time_period || 1_000_000) * rand(0.9..1.1),
+      downgraded_mrr_amount_in_cents_for_time_period: (last_snapshot&.downgraded_mrr_amount_in_cents_for_time_period || 500_000) * rand(0.9..1.1),
+      churned_mrr_amount_in_cents_for_time_period: (last_snapshot&.churned_mrr_amount_in_cents_for_time_period || 250_000) * rand(0.9..1.1),
       captured_at: Time.current - i.days,
     )
     progress_bar.advance
