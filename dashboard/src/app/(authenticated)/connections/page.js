@@ -9,19 +9,16 @@ import Image from 'next/image';
 import Modal from '@/components/utils/Modal';
 import AddConnectionButton from './AddConnectionButton';
 import ExistingConnectionButton from './ExistingConnectionButton';
+import { RxCardStack } from 'react-icons/rx';
 
 import StripeImg from '@public/stripe-logo.jpeg'
 
-const CONNECTION_IMAGES = {
-  Stripe: StripeImg,
-}
-
-const CONNECTION_OAUTH_URLS = {
-  Stripe: authToken => `https://connect.stripe.com/oauth/authorize?response_type=code&client_id=ca_ONSwwqiCfDZHQzg1hURYH5pfTVj1PrAe&scope=read_write&redirect_uri=http://localhost:4242/oauth/stripe/callback&state={"authToken":"${authToken}"}`
-}
-
-const CONNECTION_DESCRIPTIONS = {
-  Stripe: 'Connect your Stripe account to Swishjam to automatically import your Stripe customers and subscriptions.',
+const ALL_CONNECTIONS = {
+  Stripe: {
+    img: StripeImg,
+    description: 'Connect your Stripe account to Swishjam to automatically import your Stripe customers and subscriptions.',
+    oauthUrl: authToken => `https://connect.stripe.com/oauth/authorize?response_type=code&client_id=ca_ONSwwqiCfDZHQzg1hURYH5pfTVj1PrAe&scope=read_write&redirect_uri=http://localhost:4242/oauth/stripe/callback&state={"authToken":"${authToken}"}`,
+  }
 }
 
 export default function Connections() {
@@ -75,15 +72,15 @@ export default function Connections() {
             <Modal isOpen={true} onClose={() => setConnectionForModal(null)}>
               <div className='flex flex-col items-center justify-center'>
                 <Image
-                  src={CONNECTION_IMAGES[connectionForModal.name]}
+                  src={ALL_CONNECTIONS[connectionForModal.name].img}
                   alt={connectionForModal.name}
                   className="h-12 w-12 flex-none rounded-lg bg-white object-cover ring-1 ring-gray-900/10"
                 />
                 <h1 className='text-2xl font-medium mb-4 mt-4'>Connect {connectionForModal.name}</h1>
-                <p className='text-gray-600 text-center mb-8'>{CONNECTION_DESCRIPTIONS[connectionForModal.name]}</p>
+                <p className='text-gray-600 text-center mb-8'>{ALL_CONNECTIONS[connectionForModal.name].description}</p>
                 <a
                   className='w-full mt-6 flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white focus:outline-none focus:ring-2 bg-swishjam hover:bg-swishjam-dark'
-                  href={CONNECTION_OAUTH_URLS[connectionForModal.name](authData.token())}
+                  href={ALL_CONNECTIONS[connectionForModal.name].oauthUrl(authData.token())}
                 >
                   Connect {connectionForModal.name}
                 </a>
@@ -101,6 +98,7 @@ export default function Connections() {
             <div className='pt-12'>
               {enabledConnections.length + disabledConnections.length === 0 &&
                 <EmptyView
+                  allConnections={ALL_CONNECTIONS} 
                   availableConnections={availableConnections}
                   setConnectionForModal={setConnectionForModal} 
                 />}
@@ -111,6 +109,7 @@ export default function Connections() {
                     {enabledConnections.map(connection => (
                       <ExistingConnectionButton
                         key={connection.id}
+                        img={ALL_CONNECTIONS[connection.name].img} 
                         connection={connection}
                         onDisableClick={disableConnection}
                         onRemoveClick={removeConnection}
@@ -118,39 +117,42 @@ export default function Connections() {
                       />
                     ))}
                   </ul>
-                </> 
-              }
-              <ul role="list" className="grid grid-cols-1 gap-x-6 gap-y-8 lg:grid-cols-3 xl:gap-x-8">
-                {disabledConnections.map(connection => (
-                  <ExistingConnectionButton
-                    key={connection.id}
-                    connection={connection}
-                    onRemoveClick={removeConnection}
-                    onEnableClick={enableConnection}
-                    enabled={false}
-                  />
-                ))}
-              </ul>
-
-              <h5 className='pt-8 pb-2'>Available Connections</h5>
-              <ul role="list" className="grid grid-cols-1 gap-x-6 gap-y-8 lg:grid-cols-3 xl:gap-x-8">
-                {availableConnections.length === 0
-                  ? (
-                    <div className='text-center my-4 text-md text-gray-600 col-span-3'>
-                      You have installed all Swishjam connections! <br /> Looking for a connection that is not yet supported? Reach out to us <a className='underline' href='mailto:founders@swishjam.com'>founders@swishjam.com</a>.
-                    </div>
-                  ) : (
-                    availableConnections.map((connection) => (
-                      <AddConnectionButton
-                        key={connection.name}
+                  <ul role="list" className="grid grid-cols-1 gap-x-6 gap-y-8 lg:grid-cols-3 xl:gap-x-8">
+                    {disabledConnections.map(connection => (
+                      <ExistingConnectionButton
+                        key={connection.id}
                         connection={connection}
-                        apiKey='INSTANCE-7da3a8bc'
-                        onConnectionClick={() => setConnectionForModal(connection)}
+                        onRemoveClick={removeConnection}
+                        onEnableClick={enableConnection}
+                        enabled={false}
                       />
-                    ))
-                  )
-                }
-              </ul>
+                    ))}
+                  </ul>
+
+                  <h5 className='pt-8 pb-2'>Available Connections</h5>
+                  <ul role="list" className="grid grid-cols-1 gap-x-6 gap-y-8 lg:grid-cols-3 xl:gap-x-8">
+                    {availableConnections.length === 0
+                      ? (
+                      <div className="text-center col-span-3 my-8">
+                        <RxCardStack className="mx-auto h-12 w-12 text-gray-400" />
+                        <h3 className="mt-2 text-sm font-semibold text-gray-900">You have installed all Swishjam connections!</h3>
+                        <p className="mt-1 text-sm text-gray-500">Looking for a connection that is not yet supported? <br />Reach out to us <a className='underline' href='mailto:founders@swishjam.com'>founders@swishjam.com</a><br />We add new connections all the time</p>
+                      </div>
+                      ) : (
+                        availableConnections.map((connection) => (
+                          <AddConnectionButton
+                            img={ALL_CONNECTIONS[connection.name].img}
+                            key={connection.name}
+                            connection={connection}
+                            //apiKey='INSTANCE-7da3a8bc'
+                            onConnectionClick={() => setConnectionForModal(connection)}
+                          />
+                        ))
+                      )
+                    }
+                  </ul>
+                </>
+              }
             </div>
           </main>
         </>

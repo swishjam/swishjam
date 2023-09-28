@@ -1,15 +1,16 @@
 import Image from 'next/image';
+import { Fragment } from 'react';
 import { Menu, Transition } from '@headlessui/react'
 import { EllipsisHorizontalIcon } from '@heroicons/react/20/solid'
-import { PlusCircleIcon, PauseCircleIcon, TrashIcon, PlayCircleIcon } from '@heroicons/react/24/outline'
+import { PauseCircleIcon, TrashIcon, PlayCircleIcon } from '@heroicons/react/24/outline'
 
-export default function ExistingConnectionItem({ connection, enabled, onRemoveClick, onDisableClick, onEnableClick }) {
+export default function ExistingConnectionItem({ img, connection, enabled, onRemoveClick, onDisableClick, onEnableClick }) {
 
   return (
     <li key={connection.id} className={`rounded-xl border border-gray-200 ${enabled ? 'bg-white' : 'bg-gray-200'}`}>
       <div className="flex items-center gap-x-4 p-6">
         <Image
-          src={CONNECTION_IMAGES[connection.name]}
+          src={img}
           alt={connection.name}
           className="h-12 w-12 flex-none rounded-lg bg-white object-cover ring-1 ring-gray-900/10"
         />

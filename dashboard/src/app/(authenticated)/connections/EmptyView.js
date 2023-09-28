@@ -1,17 +1,7 @@
 import { RxCardStack } from 'react-icons/rx';
 import AddConnectionButton from './AddConnectionButton' 
 
-/*                    availableConnections.map((connection) => (
-                      <AddConnectionButton
-                        key={connection.name}
-                        connection={connection}
-                        apiKey='INSTANCE-7da3a8bc'
-                        onConnectionClick={() => setConnectionForModal(connection)}
-                      />
-                    ))
-*/
-
-export default function EmptyView({ availableConnections, setConnectionForModal }) {
+export default function EmptyView({ allConnections, availableConnections, setConnectionForModal }) {
 
   return (
     <div className="w-full mt-12">
@@ -28,8 +18,9 @@ export default function EmptyView({ availableConnections, setConnectionForModal 
           {availableConnections.map((connection, idx) => (
             <AddConnectionButton
               key={idx}
+              img={allConnections[connection.name].img}
               connection={connection}
-              apiKey='INSTANCE-7da3a8bc'
+              //apiKey='INSTANCE-7da3a8bc'
               onConnectionClick={() => setConnectionForModal(connection)}
             />
           ))}
