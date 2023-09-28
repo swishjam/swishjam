@@ -5,10 +5,9 @@ module ClickHouseQueries
         class List
           include ClickHouseQueries::Helpers
 
-          def initialize(public_keys, organization_profile_id:, analytics_family:, limit: 10, start_time: 6.months.ago, end_time: Time.current)
-            @public_key = public_key
+          def initialize(public_keys, organization_profile_id:, limit: 10, start_time: 6.months.ago, end_time: Time.current)
+            @public_keys = public_keys.is_a?(Array) ? public_keys : [public_keys]
             @organization_profile_id = organization_profile_id
-            @analytics_family = analytics_family
             @start_time = start_time
             @end_time = end_time
             @limit = limit
@@ -32,10 +31,10 @@ module ClickHouseQueries
                 FROM organization_identify_events
                 WHERE 
                   swishjam_organization_id = '#{@organization_profile_id}' AND
-                  swishjam_api_key = '#{@public_key}'
+                  swishjam_api_key IN #{formatted_in_clause(@public_keys)}
               ) AS oie ON oie.session_identifier = JSONExtractString(e.properties, 'session_identifier')
               WHERE
-                e.swishjam_api_key = '#{@public_key}' AND
+                e.swishjam_api_key IN #{formatted_in_clause(@public_keys)} AND
                 e.name = '#{Analytics::Event::ReservedNames.PAGE_VIEW}' AND
                 e.occurred_at BETWEEN '#{formatted_time(@start_time)}' AND '#{formatted_time(@end_time)}'
               GROUP BY url_host, url_path

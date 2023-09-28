@@ -97,8 +97,6 @@ Rails.application.routes.draw do
           patch :disable
         end
       end
-
-      resources :analytics_family_configurations, only: [:index, :create, :destroy]
     end
   end
 end

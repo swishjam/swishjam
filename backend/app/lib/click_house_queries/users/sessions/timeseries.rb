@@ -5,10 +5,9 @@ module ClickHouseQueries
         include ClickHouseQueries::Helpers
         include TimeseriesHelper
 
-        def initialize(public_key, user_profile_id, analytics_family:, start_time: 6.months.ago, end_time: Time.current)
-          @public_key = public_key
+        def initialize(public_keys, user_profile_id:, start_time: 6.months.ago, end_time: Time.current)
+          @public_keys = public_keys.is_a?(Array) ? public_keys : [public_keys]
           @user_profile_id = user_profile_id
-          @analytics_family = analytics_family
           @group_by = derived_group_by(start_ts: start_time, end_ts: end_time)
           @start_time, @end_time = rounded_timestamps(start_ts: start_time, end_ts: end_time, group_by: @group_by)
         end
@@ -37,17 +36,16 @@ module ClickHouseQueries
                 device_identifier,
                 argMax(swishjam_user_id, occurred_at) AS swishjam_user_id
               FROM user_identify_events AS uie
-              WHERE swishjam_api_key = '#{@public_key}'
+              WHERE swishjam_api_key in #{formatted_in_clause(@public_keys)}
               GROUP BY device_identifier
             ) AS uie ON 
               JSONExtractString(e.properties, '#{Analytics::Event::ReservedPropertyNames.DEVICE_IDENTIFIER}') = uie.device_identifier AND 
               uie.swishjam_user_id = '#{@user_profile_id}'
             WHERE
-              e.swishjam_api_key = '#{@public_key}' AND
+              e.swishjam_api_key in #{formatted_in_clause(@public_keys)} AND
               e.occurred_at BETWEEN '#{formatted_time(@start_time)}' AND '#{formatted_time(@end_time)}' AND
               e.name = '#{Analytics::Event::ReservedNames.PAGE_VIEW}' AND
-              uie.swishjam_user_id = '#{@user_profile_id}' AND
-              e.analytics_family = '#{@analytics_family}'
+              uie.swishjam_user_id = '#{@user_profile_id}'
             GROUP BY group_by_date
             ORDER BY group_by_date
           SQL

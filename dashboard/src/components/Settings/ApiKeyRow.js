@@ -45,7 +45,7 @@ export default function ApiKeyRow({ apiKey }) {
           }
         </div>
       </td>
-      <td className="whitespace-nowrap px-3 py-3 text-sm text-gray-500">REDACTED</td>
+      {/* <td className="whitespace-nowrap px-3 py-3 text-sm text-gray-500">REDACTED</td> */}
       <td className="whitespace-nowrap px-3 py-3 text-sm text-gray-500">
         {apiKey.enabled
           ? <span className="inline-flex items-center rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20">Enabled</span>
