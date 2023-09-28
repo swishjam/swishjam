@@ -65,7 +65,7 @@ def create_user_identify_events!(user_profiles)
     num_of_devices_for_user = rand(1..2)
     identify_events_for_user = num_of_devices_for_user.times.map do |i|
       identify = Analytics::UserIdentifyEvent.create!(
-        swishjam_api_key: WORKSPACE.public_key,
+        swishjam_api_key: WORKSPACE.api_keys.for_data_source(ApiKey::ReservedDataSources.PRODUCT).public_key,
         device_identifier: DEVICE_IDENTIFIERS.sample,
         swishjam_user_id: user_profile.id,
         occurred_at: Faker::Time.between(from: 1.year.ago, to: Time.now),
@@ -80,7 +80,7 @@ def create_user_identify_events!(user_profiles)
     # other_user = user_profiles.where.not(id: user_profile.id).sample
     other_user = user_profiles.sample
     Analytics::UserIdentifyEvent.create!(
-      swishjam_api_key: WORKSPACE.public_key,
+      swishjam_api_key: WORKSPACE.api_keys.for_data_source(ApiKey::ReservedDataSources.PRODUCT).public_key,
       device_identifier: DEVICE_IDENTIFIERS.sample,
       swishjam_user_id: other_user.id,
       occurred_at: identify_events_for_user.first.occurred_at - 10.minutes,
@@ -113,12 +113,15 @@ def seed_sessions_page_hits_and_events!
 
     session_referrer = "https://#{REFERRER_HOSTS[rand(0..REFERRER_HOSTS.count - 1)]}#{URL_PATHS[rand(0..URL_PATHS.count - 1)]}"
     session_start_url = "https://#{HOST_URL}#{URL_PATHS[rand(0..URL_PATHS.count - 1)]}"
+    public_key = [
+      WORKSPACE.api_keys.for_data_source(ApiKey::ReservedDataSources.PRODUCT).public_key,
+      WORKSPACE.api_keys.for_data_source(ApiKey::ReservedDataSources.MARKETING).public_key,
+    ].sample
     session_event = Analytics::Event.create!(
       uuid: SecureRandom.uuid,
-      swishjam_api_key: WORKSPACE.public_key,
+      swishjam_api_key: public_key,
       name: Analytics::Event::ReservedNames.NEW_SESSION,
       occurred_at: session_start_time,
-      analytics_family: ['marketing', 'product'].sample,
       properties: {
         device_identifier: device_identifier,
         session_identifier: session_identifier,
@@ -136,6 +139,7 @@ def seed_sessions_page_hits_and_events!
 
     rand(1..10).times do |i|
       page_view_event = create_page_view_event!(
+        public_key: public_key,
         session_identifier: session_identifier, 
         device_identifier: device_identifier, 
         occurred_at: session_start_time + (i * 2).minutes + 1.second,
@@ -143,6 +147,7 @@ def seed_sessions_page_hits_and_events!
     end
     rand(1..10).times do |i|
       create_rand_event!(
+        public_key: public_key,
         session_identifier: session_identifier, 
         device_identifier: device_identifier, 
         occurred_at: session_start_time + (i * 2).minutes + 30.seconds,
@@ -155,15 +160,14 @@ def seed_sessions_page_hits_and_events!
   sessions
 end
 
-def create_page_view_event!(session_identifier:, device_identifier:, occurred_at:)
+def create_page_view_event!(public_key:, session_identifier:, device_identifier:, occurred_at:)
   url_path = URL_PATHS[rand(0..URL_PATHS.count - 1)]
   referrer_url = "https://#{REFERRER_HOSTS[rand(0..REFERRER_HOSTS.count - 1)]}#{URL_PATHS[rand(0..URL_PATHS.count - 1)]}"
   Analytics::Event.create!(
-    swishjam_api_key: WORKSPACE.public_key,
+    swishjam_api_key: public_key,
     uuid: SecureRandom.uuid,
     name: Analytics::Event::ReservedNames.PAGE_VIEW,
     occurred_at: occurred_at,
-    analytics_family: ['marketing', 'product'].sample,
     properties: {
       device_identifier: device_identifier,
       session_identifier: session_identifier,
@@ -174,16 +178,15 @@ def create_page_view_event!(session_identifier:, device_identifier:, occurred_at
   )
 end
 
-def create_rand_event!(session_identifier:, device_identifier:, occurred_at:)
+def create_rand_event!(public_key:, session_identifier:, device_identifier:, occurred_at:)
   url_path = URL_PATHS[rand(0..URL_PATHS.count - 1)]
   random_props = {} 
   rand(0..7).times{ |m| random_props[Faker::Lorem.word] = Faker::Lorem.word }
   Analytics::Event.create!(
-    swishjam_api_key: WORKSPACE.public_key,
+    swishjam_api_key: public_key,
     uuid: SecureRandom.uuid,
     name: EVENT_NAMES[rand(0..EVENT_NAMES.count - 1)],
     occurred_at: occurred_at,
-    analytics_family: ['marketing', 'product'].sample,
     properties: random_props.merge({
       device_identifier: device_identifier,
       session_identifier: session_identifier,
@@ -203,7 +206,7 @@ def create_organization_identify_events_for_sessions!(sessions)
     if most_recent_user_identify_event_for_session
       user = AnalyticsUserProfile.find(most_recent_user_identify_event_for_session.swishjam_user_id)
       Analytics::OrganizationIdentifyEvent.create!(
-        swishjam_api_key: WORKSPACE.public_key,
+        swishjam_api_key: most_recent_user_identify_event_for_session.swishjam_api_key,
         swishjam_organization_id: user.analytics_organization_profiles.sample.id,
         device_identifier: session.properties[Analytics::Event::ReservedPropertyNames.DEVICE_IDENTIFIER],
         session_identifier: session.properties[Analytics::Event::ReservedPropertyNames.SESSION_IDENTIFIER],
@@ -229,7 +232,7 @@ def seed_billing_data!
   last_snapshot = nil
   365.times do |i|
     last_snapshot = Analytics::BillingDataSnapshot.create!(
-      swishjam_api_key: WORKSPACE.public_key,
+      swishjam_api_key: WORKSPACE.api_keys.for_data_source(ApiKey::ReservedDataSources.INTEGRATIONS).public_key,
       mrr_in_cents: (last_snapshot&.mrr_in_cents || 1_000_000 * 100) * 0.95,
       total_revenue_in_cents: (last_snapshot&.total_revenue_in_cents || 5_000_000 * 100) * 0.95,
       num_active_subscriptions: (last_snapshot&.num_active_subscriptions || 1_000) * 0.95,
@@ -270,7 +273,7 @@ namespace :seed do
       USER = prompt_and_find_or_create_user!
       NUMBER_OF_SESSIONS_TO_GENERATE = PROMPTER.select("How many sessions would you like to backfill?", [100, 500, 1_000, 5_000, 10_000, 20_000]){ |q| q.default 3 }
       
-      WORKSPACE = USER.workspaces.first || Workspace.create!(name: Faker::Company.name, company_url: Faker::Internet.domain_name)
+      WORKSPACE = USER.workspaces.first || Workspace.create!(name: Faker::Company.name, company_url: Faker::Internet.domain_name, public_key: 'DEPRECATED')
       HOST_URL = Faker::Internet.domain_name
       NUMBER_OF_USERS = (NUMBER_OF_SESSIONS_TO_GENERATE * 0.75).to_i
       DEVICE_IDENTIFIERS = (NUMBER_OF_USERS * 1.05).to_i.times.map{ SecureRandom.uuid }

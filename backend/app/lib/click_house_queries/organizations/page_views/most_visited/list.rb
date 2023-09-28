@@ -5,7 +5,7 @@ module ClickHouseQueries
         class List
           include ClickHouseQueries::Helpers
 
-          def initialize(public_key, organization_profile_id:, analytics_family:, limit: 10, start_time: 6.months.ago, end_time: Time.current)
+          def initialize(public_keys, organization_profile_id:, analytics_family:, limit: 10, start_time: 6.months.ago, end_time: Time.current)
             @public_key = public_key
             @organization_profile_id = organization_profile_id
             @analytics_family = analytics_family

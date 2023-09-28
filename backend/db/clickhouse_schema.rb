@@ -10,10 +10,10 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ClickhouseActiverecord::Schema.define(version: 2023_09_26_202045) do
+ClickhouseActiverecord::Schema.define(version: 2023_09_27_175514) do
 
   # TABLE: billing_data_snapshots
-  # SQL: CREATE TABLE swishjam_analytics_dev.billing_data_snapshots ( `swishjam_api_key` LowCardinality(String), `mrr_in_cents` UInt32, `total_revenue_in_cents` UInt32, `num_active_subscriptions` UInt32, `num_free_trial_subscriptions` UInt32, `num_canceled_subscriptions` UInt32, `captured_at` DateTime, `num_paid_subscriptions` Nullable(Int32) ) ENGINE = MergeTree PRIMARY KEY (swishjam_api_key, captured_at) ORDER BY (swishjam_api_key, captured_at) SETTINGS index_granularity = 8192
+  # SQL: CREATE TABLE swishjam_analytics_dev.billing_data_snapshots ( `swishjam_api_key` LowCardinality(String), `mrr_in_cents` UInt32, `total_revenue_in_cents` UInt32, `num_active_subscriptions` UInt32, `num_free_trial_subscriptions` UInt32, `num_canceled_subscriptions` UInt32, `captured_at` DateTime, `num_paid_subscriptions` Nullable(Int32), `num_new_customers_for_time_period` Nullable(Int32), `num_new_subscriptions_for_time_period` Nullable(Int32), `num_new_paid_subscriptions_for_time_period` Nullable(Int32), `num_new_free_trial_subscriptions_for_time_period` Nullable(Int32), `num_downgraded_subscriptions_for_time_period` Nullable(Int32), `num_upgraded_subscriptions_for_time_period` Nullable(Int32), `num_canceled_subscriptions_for_time_period` Nullable(Int32), `num_canceled_paid_subscriptions_for_time_period` Nullable(Int32), `num_paused_subscriptions_for_time_period` Nullable(Int32), `num_resumed_subscriptions_for_time_period` Nullable(Int32), `upgraded_mrr_amount_in_cents_for_time_period` Nullable(Int32), `downgraded_mrr_amount_in_cents_for_time_period` Nullable(Int32), `churned_mrr_amount_in_cents_for_time_period` Nullable(Int32), `start_time_period` Nullable(DateTime), `end_time_period` Nullable(DateTime) ) ENGINE = MergeTree PRIMARY KEY (swishjam_api_key, captured_at) ORDER BY (swishjam_api_key, captured_at) SETTINGS index_granularity = 8192
   create_table "billing_data_snapshots", id: false, options: "MergeTree PRIMARY KEY (swishjam_api_key, captured_at) ORDER BY (swishjam_api_key, captured_at) SETTINGS index_granularity = 8192", force: :cascade do |t|
     t.string "swishjam_api_key", null: false
     t.integer "mrr_in_cents", null: false
@@ -23,6 +23,21 @@ ClickhouseActiverecord::Schema.define(version: 2023_09_26_202045) do
     t.integer "num_canceled_subscriptions", null: false
     t.datetime "captured_at", null: false
     t.integer "num_paid_subscriptions", unsigned: false
+    t.integer "num_new_customers_for_time_period", unsigned: false
+    t.integer "num_new_subscriptions_for_time_period", unsigned: false
+    t.integer "num_new_paid_subscriptions_for_time_period", unsigned: false
+    t.integer "num_new_free_trial_subscriptions_for_time_period", unsigned: false
+    t.integer "num_downgraded_subscriptions_for_time_period", unsigned: false
+    t.integer "num_upgraded_subscriptions_for_time_period", unsigned: false
+    t.integer "num_canceled_subscriptions_for_time_period", unsigned: false
+    t.integer "num_canceled_paid_subscriptions_for_time_period", unsigned: false
+    t.integer "num_paused_subscriptions_for_time_period", unsigned: false
+    t.integer "num_resumed_subscriptions_for_time_period", unsigned: false
+    t.integer "upgraded_mrr_amount_in_cents_for_time_period", unsigned: false
+    t.integer "downgraded_mrr_amount_in_cents_for_time_period", unsigned: false
+    t.integer "churned_mrr_amount_in_cents_for_time_period", unsigned: false
+    t.datetime "start_time_period"
+    t.datetime "end_time_period"
   end
 
   # TABLE: customer_billing_data_snapshots

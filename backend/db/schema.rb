@@ -10,22 +10,11 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2023_09_16_001407) do
+ActiveRecord::Schema.define(version: 2023_09_28_132109) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
   enable_extension "plpgsql"
-
-  create_table "analytics_family_configurations", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
-    t.uuid "workspace_id", null: false
-    t.string "type", null: false
-    t.string "url_regex", null: false
-    t.text "description"
-    t.integer "priority"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
-    t.index ["workspace_id"], name: "index_analytics_family_configurations_on_workspace_id"
-  end
 
   create_table "analytics_organization_profiles", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.uuid "workspace_id", null: false
@@ -58,6 +47,20 @@ ActiveRecord::Schema.define(version: 2023_09_16_001407) do
     t.datetime "updated_at", precision: 6, null: false
     t.index ["user_unique_identifier"], name: "index_analytics_user_profiles_on_user_unique_identifier"
     t.index ["workspace_id"], name: "index_analytics_user_profiles_on_workspace_id"
+  end
+
+  create_table "api_keys", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "workspace_id", null: false
+    t.string "data_source"
+    t.string "public_key"
+    t.string "private_key"
+    t.boolean "enabled"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["data_source"], name: "index_api_keys_on_data_source"
+    t.index ["private_key"], name: "index_api_keys_on_private_key", unique: true
+    t.index ["public_key"], name: "index_api_keys_on_public_key", unique: true
+    t.index ["workspace_id"], name: "index_api_keys_on_workspace_id"
   end
 
   create_table "auth_sessions", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -148,11 +151,11 @@ ActiveRecord::Schema.define(version: 2023_09_16_001407) do
     t.index ["public_key"], name: "index_workspaces_on_public_key"
   end
 
-  add_foreign_key "analytics_family_configurations", "workspaces"
   add_foreign_key "analytics_organization_profiles", "workspaces"
   add_foreign_key "analytics_organization_profiles_users", "analytics_organization_profiles"
   add_foreign_key "analytics_organization_profiles_users", "analytics_user_profiles"
   add_foreign_key "analytics_user_profiles", "workspaces"
+  add_foreign_key "api_keys", "workspaces"
   add_foreign_key "auth_sessions", "users"
   add_foreign_key "data_syncs", "workspaces"
   add_foreign_key "integrations", "workspaces"

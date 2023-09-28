@@ -13,7 +13,7 @@ module WebEventProcessors
       end
 
       Analytics::OrganizationIdentifyEvent.create!(
-        swishjam_api_key: workspace.public_key,
+        swishjam_api_key: public_key,
         swishjam_organization_id: profile.id,
         device_identifier: properties[Analytics::Event::ReservedPropertyNames.DEVICE_IDENTIFIER],
         session_identifier: properties[Analytics::Event::ReservedPropertyNames.SESSION_IDENTIFIER],
@@ -24,9 +24,8 @@ module WebEventProcessors
       Analytics::Event.create!(
         uuid: uuid,
         name: event_name,
-        swishjam_api_key: workspace.public_key,
+        swishjam_api_key: public_key,
         occurred_at: timestamp,
-        analytics_family: analytics_family,
         properties: properties.merge({ swishjam_organization_id: profile.id })
       )
     end

@@ -1,9 +1,9 @@
 module WebEventProcessors
   class Base
-    attr_accessor :workspace, :event_json
+    attr_accessor :public_key, :event_json
 
-    def initialize(workspace, event_json)
-      @workspace = workspace
+    def initialize(public_key, event_json)
+      @public_key = public_key
       @event_json = event_json
     end
 
@@ -23,9 +23,9 @@ module WebEventProcessors
       event_json['event']
     end
     alias name event_name
-
-    def analytics_family
-      @analytics_family ||= WebEventProcessors::AnalyticsFamilyDecider.decide(workspace, self)
+    
+    def workspace
+      @workspace ||= ApiKey.includes(:workspace).find_by!(public_key: public_key).workspace
     end
 
     def timestamp

@@ -13,13 +13,14 @@ module Api
       end
 
       def active
+        params[:data_source] ||= ApiKey::ReservedDataSources.PRODUCT
         params[:type] ||= 'weekly'
         raise "Invalid `type` provided: #{params[:type]}" unless %w(daily weekly monthly).include?(params[:type])
         active_users = {
           'daily' => ClickHouseQueries::Users::Active::Daily,
           'weekly' => ClickHouseQueries::Users::Active::Weekly,
           'monthly' => ClickHouseQueries::Users::Active::Monthly
-        }[params[:type]].new(current_workspace.public_key, start_time: start_timestamp, end_time: end_timestamp).timeseries
+        }[params[:type]].new(public_keys_for_requested_data_source, start_time: start_timestamp, end_time: end_timestamp).timeseries
         render json: { current_value: active_users.current_value, timeseries: active_users.formatted_data }, status: :ok
       end
 

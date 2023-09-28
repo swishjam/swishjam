@@ -5,9 +5,9 @@ module ClickHouseQueries
         include ClickHouseQueries::Helpers
         include TimeseriesHelper
 
-        def initialize(public_key, organization_profile_id, url_hosts: nil, url_host: nil, start_time: 6.months.ago, end_time: Time.current)
+        def initialize(public_keys, organization_profile_id, url_hosts: nil, url_host: nil, start_time: 6.months.ago, end_time: Time.current)
           raise ArgumentError, 'Must provide either url_host or url_hosts' if url_host.nil? && url_hosts.nil?
-          @public_key = public_key
+          @public_keys = public_keys.is_a?(Array) ? public_keys : [public_keys]
           @organization_profile_id = organization_profile_id
           @url_hosts = url_hosts || [url_host].compact
           @group_by = derived_group_by(start_ts: start_time, end_ts: end_time)
