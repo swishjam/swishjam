@@ -2,7 +2,7 @@ module Api
   module V1
     class BillingDataSnapshotsController < BaseController
       def index
-        params[:data_source] = 'integrations'
+        params[:data_source] = ApiKey::ReservedDataSources.INTEGRATIONS
         current_billing_data = get_billing_data(start_timestamp, end_timestamp)
         comparison_billing_data = get_billing_data(comparison_start_timestamp, comparison_end_timestamp)
         render json: {

@@ -65,7 +65,7 @@ def create_user_identify_events!(user_profiles)
     num_of_devices_for_user = rand(1..2)
     identify_events_for_user = num_of_devices_for_user.times.map do |i|
       identify = Analytics::UserIdentifyEvent.create!(
-        swishjam_api_key: WORKSPACE.api_keys.for_data_source(ApiKey::ReservedDataSources.PRODUCT).public_key,
+        swishjam_api_key: WORKSPACE.api_keys.for_data_source!(ApiKey::ReservedDataSources.PRODUCT).public_key,
         device_identifier: DEVICE_IDENTIFIERS.sample,
         swishjam_user_id: user_profile.id,
         occurred_at: Faker::Time.between(from: 1.year.ago, to: Time.now),
@@ -80,7 +80,7 @@ def create_user_identify_events!(user_profiles)
     # other_user = user_profiles.where.not(id: user_profile.id).sample
     other_user = user_profiles.sample
     Analytics::UserIdentifyEvent.create!(
-      swishjam_api_key: WORKSPACE.api_keys.for_data_source(ApiKey::ReservedDataSources.PRODUCT).public_key,
+      swishjam_api_key: WORKSPACE.api_keys.for_data_source!(ApiKey::ReservedDataSources.PRODUCT).public_key,
       device_identifier: DEVICE_IDENTIFIERS.sample,
       swishjam_user_id: other_user.id,
       occurred_at: identify_events_for_user.first.occurred_at - 10.minutes,
@@ -114,8 +114,8 @@ def seed_sessions_page_hits_and_events!
     session_referrer = "https://#{REFERRER_HOSTS[rand(0..REFERRER_HOSTS.count - 1)]}#{URL_PATHS[rand(0..URL_PATHS.count - 1)]}"
     session_start_url = "https://#{HOST_URL}#{URL_PATHS[rand(0..URL_PATHS.count - 1)]}"
     public_key = [
-      WORKSPACE.api_keys.for_data_source(ApiKey::ReservedDataSources.PRODUCT).public_key,
-      WORKSPACE.api_keys.for_data_source(ApiKey::ReservedDataSources.MARKETING).public_key,
+      WORKSPACE.api_keys.for_data_source!(ApiKey::ReservedDataSources.PRODUCT).public_key,
+      WORKSPACE.api_keys.for_data_source!(ApiKey::ReservedDataSources.MARKETING).public_key,
     ].sample
     session_event = Analytics::Event.create!(
       uuid: SecureRandom.uuid,
@@ -232,7 +232,7 @@ def seed_billing_data!
   last_snapshot = nil
   365.times do |i|
     last_snapshot = Analytics::BillingDataSnapshot.create!(
-      swishjam_api_key: WORKSPACE.api_keys.for_data_source(ApiKey::ReservedDataSources.INTEGRATIONS).public_key,
+      swishjam_api_key: WORKSPACE.api_keys.for_data_source!(ApiKey::ReservedDataSources.INTEGRATIONS).public_key,
       mrr_in_cents: (last_snapshot&.mrr_in_cents || 1_000_000 * 100) * 0.95,
       total_revenue_in_cents: (last_snapshot&.total_revenue_in_cents || 5_000_000 * 100) * 0.95,
       num_active_subscriptions: (last_snapshot&.num_active_subscriptions || 1_000) * 0.95,

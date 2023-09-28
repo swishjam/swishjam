@@ -39,7 +39,13 @@ class ApiKey < Transactional
   end
 
   def self.for_data_source(data_source)
+    enabled.find_by(data_source: data_source)
+  end
+
+  def self.for_data_source!(data_source)
     enabled.find_by!(data_source: data_source)
+  rescue ActiveRecord::RecordNotFound => e
+    raise ActiveRecord::RecordNotFound, "No enabled API key found for data source: #{data_source}"
   end
 
   def enabled?
