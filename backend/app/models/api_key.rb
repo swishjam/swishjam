@@ -21,7 +21,7 @@ class ApiKey < Transactional
   validates :public_key, presence: true, uniqueness: true
   validates :private_key, presence: true, uniqueness: true
   validates :enabled, presence: true
-  validate :one_enabled_key_per_data_source, on: [:create, :update]
+  # validate :one_enabled_key_per_data_source, on: [:create, :update]
   
   before_validation { self.enabled = true if self.enabled.nil? }
   before_validation { self.data_source = self.data_source&.downcase }
