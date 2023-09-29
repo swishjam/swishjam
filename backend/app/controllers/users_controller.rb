@@ -2,7 +2,7 @@ class UsersController < ApplicationController
   include AuthenticationHelper
 
   def create
-    if ENV['INVITE_CODES'].present? && ENV['INVITE_CODES'].split(',').map{ |c| c.strip.downcase }.include?(params[:invite_code]&.downcase)
+    if ENV['INVITE_CODES'].present? && ENV['INVITE_CODES'].split(',').map{ |c| c.strip.downcase }.include?(params[:invite_code]&.strip&.downcase)
       invalid_company_url = false
       begin
         params[:company_url] = "https://#{params[:company_url]}" if !params[:company_url].starts_with?('http')
