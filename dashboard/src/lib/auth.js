@@ -28,8 +28,19 @@ export const setAuthToken = tokenValue => {
   }
 }
 
-export const signUserUp = async ({ email, password, workspaceName, companyUrl }) => {
-  const { error, user, workspace, token } = await API.post('/auth/register', { email, password, workspace_name: workspaceName, company_url: companyUrl });
+export const signUserUp = async ({ email, password, workspaceName, companyUrl, inviteCode }) => {
+  const { 
+    error, 
+    user, 
+    workspace, 
+    token 
+  } = await API.post('/auth/register', { 
+    email, 
+    password, 
+    workspace_name: workspaceName, 
+    company_url: companyUrl,
+    invite_code: inviteCode
+  });
   if (token) {
     setAuthToken(token);
   }
@@ -54,50 +65,4 @@ export const getToken = () => {
   }, []);
 
   return token;
-}
-
-export const useAuthData = () => {
-  const [authData, setAuthData] = useState();
-  const [isAwaitingData, setIsAwaitingData] = useState(true);
-  const [isLoggedOut, setIsLoggedOut] = useState(false);
-
-  const decodeJWT = token => {
-    var base64Url = token.split('.')[1];
-    var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-    var jsonPayload = decodeURIComponent(window.atob(base64).split('').map(function (c) {
-      return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-    }).join(''));
-    return JSON.parse(jsonPayload);
-  }
-
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const token = localStorage.getItem(LOCAL_STORAGE_TOKEN_KEY);
-      if (token) {
-        try {
-          const decoded = decodeJWT(token);
-          setAuthData({
-            token: () => token,
-            email: () => decoded.user.email,
-            userId: () => decoded.user.id,
-            workspaceId: () => decoded.current_workspace.id,
-            workspaceName: () => decoded.current_workspace.name,
-            currentWorkspaceName: () => decoded.current_workspace.name,
-            currentWorkspaceId: () => decoded.current_workspace.id,
-            currentWorkspacePublicKey: () => decoded.current_workspace.api_key,
-            workspaces: () => decoded.workspaces,
-            epiresAtEpoch: () => decoded.expires_at_epoch,
-            isExpired: () => decoded.expires_at_epoch < Date.now() / 1000,
-          });
-        } catch (err) {
-          setIsLoggedOut(true);
-        }
-      } else {
-        setIsLoggedOut(true);
-      }
-      setIsAwaitingData(false);
-    }
-  }, []);
-
-  return { authData, isAwaitingData, isLoggedOut, isLoggedIn: isAwaitingData ? null : !isLoggedOut };
 }

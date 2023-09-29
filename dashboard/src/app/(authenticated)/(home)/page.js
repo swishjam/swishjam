@@ -62,7 +62,7 @@ export default function Home() {
   }
 
   const getSessionsData = async timeframe => {
-    await API.get('/api/v1/sessions/timeseries', { timeframe }).then((sessionData) => {
+    await API.get('/api/v1/sessions/timeseries', { data_source: 'product', timeframe }).then((sessionData) => {
       setSessionsChart({
         value: sessionData.current_count,
         previousValue: sessionData.comparison_count,

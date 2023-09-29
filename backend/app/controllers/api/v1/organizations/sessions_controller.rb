@@ -3,9 +3,10 @@ module Api
     module Organizations
       class SessionsController < BaseController
         def timeseries
+          raise "Not implemented"
           url_hosts = current_workspace.url_segments.pluck(:url_host)
           querier = ClickHouseQueries::Organizations::Sessions::Timeseries.new(
-            current_workspace.public_key, 
+            # current_workspace.public_key, 
             @organization.id, 
             url_hosts: url_hosts, 
             # start_time: start_timestamp, 

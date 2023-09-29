@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 // import { SwishjamMemory } from '@/lib/swishjam-memory';
 import Sidebar from '@/components/SideNav/Nav';
 import LoadingSpinner from '@/components/LoadingSpinner';
-import { useAuthData } from '@/components/Auth/AuthenticationProvider';
+import { useAuthData } from '@/hooks/useAuthData';
 
 export default function AuthenticatedView({ children, LoadingView }) {
   // const [sideNavIsCollapsed, setSideNavIsCollapsed] = useState(typeof SwishjamMemory.get('isNavCollapsed') === 'boolean' ? SwishjamMemory.get('isNavCollapsed') : false);

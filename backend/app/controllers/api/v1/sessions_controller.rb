@@ -15,18 +15,15 @@ module Api
       end
 
       def timeseries
-        params[:analytics_family] ||= 'marketing'
-        raise 'Invalid analytics_family' unless ['marketing', 'product'].include?(params[:analytics_family])
+        params[:data_source] ||= ApiKey::ReservedDataSources.MARKETING
 
         timeseries = ClickHouseQueries::Sessions::Timeseries.new(
-          current_workspace.public_key,
-          analytics_family: params[:analytics_family],
+          public_keys_for_requested_data_source,
           start_time: start_timestamp,
           end_time: end_timestamp
         ).timeseries
         comparison_timeseries = ClickHouseQueries::Sessions::Timeseries.new(
-          current_workspace.public_key,
-          analytics_family: params[:analytics_family],
+          public_keys_for_requested_data_source,
           start_time: comparison_start_timestamp,
           end_time: comparison_end_timestamp
         ).timeseries
@@ -48,18 +45,11 @@ module Api
       end
 
       def referrers
-        analytics_family = params[:analytics_family] || 'marketing'
-        if !['marketing', 'product'].include?(analytics_family)
-          render json: { 
-            error: "Invalid `analytics_family` parameter provided: #{analytics_family}. Supported values are 'marketing', or 'product'." 
-          }, status: :bad_request
-          return
-        end
+        params[:data_source] ||= ApiKey::ReservedDataSources.MARKETING
 
         params[:by_referrer_host] = params[:by_referrer_host].present?
         querier = ClickHouseQueries::Sessions::Referrers::List.new(
-          current_workspace.public_key,
-          analytics_family: analytics_family,
+          public_keys_for_requested_data_source,
           start_time: start_timestamp,
           end_time: end_timestamp,
           limit: params[:limit] || 10
@@ -70,22 +60,20 @@ module Api
 
       def demographics
         limit = params[:limit] = 10
-        analytics_family = params[:analytics_family] || 'marketing'
+        params[:data_source] ||= ApiKey::ReservedDataSources.MARKETING
         params[:types] = JSON.parse(params[:types] || ['device_type', 'browser', 'city', 'region', 'country'].to_s)
         json = { start_time: start_timestamp, end_time: end_timestamp }
 
         if params[:types].include?('device_type')
           json[:device_types] = ClickHouseQueries::Sessions::DeviceTypes::List.new(
-            current_workspace.public_key,
-            analytics_family: analytics_family,
+            public_keys_for_requested_data_source,
             start_time: start_timestamp,
             end_time: end_timestamp,
           ).get
         end
         if params[:types].include?('browser')
           json[:browsers] = ClickHouseQueries::Sessions::Browsers::List.new(
-            current_workspace.public_key,
-            analytics_family: analytics_family,
+            public_keys_for_requested_data_source,
             start_time: start_timestamp,
             end_time: end_timestamp,
             limit: params[:limit] || 10

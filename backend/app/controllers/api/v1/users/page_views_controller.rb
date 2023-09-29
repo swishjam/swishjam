@@ -4,17 +4,11 @@ module Api
       class PageViewsController < BaseController
         def index
           limit = params[:limit] || 10
-          analytics_family = params[:analytics_family] || 'product'
-          if !['product', 'marketing'].include?(analytics_family)
-            render json: { error: 'Invalid analytics_family' }, status: :bad_request
-            return
-          end
+          params[:data_source] ||= 'all'
           querier = ClickHouseQueries::Users::PageViews::MostVisited::List.new(
-            current_workspace.public_key, 
+            public_keys_for_requested_data_source,
             user_profile_id: @user.id, 
-            analytics_family: analytics_family,
-            # start_time: start_timestamp,
-            start_time: 1.year.ago,
+            start_time: start_timestamp,
             end_time: end_timestamp,
             limit: limit
           )

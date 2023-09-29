@@ -3,11 +3,9 @@ module Api
     class PageViewsController < BaseController
       def index
         limit = params[:limit] || 10
-        analytics_family = params[:analytics_family] || 'marketing'
-        raise "Invalid analytics_family provided: #{analytics_family}" unless %w[marketing product].include?(analytics_family)
+        params[:data_source] ||= ApiKey::ReservedDataSources.MARKETING
         page_view_counts = ClickHouseQueries::PageViews::MostVisited::List.new(
-          current_workspace.public_key,
-          analytics_family: analytics_family,
+          public_keys_for_requested_data_source,
           start_time: start_timestamp,
           end_time: end_timestamp,
           limit: limit
