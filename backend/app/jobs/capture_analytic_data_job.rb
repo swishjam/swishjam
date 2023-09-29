@@ -18,7 +18,7 @@ class CaptureAnalyticDataJob
       begin
         event_name = event_json['event']
         processor_klass = EVENT_PROCESSOR_KLASS_DICT[event_name.to_sym] || WebEventProcessors::Event
-        processor_klass.new(workspace, event_json).capture!
+        processor_klass.new(api_key, event_json).capture!
         success_count += 1
       rescue => e
         Rails.logger.error "Error processing event: #{e.message}"

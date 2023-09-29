@@ -5,9 +5,9 @@ module ClickHouseQueries
         include ClickHouseQueries::Helpers
         include TimeseriesHelper
 
-        def initialize(public_key, organization_profile_id, url_hosts: nil, url_host: nil, start_time: 6.months.ago, end_time: Time.current)
+        def initialize(public_keys, organization_profile_id, url_hosts: nil, url_host: nil, start_time: 6.months.ago, end_time: Time.current)
           raise ArgumentError, 'Must provide either url_host or url_hosts' if url_host.nil? && url_hosts.nil?
-          @public_key = public_key
+          @public_keys = public_keys.is_a?(Array) ? public_keys : [public_keys]
           @organization_profile_id = organization_profile_id
           @url_hosts = url_hosts || [url_host].compact
           @group_by = derived_group_by(start_ts: start_time, end_ts: end_time)
@@ -36,7 +36,6 @@ module ClickHouseQueries
         end
 
         def sql
-          url_host_filter = @url_hosts.any? ? " AND e.url_host IN (#{@url_hosts.map{ |host| "'#{host}'" }.join(', ')})" : ''
           <<~SQL
             SELECT
               CAST(COUNT(DISTINCT e.session_identifier) AS int) AS count,
@@ -48,11 +47,10 @@ module ClickHouseQueries
               WHERE swishjam_organization_id = '#{@organization_profile_id}'
             ) AS org_sessions ON org_sessions.session_identifier = e.session_identifier
             WHERE
-              e.swishjam_api_key = '#{@public_key}' AND
+              e.swishjam_api_key IN #{formatted_in_clause(@public_keys)} AND
               e.occurred_at BETWEEN '#{formatted_time(@start_time)}' AND '#{formatted_time(@end_time)}' AND
               e.name = '#{Analytics::Event::ReservedNames.NEW_SESSION}' AND
               e.swishjam_organization_id = '#{@organization_profile_id}' 
-              #{url_host_filter}
             GROUP BY group_by_date
             ORDER BY group_by_date
           SQL

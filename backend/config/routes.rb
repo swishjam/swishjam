@@ -26,6 +26,8 @@ Rails.application.routes.draw do
       get :capture, to: 'capture#process_data'
       post :capture, to: 'capture#process_data'
 
+      resources :config, only: [:index]
+
       resources :workspace, only: [] do
         collection do
           patch '/update', to: 'workspaces#update'
@@ -95,8 +97,6 @@ Rails.application.routes.draw do
           patch :disable
         end
       end
-
-      resources :analytics_family_configurations, only: [:index, :create, :destroy]
     end
   end
 end

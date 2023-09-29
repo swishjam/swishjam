@@ -2,7 +2,11 @@ module AuthenticationHelper
   def log_user_in(user, workspace)
     data_to_encode = {
       user: { id: user.id, email: user.email },
-      current_workspace: { id: workspace.id, name: workspace.name, api_key: workspace.public_key },
+      current_workspace: { 
+        id: workspace.id, 
+        name: workspace.name, 
+        api_keys: Hash.new.tap{ |h| workspace.api_keys.enabled.each{ |k| h[k.data_source] = k.public_key }},
+      },
       workspaces: user.workspaces.map{ |w| { id: w.id, name: w.name }},
       expires_at_epoch: (ENV['AUTH_LENGTH_IN_MINUTES'] || 24 * 60 * 7).to_i.minutes.from_now.to_i,
     }
@@ -13,6 +17,7 @@ module AuthenticationHelper
 
   def log_user_out
     AuthSession.find_by!(jwt_value: jwt_token).destroy!
+    @current_user = nil
   end
 
   def authenticate_request!
