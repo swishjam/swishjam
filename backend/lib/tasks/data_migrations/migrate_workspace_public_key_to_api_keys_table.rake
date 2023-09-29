@@ -1,3 +1,5 @@
+require 'colorize'
+
 namespace :data_migrations do
   desc "Moves all workspace `public_key` attributes to `api_keys` table"
   task migrate_workspace_api_keys: [:environment] do
