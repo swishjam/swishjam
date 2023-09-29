@@ -8,4 +8,5 @@ class Workspace < Transactional
   has_many :analytics_organization_profiles, dependent: :destroy
 
   after_create_commit { ApiKey.generate_default_keys_for(self) }
+  attribute :public_key, :string, default: "DEPRECATED"
 end
