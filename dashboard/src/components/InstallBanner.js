@@ -39,9 +39,13 @@ const CopiableCodeSnippet = ({ snippet, copyContent, className = 'bg-slate-700 t
 }
 
 export default function InstallBanner ({ hidden, apiTokenMarketing, apiTokenProduct }) {
-  const [ isClosed, setIsClosed] = useState(hidden)
+  const [ isClosed, setIsClosed] = useState()
   const [ viewModal, setViewModal] = useState(false)
-  
+ 
+  if(hidden) {
+    return (<></>)
+  } 
+
   return (
     <>
       <Modal isOpen={viewModal} onClose={() => setViewModal(false)} size="large">

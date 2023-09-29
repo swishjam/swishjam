@@ -98,7 +98,11 @@ export default function Home() {
   
   return (
     <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mb-8">
-      <InstallBanner /> 
+      <InstallBanner 
+        hidden={sessionsChart?.value || sessionsChart?.previousValue}
+        apiTokenMarketing={'insert-token-here'}
+        apiTokenProduct={'insert-token-here'}
+      /> 
       <div className='grid grid-cols-2 mt-8 flex items-center'>
         <div>
           <h1 className="text-lg font-medium text-gray-700 mb-0">Dashboard</h1>
