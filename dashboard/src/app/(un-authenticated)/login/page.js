@@ -118,11 +118,11 @@ export default function Login() {
         </div>
       </div>
 
-      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-lg">
+      {/*<div className="mt-8 sm:mx-auto sm:w-full sm:max-w-lg">
         <p className="text-sm text-gray-600">
           Don't have an account? <span className="font-medium text-swishjam hover:text-swishjam-dark"><Link href="register"><span className="cursor-pointer">Sign up for free account</span></Link></span>
         </p>
-      </div>
+      </div>*/}
 
     </div>
   )
