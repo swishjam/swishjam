@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from "react";
-import { AuthenticationProvider } from '@/components/Auth/AuthenticationProvider'
+import { AuthenticationProvider } from 'src/providers/AuthenticationProvider'
 import AuthenticatedView from '@/components/Auth/AuthenticatedView';
 import { API } from "@/lib/api-client/base";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card"

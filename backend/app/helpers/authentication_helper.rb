@@ -17,6 +17,7 @@ module AuthenticationHelper
 
   def log_user_out
     AuthSession.find_by!(jwt_value: jwt_token).destroy!
+    @current_user = nil
   end
 
   def authenticate_request!

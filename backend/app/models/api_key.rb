@@ -31,10 +31,12 @@ class ApiKey < Transactional
   scope :disabled, -> { where(enabled: false) }
 
   def self.generate_default_keys_for(workspace)
-    workspace.api_keys.create!([ 
-      { data_source: ReservedDataSources.PRODUCT }, 
-      { data_source: ReservedDataSources.MARKETING },
-      { data_source: ReservedDataSources.INTEGRATIONS },
+    byebug
+    return false if workspace.api_keys.any?
+    workspace.api_keys.insert_all([
+      { data_source: ReservedDataSources.PRODUCT , public_key: generate_key("swishjam_prdct", :public_key), private_key: generate_key("swishjam_prdct", :private_key), enabled: true, created_at: Time.current, updated_at: Time.current }, 
+      { data_source: ReservedDataSources.MARKETING, public_key: generate_key("swishjam_mrkt", :public_key), private_key: generate_key("swishjam_mrkt", :private_key), enabled: true, created_at: Time.current, updated_at: Time.current },
+      { data_source: ReservedDataSources.INTEGRATIONS, public_key: generate_key("swishjam_intgrn", :public_key), private_key: generate_key("swishjam_intgrn", :private_key), enabled: true, created_at: Time.current, updated_at: Time.current },
     ])
   end
 
@@ -48,6 +50,13 @@ class ApiKey < Transactional
     raise ActiveRecord::RecordNotFound, "No enabled API key found for data source: #{data_source}"
   end
 
+  def self.generate_key(prefix, type)
+    key = [prefix, SecureRandom.hex(8)].join('-')
+    return key unless ApiKey.exists?("#{type}": key)
+    generate_key(prefix)
+  end
+
+
   def enabled?
     enabled
   end
@@ -56,24 +65,19 @@ class ApiKey < Transactional
 
   def generate_keys
     prefix = {
-      'product' => 'swishjam_prdct',
-      'marketing' => 'swishjam_mrkt',
-      'blog' => 'swishjam_blg',
-      'docs' => 'swishjam_dcs',
+      ReservedDataSources.PRODUCT => 'swishjam_prdct',
+      ReservedDataSources.MARKETING => 'swishjam_mrkt',
+      ReservedDataSources.BLOG => 'swishjam_blg',
+      ReservedDataSources.DOCS => 'swishjam_dcs',
+      ReservedDataSources.INTEGRATIONS => 'swishjam_intgrn'
     }[self.data_source] || "swishjam_#{data_source[0..5]}"
-    self.public_key = generate_key(prefix, :public_key)
-    self.private_key = generate_key(prefix, :private_key)
-  end
-
-  def generate_key(prefix, type)
-    key = [prefix, SecureRandom.hex(8)].join('-')
-    return key unless ApiKey.exists?("#{type}": key)
-    generate_key(prefix)
+    self.public_key = self.class.generate_key(prefix, :public_key)
+    self.private_key = self.class.generate_key(prefix, :private_key)
   end
 
   def one_enabled_key_per_data_source
-    return unless enabled
-    return unless ApiKey.exists?(data_source: data_source, enabled: true)
-    errors.add(:base, "Only one key per data source is allowed (#{data_source})")
+    if enabled && ApiKey.where(data_source: data_source, enabled: true).where.not(id: id).exists?
+      errors.add(:base, "Another enabled API key exists for this data source: #{data_source}")
+    end
   end
 end

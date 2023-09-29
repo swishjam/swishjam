@@ -1,12 +1,10 @@
 'use client';
 
-import { useEffect, useState, createContext, useContext } from 'react';
+import { useEffect, useState } from 'react';
 import { clearToken, LOCAL_STORAGE_TOKEN_KEY } from '@/lib/auth.js';
+import AuthenticationContext from '@/contexts/AuthenticationContext';
 
-const AuthenticationContext = createContext({ isAwaitingData:  true });
-export const useAuthData = () => useContext(AuthenticationContext);
-
-export const AuthenticationProvider = ({ children }) => {
+const AuthenticationProvider = ({ children }) => {
   const [authStates, setAuthStates] = useState({ isAwaitingData: true });
 
   const decodeJWT = token => {
@@ -61,3 +59,6 @@ export const AuthenticationProvider = ({ children }) => {
     </AuthenticationContext.Provider>
   );
 }
+
+export { AuthenticationProvider };
+export default AuthenticationProvider;

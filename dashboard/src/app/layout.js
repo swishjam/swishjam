@@ -1,5 +1,5 @@
 import 'src/app/globals.css';
-import { AuthenticationProvider } from '@/components/Auth/AuthenticationProvider';
+import { AuthenticationProvider } from 'src/providers/AuthenticationProvider';
 
 export const revalidate = 0;
 
