@@ -31,7 +31,6 @@ class ApiKey < Transactional
   scope :disabled, -> { where(enabled: false) }
 
   def self.generate_default_keys_for(workspace)
-    byebug
     return false if workspace.api_keys.any?
     workspace.api_keys.insert_all([
       { data_source: ReservedDataSources.PRODUCT , public_key: generate_key("swishjam_prdct", :public_key), private_key: generate_key("swishjam_prdct", :private_key), enabled: true, created_at: Time.current, updated_at: Time.current }, 

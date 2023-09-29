@@ -8,7 +8,6 @@ module Api
           # reset the token with the updated workspace
           # this also resets the expires_at, probably should have a better way to do this but ok for now
           log_user_out
-          byebug
           token = log_user_in(user, workspace)
           render json: { workspace: workspace, auth_token: token }, status: :ok
         else
