@@ -79,7 +79,11 @@ Rails.application.routes.draw do
         end
       end
 
-      resources :page_views, only: [:index]
+      resources :page_views, only: [:index] do
+        collection do
+          get :timeseries
+        end
+      end
       
       resources :events, only: [] do
         collection do

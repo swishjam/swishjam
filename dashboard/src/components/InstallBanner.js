@@ -6,17 +6,19 @@ import { DiCode } from 'react-icons/di'
 import { AiOutlineCheck } from 'react-icons/ai'
 import Modal from '@/components/utils/Modal';
 import { CopyToClipboard } from "react-copy-to-clipboard";
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "@/components/ui/tabs"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Button } from '@/components/ui/button'
+import { useAuthData } from '@/hooks/useAuthData';
 
 const npmInstall = 'npm install @swishjam/react';
 const reactImport = 'import { SwishjamProvider } from \'@swishjam/react\';'
-const reactComponent = (key) => `<SwishjamProvider apiKey={${key}} >{... your content ... }</SwishjamProvider>`
+const reactComponent = publicKey => (
+  <div>
+    <span className='block'>{`<SwishjamProvider apiKey='${publicKey}'>`}</span> 
+    <span className='block ml-2'>{'<YourApp />'}</span> 
+    <span className='block'>{'</SwishjamProvider>'}</span>
+  </div>
+)
 
 const CopiableCodeSnippet = ({ snippet, copyContent, className = 'bg-slate-700 text-slate-100', copyPos = 'absolute'}) => {
   const [copyBtnTxt, setcopyBtnTxt] = useState('Copy');
@@ -38,13 +40,12 @@ const CopiableCodeSnippet = ({ snippet, copyContent, className = 'bg-slate-700 t
   )
 }
 
-export default function InstallBanner ({ hidden, apiTokenMarketing, apiTokenProduct }) {
+export default function InstallBanner ({ hidden }) {
   const [ isClosed, setIsClosed] = useState()
   const [ viewModal, setViewModal] = useState(false)
+  const { workspaceApiKeys } = useAuthData();
  
-  if(hidden) {
-    return (<></>)
-  } 
+  if(hidden) return <></>;
 
   return (
     <>
@@ -85,8 +86,8 @@ export default function InstallBanner ({ hidden, apiTokenMarketing, apiTokenProd
                   <span className='font-medium'>For Your Marketing Sites</span> (homepage, blog, docs, etc)
                 </p>
                 <CopiableCodeSnippet
-                  snippet={reactComponent(apiTokenMarketing)}
-                  copyContent={reactComponent(apiTokenMarketing)}
+                  snippet={reactComponent(workspaceApiKeys['marketing'])}
+                  copyContent={reactComponent(workspaceApiKeys['marketing'])}
                   className='bg-slate-700 text-slate-100 w-full mt-2'
                 />
                 <p className="text-sm text-gray-500 mt-4 pb-2">
@@ -94,8 +95,8 @@ export default function InstallBanner ({ hidden, apiTokenMarketing, apiTokenProd
                   
                 </p>
                 <CopiableCodeSnippet
-                  snippet={reactComponent(apiTokenProduct)}
-                  copyContent={reactComponent(apiTokenProduct)}
+                  snippet={reactComponent(workspaceApiKeys['product'])}
+                  copyContent={reactComponent(workspaceApiKeys['product'])}
                   className='bg-slate-700 text-slate-100 w-full mt-2'
                 />
                 <div className='mt-8 mb-2'>

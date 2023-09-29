@@ -65,19 +65,29 @@ export default function PageMetrics() {
     });
   }
 
-  const getTopPagesTimeseries = async timeframe => {
-    await API.get('/api/v1/page_views/timeseries', { timeframe }).then(( pageViewData ) => {
-      console.log('page views timeseries', pageViewData)
-      //setTopPages(page_view_counts.map(({ url, count }) => ({ name: url, value: count })));
+  const getPageViewsTimeseries = async timeframe => {
+    await API.get('/api/v1/page_views/timeseries', { timeframe }).then(pageViewData => {
+      setPageViewsChart({
+        value: pageViewData?.current_count,
+        previousValue: pageViewData?.comparison_count,
+        previousValueDate: pageViewData?.comparison_end_time,
+        valueChange: pageViewData?.current_count - pageViewData?.comparison_count,
+        timeseries: pageViewData?.timeseries.map((timeseries, index) => ({
+          ...timeseries,
+          index,
+          comparisonDate: pageViewData?.comparison_timeseries[index]?.date,
+          comparisonValue: pageViewData?.comparison_timeseries[index]?.value
+        })),
+        valueFormatter: sessionsFormatter
+      })
     });
   }
   
   const getUniqueVisitors = async ( timeframe = '30_days') => {
-    await API.get('/api/v1/users/active', { timeframe, type: 'weekly' }).then(( uv ) => {
-      console.log('unique visitors', uv)
+    await API.get('/api/v1/users/active', { timeframe, type: 'weekly' }).then(activeUsers => {
       setUniqueVisitorsChart({
-        value: uv?.current_value || 0,
-        timeseries: uv?.timeseries,
+        value: activeUsers?.current_value || 0,
+        timeseries: activeUsers?.timeseries,
         valueFormatter: sessionsFormatter
       }) 
     });
@@ -103,7 +113,7 @@ export default function PageMetrics() {
     // Reload all the data
     await Promise.all([
       getSessionData(timeframe),
-      getTopPagesTimeseries(timeframe),
+      getPageViewsTimeseries(timeframe),
       getUniqueVisitors(timeframe),
       getTopPages(timeframe),
       getDemographicData(timeframe),
