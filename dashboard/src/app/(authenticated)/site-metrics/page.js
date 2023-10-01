@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { API } from '@/lib/api-client/base';
 import LineChartWithValue from '@/components/DashboardComponents/LineChartWithValue';
+import BarChart from '@/components/DashboardComponents/BarChart';
 import BarListCard from '@/components/DashboardComponents/BarListCard';
 import Timefilter from '@/components/Timefilter';
 import { Button } from '@/components/ui/button';
@@ -10,7 +11,10 @@ import { ArrowPathIcon } from '@heroicons/react/24/outline';
 // import LoadingView from './LoadingView'
 
 export default function PageMetrics() {
-  const [sessionsChart, setSessionsChart] = useState();
+  const [sessionsLineChart, setSessionsLineChart] = useState();
+  const [referrersBarChartData, setReferrersBarChartData] = useState();
+  const [pageViewsBarChartData, setPageViewsBarChartData] = useState();
+
   const [topReferrers, setTopReferrers] = useState();
   const [topPages, setTopPages] = useState();
   const [topDevices, setTopDevices] = useState();
@@ -18,9 +22,9 @@ export default function PageMetrics() {
   const [timeframeFilter, setTimeframeFilter] = useState('thirty_days');
   const [isRefreshing, setIsRefreshing] = useState(false);
 
-  const getSessionData = async timeframe => {
+  const getSessionsTimeseriesData = async timeframe => {
     await API.get('/api/v1/sessions/timeseries', { timeframe }).then(sessionData => {
-      setSessionsChart({
+      setSessionsLineChart({
         value: sessionData.current_count,
         previousValue: sessionData.comparison_count,
         previousValueDate: sessionData.comparison_end_time,
@@ -52,22 +56,38 @@ export default function PageMetrics() {
     });
   }
 
-  const getTopPages = async timeframe => {
-    await API.get('/api/v1/page_views', { timeframe }).then(({ page_view_counts }) => {
-      setTopPages(page_view_counts.map(({ url, count }) => ({ name: url, value: count })));
-    });
+  // const getTopPages = async timeframe => {
+  //   await API.get('/api/v1/page_views', { timeframe }).then(({ page_view_counts }) => {
+  //     setTopPages(page_view_counts.map(({ url, count }) => ({ name: url, value: count })));
+  //   });
+  // }
+
+  const getPageViewsBarChartData = async timeframe => {
+    await API.get('/api/v1/page_views/bar_chart', { timeframe }).then(({ data }) => {
+      setPageViewsBarChartData(data);
+    })
+  }
+
+  const getReferrersBarChartData = async timeframe => {
+    await API.get('/api/v1/sessions/referrers/bar_chart', { timeframe }).then(({ data }) => {
+      setReferrersBarChartData(data)
+    })
   }
 
   const getAllData = async timeframe => {
     setIsRefreshing(true);
-    setSessionsChart();
-    setTopReferrers();
-    setTopPages();
+    setSessionsLineChart();
+    setReferrersBarChartData();
+    setPageViewsBarChartData();
+    // setTopPages();
+    // setTopReferrers();
     setTopDevices();
     setTopBrowsers();
     await Promise.all([
-      getSessionData(timeframe),
-      getTopPages(timeframe),
+      getSessionsTimeseriesData(timeframe),
+      // getTopPages(timeframe),
+      getPageViewsBarChartData(timeframe),
+      getReferrersBarChartData(timeframe),
       getDemographicData(timeframe),
       getReferrerData(timeframe),
     ]);
@@ -93,7 +113,7 @@ export default function PageMetrics() {
               setTimeframeFilter(d);
               getAllData(d)
             }} 
-            />
+          />
           <Button
             variant='outline'
             className={`ml-4 bg-white ${isRefreshing ? 'cursor-not-allowed' : ''}`}
@@ -108,25 +128,27 @@ export default function PageMetrics() {
         <div className='col-span-2'>
           <LineChartWithValue
             title='Sessions'
-            value={sessionsChart?.value}
-            previousValue={sessionsChart?.previousValue}
-            previousValueDate={sessionsChart?.previousValueDate}
-            timeseries={sessionsChart?.timeseries}
+            value={sessionsLineChart?.value}
+            previousValue={sessionsLineChart?.previousValue}
+            previousValueDate={sessionsLineChart?.previousValueDate}
+            timeseries={sessionsLineChart?.timeseries}
             valueFormatter={numSubs => numSubs.toLocaleString('en-US')}
           />
         </div>
         <LineChartWithValue
           title='Sessions'
-          value={sessionsChart?.value}
-          previousValue={sessionsChart?.previousValue}
-          previousValueDate={sessionsChart?.previousValueDate}
-          timeseries={sessionsChart?.timeseries}
+          value={sessionsLineChart?.value}
+          previousValue={sessionsLineChart?.previousValue}
+          previousValueDate={sessionsLineChart?.previousValueDate}
+          timeseries={sessionsLineChart?.timeseries}
           valueFormatter={numSubs => numSubs.toLocaleString('en-US')}
         />
       </div>
       <div className='grid grid-cols-2 gap-6 pt-8'>
-        <BarListCard title='Referrers' items={topReferrers} />
-        <BarListCard title='Top Pages' items={topPages} />
+        {/* <BarListCard title='Referrers' items={topReferrers} /> */}
+        <BarChart title='Referrers' data={referrersBarChartData} />
+        {/* <BarListCard title='Top Pages' items={topPages} /> */}
+        <BarChart title='Page Views' data={pageViewsBarChartData} />
       </div>
       <div className='grid grid-cols-2 gap-6 pt-8'>
         <BarListCard title='Devices' items={topDevices} />

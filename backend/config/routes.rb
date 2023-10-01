@@ -76,10 +76,19 @@ Rails.application.routes.draw do
           get :timeseries
           get :referrers
           get :demographics
+          resources :referrers, only: [:index], controller: :'sessions/referrers' do
+            collection do
+              get :bar_chart
+            end
+          end
         end
       end
 
-      resources :page_views, only: [:index]
+      resources :page_views, only: [:index] do
+        collection do
+          get :bar_chart
+        end
+      end
       
       resources :events, only: [] do
         collection do
