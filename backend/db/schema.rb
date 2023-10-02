@@ -71,34 +71,6 @@ ActiveRecord::Schema.define(version: 2023_09_28_132109) do
     t.index ["user_id"], name: "index_auth_sessions_on_user_id"
   end
 
-  create_table "dashboard_components", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
-    t.uuid "workspace_id"
-    t.uuid "created_by_user_id"
-    t.jsonb "configuration"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
-    t.index ["created_by_user_id"], name: "index_dashboard_components_on_created_by_user_id"
-    t.index ["workspace_id"], name: "index_dashboard_components_on_workspace_id"
-  end
-
-  create_table "dashboards", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
-    t.uuid "workspace_id"
-    t.uuid "created_by_user_id"
-    t.string "name"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
-    t.index ["created_by_user_id"], name: "index_dashboards_on_created_by_user_id"
-    t.index ["workspace_id"], name: "index_dashboards_on_workspace_id"
-  end
-
-  create_table "dashboards_dashboard_components", force: :cascade do |t|
-    t.uuid "dashboard_id"
-    t.uuid "dashboard_component_id"
-    t.index ["dashboard_component_id"], name: "index_dashboards_dashboard_components_on_dashboard_component_id"
-    t.index ["dashboard_id", "dashboard_component_id"], name: "index_dashboards_dashboard_components", unique: true
-    t.index ["dashboard_id"], name: "index_dashboards_dashboard_components_on_dashboard_id"
-  end
-
   create_table "data_syncs", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.uuid "workspace_id", null: false
     t.string "provider", null: false
