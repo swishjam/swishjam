@@ -2,14 +2,48 @@ module Api
   module V1
     class UsersController < BaseController
       def index
-        limit = params[:limit] || 10
-        users = current_workspace.analytics_user_profiles.includes(:analytics_organization_profiles).order(created_at: :desc).limit(limit)
-        render json: users, each_serializer: Analytics::UserSerializer, status: :ok
+        per_page = params[:per_page] || 10
+        page = params[:page] || 1
+        if params[:q]
+          users = current_workspace
+                    .analytics_user_profiles
+                    .includes(:analytics_organization_profiles)
+                    .where('
+                      LOWER(email) LIKE :query OR 
+                      LOWER(first_name) LIKE :query OR 
+                      LOWER(last_name) LIKE :query OR 
+                      LOWER(user_unique_identifier) LIKE :query
+                    ', query: "%#{params[:q].downcase}%")
+                    .order(created_at: :desc)
+                    .page(page)
+                    .per(per_page)
+          render json: {
+            users: users.map{ |u| UserProfileSerializer.new(u) },
+            previous_page: users.prev_page,
+            next_page: users.next_page,
+            total_pages: users.total_pages,
+            total_num_records: users.total_count,
+          }, status: :ok
+        else
+          users = current_workspace
+                    .analytics_user_profiles
+                    .includes(:analytics_organization_profiles)
+                    .order(created_at: :desc)
+                    .page(page)
+                    .per(per_page)
+          render json: {
+            users: users.map{ |u| UserProfileSerializer.new(u) },
+            previous_page: users.prev_page,
+            next_page: users.next_page,
+            total_pages: users.total_pages,
+            total_num_records: users.total_count,
+          }, status: :ok
+        end
       end
 
       def show
         user = current_workspace.analytics_user_profiles.includes(:analytics_organization_profiles).find(params[:id])
-        render json: user, serializer: Analytics::UserSerializer, status: :ok
+        render json: user, serializer: UserProfileSerializer, status: :ok
       end
 
       def active

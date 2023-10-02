@@ -27,6 +27,7 @@ Rails.application.routes.draw do
       post :capture, to: 'capture#process_data'
 
       resources :config, only: [:index]
+      resources :search, only: [:index]
 
       resources :workspace, only: [] do
         collection do
