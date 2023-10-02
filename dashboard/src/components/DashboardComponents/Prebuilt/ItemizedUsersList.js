@@ -9,7 +9,7 @@ export default function ItemizedUsersList({ loadingStateOnly = false }) {
 
   useEffect(() => {
     if (!loadingStateOnly) {
-      API.get('/api/v1/users').then(setRecentUsers);
+      API.get('/api/v1/users').then(({ users }) => setRecentUsers(users));
     }
   }, [loadingStateOnly]);
 

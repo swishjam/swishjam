@@ -28,7 +28,20 @@ export default function SearchResults({ organizations, users, dashboards, hasAtt
             title='Dashboards' 
             TitleIcon={ChartPieIcon} 
             results={dashboards} 
-            resultDisplayAttr='name' 
+            resultDisplayGenerator={dashboard => (
+              <div className="flex items-center">
+                <div className="flex-shrink-0 text-gray-700">
+                  <Avatar>
+                    <AvatarFallback>
+                      <dashboard.icon className='h-5 w-5' />
+                    </AvatarFallback>
+                  </Avatar>
+                </div>
+                <div className="ml-4">
+                  <span className="block">{dashboard.name}</span>
+                </div>
+              </div>
+            )}
           />
         </li>
         <li className='border-t border-gray-200' style={{ marginTop: 0 }}>
@@ -36,7 +49,6 @@ export default function SearchResults({ organizations, users, dashboards, hasAtt
             title='Users' 
             TitleIcon={UserIcon} 
             results={users} 
-            resultDisplayAttr='email'
             resultDisplayGenerator={user => (
               <div className="flex items-center">
                 <div className="flex-shrink-0 text-gray-700">
@@ -59,7 +71,6 @@ export default function SearchResults({ organizations, users, dashboards, hasAtt
             title='Organizations' 
             TitleIcon={UserGroupIcon} 
             results={organizations} 
-            // resultDisplayAttr='name' 
             resultDisplayGenerator={org => (
               <div className="flex items-center">
                 <div className="flex-shrink-0 text-gray-700">
