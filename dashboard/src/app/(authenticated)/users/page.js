@@ -108,20 +108,23 @@ export default function Users() {
                       }
                     </tbody>
                   </table>
-                  {usersData.length === 0 && (
-                  <div className='text-sm text-gray-500 text-center'>
-                    No users identified yet Once you begin to identify users in your app, they will show up here.
-                  </div>
-                  )}
-                  <div className='px-4'>
-                    <Pagination 
-                      currentPage={currentPageNum}
-                      lastPageNum={lastPageNum}
-                      numRecordsDisplayed={usersData?.length} 
-                      totalNumRecords={totalNumRecords} 
-                      onNewPageSelected={page => getUsers({ page })}
-                    />
-                  </div>
+                  {usersData.length === 0 
+                    ?  (
+                      <div className='text-sm text-gray-500 text-center'>
+                        No users identified yet Once you begin to identify users in your app, they will show up here.
+                      </div>
+                    ) : (
+                      <div className='px-4'>
+                        <Pagination
+                          currentPage={currentPageNum}
+                          lastPageNum={lastPageNum}
+                          numRecordsDisplayed={usersData?.length}
+                          totalNumRecords={totalNumRecords}
+                          onNewPageSelected={page => getUsers({ page })}
+                        />
+                      </div>
+                    )
+                  }
                 </div>
               </div>
             </div>

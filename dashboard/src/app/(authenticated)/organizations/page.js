@@ -106,18 +106,23 @@ export default function Organizations() {
                     }
                   </tbody>
                 </table>
-                  {organizationsData.length === 0 && (
-                    <div className='text-sm text-gray-500 text-center'>
-                      No organizations identified yet, once you begin identifying organizations in your app, they will show up here.
-                    </div>
-                  )}
-                  <Pagination
-                    currentPage={currentPageNum}
-                    lastPageNum={lastPageNum}
-                    numRecordsDisplayed={organizationsData?.length}
-                    totalNumRecords={totalNumRecords}
-                    onNewPageSelected={getOrganizations}
-                  />
+                  {organizationsData.length === 0 
+                    ? (
+                      <div className='text-sm text-gray-500 text-center'>
+                        No organizations identified yet, once you begin identifying organizations in your app, they will show up here.
+                      </div>
+                    ) : (
+                      <div className='px-4'>
+                        <Pagination
+                          currentPage={currentPageNum}
+                          lastPageNum={lastPageNum}
+                          numRecordsDisplayed={organizationsData?.length}
+                          totalNumRecords={totalNumRecords}
+                          onNewPageSelected={getOrganizations}
+                        />
+                      </div>
+                    )
+                  }
               </div>
             </div>
           </div>
