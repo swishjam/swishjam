@@ -28,6 +28,7 @@ gem "tty-prompt"
 gem 'tty-progressbar'
 gem "sentry-ruby"
 gem "sentry-rails"
+gem 'sentry-sidekiq'
 gem 'colorize'
 
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
