@@ -3,13 +3,28 @@ module Api
     class UsersController < BaseController
       def index
         limit = params[:limit] || 10
-        users = current_workspace.analytics_user_profiles.includes(:analytics_organization_profiles).order(created_at: :desc).limit(limit)
-        render json: users, each_serializer: Analytics::UserSerializer, status: :ok
+        if params[:q]
+          users = current_workspace
+                    .analytics_user_profiles
+                    .includes(:analytics_organization_profiles)
+                    .where('
+                      LOWER(email) LIKE :query OR 
+                      LOWER(first_name) LIKE :query OR 
+                      LOWER(last_name) LIKE :query OR 
+                      LOWER(user_unique_identifier) LIKE :query
+                    ', query: "%#{params[:q].downcase}%")
+                    .order(created_at: :desc)
+                    .limit(limit)
+          render json: users, each_serializer: UserProfileSerializer, status: :ok
+        else
+          users = current_workspace.analytics_user_profiles.includes(:analytics_organization_profiles).order(created_at: :desc).limit(limit)
+          render json: users, each_serializer: UserProfileSerializer, status: :ok
+        end
       end
 
       def show
         user = current_workspace.analytics_user_profiles.includes(:analytics_organization_profiles).find(params[:id])
-        render json: user, serializer: Analytics::UserSerializer, status: :ok
+        render json: user, serializer: UserProfileSerializer, status: :ok
       end
 
       def active

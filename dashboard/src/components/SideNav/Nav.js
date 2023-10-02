@@ -1,6 +1,6 @@
 'use client';
 import { usePathname } from 'next/navigation'
-import { SquaresPlusIcon, ChevronLeftIcon, ChevronRightIcon, HomeIcon, Cog6ToothIcon, UserGroupIcon, UserIcon } from '@heroicons/react/24/outline'
+import { SquaresPlusIcon, ChevronLeftIcon, ChevronRightIcon, HomeIcon, Cog6ToothIcon, UserGroupIcon, UserIcon, MagnifyingGlassIcon } from '@heroicons/react/24/outline'
 import SidebarMobile from './MobileNav';
 import ProfileFlyout from './ProfileFlyout';
 import { useState, useEffect } from 'react'
@@ -8,6 +8,7 @@ import Link from 'next/link'
 import Logo from '@components/Logo'
 import { Bars3Icon } from '@heroicons/react/24/outline'
 import { RxBarChart  } from 'react-icons/rx'
+import SearchbarModal from '@/components/CommandBar/Modal';
 // import { SwishjamMemory } from '@/lib/swishjam-memory';
 
 const appNav = [
@@ -51,17 +52,24 @@ const DesktopNavItem = ({ item, isCollapsed, category, currentPath}) => {
 export default function Sidebar({ onCollapse, onExpand, email }) {
   const pathname = usePathname();
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [isCollapsed, setIsCollapsed] = useState(false)
+  const [isCollapsed, setIsCollapsed] = useState(false);
+  const [searchBarIsOpen, setSearchBarIsOpen] = useState(false);
   //typeof SwishjamMemory.get('isNavCollapsed') === 'boolean' ? SwishjamMemory.get('isNavCollapsed') : false);
 
   useEffect(() => {
     // if(typeof SwishjamMemory.get('isNavCollapsed') === 'boolean') {
     //   setIsCollapsed(SwishjamMemory.get('isNavCollapsed'));
     // }
+    window.addEventListener('keydown', (event) => {
+      if (event.metaKey && event.key === 'k') {
+        setSearchBarIsOpen(true);
+      }
+    });
   }, [])
 
   return (
     <>
+      {searchBarIsOpen && <SearchbarModal onClose={() => setSearchBarIsOpen(false)} />}
       <div>
         <SidebarMobile sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} userEmail={email} />
         <div className={`hidden lg:fixed lg:inset-y-0 lg:z-20 lg:flex lg:flex-col transition-all duration-300 ease-in-out ${isCollapsed ? 'lg:w-12' : 'lg:w-64'}`}>
@@ -76,6 +84,24 @@ export default function Sidebar({ onCollapse, onExpand, email }) {
                 <li>
                   <ul role="list" className="space-y-1">
                     {appNav.map((item) => <DesktopNavItem item={item} key={item.name} isCollapsed={isCollapsed} category="" currentPath={pathname}/>)}
+                    <li>
+                      <a 
+                        onClick={() => setSearchBarIsOpen(true)}
+                        className={`flex cursor-pointer text-gray-700 hover:text-swishjam hover:bg-gray-50 group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold duration-500 transition ${isCollapsed ? 'py-2 px-1' : 'p-2'}`}
+                      >
+                        <div className='flex-grow flex items-center gap-x-3'>
+                          <MagnifyingGlassIcon className='inline text-gray-400 group-hover:text-swishjam duration-500 transition h-6 w-6 shrink-0' />
+                          <span>{isCollapsed ? '' : 'Search'}</span>
+                        </div>
+                        <div className='flex-shrink-0'>
+                          {!isCollapsed && (
+                            <div className="text-gray-400 text-xs flex items-center border border-gray-400 rounded-md px-1 py-0.5">
+                              <div>⌘ + K</div>
+                            </div>
+                          )}
+                        </div>
+                      </a>
+                    </li>
                   </ul>
                 </li>
                 {email && !isCollapsed && (

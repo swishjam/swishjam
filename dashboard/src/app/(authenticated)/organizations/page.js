@@ -1,23 +1,35 @@
 'use client'
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { API } from "@/lib/api-client/base";
 import { Card, CardContent } from "@/components/ui/card"
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { MagnifyingGlassIcon, XCircleIcon } from "@heroicons/react/24/outline";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import LoadingView from './LoadingView';
 
 export default function Organizations() {
-  const [organizationsData, setOrganizationsData] = useState();
   const router = useRouter();
+  const [organizationsData, setOrganizationsData] = useState();
+  const [searchValue, setSearchValue] = useState('');
+  const [displaySearchInput, setDisplaySearchInput] = useState(false);
+  const searchInputRef = useRef();
+
+  const getOrganizations = async query => {
+    if (query && query !== '') {
+      API.get(`/api/v1/organizations`, { q: query }).then(setOrganizationsData);
+    } else {
+      API.get(`/api/v1/organizations`).then(setOrganizationsData);
+    }
+  }
 
   const handleClick = id => {
     router.push(`/organizations/${id}`);
   };
 
   useEffect(() => {
-    API.get(`/api/v1/organizations`).then(setOrganizationsData);
+    getOrganizations();
   }, [])
 
   return (
@@ -49,8 +61,61 @@ export default function Organizations() {
                       <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
                         Details
                       </th>
-                      <th scope="col" className="relative py-3.5 pl-3 pr-4 sm:pr-6 lg:pr-8">
-                        <span className="sr-only">View</span>
+                      <th scope="col" className="flex justify-end py-3.5 pl-3 pr-4 sm:pr-6 lg:pr-8">
+                        <div className={`input flex font-normal text-sm ${displaySearchInput ? '' : 'hidden'}`}>
+                          <form 
+                            className="flex-grow" 
+                            onSubmit={e => {
+                              e.preventDefault();
+                              getOrganizations(searchValue)
+                            }}
+                          >
+                            <input
+                              className='w-full outline-none flex-grow h-full focus:outline-none'
+                              value={searchValue}
+                              onChange={e => setSearchValue(e.target.value)}
+                              ref={searchInputRef}
+                              onBlur={() => {
+                                if (!searchValue || searchValue.length === 0) {
+                                  setDisplaySearchInput(false);
+                                }
+                              }}
+                            />
+                          </form>
+                          <button
+                            className='border-none bg-white flex-shrink-0 cursor-pointer rounded-full p-2 hover:bg-gray-100'
+                            type='submit'
+                            onClick={() => getOrganizations(searchValue)}
+                          >
+                            <MagnifyingGlassIcon className='h-4 w-4' />
+                          </button>
+                          <div
+                            className='flex-shrink-0 cursor-pointer rounded-full p-2 hover:bg-red-100'
+                            onClick={() => {
+                              if (!searchValue || searchValue === '') {
+                                setDisplaySearchInput(false)
+                              } else {
+                                setSearchValue('');
+                                getOrganizations();
+                              }
+                            }}
+                          >
+                            <XCircleIcon className='h-4 w-4' />
+                          </div>
+                        </div>
+                        {!displaySearchInput && (
+                          <div
+                            className='cursor-pointer rounded-full p-2 hover:bg-gray-100'
+                            onClick={() => {
+                              setDisplaySearchInput(true)
+                              setTimeout(() => {
+                                searchInputRef.current.focus()
+                              }, 0)
+                            }}
+                          >
+                            <MagnifyingGlassIcon className='h-4 w-4' />
+                          </div>
+                        )}
                       </th>
                     </tr>
                   </thead>

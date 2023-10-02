@@ -5,18 +5,30 @@ module Api
 
       def index
         limit = params[:limit] || 10
-        organizations = current_workspace.analytics_organization_profiles.order(created_at: :desc).limit(limit)
-        render json: organizations, each_serializer: Analytics::OrganizationSerializer, status: :ok
+        if params[:q]
+          organizations = current_workspace
+                            .analytics_organization_profiles
+                            .where('
+                              LOWER(name) LIKE :query OR 
+                              LOWER(organization_unique_identifier) LIKE :query
+                            ', query: "%#{params[:q].downcase}%")
+                            .order(created_at: :desc)
+                            .limit(limit)
+          render json: organizations, each_serializer: OrganizationProfileSerializer, status: :ok
+        else
+          organizations = current_workspace.analytics_organization_profiles.order(created_at: :desc).limit(limit)
+          render json: organizations, each_serializer: OrganizationProfileSerializer, status: :ok
+        end
       end
 
       def show
-        render json: @organization, serializer: Analytics::OrganizationSerializer, status: :ok
+        render json: @organization, serializer: OrganizationProfileSerializer, status: :ok
       end
 
       def events
         limit = params[:limit] || 10
         events = Analytics::Event.for_organization(@organization).order(created_at: :desc).limit(limit)
-        render json: events, each_serializer: Analytics::EventSerializer, status: :ok  
+        render json: events, status: :ok  
       end
 
       private
