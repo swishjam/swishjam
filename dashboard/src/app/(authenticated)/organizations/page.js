@@ -1,10 +1,10 @@
 'use client'
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import { API } from "@/lib/api-client/base";
 import { Card, CardContent } from "@/components/ui/card"
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { MagnifyingGlassIcon, XCircleIcon } from "@heroicons/react/24/outline";
+import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCommandBar } from '@/hooks/useCommandBar';
