@@ -33,7 +33,7 @@ class CaptureAnalyticDataJob
   private
 
   def verify_api_key!(api_key)
-    Workspace.find_by!(public_key: api_key)
+    ApiKey.enabled.find_by!(public_key: api_key)
   rescue ActiveRecord::RecordNotFound => e
     raise InvalidApiKeyError, "Invalid API key provided to `CaptureAnalyticDataJob`: #{api_key}"
   end
