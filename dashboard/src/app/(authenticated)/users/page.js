@@ -1,28 +1,32 @@
 'use client'
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import { API } from "@/lib/api-client/base";
 import { Card, CardContent } from "@/components/ui/card"
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { MagnifyingGlassIcon, XCircleIcon } from "@heroicons/react/24/outline";
+import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import LoadingView from './LoadingView';
+import Pagination from "@/components/Pagination/Pagination";
+import useCommandBar from "@/hooks/useCommandBar";
 
 export default function Users() {
   const router = useRouter();
+  const { setCommandBarIsOpen } = useCommandBar();
   const [usersData, setUsersData] = useState();
-  const [displaySearchInput, setDisplaySearchInput] = useState(false);
-  const [searchValue, setSearchValue] = useState('');
-  const searchInputRef = useRef();
+  const [currentPageNum, setCurrentPageNum] = useState(1);
+  const [lastPageNum, setLastPageNum] = useState();
+  const [totalNumRecords, setTotalNumRecords] = useState();
 
-  const getUsers = async searchTerm => {
+  const getUsers = async ({ page }) => {
     setUsersData()
-    if (!searchTerm || searchTerm === '') {
-      await API.get('/api/v1/users').then(setUsersData);
-    } else {
-      await API.get('/api/v1/users', { q: searchTerm }).then(setUsersData);
-    }
+    setCurrentPageNum(page);
+    await API.get('/api/v1/users', { page }).then(({ users, total_num_records, total_pages }) => {
+      setUsersData(users);
+      setLastPageNum(total_pages);
+      setTotalNumRecords(total_num_records);
+    });
   }
 
 
@@ -31,7 +35,7 @@ export default function Users() {
   };
 
   useEffect(() => {
-    getUsers()
+    getUsers({ page: currentPageNum })
   }, [])
 
   return (
@@ -64,58 +68,12 @@ export default function Users() {
                           Email
                         </th>
                         <th scope="col" className="flex justify-end py-3.5 pl-3 pr-4 sm:pr-6 lg:pr-8">
-                          <div className={`input flex font-normal text-sm ${displaySearchInput ? '' : 'hidden'}`}>
-                            <form 
-                              className="flex-grow" 
-                              onSubmit={e => {
-                                e.preventDefault();
-                                getUsers(searchValue)
-                              }}
-                            >
-                              <input
-                                className='outline-none flex-grow h-full focus:outline-none'
-                                value={searchValue}
-                                onChange={e => setSearchValue(e.target.value)}
-                                ref={searchInputRef}
-                                onBlur={() => {
-                                  if (!searchValue || searchValue.length === 0) {
-                                    setDisplaySearchInput(false);
-                                  }
-                                }}
-                              />
-                            </form>
-                            <button
-                              className='border-none bg-white flex-shrink-0 cursor-pointer rounded-full p-2 hover:bg-gray-100'
-                              type='submit'
-                              onClick={() => getUsers(searchValue)}
-                            >
-                              <MagnifyingGlassIcon className='h-4 w-4' />
-                            </button>
-                            {searchValue && searchValue.length > 0 && (
-                              <div
-                                className='flex-shrink-0 cursor-pointer rounded-full p-2 hover:bg-red-100'
-                                onClick={() => {
-                                  setSearchValue('');
-                                  getUsers();
-                                }}
-                              >
-                                <XCircleIcon className='h-4 w-4' />
-                              </div>
-                            )}
-                          </div>
-                          {!displaySearchInput && (
-                            <div 
-                              className='cursor-pointer rounded-full p-2 hover:bg-gray-100'
-                              onClick={() => {
-                                setDisplaySearchInput(true)
-                                setTimeout(() => {
-                                  searchInputRef.current.focus()
-                                }, 100)
-                              }}
-                            >
-                              <MagnifyingGlassIcon className='h-4 w-4' />
-                            </div>
-                          )}
+                          <button
+                            className='border-none bg-white flex-shrink-0 cursor-pointer rounded-full p-2 hover:bg-gray-100'
+                            onClick={() => setCommandBarIsOpen(true)}
+                          >
+                            <MagnifyingGlassIcon className='h-4 w-4' />
+                          </button>
                         </th>
                       </tr>
                     </thead>
@@ -155,6 +113,15 @@ export default function Users() {
                     No users identified yet Once you begin to identify users in your app, they will show up here.
                   </div>
                   )}
+                  <div className='px-4'>
+                    <Pagination 
+                      currentPage={currentPageNum}
+                      lastPageNum={lastPageNum}
+                      numRecordsDisplayed={usersData?.length} 
+                      totalNumRecords={totalNumRecords} 
+                      onNewPageSelected={page => getUsers({ page })}
+                    />
+                  </div>
                 </div>
               </div>
             </div>

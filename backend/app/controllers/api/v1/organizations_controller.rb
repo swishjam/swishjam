@@ -4,7 +4,8 @@ module Api
       before_action :get_organization, only: [:show, :events, :users]
 
       def index
-        limit = params[:limit] || 10
+        page = params[:page] || 1
+        per_page = params[:per_page] || 10
         if params[:q]
           organizations = current_workspace
                             .analytics_organization_profiles
@@ -13,11 +14,28 @@ module Api
                               LOWER(organization_unique_identifier) LIKE :query
                             ', query: "%#{params[:q].downcase}%")
                             .order(created_at: :desc)
-                            .limit(limit)
-          render json: organizations, each_serializer: OrganizationProfileSerializer, status: :ok
+                            .page(page)
+                            .per(per_page)
+          render json: {
+            organizations: organizations.map{ |o| OrganizationProfileSerializer.new(o) },
+            previous_page: organizations.prev_page,
+            next_page: organizations.next_page,
+            total_pages: organizations.total_pages,
+            total_num_records: organizations.total_count,
+          }, each_serializer: OrganizationProfileSerializer, status: :ok
         else
-          organizations = current_workspace.analytics_organization_profiles.order(created_at: :desc).limit(limit)
-          render json: organizations, each_serializer: OrganizationProfileSerializer, status: :ok
+          organizations = current_workspace
+                            .analytics_organization_profiles
+                            .order(created_at: :desc)
+                            .page(page)
+                            .per(per_page)
+          render json: {
+            organizations: organizations.map{ |o| OrganizationProfileSerializer.new(o) },
+            previous_page: organizations.prev_page,
+            next_page: organizations.next_page,
+            total_pages: organizations.total_pages,
+            total_num_records: organizations.total_count,
+          }, each_serializer: OrganizationProfileSerializer, status: :ok
         end
       end
 

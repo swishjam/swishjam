@@ -2,7 +2,8 @@ module Api
   module V1
     class UsersController < BaseController
       def index
-        limit = params[:limit] || 10
+        per_page = params[:per_page] || 10
+        page = params[:page] || 1
         if params[:q]
           users = current_workspace
                     .analytics_user_profiles
@@ -14,11 +15,29 @@ module Api
                       LOWER(user_unique_identifier) LIKE :query
                     ', query: "%#{params[:q].downcase}%")
                     .order(created_at: :desc)
-                    .limit(limit)
-          render json: users, each_serializer: UserProfileSerializer, status: :ok
+                    .page(page)
+                    .per(per_page)
+          render json: {
+            users: users.map{ |u| UserProfileSerializer.new(u) },
+            previous_page: users.prev_page,
+            next_page: users.next_page,
+            total_pages: users.total_pages,
+            total_num_records: users.total_count,
+          }, status: :ok
         else
-          users = current_workspace.analytics_user_profiles.includes(:analytics_organization_profiles).order(created_at: :desc).limit(limit)
-          render json: users, each_serializer: UserProfileSerializer, status: :ok
+          users = current_workspace
+                    .analytics_user_profiles
+                    .includes(:analytics_organization_profiles)
+                    .order(created_at: :desc)
+                    .page(page)
+                    .per(per_page)
+          render json: {
+            users: users.map{ |u| UserProfileSerializer.new(u) },
+            previous_page: users.prev_page,
+            next_page: users.next_page,
+            total_pages: users.total_pages,
+            total_num_records: users.total_count,
+          }, status: :ok
         end
       end
 
