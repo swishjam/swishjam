@@ -29,8 +29,8 @@ export default function Pagination({ currentPage, lastPageNum, onNewPageSelected
           ? (
             <>
               <PaginationItem isActive={true} content={1} />
-              <PaginationItem enabled={true} content={2} onSelect={() => onNewPageSelected(2)} />
-              <PaginationItem enabled={true} content={3} onSelect={() => onNewPageSelected(3)} />
+              {lastPageNum >= 2 && <PaginationItem enabled={true} content={2} onSelect={() => onNewPageSelected(2)} />}
+              {lastPageNum >= 3 && <PaginationItem enabled={true} content={3} onSelect={() => onNewPageSelected(3)} />}
             </>
           ) : (
             <>
