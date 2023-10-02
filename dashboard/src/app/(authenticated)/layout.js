@@ -2,14 +2,17 @@
 
 import dynamic from 'next/dynamic';
 import AuthenticatedView from "@/components/Auth/AuthenticatedView";
+import CommandBarProvider from '@/providers/CommandBarProvider';
 import LoadingSpinner from '@/components/LoadingSpinner';
 
 export default function layout({ children }) {
   const LoadingView = getLoadingView(children);
   return (
-    <AuthenticatedView LoadingView={LoadingView}>
-      {children}
-    </AuthenticatedView>
+    <CommandBarProvider>
+      <AuthenticatedView LoadingView={LoadingView}>
+        {children}
+      </AuthenticatedView>
+    </CommandBarProvider>
   )
 }
 
