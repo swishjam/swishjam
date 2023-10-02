@@ -4,9 +4,8 @@ module ClickHouseQueries
       include ClickHouseQueries::Helpers
       include TimeseriesHelper
 
-      def initialize(public_key, analytics_family:, start_time: 6.months.ago, end_time: Time.current)
-        @public_key = public_key
-        @analytics_family = analytics_family
+      def initialize(public_keys, start_time: 6.months.ago, end_time: Time.current)
+        @public_keys = public_keys.is_a?(Array) ? public_keys : [public_keys]
         @group_by = derived_group_by(start_ts: start_time, end_ts: end_time)
         @start_time, @end_time = rounded_timestamps(start_ts: start_time, end_ts: end_time, group_by: @group_by)
       end
@@ -31,10 +30,9 @@ module ClickHouseQueries
             DATE_TRUNC('#{@group_by}', occurred_at) AS group_by_date
           FROM events
           WHERE
-            swishjam_api_key = '#{@public_key}' AND
+            swishjam_api_key IN #{formatted_in_clause(@public_keys)} AND
             occurred_at BETWEEN '#{formatted_time(@start_time)}' AND '#{formatted_time(@end_time)}' AND
-            name = '#{Analytics::Event::ReservedNames.PAGE_VIEW}' AND
-            analytics_family = '#{@analytics_family}'
+            name = '#{Analytics::Event::ReservedNames.PAGE_VIEW}'
           GROUP BY group_by_date
           ORDER BY group_by_date
         SQL

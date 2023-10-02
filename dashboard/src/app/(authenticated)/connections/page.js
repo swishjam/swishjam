@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, Fragment } from 'react';
-import { useAuthData } from '@/lib/auth';
+import { useAuthData } from '@/hooks/useAuthData';
 import { API } from '@/lib/api-client/base';
 import LoadingView from './LoadingView';
 import Image from 'next/image';
@@ -114,7 +114,7 @@ const ExistingConnectionItem = ({ connection, enabled, onRemoveClick, onDisableC
 )
 
 export default function Connections() {
-  const { authData } = useAuthData();
+  const { token } = useAuthData();
   const [enabledConnections, setEnabledConnections] = useState();
   const [disabledConnections, setDisabledConnections] = useState();
   const [availableConnections, setAvailableConnections] = useState();
@@ -172,7 +172,7 @@ export default function Connections() {
                 <p className='text-gray-600 text-center mb-8'>{CONNECTION_DESCRIPTIONS[connectionForModal.name]}</p>
                 <a
                   className='w-full mt-6 flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white focus:outline-none focus:ring-2 bg-swishjam hover:bg-swishjam-dark'
-                  href={CONNECTION_OAUTH_URLS[connectionForModal.name](authData.token())}
+                  href={CONNECTION_OAUTH_URLS[connectionForModal.name](token)}
                 >
                   Connect {connectionForModal.name}
                 </a>

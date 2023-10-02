@@ -12,9 +12,9 @@ import { signUserUp } from '@/lib/auth';
 
 const SignUpSchema = Yup.object().shape({
   email: Yup.string().email('Invalid email').required('Required'),
-  workspaceName: Yup.string().required('Required'),
   companyUrl: Yup.string().required('Required'),
   password: Yup.string().required('Required'),
+  inviteCode: Yup.string().required('Required')
 });
 
 export default function SignUp() {
@@ -49,9 +49,9 @@ export default function SignUp() {
           <Formik
             initialValues={{
               email: '',
-              workspaceName: '',
               companyUrl: '',
               password: '',
+              inviteCode: ''
             }}
             validationSchema={SignUpSchema}
             onSubmit={signUp}
@@ -76,7 +76,7 @@ export default function SignUp() {
                   </div>
                 </div>{/* End Email input */}
 
-                <div> {/* Company Name input */}
+                {/* <div>
                   <label htmlFor="company" className="block text-sm font-medium text-gray-700">
                     Workspace Name
                   </label>
@@ -92,7 +92,7 @@ export default function SignUp() {
                       <div className="text-red-600 mt-1 text-sm text-right">{errors.workspaceName}</div>
                     ) : null}
                   </div>
-                </div>{/* End Company Name input */}
+                </div> */}
 
                 <div>
                   <label htmlFor="company" className="block text-sm font-medium text-gray-700">
@@ -131,6 +131,23 @@ export default function SignUp() {
                     />
                     {errors.password && touched.password ? (
                       <div className="text-red-600 mt-1 text-sm text-right">{errors.password}</div>
+                    ) : null}
+                  </div>
+                </div>
+
+                <div>{/* password input */}
+                  <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+                    Invite Code
+                  </label>
+                  <div className="mt-1">
+                    <Field
+                      className={cn('input', errors.inviteCode && touched.inviteCode && 'border-red-400')}
+                      id="inviteCode"
+                      name="inviteCode"
+                      type="inviteCode"
+                    />
+                    {errors.inviteCode && touched.inviteCode ? (
+                      <div className="text-red-600 mt-1 text-sm text-right">{errors.inviteCode}</div>
                     ) : null}
                   </div>
                 </div>

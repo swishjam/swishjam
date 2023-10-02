@@ -2,7 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import LoadingSpinner from '../LoadingSpinner';
-import { useAuthData } from '@/components/Auth/AuthenticationProvider';
+import { useAuthData } from '@/hooks/useAuthData';
 
 export default function AuthenticatedView({ children, LoadingView }) {
   const router = useRouter();

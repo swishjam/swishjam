@@ -6,11 +6,18 @@
       "@lib/*": ["src/lib/*"],
       "@/components/*": ["src/components/*"],
       "@components/*": ["src/components/*"],
+      "@/hooks/*": ["src/hooks/*"],
+      "@hooks/*": ["src/hooks/*"],
+      "@/providers/*": ["src/providers/*"],
+      "@providers/*": ["src/providers/*"],
+      "@/contexts/*": ["src/contexts/*"],
+      "@contexts/*": ["src/contexts/*"],
       "@/styles/*": ["src/styles/*"],
       "@models/*": ["src/models/*"],
       "@/models/*": ["src/models/*"],
       "@public/*": ["public/*"],
       "@/public/*": ["public/*"],
+
     }
   }
 }

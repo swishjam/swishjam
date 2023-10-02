@@ -3,15 +3,10 @@ module Api
     module Organizations
       class PageViewsController < BaseController
         def index
-          analytics_family = params[:analytics_family] || 'product'
-          if !['product', 'marketing'].include?(analytics_family)
-            render json: { error: 'Invalid analytics_family' }, status: :bad_request
-            return
-          end
+          params[:data_source] ||= 'web'
           pages = ClickHouseQueries::Organizations::PageViews::MostVisited::List.new(
-            current_workspace.public_key,
+            public_keys_for_requested_data_source,
             organization_profile_id: @organization.id,
-            analytics_family: analytics_family,
             start_time: start_timestamp,
             end_time: end_timestamp
           ).get
