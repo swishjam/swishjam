@@ -76,7 +76,20 @@ Rails.application.routes.draw do
           get :timeseries
           get :referrers
           get :demographics
+          # /api/v1/sessions/referrers
           resources :referrers, only: [:index], controller: :'sessions/referrers' do
+            collection do
+              get :bar_chart
+            end
+          end
+          # /api/v1/sessions/browsers
+          resources :browsers, only: [], controller: :'sessions/browsers' do
+            collection do
+              get :bar_chart
+            end
+          end
+          # /api/v1/sessions/device_types
+          resources :device_types, only: [], controller: :'sessions/device_types' do
             collection do
               get :bar_chart
             end

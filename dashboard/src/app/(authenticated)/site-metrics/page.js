@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react';
 import { API } from '@/lib/api-client/base';
 import LineChartWithValue from '@/components/DashboardComponents/LineChartWithValue';
 import BarChart from '@/components/DashboardComponents/BarChart';
-import BarListCard from '@/components/DashboardComponents/BarListCard';
 import Timefilter from '@/components/Timefilter';
 import { Button } from '@/components/ui/button';
 import { ArrowPathIcon } from '@heroicons/react/24/outline';
@@ -14,11 +13,8 @@ export default function PageMetrics() {
   const [sessionsLineChart, setSessionsLineChart] = useState();
   const [referrersBarChartData, setReferrersBarChartData] = useState();
   const [pageViewsBarChartData, setPageViewsBarChartData] = useState();
-
-  const [topReferrers, setTopReferrers] = useState();
-  const [topPages, setTopPages] = useState();
-  const [topDevices, setTopDevices] = useState();
-  const [topBrowsers, setTopBrowsers] = useState();
+  const [browsersBarChartData, setBrowsersBarChartData] = useState();
+  const [deviceTypesBarChartData, setDeviceTypesBarChartData] = useState();
   const [timeframeFilter, setTimeframeFilter] = useState('thirty_days');
   const [isRefreshing, setIsRefreshing] = useState(false);
 
@@ -39,39 +35,33 @@ export default function PageMetrics() {
     })
   }
 
-  const getReferrerData = async timeframe => {
-    await API.get('/api/v1/sessions/referrers', { timeframe }).then(({ referrers }) => {
-      setTopReferrers(referrers.map(({ referrer, count }) => ({
-        name: [null, undefined, ''].includes(referrer) ? 'Direct' : referrer,
-        value: count
-      })));
-    });
-  }
-
-  const getDemographicData = async timeframe => {
-    await API.get('/api/v1/sessions/demographics', { timeframe }).then(demographics => {
-      setTopBrowsers(demographics.browsers.map(({ browser_name, count }) => ({ name: browser_name, value: count })));
-      setTopDevices(demographics.device_types.map(({ device_type, count }) => ({ name: device_type, value: count })));
-      // setTopCountries(Object.keys(demographics.countries).map(country => ({ name: country, value: demographics.countries[country] })));
-    });
-  }
-
-  // const getTopPages = async timeframe => {
-  //   await API.get('/api/v1/page_views', { timeframe }).then(({ page_view_counts }) => {
-  //     setTopPages(page_view_counts.map(({ url, count }) => ({ name: url, value: count })));
+  // const getReferrerData = async timeframe => {
+  //   await API.get('/api/v1/sessions/referrers', { timeframe }).then(({ referrers }) => {
+  //     setTopReferrers(referrers.map(({ referrer, count }) => ({
+  //       name: [null, undefined, ''].includes(referrer) ? 'Direct' : referrer,
+  //       value: count
+  //     })));
   //   });
   // }
 
+  const getBrowsersBarChartData = async timeframe => {
+    await getBarChartData('/api/v1/sessions/browsers/bar_chart', timeframe, setBrowsersBarChartData)
+  }
+
   const getPageViewsBarChartData = async timeframe => {
-    await API.get('/api/v1/page_views/bar_chart', { timeframe }).then(({ data }) => {
-      setPageViewsBarChartData(data);
-    })
+    await getBarChartData('/api/v1/page_views/bar_chart', timeframe, setPageViewsBarChartData)
   }
 
   const getReferrersBarChartData = async timeframe => {
-    await API.get('/api/v1/sessions/referrers/bar_chart', { timeframe }).then(({ data }) => {
-      setReferrersBarChartData(data)
-    })
+    await getBarChartData('/api/v1/sessions/referrers/bar_chart', timeframe, setReferrersBarChartData)
+  }
+
+  const getDeviceTypesBarChartData = async timeframe => {
+    await getBarChartData('/api/v1/sessions/device_types/bar_chart', timeframe, setDeviceTypesBarChartData)
+  }
+
+  const getBarChartData = async (endpoint, timeframe, setter) => {
+    await API.get(endpoint, { timeframe }).then(({ data }) => setter(data))
   }
 
   const getAllData = async timeframe => {
@@ -79,21 +69,17 @@ export default function PageMetrics() {
     setSessionsLineChart();
     setReferrersBarChartData();
     setPageViewsBarChartData();
-    // setTopPages();
-    // setTopReferrers();
-    setTopDevices();
-    setTopBrowsers();
+    setBrowsersBarChartData();
+    setDeviceTypesBarChartData();
     await Promise.all([
       getSessionsTimeseriesData(timeframe),
-      // getTopPages(timeframe),
       getPageViewsBarChartData(timeframe),
       getReferrersBarChartData(timeframe),
-      getDemographicData(timeframe),
-      getReferrerData(timeframe),
+      getBrowsersBarChartData(timeframe),
+      getDeviceTypesBarChartData(timeframe),
     ]);
     setIsRefreshing(false);
   }
-
 
   useEffect(() => {
     getAllData(timeframeFilter)
@@ -145,15 +131,12 @@ export default function PageMetrics() {
         />
       </div>
       <div className='grid grid-cols-2 gap-6 pt-8'>
-        {/* <BarListCard title='Referrers' items={topReferrers} /> */}
         <BarChart title='Referrers' data={referrersBarChartData} />
-        {/* <BarListCard title='Top Pages' items={topPages} /> */}
         <BarChart title='Page Views' data={pageViewsBarChartData} />
       </div>
       <div className='grid grid-cols-2 gap-6 pt-8'>
-        <BarListCard title='Devices' items={topDevices} />
-        <BarListCard title='Browsers' items={topBrowsers} />
-        {/* <BarListCard title='Countries' items={topCountries} />  */}
+        <BarChart title='Devices' data={deviceTypesBarChartData} />
+        <BarChart title='Browsers' data={browsersBarChartData} />
       </div>
     </main>
   );

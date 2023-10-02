@@ -130,7 +130,7 @@ export default function BarChartComponent({
             {keysInTooltip.map(key => {
               const color = getColorForName(key);
               return (
-                <div>
+                <div key={key}>
                   <div className='h-2 w-2 mr-1 inline' style={{ background: color }} />
                   <div className='text-xs inline font-medium' style={{ color: color }}>
                     {key}: {valueFormatter(data[key])}

@@ -12,66 +12,46 @@ module ClickHouseQueries
         end
 
         def data
-          return @filled_in_results if defined?(@filled_in_results)
-          data = Analytics::Event.find_by_sql(sql.squish!)
-          DataFormatters::StackedBarChart.new(
-            data, 
-            start_time: @start_time, 
-            end_time: @end_time, 
-            group_by: @group_by, 
-            key_method: :referrer,
-            value_method: :count, 
-            date_method: :group_by_date,
-          )
+          @data ||= ClickHouseQueries::Common::StackedBarChartByEventProperty.new(
+            @public_keys,
+            event_name: Analytics::Event::ReservedNames.NEW_SESSION,
+            property: Analytics::Event::ReservedPropertyNames.REFERRER,
+            start_time: @start_time,
+            end_time: @end_time,
+          ).data
         end
 
-        def sql
-          <<~SQL
-            SELECT
-              JSONExtractString(properties, '#{Analytics::Event::ReservedPropertyNames.REFERRER}') AS referrer,
-              DATE_TRUNC('#{@group_by}', occurred_at) AS group_by_date,
-              CAST(COUNT() AS INT) AS count
-            FROM events
-            WHERE
-              swishjam_api_key IN #{formatted_in_clause(@public_keys)} AND
-              occurred_at BETWEEN '#{formatted_time(@start_time)}' AND '#{formatted_time(@end_time)}' AND
-              name = '#{Analytics::Event::ReservedNames.NEW_SESSION}'
-            GROUP BY group_by_date, referrer
-            ORDER BY group_by_date, count
-          SQL
-        end
-
-        def sql_for_other_grouping
-          <<~SQL
-            WITH ranked_referrers AS (
-              SELECT
-                JSONExtractString(properties, '#{Analytics::Event::ReservedPropertyNames.REFERRER}') AS referrer,
-                COUNT() as total_count,
-                RANK() OVER (ORDER BY COUNT() DESC) as rank
-              FROM events
-              WHERE
-                swishjam_api_key IN #{formatted_in_clause(@public_keys)} AND
-                occurred_at BETWEEN '#{formatted_time(@start_time)}' AND '#{formatted_time(@end_time)}' AND
-                name = '#{Analytics::Event::ReservedNames.NEW_SESSION}'
-              GROUP BY referrer
-            )
-            SELECT
-              CASE
-                WHEN rr.rank <= 10 THEN JSONExtractString(e.properties, '#{Analytics::Event::ReservedPropertyNames.REFERRER}')
-                ELSE 'other'
-              END AS referrer,
-              DATE_TRUNC('#{@group_by}', e.occurred_at) AS group_by_date,
-              COUNT() as count
-            FROM events e
-            JOIN ranked_referrers rr ON JSONExtractString(e.properties, '#{Analytics::Event::ReservedPropertyNames.REFERRER}') = rr.referrer
-            WHERE
-              e.swishjam_api_key IN #{formatted_in_clause(@public_keys)} AND
-              e.occurred_at BETWEEN '#{formatted_time(@start_time)}' AND '#{formatted_time(@end_time)}' AND
-              e.name = '#{Analytics::Event::ReservedNames.NEW_SESSION}'
-            GROUP BY group_by_date, referrer
-            ORDER BY group_by_date, count
-          SQL
-        end
+        # def sql_for_other_grouping
+        #   <<~SQL
+        #     WITH ranked_referrers AS (
+        #       SELECT
+        #         JSONExtractString(properties, '#{Analytics::Event::ReservedPropertyNames.REFERRER}') AS referrer,
+        #         COUNT() as total_count,
+        #         RANK() OVER (ORDER BY COUNT() DESC) as rank
+        #       FROM events
+        #       WHERE
+        #         swishjam_api_key IN #{formatted_in_clause(@public_keys)} AND
+        #         occurred_at BETWEEN '#{formatted_time(@start_time)}' AND '#{formatted_time(@end_time)}' AND
+        #         name = '#{Analytics::Event::ReservedNames.NEW_SESSION}'
+        #       GROUP BY referrer
+        #     )
+        #     SELECT
+        #       CASE
+        #         WHEN rr.rank <= 10 THEN JSONExtractString(e.properties, '#{Analytics::Event::ReservedPropertyNames.REFERRER}')
+        #         ELSE 'other'
+        #       END AS referrer,
+        #       DATE_TRUNC('#{@group_by}', e.occurred_at) AS group_by_date,
+        #       COUNT() as count
+        #     FROM events e
+        #     JOIN ranked_referrers rr ON JSONExtractString(e.properties, '#{Analytics::Event::ReservedPropertyNames.REFERRER}') = rr.referrer
+        #     WHERE
+        #       e.swishjam_api_key IN #{formatted_in_clause(@public_keys)} AND
+        #       e.occurred_at BETWEEN '#{formatted_time(@start_time)}' AND '#{formatted_time(@end_time)}' AND
+        #       e.name = '#{Analytics::Event::ReservedNames.NEW_SESSION}'
+        #     GROUP BY group_by_date, referrer
+        #     ORDER BY group_by_date, count
+        #   SQL
+        # end
       end
     end
   end

@@ -1,11 +1,13 @@
 module ClickHouseQueries
-  module PageViews
-    class StackedBarChart
+  module Common
+    class StackedBarChartByEventProperty
       include ClickHouseQueries::Helpers
       include TimeseriesHelper
 
-      def initialize(public_keys, start_time: 6.months.ago, end_time: Time.current)
+      def initialize(public_keys, event_name:, property:, start_time: 6.months.ago, end_time: Time.current)
         @public_keys = public_keys.is_a?(Array) ? public_keys : [public_keys]
+        @event_name = event_name
+        @property = property
         @group_by = derived_group_by(start_ts: start_time, end_ts: end_time)
         @start_time, @end_time = rounded_timestamps(start_ts: start_time, end_ts: end_time, group_by: @group_by)
       end
@@ -18,7 +20,7 @@ module ClickHouseQueries
           start_time: @start_time, 
           end_time: @end_time, 
           group_by: @group_by, 
-          key_method: :url,
+          key_method: @property,
           value_method: :count, 
           date_method: :group_by_date,
         )
@@ -27,18 +29,15 @@ module ClickHouseQueries
       def sql
         <<~SQL
           SELECT
-            CONCAT(
-              domain(JSONExtractString(properties, '#{Analytics::Event::ReservedPropertyNames.URL}')),
-              path(JSONExtractString(properties, '#{Analytics::Event::ReservedPropertyNames.URL}'))
-            ) AS url,
+            JSONExtractString(properties, '#{@property}') AS #{@property},
             DATE_TRUNC('#{@group_by}', occurred_at) AS group_by_date,
             CAST(COUNT() AS INT) AS count
           FROM events
           WHERE
             swishjam_api_key IN #{formatted_in_clause(@public_keys)} AND
             occurred_at BETWEEN '#{formatted_time(@start_time)}' AND '#{formatted_time(@end_time)}' AND
-            name = '#{Analytics::Event::ReservedNames.PAGE_VIEW}'
-          GROUP BY group_by_date, url
+            name = '#{@event_name}'
+          GROUP BY group_by_date, #{@property}
           ORDER BY group_by_date, count DESC
         SQL
       end
