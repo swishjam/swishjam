@@ -3,15 +3,18 @@
 import dynamic from 'next/dynamic';
 import AuthenticatedView from "@/components/Auth/AuthenticatedView";
 import CommandBarProvider from '@/providers/CommandBarProvider';
+import HotKeyProvider from '@/providers/HotKeyProvider';
 import LoadingSpinner from '@/components/LoadingSpinner';
 
 export default function layout({ children }) {
   const LoadingView = getLoadingView(children);
   return (
     <CommandBarProvider>
-      <AuthenticatedView LoadingView={LoadingView}>
-        {children}
-      </AuthenticatedView>
+      <HotKeyProvider>
+        <AuthenticatedView LoadingView={LoadingView}>
+          {children}
+        </AuthenticatedView>
+      </HotKeyProvider>
     </CommandBarProvider>
   )
 }
