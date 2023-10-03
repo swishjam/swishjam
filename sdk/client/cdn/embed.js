@@ -16,4 +16,4 @@
   if (options.maxEventsInMemory) s.setAttribute('data-max-events-in-memory', options.maxEventsInMemory);
   if (options.reportingHeartbeatMs) s.setAttribute('data-reporting-heartbeat-ms', options.reportingHeartbeatMs);
   document.head.appendChild(s);
-})('https://unpkg.com/@swishjam/cdn@latest/build.js', '{{SWISHJAM_PUBLIC_KEY}}', { apiEndpoint: 'https://swishjam-prod-9a00662c420f75d5.onporter.run/api/v1/capture' })
+})('https://unpkg.com/@swishjam/cdn@latest/build.js', '{{SWISHJAM_PUBLIC_KEY}}')

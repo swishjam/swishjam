@@ -1,6 +1,6 @@
 {
   "name": "@swishjam/react",
-  "version": "0.0.19",
+  "version": "0.0.191",
   "description": "React wrapper for SwishjamJS.",
   "main": "./dist/cjs/index.js",
   "module": "./dist/esm/index.js",

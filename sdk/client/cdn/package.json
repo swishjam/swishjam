@@ -1,6 +1,6 @@
 {
   "name": "@swishjam/cdn",
-  "version": "0.0.17",
+  "version": "0.0.171",
   "description": "",
   "main": "build.js",
   "scripts": {
