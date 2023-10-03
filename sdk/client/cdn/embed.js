@@ -2,9 +2,9 @@
   window.swishjamEvents = [];
   window.Swishjam = window.Swishjam || {};
   window.Swishjam.stubbed = true;
-  window.Swishjam.event = window.Swishjam.event || function(args) { window.swishjamEvents.push({ method: 'event', args }) };
-  window.Swishjam.identify = window.Swishjam.identify || function(args) { window.swishjamEvents.push({ method: 'identify', args }) };
-  window.Swishjam.setOrganization = window.Swishjam.setOrganization || function(args) { window.swishjamEvents.push({ method: 'setOrganization', args }) };
+  window.Swishjam.event = window.Swishjam.event || function(...args) { window.swishjamEvents.push({ method: 'event', args }) };
+  window.Swishjam.identify = window.Swishjam.identify || function(...args) { window.swishjamEvents.push({ method: 'identify', args }) };
+  window.Swishjam.setOrganization = window.Swishjam.setOrganization || function(...args) { window.swishjamEvents.push({ method: 'setOrganization', args }) };
   window.Swishjam.logout = window.Swishjam.ogout || function() { window.swishjamEvents.push({ method: 'logout' }) };
   window.Swishjam.getSession = window.Swishjam.getSession || function() { console.warn('SwishjamJS not loaded yet, cannot call `getSession`.') };
   window.Swishjam.newSession = window.Swishjam.newSession || function() { console.warn('SwishjamJS not loaded yet, cannot call `newSession`.') };
