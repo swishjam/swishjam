@@ -3,7 +3,7 @@ module Api
     module Organizations
       class UsersController < BaseController
         def index
-          render json: @organization.analytics_user_profiles, each_serializer: Analytics::UserSerializer, status: :ok
+          render json: @organization.analytics_user_profiles, each_serializer: UserProfileSerializer, status: :ok
         end
 
         def active

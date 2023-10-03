@@ -31,7 +31,7 @@ export default function PageMetrics() {
   }
 
   const getSessionData = async timeframe => {
-    await API.get('/api/v1/sessions/timeseries', { timeframe }).then(sessionData => {
+    await API.get('/api/v1/sessions/timeseries', { timeframe, data_source: 'marketing' }).then(sessionData => {
       setSessionsChart({
         value: sessionData?.current_count,
         previousValue: sessionData?.comparison_count,
@@ -49,7 +49,7 @@ export default function PageMetrics() {
   }
 
   const getReferrerData = async timeframe => {
-    await API.get('/api/v1/sessions/referrers', { timeframe }).then(({ referrers }) => {
+    await API.get('/api/v1/sessions/referrers', { timeframe, data_source: 'marketing' }).then(({ referrers }) => {
       setTopReferrers(referrers.map(({ referrer, count }) => ({
         name: [null, undefined, ''].includes(referrer) ? 'Direct' : referrer,
         value: count
@@ -58,33 +58,43 @@ export default function PageMetrics() {
   }
 
   const getDemographicData = async timeframe => {
-    await API.get('/api/v1/sessions/demographics', { timeframe }).then(demographics => {
+    await API.get('/api/v1/sessions/demographics', { timeframe, data_source: 'marketing' }).then(demographics => {
       setTopBrowsers(demographics.browsers.map(({ browser_name, count }) => ({ name: browser_name, value: count })));
       setTopDevices(demographics.device_types.map(({ device_type, count }) => ({ name: device_type, value: count })));
       // setTopCountries(Object.keys(demographics.countries).map(country => ({ name: country, value: demographics.countries[country] })));
     });
   }
 
-  const getTopPagesTimeseries = async timeframe => {
-    await API.get('/api/v1/page_views/timeseries', { timeframe }).then(( pageViewData ) => {
-      console.log('page views timeseries', pageViewData)
-      //setTopPages(page_view_counts.map(({ url, count }) => ({ name: url, value: count })));
+  const getPageViewsTimeseries = async timeframe => {
+    await API.get('/api/v1/page_views/timeseries', { timeframe, data_source: 'marketing' }).then(pageViewData => {
+      setPageViewsChart({
+        value: pageViewData?.current_count,
+        previousValue: pageViewData?.comparison_count,
+        previousValueDate: pageViewData?.comparison_end_time,
+        valueChange: pageViewData?.current_count - pageViewData?.comparison_count,
+        timeseries: pageViewData?.timeseries.map((timeseries, index) => ({
+          ...timeseries,
+          index,
+          comparisonDate: pageViewData?.comparison_timeseries[index]?.date,
+          comparisonValue: pageViewData?.comparison_timeseries[index]?.value
+        })),
+        valueFormatter: sessionsFormatter
+      })
     });
   }
   
   const getUniqueVisitors = async ( timeframe = '30_days') => {
-    await API.get('/api/v1/users/active', { timeframe, type: 'weekly' }).then(( uv ) => {
-      console.log('unique visitors', uv)
+    await API.get('/api/v1/users/active', { timeframe, data_source: 'marketing', type: 'weekly' }).then(activeUsers => {
       setUniqueVisitorsChart({
-        value: uv?.current_value || 0,
-        timeseries: uv?.timeseries,
+        value: activeUsers?.current_value || 0,
+        timeseries: activeUsers?.timeseries,
         valueFormatter: sessionsFormatter
       }) 
     });
   }
 
   const getTopPages = async timeframe => {
-    await API.get('/api/v1/page_views/', { timeframe }).then(({ page_view_counts }) => {
+    await API.get('/api/v1/page_views/', { timeframe, data_source: 'marketing' }).then(({ page_view_counts }) => {
       setTopPages(page_view_counts.map(({ url, count }) => ({ name: url, value: count })));
     });
   }
@@ -103,7 +113,7 @@ export default function PageMetrics() {
     // Reload all the data
     await Promise.all([
       getSessionData(timeframe),
-      getTopPagesTimeseries(timeframe),
+      getPageViewsTimeseries(timeframe),
       getUniqueVisitors(timeframe),
       getTopPages(timeframe),
       getDemographicData(timeframe),
@@ -155,7 +165,8 @@ export default function PageMetrics() {
             onClick={() => setCurrentSelectedChart('Sessions')}
           />
           <ClickableValueCard
-            title='Unique Vistors'
+            title='Unique Visitors'
+            selected={currentSelectedChart === 'Unique Visitors'}
             value={uniqueVisitorsChart?.value}
             previousValue={uniqueVisitorsChart?.previousValue}
             previousValueDate={uniqueVisitorsChart?.previousValueDate}
@@ -165,6 +176,7 @@ export default function PageMetrics() {
           />
           <ClickableValueCard
             title='Page Views'
+            selected={currentSelectedChart === 'Page Views'}
             value={sessionsChart?.value}
             previousValue={sessionsChart?.previousValue}
             previousValueDate={sessionsChart?.previousValueDate}

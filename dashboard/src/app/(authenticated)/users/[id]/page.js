@@ -6,8 +6,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Skeleton } from "@/components/ui/skeleton";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import EventFeed from "@/components/DashboardComponents/EventFeed";
-import { HomeIcon } from '@heroicons/react/20/solid'
-import Link from "next/link";
 import LineChartWithValue from '@/components/DashboardComponents/LineChartWithValue';
 import BarListCard from "@/components/DashboardComponents/BarListCard";
 
@@ -127,24 +125,20 @@ const UserProfile = ({ params }) => {
                       <dt className="text-sm font-medium leading-6 text-gray-900">Full name</dt>
                       <dd className="mt-1 text-sm leading-6 text-gray-700 sm:mt-2">{userData?.full_name}</dd>
                     </div>
-                    <div className="px-4 py-4 sm:col-span-2 sm:px-0">
+                    <div className="px-4 py-4 sm:col-span-1 sm:px-0">
                       <dt className="text-sm font-medium leading-6 text-gray-900">Organizations</dt>
-                      <dd className="mt-1 sm:mt-2 -ml-2">
-                        {/*userData.organizations.map(org => (
-                          <LinkBadge
-                            key={org.id}
-                            name={org.name}
-                            href={`/organizations/${org.id}`}
-                          /> 
-                        ))*/}
+                      <dd className="mt-1 text-sm leading-6 text-gray-700 sm:mt-2">
+                        {userData.organizations.map(org => (
+                          <a className='hover:underline hover:text-blue-700' key={org.id} href={`/organizations/${org.id}`}>{org.name}</a> 
+                        ))}
                   
-                        {/*userData.organizations.length > 1 && (
+                        {userData.organizations.length > 1 && (
                           <span 
                             className='cursor-pointer underline ml-2 hover:text-swishjam'
                             onClick={() => setOrganizationsListExpanded(!organizationsListExpanded)}
                           >+{userData.organizations.length - 1} others</span>
-                        )*/}
-                        {/*organizationsListExpanded && (
+                        )}
+                        {organizationsListExpanded && (
                           <div className='mt-2'>
                             {userData.organizations.slice(1).map(org => (
                               <div key={org.id} className='flex items-center'>
@@ -154,52 +148,9 @@ const UserProfile = ({ params }) => {
                               </div>
                             ))}
                           </div>
-                        )*/}
+                        )}
                       </dd>
                     </div>
-                    {/* <div className="border-t border-gray-100 px-4 py-6 sm:col-span-1 sm:px-0">
-                      <dt className="text-sm font-medium leading-6 text-gray-900">Email address</dt>
-                      <dd className="mt-1 text-sm leading-6 text-gray-700 sm:mt-2">margotfoster@example.com</dd>
-                    </div>
-                    <div className="border-t border-gray-100 px-4 py-6 sm:col-span-1 sm:px-0">
-                      <dt className="text-sm font-medium leading-6 text-gray-900">Salary expectation</dt>
-                      <dd className="mt-1 text-sm leading-6 text-gray-700 sm:mt-2">$120,000</dd>
-                    </div> */}
-                    {/* <div className="border-t border-gray-100 px-4 py-6 sm:col-span-2 sm:px-0">
-                      <dt className="text-sm font-medium leading-6 text-gray-900">Attachments</dt>
-                      <dd className="mt-2 text-sm text-gray-900">
-                        <ul role="list" className="divide-y divide-gray-100 rounded-md border border-gray-200">
-                          <li className="flex items-center justify-between py-4 pl-4 pr-5 text-sm leading-6">
-                            <div className="flex w-0 flex-1 items-center">
-                              <PaperClipIcon className="h-5 w-5 flex-shrink-0 text-gray-400" aria-hidden="true" />
-                              <div className="ml-4 flex min-w-0 flex-1 gap-2">
-                                <span className="truncate font-medium">resume_back_end_developer.pdf</span>
-                                <span className="flex-shrink-0 text-gray-400">2.4mb</span>
-                              </div>
-                            </div>
-                            <div className="ml-4 flex-shrink-0">
-                              <a href="#" className="font-medium text-indigo-600 hover:text-indigo-500">
-                                Download
-                              </a>
-                            </div>
-                          </li>
-                          <li className="flex items-center justify-between py-4 pl-4 pr-5 text-sm leading-6">
-                            <div className="flex w-0 flex-1 items-center">
-                              <PaperClipIcon className="h-5 w-5 flex-shrink-0 text-gray-400" aria-hidden="true" />
-                              <div className="ml-4 flex min-w-0 flex-1 gap-2">
-                                <span className="truncate font-medium">coverletter_back_end_developer.pdf</span>
-                                <span className="flex-shrink-0 text-gray-400">4.5mb</span>
-                              </div>
-                            </div>
-                            <div className="ml-4 flex-shrink-0">
-                              <a href="#" className="font-medium text-indigo-600 hover:text-indigo-500">
-                                Download
-                              </a>
-                            </div>
-                          </li>
-                        </ul>
-                      </dd>
-                    </div> */}
                   </dl>
                 </div>
               </div>
@@ -224,6 +175,8 @@ const UserProfile = ({ params }) => {
             events={recentEvents}
             leftItemHeaderKey='name'
             rightItemKey='occurred_at'
+            initialLimit={5}
+            loadMoreEventsIncrement={5}
             rightItemKeyFormatter={date => {
               return new Date(date)
                 .toLocaleDateString('en-us', { weekday: "short", year: "numeric", month: "short", day: "numeric" })
