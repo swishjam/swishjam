@@ -2,9 +2,9 @@
 
 import { useState, useEffect } from 'react';
 import { API } from '@/lib/api-client/base';
-import LineChartWithValue from '@/components/DashboardComponents/LineChartWithValue';
-import ClickableValueCard from '@/components/DashboardComponents/ClickableValueCard';
-import BarListCard from '@/components/DashboardComponents/BarListCard';
+import LineChartWithValue from '@/components/Dashboards/Components/LineChartWithValue';
+import ClickableValueCard from '@/components/Dashboards/Components/ClickableValueCard';
+import BarList from '@/components/Dashboard/Components/BarList';
 import Timefilter from '@/components/Timefilter';
 import { Button } from '@/components/ui/button';
 import { ArrowPathIcon } from '@heroicons/react/24/outline';
@@ -199,13 +199,13 @@ export default function PageMetrics() {
       </div>
 
       <div className='grid grid-cols-2 gap-6 pt-8'>
-        <BarListCard title='Referrers' items={topReferrers} />
-        <BarListCard title='Top Pages' items={topPages} />
+        <BarList title='Referrers' items={topReferrers} />
+        <BarList title='Top Pages' items={topPages} />
       </div>
       <div className='grid grid-cols-2 gap-6 pt-8'>
-        <BarListCard title='Devices' items={topDevices} />
-        <BarListCard title='Browsers' items={topBrowsers} />
-        {/* <BarListCard title='Countries' items={topCountries} />  */}
+        <BarList title='Devices' items={topDevices} />
+        <BarList title='Browsers' items={topBrowsers} />
+        {/* <BarList title='Countries' items={topCountries} />  */}
       </div>
     </main>
   );

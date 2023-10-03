@@ -9,8 +9,8 @@ import { useAuthData } from '@/hooks/useAuthData';
 
 export default function AuthenticatedView({ children, LoadingView }) {
   // const [sideNavIsCollapsed, setSideNavIsCollapsed] = useState(typeof SwishjamMemory.get('isNavCollapsed') === 'boolean' ? SwishjamMemory.get('isNavCollapsed') : false);
-  const [sideNavIsCollapsed, setSideNavIsCollapsed] = useState(false);
   const router = useRouter();
+  const [sideNavIsCollapsed, setSideNavIsCollapsed] = useState(false);
   const { isAwaitingData, isLoggedOut, email } = useAuthData();
   
   if (isLoggedOut) {

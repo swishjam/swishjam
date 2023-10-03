@@ -2,11 +2,11 @@
 
 import { useState, useEffect } from 'react';
 import { API } from '@/lib/api-client/base';
-import LineChartWithValue from '@/components/DashboardComponents/LineChartWithValue';
-import ClickableValueCard from '@/components/DashboardComponents/ClickableValueCard';
-import ItemizedUsersList from '@/components/DashboardComponents/Prebuilt/ItemizedUsersList';
-import ItemizedOrganizationsList from '@/components/DashboardComponents/Prebuilt/ItemizedOrganizationList';
-import ActiveUsersLineChart from '@/components/DashboardComponents/Prebuilt/ActiveUsersLineChart';
+import LineChartWithValue from '@/components/Dashboards/Components/LineChartWithValue';
+import ClickableValueCard from '@/components/Dashboard/Components/ClickableValueCard';
+import ItemizedUsersList from '@/components/Dashboard/Components/Prebuilt/ItemizedUsersList';
+import ItemizedOrganizationsList from '@/components/Dashboard/Components/Prebuilt/ItemizedOrganizationList';
+import ActiveUsersLineChart from '@/components/Dashboard/Components/Prebuilt/ActiveUsersLineChart';
 import { Separator } from "@/components/ui/separator"
 import Timefilter from '@/components/Timefilter';
 import { Button } from '@/components/ui/button';

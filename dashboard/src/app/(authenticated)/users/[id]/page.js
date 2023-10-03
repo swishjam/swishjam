@@ -5,9 +5,9 @@ import { API } from "@/lib/api-client/base";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import EventFeed from "@/components/DashboardComponents/EventFeed";
-import LineChartWithValue from '@/components/DashboardComponents/LineChartWithValue';
-import BarListCard from "@/components/DashboardComponents/BarListCard";
+import EventFeed from "@/components/Dashboard/Components/EventFeed";
+import LineChartWithValue from '@/components/Dashboards/Components/LineChartWithValue';
+import BarList from "@/components/Dashboards/Components/BarList";
 
 const LoadingState = () => (
   <main className="mx-auto max-w-7xl px-4 mt-8 sm:px-6 lg:px-8 mb-8">
@@ -222,7 +222,7 @@ const UserProfile = ({ params }) => {
             />
           </div>
           <div className="col-span-5">
-            <BarListCard title='Page Views' items={pageViewsData} />
+            <BarList title='Page Views' items={pageViewsData} />
           </div>
           <EventFeed
             className="col-span-5"
