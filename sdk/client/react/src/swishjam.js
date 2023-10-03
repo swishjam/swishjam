@@ -2,7 +2,7 @@ const evalSdkMethod = (method, ...args) => {
   if (typeof window !== 'undefined') {
     if (window.Swishjam) {
       return window.Swishjam[method](...args)
-    } else if (['event', 'identify', 'setOrganization'].includes(method)) {
+    } else if (['event', 'identify', 'setOrganization', 'logout'].includes(method)) {
       window.swishjamEvents = (window.swishjamEvents || []).concat([{ method, args }])
     }
   }

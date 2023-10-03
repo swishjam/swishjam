@@ -1,15 +1,13 @@
 (function (cdnEndpoint, publicKey, options = {}) {
-  const inMemoryEvents = [];
-  const onLoadCallbacks = [];
+  window.swishjamEvents = [];
   window.Swishjam = window.Swishjam || {};
   window.Swishjam.stubbed = true;
-  window.Swishjam.init = () => console.warn('SwishjamJS not loaded yet, cannot call `init`.');
-  window.Swishjam.getSession = () => console.warn('SwishjamJS not loaded yet, cannot call `getSession`.');
-  window.Swishjam.newSession = () => console.warn('SwishjamJS not loaded yet, cannot call `newSession`.');
-  window.Swishjam.identify = (userIdentifier, traits) => inMemoryEvents.push({ name: 'identify', properties: { userIdentifier, ...traits }});
-  window.Swishjam.event = (eventName, properties) => inMemoryEvents.push({ name: eventName, properties });
-  window.Swishjam.setOrganization = (organizationIdentifier, traits) => inMemoryEvents.push({ name: 'organization', properties: { organizationIdentifier, ...traits }});
-  window.Swishjam.onLoad = callback => onLoadCallbacks.push(callback);
+  window.Swishjam.event = window.Swishjam.event || function(args) { window.swishjamEvents.push({ method: 'event', args }) };
+  window.Swishjam.identify = window.Swishjam.identify || function(args) { window.swishjamEvents.push({ method: 'identify', args }) };
+  window.Swishjam.setOrganization = window.Swishjam.setOrganization || function(args) { window.swishjamEvents.push({ method: 'setOrganization', args }) };
+  window.Swishjam.logout = window.Swishjam.ogout || function() { window.swishjamEvents.push({ method: 'logout' }) };
+  window.Swishjam.getSession = window.Swishjam.getSession || function() { console.warn('SwishjamJS not loaded yet, cannot call `getSession`.') };
+  window.Swishjam.newSession = window.Swishjam.newSession || function() { console.warn('SwishjamJS not loaded yet, cannot call `newSession`.') };
   
   const s = document.createElement('script');
   s.setAttribute('src', cdnEndpoint);
@@ -18,21 +16,4 @@
   if (options.maxEventsInMemory) s.setAttribute('data-max-events-in-memory', options.maxEventsInMemory);
   if (options.reportingHeartbeatMs) s.setAttribute('data-reporting-heartbeat-ms', options.reportingHeartbeatMs);
   document.head.appendChild(s);
-  
-  s.onload = () => {
-    inMemoryEvents.forEach(event => {
-      switch (event.name) {
-        case 'identify':
-          window.Swishjam.identify(event.properties.userIdentifier, event.properties);
-          break;
-        case 'organization':
-          window.Swishjam.setOrganization(event.properties.organizationIdentifier, event.properties);
-          break;
-        default:
-          window.Swishjam.event(event.name, event.properties);
-          break;
-      }
-    });
-    onLoadCallbacks.forEach(callback => callback(window.Swishjam));
-  }
 })('https://unpkg.com/@swishjam/cdn@latest/build.js', '{{SWISHJAM_PUBLIC_KEY}}', { apiEndpoint: 'https://swishjam-prod-9a00662c420f75d5.onporter.run/api/v1/capture' })

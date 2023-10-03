@@ -103,7 +103,7 @@ export class Client {
 
   _recordInMemoryEvents = () => {
     (window.swishjamEvents || []).forEach(({ method, args }) => {
-      const func = { event: this.record, identify: this.identify, setOrganization: this.setOrganization }[method];
+      const func = { event: this.record, identify: this.identify, setOrganization: this.setOrganization, logout: this.logout }[method];
       if (func) func(...args)
     })
     delete window.swishjamEvents;
