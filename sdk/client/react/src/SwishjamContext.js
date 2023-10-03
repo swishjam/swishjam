@@ -1,6 +1,6 @@
 import { createContext, useContext } from 'react';
 
-export const SwishjamContext = createContext({ defaultContextTest: 'foo!' });
+export const SwishjamContext = createContext();
 export const useSwishjam = () => {
   const context = useContext(SwishjamContext);
   if (!context) {
