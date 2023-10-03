@@ -102,7 +102,7 @@ export class Client {
   }
 
   _recordInMemoryEvents = () => {
-    window.swishjamEvents.forEach(({ method, args }) => {
+    (window.swishjamEvents || []).forEach(({ method, args }) => {
       const func = { event: this.record, identify: this.identify, setOrganization: this.setOrganization }[method];
       if (func) func(...args)
     })
