@@ -16,6 +16,7 @@ export class Client {
     // the order here is important, we want to make sure we have a session before we start register the page views in the _initPageViewListeners
     if (!this.getSession()) this.newSession({ registerPageView: false });
     this._initPageViewListeners();
+    this._recordInMemoryEvents();
   }
 
   record = (eventName, properties) => {
@@ -78,7 +79,7 @@ export class Client {
       this.eventManager.recordEvent('page_view', { referrer: previousUrl });
     });
     window.addEventListener('beforeunload', async () => {
-      this.eventManager.recordEvent('page_left');
+      this.eventManager.recordEvent('page_left', { milliseconds_on_page: this.pageViewManager.millisecondsOnCurrentPage() });
       await this.eventManager.flushQueue();
     })
     this.pageViewManager.recordPageView();
@@ -93,10 +94,18 @@ export class Client {
     return {
       version: SDK_VERSION,
       apiKey: options.apiKey,
-      apiEndpoint: options.apiEndpoint || 'https://api2.swishjam.com/api/v1/capture',
+      apiEndpoint: options.apiEndpoint || 'https://capture.swishjam.com/api/v1/capture',
       maxEventsInMemory: options.maxEventsInMemory || 20,
       reportingHeartbeatMs: options.reportingHeartbeatMs || 10_000,
       debug: typeof options.debug === 'boolean' ? options.debug : false,
     }
+  }
+
+  _recordInMemoryEvents = () => {
+    (window.swishjamEvents || []).forEach(({ method, args }) => {
+      const func = { event: this.record, identify: this.identify, setOrganization: this.setOrganization, logout: this.logout }[method];
+      if (func) func(...args)
+    })
+    delete window.swishjamEvents;
   }
 }

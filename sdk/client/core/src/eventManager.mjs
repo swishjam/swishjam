@@ -16,11 +16,11 @@ export class EventManager {
 
   getData = () => this.data;
 
-  recordEvent = async (eventName, properties) => {
+  recordEvent = (eventName, properties) => {
     const event = new Event(eventName, properties);
     this.data.push(event.toJSON());
     if (this.data.length >= this.maxSize) {
-      await this._reportDataIfNecessary();
+      this._reportDataIfNecessary();
     }
     return event;
   }

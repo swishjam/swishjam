@@ -6,6 +6,7 @@ export class PageViewManager {
 
   currentUrl = () => this._currentUrl;
   previousUrl = () => this._previousUrl || document.referrer;
+  millisecondsOnCurrentPage = () => this._arrivedAtCurrentPage ? new Date() - this._arrivedAtCurrentPage : 0;
 
   onNewPage = callback => {
     this.newPageCallbacks.push(callback);
@@ -15,6 +16,7 @@ export class PageViewManager {
     const url = window.location.href;
     this._previousUrl = this._currentUrl || document.referrer;
     this._currentUrl = url;
+    this._arrivedAtCurrentPage = new Date();
     this.newPageCallbacks.forEach(func => func(this.currentUrl(), this.previousUrl()));
   }
 
