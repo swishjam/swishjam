@@ -9,9 +9,8 @@ module ClickHouseQueries
         include ClickHouseQueries::Helpers
         include TimeseriesHelper
 
-        def initialize(public_key, analytics_family: 'product', start_time: self.class.default_start_time, end_time: self.class.default_end_time || Time.current)
-          @public_key = public_key
-          @analytics_family = analytics_family
+        def initialize(public_keys, start_time: self.class.default_start_time, end_time: self.class.default_end_time || Time.current)
+          @public_keys = public_keys.is_a?(Array) ? public_keys : [public_keys]
           @start_time, @end_time = rounded_timestamps(start_ts: start_time, end_ts: end_time, group_by: self.class.sql_date_trunc_unit)
         end
 
@@ -48,13 +47,12 @@ module ClickHouseQueries
                 MAX(occurred_at) AS max_occurred_at,
                 argMax(swishjam_user_id, occurred_at) AS swishjam_user_id
               FROM user_identify_events AS uie
-              WHERE swishjam_api_key = '#{@public_key}'
+              WHERE swishjam_api_key IN #{formatted_in_clause(@public_keys)}
               GROUP BY device_identifier
             ) AS identify ON identify.device_identifier = JSONExtractString(events.properties, '#{Analytics::Event::ReservedPropertyNames.DEVICE_IDENTIFIER}')
             WHERE
-              events.swishjam_api_key = '#{@public_key}' AND
-              events.occurred_at BETWEEN '#{formatted_time(@start_time)}' AND '#{formatted_time(@end_time)}' AND
-              events.analytics_family = '#{@analytics_family}'
+              events.swishjam_api_key IN #{formatted_in_clause(@public_keys)} AND
+              events.occurred_at BETWEEN '#{formatted_time(@start_time)}' AND '#{formatted_time(@end_time)}'
             GROUP BY group_by_date, year
             ORDER BY group_by_date ASC
           SQL

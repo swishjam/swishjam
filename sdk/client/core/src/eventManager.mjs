@@ -38,23 +38,41 @@ export class EventManager {
   _reportDataIfNecessary = async () => {
     try {
       if (this.data.length === 0 || this.numFailedReports >= this.maxNumFailedReports) return;
-      const response = await fetch(this.apiEndpoint, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-Swishjam-Api-Key': this.apiKey,
-        },
-        body: JSON.stringify(this.data)
-      })
-      if (response.ok) {
-        this.data = [];
-      } else {
-        this.numFailedReports += 1;
-        // console.error('Swishjam failed to report data', response);
-      }
+      this._sendDataViaFetch();
     } catch(err) {
       this.numFailedReports += 1;
       // console.error('Swishjam failed to report data', err);
     }
   }
+
+  _sendDataViaFetch = async () => {
+    const response = await fetch(this.apiEndpoint, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Swishjam-Api-Key': this.apiKey,
+      },
+      body: JSON.stringify(this.data),
+      keepalive: true,
+    })
+    if (response.ok) {
+      this.data = [];
+      return response;
+    } else {
+      this.numFailedReports += 1;
+      return response;
+    }
+  }
+
+  // _sendDataViaBeacon = async () => {
+  //   const blob = new Blob([JSON.stringify({ public_key: this.apiKey,  ...this.data})], { type: 'application/json' });
+  //   const success = navigator.sendBeacon(this.apiEndpoint, blob);
+  //   if (success) {
+  //     this.data = [];
+  //     return success;
+  //   } else {
+  //     this.numFailedReports += 1;
+  //     return success;
+  //   }
+  // }
 }

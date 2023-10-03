@@ -2,18 +2,20 @@ import { PageViewManager } from "./pageViewManager.mjs";
 import { EventManager } from "./eventManager.mjs";
 import { DataPersister } from "./dataPersister.mjs";
 import { DeviceDetails } from "./deviceDetails.mjs";
+import { DeviceIdentifier } from "./deviceIdentifier.mjs";
 import { UUID } from "./uuid.mjs";
-import { SDK_VERSION } from './version.mjs'
+import { SDK_VERSION } from './constants.mjs'
 
 export class Client {
   constructor(options = {}) {
     this.config = this._setConfig(options);
     this.eventManager = new EventManager(this.config);
     this.pageViewManager = new PageViewManager;
-    // the order here is important, we want to make sure we have a session before we start listening for page views
+    this.deviceDetails = new DeviceDetails;
+    this.devideIdentifier = new DeviceIdentifier;
+    // the order here is important, we want to make sure we have a session before we start register the page views in the _initPageViewListeners
     if (!this.getSession()) this.newSession({ registerPageView: false });
     this._initPageViewListeners();
-    console.log('SwishjamJS Version:', SDK_VERSION)
   }
 
   record = (eventName, properties) => {
@@ -43,10 +45,15 @@ export class Client {
     DataPersister.set('sessionId', UUID.generate('s'));
     this.record('new_session', { 
       referrer: this.pageViewManager.previousUrl(),
-      ...DeviceDetails.all()
+      ...this.deviceDetails.all()
     });
     if (registerPageView) this.pageViewManager.recordPageView();
     return this.getSession();
+  }
+
+  logout = () => {
+    this.deviceIdentifier.resetDeviceIdentifierValue();
+    return this.newSession();
   }
 
   _extractOrganizationFromIdentifyCall = identifyTraits => {
@@ -70,7 +77,7 @@ export class Client {
       DataPersister.set('pageViewId', UUID.generate('pv'));
       this.eventManager.recordEvent('page_view', { referrer: previousUrl });
     });
-    window.addEventListener('pagehide', async () => {
+    window.addEventListener('beforeunload', async () => {
       this.eventManager.recordEvent('page_left');
       await this.eventManager.flushQueue();
     })

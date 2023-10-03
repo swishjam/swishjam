@@ -2,6 +2,7 @@ module Api
   module V1
     class BillingDataSnapshotsController < BaseController
       def index
+        params[:data_source] = ApiKey::ReservedDataSources.INTEGRATIONS
         current_billing_data = get_billing_data(start_timestamp, end_timestamp)
         comparison_billing_data = get_billing_data(comparison_start_timestamp, comparison_end_timestamp)
         render json: {
@@ -40,12 +41,11 @@ module Api
       private
       
       def get_billing_data(start_time, end_time)
-        ClickHouseQueries::BillingDataSnapshots::All.new(current_workspace.public_key, start_time: start_time, end_time: end_time).timeseries
-        # current_workspace.analytics_billing_data_snapshots
-        #                     .captured_after(start_time)
-        #                     .captured_at_or_before(end_time)
-        #                     .order(captured_at: :asc)
-        #                     .select(:mrr_in_cents, :total_revenue_in_cents, :num_active_subscriptions, :num_free_trial_subscriptions, :num_canceled_subscriptions, :captured_at)
+        ClickHouseQueries::BillingDataSnapshots::All.new(
+          public_keys_for_requested_data_source,
+          start_time: start_time, 
+          end_time: end_time
+        ).timeseries
       end
     end
   end

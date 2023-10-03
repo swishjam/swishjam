@@ -4,8 +4,8 @@ module ClickHouseQueries
       class All
         include ClickHouseQueries::Helpers
         
-        def initialize(public_key, organization_profile_id:, limit: 10, start_time: 6.months.ago, end_time: Time.current)
-          @public_key = public_key
+        def initialize(public_keys, organization_profile_id:, limit: 10, start_time: 6.months.ago, end_time: Time.current)
+          @public_keys = public_keys.is_a?(Array) ? public_keys : [public_keys]
           @organization_profile_id = organization_profile_id
           @limit = limit
           @start_time = start_time
@@ -17,7 +17,6 @@ module ClickHouseQueries
         end
 
         def sql
-          url_host_filter = @url_hosts.any? ? " AND e.url_host IN (#{@url_hosts.map{ |host| "'#{host}'" }.join(', ')})" : ''
           <<~SQL
             SELECT 
               e.uuid AS uuid,
@@ -37,9 +36,8 @@ module ClickHouseQueries
               GROUP BY swishjam_organization_id
             ) AS orgs_sessions ON e.session_identifier = orgs_sessions.session_identifier
             WHERE 
-              e.swishjam_api_key = '#{@public_key}' AND
+              e.swishjam_api_key IN #{formatted_in_clause(@public_keys)} AND
               e.occurred_at BETWEEN '#{formatted_time(@start_time)}' AND '#{formatted_time(@end_time)}'
-              #{url_host_filter}
             ORDER BY e.occurred_at DESC
             LIMIT #{@limit}
           SQL

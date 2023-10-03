@@ -1,19 +1,20 @@
 import { useState, useEffect } from 'react';
 import LoadingSpinner from '@/components/LoadingSpinner';
-import { useAuthData, setAuthToken } from '@/components/Auth/AuthProvider';
+import { useAuthData } from '@/hooks/useAuthData'
+import { setAuthToken } from '@/lib/auth';
 import { API } from '@/lib/api-client/base';
 import { CheckCircleIcon } from '@heroicons/react/24/outline';
 
 export default function WorkspaceForm({ onUpdate = () => {}, isSubmittable = true }) {
-  const { authData } = useAuthData();
+  const { currentWorkspaceName } = useAuthData();
   const [workspaceName, setWorkspaceName] = useState();
   const [errorMessage, setErrorMessage] = useState();
   const [isLoading, setIsLoading] = useState(false);
   const [showSuccessIndicator, setShowSuccessIndicator] = useState(false);
 
   useEffect(() => {
-    setWorkspaceName(authData?.currentWorkspaceName());
-  }, [authData?.currentWorkspaceName()])
+    setWorkspaceName(currentWorkspaceName);
+  }, [currentWorkspaceName])
 
   const handleSubmit = (e) => {
     if (!isSubmittable) return;

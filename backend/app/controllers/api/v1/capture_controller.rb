@@ -7,11 +7,13 @@ module Api
           render json: { error: 'Not Authorized' }, status: :unauthorized
           return
         end
-        CaptureAnalyticDataJob.perform_async(api_key, JSON.parse(request.body.read), request.ip)
+        payload = JSON.parse(request.body.read || '{}')
+        CaptureAnalyticDataJob.perform_async(api_key, payload, request.ip)
         render json: { message: 'ok' }, status: :ok
       rescue => e
         Rails.logger.error "Error capturing analytic event: #{e.message}"
         Rails.logger.error e.backtrace.join("\n")
+        Sentry.capture_exception(e) if ENV['SENTRY_DSN'].present?
         render json: { error: e.message }, status: :bad_request
       end
     end

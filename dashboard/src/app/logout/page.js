@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect } from "react";
-import { logUserOut } from "@/components/Auth/AuthProvider";
+import { logUserOut } from "@/lib/auth";
 import { useRouter } from "next/navigation";
 import LoadingSpinner from "@/components/LoadingSpinner";
 
@@ -10,7 +10,10 @@ export default function Logout() {
   const router = useRouter();
 
   useEffect(() => {
-    logUserOut().then(() => router.push('/login'));
+    logUserOut().then(() => {
+      // router.push('/login')
+      window.location.href = '/login';
+    });
   }, []);
 
   return (

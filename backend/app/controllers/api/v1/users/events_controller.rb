@@ -4,14 +4,15 @@ module Api
       class EventsController < BaseController
         def index
           limit = params[:limit] || 10
+          params[:data_source] ||= 'all'
           events = ClickHouseQueries::Users::Events::List.new(
-            current_workspace.public_key, 
+            public_keys_for_requested_data_source,
             user_profile_id: @user.id, 
             limit: limit, 
             start_time: 1.year.ago,
             end_time: end_timestamp
           ).get
-          render json: events, each_serializer: Analytics::EventSerializer, status: :ok
+          render json: events, status: :ok
         end
       end
     end

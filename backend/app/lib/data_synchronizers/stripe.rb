@@ -9,21 +9,22 @@ module DataSynchronizers
     
     def sync!
       create_billing_data_snapshot!
-      create_customer_billing_data_snapshots!
-      create_or_update_customer_subscriptions!
-      create_or_update_payments!
+      # create_customer_billing_data_snapshots!
+      # create_or_update_customer_subscriptions!
+      # create_or_update_payments!
     end
 
     private
 
     def create_billing_data_snapshot!
       Analytics::BillingDataSnapshot.create!(
-        swishjam_api_key: @workspace.public_key,
+        swishjam_api_key: @workspace.api_keys.for_data_source!(ApiKey::ReservedDataSources::INTEGRATIONS).public_key,
         mrr_in_cents: @stripe_metrics.mrr,
         total_revenue_in_cents: @stripe_metrics.total_revenue,
-        num_active_subscriptions: @stripe_metrics.total_active_subscriptions,
-        num_free_trial_subscriptions: @stripe_metrics.total_free_trial_subscriptions,
-        num_canceled_subscriptions: @stripe_metrics.total_canceled_subscriptions,
+        num_active_subscriptions: @stripe_metrics.total_num_active_subscriptions,
+        num_paid_subscriptions: @stripe_metrics.total_num_paid_subscriptions,
+        num_free_trial_subscriptions: @stripe_metrics.total_num_free_trial_subscriptions,
+        num_canceled_subscriptions: @stripe_metrics.total_num_canceled_subscriptions,
         captured_at: Time.current
       )
     end
@@ -31,7 +32,7 @@ module DataSynchronizers
     def create_customer_billing_data_snapshots!
       @stripe_metrics.subscriptions.each do |stripe_subscription|
         Analytics::CustomerBillingDataSnapshot.create!(
-          swishjam_api_key: @workspace.public_key,
+          swishjam_api_key: @workspace.api_keys.for_data_source!(ApiKey::ReservedDataSources::INTEGRATIONS).public_key,
           owner: @customer_profile_data_mapper.find_or_create_owner(stripe_subscription.customer),
           customer_email: stripe_subscription.customer&.email,
           customer_name: stripe_subscription.customer&.name,

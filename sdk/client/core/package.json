@@ -1,5 +1,5 @@
 {
-  "version": "0.0.126",
+  "version": "0.0.215",
   "name": "@swishjam/core",
   "description": "The official Swishjam JS client to instrument your webpages with.",
   "homepage": "https://swishjam.com",
@@ -7,7 +7,7 @@
     "type": "git",
     "url": "https://github.com/swishjam/swishjam/tree/main/sdk/client/npm"
   },
-  "main": "./src/swishjam.js",
+  "main": "./src/swishjam.mjs",
   "exports": "./src/swishjam.mjs",
   "scripts": {},
   "author": "",
@@ -17,6 +17,6 @@
     "jest-environment-jsdom": "^29.6.2"
   },
   "dependencies": {
-    "@swishjam/clientjs": "^0.2.1"
+    "ua-parser-js": "^1.0.36"
   }
 }

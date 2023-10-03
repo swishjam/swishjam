@@ -4,7 +4,7 @@ const _client = Symbol('client');
 
 export default class Swishjam {
   constructor (options) {
-    if (window.Swishjam) {
+    if (window.Swishjam && !window.Swishjam.stubbed) {
       console.warn('SwishjamJS already initialized. Returning existing instance.');
       return window.Swishjam;
     }
@@ -19,4 +19,5 @@ export default class Swishjam {
   setOrganization = (organizationIdentifier, traits) => this[_client].setOrganization(organizationIdentifier, traits);
   getSession = () => this[_client].getSession();
   newSession = () => this[_client].newSession();
+  logout = () => this[_client].logout();
 }

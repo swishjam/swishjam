@@ -2,6 +2,12 @@
 @tailwind components;
 @tailwind utilities;
 
+.recharts-wrapper .recharts-cartesian-grid-horizontal line:first-child,
+.recharts-wrapper .recharts-cartesian-grid-vertical line:first-child,
+.recharts-wrapper .recharts-cartesian-grid-vertical line:last-child {
+  stroke-opacity: 0 !important;
+}
+
 @layer base {
   :root {
     --background: 0 0% 100%;
