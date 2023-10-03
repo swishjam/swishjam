@@ -16,6 +16,7 @@ export class Client {
     // the order here is important, we want to make sure we have a session before we start register the page views in the _initPageViewListeners
     if (!this.getSession()) this.newSession({ registerPageView: false });
     this._initPageViewListeners();
+    this._recordInMemoryEvents();
   }
 
   record = (eventName, properties) => {
@@ -98,5 +99,13 @@ export class Client {
       reportingHeartbeatMs: options.reportingHeartbeatMs || 10_000,
       debug: typeof options.debug === 'boolean' ? options.debug : false,
     }
+  }
+
+  _recordInMemoryEvents = () => {
+    window.swishjamEvents.forEach(({ method, args }) => {
+      const func = { event: this.record, identify: this.identify, setOrganization: this.setOrganization }[method];
+      if (func) func(...args)
+    })
+    delete window.swishjamEvents;
   }
 }

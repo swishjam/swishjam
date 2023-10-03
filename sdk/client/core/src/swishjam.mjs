@@ -14,15 +14,16 @@ export default class Swishjam {
     return this;
   }
 
-  event = (eventName, properties) => this.__safely(this[_client].record(eventName, properties));
-  identify = (userIdentifier, traits) => this.__safely(this[_client].identify(userIdentifier, traits));
-  setOrganization = (organizationIdentifier, traits) => this.__safely(this[_client].setOrganization(organizationIdentifier, traits));
-  getSession = () => this.__safely(this[_client].getSession());
-  newSession = () => this.__safely(this[_client].newSession());
-  logout = () => this.__safely(this[_client].logout());
-  __safely = func => {
+  event = (eventName, properties) => this.__safely(this[_client].record, eventName, properties);
+  identify = (userIdentifier, traits) => this.__safely(this[_client].identify, userIdentifier, traits);
+  setOrganization = (organizationIdentifier, traits) => this.__safely(this[_client].setOrganization, organizationIdentifier, traits);
+  getSession = () => this.__safely(this[_client].getSession);
+  newSession = () => this.__safely(this[_client].newSession);
+  logout = () => this.__safely(this[_client].logout);
+
+  __safely = (func, ...args) => {
     try {
-      func()
+      return func(...args)
     } catch(err) {
       console.error(`Failed to run Swishjam method \`${func.name}\`: ${err.message}`);
     }
