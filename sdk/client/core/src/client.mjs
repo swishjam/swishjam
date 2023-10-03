@@ -78,7 +78,7 @@ export class Client {
       this.eventManager.recordEvent('page_view', { referrer: previousUrl });
     });
     window.addEventListener('beforeunload', async () => {
-      this.eventManager.recordEvent('page_left');
+      this.eventManager.recordEvent('page_left', { milliseconds_on_page: this.pageViewManager.millisecondsOnCurrentPage() });
       await this.eventManager.flushQueue();
     })
     this.pageViewManager.recordPageView();
@@ -93,7 +93,7 @@ export class Client {
     return {
       version: SDK_VERSION,
       apiKey: options.apiKey,
-      apiEndpoint: options.apiEndpoint || 'https://api2.swishjam.com/api/v1/capture',
+      apiEndpoint: options.apiEndpoint || 'https://capture.swishjam.com/api/v1/capture',
       maxEventsInMemory: options.maxEventsInMemory || 20,
       reportingHeartbeatMs: options.reportingHeartbeatMs || 10_000,
       debug: typeof options.debug === 'boolean' ? options.debug : false,
