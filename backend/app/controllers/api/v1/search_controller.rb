@@ -11,7 +11,8 @@ module Api
                     LOWER(email) LIKE :query OR 
                     LOWER(first_name) LIKE :query OR 
                     LOWER(last_name) LIKE :query OR 
-                    LOWER(user_unique_identifier) LIKE :query
+                    LOWER(user_unique_identifier) LIKE :query OR
+                    LOWER(first_name) || \' \' || LOWER(last_name) LIKE :query
                   ', query: "%#{query}%")
                   .order(created_at: :desc)
                   .limit(limit)

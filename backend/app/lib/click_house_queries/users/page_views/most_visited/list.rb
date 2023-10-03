@@ -22,7 +22,7 @@ module ClickHouseQueries
           def sql
             <<~SQL
               SELECT 
-                COUNT() AS count,
+                CAST(COUNT() AS int) AS count,
                 domain(JSONExtractString(e.properties, 'url')) AS url_host,
                 path(JSONExtractString(e.properties, 'url')) AS url_path
               FROM events AS e

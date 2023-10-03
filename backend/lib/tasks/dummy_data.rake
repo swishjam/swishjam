@@ -104,60 +104,67 @@ def seed_sessions_page_hits_and_events!
   }[NUMBER_OF_SESSIONS_TO_GENERATE]
 
   sessions = NUMBER_OF_SESSIONS_TO_GENERATE.times.map do
-    session_identifier = SecureRandom.uuid
-    user_profile = AnalyticsUserProfile.all.sample
-    user_is_anonymous = rand() < 0.75
-    swishjam_user_id = user_is_anonymous ? nil : user_profile.id
+    # user_profile = AnalyticsUserProfile.all.sample
+    # user_is_anonymous = rand() < 0.75
+    # swishjam_user_id = user_is_anonymous ? nil : user_profile.id
     device_identifier = DEVICE_IDENTIFIERS.sample
     session_start_time = Time.current - rand(0..max_days_ago).days
-
-    session_referrer = "https://#{REFERRER_HOSTS[rand(0..REFERRER_HOSTS.count - 1)]}#{URL_PATHS[rand(0..URL_PATHS.count - 1)]}"
-    session_start_url = "https://#{HOST_URL}#{URL_PATHS[rand(0..URL_PATHS.count - 1)]}"
     public_key = [
       WORKSPACE.api_keys.for_data_source!(ApiKey::ReservedDataSources.PRODUCT).public_key,
       WORKSPACE.api_keys.for_data_source!(ApiKey::ReservedDataSources.MARKETING).public_key,
     ].sample
-    session_event = Analytics::Event.create!(
-      uuid: SecureRandom.uuid,
-      swishjam_api_key: public_key,
-      name: Analytics::Event::ReservedNames.NEW_SESSION,
-      occurred_at: session_start_time,
-      properties: {
-        device_identifier: device_identifier,
-        session_identifier: session_identifier,
-        url: session_start_url,
-        referrer: session_referrer,
-        is_mobile: [true, false].sample,
-        device_type: ['mobile', 'desktop'].sample,
-        browser_name: ['Chrome', 'Firefox', 'Safari', 'Internet Explorer'].sample,
-        browser_version: rand(1..10).to_s,
-        os: ['Mac OS X', 'Windows', 'Linux'].sample,
-        os_version: rand(1..10).to_s,
-        user_agent: Faker::Internet.user_agent,
-      }
-    )
 
-    rand(1..10).times do |i|
-      page_view_event = create_page_view_event!(
-        public_key: public_key,
-        session_identifier: session_identifier, 
-        device_identifier: device_identifier, 
-        occurred_at: session_start_time + (i * 2).minutes + 1.second,
-      )
-    end
-    rand(1..10).times do |i|
-      create_rand_event!(
-        public_key: public_key,
-        session_identifier: session_identifier, 
-        device_identifier: device_identifier, 
-        occurred_at: session_start_time + (i * 2).minutes + 30.seconds,
-      )
-    end
+    session_event = create_session_with_events!(public_key: public_key, device_identifier: device_identifier, session_start_time: session_start_time)
+
     progress_bar.advance
     session_event
   end
   puts "\n"
   sessions
+end
+
+def create_session_with_events!(public_key:, device_identifier:, session_start_time:)
+  session_identifier = SecureRandom.uuid
+  session_referrer = "https://#{REFERRER_HOSTS[rand(0..REFERRER_HOSTS.count - 1)]}#{URL_PATHS[rand(0..URL_PATHS.count - 1)]}"
+  session_start_url = "https://#{HOST_URL}#{URL_PATHS[rand(0..URL_PATHS.count - 1)]}"
+
+  session_event = Analytics::Event.create!(
+    uuid: SecureRandom.uuid,
+    swishjam_api_key: public_key,
+    name: Analytics::Event::ReservedNames.NEW_SESSION,
+    occurred_at: session_start_time,
+    properties: {
+      device_identifier: device_identifier,
+      session_identifier: session_identifier,
+      url: session_start_url,
+      referrer: session_referrer,
+      is_mobile: [true, false].sample,
+      device_type: ['mobile', 'desktop'].sample,
+      browser_name: ['Chrome', 'Firefox', 'Safari', 'Internet Explorer'].sample,
+      browser_version: rand(1..10).to_s,
+      os: ['Mac OS X', 'Windows', 'Linux'].sample,
+      os_version: rand(1..10).to_s,
+      user_agent: Faker::Internet.user_agent,
+    }
+  )
+
+  rand(1..10).times do |i|
+    page_view_event = create_page_view_event!(
+      public_key: public_key,
+      session_identifier: session_identifier, 
+      device_identifier: device_identifier, 
+      occurred_at: session_start_time + (i * 2).minutes + 1.second,
+    )
+  end
+  rand(1..10).times do |i|
+    create_rand_event!(
+      public_key: public_key,
+      session_identifier: session_identifier, 
+      device_identifier: device_identifier, 
+      occurred_at: session_start_time + (i * 2).minutes + 30.seconds,
+    )
+  end
+  session_event
 end
 
 def create_page_view_event!(public_key:, session_identifier:, device_identifier:, occurred_at:)
@@ -264,6 +271,37 @@ def prompt_and_find_or_create_user!
   puts "\n"
 end
 
+def generate_specific_user_data_if_necessary!
+  should_generate = PROMPTER.select('Generate data for specific user?', ['yes', 'no']){ |q| q.default 'yes' }
+  if should_generate == 'yes'
+    email = PROMPTER.ask("Enter the email for the user:"){ |q| q.required true }
+    first_name = PROMPTER.ask('Enter first name for the user:'){ |q| q.required true }
+    last_name = PROMPTER.ask('Enter last name for the user:'){ |q| q.required true }
+    user_profile = AnalyticsUserProfile.create!(workspace: WORKSPACE, email: email, first_name: first_name, last_name: last_name, user_unique_identifier: email)
+
+    domain_name = email.split('@')[-1]
+    organization_name = domain_name.split('.')[0].capitalize
+    user_profile.analytics_organization_profiles << AnalyticsOrganizationProfile.create!(workspace: WORKSPACE, name: organization_name, organization_unique_identifier: organization_name)
+
+    device_identifier = SecureRandom.uuid
+    identify = Analytics::UserIdentifyEvent.create!(
+      swishjam_api_key: WORKSPACE.api_keys.for_data_source!(ApiKey::ReservedDataSources.PRODUCT).public_key,
+      device_identifier: device_identifier,
+      swishjam_user_id: user_profile.id,
+      occurred_at: Faker::Time.between(from: 1.year.ago, to: Time.now),
+    )
+
+    public_key = WORKSPACE.api_keys.for_data_source!(rand() > 0.75 ? ApiKey::ReservedDataSources.MARKETING : ApiKey::ReservedDataSources.PRODUCT).public_key
+
+    puts "Generating 10 random sessions with events for #{user_profile.email}"
+    10.times do
+      create_session_with_events!(public_key: public_key, device_identifier: device_identifier, session_start_time: session_start_time = Time.current - rand(0..30).days)
+    end
+  else
+    puts "Not generating specific user data."
+  end
+end
+
 namespace :seed do
   desc "Seeds the database with sample data"
   task dummy_data: [:environment] do
@@ -277,9 +315,13 @@ namespace :seed do
       HOST_URL = Faker::Internet.domain_name
       NUMBER_OF_USERS = (NUMBER_OF_SESSIONS_TO_GENERATE * 0.75).to_i
       DEVICE_IDENTIFIERS = (NUMBER_OF_USERS * 1.05).to_i.times.map{ SecureRandom.uuid }
-      URL_PATHS = 50.times.map{ URI.parse(Faker::Internet.url).path }
-      REFERRER_HOSTS = 50.times.map{ URI.parse(Faker::Internet.url).host }
-      EVENT_NAMES = 100.times.map{ Faker::Lorem.word }
+      URL_PATHS = 10.times.map{ URI.parse(Faker::Internet.url).path }
+      REFERRER_HOSTS = 10.times.map{ URI.parse(Faker::Internet.url).host }
+      # EVENT_NAMES = 50.times.map{ Faker::Lorem.word }
+      EVENT_NAMES = [
+        'PDF Downloaded', 'Chat Initiated', 'Chat Closed', 'Invited Teammate', 'Support Ticket Submitted', 'Search Submitted', 'Feedback Provided',
+        'AI Hallucination Recieved', 'Updated Setting', 'API Error Received', 'Upgraded Subscription Plan', 'Added Seat', 'Payment Submitted'
+      ]
       USER_ATTRIBUTE_OPTIONS = [
         { key: 'Favorite beer', faker_klass: Faker::Beer, faker_method: 'name' },
         { key: 'Personal bank', faker_klass: Faker::Bank, faker_method: 'name' },
@@ -300,6 +342,8 @@ namespace :seed do
       new_session_events = seed_sessions_page_hits_and_events!
       create_organization_identify_events_for_sessions!(new_session_events)
       seed_billing_data!
+
+      generate_specific_user_data_if_necessary!
 
       puts "Seed completed in #{Time.now - START_TIME} seconds."
     end
