@@ -216,33 +216,34 @@ export default function Home() {
       </div>
       <div className='grid grid-cols-2 gap-6 pt-8'>
         <ItemizedList
-          title='New Users'
-          viewMoreUrl='/users'
+          fallbackAvatarGenerator={user => user.initials}
           items={newUsersData}
           leftItemHeaderKey='full_name'
           leftItemSubHeaderKey='email'
+          linkFormatter={user => `/users/${user.id}`}
           rightItemKey ='created_at'
           rightItemKeyFormatter={date => {
             return new Date(date)
               .toLocaleDateString('en-us', { weekday: "short", year: "numeric", month: "short", day: "numeric" })
               .replace(`, ${new Date(date).getFullYear()}`, '')
           }}
-          fallbackAvatarGenerator={user => (user.full_name || user.email).split(' ').map(name => name[0]).join('').toUpperCase()}
-          linkFormatter={user => `/users/${user.id}`}
+          title='New Users'
+          viewMoreUrl='/users'
         />
         <ItemizedList
-          title='New Organizations'
+          fallbackAvatarGenerator={org => org.initials}
           items={newOrganizationsData}
           leftItemHeaderKey='name'
+          linkFormatter={org => `/organizations/${org.id}`}
+          noDataMsg='No organizations identified yet.'
           rightItemKey='created_at'
           rightItemKeyFormatter={date => {
             return new Date(date)
               .toLocaleDateString('en-us', { weekday: "short", year: "numeric", month: "short", day: "numeric" })
               .replace(`, ${new Date(date).getFullYear()}`, '')
           }}
-          fallbackAvatarGenerator={org => org.name.split(' ').map(name => name[0]).join('').toUpperCase()}
-          linkFormatter={org => `/organizations/${org.id}`}
-          noDataMsg='No organizations identified yet.'
+          title='New Organizations'
+          viewMoreUrl='/organizations'
         />
       </div>
     </main>

@@ -1,5 +1,3 @@
-import { ONE_DAY_IN_MS, startOfDay, dateToUTC } from "./timeHelpers";
-
 const dateFormatterForGrouping = grouping => {
   switch(grouping) {
     case 'month':
