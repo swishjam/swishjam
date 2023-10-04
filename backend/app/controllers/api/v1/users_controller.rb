@@ -55,7 +55,27 @@ module Api
           'weekly' => ClickHouseQueries::Users::Active::Weekly,
           'monthly' => ClickHouseQueries::Users::Active::Monthly
         }[params[:type]].new(public_keys_for_requested_data_source, start_time: start_timestamp, end_time: end_timestamp).timeseries
-        render json: { current_value: active_users.current_value, timeseries: active_users.formatted_data }, status: :ok
+
+        comparison_active_users = nil
+        if params[:include_comparison]
+          comparison_active_users = {
+            'daily' => ClickHouseQueries::Users::Active::Daily,
+            'weekly' => ClickHouseQueries::Users::Active::Weekly,
+            'monthly' => ClickHouseQueries::Users::Active::Monthly
+          }[params[:type]].new(public_keys_for_requested_data_source, start_time: comparison_start_timestamp, end_time: comparison_end_timestamp).timeseries
+        end
+        render json: { 
+          current_value: active_users.current_value, 
+          timeseries: active_users.formatted_data,
+          comparison_value: comparison_active_users&.current_value,
+          comparison_timeseries: comparison_active_users&.formatted_data,
+          grouped_by: active_users.group_by,
+          start_time: active_users.start_time,
+          end_time: active_users.end_time,
+          comparison_start_time: comparison_active_users&.start_time,
+          comparison_end_time: comparison_active_users&.end_time,
+          data_source: params[:data_source],
+        }, status: :ok
       end
 
       def count

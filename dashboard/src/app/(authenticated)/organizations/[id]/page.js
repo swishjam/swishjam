@@ -1,16 +1,14 @@
 'use client'
 
 import { useEffect, useState } from "react";
-import { AuthenticationProvider } from 'src/providers/AuthenticationProvider'
-import AuthenticatedView from '@/components/Auth/AuthenticatedView';
-import { API } from "@/lib/api-client/base";
+import { SwishjamAPI } from "@/lib/api-client/swishjam-api";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton";
 import { HomeIcon } from '@heroicons/react/20/solid'
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { CalendarIcon } from "@heroicons/react/24/outline";
 import ItemizedList from "@/components/DashboardComponents/ItemizedList";
-import ActiveUsersLineChart from "@/components/DashboardComponents/Prebuilt/ActiveUsersLineChart";
+import ActiveUsersLineChartWithValue from "@/components/DashboardComponents/ActiveUsersLineChartWithValue";
 import BarListCard from "@/components/DashboardComponents/BarListCard";
 
 const LoadingState = () => (
@@ -29,7 +27,7 @@ const LoadingState = () => (
     </Card>
     <div className='grid grid-cols-3 gap-4 mt-4'>
       <div className='col-span-2'>
-        <ActiveUsersLineChart loadingStateOnly={true} />
+        {/* <ActiveUsersLineChart loadingStateOnly={true} /> */}
       </div>
       <ItemizedList title='Top Users' />
     </div>
@@ -136,26 +134,42 @@ const OrganizationProfile = ({ params }) => {
   const [organizationData, setOrganizationData] = useState();
   const [topUsers, setTopUsers] = useState();
   const [pageHitData, setPageViewData] = useState();
+  const [activeUsersData, setActiveUsersData] = useState();
+  const [activeUsersGrouping, setActiveUsersGrouping] = useState('weekly')
   // const [sessionsTimeseriesData, setSessionsTimeseriesData] = useState();
   const [billingData, setBillingData] = useState();
 
+  const getActiveUsersData = type => {
+    const derivedTimeframe = type === 'monthly' ? 'six_months' : type === 'weekly' ? 'three_months' : 'thirty_days'
+    SwishjamAPI.Organizations.Users.Active.timeseries(id, { type, timeframe: derivedTimeframe }).then(
+      ({ current_value, comparison_value, timeseries, comparison_timeseries, comparison_end_time, grouped_by }) => {
+        setActiveUsersData({
+          value: current_value || 0,
+          previousValue: comparison_value || 0,
+          previousValueDate: comparison_end_time,
+          valueChange: (current_value || 0) - (comparison_value || 0),
+          groupedBy: grouped_by,
+          timeseries: timeseries?.map((timeseries, index) => ({
+            ...timeseries,
+            comparisonDate: comparison_timeseries[index]?.date,
+            comparisonValue: comparison_timeseries[index]?.value,
+          })),
+        });
+      }
+    )
+  }
+
   useEffect(() => {
-    API.get(`/api/v1/organizations/${id}`).then(setOrganizationData);
-    API.get(`/api/v1/organizations/${id}/users`).then(setTopUsers);
-    API.get(`/api/v1/organizations/${id}/page_views`).then(pageViewData => {
+    getActiveUsersData(activeUsersGrouping);
+    SwishjamAPI.Organizations.retrieve(id).then(setOrganizationData);
+    SwishjamAPI.Organizations.Users.list(id).then(setTopUsers);
+    SwishjamAPI.Organizations.PageViews.list(id).then(pageViewData => {
       const formattedPageViewData = pageViewData.map(pageView => ({
         name: pageView.url,
         value: pageView.count
       }));
       setPageViewData(formattedPageViewData);
     });
-    // API.get(`/api/v1/organizations/${id}/billing`).then(setBillingData);
-    // API.get(`/api/v1/organizations/${id}/sessions/timeseries`, { timeframe: '1_year' }).then(({ timeseries }) => {
-    //   setSessionsTimeseriesData({
-    //     timeseries,
-    //     value: timeseries.map(({ value }) => value).reduce((a, b) => a + b, 0),  
-    //   })
-    // })
   }, [])
 
   if (!organizationData) return <LoadingState />
@@ -173,7 +187,16 @@ const OrganizationProfile = ({ params }) => {
       </div>
       <div className='grid grid-cols-3 gap-4 mt-4'>
         <div className='col-span-2'>
-          <ActiveUsersLineChart scopedOrganizationId={id} />
+          {/* <ActiveUsersLineChart scopedOrganizationId={id} /> */}
+        <ActiveUsersLineChartWithValue
+          data={activeUsersData}
+          selectedGrouping={activeUsersGrouping}
+          onGroupingChange={group => {
+            setActiveUsersData();
+            setActiveUsersGrouping(group);
+            getActiveUsersData(group);
+          }}
+        />
         </div>
         <ItemizedList
           title='Top Users'

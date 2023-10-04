@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from "react";
-import { API } from "@/lib/api-client/base";
+import { SwishjamAPI } from "@/lib/api-client/swishjam-api";
 import { Card, CardContent } from "@/components/ui/card"
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
@@ -21,14 +21,14 @@ export default function Organizations() {
 
   const getOrganizations = async page => {
     setCurrentPageNum(page)
-    await API.get(`/api/v1/organizations`, { page }).then(({ organizations, total_num_records, total_pages }) => {
+    await SwishjamAPI.Organizations.list({ page }).then(({ organizations, total_num_records, total_pages }) => {
       setOrganizationsData(organizations);
       setTotalNumRecords(total_num_records);
       setLastPageNum(total_pages);
     });
   }
 
-  const handleClick = id => {
+  const navigateToOrganizationProfile = id => {
     router.push(`/organizations/${id}`);
   };
 
@@ -80,7 +80,7 @@ export default function Organizations() {
                         <tr
                           key={organization.id}
                           className="group hover:bg-gray-50 duration-300 transition cursor-pointer"
-                          onClick={() => handleClick(organization.id)}
+                          onClick={() => navigateToOrganizationProfile(organization.id)}
                         >
                           <td className="whitespace-nowrap py-3 pl-4 pr-3 text-sm sm:pl-6 lg:pl-8">
                             <div className="flex items-center">

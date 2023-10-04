@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from "react";
-import { API } from "@/lib/api-client/base";
+import { SwishjamAPI } from "@/lib/api-client/swishjam-api";
 import { Card, CardContent } from "@/components/ui/card"
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
@@ -22,7 +22,7 @@ export default function Users() {
   const getUsers = async ({ page }) => {
     setUsersData()
     setCurrentPageNum(page);
-    await API.get('/api/v1/users', { page }).then(({ users, total_num_records, total_pages }) => {
+    await SwishjamAPI.Users.list({ page }).then(({ users, total_num_records, total_pages }) => {
       setUsersData(users);
       setLastPageNum(total_pages);
       setTotalNumRecords(total_num_records);

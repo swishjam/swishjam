@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import { useAuthData } from '@/hooks/useAuthData'
 import { setAuthToken } from '@/lib/auth';
-import { API } from '@/lib/api-client/base';
+import { SwishjamAPI } from '@/lib/api-client/swishjam-api';
 import { CheckCircleIcon } from '@heroicons/react/24/outline';
 
 export default function WorkspaceForm({ onUpdate = () => {}, isSubmittable = true }) {
@@ -24,7 +24,7 @@ export default function WorkspaceForm({ onUpdate = () => {}, isSubmittable = tru
       setErrorMessage('Workspace name cannot be blank.');
       setIsLoading(false);
     } else {
-      API.patch('/api/v1/workspace/update', { workspace: { name: workspaceName } }).then(({ workspace, auth_token, error }) => {
+      SwishjamAPI.Workspace.update({ name: workspaceName }).then(({ workspace, auth_token, error }) => {
         setIsLoading(false);
         if (error) {
           setErrorMessage(result.error);

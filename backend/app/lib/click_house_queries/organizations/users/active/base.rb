@@ -39,7 +39,7 @@ module ClickHouseQueries
                 DATE_TRUNC('year', e.occurred_at) AS year,
                 CAST(COUNT(DISTINCT
                   IF(
-                    uie.swishjam_user_id IS NOT NULL,
+                    uie.swishjam_user_id IS NOT NULL AND uie.swishjam_user_id != '', 
                     uie.swishjam_user_id,
                     JSONExtractString(e.properties, '#{Analytics::Event::ReservedPropertyNames.DEVICE_IDENTIFIER}')
                   )

@@ -10,6 +10,7 @@ import { CircleIcon } from "@radix-ui/react-icons"
 import { CheckCircleIcon } from '@heroicons/react/20/solid';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import EmptyState from '@/components/EmptyState';
+import { dateFormatterForGrouping } from '@/lib/utils/timeseriesHelpers';
 
 const LoadingState = ({ title }) => (
   <Card>
@@ -115,13 +116,13 @@ export default function LineChartWithValue({
   previousValue, 
   previousValueDate, 
   timeseries, 
-  valueFormatter = val => val,
-  dateFormatter = date => new Date(date).toLocaleDateString('en-us', { month: "2-digit", day: "2-digit" }),
+  groupedBy,
   noDataMessage = 'No data available.',
   includeComparisonData = true,
   includeSettingsDropdown = true,
+  showAxis = false,
+  valueFormatter = val => val,
   onSettingChange = () => {},
-  showAxis = false
 }) {
   const [showXAxis, setShowXAxis] = useState(showAxis);
   const [showYAxis, setShowYAxis] = useState(showAxis);
@@ -176,7 +177,7 @@ export default function LineChartWithValue({
                   dataKey="date"
                   hide={!showXAxis}
                   tickLine={false}
-                  tickFormatter={dateFormatter}
+                  tickFormatter={dateFormatterForGrouping(groupedBy)}
                   tick={{ fontSize: 12, fill: "#9CA3AF" }}
                   includeHidden
                   interval={'preserveStartEnd'}
@@ -187,7 +188,7 @@ export default function LineChartWithValue({
                   animationBegin={200}
                   animationDuration={400}
                   wrapperStyle={{ outline: "none" }}
-                  content={<CustomTooltip valueFormatter={valueFormatter} dateFormatter={dateFormatter} includeComparison={includeComparisonLine} />}
+                  content={<CustomTooltip valueFormatter={valueFormatter} dateFormatter={dateFormatterForGrouping(groupedBy)} includeComparison={includeComparisonLine} />}
                   allowEscapeViewBox={{x: false, y: true}}
                   animationEasing='ease-in-out'
                 />
@@ -200,8 +201,8 @@ export default function LineChartWithValue({
                     activeDot={{ r: 2 }}
                     strokeWidth={2}
                     fill="#E2E8F0"
-                    // opacity={0.2}
-                    // strokeDasharray="4 4"
+                    opacity={0.5}
+                    strokeDasharray="4 4"
                   />
                 )}
                 <Area
