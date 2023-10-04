@@ -49,7 +49,7 @@ export default function ActiveUsersLineChart({ data, selectedGrouping, onGroupin
       title={<GroupingDropdown currentGrouping={selectedGrouping} onSelection={onGroupingChange} />}
       value={data?.value}
       timeseries={data?.timeseries}
-      dateFormatter={data?.dateFormatter}
+      groupedBy={data?.groupedBy}
       valueFormatter={n => n.toLocaleString('en-US')}
       includeSettingsDropdown={includeSettingsDropdown}
     />

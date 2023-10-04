@@ -10,7 +10,6 @@ import { Separator } from "@/components/ui/separator"
 import { Button } from '@/components/ui/button';
 import { ArrowPathIcon } from '@heroicons/react/24/outline';
 import InstallBanner from '@/components/InstallBanner';
-import { dateFormatterForGrouping } from "@/lib/utils/timeseriesHelpers";
 import ItemizedList from '@/components/DashboardComponents/ItemizedList';
 
 const currentChart = (selected, mrrChart, sessionsChart, activeSubsChart) => {
@@ -42,7 +41,7 @@ export default function Home() {
         previousValue: paymentData.comparison_mrr,
         previousValueDate: paymentData.comparison_end_time,
         valueChange: paymentData.change_in_mrr,
-        dateFormatter: dateFormatterForGrouping(paymentData.grouped_by),
+        groupedBy: paymentData.grouped_by,
         timeseries: paymentData.current_mrr_timeseries.map((timeseries, index) => ({
           ...timeseries,
           comparisonDate: paymentData.comparison_mrr_timeseries[index]?.date,
@@ -55,7 +54,7 @@ export default function Home() {
         previousValue: paymentData.comparison_num_active_subscriptions,
         previousValueDate: paymentData.comparison_end_time,
         valueChange: paymentData.change_in_num_active_subscriptions,
-        dateFormatter: dateFormatterForGrouping(paymentData.grouped_by),
+        groupedBy: paymentData.grouped_by,
         timeseries: paymentData.current_num_active_subscriptions_timeseries.map((timeseries, index) => ({
           ...timeseries,
           comparisonDate: paymentData.comparison_num_active_subscriptions_timeseries[index]?.date,
@@ -72,7 +71,7 @@ export default function Home() {
         previousValue: sessionData.comparison_count,
         previousValueDate: sessionData.comparison_end_time,
         valueChange: sessionData.count - sessionData.comparison_count,
-        dateFormatter: dateFormatterForGrouping(sessionData.grouped_by),
+        groupedBy: sessionData.grouped_by,
         timeseries: sessionData.timeseries.map((timeseries, index) => ({
           ...timeseries,
           comparisonDate: sessionData.comparison_timeseries[index]?.date,
@@ -90,12 +89,12 @@ export default function Home() {
           previousValue: comparison_value || 0,
           previousValueDate: comparison_end_time,
           valueChange: (current_value || 0) - (comparison_value || 0),
+          groupedBy: grouped_by,
           timeseries: timeseries?.map((timeseries, index) => ({
             ...timeseries,
             comparisonDate: comparison_timeseries[index]?.date,
             comparisonValue: comparison_timeseries[index]?.value,
           })),
-          dateFormatter: dateFormatterForGrouping(grouped_by)
         });
       }
     );
@@ -189,7 +188,7 @@ export default function Home() {
           previousValue={selectedChart?.previousValue}
           previousValueDate={selectedChart?.previousValueDate}
           timeseries={selectedChart?.timeseries}
-          dateFormatter={selectedChart?.dateFormatter}
+          groupedBy={selectedChart?.groupedBy}
           valueFormatter={numSubs => currentSelectedChart === 'MRR' ? (numSubs/100).toLocaleString('en-US', { style: "currency", currency: "USD" }) : numSubs.toLocaleString('en-US')}
           showAxis={true}  
         />
