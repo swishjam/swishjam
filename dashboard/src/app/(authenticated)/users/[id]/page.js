@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from "react";
-import { API } from "@/lib/api-client/base";
+import { SwishjamAPI } from "@/lib/api-client/swishjam-api";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
@@ -78,12 +78,12 @@ const UserProfile = ({ params }) => {
   const [organizationsListExpanded, setOrganizationsListExpanded] = useState(false);
 
   useEffect(() => {
-    API.get(`/api/v1/users/${userId}`).then(setUserData);
-    API.get(`/api/v1/users/${userId}/events`).then(setRecentEvents);
-    API.get(`/api/v1/users/${userId}/page_views`).then(pageViews => {
+    SwishjamAPI.Users.get(userId).then(setUserData);
+    SwishjamAPI.Users.Events.list(userId).then(setRecentEvents);
+    SwishjamAPI.Users.PageViews.list(userId).then(pageViews => {
       setPageViewsData(pageViews.map(({ url, count }) => ({ name: url, value: count })));
     });
-    API.get(`/api/v1/users/${userId}/sessions/timeseries`).then(({ timeseries }) => {
+    SwishjamAPI.Users.Sessions.timeseries(userId).then(({ timeseries }) => {
       setSessionTimeseriesData({ 
         timeseries,
         value: timeseries.map(({ value }) => value).reduce((a, b) => a + b, 0),  

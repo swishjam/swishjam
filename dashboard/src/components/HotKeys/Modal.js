@@ -5,7 +5,7 @@ export default function HotKeyModal({ isOpen, onClose, descriptions }) {
     <Modal title='Available hot keys' isOpen={isOpen} onClose={onClose}>
       <ul>
         {descriptions.map(({ key, description }) => (
-          <li className='flex items-center my-2'>
+          <li className='flex items-center my-2' key={key}>
             <kbd 
               className='inline-flex h-5 w-5 px-4 py-4 items-center justify-center rounded border bg-white mx-2 border-gray-400 text-gray-600' 
               style={{ boxShadow: '1px 1px grey' }}

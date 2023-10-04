@@ -1,13 +1,14 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { API } from "@/lib/api-client/base";
+import { SwishjamAPI } from "@/lib/api-client/swishjam-api";
 import LineChartWithValue from "@/components/DashboardComponents/LineChartWithValue";
 import ClickableValueCard from "@/components/DashboardComponents/ClickableValueCard";
 import BarListCard from "@/components/DashboardComponents/BarListCard";
 import Timefilter from "@/components/Timefilter";
 import { Button } from "@/components/ui/button";
 import { ArrowPathIcon } from "@heroicons/react/24/outline";
+import { dateFormatterForGrouping } from "@/lib/utils/timeseriesHelpers";
 // import LoadingView from './LoadingView'
 
 const sessionsFormatter = (num) => num.toLocaleString("en-US");
@@ -31,31 +32,26 @@ export default function PageMetrics() {
   };
 
   const getSessionData = async (timeframe) => {
-    await API.get("/api/v1/sessions/timeseries", {
-      timeframe,
-      data_source: "marketing",
-    }).then((sessionData) => {
-      setSessionsChart({
-        value: sessionData?.current_count,
-        previousValue: sessionData?.comparison_count,
-        previousValueDate: sessionData?.comparison_end_time,
-        valueChange: sessionData?.current_count - sessionData?.comparison_count,
-        timeseries: sessionData?.timeseries.map((timeseries, index) => ({
-          ...timeseries,
-          index,
-          comparisonDate: sessionData?.comparison_timeseries[index]?.date,
-          comparisonValue: sessionData?.comparison_timeseries[index]?.value,
-        })),
-        valueFormatter: sessionsFormatter,
-      });
+    await SwishjamAPI.Sessions.timeseries({ timeframe, data_source: 'marketing' }).then(
+      ({ current_count, comparison_count, comparison_end_time, timeseries, comparison_timeseries, grouped_by }) => {
+        setSessionsChart({
+          value: current_count,
+          previousValue: comparison_count,
+          previousValueDate: comparison_end_time,
+          valueChange: current_count - comparison_count,
+          timeseries: timeseries.map((timeseries, index) => ({
+            ...timeseries,
+            comparisonDate: comparison_timeseries[index]?.date,
+            comparisonValue: comparison_timeseries[index]?.value,
+          })),
+          valueFormatter: sessionsFormatter,
+          dateFormatter: dateFormatterForGrouping(grouped_by)
+        });
     });
   };
 
   const getReferrerData = async (timeframe) => {
-    await API.get("/api/v1/sessions/referrers", {
-      timeframe,
-      data_source: "marketing",
-    }).then(({ referrers }) => {
+    await SwishjamAPI.Sessions.Referrers.list({ timeframe, data_source: 'marketing' }).then(({ referrers }) => {
       setTopReferrers(
         referrers.map(({ referrer, count }) => ({
           name: [null, undefined, ""].includes(referrer) ? "Direct" : referrer,
@@ -66,63 +62,39 @@ export default function PageMetrics() {
   };
 
   const getDemographicData = async (timeframe) => {
-    await API.get("/api/v1/sessions/demographics", {
-      timeframe,
-      data_source: "marketing",
-    }).then((demographics) => {
+    await SwishjamAPI.Sessions.demographics({ timeframe, data_source: 'marketing' }).then(demographics => {
       setTopBrowsers(
-        demographics.browsers.map(({ browser_name, count }) => ({
-          name: browser_name,
-          value: count,
-        }))
+        demographics.browsers.map(({ browser_name, count }) => ({ name: browser_name, value: count }))
       );
       setTopDevices(
-        demographics.device_types.map(({ device_type, count }) => ({
-          name: device_type,
-          value: count,
-        }))
+        demographics.device_types.map(({ device_type, count }) => ({ name: device_type, value: count }))
       );
       // setTopCountries(Object.keys(demographics.countries).map(country => ({ name: country, value: demographics.countries[country] })));
     });
   };
 
   const getPageViewsTimeseries = async (timeframe) => {
-    await API.get("/api/v1/page_views/timeseries", {
-      timeframe,
-      data_source: "marketing",
-    }).then((pageViewData) => {
+    await SwishjamAPI.PageViews.timeseries({ timeframe, data_source: 'marketing' }).then(
+      ({ current_count, comparison_count, comparison_end_time, timeseries, comparison_timeseries, grouped_by }) => {
       setPageViewsChart({
-        value: pageViewData?.current_count,
-        previousValue: pageViewData?.comparison_count,
-        previousValueDate: pageViewData?.comparison_end_time,
-        valueChange:
-          pageViewData?.current_count - pageViewData?.comparison_count,
-        timeseries: pageViewData?.timeseries.map((timeseries, index) => ({
+        value: current_count,
+        previousValue: comparison_count,
+        previousValueDate: comparison_end_time,
+        valueChange: current_count - comparison_count,
+        timeseries: timeseries.map((timeseries, index) => ({
           ...timeseries,
-          index,
-          comparisonDate: pageViewData?.comparison_timeseries[index]?.date,
-          comparisonValue: pageViewData?.comparison_timeseries[index]?.value,
+          comparisonDate: comparison_timeseries[index]?.date,
+          comparisonValue: comparison_timeseries[index]?.value,
         })),
         valueFormatter: sessionsFormatter,
+        dateFormatter: dateFormatterForGrouping(grouped_by)
       });
     });
   };
 
   const getUniqueVisitors = async (timeframe = "30_days") => {
-    await API.get("/api/v1/users/active", {
-      timeframe,
-      data_source: "marketing",
-      type: "daily",
-      include_comparison: true,
-    }).then(
-      ({
-        current_value,
-        timeseries,
-        comparison_value,
-        comparison_timeseries,
-        comparison_end_time,
-        grouped_by,
-      }) => {
+    await SwishjamAPI.Users.Active.timeseries({ timeframe, data_source: 'marketing', type: 'daily', include_comparison: true }).then(
+      ({ current_value, timeseries, comparison_value, comparison_timeseries, comparison_end_time, grouped_by }) => {
         setUniqueVisitorsChart({
           value: current_value || 0,
           previousValue: comparison_value || 0,
@@ -133,38 +105,17 @@ export default function PageMetrics() {
             comparisonDate: comparison_timeseries[index]?.date,
             comparisonValue: comparison_timeseries[index]?.value,
           })),
-          dateFormatter: (date) => {
-            if (grouped_by === "month") {
-              return new Date(date).toLocaleString("default", {
-                month: "long",
-              });
-            } else if (grouped_by === "week") {
-              return `Week of ${new Date(date).toLocaleString("default", {
-                month: "short",
-                day: "numeric",
-              })}`;
-            } else if (grouped_by === "day") {
-              return new Date(date).toLocaleString("default", {
-                month: "short",
-                day: "numeric",
-              });
-            } else {
-              return date;
-            }
-          },
+          dateFormatter: dateFormatterForGrouping(grouped_by)
         });
       }
     );
   };
 
   const getTopPages = async (timeframe) => {
-    await API.get("/api/v1/page_views/", {
-      timeframe,
-      data_source: "marketing",
-    }).then(({ page_view_counts }) => {
+    return await SwishjamAPI.PageViews.list({ timeframe, data_source: 'marketing' }).then(({ page_view_counts }) => {
       setTopPages(
         page_view_counts.map(({ url, count }) => ({ name: url, value: count }))
-      );
+      )
     });
   };
 
@@ -263,26 +214,11 @@ export default function PageMetrics() {
           <LineChartWithValue
             title={currentSelectedChart}
             value={currentChartLookup[currentSelectedChart]?.value}
-            previousValue={
-              currentChartLookup[currentSelectedChart]?.previousValue
-            }
-            previousValueDate={
-              currentChartLookup[currentSelectedChart]?.previousValueDate
-            }
+            previousValue={currentChartLookup[currentSelectedChart]?.previousValue}
+            previousValueDate={currentChartLookup[currentSelectedChart]?.previousValueDate}
             timeseries={currentChartLookup[currentSelectedChart]?.timeseries}
-            valueFormatter={
-              currentChartLookup[currentSelectedChart]?.valueFormatter
-            }
-            dateFormatter={(date) =>
-              (currentChartLookup[currentSelectedChart]?.dateFormatter &&
-                currentChartLookup[currentSelectedChart]?.dateFormatter(
-                  date
-                )) ||
-              new Date(date).toLocaleDateString("en-us", {
-                month: "2-digit",
-                day: "2-digit",
-              })
-            }
+            valueFormatter={currentChartLookup[currentSelectedChart]?.valueFormatter}
+            dateFormatter={currentChartLookup[currentSelectedChart]?.dateFormatter}
             showAxis={true}
           />
         </div>

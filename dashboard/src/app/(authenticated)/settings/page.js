@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from "react";
-import { API } from "@/lib/api-client/base";
+import { SwishjamAPI } from "@/lib/api-client/swishjam-api";
 // import { useAuthData } from "@/lib/auth";
 import WorkspaceForm from "@/components/Settings/WorkspaceForm";
 import LoadingView from "./LoadingView";
@@ -11,10 +11,9 @@ const Divider = () => <div className="my-6 w-full border-t border-gray-300" />
 
 export default function SettingsPage() {
   const [apiKeys, setApiKeys] = useState();
-  // const { authData } = useAuthData();
 
   useEffect(() => {
-    API.get('/api/v1/config').then(({ api_keys }) => {
+    SwishjamAPI.Config.get().then(({ api_keys }) => {
       setApiKeys(api_keys);
     });
   }, []);

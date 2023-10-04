@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation'
-import { API } from "@/lib/api-client/base";
+import { SwishjamAPI } from "@/lib/api-client/swishjam-api";
 import Logo from '@/components/Logo';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import { ONE_DAY_IN_MS } from '@/lib/utils/timeHelpers';
@@ -18,7 +18,7 @@ export default function Invitation({ params }) {
                       : false;
 
   useEffect(() => {
-    API.get('/api/user-invites/get', { inviteToken })
+    SwishjamAPI.get('/api/user-invites/get', { inviteToken })
       .then(({ userInvite, error }) => {
         if(error) {
           console.log(error)
@@ -71,7 +71,7 @@ function AcceptForm({ userInvite, loggedInUser, updateCurrentOrganization }) {
       setLoading(true);
       setErrorMsg();
 
-      const { error } = await API.post('/api/user-invites/accept', {
+      const { error } = await SwishjamAPI.post('/api/user-invites/accept', {
         userId: loggedInUser.id,
         inviteToken: userInvite.invite_token,
         methodOfAcceptance: 'logged-in'
@@ -97,7 +97,7 @@ function AcceptForm({ userInvite, loggedInUser, updateCurrentOrganization }) {
       setLoading(true);
       setErrorMsg();
 
-      const { error } = await API.post('/api/user-invites/accept', {
+      const { error } = await SwishjamAPI.post('/api/user-invites/accept', {
         email,
         password,
         inviteToken: userInvite.invite_token,

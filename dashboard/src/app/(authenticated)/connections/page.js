@@ -2,7 +2,7 @@
 
 import { useState, useEffect, Fragment } from 'react';
 import { useAuthData } from '@/hooks/useAuthData';
-import { API } from '@/lib/api-client/base';
+import { SwishjamAPI } from '@/lib/api-client/swishjam-api';
 import LoadingView from './LoadingView';
 import EmptyView from './EmptyView';
 import Image from 'next/image';
@@ -29,7 +29,7 @@ export default function Connections() {
   const [connectionForModal, setConnectionForModal] = useState(null);
 
   const disableConnection = async connectionId => {
-    const result = await API.patch(`/api/v1/integrations/${connectionId}/disable`);
+    const result = await SwishjamAPI.Integrations.disable(connectionId);
     if (result.success) {
       setEnabledConnections(enabledConnections.filter(connection => connection.id !== connectionId));
       setDisabledConnections([...disabledConnections, enabledConnections.find(connection => connection.id === connectionId)]);
@@ -37,7 +37,7 @@ export default function Connections() {
   }
 
   const enableConnection = async connectionId => {
-    const result = await API.patch(`/api/v1/integrations/${connectionId}/enable`);
+    const result = await SwishjamAPI.Integrations.enable(connectionId);
     if (result.success) {
       setDisabledConnections(disabledConnections.filter(connection => connection.id !== connectionId));
       setEnabledConnections([...enabledConnections, disabledConnections.find(connection => connection.id === connectionId)]);
@@ -45,7 +45,7 @@ export default function Connections() {
   }
 
   const removeConnection = async connectionId => {
-    const result = await API.delete(`/api/v1/integrations/${connectionId}`);
+    const result = await SwishjamAPI.Integrations.delete(connectionId);
     if (result.success) {
       setAvailableConnections([...availableConnections, enabledConnections.find(connection => connection.id === connectionId)]);
       setEnabledConnections(enabledConnections.filter(connection => connection.id !== connectionId));
@@ -55,7 +55,7 @@ export default function Connections() {
 
   useEffect(() => {
     const getConnections = async () => {
-      const { enabled_integrations, disabled_integrations, available_integrations } = await API.get('/api/v1/integrations');
+      const { enabled_integrations, disabled_integrations, available_integrations } = await SwishjamAPI.Integrations.list();
       setEnabledConnections(enabled_integrations);
       setDisabledConnections(disabled_integrations);
       setAvailableConnections(available_integrations);

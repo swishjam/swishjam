@@ -1,16 +1,14 @@
 'use client'
 
 import { useEffect, useState } from "react";
-import { AuthenticationProvider } from 'src/providers/AuthenticationProvider'
-import AuthenticatedView from '@/components/Auth/AuthenticatedView';
-import { API } from "@/lib/api-client/base";
+import { SwishjamAPI } from "@/lib/api-client/swishjam-api";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton";
 import { HomeIcon } from '@heroicons/react/20/solid'
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { CalendarIcon } from "@heroicons/react/24/outline";
 import ItemizedList from "@/components/DashboardComponents/ItemizedList";
-import ActiveUsersLineChart from "@/components/DashboardComponents/Prebuilt/ActiveUsersLineChart";
+// import ActiveUsersLineChart from "@/components/DashboardComponents/Prebuilt/ActiveUsersLineChart";
 import BarListCard from "@/components/DashboardComponents/BarListCard";
 
 const LoadingState = () => (
@@ -29,7 +27,7 @@ const LoadingState = () => (
     </Card>
     <div className='grid grid-cols-3 gap-4 mt-4'>
       <div className='col-span-2'>
-        <ActiveUsersLineChart loadingStateOnly={true} />
+        {/* <ActiveUsersLineChart loadingStateOnly={true} /> */}
       </div>
       <ItemizedList title='Top Users' />
     </div>
@@ -140,22 +138,15 @@ const OrganizationProfile = ({ params }) => {
   const [billingData, setBillingData] = useState();
 
   useEffect(() => {
-    API.get(`/api/v1/organizations/${id}`).then(setOrganizationData);
-    API.get(`/api/v1/organizations/${id}/users`).then(setTopUsers);
-    API.get(`/api/v1/organizations/${id}/page_views`).then(pageViewData => {
+    SwishjamAPI.Organizations.get(id).then(setOrganizationData);
+    SwishjamAPI.Organizations.Users.list(id).then(setTopUsers);
+    SwishjamAPI.Organizations.PageViews.list(id).then(pageViewData => {
       const formattedPageViewData = pageViewData.map(pageView => ({
         name: pageView.url,
         value: pageView.count
       }));
       setPageViewData(formattedPageViewData);
     });
-    // API.get(`/api/v1/organizations/${id}/billing`).then(setBillingData);
-    // API.get(`/api/v1/organizations/${id}/sessions/timeseries`, { timeframe: '1_year' }).then(({ timeseries }) => {
-    //   setSessionsTimeseriesData({
-    //     timeseries,
-    //     value: timeseries.map(({ value }) => value).reduce((a, b) => a + b, 0),  
-    //   })
-    // })
   }, [])
 
   if (!organizationData) return <LoadingState />
@@ -173,7 +164,7 @@ const OrganizationProfile = ({ params }) => {
       </div>
       <div className='grid grid-cols-3 gap-4 mt-4'>
         <div className='col-span-2'>
-          <ActiveUsersLineChart scopedOrganizationId={id} />
+          {/* <ActiveUsersLineChart scopedOrganizationId={id} /> */}
         </div>
         <ItemizedList
           title='Top Users'

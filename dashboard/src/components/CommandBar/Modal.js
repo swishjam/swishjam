@@ -1,7 +1,7 @@
 import { Fragment, useState } from 'react'
 import { UserGroupIcon, UserIcon, ChartPieIcon, HomeIcon, SquaresPlusIcon, Cog6ToothIcon } from '@heroicons/react/24/outline'
 import { Combobox, Dialog, Transition } from '@headlessui/react'
-import { API } from '@/lib/api-client/base'
+import { SwishjamAPI } from '@/lib/api-client/swishjam-api'
 import SearchForm from './SearchForm';
 import SearchResults from './SearchResults';
 import Footer from './Footer';
@@ -32,7 +32,7 @@ export default function SearchBarModal({ onClose = () => {} }) {
     } else {
       setIsSearching(true);
       setSearchedTerm(q);
-      await API.get('/api/v1/search', { q }).then(({ users, organizations }) => {
+      await SwishjamAPI.Search.search(q).then(({ users, organizations }) => {
         setOrganizationsResults(organizations);
         setUsersResults(users);
         const matchingDashboards = dashboardOptions.filter(option => option.name.toLowerCase().includes(q.toLowerCase()));

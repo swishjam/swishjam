@@ -36,8 +36,8 @@ module Api
           start_time: start_timestamp,
           end_time: end_timestamp,
           comparison_start_time: comparison_start_timestamp,
-          comparison_end_time: comparison_end_timestamp
-          # grouped_by: group_by_method.to_s.split('_').last,
+          comparison_end_time: comparison_end_timestamp,
+          grouped_by: timeseries.group_by,
         }
         
         render json: json, status: :ok

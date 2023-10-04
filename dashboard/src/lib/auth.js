@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { API } from '@lib/api-client/base'
+import { SwishjamAPI } from '@/lib/api-client/swishjam-api'
 
 export const LOCAL_STORAGE_TOKEN_KEY = 'swishjam-token';
 
@@ -12,7 +12,7 @@ export const clearToken = () => {
 }
 
 export const logUserOut = async () => {
-  const { error } = await API.post('/auth/logout');
+  const { error } = await SwishjamAPI.Auth.logout()
   if (error) {
     throw error;
   } else {
@@ -28,19 +28,8 @@ export const setAuthToken = tokenValue => {
   }
 }
 
-export const signUserUp = async ({ email, password, workspaceName, companyUrl, inviteCode }) => {
-  const { 
-    error, 
-    user, 
-    workspace, 
-    token 
-  } = await API.post('/auth/register', { 
-    email, 
-    password, 
-    workspace_name: workspaceName, 
-    company_url: companyUrl,
-    invite_code: inviteCode
-  });
+export const signUserUp = async ({ email, password, companyUrl, inviteCode }) => {
+  const { error, user, workspace, token } = await SwishjamAPI.Auth.register({ email, password, companyUrl, inviteCode });
   if (token) {
     setAuthToken(token);
   }
@@ -48,7 +37,7 @@ export const signUserUp = async ({ email, password, workspaceName, companyUrl, i
 }
 
 export const logUserIn = async ({ email, password }) => {
-  const { error, user, token } = await API.post('/auth/login', { email, password });
+  const { error, user, token } = await SwishjamAPI.Auth.login({ email, password });
   if (token) {
     setAuthToken(token);
   }

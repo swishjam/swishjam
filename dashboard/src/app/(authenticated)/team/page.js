@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, Fragment } from 'react';
-import { API } from "@/lib/api-client/base";
+import { SwishjamAPI } from "@/lib/api-client/swishjam-api";
 import Modal from '@/components/utils/Modal';
 // import { formattedDate } from '@/lib/utils';
 const formattedDate = date => date;
@@ -20,7 +20,7 @@ export default function Team() {
 
   useEffect(() => {
     setUsers();
-    API.get('/api/users/all').then(({ users, error }) => {
+    SwishjamAPI.get('/api/users/all').then(({ users, error }) => {
       setUsers(users);
     })
   }, [userOrg?.id])
@@ -197,7 +197,7 @@ const RemoveUserModal = ({ userId, userEmail, isOpen, onClose, onRemoveUser }) =
   const removeUser = async e => {
     e.preventDefault();
     setIsSubmitting(true);
-    const { error } = await API.post('/api/organization-users/delete', { userId });
+    const { error } = await SwishjamAPI.post('/api/organization-users/delete', { userId });
     if (error) {
       setIsSubmitting(false);
       setError(error);
@@ -272,7 +272,7 @@ const InviteModal = ({ isOpen, onClose, onInviteSent }) => {
     setIsSubmitting(true);
     setError();
     setSuccessMessage();
-    const { userInvite, error } = await API.post('/api/user-invites/create', { email, userName });
+    const { userInvite, error } = await SwishjamAPI.post('/api/user-invites/create', { email, userName });
     setIsSubmitting(false);
     if (userInvite) {
       setUserInviteToken(userInvite.invite_token);

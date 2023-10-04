@@ -200,8 +200,8 @@ export default function LineChartWithValue({
                     activeDot={{ r: 2 }}
                     strokeWidth={2}
                     fill="#E2E8F0"
-                    // opacity={0.2}
-                    // strokeDasharray="4 4"
+                    opacity={0.5}
+                    strokeDasharray="4 4"
                   />
                 )}
                 <Area
