@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import SwishjamClient from '@swishjam/core';
 import { SwishjamContext } from './SwishjamContext';
 
 export const SwishjamProvider = ({ apiKey, apiEndpoint, children }) => {
@@ -8,6 +7,7 @@ export const SwishjamProvider = ({ apiKey, apiEndpoint, children }) => {
   useEffect(() => {
     const init = async () => {
       if (typeof window !== 'undefined' && !swishjamClient && !window.Swishjam) {
+        const SwishjamClient = (await import('@swishjam/core')).default;
         const client = new SwishjamClient({ apiKey, apiEndpoint });
         setSwishjamClient(client);
       }
