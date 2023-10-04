@@ -14,7 +14,7 @@ export class Users extends Base {
     return await this._get('/api/v1/users', { page, per_page: limit })
   }
   
-  static async get(id) {
+  static async retrieve(id) {
     return await this._get(`/api/v1/users/${id}`);
   }
 }

@@ -13,7 +13,7 @@ export default function SettingsPage() {
   const [apiKeys, setApiKeys] = useState();
 
   useEffect(() => {
-    SwishjamAPI.Config.get().then(({ api_keys }) => {
+    SwishjamAPI.Config.retrieve().then(({ api_keys }) => {
       setApiKeys(api_keys);
     });
   }, []);

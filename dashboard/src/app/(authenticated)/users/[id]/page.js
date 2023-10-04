@@ -78,7 +78,7 @@ const UserProfile = ({ params }) => {
   const [organizationsListExpanded, setOrganizationsListExpanded] = useState(false);
 
   useEffect(() => {
-    SwishjamAPI.Users.get(userId).then(setUserData);
+    SwishjamAPI.Users.retrieve(userId).then(setUserData);
     SwishjamAPI.Users.Events.list(userId).then(setRecentEvents);
     SwishjamAPI.Users.PageViews.list(userId).then(pageViews => {
       setPageViewsData(pageViews.map(({ url, count }) => ({ name: url, value: count })));

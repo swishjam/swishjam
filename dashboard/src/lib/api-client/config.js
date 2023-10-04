@@ -1,7 +1,7 @@
 import Base from "./base";
 
 export class Config extends Base {
-  static async get() {
+  static async retrieve() {
     return await this._get('/api/v1/config');
   }
 }

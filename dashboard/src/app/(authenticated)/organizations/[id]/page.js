@@ -138,7 +138,7 @@ const OrganizationProfile = ({ params }) => {
   const [billingData, setBillingData] = useState();
 
   useEffect(() => {
-    SwishjamAPI.Organizations.get(id).then(setOrganizationData);
+    SwishjamAPI.Organizations.retrieve(id).then(setOrganizationData);
     SwishjamAPI.Organizations.Users.list(id).then(setTopUsers);
     SwishjamAPI.Organizations.PageViews.list(id).then(pageViewData => {
       const formattedPageViewData = pageViewData.map(pageView => ({
