@@ -15,12 +15,12 @@ export default function EventDetails({ params }) {
   const [topUsers, setTopUsers] = useState();
 
   useEffect(() => {
-    SwishjamAPI.Events.retrieve(name).then(({ 
-      timeseries, 
-      comparison_timeseries, 
-      current_count, 
-      comparison_count, 
-      comparison_end_time, 
+    SwishjamAPI.Events.retrieve(name).then(({
+      timeseries,
+      comparison_timeseries,
+      current_count,
+      comparison_count,
+      comparison_end_time,
       grouped_by,
       top_users,
       top_attributes
@@ -38,7 +38,15 @@ export default function EventDetails({ params }) {
         })),
       })
 
-      setTopUsers(top_users);
+      setTopUsers(
+        top_users.map(({ is_anonymous, id, email, full_name, device_identifier, count }) => {
+          if (is_anonymous) {
+            return { full_name: 'Anonymous User', count }
+          } else {
+            return { id, email, full_name, device_identifier, count }
+          }
+        })
+      );
       setTopEventAttributes(
         top_attributes.map(({ attribute, count }) => ({ name: attribute, value: count }))
       );
@@ -58,10 +66,10 @@ export default function EventDetails({ params }) {
       </div>
       <div className='mt-8'>
         <LineChartWithValue
-          title='Occurrences' 
+          title='Occurrences'
           value={eventTimeseries?.value}
           previousValue={eventTimeseries?.previousValue}
-          previousValueDate={eventTimeseries?.previousValueDate} 
+          previousValueDate={eventTimeseries?.previousValueDate}
           timeseries={eventTimeseries?.timeseries}
           groupedBy={eventTimeseries?.groupedBy}
         />
@@ -75,9 +83,6 @@ export default function EventDetails({ params }) {
           leftItemHeaderKey='full_name'
           leftItemSubHeaderKey='email'
           rightItemKey='count'
-          // rightItemKeyFormatter = value => value,
-          // fallbackAvatarGenerator,
-          // hoverable = true,
           linkFormatter={u => `/users/${u.id}`}
         />
       </div>

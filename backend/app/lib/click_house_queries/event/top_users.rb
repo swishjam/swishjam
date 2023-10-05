@@ -20,8 +20,8 @@ module ClickHouseQueries
           if raw.is_anonymous
             {
               device_identifier: raw.device_identifier_or_swishjam_user_id,
-              is_anonymous: true,
               count: raw.count,
+              is_anonymous: true,
             }
           else
             user = users.find { |u| u.id == raw.device_identifier_or_swishjam_user_id }

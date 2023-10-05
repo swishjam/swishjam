@@ -1,29 +1,39 @@
 'use client';
 import { usePathname } from 'next/navigation'
-import { SquaresPlusIcon, ChevronLeftIcon, ChevronRightIcon, HomeIcon, Cog6ToothIcon, UserGroupIcon, UserIcon, MagnifyingGlassIcon } from '@heroicons/react/24/outline'
+import {
+  ChevronLeftIcon,
+  ChevronRightIcon,
+  Cog6ToothIcon,
+  GlobeAmericasIcon,
+  HomeIcon,
+  MagnifyingGlassIcon,
+  SquaresPlusIcon,
+  UserGroupIcon,
+  UserIcon,
+} from '@heroicons/react/24/outline'
 import SidebarMobile from './MobileNav';
 import ProfileFlyout from './ProfileFlyout';
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Logo from '@components/Logo'
 import { Bars3Icon } from '@heroicons/react/24/outline'
-import { RxBarChart  } from 'react-icons/rx'
+import { RxBarChart } from 'react-icons/rx'
 import useCommandBar from '@/hooks/useCommandBar';
 // import { SwishjamMemory } from '@/lib/swishjam-memory';
 
 const appNav = [
   { name: 'Home', href: '/', icon: HomeIcon },
   { name: 'Site Metrics', href: '/site-metrics', icon: RxBarChart },
-  { name: 'Event Explorer', href: '/events' },
+  { name: 'Event Explorer', href: '/events', icon: GlobeAmericasIcon },
   { name: 'Users', href: '/users', icon: UserIcon },
   { name: 'Organizations', href: '/organizations', icon: UserGroupIcon },
-  { name: 'Connections', href: '/connections', icon: SquaresPlusIcon},
-  { name: 'Settings', href: '/settings', icon: Cog6ToothIcon},
+  { name: 'Connections', href: '/connections', icon: SquaresPlusIcon },
+  { name: 'Settings', href: '/settings', icon: Cog6ToothIcon },
 ]
 
 const classNames = (...classes) => classes.filter(Boolean).join(' ')
 
-const DesktopNavItem = ({ item, isCollapsed, category, currentPath}) => {
+const DesktopNavItem = ({ item, isCollapsed, category, currentPath }) => {
   const isCurrentPage = menuItemHref => currentPath == menuItemHref;
 
   return (
@@ -71,16 +81,16 @@ export default function Sidebar({ onCollapse, onExpand, email }) {
           <div className={`flex grow flex-col gap-y-5 overflow-y-auto border-r border-gray-200 bg-white ${isCollapsed ? 'px-1' : 'px-6'}`}>
             <div className={`flex h-16 shrink-0 items-center ${isCollapsed ? 'justify-center' : ''}`}>
               <Link href="/">
-                <Logo className="h-8"/>
+                <Logo className="h-8" />
               </Link>
             </div>
             <nav className="flex flex-1 flex-col">
               <ul role="list" className="flex flex-1 flex-col gap-y-7">
                 <li>
                   <ul role="list" className="space-y-1">
-                    {appNav.map((item) => <DesktopNavItem item={item} key={item.name} isCollapsed={isCollapsed} category="" currentPath={pathname}/>)}
+                    {appNav.map((item) => <DesktopNavItem item={item} key={item.name} isCollapsed={isCollapsed} category="" currentPath={pathname} />)}
                     <li>
-                      <a 
+                      <a
                         onClick={() => setCommandBarIsOpen(true)}
                         className={`flex cursor-pointer text-gray-700 hover:text-swishjam hover:bg-gray-50 group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold duration-500 transition ${isCollapsed ? 'py-2 px-1' : 'p-2'}`}
                       >
@@ -114,7 +124,7 @@ export default function Sidebar({ onCollapse, onExpand, email }) {
           isCollapsed ? onExpand() : onCollapse();
           // SwishjamMemory.set('isNavCollapsed', !isCollapsed);
         }}
-        >
+      >
         {isCollapsed ? <ChevronRightIcon className="h-4 w-4 hover:scale-110" /> : <ChevronLeftIcon className="h-4 w-4 hover:scale-110" />}
       </div>
     </>
