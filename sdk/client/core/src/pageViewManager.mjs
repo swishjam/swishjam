@@ -33,3 +33,5 @@ export class PageViewManager {
     }
   }
 }
+
+export default PageViewManager;

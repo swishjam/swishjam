@@ -7,3 +7,5 @@ export class UUID {
     });
   }
 }
+
+export default UUID;
