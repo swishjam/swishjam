@@ -1,6 +1,7 @@
 EVENT_PROCESSOR_KLASS_DICT = {
   identify: WebEventProcessors::Identify,
   organization: WebEventProcessors::Organization,
+  sdk_error: WebEventProcessors::SdkError
 }
 
 class CaptureAnalyticDataJob
