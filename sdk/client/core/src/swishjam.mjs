@@ -2,7 +2,7 @@ import { Client } from "./client.mjs";
 
 const _client = Symbol('client');
 
-export default class Swishjam {
+export class Swishjam {
   constructor(options) {
     if (window.Swishjam && !window.Swishjam.stubbed) {
       console.warn('SwishjamJS already initialized. Returning existing instance.');
@@ -17,7 +17,9 @@ export default class Swishjam {
   event = (eventName, properties) => this[_client].record(eventName, properties);
   identify = (userIdentifier, traits) => this[_client].identify(userIdentifier, traits);
   setOrganization = (organizationIdentifier, traits) => this[_client].setOrganization(organizationIdentifier, traits);
-  getSession = () => this[_client].getSession;
-  newSession = () => this[_client].newSession;
-  logout = () => this[_client].logout;
+  getSession = () => this[_client].getSession();
+  newSession = () => this[_client].newSession();
+  logout = () => this[_client].logout();
 }
+
+export default Swishjam;

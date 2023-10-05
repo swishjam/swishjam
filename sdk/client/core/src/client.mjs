@@ -26,13 +26,13 @@ export class Client {
     this._recordInMemoryEvents();
   }
 
-  record = (eventName, properties) => {
-    return this.errorHandler.executeWithErrorHandling(() =>
+  record = (eventName, properties = {}) => {
+    return this.errorHandler.executeWithErrorHandling(() => (
       this.eventQueueManager.recordEvent(eventName, properties)
-    )
+    ))
   }
 
-  identify = (userIdentifier, traits) => {
+  identify = (userIdentifier, traits = {}) => {
     return this.errorHandler.executeWithErrorHandling(() => {
       this._extractOrganizationFromIdentifyCall(traits)
       return this.record('identify', { userIdentifier, ...traits })
@@ -45,7 +45,7 @@ export class Client {
       // set the new organization so the potential new session has the correct organization
       DataPersister.set('organizationId', organizationIdentifier);
       // we assume anytime setOrganization is called with a new org, we want a new session
-      if (previouslySetOrganization !== organizationIdentifier) this.newSession();
+      if (previouslySetOrganization && previouslySetOrganization !== organizationIdentifier) this.newSession();
       this.record('organization', { organizationIdentifier, ...traits })
     });
   }
@@ -53,10 +53,10 @@ export class Client {
   getSession = () => {
     return this.errorHandler.executeWithErrorHandling(() => (
       DataPersister.get('sessionId')
-    ))
+    ));
   }
 
-  newSession = ({ registerPageView = true }) => {
+  newSession = ({ registerPageView = true } = {}) => {
     return this.errorHandler.executeWithErrorHandling(() => {
       // important to set this first because the new Event reads from the DataPersister
       DataPersister.set('sessionId', UUID.generate('s'));
@@ -94,18 +94,21 @@ export class Client {
 
   _initPageViewListeners = () => {
     return this.errorHandler.executeWithErrorHandling(() => {
+
       this.pageViewManager.onNewPage((_newUrl, previousUrl) => {
         return this.errorHandler.executeWithErrorHandling(() => {
           DataPersister.set('pageViewId', UUID.generate('pv'));
-          return this.eventQueueManager.recordEvent('page_view', { referrer: previousUrl });
+          this.eventQueueManager.recordEvent('page_view', { referrer: previousUrl });
         });
       });
+
       window.addEventListener('beforeunload', async () => {
-        return this.errorHandler.executeWithErrorHandling(async () => {
+        return this.errorHandler.executeWithErrorHandling(() => {
           this.eventQueueManager.recordEvent('page_left', { milliseconds_on_page: this.pageViewManager.millisecondsOnCurrentPage() });
-          return await this.eventQueueManager.flushQueue();
+          this.eventQueueManager.flushQueue();
         });
       })
+
       this.pageViewManager.recordPageView();
     });
   }
@@ -136,3 +139,5 @@ export class Client {
     });
   }
 }
+
+export default Client;

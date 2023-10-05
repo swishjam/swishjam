@@ -10,29 +10,25 @@ export class ErrorHandler {
   }
 
   executeWithErrorHandling(func) {
-    return async (...args) => {
-      try {
-        const result = func(...args);
-        if (result instanceof Promise) {
-          return await result.catch(this.captureErrorIfNecessary);
-        } else {
-          return result;
-        }
-      } catch (e) {
-        this.captureError(e);
-        console.error(`[Swishjam SDK Error]: ${e}`)
-      }
-    };
+    try {
+      return func()
+    } catch (e) {
+      this.captureError(e);
+      console.error(`[Swishjam SDK Error]: ${e}`)
+    }
   }
 
-  async captureError(e) {
+  captureError = async e => {
     if (this._shouldCaptureError()) {
       this.lastErrorCapturedAt = new Date();
       this.numErrorsCaptured++;
       try {
         const event = new Event('sdk_error', {
           url: window.location.href,
-          error: e
+          error: {
+            message: e.message,
+            stack: e.stack,
+          },
         });
         await this.requester.send([event]);
       } catch (err) {

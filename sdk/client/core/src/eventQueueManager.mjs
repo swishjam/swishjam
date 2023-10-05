@@ -40,7 +40,10 @@ export class EventQueueManager {
   _reportDataIfNecessary = async () => {
     return this.errorHandler.executeWithErrorHandling(async () => {
       if (this.queue.length === 0) return;
-      return await this.requester.send(this.queue)
+      const success = await this.requester.send(this.queue, this.errorHandler.captureError);
+      if (success) {
+        this.queue = [];
+      }
     })
   }
 }

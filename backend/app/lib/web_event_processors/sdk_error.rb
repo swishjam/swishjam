@@ -1,10 +1,11 @@
-class Instrumentation::SdkError < StandardError;
 
 module WebEventProcessors
   class SdkError < Base
+    class InstrumentationError < StandardError; end;
     def capture!
-      Rails.logger.error "SDK Error reported to ingestion: #{properties.error.inspect}"
-      raise Instrumentation::SdkError, "SDK Error reported to ingestion: #{properties.error.inspect}"
+      msg = "SDK Error (v #{sdk_version}) reported to ingestion: #{event_json.inspect}"
+      Rails.logger.error msg
+      raise InstrumentationError, msg
     end
   end
 end
