@@ -19,7 +19,7 @@ export class Client {
     });
     this.pageViewManager = new PageViewManager;
     this.deviceDetails = new DeviceDetails;
-    this.devideIdentifier = new DeviceIdentifier;
+    this.deviceIdentifier = new DeviceIdentifier;
     // the order here is important, we want to make sure we have a session before we start register the page views in the _initPageViewListeners
     if (!this.getSession()) this.newSession({ registerPageView: false });
     this._initPageViewListeners();
