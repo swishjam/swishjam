@@ -82,7 +82,7 @@ export default function Home() {
   }
 
   const getUniqueVisitorsData = async (timeframe, type) => {
-    return await SwishjamAPI.Users.Active.timeseries({ timeframe, data_source: 'marketing', type, include_comparison: true }).then(
+    return await SwishjamAPI.Users.Active.timeseries({ timeframe, data_source: 'product', type, include_comparison: true }).then(
       ({ current_value, timeseries, comparison_value, comparison_timeseries, comparison_end_time, grouped_by }) => {
         setUniqueVisitorsChartData({
           value: current_value || 0,
