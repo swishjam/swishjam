@@ -17,6 +17,7 @@ export default function ItemizedList({
   hoverable = true,
   linkFormatter,
   viewMoreUrl,
+  maxNumItems,
   noDataMsg
 }) {
   return (
@@ -44,7 +45,7 @@ export default function ItemizedList({
                 ? (
                   <EmptyState msg={noDataMsg || 'No data to display.'} />
                 ) : (
-                  items.slice(0, 5).map(item => (
+                  items.slice(0, (maxNumItems || items.length)).map(item => (
                     <Link 
                       key={item.id}
                       href={linkFormatter ? linkFormatter(item) : '#'} 

@@ -14,6 +14,7 @@ import useCommandBar from '@/hooks/useCommandBar';
 const appNav = [
   { name: 'Home', href: '/', icon: HomeIcon },
   { name: 'Site Metrics', href: '/site-metrics', icon: RxBarChart },
+  { name: 'Event Explorer', href: '/events' },
   { name: 'Users', href: '/users', icon: UserIcon },
   { name: 'Organizations', href: '/organizations', icon: UserGroupIcon },
   { name: 'Connections', href: '/connections', icon: SquaresPlusIcon},
