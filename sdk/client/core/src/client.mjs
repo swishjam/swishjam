@@ -10,7 +10,6 @@ import { UUID } from "./uuid.mjs";
 
 export class Client {
   constructor(options = {}) {
-    debugger;
     this.config = this._setConfig(options);
     this.requester = new Requester({
       apiKey: this.config.apiKey,

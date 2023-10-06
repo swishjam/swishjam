@@ -6,7 +6,7 @@ export const revalidate = 0;
 
 export default async function RootLayout({ children }) {
   return (
-    <SwishjamProvider apiKey='swishjam_prdct-48f6c7b4273c515a' disabledUrls={['http://localhost', 'someother.com']}>
+    <SwishjamProvider apiKey='swishjam_prdct-48f6c7b4273c515a'>
       <AuthenticationProvider>
         <html lang="en">
           <body className='bg-slate-50'>
