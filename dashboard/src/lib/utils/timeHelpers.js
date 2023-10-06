@@ -25,16 +25,20 @@ const dateToUTC = date => {
 }
 
 const intelligentlyFormattedMs = ms => {
-  if (ms < ONE_SECOND_IN_MS) {
-    return `${ms.toLocaleString('en-US')} ms`;
-  } else if (ms < ONE_MINUTE_IN_MS) {
-    return `${(ms / ONE_SECOND_IN_MS).toLocaleString('en_US')} s`
-  } else if (ms < ONE_HOUR_IN_MS) {
-    return `${(ms / ONE_MINUTE_IN_MS).toLocaleString('en-US')} mins`
-  } else if (ms < ONE_DAY_IN_MS) {
-    return `${(ms / ONE_HOUR_IN_MS).toLocaleString('en-US')} hours`
-  } else {
-    return `${(ms / ONE_DAY_IN_MS).toLocaleString('en-US')} days`
+  try {
+    if (ms < ONE_SECOND_IN_MS) {
+      return `${ms.toLocaleString('en-US')} ms`;
+    } else if (ms < ONE_MINUTE_IN_MS) {
+      return `${(ms / ONE_SECOND_IN_MS).toLocaleString('en_US')} s`
+    } else if (ms < ONE_HOUR_IN_MS) {
+      return `${(ms / ONE_MINUTE_IN_MS).toLocaleString('en-US')} mins`
+    } else if (ms < ONE_DAY_IN_MS) {
+      return `${(ms / ONE_HOUR_IN_MS).toLocaleString('en-US')} hours`
+    } else {
+      return `${(ms / ONE_DAY_IN_MS).toLocaleString('en-US')} days`
+    }
+  } catch (err) {
+    return `${ms} ms`
   }
 }
 
