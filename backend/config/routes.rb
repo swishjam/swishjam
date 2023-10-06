@@ -57,9 +57,9 @@ Rails.application.routes.draw do
 
       resources :users, only: [:index, :show] do
         collection do
-          get :count
-          get :timeseries
+          get :retention
           get :active
+          get :timeseries
         end
         resources :events, only: [:index], controller: :'users/events'
         resources :organizations, only: [:index], controller: :'users/organizations'

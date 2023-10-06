@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/button';
 import { ArrowPathIcon } from '@heroicons/react/24/outline';
 import InstallBanner from '@/components/InstallBanner';
 import ItemizedList from '@/components/DashboardComponents/ItemizedList';
+import RetentionWidget from '@/components/DashboardComponents/RetentionWidget';
 
 const currentChart = (selected, mrrChart, sessionsChart, activeSubsChart) => {
   if (selected === 'MRR') {
@@ -23,16 +24,18 @@ const currentChart = (selected, mrrChart, sessionsChart, activeSubsChart) => {
 }
 
 export default function Home() {
-  const [mrrChart, setMrrChart] = useState();
   const [activeSubsChart, setActiveSubsChart] = useState();
-  const [sessionsChart, setSessionsChart] = useState();
-  const [newUsersData, setNewUsersData] = useState();
-  const [newOrganizationsData, setNewOrganizationsData] = useState();
-  const [uniqueVisitorsChartData, setUniqueVisitorsChartData] = useState();
-  const [uniqueVisitorsGrouping, setUniqueVisitorsGrouping] = useState('weekly')
   const [currentSelectedChart, setCurrentSelectedChart] = useState('MRR');
-  const [timeframeFilter, setTimeframeFilter] = useState('thirty_days');
   const [isRefreshing, setIsRefreshing] = useState();
+  const [mrrChart, setMrrChart] = useState();
+  const [newOrganizationsData, setNewOrganizationsData] = useState();
+  const [newUsersData, setNewUsersData] = useState();
+  const [sessionsChart, setSessionsChart] = useState();
+  const [timeframeFilter, setTimeframeFilter] = useState('thirty_days');
+  const [uniqueVisitorsChartData, setUniqueVisitorsChartData] = useState();
+  const [uniqueVisitorsGrouping, setUniqueVisitorsGrouping] = useState('weekly');
+  const [userRetentionData, setUserRetentionData] = useState();
+  console.log(userRetentionData)
 
   const getBillingData = async timeframe => {
     return await SwishjamAPI.BillingData.timeseries({ timeframe }).then(paymentData => {
@@ -100,12 +103,16 @@ export default function Home() {
     );
   };
 
+  const getUserRetentionData = async () => {
+    return await SwishjamAPI.Users.Retention.get().then(setUserRetentionData)
+  }
+
   const getUsersData = async () => {
     return await SwishjamAPI.Users.list().then(({ users }) => setNewUsersData(users))
   }
 
   const getOrganizationsData = async () => {
-   return await SwishjamAPI.Organizations.list().then(({ organizations }) => setNewOrganizationsData(organizations));
+    return await SwishjamAPI.Organizations.list().then(({ organizations }) => setNewOrganizationsData(organizations));
   }
 
   const getAllData = async timeframe => {
@@ -115,6 +122,7 @@ export default function Home() {
     setUniqueVisitorsChartData();
     setNewUsersData();
     setNewOrganizationsData();
+    setUserRetentionData();
     setIsRefreshing(true);
     await Promise.all([
       getSessionsData(timeframe),
@@ -122,6 +130,7 @@ export default function Home() {
       getUniqueVisitorsData(timeframe, uniqueVisitorsGrouping),
       getUsersData(),
       getOrganizationsData(),
+      getUserRetentionData(),
     ])
     setIsRefreshing(false);
   }
@@ -131,10 +140,10 @@ export default function Home() {
   }, []);
 
   const selectedChart = currentChart(currentSelectedChart, mrrChart, sessionsChart, activeSubsChart)
-  
+
   return (
     <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mb-8">
-      <InstallBanner hidden={isRefreshing || parseInt(sessionsChart?.value) > 0 || parseFloat(mrrChart?.value) > 0 || parseInt(activeSubsChart?.value) > 0} /> 
+      <InstallBanner hidden={isRefreshing || parseInt(sessionsChart?.value) > 0 || parseFloat(mrrChart?.value) > 0 || parseInt(activeSubsChart?.value) > 0} />
       <div className='grid grid-cols-2 mt-8 flex items-center'>
         <div>
           <h1 className="text-lg font-medium text-gray-700 mb-0">Dashboard</h1>
@@ -142,10 +151,10 @@ export default function Home() {
 
         <div className="w-full flex items-center justify-end">
           <Timefilter selection={timeframeFilter} onSelection={timeframe => { setTimeframeFilter(timeframe); getAllData(timeframe) }} />
-          <Button 
-            variant='outline' 
-            className={`ml-4 bg-white ${isRefreshing ? 'cursor-not-allowed' : ''}`} 
-            onClick={() => getAllData(timeframeFilter)} 
+          <Button
+            variant='outline'
+            className={`ml-4 bg-white ${isRefreshing ? 'cursor-not-allowed' : ''}`}
+            onClick={() => getAllData(timeframeFilter)}
             disabled={isRefreshing}
           >
             <ArrowPathIcon className={`h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
@@ -159,9 +168,9 @@ export default function Home() {
           selected={currentSelectedChart == 'MRR'}
           previousValue={mrrChart?.previousValue}
           previousValueDate={mrrChart?.previousValueDate}
-          valueFormatter={mrr => (mrr/100).toLocaleString('en-US', { style: "currency", currency: "USD" })}
+          valueFormatter={mrr => (mrr / 100).toLocaleString('en-US', { style: "currency", currency: "USD" })}
           onClick={() => setCurrentSelectedChart('MRR')}
-        /> 
+        />
         <ClickableValueCard
           title='Active Subscriptions'
           value={activeSubsChart?.value}
@@ -169,8 +178,8 @@ export default function Home() {
           previousValue={activeSubsChart?.previousValue}
           previousValueDate={sessionsChart?.previousValueDate}
           valueFormatter={numSubs => numSubs.toLocaleString('en-US')}
-          onClick={() => setCurrentSelectedChart('Active Subscriptions')} 
-        /> 
+          onClick={() => setCurrentSelectedChart('Active Subscriptions')}
+        />
         <ClickableValueCard
           title='Sessions'
           value={sessionsChart?.value}
@@ -179,7 +188,7 @@ export default function Home() {
           previousValueDate={sessionsChart?.previousValueDate}
           valueFormatter={numSubs => numSubs.toLocaleString('en-US')}
           onClick={() => setCurrentSelectedChart('Sessions')}
-        /> 
+        />
       </div>
       <div className='grid grid-cols-1 gap-6 pt-8'>
         <LineChartWithValue
@@ -189,10 +198,10 @@ export default function Home() {
           previousValueDate={selectedChart?.previousValueDate}
           timeseries={selectedChart?.timeseries}
           groupedBy={selectedChart?.groupedBy}
-          valueFormatter={numSubs => currentSelectedChart === 'MRR' ? (numSubs/100).toLocaleString('en-US', { style: "currency", currency: "USD" }) : numSubs.toLocaleString('en-US')}
-          showAxis={true}  
+          valueFormatter={numSubs => currentSelectedChart === 'MRR' ? (numSubs / 100).toLocaleString('en-US', { style: "currency", currency: "USD" }) : numSubs.toLocaleString('en-US')}
+          showAxis={true}
         />
-        <Separator className="my-6"/>
+        <Separator className="my-6" />
 
       </div>
       <div className='grid grid-cols-2 gap-6 pt-8'>
@@ -214,6 +223,9 @@ export default function Home() {
           valueFormatter={numSubs => numSubs.toLocaleString('en-US')}
         />
       </div>
+      <div className='pt-8'>
+        <RetentionWidget data={userRetentionData} />
+      </div>
       <div className='grid grid-cols-2 gap-6 pt-8'>
         <ItemizedList
           fallbackAvatarGenerator={user => user.initials}
@@ -221,7 +233,7 @@ export default function Home() {
           leftItemHeaderKey='full_name'
           leftItemSubHeaderKey='email'
           linkFormatter={user => `/users/${user.id}`}
-          rightItemKey ='created_at'
+          rightItemKey='created_at'
           rightItemKeyFormatter={date => {
             return new Date(date)
               .toLocaleDateString('en-us', { weekday: "short", year: "numeric", month: "short", day: "numeric" })

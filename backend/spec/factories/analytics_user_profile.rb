@@ -6,5 +6,6 @@ FactoryBot.define do
     first_name { 'Johnny' }
     last_name { 'Appleseed' }
     metadata {{ favorite_color: 'red' }}
+    created_at { Time.current }
   end
 end
