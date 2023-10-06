@@ -2,12 +2,13 @@ export class Requester {
   constructor({ endpoint, apiKey, options = {} }) {
     this.endpoint = endpoint;
     this.apiKey = apiKey;
+    this.disabledUrls = options.disabledUrls || [];
     this.maxNumFailedRequests = options.maxNumFailedRequests || 3;
     this.numFailedRequests = 0;
   }
 
   async send(data, onError = async () => { }) {
-    if (this.numFailedRequests >= this.maxNumFailedRequests) return;
+    if (!this._shouldSendRequest()) return;
     const result = await fetch(this.endpoint, {
       method: 'POST',
       headers: {
@@ -25,6 +26,12 @@ export class Requester {
       if (this.numFailedRequests >= this.maxNumFailedRequests) console.error('[Swishjam SDK Error]: Max number of failed network requests reached; disabling Swishjam requests.');
     }
     return result.ok;
+  }
+
+  _shouldSendRequest() {
+    if (this.disabledUrls.find(url => window.location.href.includes(url))) return false;
+    if (this.numFailedRequests >= this.maxNumFailedRequests) return false;
+    return true;
   }
 }
 
