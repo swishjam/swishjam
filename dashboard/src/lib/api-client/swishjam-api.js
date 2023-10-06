@@ -1,3 +1,4 @@
+import Admin from './admin';
 import Auth from './auth';
 import BillingData from './billing-data';
 import Config from './config';
@@ -10,6 +11,7 @@ import Users from './users';
 import Workspace from './workspace';
 
 export class SwishjamAPI {
+  static Admin = Admin;
   static Auth = Auth;
   static BillingData = BillingData;
   static Config = Config;
