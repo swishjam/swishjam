@@ -35,7 +35,6 @@ export default function Home() {
   const [uniqueVisitorsChartData, setUniqueVisitorsChartData] = useState();
   const [uniqueVisitorsGrouping, setUniqueVisitorsGrouping] = useState('weekly');
   const [userRetentionData, setUserRetentionData] = useState();
-  console.log(userRetentionData)
 
   const getBillingData = async timeframe => {
     return await SwishjamAPI.BillingData.timeseries({ timeframe }).then(paymentData => {
