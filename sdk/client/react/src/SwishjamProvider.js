@@ -3,14 +3,15 @@
 import { useState, useEffect } from 'react';
 import { SwishjamContext } from './SwishjamContext';
 
-export const SwishjamProvider = ({ apiKey, apiEndpoint, children }) => {
+export const SwishjamProvider = ({ children, ...options }) => {
   const [swishjamClient, setSwishjamClient] = useState(null);
 
   useEffect(() => {
     const init = async () => {
       if (typeof window !== 'undefined' && !swishjamClient && !window.Swishjam) {
         const SwishjamClient = (await import('@swishjam/core')).default;
-        const client = new SwishjamClient({ apiKey, apiEndpoint });
+        debugger;
+        const client = new SwishjamClient(options);
         setSwishjamClient(client);
       }
     }

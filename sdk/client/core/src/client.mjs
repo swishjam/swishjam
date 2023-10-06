@@ -10,8 +10,15 @@ import { UUID } from "./uuid.mjs";
 
 export class Client {
   constructor(options = {}) {
+    debugger;
     this.config = this._setConfig(options);
-    this.requester = new Requester({ apiKey: this.config.apiKey, endpoint: this.config.apiEndpoint });
+    this.requester = new Requester({
+      apiKey: this.config.apiKey,
+      endpoint: this.config.apiEndpoint,
+      options: {
+        disabledUrls: this.config.disabledUrls,
+      }
+    });
     this.errorHandler = new ErrorHandler(this.requester);
     this.eventQueueManager = new EventQueueManager(this.requester, this.errorHandler, {
       maxSize: this.config.maxEventsInMemory,
@@ -115,7 +122,7 @@ export class Client {
 
   _setConfig = options => {
     if (!options.apiKey) throw new Error('Swishjam `apiKey` is required');
-    const validOptions = ['apiKey', 'apiEndpoint', 'maxEventsInMemory', 'reportingHeartbeatMs', 'debug'];
+    const validOptions = ['apiKey', 'apiEndpoint', 'maxEventsInMemory', 'reportingHeartbeatMs', 'debug', 'disabledUrls'];
     Object.keys(options).forEach(key => {
       if (!validOptions.includes(key)) console.warn(`SwishjamJS received unrecognized config: ${key}`);
     });
@@ -125,6 +132,7 @@ export class Client {
       apiEndpoint: options.apiEndpoint || 'https://capture.swishjam.com/api/v1/capture',
       maxEventsInMemory: options.maxEventsInMemory || 20,
       reportingHeartbeatMs: options.reportingHeartbeatMs || 10_000,
+      disabledUrls: options.disabledUrls || ['http://localhost'],
       debug: typeof options.debug === 'boolean' ? options.debug : false,
     }
   }
