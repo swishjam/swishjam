@@ -1,84 +1,76 @@
+import { useState } from 'react'
+import RetentionGrid from "./RetentionWidget/RetentionGrid";
 import { Card, CardTitle, CardHeader, CardContent } from "@/components/ui/card";
-import { dateFormatterForGrouping } from '@/lib/utils/timeseriesHelpers';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import { Squares2X2Icon, ChartBarIcon } from '@heroicons/react/24/outline';
+import { Switch } from '@headlessui/react'
+import LineChart from './RetentionWidget/LineChart';
 
-const weekFormatter = dateFormatterForGrouping('weeky');
-
-const RetentionCell = ({ cohortDate, activityWeek, numActiveUsers, cohortSize }) => {
-  const OPACITY_BUFFER = 0.2;
-  return (
-    <TooltipProvider>
-      <Tooltip delayDuration={100}>
-        <TooltipTrigger>
-          <div
-            className="w-20 h-20 flex items-center justify-center border-l p-1 bg-swishjam text-sm transition-opacity"
-            style={{ opacity: (numActiveUsers / cohortSize) + OPACITY_BUFFER }}
-          >
-            {(numActiveUsers / cohortSize * 100).toFixed(2)}%
-          </div>
-          <TooltipContent className='text-xs text-gray-700'>
-            {numActiveUsers} of the {cohortSize} users that registered the week of {weekFormatter(cohortDate)} were active within the week of {weekFormatter(activityWeek)}.
-          </TooltipContent>
-        </TooltipTrigger>
-      </Tooltip>
-    </TooltipProvider>
-  )
+function classNames(...classes) {
+  return classes.filter(Boolean).join(' ')
 }
 
 export default function RetentionWidget({ retentionCohorts }) {
-  if (!retentionCohorts) return <>LOADING!</>
-  const cohortsArray = [];
-  const retentionWeeksArray = [];
-  const cohorts = {}
+  const [chartType, setChartType] = useState('grid');
 
-  retentionCohorts.forEach(({ id, num_users, time_period: cohort_time_period, retention_cohort_activities }) => {
-    cohorts[cohort_time_period] = { cohortSize: num_users };
-
-    if (!cohortsArray[cohort_time_period]) cohortsArray.push(cohort_time_period);
-    retention_cohort_activities.forEach(({ time_period: activity_time_period, num_active_users }) => {
-      cohorts[cohort_time_period][activity_time_period] = num_active_users;
-      if (!retentionWeeksArray[activity_time_period]) retentionWeeksArray.push(activity_time_period);
-    })
-  })
-
-  const sortedCohorts = cohortsArray.sort((a, b) => new Date(b) - new Date(a));
-  const sortedRetentionWeeks = retentionWeeksArray.sort((a, b) => new Date(b) - new Date(a));
+  const toggleChartType = () => chartType === 'grid' ? setChartType('chart') : setChartType('grid');
 
   return (
     <Card>
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
         <CardTitle className="text-sm font-medium cursor-default">User Retention</CardTitle>
+        <TooltipProvider>
+          <Tooltip delayDuration={300} className='cursor-default'>
+            <TooltipTrigger>
+              <div className="flex items-center space-x-2">
+                <Switch
+                  checked={chartType === 'grid'}
+                  onChange={toggleChartType}
+                  className={classNames(
+                    chartType === 'grid' ? 'bg-swishjam' : 'bg-gray-200',
+                    'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out'
+                  )}
+                >
+                  <span className="sr-only">Use setting</span>
+                  <span
+                    className={classNames(
+                      chartType === 'grid' ? 'translate-x-5' : 'translate-x-0',
+                      'pointer-events-none relative inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out'
+                    )}
+                  >
+                    <span
+                      className={classNames(
+                        chartType === 'grid' ? 'opacity-0 duration-100 ease-out' : 'opacity-100 duration-200 ease-in',
+                        'absolute inset-0 flex h-full w-full items-center justify-center transition-opacity'
+                      )}
+                      aria-hidden="true"
+                    >
+                      <ChartBarIcon className="h-3 w-3 text-gray-600" />
+                    </span>
+                    <span
+                      className={classNames(
+                        chartType === 'grid' ? 'opacity-100 duration-200 ease-in' : 'opacity-0 duration-100 ease-out',
+                        'absolute inset-0 flex h-full w-full items-center justify-center transition-opacity'
+                      )}
+                      aria-hidden="true"
+                    >
+                      <Squares2X2Icon className='h-3 w-3 text-swishjam' />
+                    </span>
+                  </span>
+                </Switch>
+              </div>
+            </TooltipTrigger>
+            <TooltipContent className='text-xs text-gray-700'>
+              Toggle between grid and line chart retention data visualizations.
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
       </CardHeader>
-      <CardContent>
-        <div className="retention-grid overflow-x-scroll">
-          <div className="flex bg-gray-200 p-2">
-            <div className="w-20 h-20 flex items-center justify-center text-sm font-medium">Cohort</div>
-            {sortedRetentionWeeks.map((_date, index) => (
-              <div key={index} className="w-20 h-20 flex items-center justify-center text-sm">
-                {`Week ${index + 1}`}
-              </div>
-            ))}
-          </div>
-
-          {sortedCohorts.map((cohort, cohortIndex) => (
-            <div key={cohortIndex} className="flex border-t">
-              <div className="w-20 p-2 flex items-center justify-center text-sm">
-                {weekFormatter(cohort)}
-              </div>
-              {sortedRetentionWeeks.map((week, weekIndex) => {
-                return (
-                  <RetentionCell
-                    key={weekIndex}
-                    cohortDate={cohort}
-                    activityWeek={week}
-                    numActiveUsers={cohorts[cohort][week]}
-                    cohortSize={cohorts[cohort].cohortSize}
-                  />
-                )
-              })}
-            </div>
-          ))}
-        </div>
+      <CardContent className='relative'>
+        {chartType === 'grid'
+          ? <RetentionGrid retentionCohorts={retentionCohorts} />
+          : <LineChart retentionCohorts={retentionCohorts} />
+        }
       </CardContent>
     </Card>
   )

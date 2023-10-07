@@ -121,23 +121,24 @@ ActiveRecord::Schema.define(version: 2023_10_06_132109) do
     t.index ["workspace_id"], name: "index_integrations_on_workspace_id"
   end
 
-  create_table "retention_cohort_activities", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+  create_table "retention_cohort_activity_periods", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.uuid "workspace_id", null: false
     t.uuid "retention_cohort_id", null: false
     t.integer "num_active_users"
+    t.integer "num_periods_after_cohort"
     t.date "time_period"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
-    t.index ["retention_cohort_id"], name: "index_retention_cohort_activities_on_retention_cohort_id"
-    t.index ["time_period"], name: "index_retention_cohort_activities_on_time_period"
-    t.index ["workspace_id"], name: "index_retention_cohort_activities_on_workspace_id"
+    t.index ["retention_cohort_id"], name: "index_retention_cohort_activity_periods_on_retention_cohort_id"
+    t.index ["time_period"], name: "index_retention_cohort_activity_periods_on_time_period"
+    t.index ["workspace_id"], name: "index_retention_cohort_activity_periods_on_workspace_id"
   end
 
   create_table "retention_cohorts", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.uuid "workspace_id", null: false
     t.string "time_granularity"
     t.date "time_period"
-    t.integer "num_users"
+    t.integer "num_users_in_cohort"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.index ["time_granularity"], name: "index_retention_cohorts_on_time_granularity"
@@ -183,8 +184,8 @@ ActiveRecord::Schema.define(version: 2023_10_06_132109) do
   add_foreign_key "auth_sessions", "users"
   add_foreign_key "data_syncs", "workspaces"
   add_foreign_key "integrations", "workspaces"
-  add_foreign_key "retention_cohort_activities", "retention_cohorts"
-  add_foreign_key "retention_cohort_activities", "workspaces"
+  add_foreign_key "retention_cohort_activity_periods", "retention_cohorts"
+  add_foreign_key "retention_cohort_activity_periods", "workspaces"
   add_foreign_key "retention_cohorts", "workspaces"
   add_foreign_key "workspace_members", "users"
   add_foreign_key "workspace_members", "workspaces"

@@ -5,7 +5,7 @@ class Workspace < Transactional
   has_many :data_syncs, dependent: :destroy
   has_many :integrations, dependent: :destroy
   has_many :retention_cohorts
-  has_many :retention_cohort_activities, through: :retention_cohorts
+  has_many :retention_cohort_activity_periods, through: :retention_cohorts
   has_many :users, through: :workspace_members
   has_many :workspace_members, dependent: :destroy
 

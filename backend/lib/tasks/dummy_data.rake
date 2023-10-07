@@ -12,7 +12,7 @@ def seed_user_profiles!
       email: Faker::Internet.email,
       first_name: Faker::Name.first_name,
       last_name: Faker::Name.last_name,
-      created_at: 6.weeks.ago,
+      created_at: rand(0..DATA_BEGINS_MAX_NUMBER_OF_DAYS_AGO).days.ago,
       metadata: rand(1..USER_ATTRIBUTE_OPTIONS.count).times.map do |m|
         obj = {}
         obj[USER_ATTRIBUTE_OPTIONS[m][:key]] = USER_ATTRIBUTE_OPTIONS[m][:faker_klass].send(USER_ATTRIBUTE_OPTIONS[m][:faker_method])
@@ -95,21 +95,12 @@ end
 def seed_sessions_page_hits_and_events!
   progress_bar = TTY::ProgressBar.new("Generating #{NUMBER_OF_SESSIONS_TO_GENERATE} sessions with random number of page views and events [:bar]", total: NUMBER_OF_SESSIONS_TO_GENERATE, bar_format: :block)
 
-  max_days_ago = {
-    100 => 30,
-    500 => 60,
-    1_000 => 90,
-    5_000 => 180,
-    10_000 => 365,
-    20_000 => 365,
-  }[NUMBER_OF_SESSIONS_TO_GENERATE]
-
   sessions = NUMBER_OF_SESSIONS_TO_GENERATE.times.map do
     # user_profile = AnalyticsUserProfile.all.sample
     # user_is_anonymous = rand() < 0.75
     # swishjam_user_id = user_is_anonymous ? nil : user_profile.id
     device_identifier = DEVICE_IDENTIFIERS.sample
-    session_start_time = Time.current - rand(0..max_days_ago).days
+    session_start_time = Time.current - rand(0..DATA_BEGINS_MAX_NUMBER_OF_DAYS_AGO).days
     public_key = [
       WORKSPACE.api_keys.for_data_source!(ApiKey::ReservedDataSources.PRODUCT).public_key,
       WORKSPACE.api_keys.for_data_source!(ApiKey::ReservedDataSources.MARKETING).public_key,
@@ -331,6 +322,14 @@ namespace :seed do
         { key: 'Favorite superhero', faker_klass: Faker::DcComics, faker_method: 'hero' },
         { key: 'Favorite hobby', faker_klass: Faker::Hobby, faker_method: 'activity' },
       ]
+      DATA_BEGINS_MAX_NUMBER_OF_DAYS_AGO = {
+        100 => 30,
+        500 => 60,
+        1_000 => 90,
+        5_000 => 180,
+        10_000 => 365,
+        20_000 => 365,
+      }[NUMBER_OF_SESSIONS_TO_GENERATE]
 
       USER.workspaces << WORKSPACE unless USER.workspaces.include?(WORKSPACE)
 

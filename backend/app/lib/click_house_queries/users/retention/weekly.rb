@@ -12,22 +12,50 @@ module ClickHouseQueries
 
         def get
           return if workspace.analytics_user_profiles.none?
-          Analytics::Event.find_by_sql(sql.squish!).collect do |e|
-            {
-              cohort: e.cohort_date,
-              retention_week: e.activity_week,
-              num_active_users: e.active_users,
-              cohort_size: e.cohort_size
+          raw_retention_data = Analytics::Event.find_by_sql(sql.squish!)
+          retention_data_grouped_by_cohort_date = format_result_into_cohort_key_values(raw_retention_data)
+          fill_in_retention_data_with_period_counts_and_zero_user_periods(retention_data_grouped_by_cohort_date)
+        end
+
+        private
+
+        def format_result_into_cohort_key_values(results)
+          retention_data_grouped_by_cohort_date = {}
+          results.each do |activity_period_data|
+            retention_data_grouped_by_cohort_date[activity_period_data.cohort_date.to_date.to_s] ||= { 
+              cohort_size: activity_period_data.cohort_size,
+              activity_periods: {}
+            }
+            retention_data_grouped_by_cohort_date[activity_period_data.cohort_date.to_date.to_s][:activity_periods][activity_period_data.activity_period_date] = { 
+              num_active_users: activity_period_data.active_users 
             }
           end
+          retention_data_grouped_by_cohort_date
+        end
+
+        def fill_in_retention_data_with_period_counts_and_zero_user_periods(retention_data_grouped_by_cohort_date)
+          retention_data_grouped_by_cohort_date.each do |cohort_date, cohort_activity_data|
+            current_retention_activity_period = cohort_date.to_date
+            num_periods_after_cohort = 0
+            while current_retention_activity_period <= Time.current.beginning_of_week.to_date
+              cohort_activity_data[:activity_periods][current_retention_activity_period.to_s] ||= { num_active_users: 0 }
+              cohort_activity_data[:activity_periods][current_retention_activity_period.to_s][:num_periods_after_cohort] = num_periods_after_cohort
+              num_periods_after_cohort += 1
+              current_retention_activity_period += 1.week
+            end
+
+            cohort_activity_data[:activity_periods].each do |activity_period_date, activity_period_data|
+              if activity_period_date.to_date < cohort_date.to_date
+                Rails.logger.error "Retention cohort has activity data that prceeds the cohort start date, this should not happen. Cohort: #{cohort_date}, activity period date: #{activity_period_date}"
+                cohort_activity_data[:activity_periods].delete(activity_period_date)
+              end
+            end
+          end
+          retention_data_grouped_by_cohort_date
         end
 
         def workspace
           @workspace ||= ApiKey.includes(:workspace).find_by(public_key: @public_keys.first).workspace
-        end
-
-        def users_by_cohort_date
-          @users_by_cohort_date ||= workspace.analytics_user_profiles.where('created_at >= ?', @oldest_cohort).group_by{ |u| u.created_at.beginning_of_week }
         end
 
         def sql
@@ -68,7 +96,7 @@ module ClickHouseQueries
             weekly_activity AS (
               SELECT
                 cohort_date,
-                DATE_TRUNC('week', occurred_at) AS activity_week,
+                DATE_TRUNC('week', occurred_at) AS activity_period_date,
                 CAST(COUNT(DISTINCT user_id) AS INT) AS active_users
               FROM activity_with_cohorts
               GROUP BY cohort_date, DATE_TRUNC('week', occurred_at)
@@ -82,12 +110,12 @@ module ClickHouseQueries
 
             SELECT 
               a.cohort_date,
-              a.activity_week,
+              a.activity_period_date,
               a.active_users,
               c.cohort_size
             FROM weekly_activity AS a
             JOIN cohort_sizes AS c ON c.cohort_date = a.cohort_date
-            ORDER BY a.cohort_date, a.activity_week
+            ORDER BY a.cohort_date, a.activity_period_date
           SQL
         end
       end
