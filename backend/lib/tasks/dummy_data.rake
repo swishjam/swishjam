@@ -12,6 +12,7 @@ def seed_user_profiles!
       email: Faker::Internet.email,
       first_name: Faker::Name.first_name,
       last_name: Faker::Name.last_name,
+      created_at: 6.weeks.ago,
       metadata: rand(1..USER_ATTRIBUTE_OPTIONS.count).times.map do |m|
         obj = {}
         obj[USER_ATTRIBUTE_OPTIONS[m][:key]] = USER_ATTRIBUTE_OPTIONS[m][:faker_klass].send(USER_ATTRIBUTE_OPTIONS[m][:faker_method])

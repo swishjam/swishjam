@@ -4,9 +4,10 @@ module ClickHouseQueries
       class Weekly
         include ClickHouseQueries::Helpers
 
-        def initialize(public_keys, oldest_cohort: 6.months.ago)
+        def initialize(public_keys, oldest_cohort: 6.months.ago, oldest_activity_week: 1.weeks.ago)
           @public_keys = public_keys.is_a?(Array) ? public_keys : [public_keys]
           @oldest_cohort = oldest_cohort.beginning_of_week
+          @oldest_activity_week = oldest_activity_week.beginning_of_week
         end
 
         def get
@@ -59,7 +60,9 @@ module ClickHouseQueries
                 GROUP BY device_identifier
               ) AS uie ON uie.device_identifier = JSONExtractString(e.properties, '#{Analytics::Event::ReservedPropertyNames.DEVICE_IDENTIFIER}')
               JOIN cohorts AS c ON uie.swishjam_user_id = c.user_id
-              WHERE e.swishjam_api_key IN #{formatted_in_clause(@public_keys)}
+              WHERE 
+                e.swishjam_api_key IN #{formatted_in_clause(@public_keys)} AND
+                e.occurred_at >= '#{formatted_time(@oldest_activity_week)}'
             ),
 
             weekly_activity AS (

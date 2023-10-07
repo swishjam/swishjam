@@ -103,7 +103,7 @@ export default function Home() {
   };
 
   const getUserRetentionData = async () => {
-    return await SwishjamAPI.Users.Retention.get().then(setUserRetentionData)
+    return await SwishjamAPI.RetentionCohorts.get().then(setUserRetentionData)
   }
 
   const getUsersData = async () => {
@@ -223,7 +223,7 @@ export default function Home() {
         />
       </div>
       <div className='pt-8'>
-        <RetentionWidget data={userRetentionData} />
+        <RetentionWidget retentionCohorts={userRetentionData} />
       </div>
       <div className='grid grid-cols-2 gap-6 pt-8'>
         <ItemizedList

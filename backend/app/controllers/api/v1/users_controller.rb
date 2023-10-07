@@ -77,12 +77,6 @@ module Api
           data_source: params[:data_source],
         }, status: :ok
       end
-
-      def retention
-        params[:data_source] ||= ApiKey::ReservedDataSources.PRODUCT
-        retention_data = ClickHouseQueries::Users::Retention::Weekly.new(public_keys_for_requested_data_source, oldest_cohort: 6.months.ago).get
-        render json: retention_data, status: :ok
-      end
       
       def timeseries
         raise "Deprecated"

@@ -57,7 +57,6 @@ Rails.application.routes.draw do
 
       resources :users, only: [:index, :show] do
         collection do
-          get :retention
           get :active
           get :timeseries
         end
@@ -70,6 +69,8 @@ Rails.application.routes.draw do
           end
         end
       end
+
+      resources :retention_cohorts, only: [:index]
 
       resources :sessions, only: [] do
         collection do

@@ -25,18 +25,24 @@ const RetentionCell = ({ cohortDate, activityWeek, numActiveUsers, cohortSize })
   )
 }
 
-export default function RetentionWidget({ data }) {
-  if (!data) return <>LOADING!</>
-  const cohorts = {};
-  const retentionWeeks = {};
+export default function RetentionWidget({ retentionCohorts }) {
+  if (!retentionCohorts) return <>LOADING!</>
+  const cohortsArray = [];
+  const retentionWeeksArray = [];
+  const cohorts = {}
 
-  data.forEach(({ cohort, cohort_size, num_active_users, retention_week }) => {
-    if (!cohorts[cohort]) cohorts[cohort] = { cohortSize: cohort_size };
-    if (!retentionWeeks[retention_week]) retentionWeeks[retention_week] = { activeUsers: num_active_users };
+  retentionCohorts.forEach(({ id, num_users, time_period: cohort_time_period, retention_cohort_activities }) => {
+    cohorts[cohort_time_period] = { cohortSize: num_users };
+
+    if (!cohortsArray[cohort_time_period]) cohortsArray.push(cohort_time_period);
+    retention_cohort_activities.forEach(({ time_period: activity_time_period, num_active_users }) => {
+      cohorts[cohort_time_period][activity_time_period] = num_active_users;
+      if (!retentionWeeksArray[activity_time_period]) retentionWeeksArray.push(activity_time_period);
+    })
   })
 
-  const sortedCohorts = Object.keys(cohorts).sort((a, b) => new Date(a) - new Date(b));
-  const sortedRetentionWeeksDescending = Object.keys(retentionWeeks).sort((a, b) => new Date(b) - new Date(a));
+  const sortedCohorts = cohortsArray.sort((a, b) => new Date(b) - new Date(a));
+  const sortedRetentionWeeks = retentionWeeksArray.sort((a, b) => new Date(b) - new Date(a));
 
   return (
     <Card>
@@ -44,10 +50,10 @@ export default function RetentionWidget({ data }) {
         <CardTitle className="text-sm font-medium cursor-default">User Retention</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="retention-grid">
+        <div className="retention-grid overflow-x-scroll">
           <div className="flex bg-gray-200 p-2">
             <div className="w-20 h-20 flex items-center justify-center text-sm font-medium">Cohort</div>
-            {sortedRetentionWeeksDescending.map((_date, index) => (
+            {sortedRetentionWeeks.map((_date, index) => (
               <div key={index} className="w-20 h-20 flex items-center justify-center text-sm">
                 {`Week ${index + 1}`}
               </div>
@@ -59,15 +65,17 @@ export default function RetentionWidget({ data }) {
               <div className="w-20 p-2 flex items-center justify-center text-sm">
                 {weekFormatter(cohort)}
               </div>
-              {sortedRetentionWeeksDescending.map((week, weekIndex) => (
-                <RetentionCell
-                  key={weekIndex}
-                  cohortDate={cohort}
-                  activityWeek={week}
-                  numActiveUsers={retentionWeeks[week].activeUsers}
-                  cohortSize={cohorts[cohort].cohortSize}
-                />
-              ))}
+              {sortedRetentionWeeks.map((week, weekIndex) => {
+                return (
+                  <RetentionCell
+                    key={weekIndex}
+                    cohortDate={cohort}
+                    activityWeek={week}
+                    numActiveUsers={cohorts[cohort][week]}
+                    cohortSize={cohorts[cohort].cohortSize}
+                  />
+                )
+              })}
             </div>
           ))}
         </div>

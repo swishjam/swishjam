@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2023_09_28_132109) do
+ActiveRecord::Schema.define(version: 2023_10_06_132109) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
@@ -71,6 +71,34 @@ ActiveRecord::Schema.define(version: 2023_09_28_132109) do
     t.index ["user_id"], name: "index_auth_sessions_on_user_id"
   end
 
+  create_table "dashboard_components", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "workspace_id"
+    t.uuid "created_by_user_id"
+    t.jsonb "configuration"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["created_by_user_id"], name: "index_dashboard_components_on_created_by_user_id"
+    t.index ["workspace_id"], name: "index_dashboard_components_on_workspace_id"
+  end
+
+  create_table "dashboards", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "workspace_id"
+    t.uuid "created_by_user_id"
+    t.string "name"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["created_by_user_id"], name: "index_dashboards_on_created_by_user_id"
+    t.index ["workspace_id"], name: "index_dashboards_on_workspace_id"
+  end
+
+  create_table "dashboards_dashboard_components", force: :cascade do |t|
+    t.uuid "dashboard_id"
+    t.uuid "dashboard_component_id"
+    t.index ["dashboard_component_id"], name: "index_dashboards_dashboard_components_on_dashboard_component_id"
+    t.index ["dashboard_id", "dashboard_component_id"], name: "index_dashboards_dashboard_components", unique: true
+    t.index ["dashboard_id"], name: "index_dashboards_dashboard_components_on_dashboard_id"
+  end
+
   create_table "data_syncs", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.uuid "workspace_id", null: false
     t.string "provider", null: false
@@ -91,6 +119,30 @@ ActiveRecord::Schema.define(version: 2023_09_28_132109) do
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.index ["workspace_id"], name: "index_integrations_on_workspace_id"
+  end
+
+  create_table "retention_cohort_activities", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "workspace_id", null: false
+    t.uuid "retention_cohort_id", null: false
+    t.integer "num_active_users"
+    t.date "time_period"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["retention_cohort_id"], name: "index_retention_cohort_activities_on_retention_cohort_id"
+    t.index ["time_period"], name: "index_retention_cohort_activities_on_time_period"
+    t.index ["workspace_id"], name: "index_retention_cohort_activities_on_workspace_id"
+  end
+
+  create_table "retention_cohorts", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "workspace_id", null: false
+    t.string "time_granularity"
+    t.date "time_period"
+    t.integer "num_users"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["time_granularity"], name: "index_retention_cohorts_on_time_granularity"
+    t.index ["time_period"], name: "index_retention_cohorts_on_time_period"
+    t.index ["workspace_id"], name: "index_retention_cohorts_on_workspace_id"
   end
 
   create_table "users", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -131,6 +183,9 @@ ActiveRecord::Schema.define(version: 2023_09_28_132109) do
   add_foreign_key "auth_sessions", "users"
   add_foreign_key "data_syncs", "workspaces"
   add_foreign_key "integrations", "workspaces"
+  add_foreign_key "retention_cohort_activities", "retention_cohorts"
+  add_foreign_key "retention_cohort_activities", "workspaces"
+  add_foreign_key "retention_cohorts", "workspaces"
   add_foreign_key "workspace_members", "users"
   add_foreign_key "workspace_members", "workspaces"
 end

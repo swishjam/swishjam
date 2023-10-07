@@ -1,7 +1,7 @@
 class DataSync < Transactional
   belongs_to :workspace
 
-  validates :provider, presence: true, inclusion: { in: %w[stripe] }
+  validates :provider, presence: true, inclusion: { in: %w[stripe swishjam_user_retention] }
 
   def completed!
     update!(completed_at: Time.current, duration_in_seconds: Time.current - started_at)
