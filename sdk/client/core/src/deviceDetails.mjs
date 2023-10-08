@@ -43,7 +43,7 @@ export class DeviceDetails {
   getBrowserMajorVersion() {
     return this.browserData.browser.major;
   }
-  
+
   getOS() {
     return this.browserData.os.name;
   }
@@ -71,8 +71,8 @@ export class DeviceDetails {
   }
 
   hasLocalStorage() {
-    return this._hasLocalStorage ?? (function() {
-        try {
+    return this._hasLocalStorage ?? (function () {
+      try {
         window.localStorage.setItem('swishjam-test', 'test');
         window.localStorage.removeItem('swishjam-test');
         return this._hasLocalStorage = true;
@@ -121,3 +121,6 @@ export class DeviceDetails {
     return navigator.systemLanguage || window.navigator.language;
   }
 };
+
+
+export default DeviceDetails;

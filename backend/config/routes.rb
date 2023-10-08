@@ -120,6 +120,8 @@ Rails.application.routes.draw do
           patch :disable
         end
       end
+      
+      get :'/admin/ingestion/queuing', to: 'admin/ingestion#queueing'
     end
   end
 end

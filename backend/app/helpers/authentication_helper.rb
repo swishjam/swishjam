@@ -23,6 +23,7 @@ module AuthenticationHelper
   def authenticate_request!
     if !is_valid_session?
       render json: { error: 'Not Authorized', logged_out: true }, status: :unauthorized
+      return
     end
   end
 
