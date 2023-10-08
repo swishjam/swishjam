@@ -1,10 +1,9 @@
 import { useState, useEffect } from 'react'
-import { API  } from '@/lib/api-client/base';
+import { API } from '@/lib/api-client/base';
 import LineChartWithValue from '@/components/Dashboards/Components/LineChartWithValue'
 import Dropdown from '@/components/utils/Dropdown'
-import { CheckCircleIcon } from '@heroicons/react/24/outline';
 
-export default function LineChartConfiguration({ eventOptions, onSaveClick = () => {} }) {
+export default function LineChartConfiguration({ eventOptions, onSaveClick = () => { } }) {
   const [selectedEventName, setSelectedEventName] = useState();
   const [lineChartTitle, setLineChartTitle] = useState();
   const [lineChartData, setLineChartData] = useState();
@@ -13,17 +12,9 @@ export default function LineChartConfiguration({ eventOptions, onSaveClick = () 
   const [selectedCalculation, setSelectedCalculation] = useState('count');
   const [calculationOptions, setCalculationOptions] = useState(['count', 'sum', 'avg', 'min', 'max']);
   const [currentValue, setCurrentValue] = useState();
-  const [saveButtonText, setSaveButtonText] = useState('Save');
 
   const onSave = () => {
-    setSaveButtonText('Saving...');
-    setTimeout(() => {
-      setSaveButtonText(<>Saved <CheckCircleIcon className='h-4 w-4 ml-1' /></>);
-      setTimeout(() => {
-        onSaveClick({ title: lineChartTitle, event: selectedEventName, property: propertyToVisualize, calculation: selectedCalculation });
-        setSaveButtonText('Save');
-      }, 1_000)
-    }, 500)
+    onSaveClick({ title: lineChartTitle, event: selectedEventName, property: propertyToVisualize, calculation: selectedCalculation });
   }
 
   useEffect(() => {
@@ -71,7 +62,7 @@ export default function LineChartConfiguration({ eventOptions, onSaveClick = () 
           className={`ml-2 flex justify-center items-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white focus:outline-none focus:ring-2 bg-swishjam hover:bg-swishjam-dark`}
           onClick={onSave}
         >
-          {saveButtonText}
+          Save
         </button>
       </div>
     </>

@@ -4,8 +4,8 @@ module ClickHouseQueries
       class List
         include ClickHouseQueries::Helpers
 
-        def initialize(public_key, limit: 50, start_time: 6.months.ago, end_time: Time.current)
-          @public_key = public_key
+        def initialize(public_keys, limit: 50, start_time: 6.months.ago, end_time: Time.current)
+          @public_keys = public_keys.is_a?(Array) ? public_keys : [public_keys]
           @limit = limit
           @start_time = start_time
           @end_time = end_time
@@ -22,7 +22,7 @@ module ClickHouseQueries
             SELECT name, count() AS count
             FROM events
             WHERE
-              swishjam_api_key = '#{@public_key}' AND
+              swishjam_api_key IN #{formatted_in_clause(@public_keys)} AND
               occurred_at BETWEEN '#{formatted_time(@start_time)}' AND '#{formatted_time(@end_time)}'
             GROUP BY name
             ORDER BY count DESC

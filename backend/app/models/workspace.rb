@@ -11,4 +11,8 @@ class Workspace < Transactional
 
   after_create_commit { ApiKey.generate_default_keys_for(self) }
   attribute :public_key, :string, default: "DEPRECATED"
+
+  def public_key
+    raise "`public_key` is deprecated, please use the workspace's `api_keys`."
+  end
 end

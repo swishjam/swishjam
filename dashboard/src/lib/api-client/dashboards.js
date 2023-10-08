@@ -1,0 +1,14 @@
+import Base from "./base";
+
+export class Dashboards extends Base {
+  static async create({ name }) {
+    return await this._post('/api/v1/dashboards', { dashboard: { name } })
+  }
+
+  static async retrieve(id) {
+    return await this._get(`/api/v1/dashboards/${id}`)
+  }
+}
+
+Object.assign(Dashboards, Base);
+export default Dashboards;

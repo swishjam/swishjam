@@ -1,6 +1,6 @@
 'use client';
 
-import LineChartWithValue from "@/components/DashboardComponents/LineChartWithValue";
+import LineChartWithValue from "@/components/Dashboards/Components/LineChartWithValue";
 import { CheckCircleIcon } from '@heroicons/react/20/solid';
 import {
   DropdownMenu,

@@ -106,6 +106,7 @@ Rails.application.routes.draw do
       resources :dashboard_components, only: [:index, :create, :update, :destroy] do
         collection do
           patch :bulk_update
+          post :bulk_create
         end
       end
       resources :dashboards_dashboard_components, only: [:destroy]

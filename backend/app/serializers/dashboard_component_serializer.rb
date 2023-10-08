@@ -1,4 +1,4 @@
-class DashboardComponentsSerializer < ActiveModel::Serializer
+class DashboardComponentSerializer < ActiveModel::Serializer
   attributes :id, :i, :configuration, :created_by_user, :created_at, :updated_at
 
   # needed for react-grid-layout

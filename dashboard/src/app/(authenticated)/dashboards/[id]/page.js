@@ -1,8 +1,7 @@
 'use client'
 
 import { useEffect, useState } from "react";
-import AuthenticatedView from "@/components/Auth/AuthenticatedView"
-import { API } from "@/lib/api-client/base";
+import SwishjamAPI from "@/lib/api-client/swishjam-api";
 
 import DashboardNameDisplayEditor from "@/components/Dashboards/DashboardNameDisplayEditor";
 import RenderingEngine from "@/components/Dashboards/RenderingEngine";
@@ -63,35 +62,35 @@ const EmptyState = ({ onClick }) => (
   </button>
 )
 
-const DashboardBuilder = ({ params }) => {
+export default function Dashboard({ params }) {
   const { id: dashboardId } = params;
-  const [dashboardName, setDashboardName] = useState();
-  const [dashboardComponents, setDashboardComponents] = useState();
-  const [dashboardComponentToConfigure, setDashboardComponentToConfigure] = useState();
-  const [uniqueEvents, setUniqueEvents] = useState();
   const [componentSlideoutIsOpen, setComponentSlideoutIsOpen] = useState(false);
   const [currentTimeframe, setCurrentTimeframe] = useState('this_month');
+  const [dashboardComponents, setDashboardComponents] = useState();
+  const [dashboardComponentToConfigure, setDashboardComponentToConfigure] = useState();
+  const [dashboardName, setDashboardName] = useState();
   const [isInEditMode, setIsInEditMode] = useState(false);
   const [pendingDashboardLayoutUpdates, setPendingDashboardLayoutUpdates] = useState([]);
+  const [uniqueEvents, setUniqueEvents] = useState();
 
   const detectChangedComponentsFromLayoutAndSave = layout => {
     const changedDashboardComponents = dashboardComponents.map(component => {
       const layoutItemForComponent = layout.find(({ i }) => i === component.id);
       if (!layoutItemForComponent) return;
       if (
-        layoutItemForComponent.x !== component.configuration.x || 
-        layoutItemForComponent.y !== component.configuration.y || 
-        layoutItemForComponent.w !== component.configuration.w || 
+        layoutItemForComponent.x !== component.configuration.x ||
+        layoutItemForComponent.y !== component.configuration.y ||
+        layoutItemForComponent.w !== component.configuration.w ||
         layoutItemForComponent.h !== component.configuration.h
       ) {
         return {
-          ...component, 
-          configuration: { 
-            ...component.configuration, 
-            x: layoutItemForComponent.x, 
-            y: layoutItemForComponent.y, 
-            w: layoutItemForComponent.w, 
-            h: layoutItemForComponent.h 
+          ...component,
+          configuration: {
+            ...component.configuration,
+            x: layoutItemForComponent.x,
+            y: layoutItemForComponent.y,
+            w: layoutItemForComponent.w,
+            h: layoutItemForComponent.h
           }
         }
       }
@@ -101,31 +100,23 @@ const DashboardBuilder = ({ params }) => {
   }
 
   const updateDashboardComponents = async components => {
-    return API.patch(`/api/v1/dashboard_components/bulk_update`, { 
-      dashboard_components: components.map(({ configuration, id }) => ({ id, configuration })) 
-    }).then(({ errors, updated_components }) => {
+    const formattedComponents = components.map(({ configuration, id }) => ({ id, configuration }));
+    return SwishjamAPI.DashboardComponents.bulkUpdate(formattedComponents).then(({ errors, updated_components }) => {
       if (errors) {
 
       }
       const updatedDashboardComponents = dashboardComponents.map(component => {
         const updatedComponent = updated_components.find(({ id }) => id === component.id);
-        if (updatedComponent) return { ...updatedComponent, configuration: { x: 0, y: 0, w: 4, h: 4, ...updatedComponent.configuration }};
+        if (updatedComponent) return { ...updatedComponent, configuration: { x: 0, y: 0, w: 4, h: 4, ...updatedComponent.configuration } };
         return component;
       });
       setDashboardComponents(updatedDashboardComponents);
     })
   }
 
-  const createDashboardComponent = componentConfiguration => {
-    API.post('/api/v1/dashboard_components', { 
-      dashboard_id: dashboardId, 
-      dashboard_component: { 
-        configuration: { 
-          ...DEFAULT_GRID_CONFIGURATIONS[componentConfiguration.type], 
-          ...componentConfiguration
-        } 
-      }
-    }).then(result => {
+  const createDashboardComponent = async componentConfiguration => {
+    const formattedConfiguration = { ...DEFAULT_GRID_CONFIGURATIONS[componentConfiguration.type], ...componentConfiguration };
+    return SwishjamAPI.DashboardComponents.create(dashboardId, formattedConfiguration).then(result => {
       if (result.error) {
 
       } else {
@@ -135,7 +126,7 @@ const DashboardBuilder = ({ params }) => {
   }
 
   const saveDashboard = async dashboardName => {
-    API.patch(`/api/v1/dashboards/${dashboardId}`, { dashboard: { name: dashboardName }}).then(({ error, dashboard }) => {
+    API.patch(`/api/v1/dashboards/${dashboardId}`, { dashboard: { name: dashboardName } }).then(({ error, dashboard }) => {
       if (error) {
 
       } else {
@@ -173,9 +164,11 @@ const DashboardBuilder = ({ params }) => {
   }
 
   useEffect(() => {
-    API.get('/api/v1/events/unique').then(setUniqueEvents);
-    API.get(`/api/v1/dashboards/${dashboardId}`).then(({ name }) => setDashboardName(name));
-    API.get(`/api/v1/dashboard_components`, { dashboard_id: dashboardId }).then(setDashboardComponents);
+    SwishjamAPI.Dashboards.retrieve(dashboardId).then(({ name }) => setDashboardName(name));
+    SwishjamAPI.DashboardComponents.list(dashboardId).then(setDashboardComponents);
+    SwishjamAPI.Events.listUnique().then(events => {
+      setUniqueEvents(events);
+    });
   }, []);
 
   // TODO: the setInterval doesnt have access to the latest state of pendingDashboardLayoutUpdates, so it never updates
@@ -211,18 +204,18 @@ const DashboardBuilder = ({ params }) => {
         <div>
           {dashboardName === undefined
             ? <Skeleton className='h-12 w-40' />
-            : <DashboardNameDisplayEditor 
-              dashboardName={dashboardName || 'Untitled Dashboard'} 
+            : <DashboardNameDisplayEditor
+              dashboardName={dashboardName || 'Untitled Dashboard'}
               onDashboardNameSave={newDashboardName => {
                 if (newDashboardName === dashboardName) return;
                 saveDashboard({ dashboardName: newDashboardName })
-              }} 
+              }}
             />
           }
         </div>
         <div className='flex items-center justify-end'>
           <Timefilter selection={currentTimeframe} onSelection={setCurrentTimeframe} />
-          {isInEditMode 
+          {isInEditMode
             ? (
               <>
                 <button
@@ -240,7 +233,17 @@ const DashboardBuilder = ({ params }) => {
                     updatePendingDashboardLayoutUpdates();
                   }}
                 >
-                  Done
+                  Save
+                </button>
+                <button
+                  type="button"
+                  className="ml-2 inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-swishjam hover:bg-swishjam-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-swishjam"
+                  onClick={() => {
+                    setIsInEditMode(false);
+                    setPendingDashboardLayoutUpdates([])
+                  }}
+                >
+                  Cancel
                 </button>
               </>
             ) : (
@@ -256,18 +259,18 @@ const DashboardBuilder = ({ params }) => {
         </div>
       </div>
       <div className="mt-8">
-        {dashboardComponents 
+        {dashboardComponents
           ? dashboardComponents.length > 0
             ? (
-              <RenderingEngine 
-                components={dashboardComponents} 
-                timeframe={currentTimeframe} 
-                onLayoutChange={detectChangedComponentsFromLayoutAndSave} 
+              <RenderingEngine
+                components={dashboardComponents}
+                timeframe={currentTimeframe}
+                onLayoutChange={detectChangedComponentsFromLayoutAndSave}
                 editable={isInEditMode}
                 onDashboardComponentEdit={({ id, configuration }) => () => setDashboardComponentToConfigure({ id, ...configuration.type })}
                 onDashboardComponentDelete={deleteDashboardComponent}
-                // TODO: onDashboardComponentDuplicate breaks the rendering engine upon duplication currently
-                // onDashboardComponentDuplicate={duplicateDashboardComponent}
+              // TODO: onDashboardComponentDuplicate breaks the rendering engine upon duplication currently
+              // onDashboardComponentDuplicate={duplicateDashboardComponent}
               />
             ) : <EmptyState onClick={() => setComponentSlideoutIsOpen(true)} />
           : <LoadingState />
@@ -276,5 +279,3 @@ const DashboardBuilder = ({ params }) => {
     </main>
   )
 }
-
-export default AuthenticatedView(DashboardBuilder, LoadingState);

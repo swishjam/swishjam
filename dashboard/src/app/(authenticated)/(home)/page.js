@@ -2,15 +2,15 @@
 
 import { useState, useEffect } from 'react';
 import { SwishjamAPI } from '@/lib/api-client/swishjam-api';
-import LineChartWithValue from '@/components/DashboardComponents/LineChartWithValue';
-import ClickableValueCard from '@/components/DashboardComponents/ClickableValueCard';
-import ActiveUsersLineChartWithValue from '@/components/DashboardComponents/ActiveUsersLineChartWithValue'
+import LineChartWithValue from '@/components/Dashboards/Components/LineChartWithValue';
+import ClickableValueCard from '@/components/Dashboards/Components/ClickableValueCard';
+import ActiveUsersLineChartWithValue from '@/components/Dashboards/Components/ActiveUsersLineChartWithValue'
 import Timefilter from '@/components/Timefilter';
 import { Separator } from "@/components/ui/separator"
 import { Button } from '@/components/ui/button';
 import { ArrowPathIcon } from '@heroicons/react/24/outline';
 import InstallBanner from '@/components/InstallBanner';
-import ItemizedList from '@/components/DashboardComponents/ItemizedList';
+import ItemizedList from '@/components/Dashboards/Components/ItemizedList';
 
 const currentChart = (selected, mrrChart, sessionsChart, activeSubsChart) => {
   if (selected === 'MRR') {

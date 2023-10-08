@@ -5,7 +5,7 @@ import { SwishjamAPI } from "@/lib/api-client/swishjam-api";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import EventFeed from "@/components/Dashboard/Components/EventFeed";
+import EventFeed from "@/components/Dashboards/Components/EventFeed";
 import LineChartWithValue from '@/components/Dashboards/Components/LineChartWithValue';
 import BarList from "@/components/Dashboards/Components/BarList";
 

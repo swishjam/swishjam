@@ -3,26 +3,46 @@ module Api
     class DashboardComponentsController < BaseController
       def index
         if params[:dashboard_id]
-          dashbaord_components = current_workspace.dashboards.includes(:dashboard_components).find(params[:dashboard_id]).dashboard_components
-          render json: dashbaord_components, each_serializer: DashboardComponentsSerializer, status: :ok
+          dashboard_components = current_workspace.dashboards.includes(:dashboard_components).find(params[:dashboard_id]).dashboard_components
+          render json: dashboard_components, each_serializer: DashboardComponentSerializer, status: :ok
         else
-          render json: current_workspace.dashboard_components, each_serializer: DashboardComponentsSerializer, status: :ok
+          render json: current_workspace.dashboard_components, each_serializer: DashboardComponentSerializer, status: :ok
         end
       end
 
       def create
+        byebug
         component = DashboardComponent.new(configuration: params.dig(:dashboard_component).dig(:configuration))
         component.workspace = current_workspace
         component.created_by_user = current_user
+        byebug
         if component.save
           if params[:dashboard_id]
             dashboard = current_workspace.dashboards.find(params[:dashboard_id])
             dashboard.dashboard_components << component
           end  
-          render json: component, serializer: DashboardComponentsSerializer, status: :ok
+          render json: component, serializer: DashboardComponentSerializer, status: :ok
         else
           render json: { error: component.errors.full_messages.join(' ') }, status: :unprocessable_entity
         end
+      end
+
+      def bulk_create
+        dashboard = current_workspace.dashboards.find(params[:dashboard_id])
+        errors = []
+        new_components = []
+        params[:dashboard_components].each do |dashboard_component_params|
+          component = DashboardComponent.new(configuration: dashboard_component_params[:configuration])
+          component.workspace = current_workspace
+          component.created_by_user = current_user
+          if component.save
+            dashboard.dashboard_components << component
+            new_components << component
+          else
+            errors << component.errors.full_messages.join(' ')
+          end
+        end
+        render json: { errors: errors, new_components: new_components.map{ |c| DashboardComponentSerializer.new(a) }}
       end
 
       def update
@@ -40,7 +60,7 @@ module Api
         (params[:dashboard_components] || []).each do |updated_component_attributes|
           component = current_workspace.dashboard_components.find(updated_component_attributes[:id])
           if component.update(configuration: updated_component_attributes[:configuration].as_json)
-            updated_components << DashboardComponentsSerializer.new(component).as_json
+            updated_components << DashboardComponentSerializer.new(component).as_json
           else
             errors << component.errors.full_messages.join(' ')
           end

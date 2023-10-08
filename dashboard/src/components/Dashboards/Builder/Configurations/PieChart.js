@@ -1,16 +1,14 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { API } from '@/lib/api-client/base';
 import Dropdown from '@/components/utils/Dropdown'
-import { CheckCircleIcon } from '@heroicons/react/24/outline';
 import PieChartComponent from '@/components/Dashboards/Components/PieChart';
 
-export default function PieChartConfiguration({ eventOptions, onSaveClick = () => {} }) {
+export default function PieChartConfiguration({ eventOptions, onSaveClick = () => { } }) {
   const [selectedEventName, setSelectedEventName] = useState();
   const [chartTitle, setChartTitle] = useState();
   const [pieChartData, setPieChartData] = useState();
   const [propertyOptions, setPropertyOptions] = useState();
   const [propertyToVisualize, setPropertyToVisualize] = useState();
-  const [saveButtonText, setSaveButtonText] = useState('Save');
 
   const getAndSetPropertyOptionsForEvent = eventName => {
     setSelectedEventName(eventName);
@@ -27,14 +25,7 @@ export default function PieChartConfiguration({ eventOptions, onSaveClick = () =
   }
 
   const onSave = () => {
-    setSaveButtonText('Saving...');
-    setTimeout(() => {
-      setSaveButtonText(<>Saved <CheckCircleIcon className='h-4 w-4 ml-1' /></>);
-      setTimeout(() => {
-        onSaveClick({ title: chartTitle, event: selectedEventName, property: propertyToVisualize })
-        setSaveButtonText('Save');
-      }, 1_000)
-    }, 500)
+    onSaveClick({ title: chartTitle, event: selectedEventName, property: propertyToVisualize })
   }
 
   return (
@@ -49,10 +40,10 @@ export default function PieChartConfiguration({ eventOptions, onSaveClick = () =
         <span className='mx-1'>Chart the breakdown of the</span>
         <Dropdown options={eventOptions} onSelect={getAndSetPropertyOptionsForEvent} label='Select an event to visualize' />
         <span className='mx-1'>event's</span>
-        <Dropdown 
-          options={propertyOptions || []} 
-          onSelect={propertyName => getAndSetValueCountsForProperty(selectedEventName, propertyName)} 
-          label="Select the event's property" 
+        <Dropdown
+          options={propertyOptions || []}
+          onSelect={propertyName => getAndSetValueCountsForProperty(selectedEventName, propertyName)}
+          label="Select the event's property"
         />
         <span className='mx-1'>property.</span>
       </div>
@@ -64,7 +55,7 @@ export default function PieChartConfiguration({ eventOptions, onSaveClick = () =
           className={`ml-2 flex justify-center items-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white focus:outline-none focus:ring-2 bg-swishjam hover:bg-swishjam-dark`}
           onClick={onSave}
         >
-          {saveButtonText}
+          Save
         </button>
       </div>
     </>

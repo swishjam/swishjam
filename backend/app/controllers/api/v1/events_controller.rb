@@ -2,21 +2,24 @@ module Api
   module V1
     class EventsController < BaseController
       def unique
+        params[:data_source] ||= 'all'
         limit = params[:limit] || 50
-        events = ClickHouseQueries::Events::Unique::List.new(current_workspace.public_key, limit: limit, start_time: 6.months.ago, end_time: Time.current).get
+        events = ClickHouseQueries::Events::Unique::List.new(public_keys_for_requested_data_source, limit: limit, start_time: 6.months.ago, end_time: Time.current).get
         render json: events, status: :ok
       end
 
       def timeseries
+        params[:data_source] ||= 'all'
         event_name = URI.decode_uri_component(params[:name])
-        timeseries = ClickHouseQueries::Events::Count::Timeseries.new(current_workspace.public_key, event_name: event_name, start_time: start_timestamp, end_time: end_timestamp).get
+        timeseries = ClickHouseQueries::Events::Count::Timeseries.new(public_keys_for_requested_data_source, event_name: event_name, start_time: start_timestamp, end_time: end_timestamp).get
         render json: timeseries.formatted_data, status: :ok
       end
 
       def count
+        params[:data_source] ||= 'all'
         event_name = URI.decode_uri_component(params[:name])
-        count = ClickHouseQueries::Events::Count::Total.new(current_workspace.public_key, event_name: event_name, start_time: start_timestamp, end_time: end_timestamp).get
-        comparison_count = ClickHouseQueries::Events::Count::Total.new(current_workspace.public_key, event_name: event_name, start_time: comparison_start_timestamp, end_time: comparison_end_timestamp).get
+        count = ClickHouseQueries::Events::Count::Total.new(public_keys_for_requested_data_source, event_name: event_name, start_time: start_timestamp, end_time: end_timestamp).get
+        comparison_count = ClickHouseQueries::Events::Count::Total.new(public_keys_for_requested_data_source, event_name: event_name, start_time: comparison_start_timestamp, end_time: comparison_end_timestamp).get
         render json: { 
           count: count, 
           comparison_count: comparison_count,

@@ -10,6 +10,7 @@ class DashboardComponent < Transactional
   private
 
   def has_valid_configuration
+    byebug
     errors.add(:configuration, "configuration must have an `x` attribute.") if configuration['x'].blank?
     errors.add(:configuration, "configuration must have an `y` attribute.") if configuration['y'].blank?
     errors.add(:configuration, "configuration must have an `w` attribute.") if configuration['w'].blank?

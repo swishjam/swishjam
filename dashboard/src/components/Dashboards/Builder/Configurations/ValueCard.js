@@ -1,8 +1,7 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { API } from '@/lib/api-client/base';
 import ValueCard from '@/components/Dashboards/Components/ValueCard';
 import Dropdown from '@/components/utils/Dropdown'
-import { CheckCircleIcon } from '@heroicons/react/24/outline';
 
 export default function LineChartConfiguration({ eventOptions, onSaveClick = () => { } }) {
   const [selectedEventName, setSelectedEventName] = useState();
@@ -12,18 +11,10 @@ export default function LineChartConfiguration({ eventOptions, onSaveClick = () 
   const [propertyOptions, setPropertyOptions] = useState();
   const [propertyToVisualize, setPropertyToVisualize] = useState();
   const [selectedCalculation, setSelectedCalculation] = useState('count');
-  const [saveButtonText, setSaveButtonText] = useState('Save');
   const calculationOptions = ['count', 'sum', 'avg', 'min', 'max'];
 
   const onSave = () => {
-    setSaveButtonText('Saving...');
-    setTimeout(() => {
-      setSaveButtonText(<>Saved <CheckCircleIcon className='h-4 w-4 ml-1' /></>);
-      setTimeout(() => {
-        onSaveClick({ title: chartTitle, event: selectedEventName, property: propertyToVisualize, calculation: selectedCalculation });
-        setSaveButtonText('Save');
-      }, 1_000)
-    }, 500)
+    onSaveClick({ title: chartTitle, event: selectedEventName, property: propertyToVisualize, calculation: selectedCalculation });
   }
 
   const setEventNameAndGetPropertiesOrSetValueCounts = eventName => {
@@ -73,7 +64,7 @@ export default function LineChartConfiguration({ eventOptions, onSaveClick = () 
           className={`ml-2 flex justify-center items-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white focus:outline-none focus:ring-2 bg-swishjam hover:bg-swishjam-dark`}
           onClick={onSave}
         >
-          {saveButtonText}
+          Save
         </button>
       </div>
     </>

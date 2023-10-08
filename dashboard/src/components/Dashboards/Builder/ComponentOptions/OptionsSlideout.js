@@ -7,10 +7,10 @@ import LineChartOption from './LineChart'
 import PieChartOption from './PieChart'
 import ValueCardOption from './ValueCard'
 
-export default function OptionsSlideout({ isOpen, onSelect, onClose = () => {} }) {
+export default function OptionsSlideout({ isOpen, onSelect, onClose = () => { } }) {
   return (
     <Transition.Root show={isOpen} as={Fragment}>
-      <Dialog as="div" className="relative z-10" onClose={onClose}>
+      <Dialog as="div" className="relative" onClose={onClose} style={{ zIndex: 100 }}>
         <Transition.Child
           as={Fragment}
           enter="ease-in-out duration-500"

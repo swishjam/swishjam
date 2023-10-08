@@ -2,9 +2,9 @@
 
 import { useState, useEffect } from "react";
 import { SwishjamAPI } from "@/lib/api-client/swishjam-api";
-import LineChartWithValue from "@/components/DashboardComponents/LineChartWithValue";
-import ClickableValueCard from "@/components/DashboardComponents/ClickableValueCard";
-import BarList from "@/components/DashboardComponents/BarList";
+import LineChartWithValue from "@/components/Dashboards/Components/LineChartWithValue";
+import ClickableValueCard from "@/components/Dashboards/Components/ClickableValueCard";
+import BarList from "@/components/Dashboards/Components/BarList";
 import Timefilter from "@/components/Timefilter";
 import { Button } from "@/components/ui/button";
 import { ArrowPathIcon } from "@heroicons/react/24/outline";
