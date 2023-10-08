@@ -8,7 +8,6 @@ export default function RetentionCell({ cohortDate, activityWeek, numActiveUsers
   const [isHovered, setIsHovered] = useState(false);
   const OPACITY_BUFFER = 0;
   const opacity = Math.max((numActiveUsers / cohortSize), 0.1) + OPACITY_BUFFER + (isHovered ? 0.1 : 0);
-  console.log(opacity);
 
   return (
     <TooltipProvider>
@@ -18,7 +17,7 @@ export default function RetentionCell({ cohortDate, activityWeek, numActiveUsers
             className="w-20 h-20 flex items-center justify-center p-1 bg-swishjam text-gray-900 hover:text-black transition-all cursor-default"
             onMouseOver={() => setIsHovered(true)}
             onMouseOut={() => setIsHovered(false)}
-            style={{ opacity, fontSize: '0.75rem' }}
+            style={{ opacity, fontSize: '0.75rem', transform: isHovered ? 'scale(1.05)' : 'scale(1)' }}
           >
             {(numActiveUsers / cohortSize * 100).toFixed(2)}%
           </div>
