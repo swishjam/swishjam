@@ -22,7 +22,7 @@ export default function RetentionGrid({ retentionCohorts }) {
           <thead>
             <tr className='font-normal'>
               <th className="text-left text-sm text-gray-700 font-normal pr-4" style={{ fontSize: '0.75rem' }}>
-                Cohort
+                {/* Cohort */}
               </th>
               {Array.from({ length: maxNumWeeks }).map((_, i) => (
                 <th className="text-left text-sm text-gray-700 text-center font-normal" style={{ fontSize: '0.75rem' }}>
