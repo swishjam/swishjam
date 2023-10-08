@@ -25,7 +25,7 @@ const currentChart = (selected, mrrChart, sessionsChart, activeSubsChart) => {
 
 export default function Home() {
   const [activeSubsChart, setActiveSubsChart] = useState();
-  const [currentSelectedChart, setCurrentSelectedChart] = useState('MRR');
+  const [currentSelectedChart, setCurrentSelectedChart] = useState('Sessions');
   const [isRefreshing, setIsRefreshing] = useState();
   const [mrrChart, setMrrChart] = useState();
   const [newOrganizationsData, setNewOrganizationsData] = useState();
@@ -162,6 +162,15 @@ export default function Home() {
       </div>
       <div className='grid grid-cols-3 gap-6 pt-8'>
         <ClickableValueCard
+          title='Sessions'
+          value={sessionsChart?.value}
+          selected={currentSelectedChart == 'Sessions'}
+          previousValue={sessionsChart?.previousValue}
+          previousValueDate={sessionsChart?.previousValueDate}
+          valueFormatter={numSubs => numSubs.toLocaleString('en-US')}
+          onClick={() => setCurrentSelectedChart('Sessions')}
+        />
+        <ClickableValueCard
           title='MRR'
           value={mrrChart?.value}
           selected={currentSelectedChart == 'MRR'}
@@ -178,15 +187,6 @@ export default function Home() {
           previousValueDate={sessionsChart?.previousValueDate}
           valueFormatter={numSubs => numSubs.toLocaleString('en-US')}
           onClick={() => setCurrentSelectedChart('Active Subscriptions')}
-        />
-        <ClickableValueCard
-          title='Sessions'
-          value={sessionsChart?.value}
-          selected={currentSelectedChart == 'Sessions'}
-          previousValue={sessionsChart?.previousValue}
-          previousValueDate={sessionsChart?.previousValueDate}
-          valueFormatter={numSubs => numSubs.toLocaleString('en-US')}
-          onClick={() => setCurrentSelectedChart('Sessions')}
         />
       </div>
       <div className='grid grid-cols-1 gap-6 pt-8'>
