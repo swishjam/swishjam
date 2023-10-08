@@ -84,9 +84,9 @@ const UserProfile = ({ params }) => {
       setPageViewsData(pageViews.map(({ url, count }) => ({ name: url, value: count })));
     });
     SwishjamAPI.Users.Sessions.timeseries(userId).then(({ timeseries }) => {
-      setSessionTimeseriesData({ 
+      setSessionTimeseriesData({
         timeseries,
-        value: timeseries.map(({ value }) => value).reduce((a, b) => a + b, 0),  
+        value: timeseries.map(({ value }) => value).reduce((a, b) => a + b, 0),
       })
     });
   }, [])
@@ -129,11 +129,11 @@ const UserProfile = ({ params }) => {
                       <dt className="text-sm font-medium leading-6 text-gray-900">Organizations</dt>
                       <dd className="mt-1 text-sm leading-6 text-gray-700 sm:mt-2">
                         {userData.organizations.map(org => (
-                          <a className='hover:underline hover:text-blue-700' key={org.id} href={`/organizations/${org.id}`}>{org.name}</a> 
+                          <a className='hover:underline hover:text-blue-700' key={org.id} href={`/organizations/${org.id}`}>{org.name}</a>
                         ))}
-                  
+
                         {userData.organizations.length > 1 && (
-                          <span 
+                          <span
                             className='cursor-pointer underline ml-2 hover:text-swishjam'
                             onClick={() => setOrganizationsListExpanded(!organizationsListExpanded)}
                           >+{userData.organizations.length - 1} others</span>
@@ -151,61 +151,6 @@ const UserProfile = ({ params }) => {
                         )}
                       </dd>
                     </div>
-<<<<<<< HEAD:dashboard/src/app/users/[id]/page.js
-                    {/* <div className="border-t border-gray-100 px-4 py-6 sm:col-span-1 sm:px-0">
-                      <dt className="text-sm font-medium leading-6 text-gray-900">Email address</dt>
-                      <dd className="mt-1 text-sm leading-6 text-gray-700 sm:mt-2">margotfoster@example.com</dd>
-                    </div>
-                    <div className="border-t border-gray-100 px-4 py-6 sm:col-span-1 sm:px-0">
-                      <dt className="text-sm font-medium leading-6 text-gray-900">Salary expectation</dt>
-                      <dd className="mt-1 text-sm leading-6 text-gray-700 sm:mt-2">$120,000</dd>
-                    </div> */}
-                    <div className="border-t border-gray-100 px-4 py-6 sm:col-span-2 sm:px-0">
-                      <LineChartWithValue
-                        title='Sessions'
-                        value={sessionTimeseriesData?.value}
-                        timeseries={sessionTimeseriesData?.timeseries}
-                        valueFormatter={numSessions => numSessions.toLocaleString('en-US')}
-                      />
-                    </div>
-                    <div className="border-t border-gray-100 px-4 py-6 sm:col-span-2 sm:px-0">
-                      <BarList title='Page Views' items={pageViewsData} />
-                      {/* <dt className="text-sm font-medium leading-6 text-gray-900">Attachments</dt>
-                      <dd className="mt-2 text-sm text-gray-900">
-                        <ul role="list" className="divide-y divide-gray-100 rounded-md border border-gray-200">
-                          <li className="flex items-center justify-between py-4 pl-4 pr-5 text-sm leading-6">
-                            <div className="flex w-0 flex-1 items-center">
-                              <PaperClipIcon className="h-5 w-5 flex-shrink-0 text-gray-400" aria-hidden="true" />
-                              <div className="ml-4 flex min-w-0 flex-1 gap-2">
-                                <span className="truncate font-medium">resume_back_end_developer.pdf</span>
-                                <span className="flex-shrink-0 text-gray-400">2.4mb</span>
-                              </div>
-                            </div>
-                            <div className="ml-4 flex-shrink-0">
-                              <a href="#" className="font-medium text-indigo-600 hover:text-indigo-500">
-                                Download
-                              </a>
-                            </div>
-                          </li>
-                          <li className="flex items-center justify-between py-4 pl-4 pr-5 text-sm leading-6">
-                            <div className="flex w-0 flex-1 items-center">
-                              <PaperClipIcon className="h-5 w-5 flex-shrink-0 text-gray-400" aria-hidden="true" />
-                              <div className="ml-4 flex min-w-0 flex-1 gap-2">
-                                <span className="truncate font-medium">coverletter_back_end_developer.pdf</span>
-                                <span className="flex-shrink-0 text-gray-400">4.5mb</span>
-                              </div>
-                            </div>
-                            <div className="ml-4 flex-shrink-0">
-                              <a href="#" className="font-medium text-indigo-600 hover:text-indigo-500">
-                                Download
-                              </a>
-                            </div>
-                          </li>
-                        </ul>
-                      </dd> */}
-                    </div>
-=======
->>>>>>> main:dashboard/src/app/(authenticated)/users/[id]/page.js
                   </dl>
                 </div>
               </div>
