@@ -6,5 +6,9 @@ class CreateWorkspaceSettings < ActiveRecord::Migration[6.1]
       t.boolean :use_marketing_data_source_in_lieu_of_product
       t.timestamps
     end
+    
+    Workspace.includes(:settings).where(settings: { id: nil }).each do |workspace|
+      WorkspaceSetting.generate_default_for(workspace)
+    end
   end
 end

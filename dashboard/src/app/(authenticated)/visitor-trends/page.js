@@ -15,7 +15,7 @@ const sessionsFormatter = (num) => num.toLocaleString("en-US");
 
 export default function PageMetrics() {
   const [currentSelectedChart, setCurrentSelectedChart] = useState("Sessions");
-  const [dataSource, setDataSource] = useState();
+  const [dataSourceToFilterOn, setDataSourceToFilterOn] = useState();
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [pageViewsChart, setPageViewsChart] = useState();
   const [sessionsChart, setSessionsChart] = useState();
@@ -146,7 +146,7 @@ export default function PageMetrics() {
   useEffect(() => {
     SwishjamAPI.Config.retrieve().then(({ settings }) => {
       const dataSource = settings.use_product_data_source_in_lieu_of_marketing ? 'product' : 'marketing';
-      setDataSource(dataSource);
+      setDataSourceToFilterOn(dataSource);
       getAllData(dataSource, timeframeFilter);
     })
   }, []);
@@ -163,16 +163,15 @@ export default function PageMetrics() {
         <div className="flex w-full items-center justify-end">
           <Timefilter
             selection={timeframeFilter}
-            onSelection={(d) => {
-              setTimeframeFilter(d);
-              getAllData(d);
+            onSelection={date => {
+              setTimeframeFilter(date);
+              getAllData(dataSourceToFilterOn, date);
             }}
           />
           <Button
             variant="outline"
-            className={`ml-4 bg-white ${isRefreshing ? "cursor-not-allowed" : ""
-              }`}
-            onClick={() => getAllData(timeframeFilter)}
+            className={`ml-4 bg-white ${isRefreshing ? "cursor-not-allowed" : ""}`}
+            onClick={() => getAllData(dataSourceToFilterOn, timeframeFilter)}
             disabled={isRefreshing}
           >
             <ArrowPathIcon

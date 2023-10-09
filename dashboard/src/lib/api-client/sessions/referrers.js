@@ -1,8 +1,8 @@
 import Base from "../base";
 
 export class Referrers extends Base {
-  static async list({ timeframe, data_source, limit }) {
-    return await this._get("/api/v1/sessions/referrers", { timeframe, data_source, limit })
+  static async list({ timeframe, dataSource, limit }) {
+    return await this._get("/api/v1/sessions/referrers", { timeframe, data_source: dataSource, limit })
   }
 }
 

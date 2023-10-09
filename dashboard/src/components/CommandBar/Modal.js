@@ -8,14 +8,14 @@ import Footer from './Footer';
 
 const dashboardOptions = [
   { name: 'Home', href: '/', icon: HomeIcon },
-  { name: 'Site Metrics', href: '/site-metrics', icon: ChartPieIcon },
+  { name: 'Visitor Trends', href: '/visitor-trends', icon: ChartPieIcon },
   { name: 'Users', href: '/users', icon: UserIcon },
   { name: 'Organizations', href: '/organizations', icon: UserGroupIcon },
   { name: 'Connections', href: '/connections', icon: SquaresPlusIcon },
   { name: 'Settings', href: '/settings', icon: Cog6ToothIcon }
 ]
 
-export default function SearchBarModal({ onClose = () => {} }) {
+export default function SearchBarModal({ onClose = () => { } }) {
   const [searchedTerm, setSearchedTerm] = useState('');
   const [isSearching, setIsSearching] = useState(false);
   const [organizationsResults, setOrganizationsResults] = useState();
@@ -41,18 +41,18 @@ export default function SearchBarModal({ onClose = () => {} }) {
       setIsSearching(false);
     }
   }
-  
+
   return (
-    <Transition.Root 
-      show={true} 
-      as={Fragment} 
+    <Transition.Root
+      show={true}
+      as={Fragment}
       afterLeave={() => {
         setSearchedTerm('');
         setIsSearching(false);
         setOrganizationsResults();
         setUsersResults();
         setDashboardsResults();
-      }} 
+      }}
       appear
     >
       <Dialog as="div" className="relative" onClose={onClose} style={{ zIndex: 100 }}>
@@ -81,7 +81,7 @@ export default function SearchBarModal({ onClose = () => {} }) {
             <Dialog.Panel className="mx-auto max-w-xl transform overflow-hidden rounded-xl bg-white shadow-2xl ring-1 ring-black ring-opacity-5 transition-all">
               <Combobox onChange={(item) => (window.location = item.href)}>
                 <SearchForm isSearching={isSearching} onSubmit={commitSearch} />
-                <SearchResults 
+                <SearchResults
                   organizations={organizationsResults}
                   users={usersResults}
                   dashboards={dashboardsResults}

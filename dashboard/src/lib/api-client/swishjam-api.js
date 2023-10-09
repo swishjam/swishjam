@@ -10,6 +10,7 @@ import Search from './search';
 import Sessions from './sessions';
 import Users from './users';
 import Workspace from './workspace';
+import WorkspaceSettings from './workspace-settings';
 
 export class SwishjamAPI {
   static Admin = Admin;
@@ -24,6 +25,7 @@ export class SwishjamAPI {
   static Sessions = Sessions;
   static Users = Users;
   static Workspace = Workspace;
+  static WorkspaceSettings = WorkspaceSettings;
 }
 
 export default SwishjamAPI;

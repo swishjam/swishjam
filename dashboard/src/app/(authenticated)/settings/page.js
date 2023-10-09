@@ -6,15 +6,18 @@ import { SwishjamAPI } from "@/lib/api-client/swishjam-api";
 import WorkspaceForm from "@/components/Settings/WorkspaceForm";
 import LoadingView from "./LoadingView";
 import ApiKeysTable from "@/components/Settings/ApiKeysTable";
+import WorkspaceSettingsToggles from "@/components/Settings/WorkspaceSettingsToggles";
 
 const Divider = () => <div className="my-6 w-full border-t border-gray-300" />
 
 export default function SettingsPage() {
   const [apiKeys, setApiKeys] = useState();
+  const [workspaceSettings, setWorkspaceSettings] = useState()
 
   useEffect(() => {
-    SwishjamAPI.Config.retrieve().then(({ api_keys }) => {
+    SwishjamAPI.Config.retrieve().then(({ api_keys, settings }) => {
       setApiKeys(api_keys);
+      setWorkspaceSettings(settings);
     });
   }, []);
 
@@ -30,6 +33,9 @@ export default function SettingsPage() {
           </div>
 
           <WorkspaceForm />
+          <Divider />
+
+          <WorkspaceSettingsToggles settings={workspaceSettings} />
           <Divider />
 
           <div className='mt-4 space-x-4 space-y-4'>
