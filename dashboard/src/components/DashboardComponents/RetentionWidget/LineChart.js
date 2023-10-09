@@ -88,6 +88,13 @@ const LegendItem = ({ entry, onMouseOver, onMouseOut, isDisabled, onDisable, onE
 }
 
 export default function RetentionLineChart({ retentionCohorts }) {
+  if (retentionCohorts.length === 0) {
+    return (
+      <div className='text-center p-10 text-sm text-gray-700'>
+        Retention data is only available for identified users, begin identifying users in order to get retention data.
+      </div>
+    )
+  }
   const sortedCohorts = retentionCohorts.sort((a, b) => new Date(a.time_period) - new Date(b.time_period));
   const allRetentionActivityPeriods = sortedCohorts[0].retention_cohort_activity_periods;
 

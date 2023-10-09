@@ -8,6 +8,13 @@ const weekFormatter = dateFormatterForGrouping('week');
 
 export default function RetentionGrid({ retentionCohorts }) {
   if (!retentionCohorts) return <LoadingState />
+  if (retentionCohorts.length === 0) {
+    return (
+      <div className='text-center p-10 text-sm text-gray-700'>
+        Retention data is only available for identified users, begin identifying users in order to get retention data.
+      </div>
+    )
+  }
 
   const [isExpanded, setIsExpanded] = useState(false);
   const isExpandable = retentionCohorts.length > 4;
