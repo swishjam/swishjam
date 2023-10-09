@@ -33,7 +33,5 @@ export {
   ONE_MINUTE_IN_SECONDS,
   ONE_HOUR_IN_SECONDS,
   ONE_DAY_IN_SECONDS,
-  dateToUTC,
-  startOfDay,
   intelligentlyFormattedMs,
 }
