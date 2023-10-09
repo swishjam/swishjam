@@ -205,11 +205,11 @@ export default function PageMetrics() {
           <ClickableValueCard
             title="Page Views"
             selected={currentSelectedChart === "Page Views"}
-            value={sessionsChart?.value}
-            previousValue={sessionsChart?.previousValue}
-            previousValueDate={sessionsChart?.previousValueDate}
-            timeseries={sessionsChart?.timeseries}
-            valueFormatter={(numSubs) => numSubs.toLocaleString("en-US")}
+            value={pageViewsChart?.value}
+            previousValue={pageViewsChart?.previousValue}
+            previousValueDate={pageViewsChart?.previousValueDate}
+            timeseries={pageViewsChart?.timeseries}
+            valueFormatter={numPageViews => numPageViews.toLocaleString("en-US")}
             onClick={() => setCurrentSelectedChart("Page Views")}
           />
         </div>
