@@ -4,6 +4,7 @@ class AnalyticsOrganizationProfile < Transactional
   has_many :analytics_user_profiles, through: :analytics_organization_profile_users
 
   def initials
+    return if !name.present?
     name.split(' ').map{ |word| word[0] }.join('').upcase
   end
 end

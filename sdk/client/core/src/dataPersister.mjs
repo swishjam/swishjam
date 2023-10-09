@@ -14,3 +14,5 @@ export class DataPersister {
     return JSON.parse(sessionStorage.getItem('swishjam') || '{}');
   }
 }
+
+export default DataPersister;

@@ -8,7 +8,7 @@ import Footer from './Footer';
 
 const dashboardOptions = [
   { name: 'Home', href: '/', icon: HomeIcon },
-  { name: 'Site Metrics', href: '/site-metrics', icon: ChartPieIcon },
+  { name: 'Visitor Trends', href: '/visitor-trends', icon: ChartPieIcon },
   { name: 'Users', href: '/users', icon: UserIcon },
   { name: 'Organizations', href: '/organizations', icon: UserGroupIcon },
   { name: 'Connections', href: '/connections', icon: SquaresPlusIcon },
@@ -55,7 +55,10 @@ export default function SearchBarModal({ onClose = () => { } }) {
         setOrganizationsResults();
         setUsersResults();
         setDashboardsResults();
+<<<<<<< HEAD
         setEventResults();
+=======
+>>>>>>> main
       }}
       appear
     >

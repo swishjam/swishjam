@@ -29,6 +29,12 @@ Rails.application.routes.draw do
       resources :config, only: [:index]
       resources :search, only: [:index]
 
+      resources :workspace_settings, only: [] do
+        collection do
+          patch :update
+        end
+      end
+
       resources :workspace, only: [] do
         collection do
           patch '/update', to: 'workspaces#update'
@@ -57,9 +63,8 @@ Rails.application.routes.draw do
 
       resources :users, only: [:index, :show] do
         collection do
-          get :count
-          get :timeseries
           get :active
+          get :timeseries
         end
         resources :events, only: [:index], controller: :'users/events'
         resources :organizations, only: [:index], controller: :'users/organizations'
@@ -70,6 +75,8 @@ Rails.application.routes.draw do
           end
         end
       end
+
+      resources :retention_cohorts, only: [:index]
 
       resources :sessions, only: [] do
         collection do
@@ -102,6 +109,8 @@ Rails.application.routes.draw do
           patch :disable
         end
       end
+      
+      get :'/admin/ingestion/queuing', to: 'admin/ingestion#queueing'
     end
   end
 end

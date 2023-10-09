@@ -14,16 +14,17 @@ import { dateFormatterForGrouping } from "@/lib/utils/timeseriesHelpers";
 const sessionsFormatter = (num) => num.toLocaleString("en-US");
 
 export default function PageMetrics() {
-  const [sessionsChart, setSessionsChart] = useState();
-  const [uniqueVisitorsChart, setUniqueVisitorsChart] = useState();
-  const [pageViewsChart, setPageViewsChart] = useState();
-  const [topReferrers, setTopReferrers] = useState();
-  const [topPages, setTopPages] = useState();
-  const [topDevices, setTopDevices] = useState();
-  const [topBrowsers, setTopBrowsers] = useState();
-  const [timeframeFilter, setTimeframeFilter] = useState("thirty_days");
-  const [isRefreshing, setIsRefreshing] = useState(false);
   const [currentSelectedChart, setCurrentSelectedChart] = useState("Sessions");
+  const [dataSourceToFilterOn, setDataSourceToFilterOn] = useState();
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [pageViewsChart, setPageViewsChart] = useState();
+  const [sessionsChart, setSessionsChart] = useState();
+  const [timeframeFilter, setTimeframeFilter] = useState("thirty_days");
+  const [topReferrers, setTopReferrers] = useState();
+  const [topBrowsers, setTopBrowsers] = useState();
+  const [topDevices, setTopDevices] = useState();
+  const [topPages, setTopPages] = useState();
+  const [uniqueVisitorsChart, setUniqueVisitorsChart] = useState();
 
   const currentChartLookup = {
     Sessions: sessionsChart,
@@ -31,8 +32,8 @@ export default function PageMetrics() {
     "Page Views": pageViewsChart,
   };
 
-  const getSessionData = async (timeframe) => {
-    await SwishjamAPI.Sessions.timeseries({ timeframe, data_source: 'marketing' }).then(
+  const getSessionData = async (dataSource, timeframe) => {
+    return await SwishjamAPI.Sessions.timeseries({ timeframe, dataSource }).then(
       ({ current_count, comparison_count, comparison_end_time, timeseries, comparison_timeseries, grouped_by }) => {
         setSessionsChart({
           value: current_count,
@@ -47,11 +48,11 @@ export default function PageMetrics() {
           valueFormatter: sessionsFormatter,
           dateFormatter: dateFormatterForGrouping(grouped_by)
         });
-    });
+      });
   };
 
-  const getReferrerData = async (timeframe) => {
-    await SwishjamAPI.Sessions.Referrers.list({ timeframe, data_source: 'marketing' }).then(({ referrers }) => {
+  const getReferrerData = async (dataSource, timeframe) => {
+    return await SwishjamAPI.Sessions.Referrers.list({ timeframe, dataSource }).then(({ referrers }) => {
       setTopReferrers(
         referrers.map(({ referrer, count }) => ({
           name: [null, undefined, ""].includes(referrer) ? "Direct" : referrer,
@@ -61,8 +62,8 @@ export default function PageMetrics() {
     });
   };
 
-  const getDemographicData = async (timeframe) => {
-    await SwishjamAPI.Sessions.demographics({ timeframe, data_source: 'marketing' }).then(demographics => {
+  const getDemographicData = async (dataSource, timeframe) => {
+    return await SwishjamAPI.Sessions.demographics({ timeframe, dataSource }).then(demographics => {
       setTopBrowsers(
         demographics.browsers.map(({ browser_name, count }) => ({ name: browser_name, value: count }))
       );
@@ -73,27 +74,27 @@ export default function PageMetrics() {
     });
   };
 
-  const getPageViewsTimeseries = async (timeframe) => {
-    await SwishjamAPI.PageViews.timeseries({ timeframe, data_source: 'marketing' }).then(
+  const getPageViewsTimeseries = async (dataSource, timeframe) => {
+    return await SwishjamAPI.PageViews.timeseries({ timeframe, dataSource }).then(
       ({ current_count, comparison_count, comparison_end_time, timeseries, comparison_timeseries, grouped_by }) => {
-      setPageViewsChart({
-        value: current_count,
-        previousValue: comparison_count,
-        previousValueDate: comparison_end_time,
-        valueChange: current_count - comparison_count,
-        timeseries: timeseries.map((timeseries, index) => ({
-          ...timeseries,
-          comparisonDate: comparison_timeseries[index]?.date,
-          comparisonValue: comparison_timeseries[index]?.value,
-        })),
-        valueFormatter: sessionsFormatter,
-        dateFormatter: dateFormatterForGrouping(grouped_by)
+        setPageViewsChart({
+          value: current_count,
+          previousValue: comparison_count,
+          previousValueDate: comparison_end_time,
+          valueChange: current_count - comparison_count,
+          timeseries: timeseries.map((timeseries, index) => ({
+            ...timeseries,
+            comparisonDate: comparison_timeseries[index]?.date,
+            comparisonValue: comparison_timeseries[index]?.value,
+          })),
+          valueFormatter: sessionsFormatter,
+          dateFormatter: dateFormatterForGrouping(grouped_by)
+        });
       });
-    });
   };
 
-  const getUniqueVisitors = async (timeframe = "30_days") => {
-    await SwishjamAPI.Users.Active.timeseries({ timeframe, data_source: 'marketing', type: 'daily', include_comparison: true }).then(
+  const getUniqueVisitors = async (dataSource, timeframe) => {
+    return await SwishjamAPI.Users.Active.timeseries({ timeframe, dataSource, type: 'daily', includeComparison: true }).then(
       ({ current_value, timeseries, comparison_value, comparison_timeseries, comparison_end_time, grouped_by }) => {
         setUniqueVisitorsChart({
           value: current_value || 0,
@@ -111,15 +112,15 @@ export default function PageMetrics() {
     );
   };
 
-  const getTopPages = async (timeframe) => {
-    return await SwishjamAPI.PageViews.list({ timeframe, data_source: 'marketing' }).then(({ page_view_counts }) => {
+  const getTopPages = async (dataSource, timeframe) => {
+    return await SwishjamAPI.PageViews.list({ timeframe, dataSource }).then(({ page_view_counts }) => {
       setTopPages(
         page_view_counts.map(({ url, count }) => ({ name: url, value: count }))
       )
     });
   };
 
-  const getAllData = async (timeframe) => {
+  const getAllData = async (dataSource, timeframe) => {
     // Reset All Data
     setIsRefreshing(true);
     setSessionsChart();
@@ -132,18 +133,22 @@ export default function PageMetrics() {
 
     // Reload all the data
     await Promise.all([
-      getSessionData(timeframe),
-      getPageViewsTimeseries(timeframe),
-      getUniqueVisitors(timeframe),
-      getTopPages(timeframe),
-      getDemographicData(timeframe),
-      getReferrerData(timeframe),
+      getSessionData(dataSource, timeframe),
+      getPageViewsTimeseries(dataSource, timeframe),
+      getUniqueVisitors(dataSource, timeframe),
+      getTopPages(dataSource, timeframe),
+      getDemographicData(dataSource, timeframe),
+      getReferrerData(dataSource, timeframe),
     ]);
     setIsRefreshing(false);
   };
 
   useEffect(() => {
-    getAllData(timeframeFilter);
+    SwishjamAPI.Config.retrieve().then(({ settings }) => {
+      const dataSource = settings.use_product_data_source_in_lieu_of_marketing ? 'product' : 'marketing';
+      setDataSourceToFilterOn(dataSource);
+      getAllData(dataSource, timeframeFilter);
+    })
   }, []);
 
   return (
@@ -158,17 +163,15 @@ export default function PageMetrics() {
         <div className="flex w-full items-center justify-end">
           <Timefilter
             selection={timeframeFilter}
-            onSelection={(d) => {
-              setTimeframeFilter(d);
-              getAllData(d);
+            onSelection={date => {
+              setTimeframeFilter(date);
+              getAllData(dataSourceToFilterOn, date);
             }}
           />
           <Button
             variant="outline"
-            className={`ml-4 bg-white ${
-              isRefreshing ? "cursor-not-allowed" : ""
-            }`}
-            onClick={() => getAllData(timeframeFilter)}
+            className={`ml-4 bg-white ${isRefreshing ? "cursor-not-allowed" : ""}`}
+            onClick={() => getAllData(dataSourceToFilterOn, timeframeFilter)}
             disabled={isRefreshing}
           >
             <ArrowPathIcon
@@ -202,11 +205,11 @@ export default function PageMetrics() {
           <ClickableValueCard
             title="Page Views"
             selected={currentSelectedChart === "Page Views"}
-            value={sessionsChart?.value}
-            previousValue={sessionsChart?.previousValue}
-            previousValueDate={sessionsChart?.previousValueDate}
-            timeseries={sessionsChart?.timeseries}
-            valueFormatter={(numSubs) => numSubs.toLocaleString("en-US")}
+            value={pageViewsChart?.value}
+            previousValue={pageViewsChart?.previousValue}
+            previousValueDate={pageViewsChart?.previousValueDate}
+            timeseries={pageViewsChart?.timeseries}
+            valueFormatter={numPageViews => numPageViews.toLocaleString("en-US")}
             onClick={() => setCurrentSelectedChart("Page Views")}
           />
         </div>
