@@ -166,9 +166,7 @@ export default function Dashboard({ params }) {
   useEffect(() => {
     SwishjamAPI.Dashboards.retrieve(dashboardId).then(({ name }) => setDashboardName(name));
     SwishjamAPI.DashboardComponents.list(dashboardId).then(setDashboardComponents);
-    SwishjamAPI.Events.listUnique().then(events => {
-      setUniqueEvents(events);
-    });
+    SwishjamAPI.Events.listUnique().then(setUniqueEvents);
   }, []);
 
   // TODO: the setInterval doesnt have access to the latest state of pendingDashboardLayoutUpdates, so it never updates
@@ -233,17 +231,7 @@ export default function Dashboard({ params }) {
                     updatePendingDashboardLayoutUpdates();
                   }}
                 >
-                  Save
-                </button>
-                <button
-                  type="button"
-                  className="ml-2 inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-swishjam hover:bg-swishjam-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-swishjam"
-                  onClick={() => {
-                    setIsInEditMode(false);
-                    setPendingDashboardLayoutUpdates([])
-                  }}
-                >
-                  Cancel
+                  Done
                 </button>
               </>
             ) : (

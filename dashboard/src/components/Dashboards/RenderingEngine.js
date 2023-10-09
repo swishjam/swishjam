@@ -1,6 +1,7 @@
 
 import { useState, useEffect } from 'react';
-import { API } from '@/lib/api-client/base';
+// import { API } from '@/lib/api-client/base';
+import SwishjamAPI from '@/lib/api-client/swishjam-api';
 import GridLayout from 'react-grid-layout';
 import LineChartWithValue from "@/components/Dashboards/Components/LineChartWithValue";
 import BarChart from "@/components/Dashboards/Components/BarChart";
@@ -18,7 +19,7 @@ const LineChartDashboardComponent = ({ title, event, property, calculation, time
     setTimeseries();
     setCurrentValue();
     // TODO: Endpoint doesn't do anything with property or calculation yet.
-    API.get(`/api/v1/events/${event}/timeseries`, { property, calculation, timeframe }).then(data => {
+    SwishjamAPI.Events.timeseries(event, property, { calculation, timeframe }).then(data => {
       setTimeseries(data);
       setCurrentValue(data[data.length - 1].value);
     });
@@ -34,7 +35,7 @@ const PieChartDashboardComponent = ({ title, event, property, timeframe }) => {
 
   useEffect(() => {
     setPieChartData();
-    API.get(`/api/v1/events/${event}/properties/${property}/counts`, { timeframe }).then(data => {
+    SwishjamAPI.Events.Properties.getCountsOfPropertyValues(event, property, { timeframe }).then(data => {
       setPieChartData(data.map(({ value, count }) => ({ name: value, value: count })));
     });
   }, [event, property, timeframe]);
@@ -49,7 +50,7 @@ const BarListDashboardComponent = ({ title, event, property, timeframe }) => {
 
   useEffect(() => {
     setBarListData();
-    API.get(`/api/v1/events/${event}/properties/${property}/counts`, { timeframe }).then(data => {
+    SwishjamAPI.Events.Properties.getCountsOfPropertyValues(event, property, { timeframe }).then(data => {
       setBarListData(data.map(({ value, count }) => ({ name: value, value: count })));
     });
   }, [event, property, timeframe]);
@@ -69,7 +70,7 @@ const ValueCardDashboardComponent = ({ title, event, property, calculation, time
     setPreviousValue();
     setPreviousValueDate();
     if (calculation === 'count') {
-      API.get(`/api/v1/events/${event}/count`, { timeframe }).then(({ count, comparison_count, comparison_start_time }) => {
+      SwishjamAPI.Events.count(event, { timeframe }).then(({ count, comparison_count, comparison_start_time }) => {
         setValue(count);
         setPreviousValue(comparison_count);
         setPreviousValueDate(comparison_start_time);
@@ -85,14 +86,14 @@ const ValueCardDashboardComponent = ({ title, event, property, calculation, time
 }
 
 
-export default function RenderingEngine({ 
-  components, 
-  timeframe, 
-  editable, 
-  onDashboardComponentEdit = () => {}, 
-  onDashboardComponentDelete = () => {}, 
-  onDashboardComponentDuplicate = () => {},
-  onLayoutChange = () => {} 
+export default function RenderingEngine({
+  components,
+  timeframe,
+  editable,
+  onDashboardComponentEdit = () => { },
+  onDashboardComponentDelete = () => { },
+  onDashboardComponentDuplicate = () => { },
+  onLayoutChange = () => { }
 }) {
   // the grid layout hangs when not given in this format
   const sanitizedLayout = components.map(({ i, configuration }) => ({ i, ...configuration }));
@@ -107,13 +108,13 @@ export default function RenderingEngine({
       isResizable={editable}
     >
       {components.map(({ i, configuration }) => {
-        switch(configuration.type) {
+        switch (configuration.type) {
           case 'LineChart':
             return (
               <Card key={i} className='p-4 overflow-hidden'>
-                <ContextMenuableComponent 
-                  isTriggerable={editable} 
-                  onEdit={() => onDashboardComponentEdit({ id: configuration.i, configuration })} 
+                <ContextMenuableComponent
+                  isTriggerable={editable}
+                  onEdit={() => onDashboardComponentEdit({ id: configuration.i, configuration })}
                   onDelete={() => onDashboardComponentDelete(i)}
                   onDuplicate={() => onDashboardComponentDuplicate({ id: configuration.i, configuration })}
                 >
@@ -124,9 +125,9 @@ export default function RenderingEngine({
           case 'BarChart':
             return (
               <Card key={i} className='p-4 overflow-hidden'>
-                <ContextMenuableComponent 
-                  isTriggerable={editable} 
-                  onEdit={() => onDashboardComponentEdit({ id: configuration.i, configuration })} 
+                <ContextMenuableComponent
+                  isTriggerable={editable}
+                  onEdit={() => onDashboardComponentEdit({ id: configuration.i, configuration })}
                   onDelete={() => onDashboardComponentDelete(i)}
                   onDuplicate={() => onDashboardComponentDuplicate({ id: configuration.i, configuration })}
                 >
@@ -137,9 +138,9 @@ export default function RenderingEngine({
           case 'PieChart':
             return (
               <Card key={i} className='p-4 overflow-hidden'>
-                <ContextMenuableComponent 
-                  isTriggerable={editable} 
-                  onEdit={() => onDashboardComponentEdit({ id: configuration.i, configuration })} 
+                <ContextMenuableComponent
+                  isTriggerable={editable}
+                  onEdit={() => onDashboardComponentEdit({ id: configuration.i, configuration })}
                   onDelete={() => onDashboardComponentDelete(i)}
                   onDuplicate={() => onDashboardComponentDuplicate({ id: configuration.i, configuration })}
                 >
@@ -150,9 +151,9 @@ export default function RenderingEngine({
           case 'ValueCard':
             return (
               <Card key={i} className='p-4 overflow-hidden'>
-                <ContextMenuableComponent 
-                  isTriggerable={editable} 
-                  onEdit={() => onDashboardComponentEdit({ id: i, configuration })} 
+                <ContextMenuableComponent
+                  isTriggerable={editable}
+                  onEdit={() => onDashboardComponentEdit({ id: i, configuration })}
                   onDelete={() => onDashboardComponentDelete(i)}
                   onDuplicate={() => onDashboardComponentDuplicate({ id: configuration.i, configuration })}
                 >
@@ -163,9 +164,9 @@ export default function RenderingEngine({
           case 'BarList':
             return (
               <Card key={i} className='p-4 overflow-hidden'>
-                <ContextMenuableComponent 
-                  isTriggerable={editable} 
-                  onEdit={() => onDashboardComponentEdit({ id: configuration.i, configuration })} 
+                <ContextMenuableComponent
+                  isTriggerable={editable}
+                  onEdit={() => onDashboardComponentEdit({ id: configuration.i, configuration })}
                   onDelete={() => onDashboardComponentDelete(i)}
                   onDuplicate={() => onDashboardComponentDuplicate({ id: configuration.i, configuration })}
                 >

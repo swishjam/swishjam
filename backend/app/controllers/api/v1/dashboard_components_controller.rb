@@ -11,11 +11,9 @@ module Api
       end
 
       def create
-        byebug
         component = DashboardComponent.new(configuration: params.dig(:dashboard_component).dig(:configuration))
         component.workspace = current_workspace
         component.created_by_user = current_user
-        byebug
         if component.save
           if params[:dashboard_id]
             dashboard = current_workspace.dashboards.find(params[:dashboard_id])

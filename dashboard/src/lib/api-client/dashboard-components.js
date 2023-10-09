@@ -6,7 +6,7 @@ class DashboardComponents extends Base {
   }
 
   static async bulkUpdate(dashboardComponents) {
-    return await this.patch('/api/v1/dashboard_components/bulk_update', { dashboard_components: dashboardComponents });
+    return await this._patch('/api/v1/dashboard_components/bulk_update', { dashboard_components: dashboardComponents });
   }
 
   static async create(dashboardId, dashboardComponentConfiguration) {

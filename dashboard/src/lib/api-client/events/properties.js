@@ -5,8 +5,8 @@ export class Properties extends Base {
     return await this._get(`/api/v1/events/${eventName}/properties`);
   }
 
-  static async getCountsOfPropertyValues(eventName, propertyName) {
-    return await this._get(`/api/v1/events/${eventName}/properties/${propertyName}/counts`);
+  static async getCountsOfPropertyValues(eventName, propertyName, options = {}) {
+    return await this._get(`/api/v1/events/${eventName}/properties/${propertyName}/counts`, options);
   }
 }
 
