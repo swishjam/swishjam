@@ -29,6 +29,12 @@ Rails.application.routes.draw do
       resources :config, only: [:index]
       resources :search, only: [:index]
 
+      resources :workspace_settings, only: [] do
+        collection do
+          patch :update
+        end
+      end
+
       resources :workspace, only: [] do
         collection do
           patch '/update', to: 'workspaces#update'
