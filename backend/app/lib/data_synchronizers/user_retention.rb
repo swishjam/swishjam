@@ -12,7 +12,7 @@ module DataSynchronizers
         Rails.logger.warn "#{@workspace.name} workspace (#{@workspace.id}) has no users to generate retention data, skipping..."
       else
         retention_data.each do |cohort_date, cohort_data|
-          existing_cohort = @workspace.retention_cohorts.find_by(time_granularity: 'week', time_period: cohort_data[:cohort_date])
+          existing_cohort = @workspace.retention_cohorts.find_by(time_granularity: 'week', time_period: cohort_date)
           if existing_cohort
             update_cohorts_activity_data(existing_cohort, cohort_data)
           else
@@ -25,7 +25,10 @@ module DataSynchronizers
     private
 
     def update_cohorts_activity_data(cohort, cohort_data)
-      cohort.update!(num_users_in_cohort: cohort_data[:cohort_size]) if cohort.num_users_in_cohort != cohort[:cohort_size]
+      if cohort.num_users_in_cohort != cohort[:cohort_size]
+        Rails.logger.warn "Updating #{@workspace.name} workspace's #{cohort.time_period} cohort (#{cohort.id}) `num_users_in_cohort` from #{cohort.num_users_in_cohort} to #{cohort[:cohort_size]}"
+        cohort.update!(num_users_in_cohort: cohort_data[:cohort_size]) 
+      end
 
       cohort_data[:activity_periods].each do |activity_period_date, activity_period_data|
         existing_cohort_activity_for_this_cohort = cohort.retention_cohort_activity_periods.find_by(time_period: activity_period_date)
