@@ -55,10 +55,7 @@ export default function SearchBarModal({ onClose = () => { } }) {
         setOrganizationsResults();
         setUsersResults();
         setDashboardsResults();
-<<<<<<< HEAD
         setEventResults();
-=======
->>>>>>> main
       }}
       appear
     >
