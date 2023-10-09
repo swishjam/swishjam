@@ -67,7 +67,7 @@ export default function Home() {
   }
 
   const getSessionsData = async timeframe => {
-    return await SwishjamAPI.Sessions.timeseries({ data_source: 'product', timeframe }).then((sessionData) => {
+    return await SwishjamAPI.Sessions.timeseries({ dataSource: 'product', timeframe }).then((sessionData) => {
       setSessionsChart({
         value: sessionData.current_count,
         previousValue: sessionData.comparison_count,
@@ -84,7 +84,7 @@ export default function Home() {
   }
 
   const getUniqueVisitorsData = async (timeframe, type) => {
-    return await SwishjamAPI.Users.Active.timeseries({ timeframe, data_source: 'product', type, include_comparison: true }).then(
+    return await SwishjamAPI.Users.Active.timeseries({ timeframe, dataSource: 'product', type, include_comparison: true }).then(
       ({ current_value, timeseries, comparison_value, comparison_timeseries, comparison_end_time, grouped_by }) => {
         setUniqueVisitorsChartData({
           value: current_value || 0,
