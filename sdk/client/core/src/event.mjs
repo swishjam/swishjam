@@ -30,3 +30,5 @@ export class Event {
     }
   }
 }
+
+export default Event;

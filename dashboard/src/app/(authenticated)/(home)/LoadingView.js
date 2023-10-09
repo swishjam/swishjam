@@ -1,8 +1,8 @@
 'use client'
 
-import ActiveUsersLineChart from "@/components/DashboardComponents/Prebuilt/ActiveUsersLineChart"
-import ItemizedUsersList from "@/components/DashboardComponents/Prebuilt/ItemizedUsersList"
-import ItemizedOrganizationsList from "@/components/DashboardComponents/Prebuilt/ItemizedOrganizationList"
+import ActiveUsersLineChart from "@/components/DashboardComponents/ActiveUsersLineChartWithValue"
+import ItemizedUsersList from "@/components/DashboardComponents/ItemizedList"
+import ItemizedOrganizationsList from "@/components/DashboardComponents/ItemizedList"
 import LineChartWithValue from "@/components/DashboardComponents/LineChartWithValue"
 import ClickableValueCard from "@/components/DashboardComponents/ClickableValueCard"
 import { Separator } from "@/components/ui/separator"

@@ -23,3 +23,5 @@ export class DeviceIdentifier {
     return identifier;
   }
 }
+
+export default DeviceIdentifier;

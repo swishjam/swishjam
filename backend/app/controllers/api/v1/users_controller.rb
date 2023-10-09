@@ -55,28 +55,31 @@ module Api
           'weekly' => ClickHouseQueries::Users::Active::Weekly,
           'monthly' => ClickHouseQueries::Users::Active::Monthly
         }[params[:type]].new(public_keys_for_requested_data_source, start_time: start_timestamp, end_time: end_timestamp).timeseries
-        render json: { current_value: active_users.current_value, timeseries: active_users.formatted_data }, status: :ok
-      end
 
-      def count
-        start_time = params[:start_time] || 7.days.ago
-        end_time = params[:end_time] || Time.zone.now
-
-        comparison_start_time = start_time - (end_time - start_time)
-        comparison_end_time = start_time
-
-        # TODO: how do we capture _actual_ registration date, rather than when the user was first created?
-        render json: {
-          count: current_workspace.users.where(created_at: start_time..end_time).count,
-          comparison_count: current_workspace.users.where(created_at: comparison_start_time..comparison_end_time).count,
-          start_time: start_time,
-          end_time: end_time,
-          comparison_start_time: comparison_start_time,
-          comparison_end_time: comparison_end_time,
+        comparison_active_users = nil
+        if params[:include_comparison]
+          comparison_active_users = {
+            'daily' => ClickHouseQueries::Users::Active::Daily,
+            'weekly' => ClickHouseQueries::Users::Active::Weekly,
+            'monthly' => ClickHouseQueries::Users::Active::Monthly
+          }[params[:type]].new(public_keys_for_requested_data_source, start_time: comparison_start_timestamp, end_time: comparison_end_timestamp).timeseries
+        end
+        render json: { 
+          current_value: active_users.current_value, 
+          timeseries: active_users.formatted_data,
+          comparison_value: comparison_active_users&.current_value,
+          comparison_timeseries: comparison_active_users&.formatted_data,
+          grouped_by: active_users.group_by,
+          start_time: active_users.start_time,
+          end_time: active_users.end_time,
+          comparison_start_time: comparison_active_users&.start_time,
+          comparison_end_time: comparison_active_users&.end_time,
+          data_source: params[:data_source],
         }, status: :ok
       end
       
       def timeseries
+        raise "Deprecated"
         interval = params[:interval] || 'day'
         start_time = { 
           'hour' => Time.zone.now.beginning_of_hour - 1.day, 

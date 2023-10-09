@@ -30,3 +30,5 @@ export class CookieHelper {
     this.setCookie({ name, value: '', expiresIn: -1 });
   }
 }
+
+export default CookieHelper;
