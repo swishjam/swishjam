@@ -19,7 +19,7 @@ export default function SettingsPage() {
   }, []);
 
   return (
-    apiKeys === undefined 
+    apiKeys === undefined
       ? <LoadingView />
       : (
         <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mb-8">
