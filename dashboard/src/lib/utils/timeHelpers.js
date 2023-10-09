@@ -7,23 +7,6 @@ const ONE_MINUTE_IN_SECONDS = ONE_MINUTE_IN_MS / 1_000;
 const ONE_HOUR_IN_SECONDS = ONE_HOUR_IN_MS / 1_000;
 const ONE_DAY_IN_SECONDS = ONE_DAY_IN_MS / 1_000;
 
-const startOfDay = date => {
-  const d = new Date(date);
-  d.setHours(0, 0, 0, 0);
-  return d;
-}
-
-const dateToUTC = date => {
-  const d = new Date(date);
-  d.setUTCFullYear(d.getFullYear());
-  d.setUTCMonth(d.getMonth());
-  d.setUTCDate(d.getDate());
-  d.setUTCHours(d.getHours());
-  d.setUTCMinutes(d.getMinutes());
-  d.setUTCSeconds(d.getSeconds());
-  return d;
-}
-
 const intelligentlyFormattedMs = ms => {
   try {
     if (ms < ONE_SECOND_IN_MS) {
