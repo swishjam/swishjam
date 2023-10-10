@@ -83,7 +83,7 @@ export default function SearchBarModal({ onClose = () => { } }) {
             leaveTo="opacity-0 scale-95"
           >
             <Dialog.Panel className="mx-auto max-w-xl transform overflow-hidden rounded-xl bg-white shadow-2xl ring-1 ring-black ring-opacity-5 transition-all">
-              <Combobox onChange={(item) => (window.location = item.href)}>
+              <Combobox onChange={item => (window.location = item.href)}>
                 <SearchForm isSearching={isSearching} onSubmit={commitSearch} />
                 <SearchResults
                   organizations={organizationsResults}

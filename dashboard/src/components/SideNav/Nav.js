@@ -33,12 +33,12 @@ const appNav = [
 
 const classNames = (...classes) => classes.filter(Boolean).join(' ')
 
-const DesktopNavItem = ({ item, isCollapsed, category, currentPath }) => {
+const DesktopNavItem = ({ item, isCollapsed, currentPath }) => {
   const isCurrentPage = menuItemHref => currentPath == menuItemHref;
 
   return (
     <li key={item.name}>
-      <a
+      <Link
         href={item.href}
         className={classNames(
           isCurrentPage(item.href)
@@ -55,7 +55,7 @@ const DesktopNavItem = ({ item, isCollapsed, category, currentPath }) => {
           aria-hidden="true"
         />}
         {isCollapsed ? '' : item.name}
-      </a>
+      </Link>
     </li>
   )
 }

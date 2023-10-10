@@ -23,7 +23,7 @@ export default function ItemizedList({
   return (
     <Card>
       <CardHeader>
-        <CardTitle>{title}</CardTitle>
+        <CardTitle className="text-sm font-medium cursor-default">{title}</CardTitle>
         {subTitle && <CardDescription>{subTitle}</CardDescription>}
       </CardHeader>
       <CardContent>

@@ -13,14 +13,14 @@ export default function SearchResults({ organizations, users, dashboards, events
         </p>
       </div>
     )
-  } else if (hasAttemptedSearch && organizations?.length === 0 && users?.length === 0 && dashboards?.length === 0) {
+  } else if (hasAttemptedSearch && organizations?.length === 0 && users?.length === 0 && dashboards?.length === 0 && events?.length === 0) {
     return (
       <div className="border-t border-gray-100 px-6 py-14 text-center text-sm sm:px-14">
         <p className="mt-4 font-semibold text-gray-900">No results found</p>
         <p className="mt-2 text-gray-500">No events, users, organizations, or dashboards match this search.</p>
       </div>
     )
-  } else if (hasAttemptedSearch && (organizations?.length > 0 || users?.length > 0 || dashboards?.length > 0)) {
+  } else if (hasAttemptedSearch && (organizations?.length > 0 || users?.length > 0 || dashboards?.length > 0 || events?.length > 0)) {
     return (
       <Combobox.Options static className="max-h-80 scroll-pb-2 scroll-pt-11 space-y-2 overflow-y-auto pb-2">
         <li>
