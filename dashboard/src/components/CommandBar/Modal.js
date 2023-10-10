@@ -21,6 +21,7 @@ export default function SearchBarModal({ onClose = () => { } }) {
   const [organizationsResults, setOrganizationsResults] = useState();
   const [usersResults, setUsersResults] = useState();
   const [dashboardsResults, setDashboardsResults] = useState();
+  const [eventResults, setEventResults] = useState();
 
   const commitSearch = async q => {
     if (!q || q === '') {
@@ -29,12 +30,14 @@ export default function SearchBarModal({ onClose = () => { } }) {
       setOrganizationsResults();
       setUsersResults();
       setDashboardsResults();
+      setEventResults();
     } else {
       setIsSearching(true);
       setSearchedTerm(q);
-      await SwishjamAPI.Search.search(q).then(({ users, organizations }) => {
+      await SwishjamAPI.Search.search(q).then(({ users, organizations, events }) => {
         setOrganizationsResults(organizations);
         setUsersResults(users);
+        setEventResults(events);
         const matchingDashboards = dashboardOptions.filter(option => option.name.toLowerCase().includes(q.toLowerCase()));
         setDashboardsResults(matchingDashboards);
       });
@@ -52,6 +55,7 @@ export default function SearchBarModal({ onClose = () => { } }) {
         setOrganizationsResults();
         setUsersResults();
         setDashboardsResults();
+        setEventResults();
       }}
       appear
     >
@@ -79,12 +83,13 @@ export default function SearchBarModal({ onClose = () => { } }) {
             leaveTo="opacity-0 scale-95"
           >
             <Dialog.Panel className="mx-auto max-w-xl transform overflow-hidden rounded-xl bg-white shadow-2xl ring-1 ring-black ring-opacity-5 transition-all">
-              <Combobox onChange={(item) => (window.location = item.href)}>
+              <Combobox onChange={item => (window.location = item.href)}>
                 <SearchForm isSearching={isSearching} onSubmit={commitSearch} />
                 <SearchResults
                   organizations={organizationsResults}
                   users={usersResults}
                   dashboards={dashboardsResults}
+                  events={eventResults}
                   hasAttemptedSearch={searchedTerm && searchedTerm !== ''}
                 />
                 <Footer />

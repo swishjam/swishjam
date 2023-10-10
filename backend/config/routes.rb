@@ -93,9 +93,9 @@ Rails.application.routes.draw do
         end
       end
       
-      resources :events, only: [] do
+      resources :events, only: [:show], param: :name do
         collection do
-          get :feed
+          get :unique
         end
       end
 
