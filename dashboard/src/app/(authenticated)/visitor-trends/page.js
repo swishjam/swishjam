@@ -156,7 +156,7 @@ export default function PageMetrics() {
       <div className="mt-8 flex grid grid-cols-2 items-center">
         <div>
           <h1 className="mb-0 text-lg font-medium text-gray-700">
-            Marketing Site Metrics
+            Visitor Trends
           </h1>
         </div>
 
@@ -174,9 +174,7 @@ export default function PageMetrics() {
             onClick={() => getAllData(dataSourceToFilterOn, timeframeFilter)}
             disabled={isRefreshing}
           >
-            <ArrowPathIcon
-              className={`h-4 w-4 ${isRefreshing ? "animate-spin" : ""}`}
-            />
+            <ArrowPathIcon className={`h-4 w-4 ${isRefreshing ? "animate-spin" : ""}`} />
           </Button>
         </div>
       </div>
