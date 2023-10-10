@@ -4,30 +4,19 @@ import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 import LoadingSpinner from '@/components/LoadingSpinner';
 
 export default function SearchForm({ isSearching, onSubmit }) {
-  const [searchInputValue, setSearchInputValue] = useState('');
+  const [onInputChangeTimeoutId, setOnInputChangeTimeoutId] = useState();
 
   return (
-    <form
-      className="flex items-center"
-      onSubmit={e => {
-        e.preventDefault();
-        if (!isSearching) {
-          onSubmit(searchInputValue)
-        }
-      }}
-    >
+    <form className="flex items-center">
       <Combobox.Input
         className="h-12 w-full border-0 bg-transparent pl-11 pr-4 text-gray-900 placeholder:text-gray-400 focus:ring-0 sm:text-sm"
         placeholder="Search for users, organizations, or dashboards..."
         onChange={e => {
           const query = e.target.value;
-          setSearchInputValue(query);
-          const timeoutId = setTimeout(() => {
-            if (!isSearching) {
-              onSubmit(query);
-            }
-          }, 500);
-          return () => clearTimeout(timeoutId);
+          if (onInputChangeTimeoutId) clearTimeout(onInputChangeTimeoutId)
+          setOnInputChangeTimeoutId(setTimeout(() => {
+            onSubmit(query);
+          }, 500));
         }}
       />
       <button
@@ -35,7 +24,7 @@ export default function SearchForm({ isSearching, onSubmit }) {
         type='submit'
         disabled={isSearching}
       >
-        {isSearching 
+        {isSearching
           ? (
             <div className='flex-shrink mr-4 left-4 top-3.5 text-gray-400 animate-spin'>
               <LoadingSpinner size={5} center={true} />

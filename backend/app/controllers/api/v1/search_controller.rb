@@ -2,6 +2,7 @@ module Api
   module V1
     class SearchController < BaseController
       def index
+        params[:data_source] ||= 'all'
         query = (params[:q] || params[:query])&.downcase
         limit = params[:limit] || 10
         users = current_workspace
@@ -24,9 +25,11 @@ module Api
                           ', query: "%#{query}%")
                           .order(created_at: :desc)
                           .limit(limit)
+        events = ClickHouseQueries::Events::Search.new(public_keys_for_requested_data_source, query: query, limit: limit).query
         render json: {
           users: users.map{ |u| UserProfileSerializer.new(u) },
           organizations: organizations.map{ |o| OrganizationProfileSerializer.new(o) },
+          events: events,
           dashboards: []
         }, status: :ok
       end
