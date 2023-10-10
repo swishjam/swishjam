@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import SwishjamAPI from "@/lib/api-client/swishjam-api";
 import LineChartWithValue from "@/components/Dashboards/Components/LineChartWithValue";
 import ItemizedList from "@/components/Dashboards/Components/ItemizedList";
-import BarListCard from "@/components/Dashboards/Components/BarListCard";
+import BarList from "@/components/Dashboards/Components/BarList";
 
 export default function EventDetails({ params }) {
   const { name: encodedName } = params;
@@ -75,7 +75,7 @@ export default function EventDetails({ params }) {
         />
       </div>
       <div className='mt-8 grid grid-cols-2 gap-x-4'>
-        <BarListCard title='Top Attributes' items={topEventAttributes} />
+        <BarList title='Top Attributes' items={topEventAttributes} />
         <ItemizedList
           title='Top Users'
           subTitle={<>By occurrences of <span className='italic'>{name}</span></>}
