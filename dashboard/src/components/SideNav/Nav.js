@@ -1,6 +1,16 @@
 'use client';
 import { usePathname } from 'next/navigation'
-import { SquaresPlusIcon, ChevronLeftIcon, ChevronRightIcon, HomeIcon, Cog6ToothIcon, UserGroupIcon, UserIcon, MagnifyingGlassIcon } from '@heroicons/react/24/outline'
+import {
+  ChevronLeftIcon,
+  ChevronRightIcon,
+  Cog6ToothIcon,
+  GlobeAmericasIcon,
+  HomeIcon,
+  MagnifyingGlassIcon,
+  SquaresPlusIcon,
+  UserGroupIcon,
+  UserIcon,
+} from '@heroicons/react/24/outline'
 import SidebarMobile from './MobileNav';
 import ProfileFlyout from './ProfileFlyout';
 import { useState, useEffect } from 'react'
@@ -14,6 +24,7 @@ import useCommandBar from '@/hooks/useCommandBar';
 const appNav = [
   { name: 'Home', href: '/', icon: HomeIcon },
   { name: 'Visitor Trends', href: '/visitor-trends', icon: RxBarChart },
+  // { name: 'Event Explorer', href: '/events', icon: GlobeAmericasIcon }, // HIDING FROM NAV FOR NOW
   { name: 'Users', href: '/users', icon: UserIcon },
   { name: 'Organizations', href: '/organizations', icon: UserGroupIcon },
   { name: 'Connections', href: '/connections', icon: SquaresPlusIcon },
@@ -22,12 +33,12 @@ const appNav = [
 
 const classNames = (...classes) => classes.filter(Boolean).join(' ')
 
-const DesktopNavItem = ({ item, isCollapsed, category, currentPath }) => {
+const DesktopNavItem = ({ item, isCollapsed, currentPath }) => {
   const isCurrentPage = menuItemHref => currentPath == menuItemHref;
 
   return (
     <li key={item.name}>
-      <a
+      <Link
         href={item.href}
         className={classNames(
           isCurrentPage(item.href)
@@ -44,7 +55,7 @@ const DesktopNavItem = ({ item, isCollapsed, category, currentPath }) => {
           aria-hidden="true"
         />}
         {isCollapsed ? '' : item.name}
-      </a>
+      </Link>
     </li>
   )
 }

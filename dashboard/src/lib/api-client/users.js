@@ -17,8 +17,11 @@ export class Users extends Base {
   static async retrieve(id) {
     return await this._get(`/api/v1/users/${id}`);
   }
+
+  static async timeseries({ timeframe } = {}) {
+    return await this._get(`/api/v1/users/timeseries`, { timeframe });
+  }
 }
 
 Object.assign(Users, Base);
-
 export default Users;
