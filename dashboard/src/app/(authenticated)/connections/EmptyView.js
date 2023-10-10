@@ -1,5 +1,5 @@
 import { RxCardStack } from 'react-icons/rx';
-import AddConnectionButton from './AddConnectionButton' 
+import AddConnectionButton from './AddConnectionButton'
 
 export default function EmptyView({ allConnections, availableConnections, setConnectionForModal }) {
 
@@ -9,7 +9,7 @@ export default function EmptyView({ allConnections, availableConnections, setCon
         <div className="text-center">
           <RxCardStack className="mx-auto h-12 w-12 text-gray-400" />
           <h2 className="mt-2 text-base font-semibold leading-6 text-gray-900">Add a data connection</h2>
-          <p className="mt-1 text-sm text-gray-500">Data connections let you pull in and push data to key business tools.</p>
+          <p className="mt-1 text-sm text-gray-500">Data connections let you pull in data from your key business tools.</p>
         </div>
       </div>
       <div className="mt-10">
