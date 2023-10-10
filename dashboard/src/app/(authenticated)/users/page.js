@@ -93,7 +93,7 @@ export default function Users() {
                                   </Avatar>
                                 </div>
                                 <div className="ml-4">
-                                  <div className="font-medium text-gray-900">{user.full_name}</div>
+                                  <div className="font-medium text-gray-900">{user.full_name || `Anonymous User: ${user.id.split('-')[0]}`}</div>
                                 </div>
                               </div>
                             </td>
