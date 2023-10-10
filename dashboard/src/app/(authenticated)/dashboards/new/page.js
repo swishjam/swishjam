@@ -16,7 +16,7 @@ export default function NewDashboard() {
 
   return (
     <main className="mx-auto max-w-7xl px-4 mt-8 sm:px-6 lg:px-8 mb-8 h-screen flex items-center justify-center">
-      <LoadingSpinner />
+      <LoadingSpinner size={10} />
     </main>
   )
 }

@@ -17,7 +17,13 @@ const LoadingState = () => (
 )
 
 export default function BarList({ title, items, includeCard = true }) {
-  if (!items) return <LoadingState />;
+  if (!items) {
+    return (
+      <ConditionalCardWrapper title={title} includeCard={includeCard}>
+        <LoadingState />
+      </ConditionalCardWrapper>
+    )
+  };
 
   const total = items.reduce((acc, item) => acc + item.value, 0);
   const sortedItems = items.sort((item1, item2) => item2.value - item1.value);

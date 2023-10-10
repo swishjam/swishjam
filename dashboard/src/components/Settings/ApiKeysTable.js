@@ -35,8 +35,8 @@ export default function ApiKeysTable({ apiKeys }) {
           </tr>
         </thead>
         <tbody className="divide-y divide-gray-200 bg-white">
-          {apiKeys 
-            ? apiKeys.map(apiKey => <ApiKeyRow apiKey={apiKey} />) 
+          {apiKeys
+            ? apiKeys.map((apiKey, i) => <ApiKeyRow key={i} apiKey={apiKey} />)
             : (
               Array.from({ length: 2 }).map((_, i) => (
                 <tr key={i} className="group hover:bg-gray-50 duration-300 transition cursor-default">

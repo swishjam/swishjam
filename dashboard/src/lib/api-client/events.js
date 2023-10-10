@@ -15,6 +15,10 @@ export class Events extends Base {
   static async timeseries(event, property, options = {}) {
     return await this._get(`/api/v1/events/${event}/timeseries`, { property, ...options })
   }
+
+  static async retrieve(name) {
+    return await this._get(`/api/v1/events/${name}`)
+  }
 }
 
 Object.assign(Events, Base);

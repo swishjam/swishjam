@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/button';
 import { ArrowPathIcon } from '@heroicons/react/24/outline';
 import InstallBanner from '@/components/InstallBanner';
 import ItemizedList from '@/components/Dashboards/Components/ItemizedList';
+import RetentionWidget from '@/components/Dashboards/Components/RetentionWidget';
 
 const currentChart = (selected, mrrChart, sessionsChart, activeSubsChart) => {
   if (selected === 'MRR') {
@@ -23,16 +24,17 @@ const currentChart = (selected, mrrChart, sessionsChart, activeSubsChart) => {
 }
 
 export default function Home() {
-  const [mrrChart, setMrrChart] = useState();
   const [activeSubsChart, setActiveSubsChart] = useState();
-  const [sessionsChart, setSessionsChart] = useState();
-  const [newUsersData, setNewUsersData] = useState();
-  const [newOrganizationsData, setNewOrganizationsData] = useState();
-  const [uniqueVisitorsChartData, setUniqueVisitorsChartData] = useState();
-  const [uniqueVisitorsGrouping, setUniqueVisitorsGrouping] = useState('weekly')
-  const [currentSelectedChart, setCurrentSelectedChart] = useState('MRR');
-  const [timeframeFilter, setTimeframeFilter] = useState('thirty_days');
+  const [currentSelectedChart, setCurrentSelectedChart] = useState('Sessions');
   const [isRefreshing, setIsRefreshing] = useState();
+  const [mrrChart, setMrrChart] = useState();
+  const [newOrganizationsData, setNewOrganizationsData] = useState();
+  const [newUsersData, setNewUsersData] = useState();
+  const [sessionsChart, setSessionsChart] = useState();
+  const [timeframeFilter, setTimeframeFilter] = useState('thirty_days');
+  const [uniqueVisitorsChartData, setUniqueVisitorsChartData] = useState();
+  const [uniqueVisitorsGrouping, setUniqueVisitorsGrouping] = useState('weekly');
+  const [userRetentionData, setUserRetentionData] = useState();
 
   const getBillingData = async timeframe => {
     return await SwishjamAPI.BillingData.timeseries({ timeframe }).then(paymentData => {
@@ -65,7 +67,7 @@ export default function Home() {
   }
 
   const getSessionsData = async timeframe => {
-    return await SwishjamAPI.Sessions.timeseries({ data_source: 'product', timeframe }).then((sessionData) => {
+    return await SwishjamAPI.Sessions.timeseries({ dataSource: 'product', timeframe }).then((sessionData) => {
       setSessionsChart({
         value: sessionData.current_count,
         previousValue: sessionData.comparison_count,
@@ -82,7 +84,7 @@ export default function Home() {
   }
 
   const getUniqueVisitorsData = async (timeframe, type) => {
-    return await SwishjamAPI.Users.Active.timeseries({ timeframe, data_source: 'product', type, include_comparison: true }).then(
+    return await SwishjamAPI.Users.Active.timeseries({ timeframe, dataSource: 'product', type, include_comparison: true }).then(
       ({ current_value, timeseries, comparison_value, comparison_timeseries, comparison_end_time, grouped_by }) => {
         setUniqueVisitorsChartData({
           value: current_value || 0,
@@ -100,6 +102,10 @@ export default function Home() {
     );
   };
 
+  const getUserRetentionData = async () => {
+    return await SwishjamAPI.RetentionCohorts.get().then(setUserRetentionData)
+  }
+
   const getUsersData = async () => {
     return await SwishjamAPI.Users.list().then(({ users }) => setNewUsersData(users))
   }
@@ -115,6 +121,7 @@ export default function Home() {
     setUniqueVisitorsChartData();
     setNewUsersData();
     setNewOrganizationsData();
+    setUserRetentionData();
     setIsRefreshing(true);
     await Promise.all([
       getSessionsData(timeframe),
@@ -122,6 +129,7 @@ export default function Home() {
       getUniqueVisitorsData(timeframe, uniqueVisitorsGrouping),
       getUsersData(),
       getOrganizationsData(),
+      getUserRetentionData(),
     ])
     setIsRefreshing(false);
   }
@@ -154,6 +162,15 @@ export default function Home() {
       </div>
       <div className='grid grid-cols-3 gap-6 pt-8'>
         <ClickableValueCard
+          title='Sessions'
+          value={sessionsChart?.value}
+          selected={currentSelectedChart == 'Sessions'}
+          previousValue={sessionsChart?.previousValue}
+          previousValueDate={sessionsChart?.previousValueDate}
+          valueFormatter={numSubs => numSubs.toLocaleString('en-US')}
+          onClick={() => setCurrentSelectedChart('Sessions')}
+        />
+        <ClickableValueCard
           title='MRR'
           value={mrrChart?.value}
           selected={currentSelectedChart == 'MRR'}
@@ -170,15 +187,6 @@ export default function Home() {
           previousValueDate={sessionsChart?.previousValueDate}
           valueFormatter={numSubs => numSubs.toLocaleString('en-US')}
           onClick={() => setCurrentSelectedChart('Active Subscriptions')}
-        />
-        <ClickableValueCard
-          title='Sessions'
-          value={sessionsChart?.value}
-          selected={currentSelectedChart == 'Sessions'}
-          previousValue={sessionsChart?.previousValue}
-          previousValueDate={sessionsChart?.previousValueDate}
-          valueFormatter={numSubs => numSubs.toLocaleString('en-US')}
-          onClick={() => setCurrentSelectedChart('Sessions')}
         />
       </div>
       <div className='grid grid-cols-1 gap-6 pt-8'>
@@ -213,6 +221,9 @@ export default function Home() {
           timeseries={sessionsChart?.timeseries}
           valueFormatter={numSubs => numSubs.toLocaleString('en-US')}
         />
+      </div>
+      <div className='pt-8'>
+        <RetentionWidget retentionCohorts={userRetentionData} />
       </div>
       <div className='grid grid-cols-2 gap-6 pt-8'>
         <ItemizedList

@@ -7,5 +7,4 @@ export class Config extends Base {
 }
 
 Object.assign(Config, Base);
-
 export default Config;
