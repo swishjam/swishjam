@@ -6,7 +6,7 @@ module DataSynchronizers
       @stripe_metrics = StripeHelpers::MetricsCalculator.new(stripe_account_id)
       @customer_profile_data_mapper = CustomerProfileDataMappers::Stripe.new(workspace)
     end
-    
+
     def sync!
       create_billing_data_snapshot!
       # create_customer_billing_data_snapshots!
