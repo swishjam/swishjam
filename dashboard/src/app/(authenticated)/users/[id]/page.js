@@ -33,9 +33,9 @@ const UserProfile = ({ params }) => {
       })
     });
   }, [])
-    //userData
+  
   return (
-    false ? (
+    userData ? (
       <main className="mx-auto max-w-7xl px-4 mt-8 sm:px-6 lg:px-8 mb-8">
         <Breadcrumbs userName={userData.full_name || `Unknown User: ${userData.id.split('-')[0]}`} />
         <div className='grid grid-cols-10 gap-4 mt-8'>
@@ -50,8 +50,8 @@ const UserProfile = ({ params }) => {
                     }
                   </Avatar>
                   <div>
-                    {false ? <PowerUserBadge className="absolute top-5 right-5" size={8}/>:''}
-                    {true ? <ChurnWarningUserBadge className="absolute top-5 right-5" size={8} />:''}
+                    {userData.poweruser ? <PowerUserBadge className="absolute top-5 right-5" size={8}/>:''}
+                    {userData.churnwarning ? <ChurnWarningUserBadge className="absolute top-5 right-5" size={8} />:''}
                     <CardTitle className='text-2xl'>
                       {userData.full_name}
                     </CardTitle>
@@ -87,48 +87,65 @@ const UserProfile = ({ params }) => {
                       <div className="px-4 py-2 col-span-1 sm:px-0 grid grid-cols-2">
                         <dt className="text-sm font-medium leading-6 text-gray-900">Plan/Subscription Type</dt>
                         <dd className="text-sm leading-6 text-gray-700 text-right">
-                          <span className="inline-flex items-center rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20">
-                            {'Paid'}
-                          </span>   
+                          {userData.subscriptionPlan ?
+                            <span classname="inline-flex items-center rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20">
+                              {userData.subscriptionPlan}
+                            </span>:'-'
+                          } 
                         </dd>
                       </div>
                       <div className="px-4 py-2 col-span-1 sm:px-0 grid grid-cols-2">
                         <dt className="text-sm font-medium leading-6 text-gray-900">Plan/Subscription Value</dt>
                         <dd className="text-sm leading-6 text-gray-700 text-right">
-                          <span className="inline-flex items-center rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20">
-                            {'$20/mo'}
-                          </span>   
+                          {userData.subscriptionValue ?
+                            <span className="inline-flex items-center rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20">
+                              {userData.subscriptionValue}
+                            </span>:'-'
+                          } 
                         </dd>
                       </div>
                       <div className="px-4 py-2 col-span-1 sm:px-0 grid grid-cols-2">
                         <dt className="text-sm font-medium leading-6 text-gray-900">Role</dt>
-                        <dd className="text-sm leading-6 text-gray-700 text-right">{'CEO'}</dd>
+                        <dd className="text-sm leading-6 text-gray-700 text-right">{userData.role || '-'}</dd>
                       </div>
                       <div className="px-4 py-2 col-span-1 sm:px-0 grid grid-cols-2">
                         <dt className="text-sm font-medium leading-6 text-gray-900">Title</dt>
-                        <dd className="text-sm leading-6 text-gray-700 text-right">{'Co-founder, CEO'}</dd>
+                        <dd className="text-sm leading-6 text-gray-700 text-right">{userData.title || '-'}</dd>
                       </div>
                       <div className="px-4 py-2 col-span-1 sm:px-0 grid grid-cols-2">
                         <dt className="text-sm font-medium leading-6 text-gray-900">Twitter Handle</dt>
                         <dd className="text-sm leading-6 text-gray-700 text-right">
-                          <a
-                            className="hover:underline hover:text-blue-400 transition duration-500"
-                            href={`https://twitter.com/zzimbler`}
-                          >{'@zzimbler'}
-                          </a>
+                          {userData.twitterHandle ?
+                            <a
+                              className="hover:underline hover:text-blue-400 transition duration-500"
+                              href={`https://twitter.com/${userData.twitterHandle}`}>
+                                {userData.twitterHandle}
+                            </a>:'-'
+                          }
                         </dd>
                       </div>
                       <div className="px-4 py-2 col-span-1 sm:px-0 grid grid-cols-2">
                         <dt className="text-sm font-medium leading-6 text-gray-900">Linkedin</dt>
-                        <dd className="text-sm leading-6 text-gray-700 text-right"><a href={`https://www.linkedin.com/in/zzimbler`}>{'Profile Link'}</a></dd>
+                        <dd className="text-sm leading-6 text-gray-700 text-right">
+                          {userData.linkedinHandle ?
+                            <a
+                              className="hover:underline hover:text-blue-400 transition duration-500"
+                              href={`https://www.linkedin.com/in/${userData.linkedinHandle}`}>Profile Link
+                            </a>:'-'
+                          }
+                        </dd>
                       </div>
                       <div className="px-4 py-2 col-span-1 sm:px-0 grid grid-cols-2">
                         <dt className="text-sm font-medium leading-6 text-gray-900">Company</dt>
-                        <dd className="text-sm leading-6 text-gray-700 text-right">{'Wedget Co.'}</dd>
+                        <dd className="text-sm leading-6 text-gray-700 text-right">
+                          {userData.companyName ? userData.companyName:'-'}
+                        </dd>
                       </div>
                       <div className="px-4 py-2 col-span-1 sm:px-0 grid grid-cols-2">
                         <dt className="text-sm font-medium leading-6 text-gray-900">Location</dt>
-                        <dd className="text-sm leading-6 text-gray-700 text-right">{'San Francisco, CA'}</dd>
+                        <dd className="text-sm leading-6 text-gray-700 text-right">
+                          {userData.location ? 'userData.location':'-'}
+                        </dd>
                       </div>
                       <div className="my-4 border-t border-slate-100 w-full" />
                       <div className="px-4 py-2 col-span-1 sm:px-0 grid grid-cols-2">
