@@ -4,13 +4,11 @@ module ClickHouseQueries
       class Total
         include ClickHouseQueries::Helpers
 
-        def initialize(public_key, event_name:, start_time:, end_time:)
-          @public_key = public_key
+        def initialize(public_keys, event_name:, start_time:, end_time:)
+          @public_keys = public_keys.is_a?(Array) ? public_keys : [public_keys]
           @event_name = event_name
           @start_time = start_time
           @end_time = end_time
-          # @comparison_start_time = comparison_start_time
-          # @comparison_end_time = comparison_end_time
         end
 
         def get
@@ -22,7 +20,7 @@ module ClickHouseQueries
             SELECT CAST(COUNT(*) AS int) AS count
             FROM events
             WHERE
-              swishjam_api_key = '#{@public_key}' AND
+              swishjam_api_key IN #{formatted_in_clause(@public_keys)} AND
               occurred_at BETWEEN '#{formatted_time(@start_time)}' AND '#{formatted_time(@end_time)}' AND
               name = '#{@event_name}'
           SQL

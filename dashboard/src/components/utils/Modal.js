@@ -2,7 +2,7 @@ import { Fragment } from 'react'
 import { Transition, Dialog } from '@headlessui/react'
 import { XMarkIcon } from '@heroicons/react/24/outline'
 
-export default function Modal({ children, title, isOpen, onClose, size = 'small' }) {
+export default function Modal({ children, title, isOpen, onClose, closeOnBackdropClick = true, size = 'small' }) {
   if (!['small', 'medium', 'large', 'x-large'].includes(size)) throw new Error('Modal size must be one of: small, medium, large');
   const dialogKlass = { small: 'sm:max-w-lg', medium: 'sm:max-w-xl', large: 'sm:max-w-2xl', 'x-large': 'sm:max-w-4xl' }[size];
   return (
@@ -11,6 +11,7 @@ export default function Modal({ children, title, isOpen, onClose, size = 'small'
         as="div"
         className="relative z-50"
         onClose={onClose}
+        static={!closeOnBackdropClick}
       >
         <Transition.Child
           as={Fragment}

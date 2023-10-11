@@ -1,7 +1,8 @@
 "use client"
 
 import { useState } from 'react';
-import { LineChart, Tooltip, Line, ResponsiveContainer, XAxis, YAxis, CartesianGrid } from 'recharts';
+// import { LineChart, Tooltip, Line, ResponsiveContainer, XAxis, YAxis, CartesianGrid, AreaChart } from 'recharts';
+import { AreaChart, Area, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis, } from 'recharts';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
 import { HoverCard, HoverCardTrigger, HoverCardContent } from "@/components/ui/hover-card";
@@ -10,6 +11,7 @@ import { CircleIcon } from "@radix-ui/react-icons"
 import { CheckCircleIcon } from '@heroicons/react/20/solid';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import ConditionalCardWrapper from './ConditionalCardWrapper';
+import { dateFormatterForGrouping } from '@/lib/utils/timeseriesHelpers';
 
 const LoadingState = ({ title, includeCard = true }) => (
   includeCard ? (
@@ -105,25 +107,29 @@ const SettingsDropdown = ({ showXAxis, showYAxis, setShowXAxis, setShowYAxis, on
   </DropdownMenu>
 )
 
+
 export default function LineChartWithValue({
-  title,
-  value,
+  // dateFormatter = date => new Date(date).toLocaleDateString('en-us', { month: "2-digit", day: "2-digit" }),
+  includeCard = true,
+  includeComparisonData = true,
+  includeSettingsDropdown = true,
+  noDataMessage = 'No data available.',
+  groupedBy,
   previousValue,
   previousValueDate,
-  timeseries,
-  valueFormatter = val => val,
-  dateFormatter = date => new Date(date).toLocaleDateString('en-us', { month: "2-digit", day: "2-digit" }),
-  noDataMessage = 'No data available.',
-  includeSettingsDropdown = true,
   onSettingChange = () => { },
   showAxis = false,
   showTooltip = true,
-  includeCard = true
+  timeseries,
+  title,
+  value,
+  valueFormatter = val => val,
 }) {
   const [showXAxis, setShowXAxis] = useState(showAxis);
   const [showYAxis, setShowYAxis] = useState(showAxis);
   if ([null, undefined].includes(value) || [null, undefined].includes(timeseries)) return <LoadingState title={title} includeCard={includeCard} />;
 
+  const dateFormatter = dateFormatterForGrouping(groupedBy)
   const changeInValue = typeof previousValue !== 'undefined' ? value - previousValue : null;
 
   return (
@@ -151,7 +157,7 @@ export default function LineChartWithValue({
         <div className="text-2xl font-bold cursor-default">
           {valueFormatter(value)}
         </div>
-        {changeInValue && changeInValue !== 0 ? (
+        {includeComparisonData && changeInValue && changeInValue !== 0 ? (
           <HoverCard>
             <HoverCardTrigger className='block w-fit ml-2 pt-2'>
               <p className="text-xs text-muted-foreground cursor-default">
@@ -170,8 +176,7 @@ export default function LineChartWithValue({
         ? (
           <div className='flex align-center justify-center my-6'>
             <ResponsiveContainer width="100%" aspect={3}>
-              <LineChart data={timeseries} margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>
-                {/* <CartesianGrid strokeDasharray="3 3" /> */}
+              <AreaChart data={timeseries} margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>
                 <XAxis
                   className='group-hover:opacity-100 opacity-0 duration-500 transition'
                   dataKey="date"
@@ -184,32 +189,39 @@ export default function LineChartWithValue({
                 />
                 {showYAxis && <YAxis dataKey="value" hide={!showYAxis} tickFormatter={valueFormatter} tick={{ fontSize: 12, fill: "#9CA3AF" }} />}
                 {showYAxis && <CartesianGrid strokeDasharray="3 3" vertical={false} />}
-                {showTooltip && <Tooltip
-                  animationBegin={200}
-                  animationDuration={400}
-                  wrapperStyle={{ outline: "none" }}
-                  content={<CustomTooltip valueFormatter={valueFormatter} dateFormatter={dateFormatter} />}
-                  allowEscapeViewBox={{ x: false, y: true }}
-                  animationEasing='ease-in-out'
-                />}
-                <Line
-                  // type="natural"
-                  type="monotone"
-                  dataKey='comparisonValue'
-                  stroke="#E2E8F0"
-                  dot={{ r: 0 }}
-                  activeDot={{ r: 2 }}
-                  strokeWidth={2}
-                />
-                <Line
+                {showTooltip && (
+                  <Tooltip
+                    animationBegin={200}
+                    animationDuration={400}
+                    wrapperStyle={{ outline: "none" }}
+                    content={<CustomTooltip valueFormatter={valueFormatter} dateFormatter={dateFormatter} />}
+                    allowEscapeViewBox={{ x: false, y: true }}
+                    animationEasing='ease-in-out'
+                  />
+                )}
+                {includeComparisonData && (
+                  <Area
+                    type="monotone"
+                    dataKey='comparisonValue'
+                    stroke="#878b90"
+                    dot={{ r: 0 }}
+                    activeDot={{ r: 2 }}
+                    strokeWidth={2}
+                    fill="#E2E8F0"
+                    opacity={0.5}
+                    strokeDasharray="4 4"
+                  />
+                )}
+                <Area
                   type="monotone"
                   dataKey='value'
                   stroke="#7dd3fc"
                   dot={{ r: 0 }}
                   activeDot={{ r: 2 }}
                   strokeWidth={2}
+                  fill="#F2FAFE"
                 />
-              </LineChart>
+              </AreaChart>
             </ResponsiveContainer>
           </div>
         ) : (

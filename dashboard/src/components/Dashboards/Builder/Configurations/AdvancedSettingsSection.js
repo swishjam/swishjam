@@ -3,7 +3,7 @@ import Dropdown from '@/components/utils/Dropdown'
 import SwishjamAPI from '@/lib/api-client/swishjam-api';
 import { useState, useEffect } from 'react'
 
-export default function AdvancedSettingsSection({ selectedDataSource, onDataSourceSelected }) {
+export default function AdvancedSettingsSection({ selectedDataSource, onDataSourceSelected, children }) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [dataSources, setDataSources] = useState();
 
@@ -23,7 +23,7 @@ export default function AdvancedSettingsSection({ selectedDataSource, onDataSour
           onClick={() => setIsExpanded(!isExpanded)}
         >
           {isExpanded ? <ChevronDownIcon className='h-3 w-3 inline-block mr-1' /> : <ChevronRightIcon className='h-3 w-3 inline-block mr-1' />}
-          Advanced Settings
+          Additional Settings
         </span>
         <div className='border-t border-gray-400 border-dashed w-full' />
       </div>
@@ -39,6 +39,7 @@ export default function AdvancedSettingsSection({ selectedDataSource, onDataSour
             />
           </div>
         </div>
+        {children}
       </div>
     </>
   )

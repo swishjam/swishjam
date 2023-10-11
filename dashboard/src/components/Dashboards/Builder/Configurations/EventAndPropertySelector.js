@@ -4,11 +4,12 @@ import SwishjamAPI from '@/lib/api-client/swishjam-api';
 import { useEffect, useState } from 'react'
 
 export default function EventAndPropertySelector({
+  calculationOptions = [],
+  dataSource,
+  includePropertiesDropdown = true,
   onEventSelected,
   onPropertySelected,
   onCalculationSelected,
-  calculationOptions = [],
-  dataSource
 }) {
   const [selectedCalculation, setSelectedCalculation] = useState();
   const [uniqueEvents, setUniqueEvents] = useState();
@@ -16,6 +17,7 @@ export default function EventAndPropertySelector({
 
   useEffect(() => {
     SwishjamAPI.Events.listUnique({ dataSource }).then(setUniqueEvents);
+    setUniquePropertiesForEvent();
   }, [dataSource])
 
   return (
@@ -26,39 +28,39 @@ export default function EventAndPropertySelector({
           ? (
             <div className='mx-1'>
               <Dropdown
+                label={<span className='italic'>calculation</span>}
                 options={calculationOptions}
                 onSelect={calculation => {
                   setSelectedCalculation(calculation);
                   onCalculationSelected(calculation)
                 }}
-                label={<span className='italic'>calculation</span>}
               />
             </div>
-          ) : 'breakdown'
+          ) : <>{' '}occurrences</>
         } of the
       </div>
       {uniqueEvents
         ? (
           <Dropdown
+            label={<span className='italic'>event</span>}
             options={uniqueEvents}
             onSelect={event => {
               onEventSelected(event);
               SwishjamAPI.Events.Properties.listUnique(event).then(setUniquePropertiesForEvent);
             }}
-            label={<span className='italic'>event</span>}
           />
         ) : <Skeleton className='h-8 w-12' />
       }
 
-      {selectedCalculation === 'count'
-        ? <span className='mx-1'>event.</span>
+      {selectedCalculation === 'count' || !includePropertiesDropdown
+        ? <span className='mx-1'>event over time.</span>
         : (
           <>
             <span className='mx-1'>event's</span>
             <Dropdown
+              label={<span className='italic'>property</span>}
               options={uniquePropertiesForEvent || []}
               onSelect={onPropertySelected}
-              label={<span className='italic'>property</span>}
             />
             <span className='mx-1'>property.</span>
           </>

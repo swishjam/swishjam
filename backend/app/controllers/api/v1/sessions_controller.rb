@@ -20,7 +20,8 @@ module Api
           start_time: comparison_start_timestamp,
           end_time: comparison_end_timestamp
         ).timeseries
-        json = {
+
+        render json: {
           timeseries: timeseries.formatted_data,
           current_count: timeseries.current_value,
           total_count: timeseries.summed_value,
@@ -32,9 +33,7 @@ module Api
           comparison_start_time: comparison_start_timestamp,
           comparison_end_time: comparison_end_timestamp,
           grouped_by: timeseries.group_by,
-        }
-        
-        render json: json, status: :ok
+        } , status: :ok
       end
 
       def referrers

@@ -6,6 +6,7 @@ import ContextMenuableComponent from '@/components/Dashboards/Builder/DashboardC
 import LineChart from '@/components/Dashboards/Builder/RenderingEngines/LineChart';
 import PieChart from '@/components/Dashboards/Builder/RenderingEngines/PieChart';
 import ReactGridLayout, { WidthProvider } from 'react-grid-layout'
+import UserRetention from '@/components/Dashboards/Builder/RenderingEngines/RetentionWidget';
 import { useMemo } from 'react';
 import ValueCard from '@/components/Dashboards/Builder/RenderingEngines/ValueCard';
 
@@ -15,6 +16,7 @@ const RENDERING_ENGINE_DASHBOARD_COMPONENT_FOR_CONFIGURATION_TYPE = {
   LineChart,
   PieChart,
   ValueCard,
+  UserRetention,
 }
 
 export default function RenderingEngine({
@@ -45,8 +47,9 @@ export default function RenderingEngine({
         if (!RenderingEngineDashboardComponent) {
           throw Error(`Unrecognized configuration.type provided to Dashboard RenderingEngine: ${configuration.type}`);
         }
+        const isScrollable = configuration.type === 'UserRetention';
         return (
-          <Card key={i} className={`p-4 overflow-hidden ${editable ? 'cursor-grab' : ''} `}>
+          <Card key={i} className={`p-4 ${editable ? 'cursor-grab' : ''} ${isScrollable ? '' : 'overflow-hidden'}`}>
             <ContextMenuableComponent
               isTriggerable={editable}
               onEdit={() => onDashboardComponentEdit({ id: configuration.i, configuration })}
@@ -59,6 +62,7 @@ export default function RenderingEngine({
                 property={configuration.property}
                 calculation={configuration.calculation}
                 dataSource={configuration.dataSource || 'all'}
+                configuration={configuration}
                 timeframe={timeframe}
               />
             </ContextMenuableComponent>
