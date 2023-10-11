@@ -8,6 +8,8 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import EventFeed from "@/components/DashboardComponents/EventFeed";
 import LineChartWithValue from '@/components/DashboardComponents/LineChartWithValue';
 import BarListCard from "@/components/DashboardComponents/BarListCard";
+import PowerUserBadge from "./PowerUserBadge";
+import ChurnWarningUserBadge from "./ChurnWarningUserBadge";
 
 const LoadingState = () => (
   <main className="mx-auto max-w-7xl px-4 mt-8 sm:px-6 lg:px-8 mb-8">
@@ -82,8 +84,8 @@ const UserProfile = ({ params }) => {
     userData ? (
       <main className="mx-auto max-w-7xl px-4 mt-8 sm:px-6 lg:px-8 mb-8">
         <BreadCrumbs userName={userData.full_name || `Anonymous User: `} />
-        <div className='grid grid-cols-10 gap-4 mt-4'>
-          <Card className='col-span-6'>
+        <div className='grid grid-cols-10 gap-4 mt-8'>
+          <Card className='col-span-4 relative'>
             <CardHeader>
               <div className='grid grid-cols-2 items-center'>
                 <div className='flex items-center'>
@@ -94,6 +96,8 @@ const UserProfile = ({ params }) => {
                     }
                   </Avatar>
                   <div>
+                    {false ? <PowerUserBadge className="absolute top-5 right-5" size={8}/>:''}
+                    {true ? <ChurnWarningUserBadge className="absolute top-5 right-5" size={8} />:''}
                     <CardTitle className='text-2xl'>
                       {userData.full_name}
                     </CardTitle>
@@ -105,21 +109,128 @@ const UserProfile = ({ params }) => {
               </div>
             </CardHeader>
             <CardContent>
+              <div className="border-t border-slate-100 w-full" />
               <div>
                 <div className="mt-4">
-                  <dl className="grid grid-cols-1 sm:grid-cols-2">
-                    <div className="px-4 py-4 sm:col-span-1 sm:px-0">
+                  <dl className="grid grid-cols-1">
+                    <div className="px-4 py-2 col-span-1 sm:px-0 grid grid-cols-2">
                       <dt className="text-sm font-medium leading-6 text-gray-900">Full name</dt>
-                      <dd className="mt-1 text-sm leading-6 text-gray-700 sm:mt-2">{userData?.full_name}</dd>
+                      <dd className="text-sm leading-6 text-gray-700 text-right">{userData?.full_name}</dd>
                     </div>
-                    <div className="px-4 py-4 sm:col-span-1 sm:px-0">
+                    <div className="px-4 py-2 col-span-1 grid grid-cols-2 sm:px-0">
                       <dt className="text-sm font-medium leading-6 text-gray-900">Organizations</dt>
-                      <dd className="mt-1 text-sm leading-6 text-gray-700 sm:mt-2">
-                        {userData.organizations.map(org => (
-                          <a className='hover:underline hover:text-blue-700' key={org.id} href={`/organizations/${org.id}`}>{org.name}</a> 
+                      <dd className="text-sm leading-6 text-gray-700 text-right flex flex-col">
+                        {userData.organizations.map((org, i) => (
+                          <div>
+                            <a key={org.id} href={`/organizations/${org.id}`} className={`${i > 0 ? 'mt-2':''} inline-flex items-center rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10 hover:underline`}>
+                            {org.name}
+                            </a>
+                          </div> 
                         ))}
-                  
-                        {userData.organizations.length > 1 && (
+                      </dd>
+                    </div>
+                    <>
+                      <div className="px-4 py-2 col-span-1 sm:px-0 grid grid-cols-2">
+                        <dt className="text-sm font-medium leading-6 text-gray-900">Plan/Subscription Type</dt>
+                        <dd className="text-sm leading-6 text-gray-700 text-right">
+                          <span className="inline-flex items-center rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20">
+                            {'Paid'}
+                          </span>   
+                        </dd>
+                      </div>
+                      <div className="px-4 py-2 col-span-1 sm:px-0 grid grid-cols-2">
+                        <dt className="text-sm font-medium leading-6 text-gray-900">Plan/Subscription Value</dt>
+                        <dd className="text-sm leading-6 text-gray-700 text-right">
+                          <span className="inline-flex items-center rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20">
+                            {'$20/mo'}
+                          </span>   
+                        </dd>
+                      </div>
+                      <div className="px-4 py-2 col-span-1 sm:px-0 grid grid-cols-2">
+                        <dt className="text-sm font-medium leading-6 text-gray-900">Role</dt>
+                        <dd className="text-sm leading-6 text-gray-700 text-right">{'CEO'}</dd>
+                      </div>
+                      <div className="px-4 py-2 col-span-1 sm:px-0 grid grid-cols-2">
+                        <dt className="text-sm font-medium leading-6 text-gray-900">Title</dt>
+                        <dd className="text-sm leading-6 text-gray-700 text-right">{'Co-founder, CEO'}</dd>
+                      </div>
+                      <div className="px-4 py-2 col-span-1 sm:px-0 grid grid-cols-2">
+                        <dt className="text-sm font-medium leading-6 text-gray-900">Twitter Handle</dt>
+                        <dd className="text-sm leading-6 text-gray-700 text-right">
+                          <a
+                            className="hover:underline hover:text-blue-400 transition duration-500"
+                            href={`https://twitter.com/zzimbler`}
+                          >{'@zzimbler'}
+                          </a>
+                        </dd>
+                      </div>
+                      <div className="px-4 py-2 col-span-1 sm:px-0 grid grid-cols-2">
+                        <dt className="text-sm font-medium leading-6 text-gray-900">Linkedin</dt>
+                        <dd className="text-sm leading-6 text-gray-700 text-right"><a href={`https://www.linkedin.com/in/zzimbler`}>{'Profile Link'}</a></dd>
+                      </div>
+                      <div className="px-4 py-2 col-span-1 sm:px-0 grid grid-cols-2">
+                        <dt className="text-sm font-medium leading-6 text-gray-900">Company</dt>
+                        <dd className="text-sm leading-6 text-gray-700 text-right">{'Wedget Co.'}</dd>
+                      </div>
+                      <div className="px-4 py-2 col-span-1 sm:px-0 grid grid-cols-2">
+                        <dt className="text-sm font-medium leading-6 text-gray-900">Location</dt>
+                        <dd className="text-sm leading-6 text-gray-700 text-right">{'San Francisco, CA'}</dd>
+                      </div>
+                      <div className="my-4 border-t border-slate-100 w-full" />
+                      <div className="px-4 py-2 col-span-1 sm:px-0 grid grid-cols-2">
+                        <dt className="text-sm font-medium leading-6 text-gray-900">Additional Data</dt>
+                      </div>
+                      <div className="px-4 py-2 col-span-1 sm:px-0 grid grid-cols-2">
+                        <dt className="text-sm font-medium leading-6 text-gray-900"></dt>
+                        <dd className="text-sm leading-6 text-gray-700 text-right">No additional data</dd>
+                      </div>
+                      <div className="my-4 border-t border-slate-100 w-full" />
+                      <div className="px-4 py-2 col-span-1 sm:px-0 grid grid-cols-2">
+                        <dt className="text-sm font-medium leading-6 text-gray-900">Connected Apps</dt>
+                      </div>
+                      <div className="px-4 py-2 col-span-1 sm:px-0 grid grid-cols-2">
+                        <dt className="text-sm font-medium leading-6 text-gray-900"></dt>
+                        <dd className="text-sm leading-6 text-gray-700 text-right">No additional data</dd>
+                      </div>
+                    </>
+                  </dl>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+
+          <div className="col-span-6">
+            <LineChartWithValue
+              title='Activity'
+              value={sessionTimeseriesData?.value}
+              timeseries={sessionTimeseriesData?.timeseries}
+              valueFormatter={numSessions => numSessions.toLocaleString('en-US')}
+            />
+            <BarListCard className="mt-4" title='Page Views' items={pageViewsData} />
+            <EventFeed
+              className="col-span-6 mt-4"
+              title='Recent Events'
+              events={recentEvents}
+              leftItemHeaderKey='name'
+              rightItemKey='occurred_at'
+              initialLimit={5}
+              loadMoreEventsIncrement={5}
+              rightItemKeyFormatter={date => {
+                return new Date(date)
+                  .toLocaleDateString('en-us', { weekday: "short", year: "numeric", month: "short", day: "numeric" })
+                  .replace(`, ${new Date(date).getFullYear()}`, '')
+              }}
+            />
+          </div>
+        </div>
+      </main>
+    ) : <LoadingState />
+  )
+}
+
+export default UserProfile;
+                        /*{userData.organizations.length > 1 && (
                           <span 
                             className='cursor-pointer underline ml-2 hover:text-swishjam'
                             onClick={() => setOrganizationsListExpanded(!organizationsListExpanded)}
@@ -135,45 +246,4 @@ const UserProfile = ({ params }) => {
                               </div>
                             ))}
                           </div>
-                        )}
-                      </dd>
-                    </div>
-                  </dl>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-
-          <div className="col-span-4">
-            <LineChartWithValue
-              title='Sessions'
-              value={sessionTimeseriesData?.value}
-              timeseries={sessionTimeseriesData?.timeseries}
-              valueFormatter={numSessions => numSessions.toLocaleString('en-US')}
-            />
-          </div>
-          <div className="col-span-5">
-            <BarListCard title='Page Views' items={pageViewsData} />
-          </div>
-          <EventFeed
-            className="col-span-5"
-            title='Recent Events'
-            events={recentEvents}
-            leftItemHeaderKey='name'
-            rightItemKey='occurred_at'
-            initialLimit={5}
-            loadMoreEventsIncrement={5}
-            rightItemKeyFormatter={date => {
-              return new Date(date)
-                .toLocaleDateString('en-us', { weekday: "short", year: "numeric", month: "short", day: "numeric" })
-                .replace(`, ${new Date(date).getFullYear()}`, '')
-            }}
-          />
-        </div>
-      </main>
-    ) : <LoadingState />
-  )
-}
-
-export default UserProfile;
+                        )}*/
