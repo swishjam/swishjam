@@ -15,7 +15,6 @@ const sessionsFormatter = (num) => num.toLocaleString("en-US");
 
 export default function PageMetrics() {
   const [currentSelectedChart, setCurrentSelectedChart] = useState("Sessions");
-  const [dataSourceToFilterOn, setDataSourceToFilterOn] = useState();
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [pageViewsChart, setPageViewsChart] = useState();
   const [sessionsChart, setSessionsChart] = useState();
@@ -32,8 +31,8 @@ export default function PageMetrics() {
     "Page Views": pageViewsChart,
   };
 
-  const getSessionData = async (dataSource, timeframe) => {
-    return await SwishjamAPI.Sessions.timeseries({ timeframe, dataSource }).then(
+  const getSessionData = async timeframe => {
+    return await SwishjamAPI.Sessions.timeseries({ timeframe, dataSource: 'marketing' }).then(
       ({ current_count, comparison_count, comparison_end_time, timeseries, comparison_timeseries, grouped_by }) => {
         setSessionsChart({
           value: current_count,
@@ -51,8 +50,8 @@ export default function PageMetrics() {
       });
   };
 
-  const getReferrerData = async (dataSource, timeframe) => {
-    return await SwishjamAPI.Sessions.Referrers.list({ timeframe, dataSource }).then(({ referrers }) => {
+  const getReferrerData = async timeframe => {
+    return await SwishjamAPI.Sessions.Referrers.list({ timeframe, dataSource: 'marketing' }).then(({ referrers }) => {
       setTopReferrers(
         referrers.map(({ referrer, count }) => ({
           name: [null, undefined, ""].includes(referrer) ? "Direct" : referrer,
@@ -62,8 +61,8 @@ export default function PageMetrics() {
     });
   };
 
-  const getDemographicData = async (dataSource, timeframe) => {
-    return await SwishjamAPI.Sessions.demographics({ timeframe, dataSource }).then(demographics => {
+  const getDemographicData = async timeframe => {
+    return await SwishjamAPI.Sessions.demographics({ timeframe, dataSource: 'marketing' }).then(demographics => {
       setTopBrowsers(
         demographics.browsers.map(({ browser_name, count }) => ({ name: browser_name, value: count }))
       );
@@ -74,8 +73,8 @@ export default function PageMetrics() {
     });
   };
 
-  const getPageViewsTimeseries = async (dataSource, timeframe) => {
-    return await SwishjamAPI.PageViews.timeseries({ timeframe, dataSource }).then(
+  const getPageViewsTimeseries = async timeframe => {
+    return await SwishjamAPI.PageViews.timeseries({ timeframe, dataSource: 'marketing' }).then(
       ({ current_count, comparison_count, comparison_end_time, timeseries, comparison_timeseries, grouped_by }) => {
         setPageViewsChart({
           value: current_count,
@@ -93,8 +92,8 @@ export default function PageMetrics() {
       });
   };
 
-  const getUniqueVisitors = async (dataSource, timeframe) => {
-    return await SwishjamAPI.Users.Active.timeseries({ timeframe, dataSource, type: 'daily', includeComparison: true }).then(
+  const getUniqueVisitors = async timeframe => {
+    return await SwishjamAPI.Users.Active.timeseries({ timeframe, dataSource: 'marketing', type: 'daily', includeComparison: true }).then(
       ({ current_value, timeseries, comparison_value, comparison_timeseries, comparison_end_time, grouped_by }) => {
         setUniqueVisitorsChart({
           value: current_value || 0,
@@ -112,15 +111,15 @@ export default function PageMetrics() {
     );
   };
 
-  const getTopPages = async (dataSource, timeframe) => {
-    return await SwishjamAPI.PageViews.list({ timeframe, dataSource }).then(({ page_view_counts }) => {
+  const getTopPages = async timeframe => {
+    return await SwishjamAPI.PageViews.list({ timeframe, dataSource: 'marketing' }).then(({ page_view_counts }) => {
       setTopPages(
         page_view_counts.map(({ url, count }) => ({ name: url, value: count }))
       )
     });
   };
 
-  const getAllData = async (dataSource, timeframe) => {
+  const getAllData = async timeframe => {
     // Reset All Data
     setIsRefreshing(true);
     setSessionsChart();
@@ -133,22 +132,18 @@ export default function PageMetrics() {
 
     // Reload all the data
     await Promise.all([
-      getSessionData(dataSource, timeframe),
-      getPageViewsTimeseries(dataSource, timeframe),
-      getUniqueVisitors(dataSource, timeframe),
-      getTopPages(dataSource, timeframe),
-      getDemographicData(dataSource, timeframe),
-      getReferrerData(dataSource, timeframe),
+      getSessionData(timeframe),
+      getPageViewsTimeseries(timeframe),
+      getUniqueVisitors(timeframe),
+      getTopPages(timeframe),
+      getDemographicData(timeframe),
+      getReferrerData(timeframe),
     ]);
     setIsRefreshing(false);
   };
 
   useEffect(() => {
-    SwishjamAPI.Config.retrieve().then(({ settings }) => {
-      const dataSource = settings.use_product_data_source_in_lieu_of_marketing ? 'product' : 'marketing';
-      setDataSourceToFilterOn(dataSource);
-      getAllData(dataSource, timeframeFilter);
-    })
+    getAllData(timeframeFilter);
   }, []);
 
   return (
@@ -165,13 +160,13 @@ export default function PageMetrics() {
             selection={timeframeFilter}
             onSelection={date => {
               setTimeframeFilter(date);
-              getAllData(dataSourceToFilterOn, date);
+              getAllData(date);
             }}
           />
           <Button
             variant="outline"
             className={`ml-4 bg-white ${isRefreshing ? "cursor-not-allowed" : ""}`}
-            onClick={() => getAllData(dataSourceToFilterOn, timeframeFilter)}
+            onClick={() => getAllData(timeframeFilter)}
             disabled={isRefreshing}
           >
             <ArrowPathIcon className={`h-4 w-4 ${isRefreshing ? "animate-spin" : ""}`} />

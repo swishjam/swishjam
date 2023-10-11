@@ -1,8 +1,8 @@
 import Base from "./base";
 
 export class WorkspaceSettings extends Base {
-  static async update({ use_marketing_data_source_in_lieu_of_product, use_product_data_source_in_lieu_of_marketing }) {
-    return await this._patch('/api/v1/workspace_settings', { use_marketing_data_source_in_lieu_of_product, use_product_data_source_in_lieu_of_marketing })
+  static async update({ combine_marketing_and_product_data_sources }) {
+    return await this._patch('/api/v1/workspace_settings', { combine_marketing_and_product_data_sources })
   }
 }
 
