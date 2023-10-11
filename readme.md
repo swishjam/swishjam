@@ -102,6 +102,20 @@ The configuration is all maintained and built using an AWS CloudFormation templa
 - Turn on the worker, in /backend run `bundle exec sidekiq`
 - Turn on clickhouse, in /backend/clickhouse-server (or where you installed clickhouse) run `./clickhouse server`
 
+### Verifying your backend packages are up to date
+
+While in the /backend repo run from your command line:
+`bundle install` 
+
+### Reseeding the local database
+
+```
+bundle exec rake db:drop
+bundle exec rake db:create
+bundle exec rake db:migrate
+bundle exec rake seed:dummy_data
+```
+
 ## Contributing
 - Send us a PR, github issue, or email at founders@tagsafe.io
 

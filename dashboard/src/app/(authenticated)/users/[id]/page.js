@@ -3,60 +3,14 @@
 import { useEffect, useState } from "react";
 import { SwishjamAPI } from "@/lib/api-client/swishjam-api";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Skeleton } from "@/components/ui/skeleton";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import EventFeed from "@/components/DashboardComponents/EventFeed";
 import LineChartWithValue from '@/components/DashboardComponents/LineChartWithValue';
 import BarListCard from "@/components/DashboardComponents/BarListCard";
 import PowerUserBadge from "./PowerUserBadge";
 import ChurnWarningUserBadge from "./ChurnWarningUserBadge";
-
-const LoadingState = () => (
-  <main className="mx-auto max-w-7xl px-4 mt-8 sm:px-6 lg:px-8 mb-8">
-    <BreadCrumbs userName={<Skeleton className='h-6 w-48' />} />
-    <div className='grid grid-cols-10 gap-4 mt-4'>
-      <Card className='col-span-6'>
-        <CardHeader>
-          <div className='flex items-center'>
-            <Skeleton className='rounded-full h-20 w-20 mr-4' />
-            <div>
-              <Skeleton className='h-12 w-24' />
-              <Skeleton className='h-6 w-48 mt-2' />
-            </div>
-          </div>
-        </CardHeader>
-      </Card>
-      <EventFeed className="col-span-4" title='Recent Events' />
-    </div>
-  </main>
-)
-
-const BreadCrumbs = ({ userName }) => (
-  <div>
-    <nav className="flex" aria-label="Breadcrumb">
-      <ol role="list" className="flex items-center space-x-4">
-        <li>
-          <div className="flex items-center">
-            <a href='/users' className="text-sm font-medium text-gray-500 hover:text-swishjam duration-300 transition">Users</a>
-          </div>
-        </li>
-        <li>
-          <div className="flex items-center">
-            <svg
-              className="h-5 w-5 flex-shrink-0 text-gray-900"
-              fill="currentColor"
-              viewBox="0 0 20 20"
-              aria-hidden="true"
-            >
-              <path d="M5.555 17.776l8-16 .894.448-8 16-.894-.448z" />
-            </svg>
-            <a href='#' className="ml-4 text-sm font-medium text-gray-500 hover:text-gray-700">{userName}</a>
-          </div>
-        </li>
-      </ol>
-    </nav>
-  </div>
-)
+import Breadcrumbs from "./Breadcrumbs";
+import LoadingView from "./LoadingView";
 
 const UserProfile = ({ params }) => {
   const { id: userId } = params;
@@ -79,17 +33,17 @@ const UserProfile = ({ params }) => {
       })
     });
   }, [])
-
+    //userData
   return (
-    userData ? (
+    false ? (
       <main className="mx-auto max-w-7xl px-4 mt-8 sm:px-6 lg:px-8 mb-8">
-        <BreadCrumbs userName={userData.full_name || `Anonymous User: `} />
+        <Breadcrumbs userName={userData.full_name || `Unknown User: ${userData.id.split('-')[0]}`} />
         <div className='grid grid-cols-10 gap-4 mt-8'>
           <Card className='col-span-4 relative'>
             <CardHeader>
               <div className='grid grid-cols-2 items-center'>
                 <div className='flex items-center'>
-                  <Avatar className="h-16 w-16 mr-4">
+                  <Avatar className="h-16 w-16 mr-4 border border-slate-200">
                     {userData.avatar_url
                       ? <AvatarImage src={userData.avatar_url} alt="Avatar" />
                       : <AvatarFallback className="text-lg">{userData.initials}</AvatarFallback>
@@ -225,7 +179,7 @@ const UserProfile = ({ params }) => {
           </div>
         </div>
       </main>
-    ) : <LoadingState />
+    ) : <LoadingView />
   )
 }
 
