@@ -31,17 +31,6 @@ module Api
         end
 
         render json: render_timeseries_json(timeseries, comparison_timeseries), status: :ok
-        # render json: {
-        #   timeseries: timeseries.formatted_data,
-        #   comparison_timeseries: comparison_timeseries&.formatted_data,
-        #   current_count: timeseries.current_value,
-        #   summed_value: timeseries.summed_value,
-        #   start_time: timeseries.start_time,
-        #   end_time: timeseries.end_time,
-        #   comparison_start_time: comparison_timeseries&.start_time,
-        #   comparison_end_time: comparison_timeseries&.end_time,
-        #   grouped_by: timeseries.group_by,
-        # }, status: :ok
       end
 
       def count
