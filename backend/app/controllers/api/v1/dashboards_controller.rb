@@ -19,7 +19,7 @@ module Api
       def update
         dashboard = current_workspace.dashboards.find(params[:id])
         if dashboard.update(dashboard_params)
-          render json: { dashboard: dashboard, dashboard_components: dashboard_components }, status: :ok
+          render json: { dashboard: dashboard }, status: :ok
         else
           render json: { error: dashboard.errors.full_messages.join(' ') }, status: :unprocessable_entity
         end

@@ -1,26 +1,25 @@
 'use client'
 
-import { useEffect, useState } from "react";
-import SwishjamAPI from "@/lib/api-client/swishjam-api";
-
-import DashboardNameDisplayEditor from "@/components/Dashboards/DashboardNameDisplayEditor";
-import RenderingEngine from "@/components/Dashboards/RenderingEngine";
-import ComponentOptionsSlideout from "@/components/Dashboards/Builder/ComponentOptions/OptionsSlideout";
-import LineChartConfiguration from "@/components/Dashboards/Builder/Configurations/LineChart";
-import PieChartConfiguration from "@/components/Dashboards/Builder/Configurations/PieChart";
 import BarListConfiguration from "@/components/Dashboards/Builder/Configurations/BarList";
+import { ChartPieIcon, PencilSquareIcon, PlusCircleIcon } from "@heroicons/react/24/outline";
+import ComponentOptionsSlideout from "@/components/Dashboards/Builder/ComponentOptions/OptionsSlideout";
+import DashboardNameDisplayEditor from "@/components/Dashboards/Builder/DashboardNameDisplayEditor";
+import LineChartConfiguration from "@/components/Dashboards/Builder/Configurations/LineChart";
+import LoadingSpinner from "@/components/LoadingSpinner";
+import Modal from "@/components/utils/Modal";
+import PieChartConfiguration from "@/components/Dashboards/Builder/Configurations/PieChart";
+import RenderingEngine from "@/components/Dashboards/Builder/RenderingEngine";
+import { Skeleton } from "@/components/ui/skeleton";
+import SwishjamAPI from "@/lib/api-client/swishjam-api";
+import Timefilter from "@/components/Timefilter";
+import { useEffect, useState, useRef } from "react";
 import ValueCardConfiguration from "@/components/Dashboards/Builder/Configurations/ValueCard";
 
-import Modal from "@/components/utils/Modal";
-import { ChartPieIcon, PencilSquareIcon, PlusCircleIcon } from "@heroicons/react/24/outline";
-import { Skeleton } from "@/components/ui/skeleton";
-import Timefilter from "@/components/Timefilter";
-
 const DEFAULT_GRID_CONFIGURATIONS = {
-  LineChart: { w: 10, h: 8, y: 0, x: 0 },
-  PieChart: { w: 4, h: 4, y: 0, x: 0 },
-  BarList: { w: 4, h: 4, y: 0, x: 0 },
-  ValueCard: { w: 4, h: 2, y: 0, x: 0 },
+  LineChart: { w: 20, h: 20, y: 0, x: 0, minH: 10, minW: 10 },
+  PieChart: { w: 10, h: 10, y: 0, x: 0, minH: 10, minW: 10 },
+  BarList: { w: 20, h: 15, y: 0, x: 0, minH: 8, minW: 10 },
+  ValueCard: { w: 10, h: 6, y: 0, x: 0, minH: 6, minW: 8 },
 }
 
 const ConfigureDashboardComponentModal = ({ componentType, eventOptions, onSave, onClose }) => {
@@ -31,7 +30,7 @@ const ConfigureDashboardComponentModal = ({ componentType, eventOptions, onSave,
     ValueCard: ValueCardConfiguration
   }[componentType];
   return (
-    <Modal onClose={onClose} isOpen={true} size="large">
+    <Modal onClose={onClose} isOpen={true} size="x-large">
       <ConfigurationComponent eventOptions={eventOptions} onSaveClick={onSave} />
     </Modal>
   )
@@ -70,8 +69,8 @@ export default function Dashboard({ params }) {
   const [dashboardComponentToConfigure, setDashboardComponentToConfigure] = useState();
   const [dashboardName, setDashboardName] = useState();
   const [isInEditMode, setIsInEditMode] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const [pendingDashboardLayoutUpdates, setPendingDashboardLayoutUpdates] = useState([]);
-  const [uniqueEvents, setUniqueEvents] = useState();
 
   const detectChangedComponentsFromLayoutAndSave = layout => {
     const changedDashboardComponents = dashboardComponents.map(component => {
@@ -95,28 +94,26 @@ export default function Dashboard({ params }) {
         }
       }
     }).filter(Boolean);
-    const otherPendingUpdates = pendingDashboardLayoutUpdates.filter(pendingUpdateComponent => changedDashboardComponents.includes(({ id }) => id === pendingUpdateComponent.id));
-    setPendingDashboardLayoutUpdates([...otherPendingUpdates, ...changedDashboardComponents]);
+    const pendingDashboardUpdatesNotInThisChange = pendingDashboardLayoutUpdates.filter(pendingUpdateComponent => changedDashboardComponents.includes(({ id }) => id === pendingUpdateComponent.id));
+    setPendingDashboardLayoutUpdates([...pendingDashboardUpdatesNotInThisChange, ...changedDashboardComponents]);
   }
 
   const updateDashboardComponents = async components => {
     const formattedComponents = components.map(({ configuration, id }) => ({ id, configuration }));
+    setIsSaving(true);
     return SwishjamAPI.DashboardComponents.bulkUpdate(formattedComponents).then(({ errors, updated_components }) => {
+      setIsSaving(false);
       if (errors) {
 
       }
-      const updatedDashboardComponents = dashboardComponents.map(component => {
-        const updatedComponent = updated_components.find(({ id }) => id === component.id);
-        if (updatedComponent) return { ...updatedComponent, configuration: { x: 0, y: 0, w: 4, h: 4, ...updatedComponent.configuration } };
-        return component;
-      });
-      setDashboardComponents(updatedDashboardComponents);
     })
   }
 
   const createDashboardComponent = async componentConfiguration => {
     const formattedConfiguration = { ...DEFAULT_GRID_CONFIGURATIONS[componentConfiguration.type], ...componentConfiguration };
+    setIsSaving(true);
     return SwishjamAPI.DashboardComponents.create(dashboardId, formattedConfiguration).then(result => {
+      setIsSaving(false);
       if (result.error) {
 
       } else {
@@ -125,57 +122,33 @@ export default function Dashboard({ params }) {
     });
   }
 
-  const saveDashboard = async dashboardName => {
-    API.patch(`/api/v1/dashboards/${dashboardId}`, { dashboard: { name: dashboardName } }).then(({ error, dashboard }) => {
-      if (error) {
-
-      } else {
-        setDashboardName(dashboard.name);
-      }
-    });
-  }
-
   const deleteDashboardComponent = id => {
-    setDashboardComponents(dashboardComponents.filter(({ id: componentId }) => componentId !== id));
-    API.delete(`/api/v1/dashboard_components/${id}`).then(({ error }) => {
-      if (error) {
 
-      }
-    });
   }
 
-  const duplicateDashboardComponent = ({ id, configuration }) => {
-    const newConfiguration = { ...configuration, ...DEFAULT_GRID_CONFIGURATIONS[configuration.type], title: `${configuration.title} (copy)` };
-    API.post('/api/v1/dashboard_components', {
-      dashboard_id: dashboardId,
-      dashboard_component: { configuration: newConfiguration }
-    }).then(({ error, dashboard_component }) => {
-      if (error) {
-      } else {
-        setDashboardComponents([...dashboardComponents, dashboard_component]);
-      }
-    });
-  }
+  const pendingDashboardLayoutUpdatesRef = useRef(pendingDashboardLayoutUpdates);
 
   const updatePendingDashboardLayoutUpdates = () => {
-    if (pendingDashboardLayoutUpdates.length > 0) {
-      updateDashboardComponents(pendingDashboardLayoutUpdates).then(() => setPendingDashboardLayoutUpdates([]));
+    if (pendingDashboardLayoutUpdatesRef.current.length > 0) {
+      updateDashboardComponents(pendingDashboardLayoutUpdatesRef.current).then(() => setPendingDashboardLayoutUpdates([]));
     }
   }
 
   useEffect(() => {
-    SwishjamAPI.Dashboards.retrieve(dashboardId).then(({ name }) => setDashboardName(name));
-    SwishjamAPI.DashboardComponents.list(dashboardId).then(setDashboardComponents);
-    SwishjamAPI.Events.listUnique().then(setUniqueEvents);
+    pendingDashboardLayoutUpdatesRef.current = pendingDashboardLayoutUpdates; // Update the ref whenever state changes
+  }, [pendingDashboardLayoutUpdates]);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      updatePendingDashboardLayoutUpdates()
+    }, 10_000);
+    return () => clearInterval(interval);
   }, []);
 
-  // TODO: the setInterval doesnt have access to the latest state of pendingDashboardLayoutUpdates, so it never updates
-  // useEffect(() => {
-  //   const interval = setInterval(() => {
-  //     updatePendingDashboardLayoutUpdates()
-  //   }, 10_000);
-  //   return () => clearInterval(interval);
-  // }, [pendingDashboardLayoutUpdates]);
+  useEffect(() => {
+    SwishjamAPI.Dashboards.retrieve(dashboardId).then(({ name }) => setDashboardName(name));
+    SwishjamAPI.DashboardComponents.list(dashboardId).then(setDashboardComponents);
+  }, []);
 
   return (
     <main className="mx-auto max-w-7xl px-4 mt-8 sm:px-6 lg:px-8 mb-8">
@@ -191,7 +164,6 @@ export default function Dashboard({ params }) {
         <ConfigureDashboardComponentModal
           componentType={dashboardComponentToConfigure}
           onClose={() => setDashboardComponentToConfigure()}
-          eventOptions={uniqueEvents}
           onSave={componentConfiguration => {
             setDashboardComponentToConfigure();
             createDashboardComponent({ type: dashboardComponentToConfigure, ...componentConfiguration });
@@ -206,19 +178,26 @@ export default function Dashboard({ params }) {
               dashboardName={dashboardName || 'Untitled Dashboard'}
               onDashboardNameSave={newDashboardName => {
                 if (newDashboardName === dashboardName) return;
-                saveDashboard({ dashboardName: newDashboardName })
+                setDashboardName(newDashboardName)
+                SwishjamAPI.Dashboards.update(dashboardId, { name: newDashboardName })
               }}
             />
           }
         </div>
         <div className='flex items-center justify-end'>
-          <Timefilter selection={currentTimeframe} onSelection={setCurrentTimeframe} />
+          {!isInEditMode && <Timefilter selection={currentTimeframe} onSelection={setCurrentTimeframe} />}
           {isInEditMode
             ? (
               <>
+                {isSaving && (
+                  <span className='text-xs text-gray-400 inline-flex items-center'>
+                    Saving changes...
+                    <LoadingSpinner center={true} color='gray-400' className='h-1 w-1 mx-1 inline-block' />
+                  </span>
+                )}
                 <button
                   type="button"
-                  className="ml-2 inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-swishjam hover:bg-swishjam-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-swishjam"
+                  className="ml-2 inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-100"
                   onClick={() => setComponentSlideoutIsOpen(true)}
                 >
                   Add Component <PlusCircleIcon className='h-4 w-4 ml-1' />
@@ -256,9 +235,10 @@ export default function Dashboard({ params }) {
                 onLayoutChange={detectChangedComponentsFromLayoutAndSave}
                 editable={isInEditMode}
                 onDashboardComponentEdit={({ id, configuration }) => () => setDashboardComponentToConfigure({ id, ...configuration.type })}
-                onDashboardComponentDelete={deleteDashboardComponent}
-              // TODO: onDashboardComponentDuplicate breaks the rendering engine upon duplication currently
-              // onDashboardComponentDuplicate={duplicateDashboardComponent}
+                onDashboardComponentDelete={id => {
+                  setDashboardComponents(dashboardComponents.filter(({ id: componentId }) => componentId !== id));
+                  SwishjamAPI.DashboardComponents.delete(id);
+                }}
               />
             ) : <EmptyState onClick={() => setComponentSlideoutIsOpen(true)} />
           : <LoadingState />

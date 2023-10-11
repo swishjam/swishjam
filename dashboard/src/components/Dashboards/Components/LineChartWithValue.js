@@ -33,8 +33,8 @@ const LoadingState = ({ title, includeCard = true }) => (
 
 const CustomTooltip = ({ active, payload, label, valueFormatter, dateFormatter }) => {
   if (active && payload && payload.length) {
-    let data = payload[0].payload; 
-    
+    let data = payload[0].payload;
+
     return (
       <Card className="z-[50000] bg-white">
         <CardContent className="py-2">
@@ -44,7 +44,7 @@ const CustomTooltip = ({ active, payload, label, valueFormatter, dateFormatter }
               {valueFormatter(data.value)} - {dateFormatter(data.date)}
             </div>
           </div>
-          {data.comparisonValue >= 0 && 
+          {data.comparisonValue >= 0 &&
             <div className="flex space-x-4 text-sm text-muted-foreground">
               <div className="flex items-center">
                 <CircleIcon className="mr-1 h-3 w-3 fill-slate-200 text-slate-200" />
@@ -59,17 +59,63 @@ const CustomTooltip = ({ active, payload, label, valueFormatter, dateFormatter }
   return null;
 }
 
-export default function LineChartWithValue({ 
-  title, 
-  value, 
-  previousValue, 
-  previousValueDate, 
-  timeseries, 
+const SettingsDropdown = ({ showXAxis, showYAxis, setShowXAxis, setShowYAxis, onSettingChange = () => { } }) => (
+  <DropdownMenu>
+    <DropdownMenuTrigger>
+      <Cog8ToothIcon className="active:opacity-100 focus:opacity-100 group-hover:opacity-100 opacity-0 duration-500 transition h-5 w-5 text-gray-500 cursor-pointer" />
+    </DropdownMenuTrigger>
+    <DropdownMenuContent>
+      <DropdownMenuItem
+        className={`cursor-pointer ${showXAxis ? 'text-swishjam font-medium hover:text-swishjam' : ''}`}
+        onClick={() => {
+          const valueChangedFrom = showXAxis;
+          const valueChangedTo = !showXAxis;
+          setShowXAxis(valueChangedTo)
+          onSettingChange({
+            attribute: 'show-y-axis',
+            valueWas: valueChangedFrom,
+            value: valueChangedTo
+          })
+        }}
+      >
+        {showXAxis && (
+          <CheckCircleIcon className='h-4 w-4 absolute' />
+        )}
+        <span className='mx-6'>Show X-Axis</span>
+      </DropdownMenuItem>
+      <DropdownMenuItem
+        className={`cursor-pointer ${showYAxis ? 'text-swishjam font-medium hover:text-swishjam' : ''}`}
+        onClick={() => {
+          const valueChangedFrom = showYAxis;
+          const valueChangedTo = !showYAxis;
+          setShowYAxis(valueChangedTo)
+          onSettingChange({
+            attribute: 'show-x-axis',
+            valueWas: valueChangedFrom,
+            value: valueChangedTo
+          })
+        }}
+      >
+        {showYAxis && (
+          <CheckCircleIcon className='h-4 w-4 absolute' />
+        )}
+        <span className='ml-6'>Show Y-Axis</span>
+      </DropdownMenuItem>
+    </DropdownMenuContent>
+  </DropdownMenu>
+)
+
+export default function LineChartWithValue({
+  title,
+  value,
+  previousValue,
+  previousValueDate,
+  timeseries,
   valueFormatter = val => val,
   dateFormatter = date => new Date(date).toLocaleDateString('en-us', { month: "2-digit", day: "2-digit" }),
   noDataMessage = 'No data available.',
   includeSettingsDropdown = true,
-  onSettingChange = () => {},
+  onSettingChange = () => { },
   showAxis = false,
   showTooltip = true,
   includeCard = true
@@ -77,12 +123,30 @@ export default function LineChartWithValue({
   const [showXAxis, setShowXAxis] = useState(showAxis);
   const [showYAxis, setShowYAxis] = useState(showAxis);
   if ([null, undefined].includes(value) || [null, undefined].includes(timeseries)) return <LoadingState title={title} includeCard={includeCard} />;
-  
+
   const changeInValue = typeof previousValue !== 'undefined' ? value - previousValue : null;
 
-  
   return (
-    <ConditionalCardWrapper title={title} includeCard={includeCard}>
+    <ConditionalCardWrapper
+      className='group'
+      includeCard={includeCard}
+      title={
+        <div className='grid grid-cols-2'>
+          {title}
+          <div className='flex justify-end'>
+            {includeSettingsDropdown && (
+              <SettingsDropdown
+                showXAxis={showXAxis}
+                showYAxis={showYAxis}
+                setShowXAxis={setShowXAxis}
+                setShowYAxis={setShowYAxis}
+                onSettingChange={onSettingChange}
+              />
+            )}
+          </div>
+        </div>
+      }
+    >
       <div className="flex">
         <div className="text-2xl font-bold cursor-default">
           {valueFormatter(value)}
@@ -102,52 +166,52 @@ export default function LineChartWithValue({
           </HoverCard>
         ) : <></>}
       </div>
-      {timeseries.length > 0 
+      {timeseries.length > 0
         ? (
           <div className='flex align-center justify-center my-6'>
-          <ResponsiveContainer width="100%" aspect={3}>
-            <LineChart data={timeseries} margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>
-              {/* <CartesianGrid strokeDasharray="3 3" /> */}
-              <XAxis 
-                className='group-hover:opacity-100 opacity-0 duration-500 transition'
-                dataKey="date"
-                hide={!showXAxis}
-                tickLine={false}
-                tickFormatter={dateFormatter}
-                tick={{ fontSize: 12, fill: "#9CA3AF" }}
-                includeHidden
-                interval='preserveStartEnd'
-              />
-              {/*<YAxis dataKey="value" hide={!showYAxis} tickFormatter={valueFormatter} tick={{ fontSize: 12, fill: "#9CA3AF" }} />*/}
-              {showYAxis && <CartesianGrid strokeDasharray="3 3" vertical={false}/>}
-              {showTooltip && <Tooltip
-                animationBegin={200}
-                animationDuration={400}
-                wrapperStyle={{ outline: "none" }}
-                content={<CustomTooltip valueFormatter={valueFormatter} dateFormatter={dateFormatter} />}
-                allowEscapeViewBox={{x: false, y: true}}
-                animationEasing='ease-in-out'
-              />}
-              <Line
-                // type="natural"
-                type="monotone"
-                dataKey='comparisonValue'
-                stroke="#E2E8F0"
-                dot={{ r: 0 }}
-                activeDot={{ r: 2 }}
-                strokeWidth={2}
-              />
-              <Line
-                type="monotone"
-                dataKey='value'
-                stroke="#7dd3fc"
-                dot={{ r: 0 }}
-                activeDot={{ r: 2 }}
-                strokeWidth={2}
-              />
-            </LineChart>
-          </ResponsiveContainer>
-          </div> 
+            <ResponsiveContainer width="100%" aspect={3}>
+              <LineChart data={timeseries} margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>
+                {/* <CartesianGrid strokeDasharray="3 3" /> */}
+                <XAxis
+                  className='group-hover:opacity-100 opacity-0 duration-500 transition'
+                  dataKey="date"
+                  hide={!showXAxis}
+                  tickLine={false}
+                  tickFormatter={dateFormatter}
+                  tick={{ fontSize: 12, fill: "#9CA3AF" }}
+                  includeHidden
+                  interval='preserveStartEnd'
+                />
+                {showYAxis && <YAxis dataKey="value" hide={!showYAxis} tickFormatter={valueFormatter} tick={{ fontSize: 12, fill: "#9CA3AF" }} />}
+                {showYAxis && <CartesianGrid strokeDasharray="3 3" vertical={false} />}
+                {showTooltip && <Tooltip
+                  animationBegin={200}
+                  animationDuration={400}
+                  wrapperStyle={{ outline: "none" }}
+                  content={<CustomTooltip valueFormatter={valueFormatter} dateFormatter={dateFormatter} />}
+                  allowEscapeViewBox={{ x: false, y: true }}
+                  animationEasing='ease-in-out'
+                />}
+                <Line
+                  // type="natural"
+                  type="monotone"
+                  dataKey='comparisonValue'
+                  stroke="#E2E8F0"
+                  dot={{ r: 0 }}
+                  activeDot={{ r: 2 }}
+                  strokeWidth={2}
+                />
+                <Line
+                  type="monotone"
+                  dataKey='value'
+                  stroke="#7dd3fc"
+                  dot={{ r: 0 }}
+                  activeDot={{ r: 2 }}
+                  strokeWidth={2}
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
         ) : (
           <div className="flex items-center justify-center h-20">
             <span className="text-sm text-gray-500">{noDataMessage}</span>
@@ -157,51 +221,3 @@ export default function LineChartWithValue({
     </ConditionalCardWrapper>
   )
 }
-
-// {
-//   includeSettingsDropdown && (
-//     <DropdownMenu>
-//       <DropdownMenuTrigger>
-//         <Cog8ToothIcon className="active:opacity-100 focus:opacity-100 group-hover:opacity-100 ring-0 opacity-0 duration-500 transition h-5 w-5 text-gray-500 cursor-pointer" />
-//       </DropdownMenuTrigger>
-//       <DropdownMenuContent>
-//         <DropdownMenuItem
-//           className={`cursor-pointer ${showXAxis ? 'text-swishjam font-medium hover:text-swishjam' : ''}`}
-//           onClick={() => {
-//             const valueChangedFrom = showXAxis;
-//             const valueChangedTo = !showXAxis;
-//             setShowXAxis(valueChangedTo)
-//             onSettingChange({
-//               attribute: 'show-y-axis',
-//               valueWas: valueChangedFrom,
-//               value: valueChangedTo
-//             })
-//           }}
-//         >
-//           {showXAxis && (
-//             <CheckCircleIcon className='h-4 w-4 absolute' />
-//           )}
-//           <span className='mx-6'>Show X-Axis</span>
-//         </DropdownMenuItem>
-//         <DropdownMenuItem
-//           className={`cursor-pointer ${showYAxis ? 'text-swishjam font-medium hover:text-swishjam' : ''}`}
-//           onClick={() => {
-//             const valueChangedFrom = showYAxis;
-//             const valueChangedTo = !showYAxis;
-//             setShowYAxis(valueChangedTo)
-//             onSettingChange({
-//               attribute: 'show-x-axis',
-//               valueWas: valueChangedFrom,
-//               value: valueChangedTo
-//             })
-//           }}
-//         >
-//           {showYAxis && (
-//             <CheckCircleIcon className='h-4 w-4 absolute' />
-//           )}
-//           <span className='ml-6'>Show Y-Axis</span>
-//         </DropdownMenuItem>
-//       </DropdownMenuContent>
-//     </DropdownMenu>
-//   )
-// }

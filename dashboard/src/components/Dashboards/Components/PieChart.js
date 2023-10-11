@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { PieChart, Pie, Cell, Sector, ResponsiveContainer, Legend } from 'recharts';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import ConditionalCardWrapper from './ConditionalCardWrapper';
 
 const renderActiveShape = (props) => {
@@ -51,16 +50,14 @@ const renderActiveShape = (props) => {
   );
 };
 
-export default function PieChartComponent({ 
-  title, 
-  data, 
+export default function PieChartComponent({
+  title,
+  data,
   valueKey = 'value',
-  width = 600,
-  height = 200,
-  // cx = 120, 
-  // cy = 200, 
-  innerRadius = 60, 
-  outerRadius = 80, 
+  width = 400,
+  // height = 400,
+  innerRadius = 60,
+  outerRadius = 80,
   paddingAngle = 5,
   sizeMultiplier = 1,
   colors = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042'],
@@ -69,14 +66,13 @@ export default function PieChartComponent({
   includeCard = true,
 }) {
   const [activeIndex, setActiveIndex] = useState(0);
+  const height = width * 0.75;
   return (
     <ConditionalCardWrapper title={title} includeCard={includeCard}>
-      <ResponsiveContainer width="100%" height="100%" aspect={3}>
+      <ResponsiveContainer width="100%" height={height + 25}>
         <PieChart width={width * sizeMultiplier} height={height * sizeMultiplier}>
           <Pie
             data={data}
-            // cx={cx * sizeMultiplier}
-            // cy={cy * sizeMultiplier}
             cx={width / 2}
             cy={height / 2}
             innerRadius={innerRadius * sizeMultiplier}
@@ -88,7 +84,7 @@ export default function PieChartComponent({
             onMouseEnter={(_, i) => includeTooltips && setActiveIndex(i)}
             activeShape={props => includeTooltips && renderActiveShape(props)}
           >
-            {data 
+            {data
               ? data.map((_, index) => <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />)
               : Array.from({ length: 4 }).map((_, index) => <Cell key={`cell-${index}`} fill='lightgrey' />)
             }

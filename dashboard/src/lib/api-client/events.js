@@ -4,8 +4,8 @@ import Properties from "./events/properties";
 export class Events extends Base {
   static Properties = Properties;
 
-  static async listUnique() {
-    return await this._get('/api/v1/events/unique')
+  static async listUnique(options = {}) {
+    return await this._get('/api/v1/events/unique', options)
   }
 
   static async count(event, options = {}) {
@@ -16,8 +16,8 @@ export class Events extends Base {
     return await this._get(`/api/v1/events/${event}/timeseries`, { property, ...options })
   }
 
-  static async retrieve(name) {
-    return await this._get(`/api/v1/events/${name}`)
+  static async retrieve(name, options = {}) {
+    return await this._get(`/api/v1/events/${name}`, options)
   }
 }
 

@@ -17,6 +17,10 @@ class DashboardComponents extends Base {
       }
     })
   }
+
+  static async delete(id) {
+    return await this._delete(`/api/v1/dashboard_components/${id}`);
+  }
 }
 
 Object.assign(DashboardComponents, Base);

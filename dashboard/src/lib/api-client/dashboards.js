@@ -5,6 +5,10 @@ export class Dashboards extends Base {
     return await this._post('/api/v1/dashboards', { dashboard: { name } })
   }
 
+  static async update(id, { name }) {
+    return await this._patch(`/api/v1/dashboards/${id}`, { dashboard: { name } })
+  }
+
   static async retrieve(id) {
     return await this._get(`/api/v1/dashboards/${id}`)
   }

@@ -1,22 +1,9 @@
 "use client"
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
 import { HoverCard, HoverCardTrigger, HoverCardContent } from "@/components/ui/hover-card";
 import { ArrowTrendingDownIcon, ArrowTrendingUpIcon, CalendarIcon } from "@heroicons/react/24/outline";
 import ConditionalCardWrapper from "./ConditionalCardWrapper";
-
-const LoadingState = ({ title }) => (
-  <Card>
-    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-      <CardTitle className="text-sm font-medium">{title}</CardTitle>
-    </CardHeader>
-    <CardContent>
-      <Skeleton className="w-[100px] h-[30px] rounded-sm" />
-      <Skeleton className="w-full h-20 rounded-sm mt-1" />
-    </CardContent>
-  </Card>
-)
 
 export default function ValueCard({
   title,
@@ -26,7 +13,13 @@ export default function ValueCard({
   valueFormatter = val => val,
   includeCard = true
 }) {
-  if ([null, undefined].includes(value)) return <LoadingState title={title} />;
+  if ([null, undefined].includes(value)) {
+    return (
+      <ConditionalCardWrapper title={title} includeCard={includeCard}>
+        <Skeleton className="w-12 h-10 rounded-sm mt-1" />
+      </ConditionalCardWrapper>
+    )
+  }
 
   const changeInValue = typeof previousValue !== 'undefined' ? value - previousValue : null;
 
