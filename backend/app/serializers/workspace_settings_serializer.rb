@@ -1,3 +1,3 @@
 class WorkspaceSettingsSerializer < ActiveModel::Serializer
-  attributes :use_product_data_source_in_lieu_of_marketing, :use_marketing_data_source_in_lieu_of_product
+  attributes :combine_marketing_and_product_data_sources
 end
