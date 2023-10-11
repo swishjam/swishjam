@@ -1,7 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import BarListNoCard from "./BarListNoCard"
 
-export default function BarListCard({ title, items }) {
+export default function BarList({ title, items }) {
   
   return (
     <Card>

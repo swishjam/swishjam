@@ -5,9 +5,9 @@ import { SwishjamAPI } from "@/lib/api-client/swishjam-api";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import EventFeed from "@/components/DashboardComponents/EventFeed";
-import LineChartWithValue from '@/components/DashboardComponents/LineChartWithValue';
-import BarListCard from "@/components/DashboardComponents/BarListCard";
+import EventFeed from "@/components/Dashboards/Components/EventFeed";
+import LineChartWithValue from '@/components/Dashboards/Components/LineChartWithValue';
+import BarList from "@/components/Dashboards/Components/BarList";
 
 const LoadingState = () => (
   <main className="mx-auto max-w-7xl px-4 mt-8 sm:px-6 lg:px-8 mb-8">
@@ -84,9 +84,9 @@ const UserProfile = ({ params }) => {
       setPageViewsData(pageViews.map(({ url, count }) => ({ name: url, value: count })));
     });
     SwishjamAPI.Users.Sessions.timeseries(userId).then(({ timeseries }) => {
-      setSessionTimeseriesData({ 
+      setSessionTimeseriesData({
         timeseries,
-        value: timeseries.map(({ value }) => value).reduce((a, b) => a + b, 0),  
+        value: timeseries.map(({ value }) => value).reduce((a, b) => a + b, 0),
       })
     });
   }, [])
@@ -129,11 +129,11 @@ const UserProfile = ({ params }) => {
                       <dt className="text-sm font-medium leading-6 text-gray-900">Organizations</dt>
                       <dd className="mt-1 text-sm leading-6 text-gray-700 sm:mt-2">
                         {userData.organizations.map(org => (
-                          <a className='hover:underline hover:text-blue-700' key={org.id} href={`/organizations/${org.id}`}>{org.name}</a> 
+                          <a className='hover:underline hover:text-blue-700' key={org.id} href={`/organizations/${org.id}`}>{org.name}</a>
                         ))}
-                  
+
                         {userData.organizations.length > 1 && (
-                          <span 
+                          <span
                             className='cursor-pointer underline ml-2 hover:text-swishjam'
                             onClick={() => setOrganizationsListExpanded(!organizationsListExpanded)}
                           >+{userData.organizations.length - 1} others</span>
@@ -167,7 +167,7 @@ const UserProfile = ({ params }) => {
             />
           </div>
           <div className="col-span-5">
-            <BarListCard title='Page Views' items={pageViewsData} />
+            <BarList title='Page Views' items={pageViewsData} />
           </div>
           <EventFeed
             className="col-span-5"

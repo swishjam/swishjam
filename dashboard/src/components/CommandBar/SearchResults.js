@@ -3,7 +3,30 @@ import { Combobox } from "@headlessui/react"
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
 import SearchResultSection from "./SearchResultSection"
 
-export default function SearchResults({ organizations, users, dashboards, events, hasAttemptedSearch }) {
+const boldedSearchResult = (text, searchTerm) => {
+  try {
+    const searchTermIndexStart = text.toLowerCase().indexOf(searchTerm);
+    if (searchTermIndexStart < 0) {
+      return text;
+    }
+    const searchTermIndexEnd = searchTerm.length + searchTermIndexStart;
+    const preceedingText = text.slice(0, searchTermIndexStart);
+    const matchingText = text.slice(searchTermIndexStart, searchTermIndexEnd);
+    const succeedingText = text.slice(searchTermIndexEnd, text.length);
+    return (
+      <>
+        <span>{preceedingText}</span>
+        <span className='font-bold'>{matchingText}</span>
+        <span>{succeedingText}</span>
+      </>
+    )
+  } catch (err) {
+    return text;
+  }
+}
+
+export default function SearchResults({ organizations, users, dashboards, events, searchedTerm }) {
+  const hasAttemptedSearch = searchedTerm && searchedTerm !== ''
   if (!hasAttemptedSearch) {
     return (
       <div className="border-t border-gray-100 px-6 py-14 text-center text-sm sm:px-14">
@@ -38,7 +61,7 @@ export default function SearchResults({ organizations, users, dashboards, events
                   </Avatar>
                 </div>
                 <div className="ml-4">
-                  <span className="block">{dashboard.name}</span>
+                  <span className="block">{boldedSearchResult(dashboard.name, searchedTerm)}</span>
                 </div>
               </div>
             )}
@@ -49,14 +72,16 @@ export default function SearchResults({ organizations, users, dashboards, events
             title='Events'
             TitleIcon={UserIcon}
             results={events}
-            resultDisplayGenerator={event => (
-              <div className="flex items-center">
-                <div className="ml-4">
-                  <span className="block">{event.name}</span>
-                </div>
-              </div>
-            )}
             linkGenerator={event => `/events/${event.name}`}
+            resultDisplayGenerator={event => {
+              return (
+                <div className="flex items-center">
+                  <div className="ml-4">
+                    <span className="block">{boldedSearchResult(event.name, searchedTerm)}</span>
+                  </div>
+                </div>
+              )
+            }}
           />
         </li>
         <li className='border-t border-gray-200' style={{ marginTop: 0 }}>
@@ -73,8 +98,8 @@ export default function SearchResults({ organizations, users, dashboards, events
                   </Avatar>
                 </div>
                 <div className="ml-4">
-                  <span className="block">{user.full_name}</span>
-                  <span className='font-light text-xs'>{user.email}</span>
+                  <span className="block">{boldedSearchResult(user.full_name, searchedTerm)}</span>
+                  <span className='font-light text-xs'>{boldedSearchResult(user.email, searchedTerm)}</span>
                 </div>
               </div>
             )}
@@ -95,7 +120,7 @@ export default function SearchResults({ organizations, users, dashboards, events
                   </Avatar>
                 </div>
                 <div className="ml-4">
-                  <span className="block">{org.name}</span>
+                  <span className="block">{boldedSearchResult(org.name, searchedTerm)}</span>
                 </div>
               </div>
             )}

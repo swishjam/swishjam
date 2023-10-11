@@ -1,6 +1,64 @@
 module Api
   module V1
     class EventsController < BaseController
+      include TimeseriesHelper
+
+      def unique
+        params[:data_source] ||= 'all'
+        limit = params[:limit] || 50
+        events = ClickHouseQueries::Events::Unique::List.new(public_keys_for_requested_data_source, limit: limit, start_time: 6.months.ago, end_time: Time.current).get
+        render json: events, status: :ok
+      end
+
+      def timeseries
+        params[:data_source] ||= 'all'
+        event_name = URI.decode_uri_component(params[:name])
+        timeseries = ClickHouseQueries::Events::Count::Timeseries.new(
+          public_keys_for_requested_data_source, 
+          event_name: event_name, 
+          start_time: start_timestamp, 
+          end_time: end_timestamp
+        ).get
+        
+        comparison_timeseries = nil
+        if params[:include_comparison]
+          comparison_timeseries = ClickHouseQueries::Events::Count::Timeseries.new(
+            public_keys_for_requested_data_source, 
+            event_name: event_name, 
+            start_time: comparison_start_timestamp, 
+            end_time: comparison_end_timestamp
+          ).get
+        end
+
+        render json: render_timeseries_json(timeseries, comparison_timeseries), status: :ok
+        # render json: {
+        #   timeseries: timeseries.formatted_data,
+        #   comparison_timeseries: comparison_timeseries&.formatted_data,
+        #   current_count: timeseries.current_value,
+        #   summed_value: timeseries.summed_value,
+        #   start_time: timeseries.start_time,
+        #   end_time: timeseries.end_time,
+        #   comparison_start_time: comparison_timeseries&.start_time,
+        #   comparison_end_time: comparison_timeseries&.end_time,
+        #   grouped_by: timeseries.group_by,
+        # }, status: :ok
+      end
+
+      def count
+        params[:data_source] ||= 'all'
+        event_name = URI.decode_uri_component(params[:name])
+        count = ClickHouseQueries::Events::Count::Total.new(public_keys_for_requested_data_source, event_name: event_name, start_time: start_timestamp, end_time: end_timestamp).get
+        comparison_count = ClickHouseQueries::Events::Count::Total.new(public_keys_for_requested_data_source, event_name: event_name, start_time: comparison_start_timestamp, end_time: comparison_end_timestamp).get
+        render json: { 
+          count: count, 
+          comparison_count: comparison_count,
+          start_time: start_timestamp,
+          end_time: end_timestamp,
+          comparison_start_time: comparison_start_timestamp,
+          comparison_end_time: comparison_end_timestamp,
+        }, status: :ok
+      end
+
       def show
         params[:data_source] ||= 'all'
 
@@ -32,12 +90,6 @@ module Api
           end_time: timeseries.end_time,
           grouped_by: timeseries.group_by,
         }, status: :ok
-      end
-
-      def unique
-        params[:data_source] ||= 'all'
-        events = ClickHouseQueries::Events::Unique.new(public_keys_for_requested_data_source, limit: params[:limit] || 25).get
-        render json: events, status: :ok
       end
     end
   end
