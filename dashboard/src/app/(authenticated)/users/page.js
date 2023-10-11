@@ -89,11 +89,11 @@ export default function Users() {
                                 <div className="flex-shrink-0">
                                   <Avatar>
                                     <AvatarImage src={user.image} />
-                                    <AvatarFallback>{user.initials}</AvatarFallback>
+                                    <AvatarFallback>{user.initials || 'NU'}</AvatarFallback>
                                   </Avatar>
                                 </div>
                                 <div className="ml-4">
-                                  <div className="font-medium text-gray-900">{user.full_name || `Anonymous User: ${user.id.split('-')[0]}`}</div>
+                                  <div className="font-medium text-gray-900">{user.full_name || `Name Unknown`}</div>
                                 </div>
                               </div>
                             </td>
