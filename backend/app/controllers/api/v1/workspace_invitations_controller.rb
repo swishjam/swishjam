@@ -42,9 +42,9 @@ module Api
         when 'register'
           user = User.new(email: params[:email], password: params[:password])
           if user.save
-            auth_token = log_user_in(user, invitation.workspace)
             invitation.workspace.users << user
             invitation.accept!
+            auth_token = log_user_in(user, invitation.workspace)
             render json: { auth_token: auth_token }, status: :ok
           else
             render json: { error: user.errors.full_messages.join(' ') }, status: :unprocessable_entity
