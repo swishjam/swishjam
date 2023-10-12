@@ -1,4 +1,4 @@
-import Breadcrumbs from "../../../../components/Breadcrumbs";
+import Breadcrumbs from "@/components/Breadcrumbs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton";
 
