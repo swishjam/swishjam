@@ -9,7 +9,7 @@ import LineChartWithValue from '@/components/DashboardComponents/LineChartWithVa
 import BarListCard from "@/components/DashboardComponents/BarListCard";
 import PowerUserBadge from "./PowerUserBadge";
 import ChurnWarningUserBadge from "./ChurnWarningUserBadge";
-import Breadcrumbs from "./Breadcrumbs";
+import Breadcrumbs from "@/components/Breadcrumbs";
 import LoadingView from "./LoadingView";
 
 const UserProfile = ({ params }) => {
@@ -33,11 +33,22 @@ const UserProfile = ({ params }) => {
       })
     });
   }, [])
-  
+ 
+  const breadcrumbPaths = [
+    {
+      title: 'Users',
+      url: '/users'
+    },
+    {
+      title: userData?.full_name || `Unknown User: ${userData?.id.split('-')[0]}`,
+      url: null
+    }
+  ] 
+
   return (
     userData ? (
       <main className="mx-auto max-w-7xl px-4 mt-8 sm:px-6 lg:px-8 mb-8">
-        <Breadcrumbs userName={userData.full_name || `Unknown User: ${userData.id.split('-')[0]}`} />
+        <Breadcrumbs paths={breadcrumbPaths} userName={userData.full_name || `Unknown User: ${userData.id.split('-')[0]}`} />
         <div className='grid grid-cols-10 gap-4 mt-8'>
           <Card className='col-span-4 relative'>
             <CardHeader>
@@ -56,7 +67,7 @@ const UserProfile = ({ params }) => {
                       {userData.full_name}
                     </CardTitle>
                     <CardDescription className='text-base text-gray-500'>
-                      {userData.email}
+                      {userData.email} adsfasdfasdfasdfafasdfadsf
                     </CardDescription>
                   </div>
                 </div>
