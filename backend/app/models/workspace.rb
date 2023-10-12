@@ -17,6 +17,9 @@ class Workspace < Transactional
   after_create_commit { WorkspaceSetting.generate_default_for(self) }
   attribute :public_key, :string, default: "DEPRECATED"
 
+  attribute :should_enrich_user_profile_data, :boolean, default: false
+  alias_attribute :should_enrich_user_profile_data?, :should_enrich_user_profile_data
+
   # def public_key
   #   raise "`public_key` is deprecated, please use the workspace's `api_keys`."
   # end
