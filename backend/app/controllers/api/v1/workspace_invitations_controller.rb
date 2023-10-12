@@ -31,9 +31,9 @@ module Api
             if invitation.workspace.users.find(user.id)
               render json: { error: "#{user.email} is already a member of this workspace." }, status: :unprocessable_entity
             else
-              auth_token = log_user_in(user, invitation.workspace)
               invitation.workspace.users << user
               invitation.accept!
+              auth_token = log_user_in(user, invitation.workspace)
               render json: { auth_token: auth_token }, status: :ok
             end
           else
