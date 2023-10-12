@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import SwishjamAPI from "@/lib/api-client/swishjam-api"
-import LineChartWithValue from '@/components/DashboardComponents/LineChartWithValue';
+import LineChartWithValue from '@/components/Dashboards/Components/LineChartWithValue';
 import { intelligentlyFormattedMs } from '@/lib/utils/timeHelpers'
 
 export default function AdminPage() {

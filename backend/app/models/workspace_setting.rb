@@ -5,8 +5,7 @@ class WorkspaceSetting < Transactional
     return false if workspace.settings.present?
     create!(
       workspace: workspace,
-      use_product_data_source_in_lieu_of_marketing: false,
-      use_marketing_data_source_in_lieu_of_product: false,
+      combine_marketing_and_product_data_sources: false,
     )
   end
 end

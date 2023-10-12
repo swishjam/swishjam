@@ -7,9 +7,9 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { HomeIcon } from '@heroicons/react/20/solid'
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { CalendarIcon } from "@heroicons/react/24/outline";
-import ItemizedList from "@/components/DashboardComponents/ItemizedList";
-import ActiveUsersLineChartWithValue from "@/components/DashboardComponents/ActiveUsersLineChartWithValue";
-import BarListCard from "@/components/DashboardComponents/BarListCard";
+import ItemizedList from "@/components/Dashboards/Components/ItemizedList";
+import ActiveUsersLineChartWithValue from "@/components/Dashboards/Components/ActiveUsersLineChartWithValue";
+import BarList from "@/components/Dashboards/Components/BarList";
 
 const LoadingState = () => (
   <main className="mx-auto max-w-7xl px-4 mt-8 sm:px-6 lg:px-8 mb-8">
@@ -32,7 +32,7 @@ const LoadingState = () => (
       <ItemizedList title='Top Users' />
     </div>
     <div className='mt-4'>
-      <BarListCard title='Top pages' />
+      <BarList title='Top pages' />
     </div>
   </main>
 )
@@ -81,7 +81,7 @@ const BreadCrumbs = ({ organizationName }) => (
 )
 
 const HeaderCard = ({ avatarUrl, name, mrr, lifetimeRevenue, createdAt }) => {
-  return (    
+  return (
     <Card>
       <CardHeader>
         <div className='grid grid-cols-2 items-center'>
@@ -178,9 +178,9 @@ const OrganizationProfile = ({ params }) => {
     <main className="mx-auto max-w-7xl px-4 mt-8 sm:px-6 lg:px-8 mb-8">
       <BreadCrumbs organizationName={organizationData.name} />
       <div className='mt-4'>
-        <HeaderCard 
-          name={organizationData.name} 
-          createdAt={organizationData.created_at} 
+        <HeaderCard
+          name={organizationData.name}
+          createdAt={organizationData.created_at}
           mrr={billingData?.current_mrr}
           lifetimeRevenue={billingData?.lifetime_revenue}
         />
@@ -188,15 +188,15 @@ const OrganizationProfile = ({ params }) => {
       <div className='grid grid-cols-3 gap-4 mt-4'>
         <div className='col-span-2'>
           {/* <ActiveUsersLineChart scopedOrganizationId={id} /> */}
-        <ActiveUsersLineChartWithValue
-          data={activeUsersData}
-          selectedGrouping={activeUsersGrouping}
-          onGroupingChange={group => {
-            setActiveUsersData();
-            setActiveUsersGrouping(group);
-            getActiveUsersData(group);
-          }}
-        />
+          <ActiveUsersLineChartWithValue
+            data={activeUsersData}
+            selectedGrouping={activeUsersGrouping}
+            onGroupingChange={group => {
+              setActiveUsersData();
+              setActiveUsersGrouping(group);
+              getActiveUsersData(group);
+            }}
+          />
         </div>
         <ItemizedList
           title='Top Users'
@@ -210,7 +210,7 @@ const OrganizationProfile = ({ params }) => {
         />
       </div>
       <div className='mt-4'>
-        <BarListCard title='Top pages' items={pageHitData} /> 
+        <BarList title='Top pages' items={pageHitData} />
       </div>
     </main>
   )

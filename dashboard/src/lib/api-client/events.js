@@ -1,12 +1,23 @@
-import Base from "./base"
+import Base from "./base";
+import Properties from "./events/properties";
 
 export class Events extends Base {
-  static async retrieve(name) {
-    return await this._get(`/api/v1/events/${name}`)
+  static Properties = Properties;
+
+  static async listUnique(options = {}) {
+    return await this._get('/api/v1/events/unique', options)
   }
 
-  static async unique({ limit } = {}) {
-    return await this._get('/api/v1/events/unique', { limit })
+  static async count(event, options = {}) {
+    return await this._get(`/api/v1/events/${event}/count`, options)
+  }
+
+  static async timeseries(event, property, options = {}) {
+    return await this._get(`/api/v1/events/${event}/timeseries`, { property, ...options })
+  }
+
+  static async retrieve(name, options = {}) {
+    return await this._get(`/api/v1/events/${name}`, options)
   }
 }
 

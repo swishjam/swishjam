@@ -18,7 +18,11 @@ module Api
         when 'web'
           @public_keys_for_requested_data_source = current_workspace.api_keys.where(data_source: [ApiKey::ReservedDataSources.PRODUCT, ApiKey::ReservedDataSources.MARKETING]).pluck(:public_key)
         else
-          @public_keys_for_requested_data_source = current_workspace.api_keys.where(data_source: requested_data_source).pluck(:public_key)
+          if [ApiKey::ReservedDataSources.PRODUCT, ApiKey::ReservedDataSources.MARKETING].include?(requested_data_source) && current_workspace.settings.combine_marketing_and_product_data_sources
+            @public_keys_for_requested_data_source = current_workspace.api_keys.where(data_source: [ApiKey::ReservedDataSources.PRODUCT, ApiKey::ReservedDataSources.MARKETING]).pluck(:public_key)
+          else
+            @public_keys_for_requested_data_source = current_workspace.api_keys.where(data_source: requested_data_source).pluck(:public_key)
+          end
         end
       end
 
