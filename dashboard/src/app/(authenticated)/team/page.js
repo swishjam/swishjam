@@ -1,47 +1,46 @@
 'use client';
 
-import { useState, useEffect, Fragment } from 'react';
-import { SwishjamAPI } from "@/lib/api-client/swishjam-api";
-import Modal from '@/components/utils/Modal';
 // import { formattedDate } from '@/lib/utils';
-const formattedDate = date => date;
-import { Menu, Transition } from '@headlessui/react';
-import { UserPlusIcon, EnvelopeIcon, ClipboardDocumentIcon, CheckCircleIcon, EllipsisVerticalIcon, TrashIcon } from '@heroicons/react/24/outline';
 import CopyToClipboard from 'react-copy-to-clipboard';
 import LoadingSpinner from '@/components/LoadingSpinner';
+import { Menu, Transition } from '@headlessui/react';
+import Modal from '@/components/utils/Modal';
+import { SwishjamAPI } from "@/lib/api-client/swishjam-api";
+import { useAuthData } from '@/hooks/useAuthData'
+import { UserPlusIcon, EnvelopeIcon, ClipboardDocumentIcon, CheckCircleIcon, EllipsisVerticalIcon, TrashIcon } from '@heroicons/react/24/outline';
+import { useState, useEffect, Fragment } from 'react';
 
+const formattedDate = date => date;
 const classNames = (...classes) => classes.filter(Boolean).join(' ')
 
 export default function Team() {
-  // const { user: currentUser, userOrg } = useAuth();
-  const [users, setUsers] = useState();
+  const { userId: currentUserId } = useAuthData()
   const [inviteModalIsOpen, setInviteModalIsOpen] = useState(false);
+  const [users, setUsers] = useState();
   const [userToDisplayInRemoveModal, setUserToDisplayInRemoveModal] = useState();
 
   useEffect(() => {
     setUsers();
-    SwishjamAPI.get('/api/users/all').then(({ users, error }) => {
-      setUsers(users);
-    })
-  }, [userOrg?.id])
+    SwishjamAPI.Team.users().then(setUsers)
+  }, [])
 
   return (
     <>
-      <InviteModal 
-        isOpen={inviteModalIsOpen} 
-        onClose={() => setInviteModalIsOpen(false)} 
-        onInviteSent={userInvite => setUsers([...users, { ...userInvite, email: userInvite.invited_email, status: 'pending' }])} 
+      <InviteModal
+        isOpen={inviteModalIsOpen}
+        onClose={() => setInviteModalIsOpen(false)}
+        onInviteSent={userInvite => setUsers([...users, { ...userInvite, email: userInvite.invited_email, status: 'pending' }])}
       />
-      <RemoveUserModal 
-        isOpen={!!userToDisplayInRemoveModal}  
+      <RemoveUserModal
+        isOpen={!!userToDisplayInRemoveModal}
         userId={userToDisplayInRemoveModal?.id}
         userEmail={userToDisplayInRemoveModal?.email}
         onClose={() => setUserToDisplayInRemoveModal()}
-        onRemoveUser={user => setUsers(users.filter(u => u.id !== user.id))} 
+        onRemoveUser={user => setUsers(users.filter(u => u.id !== user.id))}
       />
       <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mb-8 mt-12">
         <div className='my-8 grid grid-cols-2'>
-          <h1 className="text-lg font-medium text-gray-700 mb-0">{userOrg?.name} Team Management</h1>
+          <h1 className="text-lg font-medium text-gray-700 mb-0">Team Management</h1>
           <div className='flex justify-end'>
             <button
               onClick={() => setInviteModalIsOpen(true)}
@@ -70,7 +69,7 @@ export default function Team() {
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200 bg-white">
-            {users 
+            {users
               ? (
                 users.map(({ id, email, created_at, invite_token, status = 'accepted' }) => (
                   <tr key={id} className='hover:bg-gray-50'>
@@ -87,7 +86,7 @@ export default function Team() {
                     </td>
                     <td className="cursor-default whitespace-nowrap py-3.5 px-3 text-gray-700 text-sm max-w-xs">
                       <div className="py-1 flex items-center justify-end">
-                        {id !== currentUser?.id && (
+                        {id !== currentUserId && (
                           <UserDropdown status={status} inviteToken={invite_token} onRemoveUserClick={() => setUserToDisplayInRemoveModal({ id, email })} />
                         )}
                       </div>
@@ -217,9 +216,9 @@ const RemoveUserModal = ({ userId, userEmail, isOpen, onClose, onRemoveUser }) =
           setError();
           setShowSuccessMessage(false);
         }, 500);
-      }} 
+      }}
     >
-      {showSuccessMessage 
+      {showSuccessMessage
         ? (
           <div className='px-4 py-8 text-center'>
             <h3 className='text-lg'>{userEmail} no longer has access to your Swishjam team.</h3>
@@ -258,7 +257,6 @@ const RemoveUserModal = ({ userId, userEmail, isOpen, onClose, onRemoveUser }) =
 }
 
 const InviteModal = ({ isOpen, onClose, onInviteSent }) => {
-  const [userName, setUserName] = useState('');
   const [email, setEmail] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState();
@@ -272,33 +270,32 @@ const InviteModal = ({ isOpen, onClose, onInviteSent }) => {
     setIsSubmitting(true);
     setError();
     setSuccessMessage();
-    const { userInvite, error } = await SwishjamAPI.post('/api/user-invites/create', { email, userName });
+    const response = await SwishjamAPI.WorkspaceInvitations.create({ email });
+    debugger;
     setIsSubmitting(false);
-    if (userInvite) {
-      setUserInviteToken(userInvite.invite_token);
-      setSuccessMessage(`Invitation sent to ${userName}.`);
-      setEmail('');
-      setUserName('');
-      onInviteSent && onInviteSent(userInvite);
-    } else {
-      setError(error);
+    if (response.error) {
+      setError(response.error);
       setSuccessMessage();
+    } else {
+      setUserInviteToken(response.invite_token);
+      setSuccessMessage(`Invitation sent to ${response.invited_email}.`);
+      setEmail('');
+      onInviteSent && onInviteSent(response);
     }
   }
 
   return (
-    <Modal 
-      isOpen={isOpen} 
+    <Modal
+      isOpen={isOpen}
       onClose={() => {
         onClose();
         setTimeout(() => {
           setEmail('');
-          setUserName('');
           setError();
           setUserInviteToken();
           setSuccessMessage();
         }, 500)
-      }} 
+      }}
     >
       {userInviteToken
         ? (
@@ -336,13 +333,9 @@ const InviteModal = ({ isOpen, onClose, onInviteSent }) => {
           <>
             <h2 className='text-md font-medium text-gray-900 mb-4'>Invite a teammate</h2>
             <form onSubmit={inviteUser}>
-              <div>
-                <label className='block text-sm font-medium text-gray-700'>Name</label>
-                <input className='input' placeholder='Johnny Smith' type='text' value={userName} onChange={e => setUserName(e.target.value)} />
-              </div>
               <div className='mt-2'>
-                <label className='block text-sm font-medium text-gray-700'>Email</label>
-                <input className='input' placeholder='johnny@gmail.com' type='email' value={email} onChange={e => setEmail(e.target.value)} />
+                <label className='block text-sm font-medium text-gray-700'>Teammate's Email</label>
+                <input className='input mt-1' placeholder='johnny@gmail.com' type='email' value={email} onChange={e => setEmail(e.target.value)} />
               </div>
               {error && <div className='text-sm text-center text-red-500 mt-2'>{error}</div>}
               <button
@@ -350,8 +343,8 @@ const InviteModal = ({ isOpen, onClose, onInviteSent }) => {
                 className={`w-full mt-4 flex items-center justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white focus:outline-none focus:ring-2 ${isSubmitting ? 'bg-gray-400' : 'bg-swishjam hover:bg-swishjam-dark'}`}
                 disabled={isSubmitting}
               >
-                {isSubmitting ? 
-                  <div className="h-6"><LoadingSpinner size={6} color='white' /></div> 
+                {isSubmitting ?
+                  <div className="h-6"><LoadingSpinner size={6} color='white' /></div>
                   : (
                     <>
                       <EnvelopeIcon className='h-4 w-4 inline-block mr-1' />

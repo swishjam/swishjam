@@ -50,6 +50,7 @@ Rails.application.routes.draw do
       resources :workspace, only: [] do
         collection do
           patch '/update', to: 'workspaces#update'
+          patch '/update_current_workspace/:workspace_id', to: 'workspaces#update_current_workspace'
         end
       end
 

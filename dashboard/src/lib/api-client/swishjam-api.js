@@ -11,8 +11,10 @@ import PageViews from './page-views';
 import RetentionCohorts from './retention_cohorts';
 import Search from './search';
 import Sessions from './sessions';
+import Team from './team';
 import Users from './users';
 import Workspace from './workspace';
+import WorkspaceInvitations from './workspace-invitations';
 import WorkspaceSettings from './workspace-settings';
 
 export class SwishjamAPI {
@@ -29,8 +31,10 @@ export class SwishjamAPI {
   static RetentionCohorts = RetentionCohorts;
   static Search = Search;
   static Sessions = Sessions;
+  static Team = Team;
   static Users = Users;
   static Workspace = Workspace;
+  static WorkspaceInvitations = WorkspaceInvitations;
   static WorkspaceSettings = WorkspaceSettings;
 }
 

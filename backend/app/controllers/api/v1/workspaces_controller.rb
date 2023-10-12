@@ -15,6 +15,12 @@ module Api
         end
       end
 
+      def update_current_workspace
+        new_workspace = current_user.workspaces.find(params[:workspace_id])
+        token = log_user_in(current_user, new_workspace)
+        render json: { workspace: new_workspace, auth_token: token }, status: :ok
+      end
+
       private
 
       def workspace_params
