@@ -15,6 +15,7 @@ import Team from './team';
 import Users from './users';
 import Workspace from './workspace';
 import WorkspaceInvitations from './workspace-invitations';
+import WorkspaceMembers from './workspace-members';
 import WorkspaceSettings from './workspace-settings';
 
 export class SwishjamAPI {
@@ -35,6 +36,7 @@ export class SwishjamAPI {
   static Users = Users;
   static Workspace = Workspace;
   static WorkspaceInvitations = WorkspaceInvitations;
+  static WorkspaceMembers = WorkspaceMembers;
   static WorkspaceSettings = WorkspaceSettings;
 }
 

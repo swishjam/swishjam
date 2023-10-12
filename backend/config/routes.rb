@@ -38,6 +38,7 @@ Rails.application.routes.draw do
       resources :team, only: [] do
         collection do
           get :users
+          get :workspace_members
         end
       end
 
@@ -46,6 +47,8 @@ Rails.application.routes.draw do
           post :accept
         end
       end
+
+      resources :workspace_members, only: [:destroy]
 
       resources :workspace, only: [] do
         collection do

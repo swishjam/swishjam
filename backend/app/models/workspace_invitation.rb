@@ -5,7 +5,7 @@ class WorkspaceInvitation < Transactional
   before_create { self.invite_token = "invite-#{SecureRandom.uuid}" }
   before_create { self.expires_at = 7.days.from_now }
 
-  validate :invited_email_not_part_of_workspace
+  validate :invited_email_not_part_of_workspace, on: :create
 
   def accept!
     return false if !acceptable?

@@ -1,4 +1,12 @@
-import { ArrowRightOnRectangleIcon, BriefcaseIcon, Cog6ToothIcon, EllipsisVerticalIcon, UserCircleIcon, UserGroupIcon } from "@heroicons/react/24/outline";
+import {
+  ArrowRightOnRectangleIcon,
+  BriefcaseIcon,
+  Cog6ToothIcon,
+  DocumentTextIcon,
+  EllipsisVerticalIcon,
+  UserCircleIcon,
+  UserGroupIcon
+} from "@heroicons/react/24/outline";
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Button } from "@/components/ui/button"
 import {
@@ -92,6 +100,12 @@ export default function UserFlyout() {
               </DropdownMenuPortal>
             </DropdownMenuSub>
           )}
+          <Link href='https://docs.swishjam.com' target='_blank'>
+            <DropdownMenuItem className='cursor-pointer py-3'>
+              <DocumentTextIcon className='h-5 w-5 text-gray-700 mr-2' />
+              Docs
+            </DropdownMenuItem>
+          </Link>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <Link href='/logout'>

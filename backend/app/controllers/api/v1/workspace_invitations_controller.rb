@@ -51,9 +51,9 @@ module Api
           end
         when 'existing'
           if current_user
-            auth_token = log_user_in(current_user, invitation.workspace)
             invitation.workspace.users << current_user
             invitation.accept!
+            auth_token = log_user_in(current_user, invitation.workspace)
             render json: { auth_token: auth_token }, status: :ok
           else
             render json: { error: "Unable to accept invite at this time. Please contact support." }, status: :unprocessable_entity

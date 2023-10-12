@@ -15,7 +15,7 @@ class SessionsController < ApplicationController
         }, 
       }, status: :ok
     else
-      render json: { error: 'Invalid email or password.' }, status: :unauthorized
+      render json: { error: 'Invalid email or password.' }, status: :unprocessable_entity
     end
   end
 
@@ -26,6 +26,5 @@ class SessionsController < ApplicationController
     Rails.logger.error "Failed to log user out, but going to return 200 anyway to allow it."
     Rails.logger.error e.message
     render json: { message: 'logged out' }, status: :ok
-    # render json: { error: e.message }, status: :unauthorized
   end
 end
