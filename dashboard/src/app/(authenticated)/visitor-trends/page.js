@@ -35,17 +35,17 @@ export default function PageMetrics() {
     return await SwishjamAPI.Sessions.timeseries({ timeframe, dataSource: 'marketing' }).then(
       ({ current_count, comparison_count, comparison_end_time, timeseries, comparison_timeseries, grouped_by }) => {
         setSessionsChart({
-          value: current_count,
+          groupedBy: grouped_by,
           previousValue: comparison_count,
           previousValueDate: comparison_end_time,
-          valueChange: current_count - comparison_count,
           timeseries: timeseries.map((timeseries, index) => ({
             ...timeseries,
             comparisonDate: comparison_timeseries[index]?.date,
             comparisonValue: comparison_timeseries[index]?.value,
           })),
+          value: current_count,
+          valueChange: current_count - comparison_count,
           valueFormatter: sessionsFormatter,
-          dateFormatter: dateFormatterForGrouping(grouped_by)
         });
       });
   };
@@ -77,17 +77,17 @@ export default function PageMetrics() {
     return await SwishjamAPI.PageViews.timeseries({ timeframe, dataSource: 'marketing' }).then(
       ({ current_count, comparison_count, comparison_end_time, timeseries, comparison_timeseries, grouped_by }) => {
         setPageViewsChart({
-          value: current_count,
+          groupedBy: grouped_by,
           previousValue: comparison_count,
           previousValueDate: comparison_end_time,
-          valueChange: current_count - comparison_count,
           timeseries: timeseries.map((timeseries, index) => ({
             ...timeseries,
             comparisonDate: comparison_timeseries[index]?.date,
             comparisonValue: comparison_timeseries[index]?.value,
           })),
+          value: current_count,
+          valueChange: current_count - comparison_count,
           valueFormatter: sessionsFormatter,
-          dateFormatter: dateFormatterForGrouping(grouped_by)
         });
       });
   };
@@ -96,16 +96,16 @@ export default function PageMetrics() {
     return await SwishjamAPI.Users.Active.timeseries({ timeframe, dataSource: 'marketing', type: 'daily', includeComparison: true }).then(
       ({ current_value, timeseries, comparison_value, comparison_timeseries, comparison_end_time, grouped_by }) => {
         setUniqueVisitorsChart({
-          value: current_value || 0,
+          groupedBy: grouped_by,
           previousValue: comparison_value || 0,
           previousValueDate: comparison_end_time,
-          valueChange: (current_value || 0) - (comparison_value || 0),
           timeseries: timeseries?.map((timeseries, index) => ({
             ...timeseries,
             comparisonDate: comparison_timeseries[index]?.date,
             comparisonValue: comparison_timeseries[index]?.value,
           })),
-          dateFormatter: dateFormatterForGrouping(grouped_by)
+          value: current_value || 0,
+          valueChange: (current_value || 0) - (comparison_value || 0),
         });
       }
     );
@@ -208,14 +208,14 @@ export default function PageMetrics() {
         </div>
         <div className="col-span-3">
           <LineChartWithValue
-            title={currentSelectedChart}
-            value={currentChartLookup[currentSelectedChart]?.value}
+            groupedBy={currentChartLookup[currentSelectedChart]?.groupedBy}
             previousValue={currentChartLookup[currentSelectedChart]?.previousValue}
             previousValueDate={currentChartLookup[currentSelectedChart]?.previousValueDate}
-            timeseries={currentChartLookup[currentSelectedChart]?.timeseries}
-            valueFormatter={currentChartLookup[currentSelectedChart]?.valueFormatter}
-            dateFormatter={currentChartLookup[currentSelectedChart]?.dateFormatter}
             showAxis={true}
+            timeseries={currentChartLookup[currentSelectedChart]?.timeseries}
+            title={currentSelectedChart}
+            value={currentChartLookup[currentSelectedChart]?.value}
+            valueFormatter={currentChartLookup[currentSelectedChart]?.valueFormatter}
           />
         </div>
       </div>
