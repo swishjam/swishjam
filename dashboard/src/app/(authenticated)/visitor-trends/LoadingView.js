@@ -1,5 +1,5 @@
-import LineChartWithValue from "@/components/DashboardComponents/LineChartWithValue"
-import BarListCard from "@/components/DashboardComponents/BarListCard"
+import LineChartWithValue from "@/components/Dashboards/Components/LineChartWithValue"
+import BarList from "@/components/Dashboards/Components/BarList"
 import { Skeleton } from "@/components/ui/skeleton"
 
 export default function LoadingView() {
@@ -22,12 +22,12 @@ export default function LoadingView() {
         <LineChartWithValue title='Sessions' />
       </div>
       <div className='grid grid-cols-2 gap-6 pt-8'>
-        <BarListCard title='Referrers' />
-        <BarListCard title='Top Pages' />
+        <BarList title='Referrers' />
+        <BarList title='Top Pages' />
       </div>
       <div className='grid grid-cols-2 gap-6 pt-8'>
-        <BarListCard title='Devices' />
-        <BarListCard title='Browsers' />
+        <BarList title='Devices' />
+        <BarList title='Browsers' />
       </div>
     </main>
   )

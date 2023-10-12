@@ -3,8 +3,7 @@ module Api
     class WorkspaceSettingsController < BaseController
       def update
         current_workspace.settings.update(
-          use_product_data_source_in_lieu_of_marketing: params[:use_product_data_source_in_lieu_of_marketing],
-          use_marketing_data_source_in_lieu_of_product: params[:use_marketing_data_source_in_lieu_of_product]
+          combine_marketing_and_product_data_sources: params[:combine_marketing_and_product_data_sources]
         )
         render json: { settings: current_workspace.settings }, status: :ok
       end

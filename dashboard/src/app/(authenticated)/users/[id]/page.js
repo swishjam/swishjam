@@ -4,13 +4,13 @@ import { useEffect, useState } from "react";
 import { SwishjamAPI } from "@/lib/api-client/swishjam-api";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import EventFeed from "@/components/DashboardComponents/EventFeed";
-import LineChartWithValue from '@/components/DashboardComponents/LineChartWithValue';
-import BarListCard from "@/components/DashboardComponents/BarListCard";
 import PowerUserBadge from "./PowerUserBadge";
 import ChurnWarningUserBadge from "./ChurnWarningUserBadge";
 import Breadcrumbs from "@/components/Breadcrumbs";
 import LoadingView from "./LoadingView";
+import EventFeed from "@/components/Dashboards/Components/EventFeed";
+import LineChartWithValue from '@/components/Dashboards/Components/LineChartWithValue';
+import BarList from "@/components/Dashboards/Components/BarList";
 
 const UserProfile = ({ params }) => {
   const { id: userId } = params;
@@ -27,9 +27,9 @@ const UserProfile = ({ params }) => {
       setPageViewsData(pageViews.map(({ url, count }) => ({ name: url, value: count })));
     });
     SwishjamAPI.Users.Sessions.timeseries(userId).then(({ timeseries }) => {
-      setSessionTimeseriesData({ 
+      setSessionTimeseriesData({
         timeseries,
-        value: timeseries.map(({ value }) => value).reduce((a, b) => a + b, 0),  
+        value: timeseries.map(({ value }) => value).reduce((a, b) => a + b, 0),
       })
     });
   }, [])
@@ -189,7 +189,7 @@ const UserProfile = ({ params }) => {
               timeseries={sessionTimeseriesData?.timeseries}
               valueFormatter={numSessions => numSessions.toLocaleString('en-US')}
             />
-            <BarListCard className="mt-4" title='Page Views' items={pageViewsData} />
+            <BarList className="mt-4" title='Page Views' items={pageViewsData} />
             <EventFeed
               className="col-span-6 mt-4"
               title='Recent Events'
@@ -212,20 +212,3 @@ const UserProfile = ({ params }) => {
 }
 
 export default UserProfile;
-                        /*{userData.organizations.length > 1 && (
-                          <span 
-                            className='cursor-pointer underline ml-2 hover:text-swishjam'
-                            onClick={() => setOrganizationsListExpanded(!organizationsListExpanded)}
-                          >+{userData.organizations.length - 1} others</span>
-                        )}
-                        {organizationsListExpanded && (
-                          <div className='mt-2'>
-                            {userData.organizations.slice(1).map(org => (
-                              <div key={org.id} className='flex items-center'>
-                                <a href={`/organizations/${org.id}`} className='text-sm text-gray-700 hover:underline'>
-                                  {org.name}
-                                </a>
-                              </div>
-                            ))}
-                          </div>
-                        )}*/

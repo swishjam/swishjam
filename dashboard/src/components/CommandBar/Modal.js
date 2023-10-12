@@ -91,6 +91,7 @@ export default function SearchBarModal({ onClose = () => { } }) {
                   dashboards={dashboardsResults}
                   events={eventResults}
                   hasAttemptedSearch={searchedTerm && searchedTerm !== ''}
+                  searchedTerm={searchedTerm}
                 />
                 <Footer />
               </Combobox>

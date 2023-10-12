@@ -4,25 +4,26 @@ const _filterUndefinedData = data => {
   return Object.fromEntries(Object.entries(data).filter(([_, v]) => v !== undefined));
 }
 
-export class Base {  
-  static async _get(urlPath, data = {}) {
-    return await this._request('GET', urlPath, data);
+export class Base {
+  static async _get(urlPath, payload = {}) {
+    const { dataSource: data_source } = payload;
+    return await this._request('GET', urlPath, { data_source, ...payload });
   }
 
-  static async _post(urlPath, data = {}) {
-    return await this._request('POST', urlPath, data);
+  static async _post(urlPath, payload = {}) {
+    return await this._request('POST', urlPath, payload);
   }
 
   static async _delete(urlPath) {
     return await this._request('DELETE', urlPath);
   }
 
-  static async _patch(urlPath, data = {}) {
-    return await this._request('PATCH', urlPath, data);
+  static async _patch(urlPath, payload = {}) {
+    return await this._request('PATCH', urlPath, payload);
   }
 
-  static async _request(method, urlPath, data = {}) {
-    const filteredData = _filterUndefinedData(data);
+  static async _request(method, urlPath, payload = {}) {
+    const filteredPayload = _filterUndefinedData(payload);
     const opts = {
       method: method,
       headers: {
@@ -31,9 +32,9 @@ export class Base {
       },
     };
     if (method === 'GET') {
-      urlPath += '?' + new URLSearchParams(filteredData).toString();
+      urlPath += '?' + new URLSearchParams(filteredPayload).toString();
     } else {
-      opts.body = JSON.stringify(filteredData);
+      opts.body = JSON.stringify(filteredPayload);
     }
     const response = await fetch(`${API_HOST}${urlPath}`, opts);
     if (response.status === 401) {

@@ -6,7 +6,7 @@ import LoadingState from "./LoadingGrid";
 
 const weekFormatter = dateFormatterForGrouping('week');
 
-export default function RetentionGrid({ retentionCohorts }) {
+export default function RetentionGrid({ retentionCohorts, isExpandable }) {
   if (!retentionCohorts) return <LoadingState />
   if (retentionCohorts.length === 0) {
     return (
@@ -17,7 +17,7 @@ export default function RetentionGrid({ retentionCohorts }) {
   }
 
   const [isExpanded, setIsExpanded] = useState(false);
-  const isExpandable = retentionCohorts.length > 4;
+  const canExpand = isExpandable && retentionCohorts.length > 4;
 
   const sortedCohorts = retentionCohorts.sort((a, b) => new Date(a.time_period) - new Date(b.time_period))
   const maxNumWeeks = sortedCohorts[0].retention_cohort_activity_periods.length;
@@ -64,7 +64,7 @@ export default function RetentionGrid({ retentionCohorts }) {
           </tbody>
         </table>
       </div>
-      {isExpandable && (
+      {canExpand && (
         <div className='w-full h-10 flex items-center justify-center bg-white bg-opacity-50 w-full text-center cursor-pointer transition-background hover:bg-gray-50' onClick={() => setIsExpanded(!isExpanded)}>
           {isExpanded ? <ChevronUpIcon className='h-4 w-4 text-gray-700' /> : <ChevronDownIcon className='h-4 w-4 text-gray-700' />}
         </div>

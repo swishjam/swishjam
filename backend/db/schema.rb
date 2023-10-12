@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2023_10_09_192422) do
+ActiveRecord::Schema.define(version: 2023_10_11_205549) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
@@ -69,6 +69,34 @@ ActiveRecord::Schema.define(version: 2023_10_09_192422) do
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.index ["user_id"], name: "index_auth_sessions_on_user_id"
+  end
+
+  create_table "dashboard_components", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "workspace_id"
+    t.uuid "created_by_user_id"
+    t.jsonb "configuration"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["created_by_user_id"], name: "index_dashboard_components_on_created_by_user_id"
+    t.index ["workspace_id"], name: "index_dashboard_components_on_workspace_id"
+  end
+
+  create_table "dashboards", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "workspace_id"
+    t.uuid "created_by_user_id"
+    t.string "name"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["created_by_user_id"], name: "index_dashboards_on_created_by_user_id"
+    t.index ["workspace_id"], name: "index_dashboards_on_workspace_id"
+  end
+
+  create_table "dashboards_dashboard_components", force: :cascade do |t|
+    t.uuid "dashboard_id"
+    t.uuid "dashboard_component_id"
+    t.index ["dashboard_component_id"], name: "index_dashboards_dashboard_components_on_dashboard_component_id"
+    t.index ["dashboard_id", "dashboard_component_id"], name: "index_dashboards_dashboard_components", unique: true
+    t.index ["dashboard_id"], name: "index_dashboards_dashboard_components_on_dashboard_id"
   end
 
   create_table "data_syncs", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -141,10 +169,9 @@ ActiveRecord::Schema.define(version: 2023_10_09_192422) do
 
   create_table "workspace_settings", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.uuid "workspace_id", null: false
-    t.boolean "use_product_data_source_in_lieu_of_marketing"
-    t.boolean "use_marketing_data_source_in_lieu_of_product"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.boolean "combine_marketing_and_product_data_sources"
     t.index ["workspace_id"], name: "index_workspace_settings_on_workspace_id"
   end
 

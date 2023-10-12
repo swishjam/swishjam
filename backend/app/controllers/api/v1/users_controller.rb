@@ -84,17 +84,13 @@ module Api
         group_by = derived_group_by(start_ts: start_timestamp, end_ts: end_timestamp)
 
         render json: {
-          start_time: start_timestamp,
-          end_time: end_timestamp,
-          comparison_start_time: comparison_start_timestamp,
-          comparison_end_time: comparison_end_timestamp,
           timeseries: current_workspace.analytics_user_profiles.where(created_at: start_timestamp..end_timestamp).send(:"group_by_#{group_by}", :created_at).count,
           comparison_timeseries: current_workspace.analytics_user_profiles.where(created_at: comparison_start_timestamp..comparison_end_timestamp - 1.second).send(:"group_by_#{group_by}", :created_at).count,
           start_time: start_timestamp,
           end_time: end_timestamp,
           comparison_start_time: comparison_start_timestamp,
           comparison_end_time: comparison_end_timestamp,
-          grouped_by: group_by
+          grouped_by: group_by,
         }, status: :ok
       end
     end
