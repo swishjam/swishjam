@@ -1,79 +1,120 @@
-import { Fragment } from "react"
-import { Menu, Transition } from "@headlessui/react";
-import { UserCircleIcon, ChevronDownIcon, UserGroupIcon, ArrowLeftOnRectangleIcon } from "@heroicons/react/24/outline";
+import {
+  ArrowRightOnRectangleIcon,
+  BriefcaseIcon,
+  Cog6ToothIcon,
+  DocumentTextIcon,
+  EllipsisVerticalIcon,
+  UserCircleIcon,
+  UserGroupIcon
+} from "@heroicons/react/24/outline";
+import { Avatar, AvatarFallback } from '@/components/ui/avatar'
+import { Button } from "@/components/ui/button"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuPortal,
+  DropdownMenuSeparator,
+  DropdownMenuShortcut,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { useAuthData } from '@/hooks/useAuthData'
+import Link from "next/link";
 
-export default function UserFlyout({ userEmail, currentOrganization, organizations }) {
+export default function UserFlyout() {
+  const { email, currentWorkspaceName, currentWorkspaceId, workspaces } = useAuthData();
+
   return (
-    <>
-      <Menu as="div" className="relative inline-block text-left w-full">
-        <div>
-          <Menu.Button className="px-8 inline-flex justify-between items-center w-full rounded-md bg-white py-2 text-sm text-gray-900 hover:bg-gray-50">
-            <div className='flex items-center truncate'>
-              <UserCircleIcon className='text-gray-400 group-hover:text-swishjam duration-300 transition h-6 w-6 shrink-0 inline-block mr-2' />
-              <span className='truncate'>{userEmail}</span>
-            </div>
-            <ChevronDownIcon className="-mr-1 h-5 w-5 text-gray-400" aria-hidden="true" />
-          </Menu.Button>
-        </div>
-
-        <Transition
-          as={Fragment}
-          enter="transition ease-out duration-100"
-          enterFrom="transform opacity-0 scale-95"
-          enterTo="transform opacity-100 scale-100"
-          leave="transition ease-in duration-75"
-          leaveFrom="transform opacity-100 scale-100"
-          leaveTo="transform opacity-0 scale-95"
-        >
-          <Menu.Items className="absolute left-0 bottom-0 w-full z-10 divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
-            <Menu.Button className="w-full px-4 py-3 flex w-full justify-between items-center hover:bg-gray-50 cursor-pointer">
-              <div className='flex items-center truncate'>
-                <UserCircleIcon className='text-gray-900 duration-300 transition h-6 w-6 shrink-0 inline-block mr-2' />
-                <p className="truncate text-sm font-medium text-gray-900">{userEmail}</p>
-              </div>
-              <ChevronDownIcon className="h-5 w-5 text-gray-400" aria-hidden="true" />
-            </Menu.Button>
-            <a
-              className='flex items-center w-full text-start px-4 py-2 text-sm cursor-pointer text-gray-700 hover:bg-gray-100 hover:text-swishjam transition'
-              href='/team'
-            >
-              <UserGroupIcon className='h-6 w-6 inline-block mr-2' /> Manage team
-            </a>
-            {organizations && organizations.length > 1 && (
-              <>
-                <div className='text-gray-700 px-4 py-2 text-sm text-gray-900 font-medium'>
-                  Change organizations
-                </div>
-                {organizations.map(org => (
-                  <Menu.Button
-                    className={`block w-full text-start px-4 py-2 text-sm ${org.id === currentOrganization.id ? 'bg-gray-100 text-swishjam cursor-default' : 'cursor-pointer text-gray-700 hover:bg-gray-100 hover:text-swishjam transition'}`}
-                    onClick={() => updateCurrentOrganization(org)}
-                    key={org.id}
-                  >
-                    <div className='rounded-full bg-gray-300 text-gray-900 text-xs w-8 h-8 p-1 inline-flex items-center justify-center mr-2'>
-                      {org.name.split(' ').map(word => word[0]).join('')}
-                    </div>
-                    <span>{org.name}</span>
-                  </Menu.Button>
-                ))}
-              </>
-            )}
-            <div className="py-1">
-              <Menu.Item>
-                {({ active }) => (
-                  <a
-                    href='/logout'
-                    className={`${active ? 'bg-red-100 text-red-500' : 'text-gray-700'} block w-full px-4 py-2 text-left text-sm`}
-                  >
-                    <ArrowLeftOnRectangleIcon className='h-6 w-6 inline-block mr-2' />
-                    Sign out
-                  </a>
-                )}
-              </Menu.Item>
-            </div>
-          </Menu.Items>
-        </Transition>
-      </Menu>
-    </>
+    <DropdownMenu className='w-full'>
+      <DropdownMenuTrigger asChild>
+        {/* <Button variant="outline"> */}
+        <Button variant='outline' className='w-full border-none flex justify-between'>
+          <div className='flex items-center truncate'>
+            <UserCircleIcon className='text-gray-400 group-hover:text-swishjam duration-300 transition h-6 w-6 shrink-0 inline-block mr-2' />
+            <span className='truncate text-gray-700'>{email}</span>
+          </div>
+          <EllipsisVerticalIcon className="h-5 w-5 text-gray-400" aria-hidden="true" />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent className="w-56">
+        <DropdownMenuLabel>
+          <span className='block font-medium text-gray-900'>{email}</span>
+          <span className='block font-light text-gray-700'>{currentWorkspaceName}</span>
+        </DropdownMenuLabel>
+        <DropdownMenuSeparator />
+        <DropdownMenuGroup>
+          <Link href='/settings'>
+            <DropdownMenuItem className='cursor-pointer py-3'>
+              <Cog6ToothIcon className='h-5 w-5 text-gray-700 mr-2' />
+              Settings
+              <DropdownMenuShortcut>⌘,</DropdownMenuShortcut>
+            </DropdownMenuItem>
+          </Link>
+          <Link href='/team'>
+            <DropdownMenuItem className='cursor-pointer py-3'>
+              <UserGroupIcon className='h-5 w-5 text-gray-700 mr-2' />
+              Team Management
+            </DropdownMenuItem>
+          </Link>
+          {workspaces && workspaces.length > 1 && (
+            <DropdownMenuSub>
+              <DropdownMenuSubTrigger className='py-3'>
+                <BriefcaseIcon className='h-5 w-5 text-gray-700 mr-2' />
+                Change workspaces
+              </DropdownMenuSubTrigger>
+              <DropdownMenuPortal>
+                <DropdownMenuSubContent>
+                  {workspaces.map(workspace => {
+                    if (workspace.id === currentWorkspaceId) {
+                      return (
+                        <DropdownMenuItem className='flex text-swishjam px-8 py-4 hover:text-swishjam'>
+                          <Avatar className="h-10 w-10 mr-4 bg-gray-300">
+                            <AvatarFallback className="text-xs">
+                              {workspace.name.split(' ').map(w => w[0].toUpperCase()).join('')}
+                            </AvatarFallback>
+                          </Avatar>
+                          {workspace.name}
+                        </DropdownMenuItem>
+                      )
+                    } else {
+                      return (
+                        <Link href={`/change-workspaces/${workspace.id}`}>
+                          <DropdownMenuItem className='flex cursor-pointer px-8 py-4'>
+                            <Avatar className="h-10 w-10 mr-4 bg-gray-300">
+                              <AvatarFallback className="text-xs">
+                                {workspace.name.split(' ').map(w => w[0].toUpperCase()).join('')}
+                              </AvatarFallback>
+                            </Avatar>
+                            {workspace.name}
+                          </DropdownMenuItem>
+                        </Link>
+                      )
+                    }
+                  })}
+                </DropdownMenuSubContent>
+              </DropdownMenuPortal>
+            </DropdownMenuSub>
+          )}
+          <Link href='https://docs.swishjam.com' target='_blank'>
+            <DropdownMenuItem className='cursor-pointer py-3'>
+              <DocumentTextIcon className='h-5 w-5 text-gray-700 mr-2' />
+              Docs
+            </DropdownMenuItem>
+          </Link>
+        </DropdownMenuGroup>
+        <DropdownMenuSeparator />
+        <Link href='/logout'>
+          <DropdownMenuItem className='cursor-pointer py-3'>
+            <ArrowRightOnRectangleIcon className='h-5 w-5 text-gray-700 mr-2' />
+            Log out
+          </DropdownMenuItem>
+        </Link>
+      </DropdownMenuContent>
+    </DropdownMenu>
   )
 }
