@@ -35,12 +35,27 @@ Rails.application.routes.draw do
         end
       end
 
+      resources :team, only: [] do
+        collection do
+          get :users
+        end
+      end
+
+      resources :workspace_invitations, only: [:create, :show, :destroy], param: :invite_token do
+        member do
+          post :accept
+        end
+      end
+
       resources :workspace, only: [] do
         collection do
           patch '/update', to: 'workspaces#update'
         end
       end
 
+      ################################
+      ## BEGIN ORGANIZATIONS ROUTES ##
+      ################################
       resources :organizations, only: [:index, :show] do
         # collection do
         #   get :count
@@ -60,7 +75,14 @@ Rails.application.routes.draw do
         resources :page_views, only: [:index], controller: :'organizations/page_views'
         resources :billing, only: [:index], controller: :'organizations/billing'
       end
+      ##############################
+      ## END ORGANIZATIONS ROUTES ##
+      ##############################
 
+
+      ########################
+      ## BEGIN USERS ROUTES ##
+      ########################
       resources :users, only: [:index, :show] do
         collection do
           get :active
@@ -75,6 +97,9 @@ Rails.application.routes.draw do
           end
         end
       end
+      ######################
+      ## END USERS ROUTES ##
+      ######################
 
       resources :retention_cohorts, only: [:index]
 
