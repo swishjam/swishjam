@@ -48,7 +48,7 @@ const UserProfile = ({ params }) => {
   return (
     userData ? (
       <main className="mx-auto max-w-7xl px-4 mt-8 sm:px-6 lg:px-8 mb-8">
-        <Breadcrumbs paths={breadcrumbPaths} userName={userData.full_name || `Unknown User: ${userData.id.split('-')[0]}`} />
+        <Breadcrumbs paths={breadcrumbPaths} />
         <div className='grid grid-cols-10 gap-4 mt-8'>
           <Card className='col-span-4 relative'>
             <CardHeader>

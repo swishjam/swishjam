@@ -18,10 +18,11 @@ export default function ItemizedList({
   linkFormatter,
   viewMoreUrl,
   maxNumItems,
-  noDataMsg
+  noDataMsg,
+  className
 }) {
   return (
-    <Card>
+    <Card className={className}>
       <CardHeader>
         <CardTitle className="text-sm font-medium cursor-default">{title}</CardTitle>
         {subTitle && <CardDescription>{subTitle}</CardDescription>}
@@ -52,7 +53,7 @@ export default function ItemizedList({
                       className={`transition duration-500 flex items-center py-4 px-2 rounded-sm border border-transparent ${hoverable ? 'hover:bg-gray-50 hover:border-gray-200' : ''}`}
                     >
                       {(item.avatar_url || fallbackAvatarGenerator) && (
-                        <Avatar className="h-9 w-9">
+                        <Avatar className="h-9 w-9 border border-slate-200">
                           {
                             item.avatar_url
                               ? <AvatarImage src={item.avatar_url} alt="Avatar" />

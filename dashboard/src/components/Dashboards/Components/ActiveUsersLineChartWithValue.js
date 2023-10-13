@@ -43,9 +43,10 @@ const GroupingDropdown = ({ currentGrouping, onSelection }) => (
 )
 
 
-export default function ActiveUsersLineChart({ data, selectedGrouping, onGroupingChange, includeSettingsDropdown = true }) {
+export default function ActiveUsersLineChart({ data, selectedGrouping, onGroupingChange, includeSettingsDropdown = true, ...props }) {
   return (
     <LineChartWithValue
+      {...props} 
       title={<div><GroupingDropdown currentGrouping={selectedGrouping} onSelection={onGroupingChange} /></div>}
       value={data?.value}
       timeseries={data?.timeseries}
