@@ -9,8 +9,7 @@ module.exports = {
   },
 };
 
-// Injected content via Sentry wizard below
-if(process.env.NEXT_PUBLIC_SENTRY_DSN) {
+if (process.env.NEXT_PUBLIC_SENTRY_DSN) {
   const { withSentryConfig } = require("@sentry/nextjs");
 
   module.exports = withSentryConfig(
@@ -44,5 +43,4 @@ if(process.env.NEXT_PUBLIC_SENTRY_DSN) {
       disableLogger: true,
     }
   );
-
 }

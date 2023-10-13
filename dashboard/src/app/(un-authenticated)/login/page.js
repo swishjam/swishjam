@@ -2,8 +2,6 @@
 
 import { useState } from 'react';
 import { logUserIn } from '@/lib/auth';
-// import { useRouter } from 'next/navigation';
-import Link from 'next/link';
 import cn from 'classnames';
 import { Field, Form, Formik } from 'formik';
 import * as Yup from 'yup';
@@ -16,7 +14,6 @@ const SignInSchema = Yup.object().shape({
 });
 
 export default function Login() {
-  // const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState(null);
 
@@ -27,7 +24,7 @@ export default function Login() {
       setLoading(false);
       setErrorMsg(error);
     } else {
-      // router.push('/');
+      // do full redirect to make sure auth gets set correctly
       window.location.href = '/';
     }
   }

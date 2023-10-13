@@ -110,9 +110,9 @@ While in the /backend repo run from your command line:
 ### Reseeding the local database
 
 ```
-bundle exec rake db:drop
-bundle exec rake db:create
-bundle exec rake db:migrate
+bundle exec rake db:drop &&
+bundle exec rake db:create &&
+bundle exec rake db:migrate &&
 bundle exec rake seed:dummy_data
 ```
 

@@ -194,10 +194,6 @@ const OrganizationProfile = ({ params }) => {
         <OrgProfileCard
           className="col-span-4" 
           orgData={organizationData}
-          name={organizationData.name}
-          createdAt={organizationData.created_at}
-          mrr={billingData?.current_mrr}
-          lifetimeRevenue={billingData?.lifetime_revenue}
         />
         <div className='col-span-6'>
           {/* <ActiveUsersLineChart scopedOrganizationId={id} /> */}
@@ -222,6 +218,7 @@ const OrganizationProfile = ({ params }) => {
             linkFormatter={user => `/users/${user.id}`}
           />
           <BarList
+            className="mt-4" 
             title='Top pages'
             items={pageHitData}
           />

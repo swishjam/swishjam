@@ -65,7 +65,7 @@ export default function ItemizedList({
                         <p className="text-sm font-medium leading-none">{item[leftItemHeaderKey] || item[leftItemSubHeaderKey]}</p>
                         {item[leftItemHeaderKey] && <p className="text-sm text-muted-foreground">{item[leftItemSubHeaderKey]}</p>}
                       </div>
-                      <div className="ml-auto text-sm font-medium">{rightItemKeyFormatter(item[rightItemKey])}</div>
+                      <div className="ml-auto text-sm font-medium">{rightItemKeyFormatter(item[rightItemKey]) }</div>
                     </Link>
                   ))
                 )

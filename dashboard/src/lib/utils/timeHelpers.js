@@ -7,6 +7,9 @@ const ONE_MINUTE_IN_SECONDS = ONE_MINUTE_IN_MS / 1_000;
 const ONE_HOUR_IN_SECONDS = ONE_HOUR_IN_MS / 1_000;
 const ONE_DAY_IN_SECONDS = ONE_DAY_IN_MS / 1_000;
 
+const LONG_MONTHS = ['January', "February", 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
+const SHORT_MONTHS = ['Jan', "Feb", 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+
 const intelligentlyFormattedMs = ms => {
   try {
     if (ms < ONE_SECOND_IN_MS) {
@@ -26,6 +29,8 @@ const intelligentlyFormattedMs = ms => {
 }
 
 export {
+  intelligentlyFormattedMs,
+  LONG_MONTHS,
   ONE_SECOND_IN_MS,
   ONE_MINUTE_IN_MS,
   ONE_HOUR_IN_MS,
@@ -33,5 +38,5 @@ export {
   ONE_MINUTE_IN_SECONDS,
   ONE_HOUR_IN_SECONDS,
   ONE_DAY_IN_SECONDS,
-  intelligentlyFormattedMs,
+  SHORT_MONTHS,
 }

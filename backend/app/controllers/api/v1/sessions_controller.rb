@@ -33,7 +33,7 @@ module Api
           comparison_start_time: comparison_start_timestamp,
           comparison_end_time: comparison_end_timestamp,
           grouped_by: timeseries.group_by,
-        } , status: :ok
+        }, status: :ok
       end
 
       def referrers
