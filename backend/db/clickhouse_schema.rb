@@ -41,11 +41,6 @@ ClickhouseActiverecord::Schema.define(version: 2023_09_28_190850) do
     t.string "properties", null: false
   end
 
-  # TABLE: events_backup
-  # SQL: CREATE TABLE swishjam_analytics_dev.events_backup ( `uuid` String, `swishjam_api_key` LowCardinality(String), `name` LowCardinality(String), `analytics_family` Enum8('marketing' = 1, 'product' = 2, 'other' = 3) DEFAULT 'other', `ingested_at` DateTime DEFAULT now(), `occurred_at` DateTime, `properties` String ) ENGINE = MergeTree ORDER BY (analytics_family, swishjam_api_key, name, occurred_at) SETTINGS index_granularity = 8192
-# Could not dump table "events_backup" because of following StandardError
-#   Unknown type 'Enum8('marketing' = 1, 'product' = 2, 'other' = 3)' for column 'analytics_family'
-
   # TABLE: organization_identify_events
   # SQL: CREATE TABLE swishjam_analytics_dev.organization_identify_events ( `uuid` String, `swishjam_api_key` LowCardinality(String), `session_identifier` String, `device_identifier` String, `swishjam_organization_id` String, `occurred_at` DateTime, `ingested_at` DateTime DEFAULT now() ) ENGINE = ReplacingMergeTree PRIMARY KEY (swishjam_api_key, session_identifier) ORDER BY (swishjam_api_key, session_identifier) SETTINGS index_granularity = 8192
   create_table "organization_identify_events", id: false, options: "ReplacingMergeTree PRIMARY KEY (swishjam_api_key, session_identifier) ORDER BY (swishjam_api_key, session_identifier) SETTINGS index_granularity = 8192", force: :cascade do |t|

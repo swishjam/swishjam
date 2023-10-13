@@ -8,9 +8,10 @@ class Workspace < Transactional
   has_many :integrations, dependent: :destroy
   has_many :retention_cohorts, dependent: :destroy
   has_many :retention_cohort_activity_periods, through: :retention_cohorts
-  has_many :users, through: :workspace_members
-  has_many :workspace_members, dependent: :destroy
   has_one :settings, class_name: WorkspaceSetting.to_s, dependent: :destroy
+  has_many :workspace_invitations, dependent: :destroy
+  has_many :workspace_members, dependent: :destroy
+  has_many :users, through: :workspace_members
 
   after_create_commit { ApiKey.generate_default_keys_for(self) }
   after_create_commit { WorkspaceSetting.generate_default_for(self) }

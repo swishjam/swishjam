@@ -27,6 +27,7 @@ export default function RetentionWidget({ retentionCohorts, isExpandable = true,
               <TooltipTrigger>
                 <div className="flex items-center space-x-2">
                   <Switch
+                    as='div'
                     checked={chartType === 'grid'}
                     onChange={toggleChartType}
                     className={classNames(
