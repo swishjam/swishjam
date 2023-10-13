@@ -85,7 +85,7 @@ export default function Organizations() {
                           <td className="whitespace-nowrap py-3 pl-4 pr-3 text-sm sm:pl-6 lg:pl-8">
                             <div className="flex items-center">
                               <div className="flex-shrink-0">
-                                <Avatar>
+                                <Avatar className="border border-slate-200">
                                   <AvatarImage src={organization.image} />
                                   <AvatarFallback>{organization.name.split(' ').map(word => word[0]).join('').toUpperCase()}</AvatarFallback>
                                 </Avatar>
