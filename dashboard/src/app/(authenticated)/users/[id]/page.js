@@ -67,7 +67,7 @@ const UserProfile = ({ params }) => {
                       {userData.full_name}
                     </CardTitle>
                     <CardDescription className='text-base text-gray-500'>
-                      {userData.email} adsfasdfasdfasdfafasdfadsf
+                      {userData.email}
                     </CardDescription>
                   </div>
                 </div>

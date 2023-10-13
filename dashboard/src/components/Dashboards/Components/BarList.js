@@ -16,10 +16,10 @@ const LoadingState = () => (
   </div>
 )
 
-export default function BarList({ title, items, includeCard = true }) {
+export default function BarList({ title, items, includeCard = true, ...props }) {
   if (!items) {
     return (
-      <ConditionalCardWrapper title={title} includeCard={includeCard}>
+      <ConditionalCardWrapper title={title} includeCard={includeCard} {...props}>
         <LoadingState />
       </ConditionalCardWrapper>
     )
@@ -29,7 +29,7 @@ export default function BarList({ title, items, includeCard = true }) {
   const sortedItems = items.sort((item1, item2) => item2.value - item1.value);
 
   return (
-    <ConditionalCardWrapper title={title} includeCard={includeCard}>
+    <ConditionalCardWrapper title={title} includeCard={includeCard} {...props}>
       <div>
         <div className="flex justify-between space-x-6">
           <div className="relative w-full">
