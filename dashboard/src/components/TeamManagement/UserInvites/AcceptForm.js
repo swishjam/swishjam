@@ -2,12 +2,13 @@ import { ExclamationCircleIcon } from '@heroicons/react/24/outline';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import { setAuthToken } from '@/lib/auth';
 import SwishjamAPI from '@/lib/api-client/swishjam-api';
+import { UserPlusIcon } from '@heroicons/react/20/solid';
 import useAuthData from '@/hooks/useAuthData'
 import { useState } from 'react'
 
 export default function AcceptForm({ userInvite }) {
   const { email: loggedInUserEmail } = useAuthData();
-  const [currentView, setCurrentView] = useState('register');
+  const [currentView, setCurrentView] = useState(userInvite.invited_email_is_existing_user ? 'login' : 'register');
   const [email, setEmail] = useState(userInvite.invited_email);
   const [errorMsg, setErrorMsg] = useState();
   const [loading, setLoading] = useState(false);
@@ -68,9 +69,13 @@ export default function AcceptForm({ userInvite }) {
           </>
         ) : (
           <>
-            <h2 className="text-lg mb-6 text-gray-900 text-center">
-              <span className='font-medium'>{userInvite.invited_by_user.email}</span> has invited you to join the <span className='font-medium'>{userInvite.workspace.name}</span> workspace on Swishjam.
-            </h2>
+            <div className="flex items-center mb-6 text-gray-900 text-sm bg-slate-50 rounded py-2 px-4 border border-slate-300">
+              <UserPlusIcon className='h-6 w-6 mr-2 flex-shrink-0' />
+              <span className='flex-grow px-2'>
+                <span className='font-medium'>{userInvite.invited_by_user.email}</span> has invited you to join the <span className='font-medium'>{userInvite.workspace.name}</span> workspace on Swishjam.
+              </span>
+            </div>
+            <h2 className="text-2xl mb-6 text-gray-900">{currentView === 'register' ? 'Register' : 'Sign into your account'}</h2>
             <form onSubmit={acceptInviteAsLoggedOutUser}>
               <div>
                 <label htmlFor="email" className="block text-sm font-medium text-gray-700">
@@ -103,7 +108,7 @@ export default function AcceptForm({ userInvite }) {
                 </button>
               </div>
             </form>
-            <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-lg">
+            <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-lg border-t border-gray-200 pt-8 text-center">
               <p className="text-sm text-gray-600">
                 {currentView === 'register' ? 'Already have an account?' : 'Need an account?'}
                 <span
