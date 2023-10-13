@@ -1,6 +1,10 @@
 import Base from "./base";
 
 export class Integrations extends Base {
+  static async create({ type, config, enabled }) {
+    return await this._post('/api/v1/integrations', { type, config, enabled });
+  }
+
   static async list() {
     return await this._get('/api/v1/integrations')
   }
@@ -12,7 +16,7 @@ export class Integrations extends Base {
   static async enable(id) {
     return await this._patch(`/api/v1/integrations/${id}/enable`);
   }
-  
+
   static async disable(id) {
     return await this._patch(`/api/v1/integrations/${id}/disable`);
   }

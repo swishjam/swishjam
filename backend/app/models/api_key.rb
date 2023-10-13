@@ -1,6 +1,6 @@
 class ApiKey < Transactional
   class ReservedDataSources
-    SOURCES = %i[product marketing integrations blog docs].freeze
+    SOURCES = %i[stripe resend product marketing integrations blog docs].freeze
     
     class << self
       SOURCES.each do |source|
@@ -22,7 +22,6 @@ class ApiKey < Transactional
   validates :private_key, presence: true, uniqueness: true
   validates :enabled, presence: true
   # validate :one_enabled_key_per_data_source, on: [:create, :update]
-  
   before_validation { self.enabled = true if self.enabled.nil? }
   before_validation { self.data_source = self.data_source&.downcase }
   before_validation :generate_keys, on: :create
@@ -35,7 +34,6 @@ class ApiKey < Transactional
     workspace.api_keys.insert_all([
       { data_source: ReservedDataSources.PRODUCT , public_key: generate_key("swishjam_prdct", :public_key), private_key: generate_key("swishjam_prdct", :private_key), enabled: true, created_at: Time.current, updated_at: Time.current }, 
       { data_source: ReservedDataSources.MARKETING, public_key: generate_key("swishjam_mrkt", :public_key), private_key: generate_key("swishjam_mrkt", :private_key), enabled: true, created_at: Time.current, updated_at: Time.current },
-      { data_source: ReservedDataSources.INTEGRATIONS, public_key: generate_key("swishjam_intgrn", :public_key), private_key: generate_key("swishjam_intgrn", :private_key), enabled: true, created_at: Time.current, updated_at: Time.current },
     ])
   end
 
@@ -54,7 +52,6 @@ class ApiKey < Transactional
     return key unless ApiKey.exists?("#{type}": key)
     generate_key(prefix)
   end
-
 
   def enabled?
     enabled

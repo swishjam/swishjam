@@ -151,7 +151,7 @@ Rails.application.routes.draw do
 
       resources :customer_subscriptions, only: [:index]
 
-      resources :integrations, only: [:destroy, :index] do
+      resources :integrations, only: [:destroy, :index, :create] do
         member do
           patch :enable
           patch :disable
@@ -159,6 +159,11 @@ Rails.application.routes.draw do
       end
       
       get :'/admin/ingestion/queuing', to: 'admin/ingestion#queueing'
+
+      namespace :webhooks do
+        post :stripe, to: 'stripe#receive'
+        post :'resend/:workspace_id', to: 'resend#receive'
+      end
     end
   end
 end
