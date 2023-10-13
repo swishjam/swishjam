@@ -35,9 +35,9 @@ export default function Invitation({ params }) {
           </div>
           <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-lg">
             {userInvite
-              ? isExpired || userInvite.accepted_at
-                ? <div className='text-center'>This invite is no longer valid, please request a new one from your organization admin.</div>
-                : <AcceptForm userInvite={userInvite} />
+              ? userInvite.is_acceptable
+                ? <AcceptForm userInvite={userInvite} />
+                : <div className='text-center'>This invite is no longer valid, please request a new one from your organization admin.</div>
               : (
                 <div className="bg-white py-12 px-8 border rounded-lg shadow-sm text-center">
                   <div className='w-fit m-auto'>

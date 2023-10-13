@@ -19,47 +19,46 @@ module Api
 
       def accept
         invitation = WorkspaceInvitation.find_by(invite_token: params[:invite_token])
-        if !invitation.acceptable?
-          render json: { error: "Invitation is no longer valid." }, status: :unprocessable_entity
-          return
-        end
 
         case params[:acceptance_method]
         when 'login'
           user = User.find_by(email: params[:email])
           if user && user.authenticate(params[:password])
-            if invitation.workspace.users.find(user.id)
-              render json: { error: "#{user.email} is already a member of this workspace." }, status: :unprocessable_entity
-            else
-              invitation.workspace.users << user
-              invitation.accept!
-              auth_token = log_user_in(user, invitation.workspace)
-              render json: { auth_token: auth_token }, status: :ok
-            end
+            accept_invitation(invitation, user)
           else
             render json: { error: "Email or password is incorrect." }, status: :unprocessable_entity
           end
         when 'register'
           user = User.new(email: params[:email], password: params[:password])
           if user.save
-            invitation.workspace.users << user
-            invitation.accept!
-            auth_token = log_user_in(user, invitation.workspace)
-            render json: { auth_token: auth_token }, status: :ok
+            accept_invitation(invitation, user)
           else
             render json: { error: user.errors.full_messages.join(' ') }, status: :unprocessable_entity
           end
         when 'existing'
           if current_user
-            invitation.workspace.users << current_user
-            invitation.accept!
-            auth_token = log_user_in(current_user, invitation.workspace)
-            render json: { auth_token: auth_token }, status: :ok
+            accept_invitation(invitation, current_user)
           else
             render json: { error: "Unable to accept invite at this time. Please contact support." }, status: :unprocessable_entity
           end
         else
           render json: { error: "Unrecognized acceptance_method provided." }, status: :unprocessable_entity
+        end
+      end
+
+      private
+
+      def accept_invitation(invitation, user)
+        workspace_member = invitation.workspace.workspace_members.new(user: user)
+        if workspace_member.save
+          if invitation.accept!
+            auth_token = log_user_in(user, invitation.workspace)
+            render json: { auth_token: auth_token }, status: :ok
+          else
+            render json: { error: invitation.errors.full_messages.join(' ') }, status: :unprocessable_entity
+          end
+        else
+          render json: { error: workspace_member.errors.full_messages.join(' ') }, status: :unprocessable_entity
         end
       end
 

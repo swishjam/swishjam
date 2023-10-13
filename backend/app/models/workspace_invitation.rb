@@ -5,11 +5,17 @@ class WorkspaceInvitation < Transactional
   before_create { self.invite_token = "invite-#{SecureRandom.uuid}" }
   before_create { self.expires_at = 7.days.from_now }
 
+  validates :workspace, presence: true
+  validates :invited_by_user, presence: true
   validate :invited_email_not_part_of_workspace, on: :create
 
   def accept!
-    return false if !acceptable?
-    update!(accepted_at: Time.current)
+    if !acceptable?
+      errors.add(:base, "Invitation is expired, please request a new invite from your admin.")
+      false
+    else
+      update!(accepted_at: Time.current)
+    end
   end
 
   def acceptable?
