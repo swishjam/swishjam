@@ -44,12 +44,15 @@ export default function AcceptForm({ userInvite }) {
 
   return (
     <div className="bg-white py-8 px-4 sm:border sm:rounded-lg sm:px-10 shadow-sm">
+      <div className="flex items-center mb-6 text-gray-900 text-sm bg-slate-50 rounded py-2 px-4 border border-slate-300">
+        <UserPlusIcon className='h-6 w-6 mr-2 flex-shrink-0' />
+        <span className='flex-grow px-2'>
+          <span className='font-medium'>{userInvite.invited_by_user.email}</span> has invited you to join the <span className='font-medium'>{userInvite.workspace.name}</span> workspace on Swishjam.
+        </span>
+      </div>
       {loggedInUserEmail
         ? (
           <>
-            <h2 className="text-lg text-gray-900 text-center">
-              <span className='font-medium'>{userInvite.invited_by_user.email}</span> has invited you to join the <span className='font-medium'>{userInvite.workspace.name}</span> workspace on Swishjam.
-            </h2>
             {loggedInUserEmail !== email && (
               <div className="flex items-center justify-center bg-yellow-50 text-yellow-700 text-sm mb-4 rounded-md p-4 mt-2">
                 <ExclamationCircleIcon className='h-5 w-5 inline-block mr-2' />
@@ -69,12 +72,6 @@ export default function AcceptForm({ userInvite }) {
           </>
         ) : (
           <>
-            <div className="flex items-center mb-6 text-gray-900 text-sm bg-slate-50 rounded py-2 px-4 border border-slate-300">
-              <UserPlusIcon className='h-6 w-6 mr-2 flex-shrink-0' />
-              <span className='flex-grow px-2'>
-                <span className='font-medium'>{userInvite.invited_by_user.email}</span> has invited you to join the <span className='font-medium'>{userInvite.workspace.name}</span> workspace on Swishjam.
-              </span>
-            </div>
             <h2 className="text-2xl mb-6 text-gray-900">{currentView === 'register' ? 'Register' : 'Sign into your account'}</h2>
             <form onSubmit={acceptInviteAsLoggedOutUser}>
               <div>
