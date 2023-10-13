@@ -32,7 +32,6 @@ export default function UserFlyout() {
   return (
     <DropdownMenu className='w-full'>
       <DropdownMenuTrigger asChild>
-        {/* <Button variant="outline"> */}
         <Button variant='outline' className='w-full border-none flex justify-between'>
           <div className='flex items-center truncate'>
             <UserCircleIcon className='text-gray-400 group-hover:text-swishjam duration-300 transition h-6 w-6 shrink-0 inline-block mr-2' />
