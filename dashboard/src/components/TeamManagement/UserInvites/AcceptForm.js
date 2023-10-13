@@ -54,20 +54,21 @@ export default function AcceptForm({ userInvite }) {
         ? (
           <>
             {loggedInUserEmail !== email && (
-              <div className="flex items-center justify-center bg-yellow-50 text-yellow-700 text-sm mb-4 rounded-md p-4 mt-2">
-                <ExclamationCircleIcon className='h-5 w-5 inline-block mr-2' />
-                <span>This invitation was intended for <span className='font-medium'>{userInvite.invited_email}</span>.</span>
+              <div className="flex items-center bg-yellow-50 text-yellow-700 text-xs mb-4 rounded-md p-4 mt-2">
+                <ExclamationCircleIcon className='h-5 w-5 inline-block mr-2 flex-shrink-0' />
+                <span className='flex-grow'>
+                  This invitation was intended for <span className='font-medium'>{userInvite.invited_email}</span>, but you are logged in as <span className='font-medium'>{loggedInUserEmail}</span>.
+                </span>
               </div>
             )}
+            <h2 className="text-xl mb-6 text-gray-900">Welcome back, <span className='font-medium'>{loggedInUserEmail}</span></h2>
             {errorMsg && <div className="text-red-600 text-sm text-center mb-2">{errorMsg}</div>}
             <button
               className={`w-full mt-6 flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white focus:outline-none focus:ring-2 ${loading ? 'bg-gray-400' : 'bg-swishjam hover:bg-swishjam-dark'}`}
               disabled={loading}
               onClick={acceptInviteAsLoggedInUser}
             >
-              {loading
-                ? <div className="h-6"><LoadingSpinner size={6} color='white' /></div>
-                : 'Accept Invite'}
+              {loading ? <div className="h-6"><LoadingSpinner size={6} color='white' /></div> : 'Accept Invite'}
             </button>
           </>
         ) : (
@@ -101,7 +102,9 @@ export default function AcceptForm({ userInvite }) {
                 >
                   {loading
                     ? <div className="h-6"><LoadingSpinner size={6} color='white' /></div>
-                    : currentView === 'register' ? 'Register and Accept Invite' : 'Login and Accept Invite'}
+                    : currentView === 'register'
+                      ? 'Register and Accept Invite'
+                      : 'Login and Accept Invite'}
                 </button>
               </div>
             </form>
@@ -110,7 +113,10 @@ export default function AcceptForm({ userInvite }) {
                 {currentView === 'register' ? 'Already have an account?' : 'Need an account?'}
                 <span
                   className="font-medium text-swishjam hover:text-swishjam-dark ml-1 cursor-pointer"
-                  onClick={() => setCurrentView(currentView === 'register' ? 'login' : 'register')}
+                  onClick={() => {
+                    setPassword('')
+                    setCurrentView(currentView === 'register' ? 'login' : 'register')
+                  }}
                 >
                   {currentView === 'register' ? 'Sign in' : 'Sign up'}
                 </span>
@@ -119,6 +125,6 @@ export default function AcceptForm({ userInvite }) {
           </>
         )
       }
-    </div>
+    </div >
   )
 }
