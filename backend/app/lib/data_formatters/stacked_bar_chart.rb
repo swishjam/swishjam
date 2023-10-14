@@ -1,7 +1,7 @@
 module DataFormatters
   class StackedBarChart
     class InvalidFormat < StandardError; end;
-    attr_reader :data, :start_time, :end_time, :group_by
+    attr_reader :start_time, :end_time, :group_by
     
     def initialize(data, start_time:, end_time:, group_by:, key_method:, value_method: :count, date_method: :occurred_at)
       @data = data
@@ -14,7 +14,7 @@ module DataFormatters
     end
 
     def raw_data
-      data
+      @data
     end
 
     def filled_in_data
@@ -22,7 +22,7 @@ module DataFormatters
       current_time = start_time
       @filled_in_data = []
       while current_time <= end_time
-        results_for_date = data.find_all{ |result| result.send(@date_method).to_datetime == current_time.to_datetime }
+        results_for_date = raw_data.find_all{ |result| result.send(@date_method).to_datetime == current_time.to_datetime }
 
         hash_for_date = Hash.new.tap do |hash|
           hash[:date] = current_time
@@ -31,19 +31,11 @@ module DataFormatters
           end
         end
 
-        @filled_in_data <<  hash_for_date
+        @filled_in_data << hash_for_date
         current_time += 1.send(group_by)
       end
       @filled_in_data
     end
     alias formatted_data filled_in_data
-
-    def current_value
-      @current_value ||= filled_in_data.last[:value]
-    end
-
-    def summed_value
-      @summed_value ||= filled_in_data.collect{ |h| h[:value] }.sum
-    end
   end
 end

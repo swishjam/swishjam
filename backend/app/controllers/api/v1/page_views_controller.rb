@@ -1,6 +1,8 @@
 module Api
   module V1
     class PageViewsController < BaseController
+      include TimeseriesHelper
+
       def index
         limit = params[:limit] || 10
         params[:data_source] ||= ApiKey::ReservedDataSources.MARKETING
@@ -17,6 +19,7 @@ module Api
         params[:data_source] ||= ApiKey::ReservedDataSources.MARKETING
         chart_data = ClickHouseQueries::PageViews::StackedBarChart.new(
           public_keys_for_requested_data_source,
+          max_ranking_to_not_be_considered_other: params[:max_ranking_to_not_be_considered_other] || 10,
           start_time: start_timestamp,
           end_time: end_timestamp
         ).data

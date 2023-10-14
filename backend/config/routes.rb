@@ -136,6 +136,7 @@ Rails.application.routes.draw do
 
       resources :page_views, only: [:index] do
         collection do
+          get :timeseries
           get :bar_chart
         end
       end
@@ -158,6 +159,7 @@ Rails.application.routes.draw do
         resources :properties, only: [:index], param: :name, controller: :'events/properties' do
           member do
             get :counts, to: 'events/properties#counts'
+            get :stacked_bar_chart, to: 'events/properties#stacked_bar_chart'
           end
         end
       end
