@@ -119,6 +119,18 @@ GEM
       concurrent-ruby (~> 1.0)
     jsonapi-renderer (0.2.2)
     jwt (2.7.1)
+    kaminari (1.2.2)
+      activesupport (>= 4.1.0)
+      kaminari-actionview (= 1.2.2)
+      kaminari-activerecord (= 1.2.2)
+      kaminari-core (= 1.2.2)
+    kaminari-actionview (1.2.2)
+      actionview
+      kaminari-core (= 1.2.2)
+    kaminari-activerecord (1.2.2)
+      activerecord
+      kaminari-core (= 1.2.2)
+    kaminari-core (1.2.2)
     listen (3.8.0)
       rb-fsevent (~> 0.10, >= 0.10.3)
       rb-inotify (~> 0.9, >= 0.9.10)
@@ -219,6 +231,9 @@ GEM
       sentry-ruby (~> 5.11.0)
     sentry-ruby (5.11.0)
       concurrent-ruby (~> 1.0, >= 1.0.2)
+    sentry-sidekiq (5.11.0)
+      sentry-ruby (~> 5.11.0)
+      sidekiq (>= 3.0)
     sidekiq (6.5.9)
       connection_pool (>= 2.2.5, < 3)
       rack (~> 2.0)
@@ -294,6 +309,7 @@ DEPENDENCIES
   geocoder
   groupdate
   jwt
+  kaminari
   listen (~> 3.3)
   net-http
   pg (~> 1.1)
@@ -303,6 +319,7 @@ DEPENDENCIES
   rspec
   sentry-rails
   sentry-ruby
+  sentry-sidekiq
   sidekiq (~> 6.5)
   sidekiq-failures
   sidekiq-scheduler

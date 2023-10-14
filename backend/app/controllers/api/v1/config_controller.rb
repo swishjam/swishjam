@@ -4,7 +4,8 @@ module Api
       def index
         render json: {
           workspace: current_workspace,
-          api_keys: current_workspace.api_keys.map { |key| ApiKeySerializer.new(key) }
+          api_keys: current_workspace.api_keys.enabled.map { |key| ApiKeySerializer.new(key) },
+          settings: WorkspaceSettingsSerializer.new(current_workspace.settings)
         }, status: :ok
       end
     end

@@ -5,8 +5,8 @@ module ClickHouseQueries
         class List
           include ClickHouseQueries::Helpers
 
-          def initialize(public_key, user_profile_id:, start_time: 6.months.ago, end_time: Time.current, limit: 10)
-            @public_key = public_key
+          def initialize(public_keys, user_profile_id:, start_time: 6.months.ago, end_time: Time.current, limit: 10)
+            @public_keys = public_keys.is_a?(Array) ? public_keys : [public_keys]
             @user_profile_id = user_profile_id
             @start_time = start_time
             @end_time = end_time
@@ -22,7 +22,7 @@ module ClickHouseQueries
           def sql
             <<~SQL
               SELECT 
-                COUNT() AS count,
+                CAST(COUNT() AS int) AS count,
                 domain(JSONExtractString(e.properties, 'url')) AS url_host,
                 path(JSONExtractString(e.properties, 'url')) AS url_path
               FROM events AS e
@@ -31,13 +31,13 @@ module ClickHouseQueries
                   device_identifier,
                   argMax(swishjam_user_id, occurred_at) AS swishjam_user_id
                 FROM user_identify_events AS uie
-                WHERE swishjam_api_key in #{formatted_in_clause(@public_key)}
+                WHERE swishjam_api_key IN #{formatted_in_clause(@public_keys)}
                 GROUP BY device_identifier
               ) AS uie ON 
                 JSONExtractString(e.properties, '#{Analytics::Event::ReservedPropertyNames.DEVICE_IDENTIFIER}') = uie.device_identifier AND 
                 uie.swishjam_user_id = '#{@user_profile_id}'
               WHERE 
-                e.swishjam_api_key in #{formatted_in_clause(@public_key)} AND
+                e.swishjam_api_key IN #{formatted_in_clause(@public_keys)} AND
                 e.occurred_at BETWEEN '#{formatted_time(@start_time)}' AND '#{formatted_time(@end_time)}' AND
                 e.name = '#{Analytics::Event::ReservedNames.PAGE_VIEW}' AND
                 uie.swishjam_user_id = '#{@user_profile_id}' 

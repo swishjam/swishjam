@@ -34,16 +34,20 @@ module TimestampHelper
       raise "Invalid timeframe #{params[:timeframe]}, supported values are: 'hour', 'today', '24_hours', 'this_week', 'seven_days', 'this_month', 'thirty_days', 'sixty_days', 'two_months', 'ninety_days', 'three_months', 'six_months', 'this_year', or 'one_year'."
     end
   end
+  alias start_time start_timestamp
 
   def end_timestamp
     Time.zone.now
   end
+  alias end_time end_timestamp
 
   def comparison_start_timestamp
     start_timestamp - (end_timestamp - start_timestamp)
   end
+  alias comparison_start_time comparison_start_timestamp
 
   def comparison_end_timestamp
     start_timestamp
   end
+  alias comparison_end_time comparison_end_timestamp
 end

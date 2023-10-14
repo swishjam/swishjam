@@ -1,6 +1,6 @@
 {
   "name": "@swishjam/react",
-  "version": "0.0.18",
+  "version": "0.0.197",
   "description": "React wrapper for SwishjamJS.",
   "main": "./dist/cjs/index.js",
   "module": "./dist/esm/index.js",
@@ -16,7 +16,8 @@
   "sideEffects": false,
   "scripts": {
     "prebuild": "rm -rf dist",
-    "build": "rollup -c"
+    "build": "rollup -c",
+    "deploy": "npm run build && npm publish"
   },
   "keywords": [
     "analytics"
@@ -24,7 +25,7 @@
   "author": "Swishjam",
   "license": "MIT",
   "dependencies": {
-    "@swishjam/core": "^0.0.215"
+    "@swishjam/core": "^0.0.23"
   },
   "devDependencies": {
     "@babel/plugin-transform-runtime": "^7.21.0",

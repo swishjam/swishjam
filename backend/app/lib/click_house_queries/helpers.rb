@@ -5,8 +5,13 @@ module ClickHouseQueries
       # time.strftime('%Y-%m-%d')
     end
 
+    def formatted_date(date)
+      date.strftime('%Y-%m-%d')
+    end
+
     def formatted_in_clause(array)
       "(#{array.map{ |item| "'#{item}'" }.join(', ')})"
     end
+    alias formatted_in_statement formatted_in_clause
   end
 end

@@ -12,7 +12,7 @@ module Api
             start_time: 1.year.ago,
             end_time: end_timestamp
           ).get
-          render json: events, each_serializer: Analytics::EventSerializer, status: :ok
+          render json: events, status: :ok
         end
       end
     end

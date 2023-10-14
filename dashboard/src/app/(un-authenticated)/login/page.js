@@ -2,8 +2,6 @@
 
 import { useState } from 'react';
 import { logUserIn } from '@/lib/auth';
-// import { useRouter } from 'next/navigation';
-import Link from 'next/link';
 import cn from 'classnames';
 import { Field, Form, Formik } from 'formik';
 import * as Yup from 'yup';
@@ -16,7 +14,6 @@ const SignInSchema = Yup.object().shape({
 });
 
 export default function Login() {
-  // const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState(null);
 
@@ -27,7 +24,7 @@ export default function Login() {
       setLoading(false);
       setErrorMsg(error);
     } else {
-      // router.push('/');
+      // do full redirect to make sure auth gets set correctly
       window.location.href = '/';
     }
   }
@@ -118,11 +115,11 @@ export default function Login() {
         </div>
       </div>
 
-      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-lg">
+      {/*<div className="mt-8 sm:mx-auto sm:w-full sm:max-w-lg">
         <p className="text-sm text-gray-600">
           Don't have an account? <span className="font-medium text-swishjam hover:text-swishjam-dark"><Link href="register"><span className="cursor-pointer">Sign up for free account</span></Link></span>
         </p>
-      </div>
+      </div>*/}
 
     </div>
   )

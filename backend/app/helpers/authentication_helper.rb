@@ -17,17 +17,20 @@ module AuthenticationHelper
 
   def log_user_out
     AuthSession.find_by!(jwt_value: jwt_token).destroy!
+    user = @current_user
     @current_user = nil
+    user
   end
 
   def authenticate_request!
     if !is_valid_session?
       render json: { error: 'Not Authorized', logged_out: true }, status: :unauthorized
+      return
     end
   end
 
   def current_workspace
-    @current_workspace ||= Workspace.find_by(id: decoded_jwt_token['current_workspace']['id'])
+    @current_workspace ||= current_user.workspaces.find_by(id: decoded_jwt_token['current_workspace']['id'])
   end
   
   # current_user is called by Rails serializers for some reason, so we need to make sure it doesn't throw an error
@@ -46,6 +49,9 @@ module AuthenticationHelper
 
   def is_valid_session?
     return false if jwt_token.blank?
-    AuthSession.exists?(jwt_value: jwt_token)
+    return false if !AuthSession.exists?(jwt_value: jwt_token)
+    return false if !current_user.present?
+    return false if !current_workspace.present?
+    true
   end
 end

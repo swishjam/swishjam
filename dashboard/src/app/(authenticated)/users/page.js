@@ -1,23 +1,41 @@
 'use client'
 
 import { useEffect, useState } from "react";
-import { API } from "@/lib/api-client/base";
+import { SwishjamAPI } from "@/lib/api-client/swishjam-api";
 import { Card, CardContent } from "@/components/ui/card"
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import LoadingView from './LoadingView';
+import Pagination from "@/components/Pagination/Pagination";
+import useCommandBar from "@/hooks/useCommandBar";
 
 export default function Users() {
   const router = useRouter();
+  const { setCommandBarIsOpen } = useCommandBar();
   const [usersData, setUsersData] = useState();
+  const [currentPageNum, setCurrentPageNum] = useState(1);
+  const [lastPageNum, setLastPageNum] = useState();
+  const [totalNumRecords, setTotalNumRecords] = useState();
+
+  const getUsers = async ({ page }) => {
+    setUsersData()
+    setCurrentPageNum(page);
+    await SwishjamAPI.Users.list({ page }).then(({ users, total_num_records, total_pages }) => {
+      setUsersData(users);
+      setLastPageNum(total_pages);
+      setTotalNumRecords(total_num_records);
+    });
+  }
+
 
   const navigateToUsersProfile = id => {
     router.push(`/users/${id}`);
   };
 
   useEffect(() => {
-    API.get(`/api/v1/users`).then(setUsersData);
+    getUsers({ page: currentPageNum })
   }, [])
 
   return (
@@ -49,8 +67,13 @@ export default function Users() {
                         <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
                           Email
                         </th>
-                        <th scope="col" className="relative py-3.5 pl-3 pr-4 sm:pr-6 lg:pr-8">
-                          <span className="sr-only">View</span>
+                        <th scope="col" className="flex justify-end py-3.5 pl-3 pr-4 sm:pr-6 lg:pr-8">
+                          <button
+                            className='border-none bg-white flex-shrink-0 cursor-pointer rounded-full p-2 hover:bg-gray-100'
+                            onClick={() => setCommandBarIsOpen(true)}
+                          >
+                            <MagnifyingGlassIcon className='h-4 w-4' />
+                          </button>
                         </th>
                       </tr>
                     </thead>
@@ -85,11 +108,23 @@ export default function Users() {
                       }
                     </tbody>
                   </table>
-                  {usersData.length === 0 && (
-                  <div className='text-sm text-gray-500 text-center'>
-                    No users identified yet Once you begin to identify users in your app, they will show up here.
-                  </div>
-                  )}
+                  {usersData.length === 0 
+                    ?  (
+                      <div className='text-sm text-gray-500 text-center'>
+                        No users identified yet Once you begin to identify users in your app, they will show up here.
+                      </div>
+                    ) : (
+                      <div className='px-4'>
+                        <Pagination
+                          currentPage={currentPageNum}
+                          lastPageNum={lastPageNum}
+                          numRecordsDisplayed={usersData?.length}
+                          totalNumRecords={totalNumRecords}
+                          onNewPageSelected={page => getUsers({ page })}
+                        />
+                      </div>
+                    )
+                  }
                 </div>
               </div>
             </div>

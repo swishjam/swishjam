@@ -2,12 +2,12 @@
 
 import { useEffect } from "react";
 import { logUserOut } from "@/lib/auth";
-import { useRouter } from "next/navigation";
+// import { useRouter } from "next/navigation";
 import LoadingSpinner from "@/components/LoadingSpinner";
 
 
 export default function Logout() {
-  const router = useRouter();
+  // const router = useRouter();
 
   useEffect(() => {
     logUserOut().then(() => {

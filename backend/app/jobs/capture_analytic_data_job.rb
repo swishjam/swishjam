@@ -1,6 +1,7 @@
 EVENT_PROCESSOR_KLASS_DICT = {
   identify: WebEventProcessors::Identify,
   organization: WebEventProcessors::Organization,
+  sdk_error: WebEventProcessors::SdkError
 }
 
 class CaptureAnalyticDataJob
@@ -10,7 +11,7 @@ class CaptureAnalyticDataJob
 
   def perform(api_key, event_payload, requesting_ip_address)
     start = Time.now
-    workspace = verify_api_key!(api_key)
+    return if !valid_api_key_provided?(api_key)
 
     success_count = 0
     failed_count = 0
@@ -32,9 +33,10 @@ class CaptureAnalyticDataJob
 
   private
 
-  def verify_api_key!(api_key)
-    Workspace.find_by!(public_key: api_key)
+  def valid_api_key_provided?(api_key)
+    ApiKey.enabled.find_by!(public_key: api_key)
   rescue ActiveRecord::RecordNotFound => e
-    raise InvalidApiKeyError, "Invalid API key provided to `CaptureAnalyticDataJob`: #{api_key}"
+    Rails.logger.warn "Invalid API key provided to `CaptureAnalyticDataJob`: #{api_key}"
+    return false
   end
 end

@@ -4,14 +4,7 @@ module Api
       include TimeseriesHelper
 
       def count
-        render json: {
-          count: current_workspace.analytics_sessions.starting_after(start_timestamp).starting_at_or_before(end_timestamp).count,
-          comparison_count: current_workspace.analytics_sessions.starting_after(comparison_start_timestamp).starting_at_or_before(comparison_end_timestamp).count,
-          start_time: start_timestamp,
-          end_time: end_timestamp,
-          comparison_start_time: comparison_start_timestamp,
-          comparison_end_time: comparison_end_timestamp,
-        }, status: :ok
+        raise "Deprecated"
       end
 
       def timeseries
@@ -27,7 +20,8 @@ module Api
           start_time: comparison_start_timestamp,
           end_time: comparison_end_timestamp
         ).timeseries
-        json = {
+
+        render json: {
           timeseries: timeseries.formatted_data,
           current_count: timeseries.current_value,
           total_count: timeseries.summed_value,
@@ -37,11 +31,9 @@ module Api
           start_time: start_timestamp,
           end_time: end_timestamp,
           comparison_start_time: comparison_start_timestamp,
-          comparison_end_time: comparison_end_timestamp
-          # grouped_by: group_by_method.to_s.split('_').last,
-        }
-        
-        render json: json, status: :ok
+          comparison_end_time: comparison_end_timestamp,
+          grouped_by: timeseries.group_by,
+        }, status: :ok
       end
 
       def referrers

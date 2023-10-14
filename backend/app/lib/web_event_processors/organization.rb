@@ -26,6 +26,7 @@ module WebEventProcessors
         name: event_name,
         swishjam_api_key: public_key,
         occurred_at: timestamp,
+        ingested_at: Time.current,
         properties: properties.merge({ swishjam_organization_id: profile.id })
       )
     end

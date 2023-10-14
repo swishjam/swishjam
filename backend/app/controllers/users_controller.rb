@@ -17,7 +17,7 @@ class UsersController < ApplicationController
       end
       user = User.new(user_params)
       workspace = Workspace.new(name: parsed_company_url.hostname, company_url: parsed_company_url.to_s)
-      if user.valid? && workspace.save
+      if user.valid? && workspace.save && user.save
         user.workspaces << workspace
         token = log_user_in(user, workspace)
         render json: { 

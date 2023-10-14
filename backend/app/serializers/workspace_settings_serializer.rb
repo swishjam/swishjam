@@ -1,0 +1,3 @@
+class WorkspaceSettingsSerializer < ActiveModel::Serializer
+  attributes :combine_marketing_and_product_data_sources
+end

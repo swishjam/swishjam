@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2023_09_28_132109) do
+ActiveRecord::Schema.define(version: 2023_10_11_233958) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
@@ -121,6 +121,31 @@ ActiveRecord::Schema.define(version: 2023_09_28_132109) do
     t.index ["workspace_id"], name: "index_integrations_on_workspace_id"
   end
 
+  create_table "retention_cohort_activity_periods", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "workspace_id", null: false
+    t.uuid "retention_cohort_id", null: false
+    t.integer "num_active_users"
+    t.integer "num_periods_after_cohort"
+    t.date "time_period"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["retention_cohort_id"], name: "index_retention_cohort_activity_periods_on_retention_cohort_id"
+    t.index ["time_period"], name: "index_retention_cohort_activity_periods_on_time_period"
+    t.index ["workspace_id"], name: "index_retention_cohort_activity_periods_on_workspace_id"
+  end
+
+  create_table "retention_cohorts", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "workspace_id", null: false
+    t.string "time_granularity"
+    t.date "time_period"
+    t.integer "num_users_in_cohort"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["time_granularity"], name: "index_retention_cohorts_on_time_granularity"
+    t.index ["time_period"], name: "index_retention_cohorts_on_time_period"
+    t.index ["workspace_id"], name: "index_retention_cohorts_on_workspace_id"
+  end
+
   create_table "users", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.string "email", null: false
     t.string "password_digest", null: false
@@ -133,6 +158,17 @@ ActiveRecord::Schema.define(version: 2023_09_28_132109) do
     t.index ["jwt_secret_key"], name: "index_users_on_jwt_secret_key"
   end
 
+  create_table "workspace_invitations", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "workspace_id", null: false
+    t.uuid "invited_by_user_id", null: false
+    t.string "invite_token"
+    t.string "invited_email"
+    t.datetime "accepted_at"
+    t.datetime "expires_at"
+    t.index ["invited_by_user_id"], name: "index_workspace_invitations_on_invited_by_user_id"
+    t.index ["workspace_id"], name: "index_workspace_invitations_on_workspace_id"
+  end
+
   create_table "workspace_members", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.uuid "workspace_id", null: false
     t.uuid "user_id", null: false
@@ -140,6 +176,14 @@ ActiveRecord::Schema.define(version: 2023_09_28_132109) do
     t.datetime "updated_at", precision: 6, null: false
     t.index ["user_id"], name: "index_workspace_members_on_user_id"
     t.index ["workspace_id"], name: "index_workspace_members_on_workspace_id"
+  end
+
+  create_table "workspace_settings", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "workspace_id", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.boolean "combine_marketing_and_product_data_sources"
+    t.index ["workspace_id"], name: "index_workspace_settings_on_workspace_id"
   end
 
   create_table "workspaces", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -159,6 +203,11 @@ ActiveRecord::Schema.define(version: 2023_09_28_132109) do
   add_foreign_key "auth_sessions", "users"
   add_foreign_key "data_syncs", "workspaces"
   add_foreign_key "integrations", "workspaces"
+  add_foreign_key "retention_cohort_activity_periods", "retention_cohorts"
+  add_foreign_key "retention_cohort_activity_periods", "workspaces"
+  add_foreign_key "retention_cohorts", "workspaces"
+  add_foreign_key "workspace_invitations", "workspaces"
   add_foreign_key "workspace_members", "users"
   add_foreign_key "workspace_members", "workspaces"
+  add_foreign_key "workspace_settings", "workspaces"
 end

@@ -27,13 +27,39 @@ Rails.application.routes.draw do
       post :capture, to: 'capture#process_data'
 
       resources :config, only: [:index]
+      resources :search, only: [:index]
+
+      resources :workspace_settings, only: [] do
+        collection do
+          patch :update
+        end
+      end
+
+      resources :team, only: [] do
+        collection do
+          get :users
+          get :workspace_members
+        end
+      end
+
+      resources :workspace_invitations, only: [:create, :show, :destroy], param: :invite_token do
+        member do
+          post :accept
+        end
+      end
+
+      resources :workspace_members, only: [:destroy]
 
       resources :workspace, only: [] do
         collection do
           patch '/update', to: 'workspaces#update'
+          patch '/update_current_workspace/:workspace_id', to: 'workspaces#update_current_workspace'
         end
       end
 
+      ################################
+      ## BEGIN ORGANIZATIONS ROUTES ##
+      ################################
       resources :organizations, only: [:index, :show] do
         # collection do
         #   get :count
@@ -53,12 +79,18 @@ Rails.application.routes.draw do
         resources :page_views, only: [:index], controller: :'organizations/page_views'
         resources :billing, only: [:index], controller: :'organizations/billing'
       end
+      ##############################
+      ## END ORGANIZATIONS ROUTES ##
+      ##############################
 
+
+      ########################
+      ## BEGIN USERS ROUTES ##
+      ########################
       resources :users, only: [:index, :show] do
         collection do
-          get :count
-          get :timeseries
           get :active
+          get :timeseries
         end
         resources :events, only: [:index], controller: :'users/events'
         resources :organizations, only: [:index], controller: :'users/organizations'
@@ -69,6 +101,11 @@ Rails.application.routes.draw do
           end
         end
       end
+      ######################
+      ## END USERS ROUTES ##
+      ######################
+
+      resources :retention_cohorts, only: [:index]
 
       resources :sessions, only: [] do
         collection do
@@ -105,9 +142,34 @@ Rails.application.routes.draw do
       
       resources :events, only: [] do
         collection do
-          get :feed
+          get :timeseries
         end
       end
+      
+      resources :events, only: [:show], param: :name do
+        collection do
+          get :feed
+          get :unique
+        end
+        member do
+          get :count
+          get :timeseries
+        end
+        resources :properties, only: [:index], param: :name, controller: :'events/properties' do
+          member do
+            get :counts, to: 'events/properties#counts'
+          end
+        end
+      end
+
+      resources :dashboards, only: [:index, :show, :create, :update, :destroy]
+      resources :dashboard_components, only: [:index, :create, :update, :destroy] do
+        collection do
+          patch :bulk_update
+          post :bulk_create
+        end
+      end
+      resources :dashboards_dashboard_components, only: [:destroy]
 
       resources :billing_data_snapshots, only: [:index]
 
@@ -119,6 +181,8 @@ Rails.application.routes.draw do
           patch :disable
         end
       end
+      
+      get :'/admin/ingestion/queuing', to: 'admin/ingestion#queueing'
     end
   end
 end

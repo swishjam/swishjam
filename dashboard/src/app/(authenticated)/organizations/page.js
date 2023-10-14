@@ -1,23 +1,39 @@
 'use client'
 
 import { useEffect, useState } from "react";
-import { API } from "@/lib/api-client/base";
+import { SwishjamAPI } from "@/lib/api-client/swishjam-api";
 import { Card, CardContent } from "@/components/ui/card"
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useCommandBar } from '@/hooks/useCommandBar';
 import LoadingView from './LoadingView';
+import Pagination from "@/components/Pagination/Pagination";
 
 export default function Organizations() {
-  const [organizationsData, setOrganizationsData] = useState();
   const router = useRouter();
+  const { setCommandBarIsOpen } = useCommandBar();
+  const [organizationsData, setOrganizationsData] = useState();
+  const [currentPageNum, setCurrentPageNum] = useState(1);
+  const [lastPageNum, setLastPageNum] = useState();
+  const [totalNumRecords, setTotalNumRecords] = useState();
 
-  const handleClick = id => {
+  const getOrganizations = async page => {
+    setCurrentPageNum(page)
+    await SwishjamAPI.Organizations.list({ page }).then(({ organizations, total_num_records, total_pages }) => {
+      setOrganizationsData(organizations);
+      setTotalNumRecords(total_num_records);
+      setLastPageNum(total_pages);
+    });
+  }
+
+  const navigateToOrganizationProfile = id => {
     router.push(`/organizations/${id}`);
   };
 
   useEffect(() => {
-    API.get(`/api/v1/organizations`).then(setOrganizationsData);
+    getOrganizations(currentPageNum);
   }, [])
 
   return (
@@ -49,8 +65,13 @@ export default function Organizations() {
                       <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
                         Details
                       </th>
-                      <th scope="col" className="relative py-3.5 pl-3 pr-4 sm:pr-6 lg:pr-8">
-                        <span className="sr-only">View</span>
+                      <th scope="col" className="flex justify-end py-3.5 pl-3 pr-4 sm:pr-6 lg:pr-8">
+                        <button
+                          className='border-none bg-white flex-shrink-0 cursor-pointer rounded-full p-2 hover:bg-gray-100'
+                          onClick={() => setCommandBarIsOpen(true)}
+                        >
+                          <MagnifyingGlassIcon className='h-4 w-4' />
+                        </button>
                       </th>
                     </tr>
                   </thead>
@@ -59,7 +80,7 @@ export default function Organizations() {
                         <tr
                           key={organization.id}
                           className="group hover:bg-gray-50 duration-300 transition cursor-pointer"
-                          onClick={() => handleClick(organization.id)}
+                          onClick={() => navigateToOrganizationProfile(organization.id)}
                         >
                           <td className="whitespace-nowrap py-3 pl-4 pr-3 text-sm sm:pl-6 lg:pl-8">
                             <div className="flex items-center">
@@ -85,11 +106,23 @@ export default function Organizations() {
                     }
                   </tbody>
                 </table>
-                  {organizationsData.length === 0 && (
-                    <div className='text-sm text-gray-500 text-center'>
-                      No organizations identified yet, once you begin identifying organizations in your app, they will show up here.
-                    </div>
-                  )}
+                  {organizationsData.length === 0 
+                    ? (
+                      <div className='text-sm text-gray-500 text-center'>
+                        No organizations identified yet, once you begin identifying organizations in your app, they will show up here.
+                      </div>
+                    ) : (
+                      <div className='px-4'>
+                        <Pagination
+                          currentPage={currentPageNum}
+                          lastPageNum={lastPageNum}
+                          numRecordsDisplayed={organizationsData?.length}
+                          totalNumRecords={totalNumRecords}
+                          onNewPageSelected={getOrganizations}
+                        />
+                      </div>
+                    )
+                  }
               </div>
             </div>
           </div>
