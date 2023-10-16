@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2023_10_11_233958) do
+ActiveRecord::Schema.define(version: 2023_10_12_221719) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
@@ -146,6 +146,46 @@ ActiveRecord::Schema.define(version: 2023_10_11_233958) do
     t.index ["workspace_id"], name: "index_retention_cohorts_on_workspace_id"
   end
 
+  create_table "user_profile_enrichment_attempts", force: :cascade do |t|
+    t.uuid "workspace_id"
+    t.uuid "analytics_user_profile_id"
+    t.uuid "user_profile_enrichment_data_id"
+    t.boolean "successful"
+    t.string "attempted_payload"
+    t.datetime "attempted_at"
+    t.index ["analytics_user_profile_id"], name: "idx_enrichment_attempt_on_user_profile_id"
+    t.index ["user_profile_enrichment_data_id"], name: "idx_enrichment_attempt_on_user_enrichment_data_id"
+    t.index ["workspace_id"], name: "index_user_profile_enrichment_attempts_on_workspace_id"
+  end
+
+  create_table "user_profile_enrichment_data", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "workspace_id"
+    t.uuid "analytics_user_profile_id"
+    t.integer "match_likelihood"
+    t.string "first_name"
+    t.string "last_name"
+    t.string "linkedin_url"
+    t.string "twitter_url"
+    t.string "github_url"
+    t.string "work_email"
+    t.string "personal_email"
+    t.string "industry"
+    t.string "job_title"
+    t.string "company_name"
+    t.string "company_website"
+    t.string "company_size"
+    t.string "year_company_founded"
+    t.string "company_industry"
+    t.string "company_linkedin_url"
+    t.string "company_twitter_url"
+    t.string "company_location_metro"
+    t.string "company_location_geo_coordinates"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["analytics_user_profile_id"], name: "index_user_profile_enrichment_data_on_analytics_user_profile_id"
+    t.index ["workspace_id"], name: "index_user_profile_enrichment_data_on_workspace_id"
+  end
+
   create_table "users", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.string "email", null: false
     t.string "password_digest", null: false
@@ -192,6 +232,7 @@ ActiveRecord::Schema.define(version: 2023_10_11_233958) do
     t.string "public_key", null: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.boolean "should_enrich_user_profile_data"
     t.index ["public_key"], name: "index_workspaces_on_public_key"
   end
 

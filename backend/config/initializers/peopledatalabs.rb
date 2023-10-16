@@ -1,0 +1,1 @@
+Peopledatalabs.api_key = ENV['PEOPLE_DATA_LABS_SECRET_KEY']
