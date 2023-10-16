@@ -6,26 +6,14 @@ default: &default
 development:
   transactional:
     <<: *default
-    # database: swishjam_dev
-    host: <%= ENV['POSTGRES_DB_HOST'] %>
-    database: <%= ENV['POSTGRES_DB_NAME'] %>
-    username: <%= ENV['POSTGRES_DB_USERNAME'] %>
-    password: <%= ENV['POSTGRES_DB_PASSWORD'] %>
-    port: <%= ENV['POSTGRES_DB_PORT'] %>
+    database: swishjam_dev
   clickhouse:
-    # adapter: clickhouse
-    # database: swishjam_analytics_dev
-    # host: localhost
-    # port: 8123
-    # username: default
-    # debug: true
     adapter: clickhouse
-    database: swishjam_analytics
-    host: <%= ENV['CLICKHOUSE_DB_HOST'] %>
-    port: 8443
-    username: <%= ENV['CLICKHOUSE_DB_USERNAME'] %>
-    password: <%= ENV['CLICKHOUSE_DB_PASSWORD'] %>
-    ssl: true
+    database: swishjam_analytics_dev
+    host: localhost
+    port: 8123
+    username: default
+    debug: true
 
 test:
   transactional:
