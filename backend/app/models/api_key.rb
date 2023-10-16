@@ -1,6 +1,6 @@
 class ApiKey < Transactional
   class ReservedDataSources
-    SOURCES = %i[stripe resend product marketing integrations blog docs].freeze
+    SOURCES = %i[stripe resend product marketing blog docs].freeze
     
     class << self
       SOURCES.each do |source|
@@ -65,7 +65,6 @@ class ApiKey < Transactional
       ReservedDataSources.MARKETING => 'swishjam_mrkt',
       ReservedDataSources.BLOG => 'swishjam_blg',
       ReservedDataSources.DOCS => 'swishjam_dcs',
-      ReservedDataSources.INTEGRATIONS => 'swishjam_intgrn'
     }[self.data_source] || "swishjam_#{data_source[0..5]}"
     self.public_key = self.class.generate_key(prefix, :public_key)
     self.private_key = self.class.generate_key(prefix, :private_key)

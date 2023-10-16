@@ -122,7 +122,7 @@ Rails.application.routes.draw do
         end
       end
       
-      resources :events, only: [:show], param: :name do
+      resources :events, only: [:show], param: :name, constraints: { name: /[^\/]+/ } do # all the :name parameter to contain any character besides a '/'
         collection do
           get :feed
           get :unique

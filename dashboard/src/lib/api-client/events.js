@@ -9,15 +9,15 @@ export class Events extends Base {
   }
 
   static async count(event, options = {}) {
-    return await this._get(`/api/v1/events/${event}/count`, options)
+    return await this._get(`/api/v1/events/${window.encodeURIComponent(event)}/count`, options)
   }
 
   static async timeseries(event, property, options = {}) {
-    return await this._get(`/api/v1/events/${event}/timeseries`, { property, ...options })
+    return await this._get(`/api/v1/events/${window.encodeURIComponent(event)}/timeseries`, { property, ...options })
   }
 
   static async retrieve(name, options = {}) {
-    return await this._get(`/api/v1/events/${name}`, options)
+    return await this._get(`/api/v1/events/${window.encodeURIComponent(name)}`, options)
   }
 }
 
