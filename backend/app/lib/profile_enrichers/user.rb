@@ -10,6 +10,7 @@ module ProfileEnrichers
       return false if @user_profile.enrichment_data.present?
       params = build_enrichment_params
       return false if params.empty?
+      return false if !meets_sampling_criteria?
       enrichment_attempt = UserProfileEnrichmentAttempt.new(
         workspace: @workspace,
         analytics_user_profile: @user_profile,
@@ -71,6 +72,10 @@ module ProfileEnrichers
       Sentry.capture_exception(e)
       Rails.logger.error "`Peopledatalabs::Enrichment.person` failed: #{e.inspect}"
       { 'status' => 500 }
+    end
+
+    def meets_sampling_criteria?
+      rand() < (ENV['USER_ENRICHMENT_SAMPLING_RATE'] || 1.0).to_f
     end
   end
 end
