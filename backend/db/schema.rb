@@ -194,7 +194,6 @@ ActiveRecord::Schema.define(version: 2023_10_12_221719) do
     t.string "last_name"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
-    t.string "time_zone"
     t.index ["email"], name: "index_users_on_email"
     t.index ["jwt_secret_key"], name: "index_users_on_jwt_secret_key"
   end

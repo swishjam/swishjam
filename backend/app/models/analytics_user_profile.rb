@@ -7,7 +7,7 @@ class AnalyticsUserProfile < Transactional
 
   validates :user_unique_identifier, presence: true, uniqueness: { scope: :workspace_id }
 
-  after_create { ProfileEnrichers::User.new(self).enrich_profile_if_necessary! }
+  after_create { ProfileEnrichers::User.new(self).try_to_enrich_profile_if_necessary! }
 
   def full_name
     "#{first_name} #{last_name}"

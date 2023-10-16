@@ -5,7 +5,7 @@ module ProfileEnrichers
       @workspace = user_profile.workspace
     end
 
-    def enrich_profile_if_necessary!
+    def try_to_enrich_profile_if_necessary!
       return false if !@workspace.should_enrich_user_profile_data?
       return false if @user_profile.enrichment_data.present?
       params = build_enrichment_params
