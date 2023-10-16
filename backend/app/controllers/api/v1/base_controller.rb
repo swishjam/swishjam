@@ -11,7 +11,7 @@ module Api
 
       def public_keys_for_requested_data_source
         return @public_keys_for_requested_data_source if @public_keys_for_requested_data_source.present?
-        verify_valid_public_keys_for_data_source!
+        # verify_valid_public_keys_for_data_source!
         case requested_data_source.downcase
         when 'all'
           @public_keys_for_requested_data_source = current_workspace.api_keys.all.pluck(:public_key)
@@ -35,6 +35,7 @@ module Api
           return
         end
       end
+
     end
   end
 end

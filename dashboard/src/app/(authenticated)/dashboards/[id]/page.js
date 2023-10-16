@@ -14,22 +14,25 @@ import SwishjamAPI from "@/lib/api-client/swishjam-api";
 import Timefilter from "@/components/Timefilter";
 import { useEffect, useState, useRef } from "react";
 import ValueCardConfiguration from "@/components/Dashboards/Builder/Configurations/ValueCard";
+import BarChartConfiguration from "@/components/Dashboards/Builder/Configurations/BarChart";
 
 const AUTO_SAVE_CHECK_INTERVAL = 2_500;
 const DEFAULT_GRID_CONFIGURATIONS = {
+  BarChart: { w: 20, h: 20, y: 0, x: 0, minH: 10, minW: 10 },
+  BarList: { w: 20, h: 15, y: 0, x: 0, minH: 8, minW: 10 },
   LineChart: { w: 15, h: 16, y: 0, x: 0, minH: 10, minW: 10 },
   PieChart: { w: 10, h: 10, y: 0, x: 0, minH: 10, minW: 10 },
-  BarList: { w: 20, h: 15, y: 0, x: 0, minH: 8, minW: 10 },
-  ValueCard: { w: 10, h: 6, y: 0, x: 0, minH: 6, minW: 8 },
   UserRetention: { w: 30, h: 24, y: 0, x: 0, minH: 24, maxH: 24, minW: 20 },
+  ValueCard: { w: 10, h: 6, y: 0, x: 0, minH: 6, minW: 8 },
 }
 
 const ConfigureDashboardComponentModal = ({ componentType, eventOptions, onSave, onClose }) => {
   const ConfigurationComponent = {
+    BarChart: BarChartConfiguration,
+    BarList: BarListConfiguration,
     LineChart: LineChartConfiguration,
     PieChart: PieChartConfiguration,
-    BarList: BarListConfiguration,
-    ValueCard: ValueCardConfiguration
+    ValueCard: ValueCardConfiguration,
   }[componentType];
   return (
     <Modal onClose={onClose} isOpen={true} closeOnBackdropClick={false} size="x-large">

@@ -37,7 +37,7 @@ export default function ConfigurationModal({
       <h1 className='text-lg font-medium text-gray-700 mb-4'>Configure {type}</h1>
       <div className='grid grid-cols-2 gap-4 flex items-center'>
         <div>
-          <input className='input' placeholder='Line Chart Title' value={title} onChange={e => setTitle(e.target.value)} />
+          <input className='input' placeholder={`${type} Title'`} value={title} onChange={e => setTitle(e.target.value)} />
         </div>
       </div>
       <EventAndPropertySelector

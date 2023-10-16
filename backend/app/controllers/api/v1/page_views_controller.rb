@@ -1,6 +1,8 @@
 module Api
   module V1
     class PageViewsController < BaseController
+      include TimeseriesHelper
+
       def index
         limit = params[:limit] || 10
         params[:data_source] ||= ApiKey::ReservedDataSources.MARKETING
@@ -11,6 +13,22 @@ module Api
           limit: limit
         ).get
         render json: { page_view_counts: page_view_counts, start_time: start_timestamp, end_time: end_timestamp }, status: :ok
+      end
+
+      def bar_chart
+        params[:data_source] ||= ApiKey::ReservedDataSources.MARKETING
+        chart_data = ClickHouseQueries::PageViews::StackedBarChart.new(
+          public_keys_for_requested_data_source,
+          max_ranking_to_not_be_considered_other: params[:max_ranking_to_not_be_considered_other] || 10,
+          start_time: start_timestamp,
+          end_time: end_timestamp
+        ).data
+        render json: {
+          data: chart_data.filled_in_data,
+          start_time: chart_data.start_time,
+          end_time: chart_data.end_time,
+          data_source: params[:data_source]
+        }
       end
 
       def timeseries
@@ -26,21 +44,8 @@ module Api
           start_time: comparison_start_timestamp,
           end_time: comparison_end_timestamp
         ).timeseries
-        json = {
-          timeseries: timeseries.formatted_data,
-          current_count: timeseries.current_value,
-          total_count: timeseries.summed_value,
-          comparison_timeseries: comparison_timeseries.formatted_data,
-          comparison_count: comparison_timeseries.current_value,
-          comparison_total_count: comparison_timeseries.summed_value,
-          start_time: start_timestamp,
-          end_time: end_timestamp,
-          comparison_start_time: comparison_start_timestamp,
-          comparison_end_time: comparison_end_timestamp,
-          grouped_by: timeseries.group_by,
-        }
-        
-        render json: json, status: :ok
+
+        render json: render_timeseries_json(timeseries, comparison_timeseries), status: :ok
       end
     end
   end

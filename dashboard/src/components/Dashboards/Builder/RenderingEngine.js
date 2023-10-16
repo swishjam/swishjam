@@ -47,9 +47,10 @@ export default function RenderingEngine({
         if (!RenderingEngineDashboardComponent) {
           throw Error(`Unrecognized configuration.type provided to Dashboard RenderingEngine: ${configuration.type}`);
         }
-        const isScrollable = configuration.type === 'UserRetention';
+        // retention grid should scroll, BarChart has a tooltip that often overflows :/
+        const allowOverflow = ['UserRetention', 'BarChart'].includes(configuration.type);
         return (
-          <Card key={i} className={`p-4 ${editable ? 'cursor-grab' : ''} ${isScrollable ? '' : 'overflow-hidden'}`}>
+          <Card key={i} className={`p-4 ${editable ? 'cursor-grab' : ''} ${allowOverflow ? '' : 'overflow-hidden'}`}>
             <ContextMenuableComponent
               isTriggerable={editable}
               onEdit={() => onDashboardComponentEdit({ id: configuration.i, configuration })}

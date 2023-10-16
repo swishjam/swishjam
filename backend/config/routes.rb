@@ -113,16 +113,41 @@ Rails.application.routes.draw do
           get :timeseries
           get :referrers
           get :demographics
+          # /api/v1/sessions/referrers
+          resources :referrers, only: [:index], controller: :'sessions/referrers' do
+            collection do
+              get :bar_chart
+            end
+          end
+          # /api/v1/sessions/browsers
+          resources :browsers, only: [], controller: :'sessions/browsers' do
+            collection do
+              get :bar_chart
+            end
+          end
+          # /api/v1/sessions/device_types
+          resources :device_types, only: [], controller: :'sessions/device_types' do
+            collection do
+              get :bar_chart
+            end
+          end
         end
       end
 
       resources :page_views, only: [:index] do
         collection do
           get :timeseries
+          get :bar_chart
         end
       end
       
-      resources :events, only: [:show], param: :name do
+      resources :events, only: [] do
+        collection do
+          get :timeseries
+        end
+      end
+      
+      resources :events, only: [:show], param: :name, constraints: { name: /[^\/]+/ } do # all the :name parameter to contain any character besides a '/'
         collection do
           get :feed
           get :unique
@@ -134,6 +159,7 @@ Rails.application.routes.draw do
         resources :properties, only: [:index], param: :name, controller: :'events/properties' do
           member do
             get :counts, to: 'events/properties#counts'
+            get :stacked_bar_chart, to: 'events/properties#stacked_bar_chart'
           end
         end
       end
@@ -151,7 +177,7 @@ Rails.application.routes.draw do
 
       resources :customer_subscriptions, only: [:index]
 
-      resources :integrations, only: [:destroy, :index] do
+      resources :integrations, only: [:destroy, :index, :create] do
         member do
           patch :enable
           patch :disable
@@ -159,6 +185,11 @@ Rails.application.routes.draw do
       end
       
       get :'/admin/ingestion/queuing', to: 'admin/ingestion#queueing'
+
+      namespace :webhooks do
+        post :stripe, to: 'stripe#receive'
+        post :'resend/:workspace_id', to: 'resend#receive'
+      end
     end
   end
 end

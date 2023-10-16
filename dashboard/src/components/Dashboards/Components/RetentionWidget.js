@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import RetentionGrid from "./RetentionWidget/RetentionGrid";
-import { Card, CardTitle, CardHeader, CardContent } from "@/components/ui/card";
+import { CardTitle } from "@/components/ui/card";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { Squares2X2Icon, ChartBarIcon } from '@heroicons/react/24/outline';
 import { Switch } from '@headlessui/react'
