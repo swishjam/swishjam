@@ -1,18 +1,19 @@
 'use client';
 
-import { useState, useEffect } from "react";
-import { SwishjamAPI } from "@/lib/api-client/swishjam-api";
-// import { useAuthData } from "@/lib/auth";
-import WorkspaceForm from "@/components/Settings/WorkspaceForm";
-import LoadingView from "./LoadingView";
 import ApiKeysTable from "@/components/Settings/ApiKeysTable";
+// import { useAuthData } from "@/lib/auth";
+import LoadingView from "./LoadingView";
+import { SwishjamAPI } from "@/lib/api-client/swishjam-api";
+import Toggle from "@/components/utils/Toggle";
+import { useState, useEffect } from "react";
+import WorkspaceForm from "@/components/Settings/WorkspaceForm";
 import WorkspaceSettingsToggles from "@/components/Settings/WorkspaceSettingsToggles";
 
 const Divider = () => <div className="my-6 w-full border-t border-gray-300" />
 
 export default function SettingsPage() {
   const [apiKeys, setApiKeys] = useState();
-  const [workspaceSettings, setWorkspaceSettings] = useState()
+  const [workspaceSettings, setWorkspaceSettings] = useState();
 
   useEffect(() => {
     SwishjamAPI.Config.retrieve().then(({ api_keys, settings }) => {
@@ -35,6 +36,18 @@ export default function SettingsPage() {
           <WorkspaceForm />
           <Divider />
 
+          <Toggle
+            className='mt-8'
+            text={<span className='text-sm text-gray-700'>Enrich user profile data.</span>}
+            checked={workspaceSettings?.should_enrich_user_profile_data}
+            onChange={checked => {
+              setWorkspaceSettings({ ...workspaceSettings, should_enrich_user_profile_data: checked });
+              SwishjamAPI.WorkspaceSettings.update({
+                combine_marketing_and_product_data_sources: workspaceSettings.combine_marketing_and_product_data_sources,
+                should_enrich_user_profile_data: checked
+              })
+            }}
+          />
           <WorkspaceSettingsToggles settings={workspaceSettings} />
           <Divider />
 

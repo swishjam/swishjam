@@ -11,14 +11,11 @@ export default function WorkspaceSettingsToggles({ settings }) {
   }
 
   return (
-    <>
-      <h2 className="block text-sm font-medium leading-6 text-gray-900">Data source settings</h2>
-      <Toggle
-        className='mt-4'
-        text={<span className='text-sm text-gray-700'>Combine marketing and product data sources for all queries.</span>}
-        checked={combineMarketingAndProductDataSources}
-        onChange={checked => updateSettings({ combine_marketing_and_product_data_sources: checked })}
-      />
-    </>
+    <Toggle
+      className='mt-4'
+      text={<span className='text-sm text-gray-700'>Combine marketing and product data sources for all queries.</span>}
+      checked={combineMarketingAndProductDataSources}
+      onChange={checked => updateSettings({ combine_marketing_and_product_data_sources: checked })}
+    />
   )
 }
