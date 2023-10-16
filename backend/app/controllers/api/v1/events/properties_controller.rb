@@ -25,6 +25,27 @@ module Api
           ).get
           render json: properties_breakdown, status: :ok
         end
+
+        def stacked_bar_chart
+          params[:data_source] ||= 'all'
+          event_name = URI.decode_uri_component(params[:event_name])
+          property = URI.decode_uri_component(params[:name])
+          bar_chart_results = ClickHouseQueries::Common::StackedBarChartByEventProperty.new(
+            public_keys_for_requested_data_source,
+            event_name: event_name,
+            property: property,
+            max_ranking_to_not_be_considered_other: params[:max_ranking_to_not_be_considered_other] || 10,
+            start_time: start_timestamp,
+            end_time: end_timestamp,
+          ).data
+
+          render json: {
+            start_time: bar_chart_results.start_time,
+            end_time: bar_chart_results.end_time,
+            grouped_by: bar_chart_results.group_by,
+            bar_chart_data: bar_chart_results.filled_in_data,
+          }, status: :ok
+        end
       end
     end
   end

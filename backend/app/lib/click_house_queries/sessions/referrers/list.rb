@@ -14,14 +14,18 @@ module ClickHouseQueries
         def by_full_url
           return @full_url_results if @full_url_results.present?
           @full_url_results = Analytics::Event.find_by_sql(sql.squish!).collect do |event|
-            { referrer: (event.referrer_url_host || '') + (event.referrer_url_path || ''), count: event.count }
+            url = (event.referrer_url_host || '') + (event.referrer_url_path || '')
+            referrer = url.blank? ? 'Direct' : url
+            { referrer: referrer, count: event.count }
           end
         end
 
         def by_host
           return @host_results if @host_results.present?
           @host_results = Analytics::Event.find_by_sql(sql(by_url_host: true).squish!).collect do |event|
-            { referrer: event.referrer_url_host || '', count: event.count }
+            url = event.referrer_url_host
+            referrer = url.blank? ? 'Direct' : url
+            { referrer: referrer || '', count: event.count }
           end
         end
 

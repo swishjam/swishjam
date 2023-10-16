@@ -1,7 +1,11 @@
 import Base from './base'
+import Browsers from './sessions/browsers';
+import DeviceTypes from './sessions/device-types';
 import Referrers from './sessions/referrers';
 
 export class Sessions extends Base {
+  static Browsers = Browsers;
+  static DeviceTypes = DeviceTypes;
   static Referrers = Referrers;
 
   static async timeseries({ timeframe, dataSource }) {
