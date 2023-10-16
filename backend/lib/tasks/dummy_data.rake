@@ -231,7 +231,7 @@ def seed_billing_data!
   last_snapshot = nil
   365.times do |i|
     last_snapshot = Analytics::BillingDataSnapshot.create!(
-      swishjam_api_key: WORKSPACE.api_keys.for_data_source!(ApiKey::ReservedDataSources.INTEGRATIONS).public_key,
+      swishjam_api_key: WORKSPACE.api_keys.for_data_source!(ApiKey::ReservedDataSources.STRIPE).public_key,
       mrr_in_cents: (last_snapshot&.mrr_in_cents || 1_000_000 * 100) * 0.95,
       total_revenue_in_cents: (last_snapshot&.total_revenue_in_cents || 5_000_000 * 100) * 0.95,
       num_active_subscriptions: (last_snapshot&.num_active_subscriptions || 1_000) * 0.95,
@@ -242,6 +242,52 @@ def seed_billing_data!
     progress_bar.advance
   end
   puts "\n"
+end
+
+def seed_integration_events!
+  number_of_stripe_events = NUMBER_OF_SESSIONS_TO_GENERATE * 0.1
+  stripe_integration_public_key = WORKSPACE.api_keys.for_data_source!(ApiKey::ReservedDataSources.STRIPE).public_key
+
+  puts "SEEDING INTEGRATION EVENTS..."
+
+  number_of_stripe_events.to_i.times do
+    Analytics::Event.create!(name: 'charge.succeeded', occurred_at: Time.current - rand(0..DATA_BEGINS_MAX_NUMBER_OF_DAYS_AGO).days, properties: { amount: rand(10 * 100..1_000 * 100) }, uuid: SecureRandom.uuid, swishjam_api_key: stripe_integration_public_key)
+    Analytics::Event.create!(name: 'customer.created', occurred_at: Time.current - rand(0..DATA_BEGINS_MAX_NUMBER_OF_DAYS_AGO).days, properties: {}, uuid: SecureRandom.uuid, swishjam_api_key: stripe_integration_public_key)
+    Analytics::Event.create!(name: 'customer.subscription.created', occurred_at: Time.current - rand(0..DATA_BEGINS_MAX_NUMBER_OF_DAYS_AGO).days, properties: {}, uuid: SecureRandom.uuid, swishjam_api_key: stripe_integration_public_key)
+    if rand() < 0.1
+      Analytics::Event.create!(name: 'customer.subscription.paused', occurred_at: Time.current - rand(0..DATA_BEGINS_MAX_NUMBER_OF_DAYS_AGO).days, properties: {}, uuid: SecureRandom.uuid, swishjam_api_key: stripe_integration_public_key)
+    end
+    if rand() < 0.15
+      Analytics::Event.create!(name: 'customer.subscription.deleted', occurred_at: Time.current - rand(0..DATA_BEGINS_MAX_NUMBER_OF_DAYS_AGO).days, properties: {}, uuid: SecureRandom.uuid, swishjam_api_key: stripe_integration_public_key)
+    end
+    if rand() < 0.1
+      Analytics::Event.create!(name: 'charge.refunded', occurred_at: Time.current - rand(0..DATA_BEGINS_MAX_NUMBER_OF_DAYS_AGO).days, properties: { amount: rand(10 * 100..1_000 * 100) }, uuid: SecureRandom.uuid, swishjam_api_key: stripe_integration_public_key)
+    end
+    if rand() < 0.05
+      Analytics::Event.create!(name: 'charge.dispute.created', occurred_at: Time.current - rand(0..DATA_BEGINS_MAX_NUMBER_OF_DAYS_AGO).days, properties: { amount: rand(10 * 100..1_000 * 100) }, uuid: SecureRandom.uuid, swishjam_api_key: stripe_integration_public_key)
+    end
+  end
+
+  resend_integration_public_key = WORKSPACE.api_keys.for_data_source!(ApiKey::ReservedDataSources.RESEND).public_key
+  number_of_resend_events = NUMBER_OF_SESSIONS_TO_GENERATE * 0.25
+  number_of_resend_events.to_i.times do
+    Analytics::Event.create!(name: 'email.sent', occurred_at: Time.current - rand(0..DATA_BEGINS_MAX_NUMBER_OF_DAYS_AGO).days, properties: { to: Faker::Internet.email, subject: Faker::Lorem.sentence }, uuid: SecureRandom.uuid, swishjam_api_key: resend_integration_public_key)
+    if rand() <= 0.95
+      Analytics::Event.create!(name: 'email.delivered', occurred_at: Time.current - rand(0..DATA_BEGINS_MAX_NUMBER_OF_DAYS_AGO).days, properties: { to: Faker::Internet.email, subject: Faker::Lorem.sentence }, uuid: SecureRandom.uuid, swishjam_api_key: resend_integration_public_key)
+    end
+    if rand() <= 0.05
+      Analytics::Event.create!(name: 'email.complained', occurred_at: Time.current - rand(0..DATA_BEGINS_MAX_NUMBER_OF_DAYS_AGO).days, properties: { to: Faker::Internet.email, subject: Faker::Lorem.sentence }, uuid: SecureRandom.uuid, swishjam_api_key: resend_integration_public_key)
+    end
+    if rand() <= 0.05
+      Analytics::Event.create!(name: 'email.bounced', occurred_at: Time.current - rand(0..DATA_BEGINS_MAX_NUMBER_OF_DAYS_AGO).days, properties: { to: Faker::Internet.email, subject: Faker::Lorem.sentence }, uuid: SecureRandom.uuid, swishjam_api_key: resend_integration_public_key)
+    end
+    if rand() <= 0.75
+      Analytics::Event.create!(name: 'email.opened', occurred_at: Time.current - rand(0..DATA_BEGINS_MAX_NUMBER_OF_DAYS_AGO).days, properties: { to: Faker::Internet.email, subject: Faker::Lorem.sentence }, uuid: SecureRandom.uuid, swishjam_api_key: resend_integration_public_key)
+    end
+    if rand() <= 0.45
+      Analytics::Event.create!(name: 'email.clicked', occurred_at: Time.current - rand(0..DATA_BEGINS_MAX_NUMBER_OF_DAYS_AGO).days, properties: { to: Faker::Internet.email, subject: Faker::Lorem.sentence, click_link: "https://#{HOST_URL}#{URL_PATHS[rand(0..URL_PATHS.count - 1)]}" }, uuid: SecureRandom.uuid, swishjam_api_key: resend_integration_public_key)
+    end
+  end
 end
 
 def prompt_and_find_or_create_user!
@@ -309,7 +355,6 @@ namespace :seed do
       DEVICE_IDENTIFIERS = (NUMBER_OF_USERS * 1.05).to_i.times.map{ SecureRandom.uuid }
       URL_PATHS = 10.times.map{ URI.parse(Faker::Internet.url).path }
       REFERRER_HOSTS = 10.times.map{ URI.parse(Faker::Internet.url).host }
-      # EVENT_NAMES = 50.times.map{ Faker::Lorem.word }
       EVENT_NAMES = [
         'PDF Downloaded', 'Chat Initiated', 'Chat Closed', 'Invited Teammate', 'Support Ticket Submitted', 'Search Submitted', 'Feedback Provided',
         'AI Hallucination Recieved', 'Updated Setting', 'API Error Received', 'Upgraded Subscription Plan', 'Added Seat', 'Payment Submitted'
@@ -331,6 +376,10 @@ namespace :seed do
         20_000 => 365,
       }[NUMBER_OF_SESSIONS_TO_GENERATE]
 
+      # let it fail silently if the integration already exists
+      Integrations::Stripe.create(workspace: WORKSPACE, enabled: true, config: { stubbed: true }) 
+      Integrations::Resend.create(workspace: WORKSPACE, enabled: true, config: { stubbed: true })
+
       USER.workspaces << WORKSPACE unless USER.workspaces.include?(WORKSPACE)
 
       puts "Seeding workspace #{WORKSPACE.name} (#{WORKSPACE.id}) with #{NUMBER_OF_USERS} users, and #{HOST_URL} as the host URL.\n\n"
@@ -342,6 +391,7 @@ namespace :seed do
       new_session_events = seed_sessions_page_hits_and_events!
       create_organization_identify_events_for_sessions!(new_session_events)
       seed_billing_data!
+      seed_integration_events!
 
       generate_specific_user_data_if_necessary!
 
