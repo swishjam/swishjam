@@ -20,38 +20,6 @@ module ClickHouseQueries
             end_time: @end_time,
           ).data
         end
-
-        # def sql_for_other_grouping
-        #   <<~SQL
-        #     WITH ranked_referrers AS (
-        #       SELECT
-        #         JSONExtractString(properties, '#{Analytics::Event::ReservedPropertyNames.REFERRER}') AS referrer,
-        #         COUNT() as total_count,
-        #         RANK() OVER (ORDER BY COUNT() DESC) as rank
-        #       FROM events
-        #       WHERE
-        #         swishjam_api_key IN #{formatted_in_clause(@public_keys)} AND
-        #         occurred_at BETWEEN '#{formatted_time(@start_time)}' AND '#{formatted_time(@end_time)}' AND
-        #         name = '#{Analytics::Event::ReservedNames.NEW_SESSION}'
-        #       GROUP BY referrer
-        #     )
-        #     SELECT
-        #       CASE
-        #         WHEN rr.rank <= 10 THEN JSONExtractString(e.properties, '#{Analytics::Event::ReservedPropertyNames.REFERRER}')
-        #         ELSE 'other'
-        #       END AS referrer,
-        #       DATE_TRUNC('#{@group_by}', e.occurred_at) AS group_by_date,
-        #       COUNT() as count
-        #     FROM events e
-        #     JOIN ranked_referrers rr ON JSONExtractString(e.properties, '#{Analytics::Event::ReservedPropertyNames.REFERRER}') = rr.referrer
-        #     WHERE
-        #       e.swishjam_api_key IN #{formatted_in_clause(@public_keys)} AND
-        #       e.occurred_at BETWEEN '#{formatted_time(@start_time)}' AND '#{formatted_time(@end_time)}' AND
-        #       e.name = '#{Analytics::Event::ReservedNames.NEW_SESSION}'
-        #     GROUP BY group_by_date, referrer
-        #     ORDER BY group_by_date, count
-        #   SQL
-        # end
       end
     end
   end
