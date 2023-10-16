@@ -2,7 +2,7 @@ module Api
   module V1
     class BillingDataSnapshotsController < BaseController
       def index
-        params[:data_source] = ApiKey::ReservedDataSources.INTEGRATIONS
+        params[:data_source] = ApiKey::ReservedDataSources.STRIPE
         current_billing_data_getter = ClickHouseQueries::BillingDataSnapshots::All.new(public_keys_for_requested_data_source, start_time: start_timestamp, end_time: end_timestamp)
         comparison_billing_data_getter = ClickHouseQueries::BillingDataSnapshots::All.new(public_keys_for_requested_data_source, start_time: comparison_start_timestamp, end_time: comparison_end_timestamp)
         current_billing_data = current_billing_data_getter.timeseries
