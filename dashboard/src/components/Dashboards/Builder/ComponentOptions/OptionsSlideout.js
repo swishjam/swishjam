@@ -57,11 +57,11 @@ export default function OptionsSlideout({ isOpen, onSelect, onClose = () => { } 
                       </div>
                     </div>
                     <div className="relative mt-6 flex-1 px-4 sm:px-6 grid gap-y-4">
-                      {/* <BarChartOption onClick={() => onSelect('BarChart')} /> */}
-                      <BarListOption onClick={() => onSelect('BarList')} />
+                      <BarChartOption onClick={() => onSelect('BarChart')} />
                       <LineChartOption onClick={() => onSelect('LineChart')} />
-                      <PieChartOption onClick={() => onSelect('PieChart')} />
                       <ValueCardOption onClick={() => onSelect('ValueCard')} />
+                      <BarListOption onClick={() => onSelect('BarList')} />
+                      <PieChartOption onClick={() => onSelect('PieChart')} />
                       <RetentionWidgetOption onClick={() => { onSelect('UserRetention') }} />
                     </div>
                   </div>

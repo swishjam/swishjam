@@ -14,6 +14,19 @@ module Api
         }, status: :ok
       end
 
+      def create
+        integration = current_workspace.integrations.new(
+          type: params[:type], 
+          config: JSON.parse((params[:config] || {}).to_json),
+          enabled: params[:enabled]
+        )
+        if integration.save
+          render json: { integration: integration }, status: :ok
+        else
+          render json: { error: integration.errors.full_messages.join(' ') }, status: :unprocessable_entity
+        end
+      end
+
       def enable
         if @integration.enable!
           render json: {
@@ -65,6 +78,9 @@ module Api
         end
       end
 
+      def integration_params
+        params.require(:integration).permit(:type, :workspace_id, :config, :enabled)
+      end
     end
   end
 end

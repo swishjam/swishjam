@@ -2,35 +2,7 @@ import { useState } from 'react'
 import { LineChart, CartesianGrid, XAxis, Legend, YAxis, Tooltip, Line, ResponsiveContainer } from 'recharts';
 import { Card, CardContent } from '@/components/ui/card';
 import { dateFormatterForGrouping } from '@/lib/utils/timeseriesHelpers';
-
-const COLORS = [
-  '#FF0000', // - Bright Red
-  '#00FF00', // - Bright Green
-  '#0000FF', // - Bright Blue
-  '#FFFF00', // - Yellow
-  '#FF00FF', // - Magenta
-  '#00FFFF', // - Cyan
-  '#FF6600', // - Orange
-  '#6600FF', // - Purple
-  '#006600', // - Dark Green
-  '#FF0066', // - Pink
-  '#6666FF', // - Light Blue
-  '#FFCC00', // - Gold
-  '#CC00FF', // - Violet
-  '#00CCFF', // - Sky Blue
-  '#FF9900', // - Amber
-  '#009999', // - Teal
-  '#9933FF', // - Lavender
-  '#FF6699', // - Rose
-  '#3366FF', // - Azure
-  '#CC9900', // - Bronze
-  '#9900CC', // - Indigo
-  '#66FFCC', // - Aquamarine
-  '#CC3366', // - Maroon
-  '#0099FF', // - Capri
-  '#FFCC66', // - Peach
-  '#006699', // - Slate Blue
-]
+import { COLORS } from '@/lib/utils/colorHelpers';
 
 const weekFormatter = dateFormatterForGrouping('week');
 
