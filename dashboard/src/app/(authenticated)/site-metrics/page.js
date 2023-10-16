@@ -1,12 +1,12 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { API } from '@/lib/api-client/base';
-import LineChartWithValue from '@/components/DashboardComponents/LineChartWithValue';
-import BarChart from '@/components/DashboardComponents/BarChart';
+import LineChartWithValue from '@/components/Dashboards/Components/LineChartWithValue';
+import BarChart from '@/components/Dashboards/Components/BarChart';
 import Timefilter from '@/components/Timefilter';
 import { Button } from '@/components/ui/button';
 import { ArrowPathIcon } from '@heroicons/react/24/outline';
+import SwishjamAPI from '@/lib/api-client/swishjam-api';
 // import LoadingView from './LoadingView'
 
 export default function PageMetrics() {
@@ -19,7 +19,7 @@ export default function PageMetrics() {
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   const getSessionsTimeseriesData = async timeframe => {
-    await API.get('/api/v1/sessions/timeseries', { timeframe }).then(sessionData => {
+    await SwishjamAPI.Sessions.timeseries({ timeframe }).then(sessionData => {
       setSessionsLineChart({
         value: sessionData.current_count,
         previousValue: sessionData.comparison_count,
@@ -45,23 +45,28 @@ export default function PageMetrics() {
   // }
 
   const getBrowsersBarChartData = async timeframe => {
-    await getBarChartData('/api/v1/sessions/browsers/bar_chart', timeframe, setBrowsersBarChartData)
+    await SwishjamAPI.Sessions.Browsers.barChart({ timeframe }).then(({ data }) => setBrowsersBarChartData(data));
   }
 
   const getPageViewsBarChartData = async timeframe => {
-    await getBarChartData('/api/v1/page_views/bar_chart', timeframe, setPageViewsBarChartData)
+    await SwishjamAPI.PageViews.barChart({ timeframe }).then(({ data }) => setPageViewsBarChartData(data));
   }
 
   const getReferrersBarChartData = async timeframe => {
-    await getBarChartData('/api/v1/sessions/referrers/bar_chart', timeframe, setReferrersBarChartData)
+    await SwishjamAPI.Sessions.Referrers.barChart({ timeframe }).then(({ data }) => {
+      const formattedReferrerData = data.map(referrerData => {
+        if (referrerData['']) {
+          referrerData['Direct'] = referrerData[''];
+          delete referrerData[''];
+        }
+        return referrerData;
+      })
+      setReferrersBarChartData(formattedReferrerData)
+    });
   }
 
   const getDeviceTypesBarChartData = async timeframe => {
-    await getBarChartData('/api/v1/sessions/device_types/bar_chart', timeframe, setDeviceTypesBarChartData)
-  }
-
-  const getBarChartData = async (endpoint, timeframe, setter) => {
-    await API.get(endpoint, { timeframe }).then(({ data }) => setter(data))
+    await SwishjamAPI.Sessions.DeviceTypes.barChart({ timeframe }).then(({ data }) => setDeviceTypesBarChartData(data))
   }
 
   const getAllData = async timeframe => {
@@ -98,7 +103,7 @@ export default function PageMetrics() {
             onSelection={d => {
               setTimeframeFilter(d);
               getAllData(d)
-            }} 
+            }}
           />
           <Button
             variant='outline'

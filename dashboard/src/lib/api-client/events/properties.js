@@ -10,6 +10,10 @@ export class Properties extends Base {
   static async getCountsOfPropertyValues(eventName, propertyName, options = {}) {
     return await this._get(`/api/v1/events/${eventName}/properties/${propertyName}/counts`, options);
   }
+
+  static async barChartForProperty(eventName, propertyName, options = {}) {
+    return await this._get(`/api/v1/events/${eventName}/properties/${propertyName}/stacked_bar_chart`, options);
+  }
 }
 
 Object.assign(Properties, Base);
