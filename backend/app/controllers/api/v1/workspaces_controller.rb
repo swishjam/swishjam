@@ -6,6 +6,7 @@ module Api
         if workspace.update(workspace_params)
           # reset the token with the updated workspace
           # this also resets the expires_at, probably should have a better way to do this but ok for now
+
           user = log_user_out
           token = log_user_in(user, workspace)
           render json: { workspace: workspace, auth_token: token }, status: :ok

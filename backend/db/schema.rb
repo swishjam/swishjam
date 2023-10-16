@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2023_10_12_221719) do
+ActiveRecord::Schema.define(version: 2023_10_16_220014) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
@@ -223,6 +223,7 @@ ActiveRecord::Schema.define(version: 2023_10_12_221719) do
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.boolean "combine_marketing_and_product_data_sources"
+    t.boolean "should_enrich_user_profile_data"
     t.index ["workspace_id"], name: "index_workspace_settings_on_workspace_id"
   end
 
