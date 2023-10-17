@@ -1,8 +1,9 @@
 import Breadcrumbs from "@/components/Breadcrumbs";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import EnrichedDataItem from "@/components/Profiles/EnrichedDataItem";
+import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton";
 
-export default function LoadingView({}) {
+export default function LoadingView() {
   return (
     <main className="mx-auto max-w-7xl px-4 mt-8 sm:px-6 lg:px-8 mb-8">
       <Breadcrumbs userName={<Skeleton className='h-6 w-48' />} />
@@ -19,26 +20,25 @@ export default function LoadingView({}) {
           </CardHeader>
           <CardContent>
             <div className="border-t border-slate-100 w-full" />
-            <Skeleton className='h-6 w-full mt-4' />
-            <Skeleton className='h-6 w-full mt-4' />
-            <Skeleton className='h-6 w-full mt-4' />
-            <Skeleton className='h-6 w-full mt-4' />
-            <Skeleton className='h-6 w-full mt-4' />
-            <Skeleton className='h-6 w-full mt-4' />
+            <EnrichedDataItem title='Plan/Subscription Type' />
+            <EnrichedDataItem title='Plan/Subscription Value' />
+            <EnrichedDataItem title='Role' />
+            <EnrichedDataItem title='Twitter Profile' />
+            <EnrichedDataItem title='LinkedIn Profile' />
+            <EnrichedDataItem title='Company' />
+            <EnrichedDataItem title='Company Size' />
+            <EnrichedDataItem title='Industry' />
+            <EnrichedDataItem title='Location' />
             <div className="border-t border-slate-100 w-full mt-4" />
-            <Skeleton className='h-6 w-full mt-4' />
-            <Skeleton className='h-6 w-full mt-4' />
-            <Skeleton className='h-6 w-full mt-4' />
-            <Skeleton className='h-6 w-full mt-4' />
-            <Skeleton className='h-6 w-full mt-4' />
-            <Skeleton className='h-6 w-full mt-4' />
-            <div className="border-t border-slate-100 w-full mt-4" />
-            <Skeleton className='h-6 w-full mt-4' />
-            <Skeleton className='h-6 w-full mt-4' />
-            <Skeleton className='h-6 w-full mt-4' />
-            <Skeleton className='h-6 w-full mt-4' />
-            <Skeleton className='h-6 w-full mt-4' />
-            <Skeleton className='h-6 w-full mt-4' />
+            <div className="px-4 py-2 col-span-1 sm:px-0 grid grid-cols-2">
+              <dt className="text-sm font-medium leading-6 text-gray-900">Attributes</dt>
+            </div>
+            <div className="px-4 py-2 col-span-1 sm:px-0 grid grid-cols-2">
+              <dt className="text-sm font-medium leading-6 text-gray-900"></dt>
+              <dd className="text-sm leading-6 text-gray-700 flex justify-end">
+                <Skeleton className='h-8 w-12' />
+              </dd>
+            </div>
           </CardContent>
         </Card>
         <div className='col-span-6'>
