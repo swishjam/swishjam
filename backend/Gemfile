@@ -12,26 +12,27 @@ gem 'bootsnap', '>= 1.4.4', require: false
 # https://stackoverflow.com/questions/67773514/getting-warning-already-initialized-constant-on-assets-precompile-at-the-time
 gem 'net-http' 
 
+gem 'active_model_serializers'
+gem 'bcrypt'
+gem 'clickhouse-activerecord'
+gem 'colorize'
+gem 'dotenv'
+gem 'faker'
+gem 'geocoder'
 gem 'groupdate'
+gem 'jwt'
+gem 'kaminari'
+gem 'peopledatalabs'
+gem 'rack-cors'
+gem 'sentry-rails'
+gem 'sentry-ruby'
+gem 'sentry-sidekiq'
 gem 'sidekiq', '~> 6.5'
 gem 'sidekiq-failures'
 gem 'sidekiq-scheduler'
 gem 'stripe'
-gem 'dotenv'
-gem 'rack-cors'
-gem 'bcrypt'
-gem 'jwt'
-gem 'active_model_serializers'
-gem 'geocoder'
-gem 'clickhouse-activerecord'
 gem "tty-prompt"
 gem 'tty-progressbar'
-gem "sentry-ruby"
-gem "sentry-rails"
-gem 'sentry-sidekiq'
-gem 'colorize'
-gem 'kaminari'
-gem 'faker'
 
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
 gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]

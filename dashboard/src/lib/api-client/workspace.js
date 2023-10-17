@@ -1,8 +1,8 @@
 import Base from "./base";
 
 export class Workspace extends Base {
-  static async update({ name }) {
-    return await this._patch('/api/v1/workspace/update', { workspace: { name: name } });
+  static async update({ name, shouldEnrichUserProfileData }) {
+    return await this._patch('/api/v1/workspace/update', { workspace: { name, should_enrich_user_profile_data: shouldEnrichUserProfileData } });
   }
 
   static async updateCurrentWorkspace(workspaceId) {

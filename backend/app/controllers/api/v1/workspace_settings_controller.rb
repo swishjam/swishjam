@@ -3,7 +3,8 @@ module Api
     class WorkspaceSettingsController < BaseController
       def update
         current_workspace.settings.update(
-          combine_marketing_and_product_data_sources: params[:combine_marketing_and_product_data_sources]
+          combine_marketing_and_product_data_sources: params[:combine_marketing_and_product_data_sources],
+          should_enrich_user_profile_data: params[:should_enrich_user_profile_data],
         )
         render json: { settings: current_workspace.settings }, status: :ok
       end
