@@ -1,7 +1,3 @@
-require "tty-prompt"
-PROMPT = TTY::Prompt.new
-
-
 def run_command_with_success(cmd)
   if !system cmd
     raise "Command failed, stopping execution."
