@@ -8,4 +8,9 @@ class UserProfileSerializer < ActiveModel::Serializer
   def enrichment_data
     object.enrichment_data || {}
   end
+
+  def metadata
+    # short term bandaid for inadvertently capturing unintentional metadata
+    (object.metadata || {}).except('userIdentifier', 'url', 'device_identifier', 'session_identifier', 'page_view_identifier')
+  end
 end

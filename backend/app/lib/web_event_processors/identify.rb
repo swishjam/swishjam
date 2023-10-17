@@ -5,7 +5,7 @@ module WebEventProcessors
       first_name = properties['firstName'] || properties['first_name']
       last_name = properties['lastName'] || properties['last_name']
       email = properties['email']
-      metadata = properties.except('userId', 'user_id', 'firstName', 'first_name', 'lastName', 'last_name', 'email')
+      metadata = properties.except('userId', 'user_id', 'userIdentifier', 'firstName', 'first_name', 'lastName', 'last_name', 'email', 'device_identifier', 'session_identifier', 'page_view_identifier', 'url')
       
       profile = workspace.analytics_user_profiles.find_by(user_unique_identifier: unique_identifier)
       if profile
