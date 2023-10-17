@@ -176,6 +176,7 @@ const UserProfile = ({ params }) => {
                                 target="_blank"
                               >
                                 {name}
+                                <ArrowTopRightOnSquareIcon className='inline-block ml-1 h-3 w-3' />
                               </a>
                             )
                           } else {
