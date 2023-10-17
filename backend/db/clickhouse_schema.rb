@@ -10,10 +10,10 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ClickhouseActiverecord::Schema.define(version: 2023_09_28_190850) do
+ClickhouseActiverecord::Schema.define(version: 2023_10_17_191114) do
 
   # TABLE: billing_data_snapshots
-  # SQL: CREATE TABLE swishjam_analytics_dev.billing_data_snapshots ( `swishjam_api_key` LowCardinality(String), `mrr_in_cents` UInt32, `total_revenue_in_cents` UInt32, `num_active_subscriptions` UInt32, `num_free_trial_subscriptions` UInt32, `num_canceled_subscriptions` UInt32, `captured_at` DateTime, `num_paid_subscriptions` Nullable(Int32) ) ENGINE = MergeTree PRIMARY KEY (swishjam_api_key, captured_at) ORDER BY (swishjam_api_key, captured_at) SETTINGS index_granularity = 8192
+  # SQL: CREATE TABLE swishjam_analytics_test.billing_data_snapshots ( `swishjam_api_key` LowCardinality(String), `mrr_in_cents` UInt32, `total_revenue_in_cents` UInt32, `num_active_subscriptions` UInt32, `num_free_trial_subscriptions` UInt32, `num_canceled_subscriptions` UInt32, `captured_at` DateTime, `num_paid_subscriptions` Nullable(Int32) ) ENGINE = MergeTree PRIMARY KEY (swishjam_api_key, captured_at) ORDER BY (swishjam_api_key, captured_at) SETTINGS index_granularity = 8192
   create_table "billing_data_snapshots", id: false, options: "MergeTree PRIMARY KEY (swishjam_api_key, captured_at) ORDER BY (swishjam_api_key, captured_at) SETTINGS index_granularity = 8192", force: :cascade do |t|
     t.string "swishjam_api_key", null: false
     t.integer "mrr_in_cents", null: false
@@ -26,12 +26,12 @@ ClickhouseActiverecord::Schema.define(version: 2023_09_28_190850) do
   end
 
   # TABLE: customer_billing_data_snapshots
-  # SQL: CREATE TABLE swishjam_analytics_dev.customer_billing_data_snapshots ( `swishjam_api_key` LowCardinality(String), `swishjam_owner_id` String, `swishjam_owner_type` Enum8('user' = 1, 'organization' = 2), `mrr_in_cents` UInt64, `total_revenue_in_cents` UInt64, `captured_at` DateTime DEFAULT now() ) ENGINE = MergeTree PRIMARY KEY (swishjam_owner_type, swishjam_api_key, swishjam_owner_id) ORDER BY (swishjam_owner_type, swishjam_api_key, swishjam_owner_id) SETTINGS index_granularity = 8192
+  # SQL: CREATE TABLE swishjam_analytics_test.customer_billing_data_snapshots ( `swishjam_api_key` LowCardinality(String), `swishjam_owner_id` String, `swishjam_owner_type` Enum8('user' = 1, 'organization' = 2), `mrr_in_cents` UInt64, `total_revenue_in_cents` UInt64, `captured_at` DateTime DEFAULT now() ) ENGINE = MergeTree PRIMARY KEY (swishjam_owner_type, swishjam_api_key, swishjam_owner_id) ORDER BY (swishjam_owner_type, swishjam_api_key, swishjam_owner_id) SETTINGS index_granularity = 8192
 # Could not dump table "customer_billing_data_snapshots" because of following StandardError
 #   Unknown type 'Enum8('user' = 1, 'organization' = 2)' for column 'swishjam_owner_type'
 
   # TABLE: events
-  # SQL: CREATE TABLE swishjam_analytics_dev.events ( `uuid` String, `swishjam_api_key` LowCardinality(String), `name` LowCardinality(String), `ingested_at` DateTime DEFAULT now(), `occurred_at` DateTime, `properties` String ) ENGINE = MergeTree PRIMARY KEY (swishjam_api_key, name, occurred_at) ORDER BY (swishjam_api_key, name, occurred_at) SETTINGS index_granularity = 8192
+  # SQL: CREATE TABLE swishjam_analytics_test.events ( `uuid` String, `swishjam_api_key` LowCardinality(String), `name` LowCardinality(String), `ingested_at` DateTime DEFAULT now(), `occurred_at` DateTime, `properties` String ) ENGINE = MergeTree PRIMARY KEY (swishjam_api_key, name, occurred_at) ORDER BY (swishjam_api_key, name, occurred_at) SETTINGS index_granularity = 8192
   create_table "events", id: false, options: "MergeTree PRIMARY KEY (swishjam_api_key, name, occurred_at) ORDER BY (swishjam_api_key, name, occurred_at) SETTINGS index_granularity = 8192", force: :cascade do |t|
     t.string "uuid", null: false
     t.string "swishjam_api_key", null: false
@@ -42,7 +42,7 @@ ClickhouseActiverecord::Schema.define(version: 2023_09_28_190850) do
   end
 
   # TABLE: organization_identify_events
-  # SQL: CREATE TABLE swishjam_analytics_dev.organization_identify_events ( `uuid` String, `swishjam_api_key` LowCardinality(String), `session_identifier` String, `device_identifier` String, `swishjam_organization_id` String, `occurred_at` DateTime, `ingested_at` DateTime DEFAULT now() ) ENGINE = ReplacingMergeTree PRIMARY KEY (swishjam_api_key, session_identifier) ORDER BY (swishjam_api_key, session_identifier) SETTINGS index_granularity = 8192
+  # SQL: CREATE TABLE swishjam_analytics_test.organization_identify_events ( `uuid` String, `swishjam_api_key` LowCardinality(String), `session_identifier` String, `device_identifier` String, `swishjam_organization_id` String, `occurred_at` DateTime, `ingested_at` DateTime DEFAULT now() ) ENGINE = ReplacingMergeTree PRIMARY KEY (swishjam_api_key, session_identifier) ORDER BY (swishjam_api_key, session_identifier) SETTINGS index_granularity = 8192
   create_table "organization_identify_events", id: false, options: "ReplacingMergeTree PRIMARY KEY (swishjam_api_key, session_identifier) ORDER BY (swishjam_api_key, session_identifier) SETTINGS index_granularity = 8192", force: :cascade do |t|
     t.string "uuid", null: false
     t.string "swishjam_api_key", null: false
@@ -53,8 +53,17 @@ ClickhouseActiverecord::Schema.define(version: 2023_09_28_190850) do
     t.datetime "ingested_at", default: -> { "now()" }, null: false
   end
 
+  # TABLE: swishjam_user_profiles
+  # SQL: CREATE TABLE swishjam_analytics_test.swishjam_user_profiles ( `swishjam_api_key` String, `swishjam_user_id` String, `unique_identifier` String, `created_at` DateTime ) ENGINE = MergeTree PRIMARY KEY (swishjam_api_key, created_at) ORDER BY (swishjam_api_key, created_at) SETTINGS index_granularity = 8192
+  create_table "swishjam_user_profiles", id: false, options: "MergeTree PRIMARY KEY (swishjam_api_key, created_at) ORDER BY (swishjam_api_key, created_at) SETTINGS index_granularity = 8192", force: :cascade do |t|
+    t.string "swishjam_api_key", null: false
+    t.string "swishjam_user_id", null: false
+    t.string "unique_identifier", null: false
+    t.datetime "created_at", null: false
+  end
+
   # TABLE: user_identify_events
-  # SQL: CREATE TABLE swishjam_analytics_dev.user_identify_events ( `uuid` String, `swishjam_api_key` LowCardinality(String), `device_identifier` String, `swishjam_user_id` String, `occurred_at` DateTime, `ingested_at` DateTime DEFAULT now() ) ENGINE = ReplacingMergeTree PRIMARY KEY (swishjam_api_key, device_identifier) ORDER BY (swishjam_api_key, device_identifier) SETTINGS index_granularity = 8192
+  # SQL: CREATE TABLE swishjam_analytics_test.user_identify_events ( `uuid` String, `swishjam_api_key` LowCardinality(String), `device_identifier` String, `swishjam_user_id` String, `occurred_at` DateTime, `ingested_at` DateTime DEFAULT now() ) ENGINE = ReplacingMergeTree PRIMARY KEY (swishjam_api_key, device_identifier) ORDER BY (swishjam_api_key, device_identifier) SETTINGS index_granularity = 8192
   create_table "user_identify_events", id: false, options: "ReplacingMergeTree PRIMARY KEY (swishjam_api_key, device_identifier) ORDER BY (swishjam_api_key, device_identifier) SETTINGS index_granularity = 8192", force: :cascade do |t|
     t.string "uuid", null: false
     t.string "swishjam_api_key", null: false
