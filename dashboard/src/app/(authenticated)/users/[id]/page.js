@@ -3,71 +3,14 @@
 import { useEffect, useState } from "react";
 import { SwishjamAPI } from "@/lib/api-client/swishjam-api";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Skeleton } from "@/components/ui/skeleton";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import PowerUserBadge from "./PowerUserBadge";
+import ChurnWarningUserBadge from "./ChurnWarningUserBadge";
+import Breadcrumbs from "@/components/Breadcrumbs";
+import LoadingView from "./LoadingView";
 import EventFeed from "@/components/Dashboards/Components/EventFeed";
 import LineChartWithValue from '@/components/Dashboards/Components/LineChartWithValue';
 import BarList from "@/components/Dashboards/Components/BarList";
-
-const LoadingState = () => (
-  <main className="mx-auto max-w-7xl px-4 mt-8 sm:px-6 lg:px-8 mb-8">
-    <BreadCrumbs userName={<Skeleton className='h-6 w-48' />} />
-    <div className='grid grid-cols-10 gap-4 mt-4'>
-      <Card className='col-span-6'>
-        <CardHeader>
-          <div className='flex items-center'>
-            <Skeleton className='rounded-full h-20 w-20 mr-4' />
-            <div>
-              <Skeleton className='h-12 w-24' />
-              <Skeleton className='h-6 w-48 mt-2' />
-            </div>
-          </div>
-        </CardHeader>
-      </Card>
-      <EventFeed className="col-span-4" title='Recent Events' />
-    </div>
-  </main>
-)
-
-const BreadCrumbs = ({ userName }) => (
-  <div>
-    <nav className="flex" aria-label="Breadcrumb">
-      <ol role="list" className="flex items-center space-x-4">
-        <li>
-          <div className="flex items-center">
-            <a href='/users' className="text-sm font-medium text-gray-500 hover:text-swishjam duration-300 transition">Users</a>
-          </div>
-        </li>
-        <li>
-          <div className="flex items-center">
-            <svg
-              className="h-5 w-5 flex-shrink-0 text-gray-300"
-              fill="currentColor"
-              viewBox="0 0 20 20"
-              aria-hidden="true"
-            >
-              <path d="M5.555 17.776l8-16 .894.448-8 16-.894-.448z" />
-            </svg>
-            <a href='/users' className="ml-4 text-sm font-medium text-gray-500 hover:text-gray-700">Users</a>
-          </div>
-        </li>
-        <li>
-          <div className="flex items-center">
-            <svg
-              className="h-5 w-5 flex-shrink-0 text-gray-300"
-              fill="currentColor"
-              viewBox="0 0 20 20"
-              aria-hidden="true"
-            >
-              <path d="M5.555 17.776l8-16 .894.448-8 16-.894-.448z" />
-            </svg>
-            <a href='#' className="ml-4 text-sm font-medium text-gray-500 hover:text-gray-700">{userName}</a>
-          </div>
-        </li>
-      </ol>
-    </nav>
-  </div>
-)
 
 const UserProfile = ({ params }) => {
   const { id: userId } = params;
@@ -90,23 +33,36 @@ const UserProfile = ({ params }) => {
       })
     });
   }, [])
+ 
+  const breadcrumbPaths = [
+    {
+      title: 'Users',
+      url: '/users'
+    },
+    {
+      title: userData?.full_name || `Unknown User: ${userData?.id.split('-')[0]}`,
+      url: null
+    }
+  ] 
 
   return (
     userData ? (
       <main className="mx-auto max-w-7xl px-4 mt-8 sm:px-6 lg:px-8 mb-8">
-        <BreadCrumbs userName={userData.full_name} />
-        <div className='grid grid-cols-10 gap-4 mt-4'>
-          <Card className='col-span-6'>
+        <Breadcrumbs paths={breadcrumbPaths} />
+        <div className='grid grid-cols-10 gap-4 mt-8'>
+          <Card className='col-span-4 relative'>
             <CardHeader>
               <div className='grid grid-cols-2 items-center'>
                 <div className='flex items-center'>
-                  <Avatar className="h-16 w-16 mr-4">
+                  <Avatar className="h-16 w-16 mr-4 border border-slate-200">
                     {userData.avatar_url
                       ? <AvatarImage src={userData.avatar_url} alt="Avatar" />
                       : <AvatarFallback className="text-lg">{userData.initials}</AvatarFallback>
                     }
                   </Avatar>
                   <div>
+                    {userData.poweruser ? <PowerUserBadge className="absolute top-5 right-5" size={8}/>:''}
+                    {userData.churnwarning ? <ChurnWarningUserBadge className="absolute top-5 right-5" size={8} />:''}
                     <CardTitle className='text-2xl'>
                       {userData.full_name}
                     </CardTitle>
@@ -118,39 +74,107 @@ const UserProfile = ({ params }) => {
               </div>
             </CardHeader>
             <CardContent>
+              <div className="border-t border-slate-100 w-full" />
               <div>
                 <div className="mt-4">
-                  <dl className="grid grid-cols-1 sm:grid-cols-2">
-                    <div className="px-4 py-4 sm:col-span-1 sm:px-0">
+                  <dl className="grid grid-cols-1">
+                    <div className="px-4 py-2 col-span-1 sm:px-0 grid grid-cols-2">
                       <dt className="text-sm font-medium leading-6 text-gray-900">Full name</dt>
-                      <dd className="mt-1 text-sm leading-6 text-gray-700 sm:mt-2">{userData?.full_name}</dd>
+                      <dd className="text-sm leading-6 text-gray-700 text-right">{userData?.full_name}</dd>
                     </div>
-                    <div className="px-4 py-4 sm:col-span-1 sm:px-0">
+                    <div className="px-4 py-2 col-span-1 grid grid-cols-2 sm:px-0">
                       <dt className="text-sm font-medium leading-6 text-gray-900">Organizations</dt>
-                      <dd className="mt-1 text-sm leading-6 text-gray-700 sm:mt-2">
-                        {userData.organizations.map(org => (
-                          <a className='hover:underline hover:text-blue-700' key={org.id} href={`/organizations/${org.id}`}>{org.name}</a>
+                      <dd className="text-sm leading-6 text-gray-700 text-right flex flex-col">
+                        {userData.organizations.map((org, i) => (
+                          <div>
+                            <a key={org.id} href={`/organizations/${org.id}`} className={`${i > 0 ? 'mt-2':''} inline-flex items-center rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10 hover:underline`}>
+                            {org.name}
+                            </a>
+                          </div> 
                         ))}
-
-                        {userData.organizations.length > 1 && (
-                          <span
-                            className='cursor-pointer underline ml-2 hover:text-swishjam'
-                            onClick={() => setOrganizationsListExpanded(!organizationsListExpanded)}
-                          >+{userData.organizations.length - 1} others</span>
-                        )}
-                        {organizationsListExpanded && (
-                          <div className='mt-2'>
-                            {userData.organizations.slice(1).map(org => (
-                              <div key={org.id} className='flex items-center'>
-                                <a href={`/organizations/${org.id}`} className='text-sm text-gray-700 hover:underline'>
-                                  {org.name}
-                                </a>
-                              </div>
-                            ))}
-                          </div>
-                        )}
                       </dd>
                     </div>
+                    <>
+                      <div className="px-4 py-2 col-span-1 sm:px-0 grid grid-cols-2">
+                        <dt className="text-sm font-medium leading-6 text-gray-900">Plan/Subscription Type</dt>
+                        <dd className="text-sm leading-6 text-gray-700 text-right">
+                          {userData.subscriptionPlan ?
+                            <span classname="inline-flex items-center rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20">
+                              {userData.subscriptionPlan}
+                            </span>:'-'
+                          } 
+                        </dd>
+                      </div>
+                      <div className="px-4 py-2 col-span-1 sm:px-0 grid grid-cols-2">
+                        <dt className="text-sm font-medium leading-6 text-gray-900">Plan/Subscription Value</dt>
+                        <dd className="text-sm leading-6 text-gray-700 text-right">
+                          {userData.subscriptionValue ?
+                            <span className="inline-flex items-center rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20">
+                              {userData.subscriptionValue}
+                            </span>:'-'
+                          } 
+                        </dd>
+                      </div>
+                      <div className="px-4 py-2 col-span-1 sm:px-0 grid grid-cols-2">
+                        <dt className="text-sm font-medium leading-6 text-gray-900">Role</dt>
+                        <dd className="text-sm leading-6 text-gray-700 text-right">{userData.role || '-'}</dd>
+                      </div>
+                      <div className="px-4 py-2 col-span-1 sm:px-0 grid grid-cols-2">
+                        <dt className="text-sm font-medium leading-6 text-gray-900">Title</dt>
+                        <dd className="text-sm leading-6 text-gray-700 text-right">{userData.title || '-'}</dd>
+                      </div>
+                      <div className="px-4 py-2 col-span-1 sm:px-0 grid grid-cols-2">
+                        <dt className="text-sm font-medium leading-6 text-gray-900">Twitter Handle</dt>
+                        <dd className="text-sm leading-6 text-gray-700 text-right">
+                          {userData.twitterHandle ?
+                            <a
+                              className="hover:underline hover:text-blue-400 transition duration-500"
+                              href={`https://twitter.com/${userData.twitterHandle}`}>
+                                {userData.twitterHandle}
+                            </a>:'-'
+                          }
+                        </dd>
+                      </div>
+                      <div className="px-4 py-2 col-span-1 sm:px-0 grid grid-cols-2">
+                        <dt className="text-sm font-medium leading-6 text-gray-900">Linkedin</dt>
+                        <dd className="text-sm leading-6 text-gray-700 text-right">
+                          {userData.linkedinHandle ?
+                            <a
+                              className="hover:underline hover:text-blue-400 transition duration-500"
+                              href={`https://www.linkedin.com/in/${userData.linkedinHandle}`}>Profile Link
+                            </a>:'-'
+                          }
+                        </dd>
+                      </div>
+                      <div className="px-4 py-2 col-span-1 sm:px-0 grid grid-cols-2">
+                        <dt className="text-sm font-medium leading-6 text-gray-900">Company</dt>
+                        <dd className="text-sm leading-6 text-gray-700 text-right">
+                          {userData.companyName ? userData.companyName:'-'}
+                        </dd>
+                      </div>
+                      <div className="px-4 py-2 col-span-1 sm:px-0 grid grid-cols-2">
+                        <dt className="text-sm font-medium leading-6 text-gray-900">Location</dt>
+                        <dd className="text-sm leading-6 text-gray-700 text-right">
+                          {userData.location ? 'userData.location':'-'}
+                        </dd>
+                      </div>
+                      <div className="my-4 border-t border-slate-100 w-full" />
+                      <div className="px-4 py-2 col-span-1 sm:px-0 grid grid-cols-2">
+                        <dt className="text-sm font-medium leading-6 text-gray-900">Additional Data</dt>
+                      </div>
+                      <div className="px-4 py-2 col-span-1 sm:px-0 grid grid-cols-2">
+                        <dt className="text-sm font-medium leading-6 text-gray-900"></dt>
+                        <dd className="text-sm leading-6 text-gray-700 text-right">No additional data</dd>
+                      </div>
+                      <div className="my-4 border-t border-slate-100 w-full" />
+                      <div className="px-4 py-2 col-span-1 sm:px-0 grid grid-cols-2">
+                        <dt className="text-sm font-medium leading-6 text-gray-900">Connected Apps</dt>
+                      </div>
+                      <div className="px-4 py-2 col-span-1 sm:px-0 grid grid-cols-2">
+                        <dt className="text-sm font-medium leading-6 text-gray-900"></dt>
+                        <dd className="text-sm leading-6 text-gray-700 text-right">No additional data</dd>
+                      </div>
+                    </>
                   </dl>
                 </div>
               </div>
@@ -158,34 +182,32 @@ const UserProfile = ({ params }) => {
           </Card>
 
 
-          <div className="col-span-4">
+          <div className="col-span-6">
             <LineChartWithValue
-              title='Sessions'
+              title='Activity'
               value={sessionTimeseriesData?.value}
               timeseries={sessionTimeseriesData?.timeseries}
               valueFormatter={numSessions => numSessions.toLocaleString('en-US')}
             />
+            <BarList className="mt-4" title='Page Views' items={pageViewsData} />
+            <EventFeed
+              className="col-span-6 mt-4"
+              title='Recent Events'
+              events={recentEvents}
+              leftItemHeaderKey='name'
+              rightItemKey='occurred_at'
+              initialLimit={5}
+              loadMoreEventsIncrement={5}
+              rightItemKeyFormatter={date => {
+                return new Date(date)
+                  .toLocaleDateString('en-us', { weekday: "short", year: "numeric", month: "short", day: "numeric" })
+                  .replace(`, ${new Date(date).getFullYear()}`, '')
+              }}
+            />
           </div>
-          <div className="col-span-5">
-            <BarList title='Page Views' items={pageViewsData} />
-          </div>
-          <EventFeed
-            className="col-span-5"
-            title='Recent Events'
-            events={recentEvents}
-            leftItemHeaderKey='name'
-            rightItemKey='occurred_at'
-            initialLimit={5}
-            loadMoreEventsIncrement={5}
-            rightItemKeyFormatter={date => {
-              return new Date(date)
-                .toLocaleDateString('en-us', { weekday: "short", year: "numeric", month: "short", day: "numeric" })
-                .replace(`, ${new Date(date).getFullYear()}`, '')
-            }}
-          />
         </div>
       </main>
-    ) : <LoadingState />
+    ) : <LoadingView />
   )
 }
 

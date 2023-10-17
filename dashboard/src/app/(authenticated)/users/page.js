@@ -87,13 +87,13 @@ export default function Users() {
                             <td className="whitespace-nowrap py-3 pl-4 pr-3 text-sm sm:pl-6 lg:pl-8">
                               <div className="flex items-center">
                                 <div className="flex-shrink-0">
-                                  <Avatar>
+                                  <Avatar className="border border-slate-200">
                                     <AvatarImage src={user.image} />
-                                    <AvatarFallback>{user.initials}</AvatarFallback>
+                                    <AvatarFallback>{user.initials || 'NU'}</AvatarFallback>
                                   </Avatar>
                                 </div>
                                 <div className="ml-4">
-                                  <div className="font-medium text-gray-900">{user.full_name}</div>
+                                  <div className="font-medium text-gray-900">{user.full_name || `Name Unknown`}</div>
                                 </div>
                               </div>
                             </td>

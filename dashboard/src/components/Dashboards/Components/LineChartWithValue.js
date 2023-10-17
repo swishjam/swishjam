@@ -174,21 +174,35 @@ export default function LineChartWithValue({
       </div>
       {timeseries.length > 0
         ? (
-          <div className='flex align-center justify-center my-6'>
-            <ResponsiveContainer width="100%" aspect={3}>
-              <AreaChart data={timeseries} margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>
+          <div className='flex align-center justify-center mt-6'>
+            <ResponsiveContainer width="100%" aspect={3} className="">
+              <AreaChart data={timeseries} margin={{ top: 5, right: 0, left: 0, bottom: 0 }}>
                 <XAxis
-                  className='group-hover:opacity-100 opacity-0 duration-500 transition'
                   dataKey="date"
                   hide={!showXAxis}
-                  tickLine={false}
                   tickFormatter={dateFormatter}
-                  tick={{ fontSize: 12, fill: "#9CA3AF" }}
+                  tick={{ fontSize: 12, fill: "#9CA3AF"}}
                   includeHidden
+                  minTickGap={10}
                   interval='preserveStartEnd'
+                  axisLine={false}
+                  tickLine={{ stroke: "#e2e8f0", strokeWidth: 1}}
+                  padding={{ left: 0, right: 0 }} 
+                  height={20} 
                 />
-                {showYAxis && <YAxis dataKey="value" hide={!showYAxis} tickFormatter={valueFormatter} tick={{ fontSize: 12, fill: "#9CA3AF" }} />}
-                {showYAxis && <CartesianGrid strokeDasharray="3 3" vertical={false} />}
+                {showYAxis &&
+                  <YAxis
+                    width={30}
+                    dataKey="value"
+                    allowDecimals={false}
+                    axisLine={false}
+                    tickLine={false}
+                    hide={!showYAxis}
+                    tickFormatter={valueFormatter}
+                    tick={{ fontSize: 12, fill: "#9CA3AF" }}
+                    padding={{ top: 0, bottom: 0, left: 0, right: 20 }} 
+                  />}
+                {showYAxis && <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" strokeWidth={1}/>}
                 {showTooltip && (
                   <Tooltip
                     animationBegin={200}
@@ -220,7 +234,8 @@ export default function LineChartWithValue({
                   activeDot={{ r: 2 }}
                   strokeWidth={2}
                   fill="#F2FAFE"
-                />
+                >
+                </Area>
               </AreaChart>
             </ResponsiveContainer>
           </div>
