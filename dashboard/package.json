@@ -46,6 +46,7 @@
     "react-dom": "^18.2.0",
     "react-grid-layout": "^1.4.1",
     "react-popper-tooltip": "^4.4.2",
+    "reactflow": "^11.9.4",
     "recharts": "^2.4.3",
     "tailwind-merge": "^1.14.0",
     "tailwindcss-animate": "^1.0.6",

@@ -1,9 +1,10 @@
 'use client';
-import { usePathname } from 'next/navigation'
+import { Bars3Icon } from '@heroicons/react/24/outline'
 import {
   ChevronLeftIcon,
   ChevronRightIcon,
   Cog6ToothIcon,
+  CursorArrowRaysIcon,
   GlobeAmericasIcon,
   HomeIcon,
   MagnifyingGlassIcon,
@@ -11,14 +12,14 @@ import {
   UserGroupIcon,
   UserIcon,
 } from '@heroicons/react/24/outline'
-import SidebarMobile from './MobileNav';
-import ProfileFlyout from './ProfileFlyout';
-import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Logo from '@components/Logo'
-import { Bars3Icon } from '@heroicons/react/24/outline'
-import { RxBarChart } from 'react-icons/rx'
+import ProfileFlyout from './ProfileFlyout';
+import { RxBarChart } from 'react-icons/rx';
+import SidebarMobile from './MobileNav';
 import useCommandBar from '@/hooks/useCommandBar';
+import { usePathname } from 'next/navigation'
+import { useState, useEffect } from 'react'
 // import { SwishjamMemory } from '@/lib/swishjam-memory';
 
 const appNav = [
@@ -28,20 +29,27 @@ const appNav = [
   { name: 'Users', href: '/users', icon: UserIcon },
   { name: 'Organizations', href: '/organizations', icon: UserGroupIcon },
   { name: 'Connections', href: '/connections', icon: SquaresPlusIcon },
+  { name: 'Triggers', href: '/triggers', icon: CursorArrowRaysIcon, partialMatchUrl: true },
   { name: 'Settings', href: '/settings', icon: Cog6ToothIcon },
 ]
 
 const classNames = (...classes) => classes.filter(Boolean).join(' ')
 
 const DesktopNavItem = ({ item, isCollapsed, currentPath }) => {
-  const isCurrentPage = menuItemHref => currentPath == menuItemHref;
+  const isNavItemActive = menuItem => {
+    if (menuItem.partialMatchUrl) {
+      return currentPath.includes(menuItem.href);
+    } else {
+      return currentPath == menuItem.href;
+    }
+  }
 
   return (
     <li key={item.name}>
       <Link
         href={item.href}
         className={classNames(
-          isCurrentPage(item.href)
+          isNavItemActive(item)
             ? 'bg-gray-50 text-swishjam'
             : 'text-gray-700 hover:text-swishjam hover:bg-gray-50',
           `group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold duration-500 transition ${isCollapsed ? 'py-2 px-1' : 'p-2'}`
@@ -49,7 +57,7 @@ const DesktopNavItem = ({ item, isCollapsed, currentPath }) => {
       >
         {item.icon && <item.icon
           className={classNames(
-            isCurrentPage(item.href) ? 'text-swishjam' : 'text-gray-400 group-hover:text-swishjam duration-500 transition',
+            isNavItemActive(item) ? 'text-swishjam' : 'text-gray-400 group-hover:text-swishjam duration-500 transition',
             'h-6 w-6 shrink-0'
           )}
           aria-hidden="true"
