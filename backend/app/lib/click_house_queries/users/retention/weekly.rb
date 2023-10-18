@@ -4,14 +4,13 @@ module ClickHouseQueries
       class Weekly
         include ClickHouseQueries::Helpers
 
-        def initialize(public_keys, oldest_cohort: 6.months.ago, oldest_activity_week: 1.weeks.ago)
+        def initialize(public_keys, oldest_cohort_date: 6.months.ago, oldest_activity_week: 1.weeks.ago)
           @public_keys = public_keys.is_a?(Array) ? public_keys : [public_keys]
-          @oldest_cohort = oldest_cohort.beginning_of_week
+          @oldest_cohort_date = oldest_cohort_date.beginning_of_week
           @oldest_activity_week = oldest_activity_week.beginning_of_week
         end
 
         def get
-          return if workspace.analytics_user_profiles.none?
           raw_retention_data = Analytics::Event.find_by_sql(sql.squish!)
           retention_data_grouped_by_cohort_date = format_result_into_cohort_key_values(raw_retention_data)
           fill_in_retention_data_with_period_counts_and_zero_user_periods(retention_data_grouped_by_cohort_date)
@@ -55,8 +54,60 @@ module ClickHouseQueries
           retention_data_grouped_by_cohort_date
         end
 
-        def workspace
-          @workspace ||= ApiKey.includes(:workspace).find_by(public_key: @public_keys.first).workspace
+        def cohorts_sql_query
+          # returns all user ids and their cohort dates
+          # toStartOfWeek(date, mode) mode = 1 -> Monday is start of week, range of 0-53 (aligns with Ruby's `.beginning_of_week`)
+          # https://clickhouse.com/docs/en/sql-reference/functions/date-time-functions#toweek
+          <<~SQL
+            SELECT swishjam_user_id, toStartOfWeek(created_at, 1) AS cohort_date
+            FROM swishjam_user_profiles
+            WHERE 
+              swishjam_api_key IN #{formatted_in_clause(@public_keys)} AND
+              created_at >= '#{formatted_time(@oldest_cohort_date)}'
+          SQL
+        end
+
+        def activity_for_cohorts_sql_query
+          # gets all activity from users thats cohorts are within the @oldest_cohort_date
+          <<~SQL
+            SELECT 
+              e.occurred_at AS occurred_at, 
+              uie.swishjam_user_id AS user_id, 
+              c.cohort_date AS cohort_date
+            FROM events AS e
+            LEFT JOIN (
+              SELECT
+                device_identifier,
+                MAX(occurred_at) AS max_occurred_at,
+                argMax(swishjam_user_id, occurred_at) AS swishjam_user_id
+              FROM user_identify_events AS uie
+              WHERE swishjam_api_key IN #{formatted_in_clause(@public_keys)}
+              GROUP BY device_identifier
+            ) AS uie ON uie.device_identifier = JSONExtractString(e.properties, '#{Analytics::Event::ReservedPropertyNames.DEVICE_IDENTIFIER}')
+            JOIN cohorts AS c ON uie.swishjam_user_id = c.swishjam_user_id
+            WHERE 
+              e.swishjam_api_key IN #{formatted_in_clause(@public_keys)} AND
+              e.occurred_at >= '#{formatted_time(@oldest_activity_week)}'
+          SQL
+        end
+
+        def weekly_activity_sql_query
+          <<~SQL
+            SELECT
+              cohort_date,
+              toStartOfWeek(occurred_at, 1) AS activity_period_date,
+              CAST(COUNT(DISTINCT user_id) AS INT) AS active_users
+            FROM activity_with_cohorts
+            GROUP BY cohort_date, toStartOfWeek(occurred_at, 1)
+          SQL
+        end
+
+        def cohort_sizes_sql_query
+          <<~SQL
+            SELECT cohort_date, CAST(COUNT(DISTINCT user_id) AS INT) AS cohort_size
+            FROM activity_with_cohorts
+            GROUP BY cohort_date
+          SQL
         end
 
         def sql
@@ -65,49 +116,10 @@ module ClickHouseQueries
           # -- 3. Group by cohort and week to count distinct active users
           # -- 4. Final selection to present the data
           <<~SQL
-            WITH cohorts AS (
-              #{
-                workspace.analytics_user_profiles.map do |u|
-                  "SELECT '#{u.id}' AS user_id, '#{u.created_at.beginning_of_week}' AS cohort_date"
-                end.join(' UNION ALL ')
-              }
-            ),
-
-            activity_with_cohorts AS (
-              SELECT 
-                e.occurred_at AS occurred_at, 
-                uie.swishjam_user_id AS user_id, 
-                c.cohort_date AS cohort_date
-              FROM events AS e
-              LEFT JOIN (
-                SELECT
-                  device_identifier,
-                  MAX(occurred_at) AS max_occurred_at,
-                  argMax(swishjam_user_id, occurred_at) AS swishjam_user_id
-                FROM user_identify_events AS uie
-                WHERE swishjam_api_key IN #{formatted_in_clause(@public_keys)}
-                GROUP BY device_identifier
-              ) AS uie ON uie.device_identifier = JSONExtractString(e.properties, '#{Analytics::Event::ReservedPropertyNames.DEVICE_IDENTIFIER}')
-              JOIN cohorts AS c ON uie.swishjam_user_id = c.user_id
-              WHERE 
-                e.swishjam_api_key IN #{formatted_in_clause(@public_keys)} AND
-                e.occurred_at >= '#{formatted_time(@oldest_activity_week)}'
-            ),
-
-            weekly_activity AS (
-              SELECT
-                cohort_date,
-                DATE_TRUNC('week', occurred_at) AS activity_period_date,
-                CAST(COUNT(DISTINCT user_id) AS INT) AS active_users
-              FROM activity_with_cohorts
-              GROUP BY cohort_date, DATE_TRUNC('week', occurred_at)
-            ),
-
-            cohort_sizes AS (
-              SELECT cohort_date, CAST(COUNT(DISTINCT user_id) AS INT) AS cohort_size
-              FROM activity_with_cohorts
-              GROUP BY cohort_date
-            )
+            WITH cohorts AS (#{cohorts_sql_query}),
+            activity_with_cohorts AS (#{activity_for_cohorts_sql_query}),
+            weekly_activity AS (#{weekly_activity_sql_query}),
+            cohort_sizes AS (#{cohort_sizes_sql_query})
 
             SELECT 
               a.cohort_date,

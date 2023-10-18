@@ -1,8 +1,8 @@
 module DataSynchronizers
   class UserRetention
-    def initialize(workspace, oldest_cohort: 12.months.ago, oldest_activity_week: 1.week.ago)
+    def initialize(workspace, oldest_cohort_date: 12.months.ago, oldest_activity_week: 1.week.ago)
       @workspace = workspace
-      @oldest_cohort = oldest_cohort
+      @oldest_cohort_date = oldest_cohort_date
       @oldest_activity_week = oldest_activity_week
     end
   
@@ -69,7 +69,7 @@ module DataSynchronizers
       product_api_key = @workspace.api_keys.for_data_source(ApiKey::ReservedDataSources.PRODUCT)
       retention_data = ClickHouseQueries::Users::Retention::Weekly.new(
         product_api_key.public_key, 
-        oldest_cohort: @oldest_cohort, 
+        oldest_cohort_date: @oldest_cohort_date, 
         oldest_activity_week: @oldest_activity_week
       ).get
     end
