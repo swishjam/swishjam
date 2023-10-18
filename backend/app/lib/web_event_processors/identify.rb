@@ -22,7 +22,7 @@ module WebEventProcessors
           swishjam_api_key: public_key,
           swishjam_user_id: profile.id,
           unique_identifier: unique_identifier,
-          created_at: profile.created_at,
+          created_at: timestamp,
         )
       end
 

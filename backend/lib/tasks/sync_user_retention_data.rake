@@ -29,7 +29,7 @@ namespace :tasks do
     ActiveRecord::Base.logger.silence do
       start_time = Time.now
       workspaces = Workspace.all
-      progress_bar = TTY::ProgressBar.new("Syncing #{workspaces.count} user retention data [:bar]", total: workspaces.count, bar_format: :block)
+      progress_bar = TTY::ProgressBar.new("Syncing #{workspaces.count} workspaces\' user retention data [:bar]", total: workspaces.count, bar_format: :block)
       workspaces.each do |workspace|
         puts "Synchornizing #{workspace.name} user retention data...".colorize(:yellow)
         DataSynchronizers::UserRetention.new(workspace, oldest_cohort_date: oldest_cohort_date, oldest_activity_week: oldest_activity_period).sync_workspaces_retention_cohort_data!

@@ -9,7 +9,7 @@ export default function PieChartConfiguration({ onSaveClick = () => { } }) {
 
   return (
     <ConfigurationModal
-      type='Pie Chart'
+      type='Value Card'
       includeCalculationsDropdown={false}
       includePropertiesDropdown={false}
       onSave={onSaveClick}

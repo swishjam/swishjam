@@ -32,7 +32,7 @@ export default function RetentionGrid({ retentionCohorts, isExpandable }) {
                 {/* Cohort */}
               </th>
               {Array.from({ length: maxNumWeeks }).map((_, i) => (
-                <th className="text-left text-sm text-gray-700 text-center font-normal" style={{ fontSize: '0.75rem' }}>
+                <th key={i} className="text-left text-sm text-gray-700 text-center font-normal" style={{ fontSize: '0.75rem' }}>
                   Week {i}
                 </th>
               ))}
