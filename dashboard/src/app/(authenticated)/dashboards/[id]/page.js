@@ -1,5 +1,6 @@
 'use client'
 
+import BarChartConfiguration from "@/components/Dashboards/Builder/Configurations/BarChart";
 import BarListConfiguration from "@/components/Dashboards/Builder/Configurations/BarList";
 import { ChartPieIcon, PencilSquareIcon, PlusCircleIcon } from "@heroicons/react/24/outline";
 import ComponentOptionsSlideout from "@/components/Dashboards/Builder/ComponentOptions/OptionsSlideout";
@@ -14,7 +15,6 @@ import SwishjamAPI from "@/lib/api-client/swishjam-api";
 import Timefilter from "@/components/Timefilter";
 import { useEffect, useState, useRef } from "react";
 import ValueCardConfiguration from "@/components/Dashboards/Builder/Configurations/ValueCard";
-import BarChartConfiguration from "@/components/Dashboards/Builder/Configurations/BarChart";
 
 const AUTO_SAVE_CHECK_INTERVAL = 2_500;
 const DEFAULT_GRID_CONFIGURATIONS = {
@@ -115,7 +115,7 @@ export default function Dashboard({ params }) {
   }
 
   const createDashboardComponent = async componentConfiguration => {
-    const formattedConfiguration = { ...DEFAULT_GRID_CONFIGURATIONS[componentConfiguration.type], ...componentConfiguration };
+    const formattedConfiguration = { ...DEFAULT_GRID_CONFIGURATIONS[componentConfiguration.type], ...componentConfiguration, y: 1_000_000 };
     setIsSaving(true);
     return SwishjamAPI.DashboardComponents.create(dashboardId, formattedConfiguration).then(result => {
       setIsSaving(false);
@@ -123,13 +123,14 @@ export default function Dashboard({ params }) {
 
       } else {
         setDashboardComponents([...dashboardComponents, result]);
+        window.scrollTo(0, document.body.scrollHeight);
       }
     });
   }
 
   const pendingDashboardLayoutUpdatesRef = useRef(pendingDashboardLayoutUpdates);
 
-  const updatePendingDashboardLayoutUpdates = () => {
+  const savePendingDashboardLayoutUpdatesIfNecessary = () => {
     if (pendingDashboardLayoutUpdatesRef.current.length > 0) {
       updateDashboardComponents(pendingDashboardLayoutUpdatesRef.current).then(() => setPendingDashboardLayoutUpdates([]));
     }
@@ -142,7 +143,7 @@ export default function Dashboard({ params }) {
   useEffect(() => {
     SwishjamAPI.Dashboards.retrieve(dashboardId).then(({ name }) => setDashboardName(name));
     SwishjamAPI.DashboardComponents.list(dashboardId).then(setDashboardComponents);
-    const interval = setInterval(() => updatePendingDashboardLayoutUpdates, AUTO_SAVE_CHECK_INTERVAL);
+    const interval = setInterval(() => savePendingDashboardLayoutUpdatesIfNecessary(), AUTO_SAVE_CHECK_INTERVAL);
     return () => clearInterval(interval);
   }, []);
 
@@ -208,7 +209,7 @@ export default function Dashboard({ params }) {
                   className="ml-2 inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-swishjam hover:bg-swishjam-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-swishjam"
                   onClick={() => {
                     setIsInEditMode(false);
-                    updatePendingDashboardLayoutUpdates();
+                    savePendingDashboardLayoutUpdatesIfNecessary();
                   }}
                 >
                   Done

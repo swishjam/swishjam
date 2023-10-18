@@ -14,7 +14,7 @@ export default function RetentionCell({ cohortDate, activityWeek, numActiveUsers
       <Tooltip delayDuration={300} className='cursor-default'>
         <TooltipTrigger>
           <div
-            className="w-20 h-20 flex items-center justify-center p-1 bg-swishjam text-gray-900 hover:text-black transition-all cursor-default border border-dashed border-red-800"
+            className="w-20 h-20 flex items-center justify-center p-1 bg-swishjam text-gray-900 hover:text-black transition-all cursor-default"
             onMouseOver={() => setIsHovered(true)}
             onMouseOut={() => setIsHovered(false)}
             style={{ opacity, fontSize: '0.75rem', transform: isHovered ? 'scale(1.05)' : 'scale(1)' }}

@@ -17,7 +17,7 @@ export default function ContextMenuableComponent({ children, isTriggerable, onEd
           <ClipboardDocumentCheckIcon className="h-5 w-5 mr-2 text-gray-400" />
           Duplicate
         </ContextMenuItem> */}
-        <ContextMenuItem className='pl-4 pr-8 hover:bg-red-50 hover:text-red-200' onClick={onDelete}>
+        <ContextMenuItem className='pl-4 pr-8 hover:bg-red-50 hover:text-red-200 cursor-pointer' onClick={onDelete}>
           <TrashIcon className="h-5 w-5 mr-2 text-gray-400" />
           Delete
         </ContextMenuItem>
