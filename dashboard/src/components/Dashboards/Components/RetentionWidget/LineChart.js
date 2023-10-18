@@ -94,23 +94,21 @@ export default function RetentionLineChart({ retentionCohorts }) {
       <ResponsiveContainer>
         <LineChart width={730} height={250} data={lineChartData}
           margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
-          <CartesianGrid
-            strokeDasharray="3 3"
-          // horizontalPoints={[25, 50, 75, 100]}
-          />
+          <CartesianGrid strokeDasharray="3 3" />
           <XAxis
             dataKey="numPeriodsAfterCohort"
             tick={{ fontSize: 12, fill: "#9CA3AF" }}
-            axisLine={false}
             tickLine={false}
-          // label='Weeks'
+            stroke='#ccc'
+            strokeDasharray="3 3"
           />
           <YAxis
             tick={{ fontSize: 12, fill: "#9CA3AF" }}
             tickFormatter={num => `${parseFloat(num).toFixed(0)}%`}
             domain={[0, 100]}
-            axisLine={false}
             tickLine={false}
+            stroke='#ccc'
+            strokeDasharray="3 3"
           // ticks={[25, 50, 75, 100]}
           />
           <Tooltip

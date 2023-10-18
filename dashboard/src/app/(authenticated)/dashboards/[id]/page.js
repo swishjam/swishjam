@@ -100,7 +100,6 @@ export default function Dashboard({ params }) {
       }
     }).filter(Boolean);
     const pendingDashboardUpdatesNotInThisChange = pendingDashboardLayoutUpdates.filter(pendingUpdateComponent => changedDashboardComponents.includes(({ id }) => id === pendingUpdateComponent.id));
-    console.log(changedDashboardComponents);
     setPendingDashboardLayoutUpdates([...pendingDashboardUpdatesNotInThisChange, ...changedDashboardComponents]);
   }
 

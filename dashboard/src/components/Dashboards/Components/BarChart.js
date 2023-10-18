@@ -1,101 +1,15 @@
 "use client"
 
 import { BarChart, Bar, CartesianGrid, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
+import BarChartTable from '@/components/Dashboards/Components/BarChartTable';
 import { Card, CardContent } from "@/components/ui/card"
-import { CheckCircleIcon } from '@heroicons/react/20/solid';
-import { CircleIcon } from "@radix-ui/react-icons"
-import { Cog8ToothIcon } from "@heroicons/react/24/outline";
 import ConditionalCardWrapper from './ConditionalCardWrapper';
 import { COLORS as DEFAULT_COLORS } from '@/lib/utils/colorHelpers';
 import { dateFormatterForGrouping } from '@/lib/utils/timeseriesHelpers';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import EmptyState from '@/components/EmptyState';
+import SettingsDropdown from './SettingsDropdown';
 import { Skeleton } from "@/components/ui/skeleton"
 import { useRef, useState } from 'react';
-
-const SettingsDropdown = ({
-  includeGridLines,
-  includeLegend,
-  includeXAxis,
-  includeYAxis,
-  onIncludeGridLinesChange,
-  onIncludeLegendChange,
-  onSettingChange,
-  onXAxisChange,
-  onYAxisChange,
-}) => (
-  <DropdownMenu>
-    <DropdownMenuTrigger asChild>
-      <Cog8ToothIcon className='group-active:opacity-100 group-focus:opacity-100 group-hover:opacity-100 ring-0 opacity-0 duration-500 transition h-5 w-5 text-gray-500 cursor-pointer' />
-    </DropdownMenuTrigger>
-    <DropdownMenuContent align="end">
-      <DropdownMenuItem
-        className={`cursor-pointer ${includeXAxis ? 'text-swishjam font-medium hover:text-swishjam' : ''}`}
-        onClick={() => {
-          const valueChangedFrom = includeXAxis;
-          const valueChangedTo = !includeXAxis;
-          onXAxisChange(valueChangedTo)
-          onSettingChange({
-            attribute: 'show-x-axis',
-            valueWas: valueChangedFrom,
-            value: valueChangedTo
-          })
-        }}
-      >
-        {includeXAxis ? <CheckCircleIcon className='h-4 w-4 absolute' /> : <CircleIcon className='h-4 w-4 absolute' />}
-        <span className='mx-6'>Show X-Axis</span>
-      </DropdownMenuItem>
-      <DropdownMenuItem
-        className={`cursor-pointer ${includeYAxis ? 'text-swishjam font-medium hover:text-swishjam' : ''}`}
-        onClick={() => {
-          const valueChangedFrom = includeYAxis;
-          const valueChangedTo = !includeYAxis;
-          onYAxisChange(valueChangedTo)
-          onSettingChange({
-            attribute: 'show-y-axis',
-            valueWas: valueChangedFrom,
-            value: valueChangedTo
-          })
-        }}
-      >
-        {includeYAxis ? <CheckCircleIcon className='h-4 w-4 absolute' /> : <CircleIcon className='h-4 w-4 absolute' />}
-        <span className='ml-6'>Show Y-Axis</span>
-      </DropdownMenuItem>
-      <DropdownMenuItem
-        className={`cursor-pointer ${includeGridLines ? 'text-swishjam font-medium hover:text-swishjam' : ''}`}
-        onClick={() => {
-          const valueChangedFrom = includeGridLines;
-          const valueChangedTo = !includeGridLines;
-          onIncludeGridLinesChange(valueChangedTo)
-          onSettingChange({
-            attribute: 'include-grid-lines',
-            valueWas: valueChangedFrom,
-            value: valueChangedTo
-          })
-        }}
-      >
-        {includeGridLines ? <CheckCircleIcon className='h-4 w-4 absolute' /> : <CircleIcon className='h-4 w-4 absolute' />}
-        <span className='ml-6'>Include Grid Lines</span>
-      </DropdownMenuItem>
-      <DropdownMenuItem
-        className={`cursor-pointer ${includeLegend ? 'text-swishjam font-medium hover:text-swishjam' : ''}`}
-        onClick={() => {
-          const valueChangedFrom = includeLegend;
-          const valueChangedTo = !includeLegend;
-          onIncludeLegendChange(valueChangedTo)
-          onSettingChange({
-            attribute: 'include-legend',
-            valueWas: valueChangedFrom,
-            value: valueChangedTo
-          })
-        }}
-      >
-        {includeLegend ? <CheckCircleIcon className='h-4 w-4 absolute' /> : <CircleIcon className='h-4 w-4 absolute' />}
-        <span className='ml-6'>Include Legend</span>
-      </DropdownMenuItem>
-    </DropdownMenuContent>
-  </DropdownMenu>
-)
 
 export default function BarChartComponent({
   colors = DEFAULT_COLORS,
@@ -105,7 +19,6 @@ export default function BarChartComponent({
   includeCard = true,
   includeSettingsDropdown = true,
   noDataMessage = 'No data available.',
-  onSettingChange = () => { },
   showGridLines = true,
   showLegend = true,
   showXAxis = true,
@@ -126,11 +39,16 @@ export default function BarChartComponent({
   const [includeXAxis, setIncludeXAxis] = useState(showXAxis);
   const [includeYAxis, setIncludeYAxis] = useState(showYAxis);
   const [includeGridLines, setIncludeGridLines] = useState(showGridLines);
-  const [includeLegend, setIncludeLegend] = useState(showLegend);
+  const [includeLegendOrTable, setIncludeLegendOrTableOrTable] = useState(showLegend);
+  const [useTableInsteadOfLegend, setUseTableInsteadOfLegend] = useState(false);
 
   const dateFormatter = dateFormatterForGrouping(groupedBy)
 
-  const uniqueKeys = [...new Set(data.flatMap(Object.keys))].filter(key => key !== xAxisKey);
+  let uniqueKeys = [...new Set(data.flatMap(Object.keys))].filter(key => key !== xAxisKey);
+  if (uniqueKeys.length > 50) {
+    console.error('BarChart can only accept up to 50 unique keys.');
+    uniqueKeys = uniqueKeys.slice(0, 50)
+  }
 
   const colorDict = useRef({});
   let colorsToChooseFrom = [...colors];
@@ -180,15 +98,29 @@ export default function BarChartComponent({
           <h2 className="text-sm font-medium cursor-default">{title}</h2>
           {includeSettingsDropdown && (
             <SettingsDropdown
-              includeGridLines={includeGridLines}
-              includeXAxis={includeXAxis}
-              includeYAxis={includeYAxis}
-              includeLegend={includeLegend}
-              onYAxisChange={setIncludeYAxis}
-              onXAxisChange={setIncludeXAxis}
-              onIncludeLegendChange={setIncludeLegend}
-              onIncludeGridLinesChange={setIncludeGridLines}
-              onSettingChange={onSettingChange}
+              options={[
+                { name: 'Include Y-Axis', key: 'include-y-axis', isActive: includeYAxis },
+                { name: 'Include X-Axis', key: 'include-x-axis', isActive: includeXAxis },
+                { name: 'Include Table/Legend', key: 'include-legend-or-table', isActive: includeLegendOrTable },
+                { name: 'Include Grid Lines', key: 'include-grid-lines', isActive: includeGridLines },
+                { name: 'Use Table Instead of Legend', key: 'table-instead-of-legend', isActive: useTableInsteadOfLegend },
+              ]}
+              onSettingChange={key => {
+                switch (key) {
+                  case 'include-y-axis':
+                    return setIncludeYAxis(!includeYAxis)
+                  case 'include-x-axis':
+                    return setIncludeXAxis(!includeXAxis)
+                  case 'include-legend-or-table':
+                    return setIncludeLegendOrTableOrTable(!includeLegendOrTable)
+                  case 'include-grid-lines':
+                    return setIncludeGridLines(!includeGridLines)
+                  case 'table-instead-of-legend':
+                    return setUseTableInsteadOfLegend(!useTableInsteadOfLegend)
+                  default:
+                    throw new Error(`Unrecognized setting change received: ${key}`)
+                }
+              }}
             />
           )}
         </div>
@@ -198,25 +130,32 @@ export default function BarChartComponent({
         ? <EmptyState msg={noDataMessage} />
         : (
           <div className={`flex align-center justify-center my-6 ${height}`}>
-            <ResponsiveContainer width="100%" height="100%">
+            <ResponsiveContainer width="100%" height='100%'>
               <BarChart data={data} margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>
                 {includeGridLines && <CartesianGrid strokeDasharray="4 4" vertical={false} opacity={0.75} />}
                 {includeXAxis && <XAxis dataKey={xAxisKey} tickFormatter={dateFormatter} angle={0} tick={{ fontSize: '12px' }} />}
                 {includeYAxis && <YAxis tick={{ fontSize: '12px' }} tickFormatter={valueFormatter} />}
-                {includeLegend && (
+                {includeLegendOrTable && (
                   <Legend
                     content={({ payload }) => {
                       return (
-                        <div className='flex flex-wrap items-center justify-center gap-2 border border-gray-200 px-4 py-2 mt-4 rounded max-h-24 overflow-scroll'>
-                          {payload.map((entry, index) => (
-                            <div key={index} className='inline-flex items-center justify-center w-fit rounded-md transition-all px-2 py-1'>
-                              <div className='transition-all rounded-full h-2 w-2 mr-2' style={{ backgroundColor: entry.color }} />
-                              <span className='transition-all text-xs text-gray-700'>
-                                {valueFormatter(entry.value)}
-                              </span>
+                        useTableInsteadOfLegend
+                          ? (
+                            <div className='pl-8'>
+                              <BarChartTable headers={[title || 'Value', 'Total Count']} barChartData={data} getColor={getColorForName} />
                             </div>
-                          ))}
-                        </div>
+                          ) : (
+                            <div className='flex flex-wrap items-center justify-center gap-2 border border-gray-200 px-4 py-2 mt-4 rounded max-h-24 overflow-scroll'>
+                              {payload.map((entry, index) => (
+                                <div key={index} className='inline-flex items-center justify-center w-fit rounded-md transition-all px-2 py-1'>
+                                  <div className='transition-all rounded-full h-2 w-2 mr-2' style={{ backgroundColor: entry.color }} />
+                                  <span className='transition-all text-xs text-gray-700'>
+                                    {valueFormatter(entry.value)}
+                                  </span>
+                                </div>
+                              ))}
+                            </div>
+                          )
                       )
                     }}
                   />

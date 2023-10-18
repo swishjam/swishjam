@@ -46,7 +46,8 @@ module ClickHouseQueries
 
             cohort_activity_data[:activity_periods].each do |activity_period_date, activity_period_data|
               if activity_period_date.to_date < cohort_date.to_date
-                Rails.logger.error "Retention cohort has activity data that prceeds the cohort start date, this should not happen. Cohort: #{cohort_date}, activity period date: #{activity_period_date}"
+                # this actually can happen if the user has activity data before they were identified.
+                Rails.logger.error "Retention cohort has activity data that prceeds the cohort start date, this can happen if the user has activity data before they were identified, bypassing this period. Cohort: #{cohort_date}, activity period date: #{activity_period_date}"
                 cohort_activity_data[:activity_periods].delete(activity_period_date)
               end
             end

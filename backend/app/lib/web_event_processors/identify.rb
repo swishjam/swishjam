@@ -18,6 +18,12 @@ module WebEventProcessors
           email: email, 
           metadata: metadata
         )
+        Analytics::SwishjamUserProfile.create!(
+          swishjam_api_key: public_key,
+          swishjam_user_id: profile.id,
+          unique_identifier: unique_identifier,
+          created_at: timestamp,
+        )
       end
 
       Analytics::UserIdentifyEvent.create!(
