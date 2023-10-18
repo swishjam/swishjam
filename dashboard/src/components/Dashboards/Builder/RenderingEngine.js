@@ -30,7 +30,7 @@ export default function RenderingEngine({
 }) {
   const ResponsiveGridLayout = useMemo(() => WidthProvider(ReactGridLayout), []);
   // the grid layout hangs when not given in this format
-  const sanitizedLayout = useMemo(() => components.map(({ i, configuration }) => ({ i, ...configuration })), [components]);
+  const sanitizedLayout = components.map(({ i, configuration }) => ({ i, ...configuration }));
   return (
     <ResponsiveGridLayout
       className={editable ? 'border-2 border-gray-400 border-dashed rounded' : ''}
