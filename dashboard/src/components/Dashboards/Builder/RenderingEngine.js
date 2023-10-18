@@ -30,10 +30,10 @@ export default function RenderingEngine({
 }) {
   const ResponsiveGridLayout = useMemo(() => WidthProvider(ReactGridLayout), []);
   // the grid layout hangs when not given in this format
-  const sanitizedLayout = components.map(({ i, configuration }) => ({ i, ...configuration }));
+  const sanitizedLayout = useMemo(() => components.map(({ i, configuration }) => ({ i, ...configuration })), [components]);
   return (
     <ResponsiveGridLayout
-      className={editable ? 'border border-gray-400 border-dashed rounded' : ''}
+      className={editable ? 'border-2 border-gray-400 border-dashed rounded' : ''}
       layout={sanitizedLayout}
       cols={30}
       rowHeight={10}
@@ -50,9 +50,10 @@ export default function RenderingEngine({
         // retention grid should scroll, BarChart has a tooltip that often overflows :/
         const allowOverflow = ['UserRetention', 'BarChart'].includes(configuration.type);
         return (
-          <Card key={i} className={`p-4 ${editable ? 'cursor-grab' : ''} ${allowOverflow ? '' : 'overflow-hidden'}`}>
+          // All RenderingEngineDashboardComponents re-fetch its data each time editable switches and we use the prop below, disabling until we solve it.
+          <Card key={i} className={`p-4 ${false ? 'cursor-grab' : ''} ${allowOverflow ? '' : 'overflow-hidden'}`}>
             <ContextMenuableComponent
-              isTriggerable={editable}
+              isTriggerable={true}
               onEdit={() => onDashboardComponentEdit({ id: configuration.i, configuration })}
               onDelete={() => onDashboardComponentDelete(i)}
               onDuplicate={() => onDashboardComponentDuplicate({ id: configuration.i, configuration })}
