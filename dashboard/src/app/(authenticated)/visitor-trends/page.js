@@ -217,15 +217,10 @@ export default function PageMetrics() {
       <div className='grid grid-cols-2 gap-6 pt-8'>
         <BarChartComponent title='Referrers' data={referrersBarChartData} />
         <BarChartComponent title='Page Views' data={pageViewsBarChartData} />
-        {/* <BarList title='Referrers' items={referrersBarChartData} /> */}
-        {/* <BarList title='Top Pages' items={pageViewsBarChartData} /> */}
       </div>
       <div className='grid grid-cols-2 gap-6 pt-8'>
         <BarChartComponent title='Devices' data={deviceTypesBarChartData} />
         <BarChartComponent title='Browsers' data={browsersBarChartData} />
-        {/* <BarList title='Devices' items={deviceTypesBarChartData} /> */}
-        {/* <BarList title='Browsers' items={browsersBarChartData} /> */}
-        {/* <BarList title='Countries' items={topCountries} />  */}
       </div>
     </main>
   );
