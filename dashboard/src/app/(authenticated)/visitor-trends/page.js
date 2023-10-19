@@ -9,32 +9,33 @@ import Timefilter from "@/components/Timefilter";
 import { Button } from "@/components/ui/button";
 import { ArrowPathIcon } from "@heroicons/react/24/outline";
 import { dateFormatterForGrouping } from "@/lib/utils/timeseriesHelpers";
+import BarChartComponent from "@/components/Dashboards/Components/BarChart";
 // import LoadingView from './LoadingView'
 
 const sessionsFormatter = (num) => num.toLocaleString("en-US");
 
 export default function PageMetrics() {
+  const [browsersBarChartData, setBrowsersBarChartData] = useState();
   const [currentSelectedChart, setCurrentSelectedChart] = useState("Sessions");
+  const [deviceTypesBarChartData, setDeviceTypesBarChartData] = useState();
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const [pageViewsChart, setPageViewsChart] = useState();
-  const [sessionsChart, setSessionsChart] = useState();
+  const [pageViewsTimeseriesData, setPageViewsTimeseriesData] = useState();
+  const [sessionsTimeseriesData, setSessionsTimeseriesData] = useState();
+  const [referrersBarChartData, setReferrersBarChartData] = useState();
   const [timeframeFilter, setTimeframeFilter] = useState("thirty_days");
-  const [topReferrers, setTopReferrers] = useState();
-  const [topBrowsers, setTopBrowsers] = useState();
-  const [topDevices, setTopDevices] = useState();
-  const [topPages, setTopPages] = useState();
+  const [pageViewsBarChartData, setPageViewsBarChartData] = useState();
   const [uniqueVisitorsChart, setUniqueVisitorsChart] = useState();
 
   const currentChartLookup = {
-    Sessions: sessionsChart,
+    Sessions: sessionsTimeseriesData,
     "Unique Visitors": uniqueVisitorsChart,
-    "Page Views": pageViewsChart,
+    "Page Views": pageViewsTimeseriesData,
   };
 
-  const getSessionData = async timeframe => {
+  const getSessionTimeseriesData = async timeframe => {
     return await SwishjamAPI.Sessions.timeseries({ timeframe, dataSource: 'marketing' }).then(
       ({ current_count, comparison_count, comparison_end_time, timeseries, comparison_timeseries, grouped_by }) => {
-        setSessionsChart({
+        setSessionsTimeseriesData({
           groupedBy: grouped_by,
           previousValue: comparison_count,
           previousValueDate: comparison_end_time,
@@ -50,33 +51,30 @@ export default function PageMetrics() {
       });
   };
 
-  const getReferrerData = async timeframe => {
-    return await SwishjamAPI.Sessions.Referrers.list({ timeframe, dataSource: 'marketing' }).then(({ referrers }) => {
-      setTopReferrers(
-        referrers.map(({ referrer, count }) => ({
-          name: [null, undefined, ""].includes(referrer) ? "Direct" : referrer,
-          value: count,
-        }))
-      );
+  const getSessionReferrersBarChartData = async timeframe => {
+    await SwishjamAPI.Sessions.Referrers.barChart({ timeframe }).then(({ data }) => {
+      const formattedReferrerData = data.map(referrerData => {
+        if (referrerData['']) {
+          referrerData['Direct'] = referrerData[''];
+          delete referrerData[''];
+        }
+        return referrerData;
+      })
+      setReferrersBarChartData(formattedReferrerData)
     });
   };
 
-  const getDemographicData = async timeframe => {
-    return await SwishjamAPI.Sessions.demographics({ timeframe, dataSource: 'marketing' }).then(demographics => {
-      setTopBrowsers(
-        demographics.browsers.map(({ browser_name, count }) => ({ name: browser_name, value: count }))
-      );
-      setTopDevices(
-        demographics.device_types.map(({ device_type, count }) => ({ name: device_type, value: count }))
-      );
-      // setTopCountries(Object.keys(demographics.countries).map(country => ({ name: country, value: demographics.countries[country] })));
-    });
+  const getDemographicsBarChartData = async timeframe => {
+    return await Promise.all([
+      SwishjamAPI.Sessions.Browsers.barChart({ timeframe }).then(({ data }) => setBrowsersBarChartData(data)),
+      SwishjamAPI.Sessions.DeviceTypes.barChart({ timeframe }).then(({ data }) => setDeviceTypesBarChartData(data))
+    ])
   };
 
-  const getPageViewsTimeseries = async timeframe => {
+  const getpageViewsTimeseriesData = async timeframe => {
     return await SwishjamAPI.PageViews.timeseries({ timeframe, dataSource: 'marketing' }).then(
       ({ current_count, comparison_count, comparison_end_time, timeseries, comparison_timeseries, grouped_by }) => {
-        setPageViewsChart({
+        setPageViewsTimeseriesData({
           groupedBy: grouped_by,
           previousValue: comparison_count,
           previousValueDate: comparison_end_time,
@@ -92,7 +90,7 @@ export default function PageMetrics() {
       });
   };
 
-  const getUniqueVisitors = async timeframe => {
+  const getUniqueVisitorsTimeseries = async timeframe => {
     return await SwishjamAPI.Users.Active.timeseries({ timeframe, dataSource: 'marketing', type: 'daily', includeComparison: true }).then(
       ({ current_value, timeseries, comparison_value, comparison_timeseries, comparison_end_time, grouped_by }) => {
         setUniqueVisitorsChart({
@@ -111,33 +109,29 @@ export default function PageMetrics() {
     );
   };
 
-  const getTopPages = async timeframe => {
-    return await SwishjamAPI.PageViews.list({ timeframe, dataSource: 'marketing' }).then(({ page_view_counts }) => {
-      setTopPages(
-        page_view_counts.map(({ url, count }) => ({ name: url, value: count }))
-      )
-    });
+  const getPageViewsBarChartData = async timeframe => {
+    await SwishjamAPI.PageViews.barChart({ timeframe, dataSource: 'marketing' }).then(({ data }) => setPageViewsBarChartData(data));
   };
 
   const getAllData = async timeframe => {
     // Reset All Data
     setIsRefreshing(true);
-    setSessionsChart();
-    setPageViewsChart();
+    setSessionsTimeseriesData();
+    setPageViewsTimeseriesData();
     setUniqueVisitorsChart();
-    setTopReferrers();
-    setTopPages();
-    setTopDevices();
-    setTopBrowsers();
+    setReferrersBarChartData();
+    setPageViewsBarChartData();
+    setDeviceTypesBarChartData();
+    setBrowsersBarChartData();
 
     // Reload all the data
     await Promise.all([
-      getSessionData(timeframe),
-      getPageViewsTimeseries(timeframe),
-      getUniqueVisitors(timeframe),
-      getTopPages(timeframe),
-      getDemographicData(timeframe),
-      getReferrerData(timeframe),
+      getSessionTimeseriesData(timeframe),
+      getpageViewsTimeseriesData(timeframe),
+      getUniqueVisitorsTimeseries(timeframe),
+      getPageViewsBarChartData(timeframe),
+      getDemographicsBarChartData(timeframe),
+      getSessionReferrersBarChartData(timeframe),
     ]);
     setIsRefreshing(false);
   };
@@ -178,10 +172,10 @@ export default function PageMetrics() {
           <ClickableValueCard
             title="Sessions"
             selected={currentSelectedChart == "Sessions"}
-            value={sessionsChart?.value}
-            previousValue={sessionsChart?.previousValue}
-            previousValueDate={sessionsChart?.previousValueDate}
-            timeseries={sessionsChart?.timeseries}
+            value={sessionsTimeseriesData?.value}
+            previousValue={sessionsTimeseriesData?.previousValue}
+            previousValueDate={sessionsTimeseriesData?.previousValueDate}
+            timeseries={sessionsTimeseriesData?.timeseries}
             valueFormatter={(numSubs) => numSubs.toLocaleString("en-US")}
             onClick={() => setCurrentSelectedChart("Sessions")}
           />
@@ -198,10 +192,10 @@ export default function PageMetrics() {
           <ClickableValueCard
             title="Page Views"
             selected={currentSelectedChart === "Page Views"}
-            value={pageViewsChart?.value}
-            previousValue={pageViewsChart?.previousValue}
-            previousValueDate={pageViewsChart?.previousValueDate}
-            timeseries={pageViewsChart?.timeseries}
+            value={pageViewsTimeseriesData?.value}
+            previousValue={pageViewsTimeseriesData?.previousValue}
+            previousValueDate={pageViewsTimeseriesData?.previousValueDate}
+            timeseries={pageViewsTimeseriesData?.timeseries}
             valueFormatter={numPageViews => numPageViews.toLocaleString("en-US")}
             onClick={() => setCurrentSelectedChart("Page Views")}
           />
@@ -221,12 +215,16 @@ export default function PageMetrics() {
       </div>
 
       <div className='grid grid-cols-2 gap-6 pt-8'>
-        <BarList title='Referrers' items={topReferrers} />
-        <BarList title='Top Pages' items={topPages} />
+        <BarChartComponent title='Referrers' data={referrersBarChartData} />
+        <BarChartComponent title='Page Views' data={pageViewsBarChartData} />
+        {/* <BarList title='Referrers' items={referrersBarChartData} /> */}
+        {/* <BarList title='Top Pages' items={pageViewsBarChartData} /> */}
       </div>
       <div className='grid grid-cols-2 gap-6 pt-8'>
-        <BarList title='Devices' items={topDevices} />
-        <BarList title='Browsers' items={topBrowsers} />
+        <BarChartComponent title='Devices' data={deviceTypesBarChartData} />
+        <BarChartComponent title='Browsers' data={browsersBarChartData} />
+        {/* <BarList title='Devices' items={deviceTypesBarChartData} /> */}
+        {/* <BarList title='Browsers' items={browsersBarChartData} /> */}
         {/* <BarList title='Countries' items={topCountries} />  */}
       </div>
     </main>

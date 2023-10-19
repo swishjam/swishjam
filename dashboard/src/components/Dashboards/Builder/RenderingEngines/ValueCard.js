@@ -12,6 +12,7 @@ export default function ValueCardRenderingEngine({ title, event, property, calcu
     setPreviousValue();
     setPreviousValueDate();
     if (calculation === 'count') {
+      debugger;
       SwishjamAPI.Events.count(event, { timeframe, dataSource }).then(({ count, comparison_count, comparison_start_time }) => {
         setValue(count);
         setPreviousValue(comparison_count);

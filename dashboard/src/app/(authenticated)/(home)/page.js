@@ -207,6 +207,7 @@ export default function Home() {
         <ActiveUsersLineChartWithValue
           data={uniqueVisitorsChartData}
           selectedGrouping={uniqueVisitorsGrouping}
+          showAxis={true}
           onGroupingChange={group => {
             setUniqueVisitorsChartData();
             setUniqueVisitorsGrouping(group);
@@ -218,6 +219,7 @@ export default function Home() {
           value={sessionsChart?.value}
           previousValue={sessionsChart?.previousValue}
           previousValueDate={sessionsChart?.previousValueDate}
+          showAxis={true}
           timeseries={sessionsChart?.timeseries}
           valueFormatter={numSubs => numSubs.toLocaleString('en-US')}
         />

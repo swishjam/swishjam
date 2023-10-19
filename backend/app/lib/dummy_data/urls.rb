@@ -24,6 +24,18 @@ module DummyData
           return [host_url, url_paths]
         end
       end
+
+      def get_marketing_url_from_url_host(url_host)
+        host_parts = url_host.split('.')
+        return url_host if host_parts.length == 2
+        host_parts[1..-1].join('.')
+      end
+
+      def get_product_url_from_url_host(url_host)
+        host_parts = url_host.split('.')
+        return "app.#{url_host}" if host_parts.length == 2
+        "app.#{host_parts[1..-1].join('.')}"
+      end
     end
   end
 end
