@@ -3,7 +3,7 @@ import ValueCard from "@/components/Dashboards/Components/ValueCard";
 import SwishjamAPI from "@/lib/api-client/swishjam-api";
 import { useState } from "react";
 
-export default function PieChartConfiguration({ onSaveClick = () => { } }) {
+export default function PieChartConfiguration({ OnConfigurationSave = () => { } }) {
   const [valueCardValue, setValueCardValue] = useState();
   const [valueCardPreviousValue, setValueCardPreviousValue] = useState();
 
@@ -12,7 +12,7 @@ export default function PieChartConfiguration({ onSaveClick = () => { } }) {
       type='Value Card'
       includeCalculationsDropdown={false}
       includePropertiesDropdown={false}
-      onSave={onSaveClick}
+      onSave={OnConfigurationSave}
       previewDashboardComponent={title => <ValueCard title={title} value={valueCardValue} previousValue={valueCardPreviousValue} />}
       onConfigurationChange={({ eventName, propertyName, calculation, dataSource }) => {
         if (eventName) {

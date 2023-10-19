@@ -28,7 +28,7 @@ export default function ConfigurationModal({
     } else if (selectedCalculation !== 'count' && !selectedPropertyName) {
       setErrorMessage('Please select a property to use from the property dropdown.')
     } else {
-      onSave({ title: title, event: selectedEventName, property: selectedPropertyName, calculation: selectedCalculation });
+      onSave({ title: title, event: selectedEventName, property: selectedPropertyName, calculation: selectedCalculation, dataSource: dataSourceToPullFrom });
     }
   }
 
