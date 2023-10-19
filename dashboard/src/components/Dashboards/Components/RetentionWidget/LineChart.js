@@ -6,7 +6,7 @@ import { COLORS } from '@/lib/utils/colorHelpers';
 
 const weekFormatter = dateFormatterForGrouping('week');
 
-const CustomTooltip = ({ active, payload, colorsDictionary }) => {
+const CustomTooltip = ({ active, payload, colorsDictionary, disabledCohortDates }) => {
   if (active && payload && payload.length) {
     const data = payload[0].payload;
 
@@ -14,7 +14,7 @@ const CustomTooltip = ({ active, payload, colorsDictionary }) => {
       <Card className="z-[50000] bg-white">
         <CardContent className="py-2">
           <span className='block text-sm font-medium'>Week {data.numPeriodsAfterCohort}</span>
-          {Object.keys(data).filter(key => key !== 'numPeriodsAfterCohort').map(cohortDate => (
+          {Object.keys(data).filter(key => ![...disabledCohortDates, 'numPeriodsAfterCohort'].includes(key)).map(cohortDate => (
             <div className='flex items-center justify-center w-fit px-2 py-1'>
               <div
                 className='rounded-full h-2 w-2 mr-2'
@@ -115,7 +115,7 @@ export default function RetentionLineChart({ retentionCohorts }) {
             animationBegin={200}
             animationDuration={400}
             wrapperStyle={{ outline: "none" }}
-            content={<CustomTooltip colorsDictionary={cohortColorDictionary} />}
+            content={<CustomTooltip colorsDictionary={cohortColorDictionary} disabledCohortDates={disabledCohortDates} />}
             allowEscapeViewBox={{ x: false, y: true }}
             animationEasing='ease-in-out'
           />

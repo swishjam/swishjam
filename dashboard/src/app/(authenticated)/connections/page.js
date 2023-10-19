@@ -144,7 +144,7 @@ export default function Connections() {
                         <div className="text-center col-span-3 my-8">
                           <RxCardStack className="mx-auto h-12 w-12 text-gray-400" />
                           <h3 className="mt-2 text-sm font-semibold text-gray-900">You have installed all Swishjam connections!</h3>
-                          <p className="mt-1 text-sm text-gray-500">Looking for a connection that is not yet supported? <br />Reach out to us <a className='underline' href='mailto:founders@swishjam.com'>founders@swishjam.com</a><br />We add new connections all the time</p>
+                          <p className="mt-1 text-sm text-gray-500">Looking for a connection that is not yet supported? <br />Reach out to us <a className='underline' href='mailto:founders@swishjam.com'>founders@swishjam.com</a></p>
                         </div>
                       ) : (
                         availableConnections.map((connection) => (
