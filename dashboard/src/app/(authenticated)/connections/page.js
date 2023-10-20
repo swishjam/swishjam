@@ -13,12 +13,12 @@ import { RxCardStack } from 'react-icons/rx';
 import ConnectStripeView from '@/components/Connections/ConnectViews/Stripe';
 import ResendConnectView from '@/components/Connections/ConnectViews/Resend';
 
-import HubspotLogo from '@public/logos/hubspot.jpeg';
+// import HubspotLogo from '@public/logos/hubspot.jpeg';
 import ResendLogo from '@public/logos/resend.png'
-import SalesforceLogo from '@public/logos/salesforce.png'
+// import SalesforceLogo from '@public/logos/salesforce.png'
 import StripeLogo from '@public/logos/stripe.jpeg'
 import SwishjamLogo from '@public/logos/swishjam.png'
-import ZendeskLogo from '@public/logos/Zendesk.webp'
+// import ZendeskLogo from '@public/logos/Zendesk.webp'
 
 const ALL_CONNECTIONS = {
   Stripe: {
@@ -32,12 +32,12 @@ const ALL_CONNECTIONS = {
     connectComponent: onNewConnection => <ResendConnectView onNewConnection={onNewConnection} />,
     borderImage: true,
   },
-  Hubspot: { img: HubspotLogo },
-  Salesforce: { img: SalesforceLogo },
-  Zendesk: {
-    img: ZendeskLogo,
-    borderImage: true,
-  },
+  // Hubspot: { img: HubspotLogo },
+  // Salesforce: { img: SalesforceLogo },
+  // Zendesk: {
+  //   img: ZendeskLogo,
+  //   borderImage: true,
+  // },
 }
 
 export default function Connections() {
@@ -83,9 +83,9 @@ export default function Connections() {
       setDisabledConnections(disabled_integrations);
       setAvailableConnections([
         ...available_integrations,
-        { id: 'hubspot', name: 'Hubspot' },
-        { id: 'salesforce', name: 'Salesforce' },
-        { id: 'zendesk', name: 'Zendesk' },
+        // { id: 'hubspot', name: 'Hubspot' },
+        // { id: 'salesforce', name: 'Salesforce' },
+        // { id: 'zendesk', name: 'Zendesk' },
       ]);
     }
     getConnections();
