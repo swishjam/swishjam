@@ -1,19 +1,21 @@
 'use client'
 
-import { useEffect, useState } from "react";
-import { SwishjamAPI } from "@/lib/api-client/swishjam-api";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import PowerUserBadge from "./PowerUserBadge";
-import ChurnWarningUserBadge from "./ChurnWarningUserBadge";
-import Breadcrumbs from "@/components/Breadcrumbs";
-import LoadingView from "./LoadingView";
-import EventFeed from "@/components/Dashboards/Components/EventFeed";
-import LineChartWithValue from '@/components/Dashboards/Components/LineChartWithValue';
-import BarList from "@/components/Dashboards/Components/BarList";
-import EnrichedDataItem from "@/components/Profiles/EnrichedDataItem";
 import { ArrowTopRightOnSquareIcon } from "@heroicons/react/24/outline";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import BarList from "@/components/Dashboards/Components/BarList";
+import Breadcrumbs from "@/components/Breadcrumbs";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import ChurnWarningUserBadge from "./ChurnWarningUserBadge";
 import { dateFormatterForGrouping } from "@/lib/utils/timeseriesHelpers";
+import EnrichedDataItem from "@/components/Profiles/EnrichedDataItem";
+import EventFeed from "@/components/Dashboards/Components/EventFeed";
+import LoadingView from "./LoadingView";
+import LineChartWithValue from '@/components/Dashboards/Components/LineChartWithValue';
+import PowerUserBadge from "./PowerUserBadge";
+import { safelyParseURL } from "@/lib/utils/misc";
+import { SwishjamAPI } from "@/lib/api-client/swishjam-api";
+import { useEffect, useState } from "react";
+
 
 const dateFormatter = dateFormatterForGrouping('minute')
 
@@ -144,7 +146,7 @@ const UserProfile = ({ params }) => {
                             href={url}
                             target="_blank"
                           >
-                            {new URL(url).pathname.split('/')[1]}
+                            {(safelyParseURL(url).pathname?.split('/') || ['', url])[1]}
                           </a>
                         )}
                       />
@@ -158,7 +160,7 @@ const UserProfile = ({ params }) => {
                             href={`https://${url}`}
                             target="_blank"
                           >
-                            {new URL(`https://${url}`).pathname.split('/')[2]}
+                            {(safelyParseURL(`https://${url}`).pathname?.split('/') || ['', '', url])[2]}
                             <ArrowTopRightOnSquareIcon className='inline-block ml-1 h-3 w-3' />
                           </a>
                         )}
