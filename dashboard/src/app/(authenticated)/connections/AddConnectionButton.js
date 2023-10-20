@@ -1,7 +1,7 @@
 import Image from 'next/image';
 import { PlusIcon } from '@heroicons/react/20/solid'
 
-export default function AddConnectionButton({ img, connection, onConnectionClick }) {
+export default function AddConnectionButton({ img, connection, onConnectionClick, borderImage = false }) {
 
   return (
     <div
@@ -12,7 +12,7 @@ export default function AddConnectionButton({ img, connection, onConnectionClick
         <Image
           src={img}
           alt={connection.name}
-          className="w-12 flex-none rounded-lg bg-white object-cover ring-1 ring-gray-900/10"
+          className={`w-12 flex-none rounded-lg bg-white object-cover ${borderImage ? 'ring-1 ring-gray-900/10' : ''}`}
         />
         <div className="text-sm font-medium leading-6 text-gray-900 group-hover:text-swishjam duration-300 transition">{connection.name}</div>
         <div className='relative ml-auto'>

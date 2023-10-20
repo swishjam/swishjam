@@ -2,7 +2,7 @@ module DummyData
   class BillingData
     class << self
       def generate!(workspace)
-        progress_bar = TTY::ProgressBar.new("Generating billing data for the last 365 days [:bar]", total: 365, bar_format: :block)
+        progress_bar = TTY::ProgressBar.new("Generating billing data for the last 365 days [:bar]", total: 375, bar_format: :block)
   
         previous_mrr = 1_000_000 * 100
         previous_total_revenue = 5_000_000 * 100
@@ -11,7 +11,7 @@ module DummyData
         previous_num_canceled_subscriptions = 1_000
 
         last_snapshot = nil
-        current_date = 1.day.from_now.beginning_of_day
+        current_date = 10.days.from_now.beginning_of_day
         while current_date >= 365.days.ago.beginning_of_day do
           last_snapshot = Analytics::BillingDataSnapshot.create!(
             swishjam_api_key: workspace.api_keys.for_data_source!(ApiKey::ReservedDataSources.STRIPE).public_key,
