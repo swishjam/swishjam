@@ -7,7 +7,7 @@ EVENT_PROCESSOR_KLASS_DICT = {
 class CaptureAnalyticDataJob
   class InvalidApiKeyError < StandardError; end
   include Sidekiq::Job
-  queue_as :default
+  queue_as :event_processor
 
   def perform(api_key, event_payload, requesting_ip_address)
     start = Time.now
@@ -28,6 +28,7 @@ class CaptureAnalyticDataJob
         failed_count += 1
       end
     end
+    EventTriggerEvaluatorJob.perform_async(api_key, event_payload)
     Rails.logger.info "Processed #{success_count} events in #{Time.now - start} seconds for #{api_key} instance. #{failed_count} failed."
   end
 

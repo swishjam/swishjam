@@ -23,11 +23,13 @@ RSpec.configure do |config|
     DatabaseCleaner.start
 
     # this sucks, how come I cant use DatabaseCleaner or at least purge data
-    ActiveRecord::Base.logger.silence do
-      puts "Setting up Clickhouse DB...."
-      system('rails db:drop:clickhouse')
-      system('rails db:create:clickhouse')
-      system('rails db:migrate:clickhouse')
+    unless example.metadata[:disable_clickhouse_migrations]
+      ActiveRecord::Base.logger.silence do
+        puts "Setting up Clickhouse DB...."
+        system('rails db:drop:clickhouse')
+        system('rails db:create:clickhouse')
+        system('rails db:migrate:clickhouse')
+      end
     end
   end
 
@@ -35,11 +37,13 @@ RSpec.configure do |config|
     DatabaseCleaner.clean
 
     # this sucks, how come I cant use DatabaseCleaner or at least purge data
-    ActiveRecord::Base.logger.silence do
-      puts "Breaking down Clickhouse DB...."
-      system('rails db:drop:clickhouse')
-      system('rails db:create:clickhouse')
-      system('rails db:migrate:clickhouse')
+    unless example.metadata[:disable_clickhouse_migrations]
+      ActiveRecord::Base.logger.silence do
+        puts "Breaking down Clickhouse DB...."
+        system('rails db:drop:clickhouse')
+        system('rails db:create:clickhouse')
+        system('rails db:migrate:clickhouse')
+      end
     end
   end
 end

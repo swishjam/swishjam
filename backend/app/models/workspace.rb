@@ -5,6 +5,7 @@ class Workspace < Transactional
   has_many :dashboards, dependent: :destroy
   has_many :dashboard_components, through: :dashboards
   has_many :data_syncs, dependent: :destroy
+  has_many :event_trigger_definitions, dependent: :destroy
   has_many :integrations, dependent: :destroy
   has_many :retention_cohorts, dependent: :destroy
   has_many :retention_cohort_activity_periods, through: :retention_cohorts
