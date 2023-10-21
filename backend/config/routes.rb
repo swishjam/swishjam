@@ -98,6 +98,7 @@ Rails.application.routes.draw do
         resources :sessions, only: [:index], controller: :'users/sessions' do
           collection do
             get :timeseries
+            get :timeline
           end
         end
       end

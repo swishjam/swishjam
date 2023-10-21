@@ -15,21 +15,24 @@ import PowerUserBadge from "./PowerUserBadge";
 import { safelyParseURL } from "@/lib/utils/misc";
 import { SwishjamAPI } from "@/lib/api-client/swishjam-api";
 import { useEffect, useState } from "react";
+import SessionTimeline from "@/components/Dashboards/Components/SessionTimeline";
 
 
 const dateFormatter = dateFormatterForGrouping('minute')
 
 const UserProfile = ({ params }) => {
   const { id: userId } = params;
-  const [userData, setUserData] = useState();
-  const [sessionTimeseriesData, setSessionTimeseriesData] = useState();
-  const [recentEvents, setRecentEvents] = useState();
-  const [pageViewsData, setPageViewsData] = useState();
   const [organizationsListExpanded, setOrganizationsListExpanded] = useState(false);
+  const [pageViewsData, setPageViewsData] = useState();
+  const [recentEvents, setRecentEvents] = useState();
+  const [sessionTimeseriesData, setSessionTimeseriesData] = useState();
+  const [sessionsTimelineData, setSessionsTimelineData] = useState();
+  const [userData, setUserData] = useState();
 
   useEffect(() => {
     SwishjamAPI.Users.retrieve(userId).then(setUserData);
-    SwishjamAPI.Users.Events.list(userId).then(setRecentEvents);
+    // SwishjamAPI.Users.Events.list(userId).then(setRecentEvents);
+    SwishjamAPI.Users.Sessions.timeline(userId).then(setSessionsTimelineData)
     SwishjamAPI.Users.PageViews.list(userId).then(pageViews => {
       setPageViewsData(pageViews.map(({ url, count }) => ({ name: url, value: count })));
     });
@@ -52,6 +55,7 @@ const UserProfile = ({ params }) => {
     }
   ]
 
+  console.log(sessionsTimelineData)
   return (
     userData ? (
       <main className="mx-auto max-w-7xl px-4 mt-8 sm:px-6 lg:px-8 mb-8">
@@ -230,7 +234,8 @@ const UserProfile = ({ params }) => {
               valueFormatter={numSessions => numSessions.toLocaleString('en-US')}
             />
             <BarList className="mt-4" title='Page Views' items={pageViewsData} />
-            <EventFeed
+            <SessionTimeline className='mt-4' timeline={sessionsTimelineData} includeCard={true} />
+            {/* <EventFeed
               className="col-span-6 mt-4"
               title='Recent Events'
               events={recentEvents}
@@ -243,7 +248,7 @@ const UserProfile = ({ params }) => {
                   .toLocaleDateString('en-us', { weekday: "short", year: "numeric", month: "short", day: "numeric" })
                   .replace(`, ${new Date(date).getFullYear()}`, '')
               }}
-            />
+            /> */}
           </div>
         </div>
       </main>
