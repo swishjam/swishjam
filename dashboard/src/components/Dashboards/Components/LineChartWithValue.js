@@ -174,7 +174,7 @@ export default function LineChartWithValue({
             </HoverCardTrigger>
             <HoverCardContent className='flex items-center text-gray-500'>
               <CalendarIcon className="h-6 w-6 inline-block mr-2" />
-              <span className='text-xs'>{title} was measured at {valueFormatter(comparisonValue)} on {dateFormatter(comparisonValueDate)}.</span>
+              <span className='text-xs'>There were {valueFormatter(comparisonValue)} {title} on {dateFormatter(comparisonValueDate)}.</span>
             </HoverCardContent>
           </HoverCard>
         ) : <></>}
