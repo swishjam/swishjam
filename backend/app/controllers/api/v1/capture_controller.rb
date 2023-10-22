@@ -8,7 +8,20 @@ module Api
           return
         end
         payload = JSON.parse(request.body.read || '{}')
-        CaptureAnalyticDataJob.perform_async(api_key, payload, request.ip)
+        if ENV['USE_LEGACY_CAPTURE_ANALYTIC_DATA_JOB_DURING_INGESTION']
+          CaptureAnalyticDataJob.perform_async(api_key, payload, request.ip)
+        else
+          events = payload.map do |e|
+            {
+              uuid: e['uuid'],
+              swishjam_api_key: api_key,
+              name: e['event'] || e['event_name'] || e['name'],
+              occurred_at: e['timestamp'] / 1_000,
+              properties: e.except('uuid', 'event', 'timestamp', 'name', 'source', 'sdk_version')
+            }.to_json
+          end
+          Ingestion::QueueManager.push_records_into_queue(Ingestion::QueueManager::Queues.EVENTS, events)
+        end
         render json: { message: 'ok' }, status: :ok
       rescue => e
         Rails.logger.error "Error capturing analytic event: #{e.message}"

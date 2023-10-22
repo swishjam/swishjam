@@ -328,6 +328,7 @@ DEPENDENCIES
   byebug
   clickhouse-activerecord
   colorize
+  connection_pool
   database_cleaner
   dotenv
   factory_bot_rails
@@ -343,6 +344,7 @@ DEPENDENCIES
   puma (~> 5.0)
   rack-cors
   rails (~> 6.1.7, >= 6.1.7.4)
+  redis
   rspec
   sentry-rails
   sentry-ruby

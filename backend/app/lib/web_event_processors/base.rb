@@ -29,7 +29,7 @@ module WebEventProcessors
     end
 
     def properties
-      event_json.except('uuid', 'event', 'timestamp', 'source', 'sdk_version')
+      event_json.except('uuid', 'event', 'timestamp', 'name', 'source', 'sdk_version')
     end
 
     def workspace

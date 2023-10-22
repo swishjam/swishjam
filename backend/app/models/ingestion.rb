@@ -1,0 +1,2 @@
+class Ingestion < Transactional
+end
