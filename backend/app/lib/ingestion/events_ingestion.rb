@@ -1,24 +1,24 @@
-class Ingestion
+module Ingestion
   class EventsIngestion
-    attr_accessor :ingestion_record
+    attr_accessor :ingestion_batch
     
     def initialize
-      ingestion_record = Ingestion.new(started_at: Time.current)
+      ingestion_batch = IngestionBatch.new(started_at: Time.current, event_type: 'events')
     end
 
     def ingest!
       formatted_events = parse_events_from_queue_and_push_identify_events_into_queues!
-      ingestion_record.num_records = formatted_events.count
+      ingestion_batch.num_records = formatted_events.count
       Analytics::Event.insert_all!(formatted_events)
-      ingestion_record.completed_at = Time.current
-      ingestion_record.num_seconds_to_complete = ingestion_record.completed_at - ingestion_record.started_at
-      ingestion_record.save!
+      ingestion_batch.completed_at = Time.current
+      ingestion_batch.num_seconds_to_complete = ingestion_batch.completed_at - ingestion_batch.started_at
+      ingestion_batch.save!
     rescue => e
-      Ingestion::QueueManager.push_records_into_queue(Ingestion::QueueManager::Queues.EVENTS, events)
-      ingestion_record.completed_at = Time.current
-      ingestion_record.num_seconds_to_complete = ingestion_record.completed_at - ingestion_record.started_at
-      ingestion_record.error_message = e.message
-      ingestion_record.save!
+      Ingestion::QueueManager.push_records_into_queue(Ingestion::QueueManager::Queues.EVENTS, formatted_events)
+      ingestion_batch.completed_at = Time.current
+      ingestion_batch.num_seconds_to_complete = ingestion_batch.completed_at - ingestion_batch.started_at
+      ingestion_batch.error_message = e.message
+      ingestion_batch.save!
       
       Rails.logger.error "Failed to ingest from analytics queue: #{e.inspect}"
       Sentry.capture_exception(e)

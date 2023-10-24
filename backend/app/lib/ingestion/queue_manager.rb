@@ -1,4 +1,4 @@
-class Ingestion
+module Ingestion
   class QueueManager
     class Queues
       class << self

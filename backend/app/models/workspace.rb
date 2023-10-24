@@ -23,4 +23,8 @@ class Workspace < Transactional
   # def public_key
   #   raise "`public_key` is deprecated, please use the workspace's `api_keys`."
   # end
+
+  def self.for_public_key(public_key)
+    ApiKey.enabled.find_by!(public_key: public_key).workspace
+  end
 end

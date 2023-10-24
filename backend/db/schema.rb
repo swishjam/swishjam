@@ -165,7 +165,8 @@ ActiveRecord::Schema.define(version: 2023_10_22_170829) do
     t.index ["workspace_id"], name: "index_event_trigger_step_executions_on_workspace_id"
   end
 
-  create_table "ingestions", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+  create_table "ingestion_batches", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.string "event_type"
     t.float "num_seconds_to_complete"
     t.integer "num_records"
     t.string "error_message"

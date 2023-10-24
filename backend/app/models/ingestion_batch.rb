@@ -1,0 +1,2 @@
+class IngestionBatch < Transactional
+end
