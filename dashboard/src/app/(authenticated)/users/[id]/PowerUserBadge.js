@@ -13,7 +13,7 @@ const PowerUserBadge = ({ className, size = 8 }) => (
         <TooltipTrigger asChild>
           <Award className={`w-${size} h-${size} text-amber-500`} />
         </TooltipTrigger>
-        <TooltipContent>
+        <TooltipContent className="bg-white">
           <p>Power User! Top 10% of user activity or spend</p>
         </TooltipContent>
       </Tooltip>
