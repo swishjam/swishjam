@@ -9,7 +9,7 @@ export class Requester {
 
   async send(data, onError = async () => { }) {
     if (!this._shouldSendRequest()) {
-      console.log(`%cSwishjam is in development mode while in localhost and won't send data to the server`, `color: #7487F7; font-weight: bold;`)  
+      console.log(`%cThis URL is disabled! Swishjam is in development mode while in localhost and won't send data to the server`, `color: #7487F7; font-weight: bold;`)  
       console.log(`%cData Captured By Swishjam`, `color: #7487F7; font-weight: bold;`)  
       console.log(`%O`, data)  
       return
