@@ -25,9 +25,9 @@ export class EventQueueManager {
           this._reportDataIfNecessary();
         }
       } else {
-        console.log(`%cSwishjam is in development mode and won't send data to the server`, `color: #7487F7; font-weight: bold;`)
-        console.log(`%cData Captured By Swishjam`, `color: #7487F7; font-weight: bold;`)
-        console.log(`%O`, event.toJSON());
+        console.log(`%cSwishjam is in development mode, no events will be reported.`, `color: #7487F7; font-weight: bold;`)
+        console.log(`%cNew Swishjam event:`, `color: #7487F7; font-weight: bold;`)
+        console.log(`%O`, { event: event.eventName, attributes: event.attributes });
       }
       return event;
     })
