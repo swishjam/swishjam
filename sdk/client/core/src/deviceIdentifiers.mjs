@@ -4,11 +4,11 @@ import { SWISHJAM_USER_DEVICE_IDENTIFIER_COOKIE_NAME, SWISHJAM_ORGANIZATION_DEVI
 
 export class DeviceIdentifiers {
   static getUserDeviceIdentifierValue = () => {
-    return CookieHelper.getCookie(SWISHJAM_USER_DEVICE_IDENTIFIER_COOKIE_NAME) || this._setCookie('user');
+    return CookieHelper.getCookie(SWISHJAM_USER_DEVICE_IDENTIFIER_COOKIE_NAME) || this._setCookie(SWISHJAM_USER_DEVICE_IDENTIFIER_COOKIE_NAME, 'user');
   }
 
   static getOrganizationDeviceIdentifierValue = () => {
-    return CookieHelper.getCookie(SWISHJAM_ORGANIZATION_DEVICE_IDENTIFIER_COOKIE_NAME) || this._setCookie('org');
+    return CookieHelper.getCookie(SWISHJAM_ORGANIZATION_DEVICE_IDENTIFIER_COOKIE_NAME) || this._setCookie(SWISHJAM_ORGANIZATION_DEVICE_IDENTIFIER_COOKIE_NAME, 'org');
   }
 
   static resetUserDeviceIdentifierValue = () => {
