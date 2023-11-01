@@ -1,6 +1,6 @@
 import { DataPersister } from "./dataPersister.mjs";
 import { DeviceDetails } from "./deviceDetails.mjs";
-import { DeviceIdentifier } from "./deviceIdentifier.mjs";
+import { DeviceIdentifiers } from "./deviceIdentifiers.mjs";
 import { ErrorHandler } from './errorHandler.mjs';
 import { EventQueueManager } from "./eventQueueManager.mjs";
 import { PageViewManager } from "./pageViewManager.mjs";
@@ -11,21 +11,16 @@ import { UUID } from "./uuid.mjs";
 export class Client {
   constructor(options = {}) {
     this.config = this._setConfig(options);
-    this.requester = new Requester({
-      apiKey: this.config.apiKey,
-      endpoint: this.config.apiEndpoint,
-      options: {
-        disabledUrls: this.config.disabledUrls,
-      }
-    });
+    this.requester = new Requester({ apiKey: this.config.apiKey, endpoint: this.config.apiEndpoint });
     this.errorHandler = new ErrorHandler(this.requester);
     this.eventQueueManager = new EventQueueManager(this.requester, this.errorHandler, {
+      disabled: this.config.disabled,
+      disabledUrls: this.config.disabledUrls,
+      heartbeatMs: this.config.reportingHeartbeatMs,
       maxSize: this.config.maxEventsInMemory,
-      heartbeatMs: this.config.reportingHeartbeatMs
     });
     this.pageViewManager = new PageViewManager;
     this.deviceDetails = new DeviceDetails;
-    this.deviceIdentifier = new DeviceIdentifier;
     // the order here is important, we want to make sure we have a session before we start register the page views in the _initPageViewListeners
     if (!this.getSession()) this.newSession({ registerPageView: false });
     this._initPageViewListeners();
@@ -77,7 +72,7 @@ export class Client {
 
   logout = () => {
     return this.errorHandler.executeWithErrorHandling(() => {
-      this.deviceIdentifier.resetDeviceIdentifierValue();
+      DeviceIdentifiers.resetAllDeviceIdentifierValues();
       return this.newSession();
     });
   }
@@ -121,7 +116,7 @@ export class Client {
 
   _setConfig = options => {
     if (!options.apiKey) throw new Error('Swishjam `apiKey` is required');
-    const validOptions = ['apiKey', 'apiEndpoint', 'maxEventsInMemory', 'reportingHeartbeatMs', 'debug', 'disabledUrls'];
+    const validOptions = ['apiKey', 'apiEndpoint', 'maxEventsInMemory', 'reportingHeartbeatMs', 'debug', 'disabledUrls', 'disabled'];
     Object.keys(options).forEach(key => {
       if (!validOptions.includes(key)) console.warn(`SwishjamJS received unrecognized config: ${key}`);
     });
@@ -132,6 +127,7 @@ export class Client {
       maxEventsInMemory: options.maxEventsInMemory || 20,
       reportingHeartbeatMs: options.reportingHeartbeatMs || 10_000,
       disabledUrls: options.disabledUrls || ['http://localhost'],
+      disabled: typeof options.disabled === 'boolean' ? options.disabled : false,
       debug: typeof options.debug === 'boolean' ? options.debug : false,
     }
   }
