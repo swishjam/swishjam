@@ -26,7 +26,7 @@ export class DeviceIdentifiers {
     this.resetOrganizationDeviceIdentifierValue();
   }
 
-  static _setCookie = (cookieName, prefix) => {
+  static _setCookie = (cookieName, prefix = '') => {
     const identifier = UUID.generate(prefix);
     const oneYear = 365 * 24 * 60 * 60 * 1000;
     CookieHelper.setCookie({ name: cookieName, value: identifier, expiresIn: oneYear });
