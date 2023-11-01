@@ -11,16 +11,13 @@ import { UUID } from "./uuid.mjs";
 export class Client {
   constructor(options = {}) {
     this.config = this._setConfig(options);
-    this.requester = new Requester({
-      apiKey: this.config.apiKey,
-      endpoint: this.config.apiEndpoint
-    });
+    this.requester = new Requester({ apiKey: this.config.apiKey, endpoint: this.config.apiEndpoint });
     this.errorHandler = new ErrorHandler(this.requester);
     this.eventQueueManager = new EventQueueManager(this.requester, this.errorHandler, {
       disabled: this.config.disabled,
-      maxSize: this.config.maxEventsInMemory,
-      heartbeatMs: this.config.reportingHeartbeatMs,
       disabledUrls: this.config.disabledUrls,
+      heartbeatMs: this.config.reportingHeartbeatMs,
+      maxSize: this.config.maxEventsInMemory,
     });
     this.pageViewManager = new PageViewManager;
     this.deviceDetails = new DeviceDetails;
