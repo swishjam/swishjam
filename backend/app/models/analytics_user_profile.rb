@@ -7,7 +7,7 @@ class AnalyticsUserProfile < Transactional
 
   validates :user_unique_identifier, presence: true, uniqueness: { scope: :workspace_id }
 
-  after_create { ProfileEnrichers::User.new(self).try_to_enrich_profile_if_necessary! }
+  after_create :enrich_profile!
 
   def full_name
     "#{first_name} #{last_name}"
@@ -18,5 +18,10 @@ class AnalyticsUserProfile < Transactional
     return first_name[0].upcase if last_name.blank?
     return last_name[0].upcase if first_name.blank?
     "#{first_name[0]}#{last_name[0]}".upcase
+  end
+
+  def enrich_profile!(override_sampling: false)
+    return false if override_sampling == false && rand() >= (ENV['USER_ENRICHMENT_SAMPLING_RATE'] || 1.0).to_f
+    ProfileEnrichers::User.new(self).try_to_enrich_profile_if_necessary!
   end
 end
