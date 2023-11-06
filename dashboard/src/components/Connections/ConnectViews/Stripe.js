@@ -2,7 +2,7 @@ import useAuthData from "@/hooks/useAuthData"
 
 export default function StripeConnectionView() {
   const { token } = useAuthData();
-  const url = `https://app.swishjam.com`  
+  const url = `https://capture.swishjam.com`
   
   return (
     <a
