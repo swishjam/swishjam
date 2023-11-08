@@ -34,7 +34,7 @@ module DummyData
             data_begins_max_number_of_days_ago: data_begins_max_number_of_days_ago,
           )
           10.times do
-            web_traffic_seeder.create_session_with_page_views_and_events!(device_identifier: device_identifier, start_time: Time.current - rand(0..30).days)
+            web_traffic_seeder.create_session_with_page_views_and_events!(device_identifier: device_identifier, start_time: Time.current - rand(-10..30).days)
           end
         else
           puts "Not generating specific user data.".colorize(:yellow)

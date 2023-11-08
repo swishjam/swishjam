@@ -25,9 +25,11 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { useAuthData } from '@/hooks/useAuthData'
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 export default function UserFlyout() {
   const { email, currentWorkspaceName, currentWorkspaceId, workspaces } = useAuthData();
+  const currentPath = usePathname();
 
   return (
     <DropdownMenu className='w-full'>
@@ -71,7 +73,7 @@ export default function UserFlyout() {
                   {workspaces.map(workspace => {
                     if (workspace.id === currentWorkspaceId) {
                       return (
-                        <DropdownMenuItem className='flex text-swishjam px-8 py-4 hover:text-swishjam'>
+                        <DropdownMenuItem key={workspace.id} className='flex text-swishjam px-8 py-4 hover:text-swishjam'>
                           <Avatar className="h-10 w-10 mr-4 bg-gray-300">
                             <AvatarFallback className="text-xs">
                               {workspace.name.split(' ').map(w => w[0].toUpperCase()).join('')}
@@ -82,7 +84,7 @@ export default function UserFlyout() {
                       )
                     } else {
                       return (
-                        <Link href={`/change-workspaces/${workspace.id}`}>
+                        <Link key={workspace.id} href={`/change-workspaces/${workspace.id}?redirectTo=${currentPath}`}>
                           <DropdownMenuItem className='flex cursor-pointer px-8 py-4'>
                             <Avatar className="h-10 w-10 mr-4 bg-gray-300">
                               <AvatarFallback className="text-xs">

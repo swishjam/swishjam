@@ -18,7 +18,7 @@ module DummyData
 
       sessions = @number_of_sessions.times.map do
         session_event = create_session_with_page_views_and_events!(
-          start_time: Time.current - rand(0..@data_begins_max_number_of_days_ago).days,
+          start_time: Time.current - rand(-10..@data_begins_max_number_of_days_ago).days,
           device_identifier: @device_identifiers.sample, 
         )
 

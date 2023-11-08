@@ -13,20 +13,31 @@ import { RxCardStack } from 'react-icons/rx';
 import ConnectStripeView from '@/components/Connections/ConnectViews/Stripe';
 import ResendConnectView from '@/components/Connections/ConnectViews/Resend';
 
-import StripeImg from '@public/stripe-logo.jpeg'
-import ResendImg from '@public/resend-logo.png'
+// import HubspotLogo from '@public/logos/hubspot.jpeg';
+import ResendLogo from '@public/logos/resend.png'
+// import SalesforceLogo from '@public/logos/salesforce.png'
+import StripeLogo from '@public/logos/stripe.jpeg'
+import SwishjamLogo from '@public/logos/swishjam.png'
+// import ZendeskLogo from '@public/logos/Zendesk.webp'
 
 const ALL_CONNECTIONS = {
   Stripe: {
-    img: StripeImg,
+    img: StripeLogo,
     description: 'Connect your Stripe account to Swishjam to automatically import your Stripe customers and subscriptions.',
     connectComponent: onNewConnection => <ConnectStripeView onNewConnection={onNewConnection} />,
   },
   Resend: {
-    img: ResendImg,
+    img: ResendLogo,
     description: 'Connect your Resend account to enable Swishjam to capture email events.',
-    connectComponent: onNewConnection => <ResendConnectView onNewConnection={onNewConnection} />
-  }
+    connectComponent: onNewConnection => <ResendConnectView onNewConnection={onNewConnection} />,
+    borderImage: true,
+  },
+  // Hubspot: { img: HubspotLogo },
+  // Salesforce: { img: SalesforceLogo },
+  // Zendesk: {
+  //   img: ZendeskLogo,
+  //   borderImage: true,
+  // },
 }
 
 export default function Connections() {
@@ -70,7 +81,12 @@ export default function Connections() {
       const { enabled_integrations, disabled_integrations, available_integrations } = await SwishjamAPI.Integrations.list();
       setEnabledConnections(enabled_integrations);
       setDisabledConnections(disabled_integrations);
-      setAvailableConnections(available_integrations);
+      setAvailableConnections([
+        ...available_integrations,
+        // { id: 'hubspot', name: 'Hubspot' },
+        // { id: 'salesforce', name: 'Salesforce' },
+        // { id: 'zendesk', name: 'Zendesk' },
+      ]);
     }
     getConnections();
   }, []);
@@ -97,7 +113,7 @@ export default function Connections() {
           <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mb-8">
             <div className='grid grid-cols-2 mt-8 flex items-center'>
               <div>
-                <h1 className="text-lg font-medium text-gray-700 mb-0">Connections</h1>
+                <h1 className="text-lg font-medium text-gray-700 mb-0">Data Sources</h1>
               </div>
               <div className="w-full flex items-center justify-end">
               </div>
@@ -110,10 +126,26 @@ export default function Connections() {
                   setConnectionForModal={setConnectionForModal}
                 />
               )}
-              {enabledConnections.length + disabledConnections.length > 0 &&
+              {enabledConnections.length + disabledConnections.length > 0 && (
                 <>
-                  <h5 className='py-2'>Connected Apps</h5>
+                  <h5 className='py-2'>Connections</h5>
                   <ul role="list" className="grid grid-cols-1 gap-x-6 gap-y-8 lg:grid-cols-3 xl:gap-x-8">
+                    <ExistingConnectionButton
+                      key='marketing-analytics'
+                      img={SwishjamLogo}
+                      connection={{ id: 'swishjam-marketing', name: 'Marketing Site Analytics' }}
+                      canEdit={false}
+                      enabled={true}
+                      disableImageBorder={true}
+                    />
+                    <ExistingConnectionButton
+                      key='product-analytics'
+                      img={SwishjamLogo}
+                      connection={{ id: 'swishjam-marketing', name: 'Product Analytics' }}
+                      canEdit={false}
+                      enabled={true}
+                      disableImageBorder={true}
+                    />
                     {enabledConnections.map(connection => (
                       <ExistingConnectionButton
                         key={connection.id}
@@ -122,6 +154,7 @@ export default function Connections() {
                         onDisableClick={disableConnection}
                         onRemoveClick={deleteConnection}
                         enabled={true}
+                        borderImage={ALL_CONNECTIONS[connection.name].borderImage}
                       />
                     ))}
                   </ul>
@@ -133,6 +166,7 @@ export default function Connections() {
                         onRemoveClick={deleteConnection}
                         onEnableClick={enableConnection}
                         enabled={false}
+                        borderImage={ALL_CONNECTIONS[connection.name].borderImage}
                       />
                     ))}
                   </ul>
@@ -153,13 +187,14 @@ export default function Connections() {
                             key={connection.name}
                             connection={connection}
                             onConnectionClick={() => setConnectionForModal(connection)}
+                            borderImage={ALL_CONNECTIONS[connection.name].borderImage}
                           />
                         ))
                       )
                     }
                   </ul>
                 </>
-              }
+              )}
             </div>
           </main>
         </>

@@ -4,8 +4,10 @@ export class EventQueueManager {
   constructor(requester, errorHandler, options = {}) {
     this.requester = requester;
     this.errorHandler = errorHandler;
+    this.disabled = typeof options.disabled === 'boolean' ? options.disabled : false;
     this.maxQueueSize = options.maxQueueSize || 20;
     this.heartbeatMs = options.heartbeatMs || 10_000;
+    this.disabledUrls = options.disabledUrls || [];
 
     this.queue = [];
 
@@ -17,9 +19,15 @@ export class EventQueueManager {
   recordEvent = (eventName, properties) => {
     return this.errorHandler.executeWithErrorHandling(() => {
       const event = new Event(eventName, properties);
-      this.queue.push(event.toJSON());
-      if (this.queue.length >= this.maxQueueSize) {
-        this._reportDataIfNecessary();
+      if (this._shouldRecordEvents()) {
+        this.queue.push(event.toJSON());
+        if (this.queue.length >= this.maxQueueSize) {
+          this._reportDataIfNecessary();
+        }
+      } else {
+        console.log(`%cSwishjam is in development mode, no events will be reported.`, `color: #7487F7; font-weight: bold;`)
+        console.log(`%cNew Swishjam event:`, `color: #7487F7; font-weight: bold;`)
+        console.log(`%O`, { event: event.eventName, attributes: event.attributes });
       }
       return event;
     })
@@ -45,6 +53,13 @@ export class EventQueueManager {
         this.queue = [];
       }
     })
+  }
+
+  _shouldRecordEvents = () => {
+    if (this.disabled) return false;
+    if (this.disabledUrls.find(url => window.location.href.includes(url))) return false;
+    if (this.numFailedRequests >= this.maxNumFailedRequests) return false;
+    return true;
   }
 }
 
