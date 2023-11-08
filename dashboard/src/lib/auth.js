@@ -48,6 +48,7 @@ export const logUserIn = async ({ email, password }) => {
     const { email, first_name, last_name } = user;
     swishjam.identify(user.id, { email, first_name, last_name });
     swishjam.setOrganization(workspace.id, { name: workspace.name, company_url: workspace.company_url });
+    swishjam.event('user_login', { ...user, workspace: workspace.name });
     setAuthToken(token);
   }
   return { error, user, token };
