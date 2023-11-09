@@ -11,6 +11,11 @@ class User < Transactional
 
   before_validation :generate_jwt_secret_key, on: :create
 
+  def full_name
+    return nil if first_name.blank? && last_name.blank?
+    (first_name || '') + (last_name || '')
+  end
+
   private
 
   def generate_jwt_secret_key

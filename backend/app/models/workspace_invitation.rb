@@ -4,6 +4,7 @@ class WorkspaceInvitation < Transactional
 
   before_create { self.invite_token = "invite-#{SecureRandom.uuid}" }
   before_create { self.expires_at = 7.days.from_now }
+  after_create { WorkspaceInvitationMailer.with(workspace_invitation: self).email.deliver_now! }
 
   validates :workspace, presence: true
   validates :invited_by_user, presence: true
