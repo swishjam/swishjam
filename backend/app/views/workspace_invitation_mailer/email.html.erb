@@ -1,0 +1,3 @@
+<h1 id='title'><%= @workspace_invitation.invited_by_user.full_name || @workspace_invitation.invited_by_user.email %> has invited you to join the <%= @workspace_invitation.workspace.name %> workspace on Swishjam, join them by accepting the invite below.</h1>
+
+<a href='https://app.swishjam.com/invitation/<%= @workspace_invitation.invite_token %>' id='button'>Accept invitation</a>
