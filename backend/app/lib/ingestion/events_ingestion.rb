@@ -9,8 +9,9 @@ module Ingestion
     def ingest!
       formatted_events = parse_events_from_queue_and_push_identify_events_into_queues!
       begin
+        Analytics::Event.insert_all!(formatted_events) if formatted_events.any?
+        
         @ingestion_batch.num_records = formatted_events.count
-        Analytics::Event.insert_all!(formatted_events)
         @ingestion_batch.completed_at = Time.current
         @ingestion_batch.num_seconds_to_complete = @ingestion_batch.completed_at - @ingestion_batch.started_at
         @ingestion_batch.save!
@@ -36,10 +37,10 @@ module Ingestion
         raw_events = Ingestion::QueueManager.pop_all_records_from_queue(Ingestion::QueueManager::Queues.EVENTS)
         formatted_events = raw_events.map do |stringified_event| 
           json_event = JSON.parse(stringified_event)
-          if json_event['event'] == 'identify'
-            identify_events << stringified_event
-          elsif json_event['event'] == 'organization'
-            organization_events << stringified_event
+          if json_event['name'] == 'identify'
+            identify_events << json_event
+          elsif json_event['name'] == 'organization'
+            organization_events << json_event
           end
           json_event
         end
