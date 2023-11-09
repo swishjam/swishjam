@@ -1,6 +1,10 @@
 import Base from "./base";
 
 export class Dashboards extends Base {
+  static async list({ page = 1, limit = 20 } = {}) {
+    return await this._get('/api/v1/dashboards', { page, limit })
+  }
+
   static async create({ name }) {
     return await this._post('/api/v1/dashboards', { dashboard: { name } })
   }
