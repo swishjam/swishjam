@@ -160,6 +160,37 @@ export default function Home() {
           </Button>
         </div>
       </div>
+      <div className='grid grid-cols-3 gap-4 pt-8'>
+        <ActiveUsersLineChartWithValue
+          data={uniqueVisitorsChartData}
+          selectedGrouping={uniqueVisitorsGrouping}
+          showAxis={false}
+          onGroupingChange={group => {
+            setUniqueVisitorsChartData();
+            setUniqueVisitorsGrouping(group);
+            getUniqueVisitorsData(timeframeFilter, group);
+          }}
+        />
+        <LineChartWithValue
+          title='MRR'
+          value={mrrChart?.value}
+          selected={currentSelectedChart == 'MRR'}
+          previousValue={mrrChart?.previousValue}
+          previousValueDate={mrrChart?.previousValueDate}
+          valueFormatter={mrr => (mrr / 100).toLocaleString('en-US', { style: "currency", currency: "USD" })}
+          showAxis={false}
+          timeseries={mrrChart?.timeseries}
+        />
+        <LineChartWithValue
+          title='New Users'
+          value={sessionsChart?.value}
+          previousValue={sessionsChart?.previousValue}
+          previousValueDate={sessionsChart?.previousValueDate}
+          showAxis={false}
+          timeseries={sessionsChart?.timeseries}
+          valueFormatter={numSubs => numSubs.toLocaleString('en-US')}
+        />
+      </div>
       <div className='grid grid-cols-3 gap-6 pt-8'>
         <ClickableValueCard
           title='Sessions'
