@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2023_10_16_220014) do
+ActiveRecord::Schema.define(version: 2023_11_09_032117) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
@@ -111,6 +111,69 @@ ActiveRecord::Schema.define(version: 2023_10_16_220014) do
     t.index ["workspace_id"], name: "index_data_syncs_on_workspace_id"
   end
 
+  create_table "event_trigger_definitions", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "workspace_id"
+    t.uuid "created_by_user_id"
+    t.uuid "event_trigger_step_definition_entry_point_id"
+    t.string "event_name"
+    t.jsonb "config"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["created_by_user_id"], name: "index_event_trigger_definitions_on_created_by_user_id"
+    t.index ["event_trigger_step_definition_entry_point_id"], name: "index_etd_on_etsd_entry_point_id"
+    t.index ["workspace_id"], name: "index_event_trigger_definitions_on_workspace_id"
+  end
+
+  create_table "event_trigger_executions", force: :cascade do |t|
+    t.uuid "workspace_id"
+    t.uuid "event_trigger_definition_id"
+    t.string "error_message"
+    t.jsonb "event_payload"
+    t.datetime "began_at"
+    t.datetime "completed_at"
+    t.index ["event_trigger_definition_id"], name: "index_event_trigger_executions_on_event_trigger_definition_id"
+    t.index ["workspace_id"], name: "index_event_trigger_executions_on_workspace_id"
+  end
+
+  create_table "event_trigger_step_definitions", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "event_trigger_definition_id"
+    t.uuid "previous_event_trigger_step_definition_id"
+    t.uuid "next_event_trigger_step_definition_id"
+    t.string "type"
+    t.string "name"
+    t.string "description"
+    t.jsonb "config"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["event_trigger_definition_id"], name: "index_etsd_on_etd_id"
+    t.index ["next_event_trigger_step_definition_id"], name: "index_netsd_on_etsd_id"
+    t.index ["previous_event_trigger_step_definition_id"], name: "index_petsd_on_etsd_id"
+  end
+
+  create_table "event_trigger_step_executions", force: :cascade do |t|
+    t.uuid "workspace_id"
+    t.uuid "event_trigger_step_definition_id"
+    t.uuid "event_trigger_execution_id"
+    t.uuid "previous_event_trigger_step_execution_id"
+    t.jsonb "response_payload"
+    t.string "error_message"
+    t.datetime "began_at"
+    t.datetime "completed_at"
+    t.index ["event_trigger_execution_id"], name: "index_ete_on_etse_id"
+    t.index ["event_trigger_step_definition_id"], name: "index_etsd_on_etse_id"
+    t.index ["previous_event_trigger_step_execution_id"], name: "index_petse_on_etse_id"
+    t.index ["workspace_id"], name: "index_event_trigger_step_executions_on_workspace_id"
+  end
+
+  create_table "ingestion_batches", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.string "event_type"
+    t.float "num_seconds_to_complete"
+    t.integer "num_records"
+    t.string "error_message"
+    t.datetime "started_at"
+    t.datetime "completed_at"
+  end
+
   create_table "integrations", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.uuid "workspace_id", null: false
     t.string "type", null: false
@@ -153,6 +216,7 @@ ActiveRecord::Schema.define(version: 2023_10_16_220014) do
     t.boolean "successful"
     t.string "attempted_payload"
     t.datetime "attempted_at"
+    t.text "error_message"
     t.index ["analytics_user_profile_id"], name: "idx_enrichment_attempt_on_user_profile_id"
     t.index ["user_profile_enrichment_data_id"], name: "idx_enrichment_attempt_on_user_enrichment_data_id"
     t.index ["workspace_id"], name: "index_user_profile_enrichment_attempts_on_workspace_id"
