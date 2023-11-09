@@ -23,6 +23,7 @@ module ProfileEnrichers
         enrichment_attempt.save!
         user_profile_enrichment_data
       else
+        enrichment_attempt.error_message = "#{enrichment_results.dig('error', 'type') || 'swishjam_unrecognized_error_type'}: #{enrichment_results.dig('error', 'message') || 'No error message provided (Swishjam).'}"
         enrichment_attempt.successful = false
         enrichment_attempt.save!
         false
@@ -70,7 +71,7 @@ module ProfileEnrichers
     rescue => e
       Sentry.capture_exception(e)
       Rails.logger.error "`Peopledatalabs::Enrichment.person` failed: #{e.inspect}"
-      { 'status' => 500 }
+      { 'status' => 500, 'error' => { 'type' => 'swishjam_uncaught_exception', 'message' => e.message }}
     end
   end
 end

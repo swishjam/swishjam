@@ -6,20 +6,22 @@ import Link from "next/link"
 import EmptyState from "@/components/EmptyState"
 
 export default function ItemizedList({
-  title,
-  subTitle,
+  className,
+  hoverable = true,
+  fallbackAvatarGenerator,
   items,
   leftItemHeaderKey,
   leftItemSubHeaderKey,
-  rightItemKey,
-  rightItemKeyFormatter = value => value,
-  fallbackAvatarGenerator,
-  hoverable = true,
   linkFormatter,
-  viewMoreUrl,
   maxNumItems,
   noDataMsg,
-  className
+  rightItemKey,
+  rightItemKeyFormatter = value => value,
+  subTitle,
+  subTitleFormatter,
+  title,
+  titleFormatter,
+  viewMoreUrl,
 }) {
   return (
     <Card className={className}>
@@ -62,10 +64,22 @@ export default function ItemizedList({
                         </Avatar>
                       )}
                       <div className="ml-4 space-y-1 truncate">
-                        <p className="text-sm font-medium leading-none">{item[leftItemHeaderKey] || item[leftItemSubHeaderKey]}</p>
-                        {item[leftItemHeaderKey] && <p className="text-sm text-muted-foreground">{item[leftItemSubHeaderKey]}</p>}
+                        <p className="text-sm font-medium leading-none">
+                          {
+                            titleFormatter
+                              ? titleFormatter(item)
+                              : item[leftItemHeaderKey] || item[leftItemSubHeaderKey]
+                          }
+                        </p>
+                        <p className="text-sm text-muted-foreground">
+                          {
+                            subTitleFormatter
+                              ? subTitleFormatter(item)
+                              : item[leftItemHeaderKey] && item[leftItemSubHeaderKey]
+                          }
+                        </p>
                       </div>
-                      <div className="ml-auto text-sm font-medium">{rightItemKeyFormatter(item[rightItemKey]) }</div>
+                      <div className="ml-auto text-sm font-medium">{rightItemKeyFormatter(item[rightItemKey])}</div>
                     </Link>
                   ))
                 )

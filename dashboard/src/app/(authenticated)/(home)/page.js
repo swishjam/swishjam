@@ -262,8 +262,8 @@ export default function Home() {
         <ItemizedList
           fallbackAvatarGenerator={user => user.initials}
           items={newUsersData}
-          leftItemHeaderKey='full_name'
-          leftItemSubHeaderKey='email'
+          titleFormatter={user => user.full_name || user.email || user.user_unique_identifier}
+          subTitleFormatter={user => user.full_name ? user.email : null}
           linkFormatter={user => `/users/${user.id}`}
           rightItemKey='created_at'
           rightItemKeyFormatter={date => {
@@ -277,7 +277,7 @@ export default function Home() {
         <ItemizedList
           fallbackAvatarGenerator={org => org.initials}
           items={newOrganizationsData}
-          leftItemHeaderKey='name'
+          titleFormatter={org => org.name || org.organization_unique_identifier}
           linkFormatter={org => `/organizations/${org.id}`}
           noDataMsg='No organizations identified yet.'
           rightItemKey='created_at'
