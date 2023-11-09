@@ -12,6 +12,7 @@ import { ArrowPathIcon } from '@heroicons/react/24/outline';
 import InstallBanner from '@/components/InstallBanner';
 import ItemizedList from '@/components/Dashboards/Components/ItemizedList';
 import RetentionWidget from '@/components/Dashboards/Components/RetentionWidget';
+import RetentionWidgetTiny from '@/components/Dashboards/Components/RetentionWidgetTiny';
 
 const currentChart = (selected, mrrChart, sessionsChart, activeSubsChart) => {
   if (selected === 'MRR') {
@@ -160,7 +161,9 @@ export default function Home() {
           </Button>
         </div>
       </div>
-      <div className='grid grid-cols-3 gap-4 pt-8'>
+      
+      <h3 className='pt-8 font-semibold text-sm text-slate-600'>Key Product Metrics</h3>  
+      <div className='grid grid-cols-3 gap-4 pt-2'>
         <ActiveUsersLineChartWithValue
           data={uniqueVisitorsChartData}
           selectedGrouping={uniqueVisitorsGrouping}
@@ -171,6 +174,19 @@ export default function Home() {
             getUniqueVisitorsData(timeframeFilter, group);
           }}
         />
+        <LineChartWithValue
+          title='New Users'
+          value={sessionsChart?.value}
+          previousValue={sessionsChart?.previousValue}
+          previousValueDate={sessionsChart?.previousValueDate}
+          showAxis={false}
+          timeseries={sessionsChart?.timeseries}
+          valueFormatter={numSubs => numSubs.toLocaleString('en-US')}
+        />
+        <RetentionWidgetTiny retentionCohorts={userRetentionData} />
+      </div>
+      <h3 className='pt-8 font-semibold text-sm text-slate-600'>Key SaaS Metrics</h3>  
+      <div className='grid grid-cols-3 gap-4 pt-2'>
         <LineChartWithValue
           title='MRR'
           value={mrrChart?.value}
@@ -182,69 +198,26 @@ export default function Home() {
           timeseries={mrrChart?.timeseries}
         />
         <LineChartWithValue
-          title='New Users'
-          value={sessionsChart?.value}
-          previousValue={sessionsChart?.previousValue}
-          previousValueDate={sessionsChart?.previousValueDate}
-          showAxis={false}
-          timeseries={sessionsChart?.timeseries}
-          valueFormatter={numSubs => numSubs.toLocaleString('en-US')}
-        />
-      </div>
-      <div className='grid grid-cols-3 gap-6 pt-8'>
-        <ClickableValueCard
-          title='Sessions'
-          value={sessionsChart?.value}
-          selected={currentSelectedChart == 'Sessions'}
-          previousValue={sessionsChart?.previousValue}
-          previousValueDate={sessionsChart?.previousValueDate}
-          valueFormatter={numSubs => numSubs.toLocaleString('en-US')}
-          onClick={() => setCurrentSelectedChart('Sessions')}
-        />
-        <ClickableValueCard
-          title='MRR'
+          title='MRR Movement barchart'
           value={mrrChart?.value}
-          selected={currentSelectedChart == 'MRR'}
           previousValue={mrrChart?.previousValue}
           previousValueDate={mrrChart?.previousValueDate}
           valueFormatter={mrr => (mrr / 100).toLocaleString('en-US', { style: "currency", currency: "USD" })}
-          onClick={() => setCurrentSelectedChart('MRR')}
+          showAxis={false}
+          timeseries={mrrChart?.timeseries}
         />
-        <ClickableValueCard
-          title='Active Subscriptions'
-          value={activeSubsChart?.value}
-          selected={currentSelectedChart == 'Active Subscriptions'}
-          previousValue={activeSubsChart?.previousValue}
-          previousValueDate={sessionsChart?.previousValueDate}
-          valueFormatter={numSubs => numSubs.toLocaleString('en-US')}
-          onClick={() => setCurrentSelectedChart('Active Subscriptions')}
-        />
-      </div>
-      <div className='grid grid-cols-1 gap-6 pt-8'>
         <LineChartWithValue
-          title={currentSelectedChart}
-          value={selectedChart?.value}
-          previousValue={selectedChart?.previousValue}
-          previousValueDate={selectedChart?.previousValueDate}
-          timeseries={selectedChart?.timeseries}
-          groupedBy={selectedChart?.groupedBy}
-          valueFormatter={numSubs => currentSelectedChart === 'MRR' ? (numSubs / 100).toLocaleString('en-US', { style: "currency", currency: "USD" }) : numSubs.toLocaleString('en-US')}
-          showAxis={true}
+          title='Active Subscriptions'
+          showAxis={false}
+          timeseries={activeSubsChart?.timeseries}
+          value={activeSubsChart?.value}
+          previousValue={activeSubsChart?.previousValue}
+          previousValueDate={activeSubsChart?.previousValueDate}
+          valueFormatter={numSubs => numSubs.toLocaleString('en-US')}
         />
-        <Separator className="my-6" />
-
       </div>
-      <div className='grid grid-cols-2 gap-6 pt-8'>
-        <ActiveUsersLineChartWithValue
-          data={uniqueVisitorsChartData}
-          selectedGrouping={uniqueVisitorsGrouping}
-          showAxis={true}
-          onGroupingChange={group => {
-            setUniqueVisitorsChartData();
-            setUniqueVisitorsGrouping(group);
-            getUniqueVisitorsData(timeframeFilter, group);
-          }}
-        />
+      <h3 className='pt-8 font-semibold text-sm text-slate-600'>Key Marketing Metrics</h3>  
+      <div className='grid grid-cols-3 gap-4 pt-2'>
         <LineChartWithValue
           title='Sessions'
           value={sessionsChart?.value}
@@ -254,10 +227,29 @@ export default function Home() {
           timeseries={sessionsChart?.timeseries}
           valueFormatter={numSubs => numSubs.toLocaleString('en-US')}
         />
+        <LineChartWithValue
+          title='Page Views'
+          value={sessionsChart?.value}
+          previousValue={sessionsChart?.previousValue}
+          previousValueDate={sessionsChart?.previousValueDate}
+          showAxis={true}
+          timeseries={sessionsChart?.timeseries}
+          valueFormatter={numSubs => numSubs.toLocaleString('en-US')}
+        />
+        <LineChartWithValue
+          title='Unique Visitors'
+          value={sessionsChart?.value}
+          previousValue={sessionsChart?.previousValue}
+          previousValueDate={sessionsChart?.previousValueDate}
+          showAxis={true}
+          timeseries={sessionsChart?.timeseries}
+          valueFormatter={numSubs => numSubs.toLocaleString('en-US')}
+        />
       </div>
-      <div className='pt-8'>
+      {/*<div className='pt-8'>
         <RetentionWidget retentionCohorts={userRetentionData} />
-      </div>
+      </div>*/}
+      <h3 className='pt-8 font-semibold text-sm text-slate-600'>New Users & Organizations</h3>  
       <div className='grid grid-cols-2 gap-6 pt-8'>
         <ItemizedList
           fallbackAvatarGenerator={user => user.initials}
@@ -273,6 +265,7 @@ export default function Home() {
           }}
           title='New Users'
           viewMoreUrl='/users'
+          maxNumItems={5}
         />
         <ItemizedList
           fallbackAvatarGenerator={org => org.initials}
@@ -288,6 +281,7 @@ export default function Home() {
           }}
           title='New Organizations'
           viewMoreUrl='/organizations'
+          maxNumItems={5}
         />
       </div>
     </main>
