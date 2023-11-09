@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2023_10_22_170829) do
+ActiveRecord::Schema.define(version: 2023_11_09_032117) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
@@ -216,6 +216,7 @@ ActiveRecord::Schema.define(version: 2023_10_22_170829) do
     t.boolean "successful"
     t.string "attempted_payload"
     t.datetime "attempted_at"
+    t.text "error_message"
     t.index ["analytics_user_profile_id"], name: "idx_enrichment_attempt_on_user_profile_id"
     t.index ["user_profile_enrichment_data_id"], name: "idx_enrichment_attempt_on_user_enrichment_data_id"
     t.index ["workspace_id"], name: "index_user_profile_enrichment_attempts_on_workspace_id"

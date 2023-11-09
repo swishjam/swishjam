@@ -33,18 +33,22 @@ export const setAuthToken = tokenValue => {
 export const signUserUp = async ({ email, password, companyUrl, inviteCode }) => {
   const { error, user, workspace, token } = await SwishjamAPI.Auth.register({ email, password, companyUrl, inviteCode });
   if (token) {
-    swishjam.identify(user.id,)
-    swishjam.event('user_signup', { ...user });
+    const { email, first_name, last_name } = user;
+    swishjam.identify(user.id, { email, first_name, last_name });
+    swishjam.setOrganization(workspace.id, { name: workspace.name, company_url: workspace.company_url });
+    swishjam.event('user_signup', { ...user, workspace: workspace.name });
     setAuthToken(token);
   }
   return { error, user, workspace, token };
 }
 
 export const logUserIn = async ({ email, password }) => {
-  const { error, user, token } = await SwishjamAPI.Auth.login({ email, password });
+  const { error, token, workspace, user } = await SwishjamAPI.Auth.login({ email, password });
   if (token) {
-    const { id, email, first_name, last_name } = user;
-    swishjam.identify(id, { email, first_name, last_name });
+    const { email, first_name, last_name } = user;
+    swishjam.identify(user.id, { email, first_name, last_name });
+    swishjam.setOrganization(workspace.id, { name: workspace.name, company_url: workspace.company_url });
+    swishjam.event('user_login', { ...user, workspace: workspace.name });
     setAuthToken(token);
   }
   return { error, user, token };

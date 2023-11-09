@@ -1,4 +1,4 @@
-class UserRetentionSyncJob
+class UserRetentionSyncLegacyJob
   include Sidekiq::Job
   queue_as :default
 

@@ -1,6 +1,11 @@
 module Api
   module V1
     class DashboardsController < BaseController
+      def index
+        dashboards = current_workspace.dashboards.page(params[:page] || 1).per(params[:limit] || 20)
+        render json: dashboards, each_serializer: DashboardSerializer, status: :ok
+      end
+
       def show
         dashboard = current_workspace.dashboards.find(params[:id])
         render json: dashboard, status: :ok
