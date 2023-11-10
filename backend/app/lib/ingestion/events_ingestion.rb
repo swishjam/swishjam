@@ -17,11 +17,12 @@ module Ingestion
         @ingestion_batch.save!
       rescue => e
         Ingestion::QueueManager.push_records_into_queue(Ingestion::QueueManager::Queues.EVENTS, formatted_events)
+        
         @ingestion_batch.completed_at = Time.current
         @ingestion_batch.num_seconds_to_complete = @ingestion_batch.completed_at - @ingestion_batch.started_at
         @ingestion_batch.error_message = e.message
         @ingestion_batch.save!
-        
+
         Rails.logger.error "Failed to ingest from analytics queue: #{e.inspect}"
         Sentry.capture_exception(e)
       end
@@ -34,19 +35,17 @@ module Ingestion
       @formatted_events_to_ingest ||= begin
         identify_events = []
         organization_events = []
-        raw_events = Ingestion::QueueManager.pop_all_records_from_queue(Ingestion::QueueManager::Queues.EVENTS)
-        formatted_events = raw_events.map do |stringified_event| 
-          json_event = JSON.parse(stringified_event)
-          if json_event['name'] == 'identify'
-            identify_events << json_event
-          elsif json_event['name'] == 'organization'
-            organization_events << json_event
+        events = Ingestion::QueueManager.pop_all_records_from_queue(Ingestion::QueueManager::Queues.EVENTS)
+        formatted_events = events.each do |e|
+          if e['name'] == 'identify'
+            identify_events << e
+          elsif e['name'] == 'organization'
+            organization_events << e
           end
-          json_event
         end
         Ingestion::QueueManager.push_records_into_queue(Ingestion::QueueManager::Queues.IDENTIFY, identify_events) if identify_events.count > 0
         Ingestion::QueueManager.push_records_into_queue(Ingestion::QueueManager::Queues.ORGANIZATION, organization_events) if organization_events.count > 0
-        formatted_events
+        events
       end
     end
 

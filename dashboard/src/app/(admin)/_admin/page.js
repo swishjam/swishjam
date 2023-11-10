@@ -6,21 +6,52 @@ import LineChartWithValue from '@/components/Dashboards/Components/LineChartWith
 import { intelligentlyFormattedMs } from '@/lib/utils/timeHelpers'
 
 export default function AdminPage() {
-  const [queueingData, setQueueingData] = useState();
+  // const [queueingData, setQueueingData] = useState();
+  const [eventCountsTimeseries, setEventCountsTimeseries] = useState();
+  const [ingestionBatches, setIngestionBatches] = useState();
+  const [queueStats, setQueueStats] = useState();
 
   useEffect(() => {
-    SwishjamAPI.Admin.Ingestion.queueing().then(setQueueingData);
+    // SwishjamAPI.Admin.Ingestion.queueing().then(setQueueingData);
+    SwishjamAPI.Admin.Ingestion.eventCounts().then(setEventCountsTimeseries)
+    SwishjamAPI.Admin.Ingestion.queueStats().then(setQueueStats)
+    SwishjamAPI.Admin.Ingestion.ingestionBatches().then(setIngestionBatches)
   }, [])
 
+  console.log(eventCountsTimeseries)
   return (
-    <LineChartWithValue
-      title='Average time from event occurrence to ingested over the last 7 days (by minute).'
-      value={queueingData && queueingData[queueingData.length - 1].value}
-      timeseries={queueingData}
-      groupedBy='minute'
-      valueFormatter={intelligentlyFormattedMs}
-      showAxis={true}
-      showYAxis={true}
-    />
+    <>
+      <div className='grid grid-cols-3 space-x-4 mb-8'>
+        <div className='rounded border border-gray-400 text-gray-700 flex items-center justify-center p-4'>
+          <div className='text-center'>
+            <h4 className='text-md'>event queue</h4>
+            <h1 className='text-4xl'>{queueStats?.event_count}</h1>
+          </div>
+        </div>
+        <div className='rounded border border-gray-400 text-gray-700 flex items-center justify-center p-4'>
+          <div className='text-center'>
+            <h4 className='text-md'>user_identify queue</h4>
+            <h1 className='text-4xl'>{queueStats?.user_identify_count}</h1>
+          </div>
+        </div>
+        <div className='rounded border border-gray-400 text-gray-700 flex items-center justify-center p-4'>
+          <div className='text-center'>
+            <h4 className='text-md'>organization_identify queue</h4>
+            <h1 className='text-4xl'>{queueStats?.organization_identify_count}</h1>
+          </div>
+        </div>
+      </div>
+      <LineChartWithValue
+        title='Global events ingested.'
+        value={eventCountsTimeseries && eventCountsTimeseries[eventCountsTimeseries.length - 1].value}
+        timeseries={eventCountsTimeseries}
+        groupedBy='hour'
+        showAxis={true}
+        showYAxis={true}
+      />
+      {/* {ingestionBatches && (
+        <
+      )} */}
+    </>
   )
 }

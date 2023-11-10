@@ -8,19 +8,19 @@ module Api
           return
         end
         payload = JSON.parse(request.body.read || '{}')
-        if ENV['USE_LEGACY_CAPTURE_ANALYTIC_DATA_JOB_DURING_INGESTION']
-          CaptureAnalyticDataJob.perform_async(api_key, payload, request.ip)
-        else
+        if (ENV['API_KEYS_FOR_NEW_INGESTION'] || '').split(',').map{ |s| s.strip }.include?(api_key)
           events = payload.map do |e|
             {
               uuid: e['uuid'],
               swishjam_api_key: api_key,
               name: e['event'] || e['event_name'] || e['name'],
-              occurred_at: e['timestamp'] / 1_000,
-              properties: e.except('uuid', 'event', 'timestamp', 'name', 'source', 'sdk_version')
-            }.to_json
+              occurred_at: Time.at(e['timestamp'] / 1_000),
+              properties: e.except('uuid', 'event', 'event_name', 'name', 'timestamp', 'source', 'sdk_version'),
+            }
           end
           Ingestion::QueueManager.push_records_into_queue(Ingestion::QueueManager::Queues.EVENTS, events)
+        else
+          CaptureAnalyticDataJob.perform_async(api_key, payload, request.ip)
         end
         render json: { message: 'ok' }, status: :ok
       rescue => e

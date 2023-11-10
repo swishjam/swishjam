@@ -10,7 +10,8 @@ module Ingestion
 
     def self.read_all_records_from_queue(queue)
       redis do |conn|
-        conn.lrange(queue, 0, -1)
+        raw_records = conn.lrange(queue, 0, -1)
+        raw_records.map{ |r| JSON.parse(r) }
       end
     end
 
@@ -23,10 +24,20 @@ module Ingestion
     end
 
     def self.push_records_into_queue(queue, records)
+      records = records.is_a?(Array) ? records : [records]
+      stringified_records = records.map{ |r| r.to_json }
       redis do |conn|
-        conn.lpush(queue, records)
+        conn.lpush(queue, stringified_records)
       end
     end
+
+    def self.num_records_in_queue(queue)
+      redis do |conn|
+        conn.llen(queue)
+      end
+    end
+
+    private
 
     def self.redis_pool
       @redis_pool ||= ConnectionPool.new(

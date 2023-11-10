@@ -2,8 +2,8 @@ require 'spec_helper'
 
 RSpec.describe Ingestion::EventsIngestion do
   def fill_queue_with(events)
-    allow(Ingestion::QueueManager).to receive(:pop_all_records_from_queue).and_return(events.map{ |e| e.to_json })
-    allow(Ingestion::QueueManager).to receive(:read_all_records_from_queue).and_return(events.map{ |e| e.to_json })
+    allow(Ingestion::QueueManager).to receive(:pop_all_records_from_queue).with(Ingestion::QueueManager::Queues.EVENTS).and_return(events.map{ |e| JSON.parse(e.to_json) })
+    allow(Ingestion::QueueManager).to receive(:read_all_records_from_queue).with(Ingestion::QueueManager::Queues.EVENTS).and_return(events.map{ |e| JSON.parse(e.to_json) })
   end
 
   describe '#ingest!' do
@@ -11,22 +11,24 @@ RSpec.describe Ingestion::EventsIngestion do
       occurred_at = 10.minutes.ago
       fill_queue_with([{ uuid: '123', swishjam_api_key: 'stub', name: 'foo', occurred_at: occurred_at, properties: { foo: 'bar' }  }])
 
-      expect(IngestionBatch.all.count).to be(0)
-      expect(Analytics::Event.all.count).to be(0)
+      expect(IngestionBatch.count).to be(0)
+      expect(Analytics::Event.count).to be(0)
       
-      Ingestion::EventsIngestion.new.ingest!
+      ingestion_batch = Ingestion::EventsIngestion.new.ingest!
 
-      expect(Analytics::Event.all.count).to be(1)
+      expect(ingestion_batch.error_message).to be(nil)
+
+      expect(Analytics::Event.count).to be(1)
       expect(Analytics::Event.first.occurred_at.floor).to eq(occurred_at.floor)
       expect(Analytics::Event.first.swishjam_api_key).to eq('stub')
       expect(Analytics::Event.first.name).to eq('foo')
       expect(Analytics::Event.first.properties['foo']).to eq('bar')
       
-      expect(IngestionBatch.all.count).to be(1)
-      expect(IngestionBatch.first.num_records).to be(1)
-      expect(IngestionBatch.first.completed_at).to_not be(nil)
-      expect(IngestionBatch.first.num_seconds_to_complete).to_not be(nil)
-      expect(IngestionBatch.first.error_message).to be(nil)
+      expect(IngestionBatch.count).to be(1)
+      expect(ingestion_batch.num_records).to be(1)
+      expect(ingestion_batch.completed_at).to_not be(nil)
+      expect(ingestion_batch.num_seconds_to_complete).to_not be(nil)
+      expect(ingestion_batch.error_message).to be(nil)
     end
 
     # TODO: line 39 fails because of previous test, but it passes when run by itself. need to figure out why the DatabaseCleaner isn't purging the records between tests?

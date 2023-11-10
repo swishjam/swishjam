@@ -10,16 +10,16 @@ RSpec.describe Ingestion::UserIdentifiesIngestion do
   end
 
   def fill_queue_with(events)
-    allow(Ingestion::QueueManager).to receive(:pop_all_records_from_queue).with(Ingestion::QueueManager::Queues.IDENTIFY).and_return(events.map{ |e| e.to_json })
-    allow(Ingestion::QueueManager).to receive(:read_all_records_from_queue).with(Ingestion::QueueManager::Queues.IDENTIFY).and_return(events.map{ |e| e.to_json })
+    allow(Ingestion::QueueManager).to receive(:pop_all_records_from_queue).with(Ingestion::QueueManager::Queues.IDENTIFY).and_return(events.map{ |e| JSON.parse(e.to_json) })
+    allow(Ingestion::QueueManager).to receive(:read_all_records_from_queue).with(Ingestion::QueueManager::Queues.IDENTIFY).and_return(events.map{ |e| JSON.parse(e.to_json) })
   end
 
   describe '#ingest!' do
     it 'creates a new analytics_user_profile in Postgres, and a new swishjam_user_profile and user_identify_event in ClickHouse when a new user is provided' do
       timestamp = Time.current
       fill_queue_with([
-        { uuid: '123', swishjam_api_key: @api_key_1,  name: 'identify', occurred_at: timestamp, properties: { userIdentifier: 'some-unique-user', email: 'collin@swishjam.com', first_name: 'Collin', last_name: 'Schneider', some_other_attribute: 'a value!', device_identifier: 'device!' }},
-        { uuid: '456', swishjam_api_key: @api_key_2,  name: 'identify', occurred_at: timestamp, properties: { userIdentifier: 'some-unique-user-2', email: 'collin-2@swishjam.com', first_name: 'Collin-2', last_name: 'Schneider-2', 'some_other_attribute-2': 'a value!', device_identifier: 'device-2!' }},
+        { uuid: '123', swishjam_api_key: @api_key_1, name: 'identify', occurred_at: timestamp, properties: { userIdentifier: 'some-unique-user', email: 'collin@swishjam.com', first_name: 'Collin', last_name: 'Schneider', some_other_attribute: 'a value!', device_identifier: 'device!' }},
+        { uuid: '456', swishjam_api_key: @api_key_2, name: 'identify', occurred_at: timestamp, properties: { userIdentifier: 'some-unique-user-2', email: 'collin-2@swishjam.com', first_name: 'Collin-2', last_name: 'Schneider-2', 'some_other_attribute-2': 'a value!', device_identifier: 'device-2!' }},
       ])
       
       expect(IngestionBatch.count).to be(0)
@@ -92,7 +92,7 @@ RSpec.describe Ingestion::UserIdentifiesIngestion do
 
       timestamp = Time.current
       fill_queue_with([
-        { uuid: '123', swishjam_api_key: @api_key_1,  name: 'identify', occurred_at: timestamp, properties: { userIdentifier: 'some-unique-user', email: 'collin@swishjam.com', first_name: 'Collin', last_name: 'Schneider', some_other_attribute: 'a value!', device_identifier: 'device!' }},
+        { uuid: '123', swishjam_api_key: @api_key_1, name: 'identify', occurred_at: timestamp, properties: { userIdentifier: 'some-unique-user', email: 'collin@swishjam.com', first_name: 'Collin', last_name: 'Schneider', some_other_attribute: 'a value!', device_identifier: 'device!' }},
       ])
       
       expect(IngestionBatch.count).to be(0)
@@ -122,7 +122,7 @@ RSpec.describe Ingestion::UserIdentifiesIngestion do
 
     it 'pushes the records back into the queue if it fails' do
       expect(Ingestion::QueueManager).to receive(:push_records_into_queue)
-                                          .with(Ingestion::QueueManager::Queues.IDENTIFY, [{ invalid_identify_record: 'foo' }.to_json])
+                                          .with(Ingestion::QueueManager::Queues.IDENTIFY, [{ 'invalid_identify_record' => 'foo' }])
                                           .exactly(1).times
 
       fill_queue_with([{ invalid_identify_record: 'foo' }])
