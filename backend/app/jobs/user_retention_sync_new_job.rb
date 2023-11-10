@@ -3,7 +3,6 @@ class UserRetentionSyncNewJob
   queue_as :default
 
   def perform
-    Sentry.capture_message("New UserRetentionSyncNewJob???")
     Workspace.all.each do |workspace|
       data_sync = DataSync.create(workspace: workspace, provider: 'swishjam_user_retention', started_at: Time.current)
       begin
