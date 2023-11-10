@@ -10,13 +10,13 @@ module Api
         payload = JSON.parse(request.body.read || '{}')
         if (ENV['API_KEYS_FOR_NEW_INGESTION'] || '').split(',').map{ |s| s.strip }.include?(api_key)
           events = payload.map do |e|
-            {
-              uuid: e['uuid'],
-              swishjam_api_key: api_key,
-              name: e['event'] || e['event_name'] || e['name'],
+            Analytics::Event.formatted_for_ingestion(
+              uuid: e['uuid'], 
+              swishjam_api_key: api_key, 
+              name: e['event'] || e['event_name'] || e['name'], 
               occurred_at: Time.at(e['timestamp'] / 1_000),
               properties: e.except('uuid', 'event', 'event_name', 'name', 'timestamp', 'source', 'sdk_version'),
-            }
+            )
           end
           Ingestion::QueueManager.push_records_into_queue(Ingestion::QueueManager::Queues.EVENTS, events)
         else

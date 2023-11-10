@@ -13,13 +13,13 @@ class ProcessStripeEventJob
         swishjam_event_data = StripeHelpers::WebhookEventParser.event_attributes_for(stripe_event)
         public_key = integration.workspace.api_keys.for_data_source!(ApiKey::ReservedDataSources.STRIPE).public_key
         if (ENV['API_KEYS_FOR_NEW_INGESTION'] || '').split(',').map{ |s| s.strip }.include?(public_key)
-          formatted_event = {
+          formatted_event = Analytics::Event.formatted_for_ingestion(
             uuid: swishjam_event_data['uuid'],
             swishjam_api_key: public_key,
             name: swishjam_event_data['event'],
             occurred_at: Time.at(swishjam_event_data['timestamp'] / 1_000),
             properties: swishjam_event_data.except('uuid', 'event', 'event_name', 'name', 'timestamp', 'source'),
-          }
+          )
           Ingestion::QueueManager.push_records_into_queue(Ingestion::QueueManager::Queues.EVENTS, [formatted_event])
         else
           CaptureAnalyticDataJob.perform_async(public_key, [swishjam_event_data], nil)

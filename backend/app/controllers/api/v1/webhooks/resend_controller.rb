@@ -22,13 +22,13 @@ module Api
             swishjam_obj['click_user_agent'] = payload.dig('click', 'userAgent')
           end
           if (ENV['API_KEYS_FOR_NEW_INGESTION'] || '').split(',').map{ |s| s.strip }.include?(public_key)
-            formatted_event = {
+            formatted_event = Analytics::Event.formatted_for_ingestion(
               uuid: swishjam_obj['uuid'],
               swishjam_api_key: public_key,
               name: swishjam_obj['event'],
               occurred_at: Time.at(swishjam_obj['timestamp'] / 1_000),
               properties: swishjam_obj.except('uuid', 'event', 'timestamp', 'source'),
-            }
+            )
             Ingestion::QueueManager.push_records_into_queue(Ingestion::QueueManager::Queues.EVENTS, [formatted_event])
           else
             CaptureAnalyticDataJob.perform_async(public_key, [swishjam_obj], nil)

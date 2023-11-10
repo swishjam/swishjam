@@ -52,7 +52,7 @@ export default function AdminPage() {
       {ingestionBatches && (
         <table className="min-w-full divide-y divide-gray-300">
           <thead>
-            <tr>
+            <tr className='grid grid-cols-5'>
               <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
                 Type
               </th>
@@ -63,6 +63,9 @@ export default function AdminPage() {
                 Completed at
               </th>
               <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+                Seconds to complete
+              </th>
+              <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
                 Error message
               </th>
             </tr>
@@ -71,12 +74,13 @@ export default function AdminPage() {
             {ingestionBatches.map(batch => (
               <tr
                 key={batch.id}
-                className="group hover:bg-gray-50 duration-300 transition"
+                className="group hover:bg-gray-50 duration-300 transition grid grid-cols-5 items-center"
               >
                 <td className="whitespace-nowrap px-3 py-3.5 text-sm">{batch.event_type}</td>
                 <td className="whitespace-nowrap px-3 py-3.5 text-sm">{batch.num_records}</td>
-                <td className="whitespace-nowrap px-3 py-3.5 text-sm">{batch.completed_at}</td>
-                <td className="whitespace-nowrap px-3 py-3.5 text-sm">{batch.error_message}</td>
+                <td className="whitespace-nowrap px-3 py-3.5 text-sm">{new Date(batch.completed_at).toLocaleDateString('en-us', { weekday: "short", year: "numeric", month: "short", day: "numeric", hour: 'numeric', minute: 'numeric' })}</td>
+                <td className="whitespace-nowrap px-3 py-3.5 text-sm">{batch.num_seconds_to_complete}</td>
+                <td className="px-3 py-3.5 text-sm">{batch.error_message}</td>
               </tr>
             ))}
           </tbody>

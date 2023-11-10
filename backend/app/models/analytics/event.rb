@@ -32,6 +32,8 @@ module Analytics
       end
     end
 
+    class InvalidEventFormat < StandardError; end;
+
     attribute :properties, :json, default: {}
     attribute :ingested_at, :datetime, default: -> { Time.current }
 
@@ -40,6 +42,17 @@ module Analytics
 
     def self.PAGE_VIEWS
       by_name(ReservedNames.PAGE_VIEW)
+    end
+
+    def self.formatted_for_ingestion(uuid:, swishjam_api_key:, name:, occurred_at:, properties: {})
+      raise InvalidEventFormat, "Provided keys: uuid: #{uuid}, swishjam_api_key: #{swishjam_api_key}, name: #{name}, ocurred_at: #{ocurred_at}, properties: #{properties}" if swishjam_api_key.blank? || name.blank? || ocurred_at.blank?
+      {
+        uuid: uuid,
+        swishjam_api_key: swishjam_api_key,
+        name: name,
+        occurred_at: occurred_at,
+        properties: properties,
+      }
     end
   end
 end
