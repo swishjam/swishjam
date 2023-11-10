@@ -3,7 +3,7 @@ module Ingestion
     class Queues
       class << self
         [:EVENTS, :IDENTIFY, :ORGANIZATION].each do |method|
-          define_method(method.to_s.upcase) { "ingestion_#{method.to_s.downcase}" }
+          define_method(method.to_s.upcase) { "#{method.to_s.downcase}_ingestion_queue" }
         end
       end
     end
