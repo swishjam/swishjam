@@ -6,6 +6,10 @@ module Ingestion
       @ingestion_batch = IngestionBatch.new(started_at: Time.current, event_type: 'events')
     end
 
+    def self.ingest!
+      new.ingest!
+    end
+
     def ingest!
       formatted_events = parse_events_from_queue_and_push_identify_events_into_queues!
       begin

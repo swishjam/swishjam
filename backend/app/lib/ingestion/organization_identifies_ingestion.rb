@@ -6,6 +6,10 @@ module Ingestion
       @ingestion_batch = IngestionBatch.new(started_at: Time.current, event_type: 'organization_identify')
     end
 
+    def self.ingest!
+      new.ingest!
+    end
+
     def ingest!
       queued_organization_identify_events = Ingestion::QueueManager.pop_all_records_from_queue(Ingestion::QueueManager::Queues.ORGANIZATION)
       begin
