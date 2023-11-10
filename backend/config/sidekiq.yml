@@ -16,5 +16,7 @@
       cron: '0 8 * * *' # every day @ 8am UTC
       class: DataSyncJobs::Stripe
     user_retention_sync_new:
-      cron: '0 6,12,18,0 * * *' # 4 times a day @ 6am, 12pm, 6pm, 12am UTC
+      # cron: '0 6,12,18,0 * * *' # 4 times a day @ 6am, 12pm, 6pm, 12am UTC
+      # TEMPORARY!!
+      cron: '*/1 * * * *' # every minute
       class: UserRetentionSyncNewJob

@@ -6,7 +6,7 @@ class UserRetentionSyncNewJob
     Workspace.all.each do |workspace|
       data_sync = DataSync.create(workspace: workspace, provider: 'swishjam_user_retention', started_at: Time.current)
       begin
-        DataSynchronizers::UserRetention.new(workspace).sync_workspaces_retention_cohort_data!
+        DataSynchronizers::UserRetention.new(workspace, oldest_cohort_date: 12.months.ago, oldest_activity_week: 8.weeks.ago).sync_workspaces_retention_cohort_data!
         data_sync.completed!
       rescue => e
         Rails.logger.error "Failed to sync workspace #{workspace.name} (#{workspace.id}) user retention data (data sync: #{data_sync.id}): #{e.inspect}"
