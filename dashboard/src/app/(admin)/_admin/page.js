@@ -1,43 +1,74 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import SwishjamAPI from "@/lib/api-client/swishjam-api"
+import { ArrowPathIcon } from '@heroicons/react/24/outline';
+import { Button } from '@/components/ui/button';
 import LineChartWithValue from '@/components/Dashboards/Components/LineChartWithValue';
-import { intelligentlyFormattedMs } from '@/lib/utils/timeHelpers'
+import SwishjamAPI from "@/lib/api-client/swishjam-api"
+import { useEffect, useState } from 'react'
+import { Skeleton } from '@/components/ui/skeleton';
 
 export default function AdminPage() {
-  // const [queueingData, setQueueingData] = useState();
   const [eventCountsTimeseries, setEventCountsTimeseries] = useState();
   const [ingestionBatches, setIngestionBatches] = useState();
+  const [isRefreshing, setIsRefreshing] = useState(false)
   const [queueStats, setQueueStats] = useState();
 
+  const getData = async () => {
+    setIsRefreshing(true);
+    setEventCountsTimeseries();
+    setIngestionBatches();
+    setQueueStats();
+    await Promise.all([
+      SwishjamAPI.Admin.Ingestion.eventCounts().then(setEventCountsTimeseries),
+      SwishjamAPI.Admin.Ingestion.queueStats().then(setQueueStats),
+      SwishjamAPI.Admin.Ingestion.ingestionBatches().then(setIngestionBatches),
+    ])
+    setIsRefreshing(false);
+  }
+
   useEffect(() => {
-    // SwishjamAPI.Admin.Ingestion.queueing().then(setQueueingData);
-    SwishjamAPI.Admin.Ingestion.eventCounts().then(setEventCountsTimeseries)
-    SwishjamAPI.Admin.Ingestion.queueStats().then(setQueueStats)
-    SwishjamAPI.Admin.Ingestion.ingestionBatches().then(setIngestionBatches)
+    getData();
   }, [])
 
-  console.log(eventCountsTimeseries)
   return (
-    <>
+    <main className='w-screen h-screen px-8 py-8'>
+      <div className='w-full flex justify-between mb-8'>
+        <h1 className='text-lg text-gray-700'>Admin</h1>
+        <Button
+          variant='outline'
+          className={`ml-4 bg-white ${isRefreshing ? 'cursor-not-allowed' : ''}`}
+          onClick={() => getData()}
+          disabled={isRefreshing}
+        >
+          <ArrowPathIcon className={`h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+        </Button>
+      </div>
       <div className='grid grid-cols-3 space-x-4 mb-8'>
-        <div className='rounded border border-gray-400 text-gray-700 flex items-center justify-center p-4'>
+        <div className='rounded border border-gray-400 text-gray-700 flex items-center justify-center p-4 bg-white'>
           <div className='text-center'>
             <h4 className='text-md'>event queue</h4>
-            <h1 className='text-4xl'>{queueStats?.event_count}</h1>
+            {queueStats
+              ? <h1 className='text-4xl'>{queueStats.event_count}</h1>
+              : <Skeleton className='h-12 w-8 m-auto' />
+            }
           </div>
         </div>
-        <div className='rounded border border-gray-400 text-gray-700 flex items-center justify-center p-4'>
+        <div className='rounded border border-gray-400 text-gray-700 flex items-center justify-center p-4 bg-white'>
           <div className='text-center'>
             <h4 className='text-md'>user_identify queue</h4>
-            <h1 className='text-4xl'>{queueStats?.user_identify_count}</h1>
+            {queueStats
+              ? <h1 className='text-4xl'>{queueStats.user_identify_count}</h1>
+              : <Skeleton className='h-12 w-8 m-auto' />
+            }
           </div>
         </div>
-        <div className='rounded border border-gray-400 text-gray-700 flex items-center justify-center p-4'>
+        <div className='rounded border border-gray-400 text-gray-700 flex items-center justify-center p-4 bg-white'>
           <div className='text-center'>
             <h4 className='text-md'>organization_identify queue</h4>
-            <h1 className='text-4xl'>{queueStats?.organization_identify_count}</h1>
+            {queueStats
+              ? <h1 className='text-4xl'>{queueStats.organization_identify_count}</h1>
+              : <Skeleton className='h-12 w-8 m-auto' />
+            }
           </div>
         </div>
       </div>
@@ -86,6 +117,6 @@ export default function AdminPage() {
           </tbody>
         </table>
       )}
-    </>
+    </main>
   )
 }
