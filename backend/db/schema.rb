@@ -111,6 +111,15 @@ ActiveRecord::Schema.define(version: 2023_11_09_032117) do
     t.index ["workspace_id"], name: "index_data_syncs_on_workspace_id"
   end
 
+  create_table "ingestion_batches", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.string "event_type"
+    t.float "num_seconds_to_complete"
+    t.integer "num_records"
+    t.string "error_message"
+    t.datetime "started_at"
+    t.datetime "completed_at"
+  end
+
   create_table "integrations", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.uuid "workspace_id", null: false
     t.string "type", null: false
