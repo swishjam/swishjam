@@ -24,7 +24,7 @@ module Api
         end
 
         def ingestion_batches
-          render json: IngestionBatch.all.limit(50), status: :ok
+          render json: IngestionBatch.all.limit(50).order(completed_at: :desc), status: :ok
         end
       end
     end

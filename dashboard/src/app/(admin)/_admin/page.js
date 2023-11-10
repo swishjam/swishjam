@@ -49,9 +49,39 @@ export default function AdminPage() {
         showAxis={true}
         showYAxis={true}
       />
-      {/* {ingestionBatches && (
-        <
-      )} */}
+      {ingestionBatches && (
+        <table className="min-w-full divide-y divide-gray-300">
+          <thead>
+            <tr>
+              <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+                Type
+              </th>
+              <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+                Number of records
+              </th>
+              <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+                Completed at
+              </th>
+              <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+                Error message
+              </th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-gray-200 bg-white">
+            {ingestionBatches.map(batch => (
+              <tr
+                key={batch.id}
+                className="group hover:bg-gray-50 duration-300 transition"
+              >
+                <td className="whitespace-nowrap px-3 py-3.5 text-sm">{batch.event_type}</td>
+                <td className="whitespace-nowrap px-3 py-3.5 text-sm">{batch.num_records}</td>
+                <td className="whitespace-nowrap px-3 py-3.5 text-sm">{batch.completed_at}</td>
+                <td className="whitespace-nowrap px-3 py-3.5 text-sm">{batch.error_message}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
     </>
   )
 }
