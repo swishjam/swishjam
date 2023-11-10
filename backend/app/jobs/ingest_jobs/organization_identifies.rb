@@ -1,7 +1,7 @@
 module IngestJobs
   class OrganizationIdentifies
     include Sidekiq::Job
-    queue_as :ingestion
+    queue_as :default
 
     def perform
       Ingestion::OrganizationIdentifiesIngestion.ingest!
