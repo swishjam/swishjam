@@ -79,37 +79,39 @@ export default function Users() {
                     </thead>
                     <tbody className="divide-y divide-gray-200 bg-white">
                       {usersData.map((user) => (
-                          <tr
-                            key={user.email}
-                            className="group hover:bg-gray-50 duration-300 transition cursor-pointer"
-                            onClick={() => navigateToUsersProfile(user.id)}
-                          >
-                            <td className="whitespace-nowrap py-3 pl-4 pr-3 text-sm sm:pl-6 lg:pl-8">
-                              <div className="flex items-center">
-                                <div className="flex-shrink-0">
-                                  <Avatar className="border border-slate-200">
-                                    <AvatarImage src={user.image} />
-                                    <AvatarFallback>{user.initials || 'NU'}</AvatarFallback>
-                                  </Avatar>
-                                </div>
-                                <div className="ml-4">
-                                  <div className="font-medium text-gray-900">{user.full_name || `Name Unknown`}</div>
-                                </div>
+                        <tr
+                          key={user.email}
+                          className="group hover:bg-gray-50 duration-300 transition cursor-pointer"
+                          onClick={() => navigateToUsersProfile(user.id)}
+                        >
+                          <td className="whitespace-nowrap py-3 pl-4 pr-3 text-sm sm:pl-6 lg:pl-8">
+                            <div className="flex items-center">
+                              <div className="flex-shrink-0">
+                                <Avatar className="border border-slate-200">
+                                  <AvatarImage src={user.image} />
+                                  <AvatarFallback>{user.initials || 'NU'}</AvatarFallback>
+                                </Avatar>
                               </div>
-                            </td>
-                            <td className="whitespace-nowrap px-3 py-3 text-sm text-gray-500">{user.email}</td>
-                            <td className="relative whitespace-nowrap py-3 pl-3 pr-4 text-right text-sm font-medium sm:pr-6 lg:pr-8">
-                              <Link href={`/users/${user.id}`} className="text-swishjam hover:text-swishjam-dark duration-300 transition">
-                                View<span className="sr-only">, {user.full_name}</span>
-                              </Link>
-                            </td>
-                          </tr>
-                        ))
+                              <div className="ml-4">
+                                {user.full_name
+                                  ? <span className="font-medium text-gray-900">{user.full_name}</span>
+                                  : <span className='text-gray-700 italic'>Name Unknown</span>}
+                              </div>
+                            </div>
+                          </td>
+                          <td className="whitespace-nowrap px-3 py-3 text-sm text-gray-500">{user.email}</td>
+                          <td className="relative whitespace-nowrap py-3 pl-3 pr-4 text-right text-sm font-medium sm:pr-6 lg:pr-8">
+                            <Link href={`/users/${user.id}`} className="text-swishjam hover:text-swishjam-dark duration-300 transition">
+                              View<span className="sr-only">, {user.full_name}</span>
+                            </Link>
+                          </td>
+                        </tr>
+                      ))
                       }
                     </tbody>
                   </table>
-                  {usersData.length === 0 
-                    ?  (
+                  {usersData.length === 0
+                    ? (
                       <div className='text-sm text-gray-500 text-center'>
                         No users identified yet Once you begin to identify users in your app, they will show up here.
                       </div>
