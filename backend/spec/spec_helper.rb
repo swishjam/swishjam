@@ -38,8 +38,8 @@ RSpec.configure do |config|
     ActiveRecord::Base.logger.silence do
       puts "Breaking down Clickhouse DB...."
       system('rails db:drop:clickhouse')
-      system('rails db:create:clickhouse')
-      system('rails db:migrate:clickhouse')
+      # system('rails db:create:clickhouse')
+      # system('rails db:migrate:clickhouse')
     end
   end
 end

@@ -17,12 +17,7 @@ export default function Layout({ children }) {
       </div>
     )
   } else if (!isLoggedOut && ADMINS.includes(email)) {
-    return (
-      <main className='w-screen h-screen px-8 py-8'>
-        <h1 className='text-lg text-gray-700'>Admin</h1>
-        <div className="pr-4 sm:pr-6 lg:pr-8 mt-8">{children}</div>
-      </main>
-    )
+    return children
   } else {
     router.push('/')
   }
