@@ -1,5 +1,6 @@
 'use client';
 
+import { usePathname } from 'next/navigation'
 import ApiKeysTable from "@/components/Settings/ApiKeysTable";
 // import { useAuthData } from "@/lib/auth";
 import LoadingView from "./LoadingView";
@@ -8,10 +9,12 @@ import Toggle from "@/components/utils/Toggle";
 import { useState, useEffect } from "react";
 import WorkspaceForm from "@/components/Settings/WorkspaceForm";
 import WorkspaceSettingsToggles from "@/components/Settings/WorkspaceSettingsToggles";
+import Tabs from '@/components/Settings/Tabs';
 
 const Divider = () => <div className="my-6 w-full border-t border-gray-300" />
 
 export default function SettingsPage() {
+  const pathname = usePathname();
   const [apiKeys, setApiKeys] = useState();
   const [workspaceSettings, setWorkspaceSettings] = useState();
 
@@ -33,8 +36,9 @@ export default function SettingsPage() {
             </div>
           </div>
 
-          <WorkspaceForm />
-          <Divider />
+          <Tabs className="mb-8" currentPath={pathname} />
+
+          <WorkspaceForm className="" />
 
           <Toggle
             className='mt-8'
@@ -49,7 +53,6 @@ export default function SettingsPage() {
             }}
           />
           <WorkspaceSettingsToggles settings={workspaceSettings} />
-          <Divider />
 
           <div className='mt-4 space-x-4 space-y-4'>
             <ApiKeysTable apiKeys={apiKeys} />

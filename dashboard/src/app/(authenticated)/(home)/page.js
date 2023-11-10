@@ -1,18 +1,19 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Link from 'next/link'
 import { SwishjamAPI } from '@/lib/api-client/swishjam-api';
 import LineChartWithValue from '@/components/Dashboards/Components/LineChartWithValue';
-import ClickableValueCard from '@/components/Dashboards/Components/ClickableValueCard';
 import ActiveUsersLineChartWithValue from '@/components/Dashboards/Components/ActiveUsersLineChartWithValue'
 import Timefilter from '@/components/Timefilter';
-import { Separator } from "@/components/ui/separator"
 import { Button } from '@/components/ui/button';
 import { ArrowPathIcon } from '@heroicons/react/24/outline';
 import InstallBanner from '@/components/InstallBanner';
 import ItemizedList from '@/components/Dashboards/Components/ItemizedList';
-import RetentionWidget from '@/components/Dashboards/Components/RetentionWidget';
 import RetentionWidgetTiny from '@/components/Dashboards/Components/RetentionWidgetTiny';
+import { BsArrowRightShort } from 'react-icons/bs'
+//import ClickableValueCard from '@/components/Dashboards/Components/ClickableValueCard';
+//import RetentionWidget from '@/components/Dashboards/Components/RetentionWidget';
 
 const currentChart = (selected, mrrChart, sessionsChart, activeSubsChart) => {
   if (selected === 'MRR') {
@@ -161,8 +162,13 @@ export default function Home() {
           </Button>
         </div>
       </div>
-      
-      <h3 className='pt-8 font-semibold text-sm text-slate-600'>Key Product Metrics</h3>  
+
+      <div className='pt-8 flex justify-between'>
+        <h3 className='font-semibold text-sm text-slate-600'>Key Product Metrics</h3>  
+        <Link href="/" className='group'>
+          <h3 className='font-semibold text-sm text-slate-600 group-hover:text-swishjam transition-all duration-500'>Deep Dive Report <BsArrowRightShort size={24} className='inline'/></h3>  
+        </Link>
+      </div> 
       <div className='grid grid-cols-3 gap-4 pt-2'>
         <ActiveUsersLineChartWithValue
           data={uniqueVisitorsChartData}
@@ -185,7 +191,12 @@ export default function Home() {
         />
         <RetentionWidgetTiny retentionCohorts={userRetentionData} />
       </div>
-      <h3 className='pt-8 font-semibold text-sm text-slate-600'>Key SaaS Metrics</h3>  
+      <div className='pt-8 flex justify-between'>
+        <h3 className='font-semibold text-sm text-slate-600'>Key SaaS Metrics</h3>  
+        <Link href="/" className='group'>
+          <h3 className='font-semibold text-sm text-slate-600 group-hover:text-swishjam transition-all duration-500'>Deep Dive Report <BsArrowRightShort size={24} className='inline'/></h3>  
+        </Link>
+      </div> 
       <div className='grid grid-cols-3 gap-4 pt-2'>
         <LineChartWithValue
           title='MRR'
@@ -216,7 +227,12 @@ export default function Home() {
           valueFormatter={numSubs => numSubs.toLocaleString('en-US')}
         />
       </div>
-      <h3 className='pt-8 font-semibold text-sm text-slate-600'>Key Marketing Metrics</h3>  
+      <div className='pt-8 flex justify-between'>
+        <h3 className='font-semibold text-sm text-slate-600'>Key Marketing Metrics</h3>  
+        <Link href="/visitor-trends" className='group'>
+          <h3 className='font-semibold text-sm text-slate-600 group-hover:text-swishjam transition-all duration-500'>Deep Dive Report <BsArrowRightShort size={24} className='inline'/></h3>  
+        </Link>
+      </div> 
       <div className='grid grid-cols-3 gap-4 pt-2'>
         <LineChartWithValue
           title='Sessions'

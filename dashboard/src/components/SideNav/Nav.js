@@ -23,7 +23,8 @@ import useCommandBar from '@/hooks/useCommandBar';
 
 const appNav = [
   { name: 'Home', href: '/', icon: HomeIcon },
-  { name: 'Visitor Trends', href: '/visitor-trends', icon: RxBarChart },
+  { name: 'Dashboards', href: '/dashboards', icon: RxBarChart },
+  //{ name: 'Visitor Trends', href: '/visitor-trends', icon: RxBarChart },
   // { name: 'Event Explorer', href: '/events', icon: GlobeAmericasIcon }, // HIDING FROM NAV FOR NOW
   { name: 'Users', href: '/users', icon: UserIcon },
   { name: 'Organizations', href: '/organizations', icon: UserGroupIcon },
@@ -42,14 +43,14 @@ const DesktopNavItem = ({ item, isCollapsed, currentPath }) => {
         href={item.href}
         className={classNames(
           isCurrentPage(item.href)
-            ? 'bg-gray-50 text-swishjam'
-            : 'text-gray-700 hover:text-swishjam hover:bg-gray-50',
-          `group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold duration-500 transition ${isCollapsed ? 'py-2 px-1' : 'p-2'}`
+            ? 'bg-accent text-swishjam'
+            : 'text-gray-700 hover:bg-accent',
+          `group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold duration-300 transition ${isCollapsed ? 'py-2 px-1' : 'p-2'}`
         )}
       >
         {item.icon && <item.icon
           className={classNames(
-            isCurrentPage(item.href) ? 'text-swishjam' : 'text-gray-400 group-hover:text-swishjam duration-500 transition',
+            isCurrentPage(item.href) ? 'text-swishjam' : 'text-gray-400 duration-300 transition',
             'h-6 w-6 shrink-0'
           )}
           aria-hidden="true"
