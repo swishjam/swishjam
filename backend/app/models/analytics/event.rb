@@ -45,7 +45,7 @@ module Analytics
     end
 
     def self.formatted_for_ingestion(uuid:, swishjam_api_key:, name:, occurred_at:, properties: {})
-      raise InvalidEventFormat, "Provided keys: uuid: #{uuid}, swishjam_api_key: #{swishjam_api_key}, name: #{name}, ocurred_at: #{ocurred_at}, properties: #{properties}" if swishjam_api_key.blank? || name.blank? || ocurred_at.blank?
+      raise InvalidEventFormat, "Provided keys: uuid: #{uuid}, swishjam_api_key: #{swishjam_api_key}, name: #{name}, occurred_at: #{occurred_at}, properties: #{properties}" if swishjam_api_key.blank? || name.blank? || occurred_at.blank?
       {
         uuid: uuid,
         swishjam_api_key: swishjam_api_key,
