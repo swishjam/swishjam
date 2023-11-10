@@ -10,13 +10,18 @@ module WebEventProcessors
         profile.update!(name: name, metadata: metadata)
       else
         profile = workspace.analytics_organization_profiles.create!(organization_unique_identifier: unique_identifier, name: name, metadata: metadata)
+        Analytics::SwishjamOrganizationProfile.create!(
+          swishjam_api_key: public_key,
+          swishjam_organization_id: profile.id,
+          unique_identifier: unique_identifier,
+          created_at: timestamp,
+        )
       end
 
       Analytics::OrganizationIdentifyEvent.create!(
         swishjam_api_key: public_key,
         swishjam_organization_id: profile.id,
-        device_identifier: properties[Analytics::Event::ReservedPropertyNames.DEVICE_IDENTIFIER],
-        session_identifier: properties[Analytics::Event::ReservedPropertyNames.SESSION_IDENTIFIER],
+        organization_device_identifier: properties[Analytics::Event::ReservedPropertyNames.ORGANIZATION_DEVICE_IDENTIFIER],
         occurred_at: timestamp,
       )
       

@@ -20,7 +20,11 @@ class Workspace < Transactional
   attribute :should_enrich_user_profile_data, :boolean, default: false
   alias_attribute :should_enrich_user_profile_data?, :should_enrich_user_profile_data
 
-  # def public_key
-  #   raise "`public_key` is deprecated, please use the workspace's `api_keys`."
-  # end
+  def self.for_public_key!(public_key)
+    ApiKey.enabled.find_by!(public_key: public_key).workspace
+  end
+
+  def self.for_public_key(public_key)
+    ApiKey.enabled.find_by(public_key: public_key)&.workspace
+  end
 end
