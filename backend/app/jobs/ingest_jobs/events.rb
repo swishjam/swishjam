@@ -1,7 +1,7 @@
 module IngestJobs
   class Events
     include Sidekiq::Job
-    queue_as :ingestion
+    queue_as :default
 
     def perform
       Ingestion::EventsIngestion.ingest!
