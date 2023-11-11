@@ -1,4 +1,4 @@
-class EventTriggerSteps
+module EventTriggerSteps
   class Slack < EventTriggerStep
     def trigger!
       

@@ -1,8 +1,10 @@
 class EventTrigger < Transactional
   belongs_to :workspace
   has_many :event_trigger_steps
+  accepts_nested_attributes_for :event_trigger_steps
   has_many :triggered_event_triggers
-  accepts_nested_attributes_for :triggered_event_triggers
+
+  validates :event_name, presence: true
 
   def trigger!(event)
     event_trigger_steps.each do |step|

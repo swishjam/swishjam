@@ -1,7 +1,7 @@
 import Base from "./base";
 
 export class EventTriggers extends Base {
-  static async list({ type } = {}) {
+  static async list() {
     return await this._get('/api/v1/event_triggers')
   }
 

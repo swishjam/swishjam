@@ -55,7 +55,7 @@ export default function SlackSettings() {
 
   return (
     <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mb-8">
-      {<NewSlackEventTriggerModal isOpen={newModalIsOpen} onClose={() => setNewModalIsOpen(false)} />}
+      <NewSlackEventTriggerModal isOpen={newModalIsOpen} onClose={() => setNewModalIsOpen(false)} />
       <div className='grid grid-cols-2 my-8 flex items-center'>
         <h1 className="text-lg font-medium text-gray-700 mb-0">Slack Notifications</h1>
         <div className='flex justify-end'>
