@@ -6,7 +6,7 @@ export default function SlackMessagePreview({ header, body, className }) {
   return (
     <div className={`border border-gray-200 rounded-md p-4 flex gap-x-4 hover:bg-gray-100 ${className}`}>
       <div className='flex-shrink-0'>
-        <Image src={SwishjamLogo} className='h-12 w-14' />
+        <Image src={SwishjamLogo} className='h-12 w-18' />
       </div>
       <div className='flex-grow'>
         <div className='flex items-end'>

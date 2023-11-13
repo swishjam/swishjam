@@ -20,8 +20,6 @@ export default function SlackSettings() {
   const [showConnectionSuccessMessage, setShowConnectionSuccessMessage] = useState(useSearchParams().get('success') === 'true');
   const [slackEventTriggers, setSlackEventTriggers] = useState(undefined);
 
-  console.log(slackConnectionErrorMessage);
-
   const authToken = getToken();
 
   const disableTrigger = triggerId => {
@@ -85,7 +83,7 @@ export default function SlackSettings() {
     const redirectUrl = `https://${redirectHost}/oauth/slack/callback`;
     const clientId = process.env.NEXT_PUBLIC_SLACK_CLIENT_ID || '3567839339057.6156356819525';
     const scopes = ['chat:write', 'chat:write.public', 'channels:read']
-
+    const oauthLink = `https://slack.com/oauth/v2/authorize?scope=${scopes.join(',')}&redirect_uri=${redirectUrl}&client_id=${clientId}&state=${authToken}`;
     return (
       <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mb-8">
         <div className='grid grid-cols-2 my-8 flex items-center'>
@@ -93,7 +91,7 @@ export default function SlackSettings() {
           <div className='flex justify-end'>
             <a
               className="ml-2 inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-swishjam hover:bg-swishjam-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-swishjam"
-              href={`https://slack.com/oauth/v2/authorize?scope=${scopes.join(',')}&=&redirect_uri=${redirectUrl}&client_id=${clientId}&state=${authToken}`}
+              href={oauthLink}
             >
               Connect Slack workspace
             </a>
@@ -116,7 +114,7 @@ export default function SlackSettings() {
           </Alert>
         )}
         <a
-          href={`https://slack.com/oauth/v2/authorize?scope=${scopes.join(',')}&=&redirect_uri=${redirectUrl}&client_id=${clientId}&state=${authToken}`}
+          href={oauthLink}
           className="relative block w-full rounded-lg border-2 border-dashed border-gray-300 p-12 text-center hover:border-gray-400"
         >
           <svg xmlns="http://www.w3.org/2000/svg" className='mx-auto h-20 w-20' viewBox="0 0 122.8 122.8">
@@ -186,7 +184,7 @@ export default function SlackSettings() {
                           <h2 className="min-w-0 text-sm font-semibold leading-6 text-gray-600">
                             <span className="truncate">{slackTrigger.event_name}</span>
                             <ArrowLongRightIcon className='h-4 w-4 inline-block mx-1' />
-                            <span className="whitespace-nowrap">{slackTrigger.steps[0].config.channel_name}</span>
+                            <span className="whitespace-nowrap">#{slackTrigger.steps[0].config.channel_name}</span>
                           </h2>
                         </div>
                         <div className="mt-3 flex items-center gap-x-2.5 text-xs leading-5 text-gray-400">

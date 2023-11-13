@@ -11,6 +11,9 @@ export default async function RootLayout({ children }) {
     <SwishjamProvider apiKey='swishjam_prdct-48f6c7b4273c515a'>
       <AuthenticationProvider>
         <html lang="en">
+          <head>
+            <meta name="slack-app-id" content="A064LAGQ3FF"></meta>
+          </head>
           <body className='bg-slate-50'>
             {children}
           </body>
