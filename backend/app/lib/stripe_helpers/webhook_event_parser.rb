@@ -4,7 +4,7 @@ module StripeHelpers
       def event_attributes_for(stripe_event)
         {
           'uuid' => stripe_event.id,
-          'event' => stripe_event.type,
+          'event' => "stripe.#{stripe_event.type}",
           'source' => 'stripe',
           'timestamp' => stripe_event.created * 1_000,
         }.merge(custom_attributes_for(stripe_event))
