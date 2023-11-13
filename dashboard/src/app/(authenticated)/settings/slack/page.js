@@ -84,8 +84,8 @@ export default function SlackSettings() {
     const redirectHost = process.env.NEXT_PUBLIC_SLACK_REDIRECT_HOST || 'capture.swishjam.com';
     const redirectUrl = `https://${redirectHost}/oauth/slack/callback`;
     const clientId = process.env.NEXT_PUBLIC_SLACK_CLIENT_ID || '3567839339057.6156356819525';
-    const scopes = ['chat:write', 'chat:write.public', 'channels:read']
-    const oauthLink = `https://slack.com/oauth/v2/authorize?scope=${scopes.join(',')}&redirect_uri=${redirectUrl}&client_id=${clientId}&state=${authToken}`;
+    const scopes = ['chat:write', 'chat:write.public', 'channels:read', 'groups:read'];
+    const oauthLink = `https://slack.com/oauth/v2/authorize?scope=${scopes.join(',')}&user_scope=groups:read&redirect_uri=${redirectUrl}&client_id=${clientId}&state=${authToken}`;
     return (
       <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mb-8">
         <div className='grid grid-cols-2 my-8 flex items-center'>

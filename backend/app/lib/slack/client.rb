@@ -7,7 +7,7 @@ module Slack
       @access_token = access_token
     end
 
-    def list_channels(cursor: nil, exclude_archived: false, limit: 100, types: 'public_channel')
+    def list_channels(cursor: nil, exclude_archived: false, limit: 100, types: 'public_channel,private_channel')
       params = { 
         limit: limit, 
         types: types,
