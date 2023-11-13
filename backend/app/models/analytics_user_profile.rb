@@ -15,7 +15,7 @@ class AnalyticsUserProfile < Transactional
   end
 
   def initials
-    return (email || '').upcase if first_name.blank? && last_name.blank?
+    return (email || '')[0]&.upcase if first_name.blank? && last_name.blank?
     return first_name[0].upcase if last_name.blank?
     return last_name[0].upcase if first_name.blank?
     "#{first_name[0]}#{last_name[0]}".upcase
