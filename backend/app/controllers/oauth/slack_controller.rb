@@ -5,7 +5,7 @@ module Oauth
         client_id: ENV['SLACK_CLIENT_ID'],
         client_secret: ENV['SLACK_CLIENT_SECRET'],
         code: params[:code],
-        redirect_uri: "https://#{ENV['SLACK_REDIRECT_HOST']}/oauth/slack/callback",
+        redirect_uri: "https://#{ENV['SLACK_REDIRECT_HOST'] || 'capture.swishjam.com'}/oauth/slack/callback",
       })
       auth_data = JSON.parse(response.body)
       if auth_data['error'] || !auth_data['access_token']
