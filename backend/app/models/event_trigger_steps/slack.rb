@@ -21,7 +21,7 @@ module EventTriggerSteps
       slack_client = ::Slack::Client.new(access_token)
 
       parsed_message_body = message_body.gsub(/\{([^}]+)\}/) do |match|
-        event['properties'][$1] || match
+        JSON.parse(event['properties'] || '{}')[$1] || match
       end
 
       slack_client.post_message_to_channel(

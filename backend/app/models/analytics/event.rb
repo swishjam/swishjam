@@ -48,7 +48,7 @@ module Analytics
         swishjam_api_key: swishjam_api_key,
         name: name,
         occurred_at: occurred_at,
-        properties: properties,
+        properties: properties.to_json,
       }
     end
   end
