@@ -43,7 +43,7 @@ module Ingestion
     def create_or_update_user_profiles!(events)
       new_profile_data = []
       events.each do |event_json|
-        properties = event_json['properties'] || {}
+        properties = JSON.parse(event_json['properties'] || '{}')
         unique_identifier = properties['userIdentifier'] || properties['user_identifier'] || properties['userId'] || properties['user_id']
         first_name = properties['firstName'] || properties['first_name']
         last_name = properties['lastName'] || properties['last_name']
@@ -84,7 +84,8 @@ module Ingestion
     end
 
     def formatted_user_identify_event(event_json)
-      unique_identifier = event_json['properties']['userIdentifier'] || event_json['properties']['user_identifier'] || event_json['properties']['userId'] || event_json['properties']['user_id']
+      properties = JSON.parse(event_json['properties'] || '{}')
+      unique_identifier = properties['userIdentifier'] || properties['user_identifier'] || properties['userId'] || properties['user_id']
       workspace = Workspace.for_public_key(event_json['swishjam_api_key'])
       if workspace
         profile = workspace.analytics_user_profiles.find_by!(user_unique_identifier: unique_identifier)
@@ -92,7 +93,7 @@ module Ingestion
           {
             swishjam_api_key: event_json['swishjam_api_key'],
             swishjam_user_id: profile.id,
-            device_identifier: event_json['properties'][Analytics::Event::ReservedPropertyNames.DEVICE_IDENTIFIER],
+            device_identifier: properties[Analytics::Event::ReservedPropertyNames.DEVICE_IDENTIFIER],
             occurred_at: event_json['occurred_at'],
           }
         else
