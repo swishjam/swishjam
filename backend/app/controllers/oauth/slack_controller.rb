@@ -1,15 +1,15 @@
 module Oauth
   class SlackController < ApplicationController
     def callback
-      uri = URI('https://slack.com/api/oauth.v2.access')
-      response = Net::HTTP.post_form(uri, {
+      response = Net::HTTP.post_form(URI('https://slack.com/api/oauth.v2.access'), {
         client_id: ENV['SLACK_CLIENT_ID'],
         client_secret: ENV['SLACK_CLIENT_SECRET'],
         code: params[:code],
+        redirect_uri: "https://#{ENV['SLACK_REDIRECT_HOST']}/oauth/slack/callback",
       })
       auth_data = JSON.parse(response.body)
-      byebug
-      if auth_data['error']
+      if auth_data['error'] || !auth_data['access_token']
+        Sentry.capture_message("Slack oauth error: #{auth_data['error'] || 'No access token: ' + auth_data.to_s}")
         redirect_to "#{ENV['FRONTEND_URL'] || 'https://app.swishjam.com'}/settings/slack?success=false&error=#{auth_data['error']}"
       else
         workspace_id = validate_token_and_return_workspace_id

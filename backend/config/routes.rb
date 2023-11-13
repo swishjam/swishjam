@@ -185,7 +185,13 @@ Rails.application.routes.draw do
         end
       end
 
-      resources :event_triggers, only: [:destroy, :index, :create]
+      resources :event_triggers, only: [:destroy, :index, :create] do
+        member do
+          post :test_trigger
+          patch :enable
+          patch :disable
+        end
+      end
 
       resources :slack_connections, only: [:index]
       resources :slack, only: [] do

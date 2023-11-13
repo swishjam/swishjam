@@ -11,6 +11,7 @@ module EventTriggers
     def self.get_all_event_triggers
       # if an event_name belongs to a workspace with 4 api_keys, it will return 4 separate rows
       # this is ok, because we will only match it once because we are checking against the public_key
+      # we should probably associate the data source api_key with the event_trigger
       query = <<~SQL
         SELECT 
           event_triggers.event_name AS event_name,
@@ -19,6 +20,7 @@ module EventTriggers
         FROM event_triggers
         INNER JOIN workspaces ON workspaces.id = event_triggers.workspace_id
         INNER JOIN api_keys ON api_keys.workspace_id = workspaces.id
+        WHERE event_triggers.enabled = true
       SQL
       ActiveRecord::Base.connection.execute(query)
     end
@@ -37,12 +39,3 @@ module EventTriggers
     end
   end
 end
-
-
-# formatted_json_events = [{
-#   'uuid' => 'foo!',
-#   'name' => 'demo_requested',
-#   'swishjam_api_key' => 'swishjam_resend-fe9dab5b4cfb729d',
-#   'occurred_at' => 2.minutes.ago,
-#   'properties' => { 'foo' => 'bar' }
-# }]

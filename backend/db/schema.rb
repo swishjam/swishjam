@@ -174,6 +174,7 @@ ActiveRecord::Schema.define(version: 2023_11_10_220101) do
 
   create_table "event_triggers", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.uuid "workspace_id"
+    t.boolean "enabled"
     t.string "title"
     t.string "event_name"
     t.datetime "created_at", precision: 6, null: false

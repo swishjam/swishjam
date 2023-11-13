@@ -24,7 +24,6 @@ module Slack
       payload[:text] = text if text.present?
       payload[:blocks] = blocks if blocks.present?
       response = post('chat.postMessage', payload)
-      byebug
     end
 
     private

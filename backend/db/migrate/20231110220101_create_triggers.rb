@@ -2,6 +2,7 @@ class CreateTriggers < ActiveRecord::Migration[6.1]
   def change
     create_table :event_triggers, id: :uuid do |t|
       t.references :workspace, type: :uuid
+      t.boolean :enabled
       t.string :title
       t.string :event_name
       t.timestamps
