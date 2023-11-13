@@ -34,9 +34,6 @@ module Analytics
 
     class InvalidEventFormat < StandardError; end;
 
-    attribute :properties, :json, default: {}
-    attribute :ingested_at, :datetime, default: -> { Time.current }
-
     scope :by_api_key, -> (api_key) { where(swishjam_api_key: api_key) }
     scope :by_name, -> (name) { where(name:name) }
 

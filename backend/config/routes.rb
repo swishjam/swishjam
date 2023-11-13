@@ -17,6 +17,7 @@ Rails.application.routes.draw do
   post '/auth/logout' => 'sessions#destroy'
 
   get '/oauth/stripe/callback' => 'oauth/stripe#callback'
+  get '/oauth/slack/callback' => 'oauth/slack#callback'
 
   get :ping, to: 'application#ping'
 
@@ -181,6 +182,21 @@ Rails.application.routes.draw do
         member do
           patch :enable
           patch :disable
+        end
+      end
+
+      resources :event_triggers, only: [:destroy, :index, :create] do
+        member do
+          post :test_trigger
+          patch :enable
+          patch :disable
+        end
+      end
+
+      resources :slack_connections, only: [:index]
+      resources :slack, only: [] do
+        collection do
+          get :channels
         end
       end
       
