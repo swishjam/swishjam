@@ -10,7 +10,9 @@ import SwishjamAPI from '@/lib/api-client/swishjam-api'
 import { RocketIcon } from "@radix-ui/react-icons"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { useSearchParams } from 'next/navigation'
+import { XCircleIcon } from 'lucide-react'
 
 export default function SlackSettings() {
   const [hasSlackConnection, setHasSlackConnection] = useState(undefined);
@@ -21,6 +23,7 @@ export default function SlackSettings() {
   const [slackEventTriggers, setSlackEventTriggers] = useState(undefined);
 
   const authToken = getToken();
+  const router = useRouter();
 
   const disableTrigger = triggerId => {
     SwishjamAPI.EventTriggers.disable(triggerId).then(({ trigger, error }) => {
@@ -107,6 +110,15 @@ export default function SlackSettings() {
           <Alert className='mb-2 border-red-400'>
             <ExclamationTriangleIcon className="h-4 w-4" />
             <AlertTitle>Slack connection error</AlertTitle>
+            <div className='absolute top-0 right-0 p-2'>
+              <XCircleIcon
+                className='h-5 w-5 rounded-full cursor-pointer hover:bg-gray-200'
+                onClick={() => {
+                  setSlackConnectionErrorMessage(undefined)
+                  router.push('/settings/slack')
+                }}
+              />
+            </div>
             <AlertDescription>
               {slackConnectionErrorMessage}
             </AlertDescription>
@@ -134,7 +146,7 @@ export default function SlackSettings() {
       <NewSlackEventTriggerModal
         isOpen={newModalIsOpen}
         onClose={() => setNewModalIsOpen(false)}
-        onNewTrigger={(newTrigger) => setSlackEventTriggers([...slackEventTriggers, newTrigger])}
+        onNewTrigger={newTrigger => setSlackEventTriggers([...slackEventTriggers, newTrigger])}
       />
       <div className='grid grid-cols-2 my-8 flex items-center'>
         <h1 className="text-lg font-medium text-gray-700 mb-0">Slack Notifications</h1>
@@ -152,6 +164,15 @@ export default function SlackSettings() {
         <Alert className='mb-2'>
           <RocketIcon className="h-4 w-4" />
           <AlertTitle>Slack is now connected!</AlertTitle>
+          <div className='absolute top-0 right-0 p-2'>
+            <XCircleIcon
+              className='h-5 w-5 rounded-full cursor-pointer hover:bg-gray-200'
+              onClick={() => {
+                setShowConnectionSuccessMessage(false)
+                router.push('/settings/slack')
+              }}
+            />
+          </div>
           <AlertDescription>
             Now you can set up triggers of your Swishjam events into your Slack channels.
           </AlertDescription>
