@@ -78,7 +78,6 @@ export default function SlackSettings() {
   }
 
   if (hasSlackConnection === false) {
-    // '98a4-2603-8000-7200-9d38-5c75-28c6-1614-d30c.ngrok-free.app';
     const redirectHost = process.env.NEXT_PUBLIC_SLACK_REDIRECT_HOST || 'capture.swishjam.com';
     const redirectUrl = `https://${redirectHost}/oauth/slack/callback`;
     const clientId = process.env.NEXT_PUBLIC_SLACK_CLIENT_ID || '3567839339057.6156356819525';
