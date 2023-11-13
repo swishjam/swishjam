@@ -28,33 +28,35 @@ export default function Dashboards() {
         <h1 className="text-lg font-medium text-gray-700 mb-0">Dashboards</h1>
       </div>
       <div className='grid grid-cols-3 gap-4 mt-8'>
-        <Link href="/dashboards/visitor-trends">
+        <Link href="/dashboards/marketing-analytics">
           <Card className={`group hover:ring-2 offset-2 ring-swishjam duration-300 transition cursor-pointer`}>
             <CardContent>
               <div className="mt-6 border rounded-sm overflow-hidden">
                 <Image src={'/visitor-trends.png'} width={400} height={100} />
               </div>
-              <h3 className="text-sm font-medium cursor-default mt-2 border-t-2 border-white">Marketing Analytics</h3>
-              <p className="text-sm cursor-default mt-2">Site traffic, sessions, referrers, top pages, and more</p>
+              <h3 className="text-sm font-medium mt-2 border-t-2 border-white cursor-pointer">Marketing Analytics</h3>
+              <p className="text-sm mt-2 cursor-pointer">Site traffic, sessions, referrers, top pages, and more</p>
               <div className="flex justify-end">
-                <Button variant="link" className="">View <BsArrowRightShort size={16} /></Button>
+                <Button variant="link" className="group-hover:text-swishjam transition duration-500">View <BsArrowRightShort size={16} /></Button>
               </div>
             </CardContent>
           </Card>
         </Link>
-        <Card className={''}>
-          <CardContent>
-            <div className="mt-6 border rounded-sm overflow-hidden">
-              <Image src={'/visitor-trends.png'} width={400} height={100}/>
-            </div> 
-            <h3 className="text-sm font-medium cursor-default mt-2 border-t-2 border-white">Product Analytics</h3>
-            <p className="text-sm cursor-default mt-2">Active users, retention, feature breakdowns, and more</p>
-            <div className="flex justify-end">
-              <Button variant="link" className="">View <BsArrowRightShort size={16} /></Button>
-            </div> 
-          </CardContent>
-        </Card>
-        <Card className={''}>
+        <Link href="/dashboards/product-analytics">
+          <Card className={`group hover:ring-2 offset-2 ring-swishjam duration-300 transition cursor-pointer`}>
+            <CardContent>
+              <div className="mt-6 border rounded-sm overflow-hidden">
+                <Image src={'/visitor-trends.png'} width={400} height={100} />
+              </div>
+              <h3 className="text-sm font-medium mt-2 border-t-2 border-white cursor-pointer">Product Analytics</h3>
+              <p className="text-sm mt-2 cursor-pointer">Active users, retention, feature breakdowns, and more</p>
+              <div className="flex justify-end">
+                <Button variant="link" className="group-hover:text-swishjam transition duration-500">View <BsArrowRightShort size={16} /></Button>
+              </div>
+            </CardContent>
+          </Card>
+        </Link>
+        <Card className={'opacity-50'}>
           <CardContent>
             <div className="mt-6 border rounded-sm overflow-hidden">
               <Image src={'/visitor-trends.png'} width={400} height={100}/>
