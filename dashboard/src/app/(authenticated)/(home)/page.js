@@ -201,16 +201,6 @@ export default function Home() {
         <LineChartWithValue
           title='MRR'
           value={mrrChart?.value}
-          selected={currentSelectedChart == 'MRR'}
-          previousValue={mrrChart?.previousValue}
-          previousValueDate={mrrChart?.previousValueDate}
-          valueFormatter={mrr => (mrr / 100).toLocaleString('en-US', { style: "currency", currency: "USD" })}
-          showAxis={false}
-          timeseries={mrrChart?.timeseries}
-        />
-        <LineChartWithValue
-          title='MRR Movement barchart'
-          value={mrrChart?.value}
           previousValue={mrrChart?.previousValue}
           previousValueDate={mrrChart?.previousValueDate}
           valueFormatter={mrr => (mrr / 100).toLocaleString('en-US', { style: "currency", currency: "USD" })}
@@ -225,6 +215,16 @@ export default function Home() {
           previousValue={activeSubsChart?.previousValue}
           previousValueDate={activeSubsChart?.previousValueDate}
           valueFormatter={numSubs => numSubs.toLocaleString('en-US')}
+        />
+        <LineChartWithValue
+          title='Churn (Coming Soon)'
+          value={0}
+          previousValue={0}
+          previousValueDate={new Date()}
+          valueFormatter={() => (0).toLocaleString('en-US', { style: "currency", currency: "USD" })}
+          showAxis={false}
+          timeseries={[]}
+          className={'opacity-50'}
         />
       </div>
       <div className='pt-8 flex justify-between'>
