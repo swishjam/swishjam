@@ -165,10 +165,11 @@ export default function Connections() {
                       />
                     ))}
                   </ul>
-                  <ul role="list" className="grid grid-cols-1 gap-x-6 gap-y-8 lg:grid-cols-3 xl:gap-x-8">
+                  <ul role="list" className="grid grid-cols-1 gap-x-6 gap-y-8 lg:grid-cols-3 xl:gap-x-8 mt-2">
                     {disabledConnections.map(connection => (
                       <ExistingConnectionButton
                         key={connection.id}
+                        img={ALL_CONNECTIONS[connection.name].img}
                         connection={connection}
                         onRemoveClick={deleteConnection}
                         onEnableClick={enableConnection}
