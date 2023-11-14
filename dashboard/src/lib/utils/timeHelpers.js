@@ -12,17 +12,36 @@ const SHORT_MONTHS = ['Jan', "Feb", 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'S
 
 const intelligentlyFormattedMs = ms => {
   try {
-    if (ms < ONE_SECOND_IN_MS) {
-      return `${ms.toLocaleString('en-US')} ms`;
-    } else if (ms < ONE_MINUTE_IN_MS) {
-      return `${(ms / ONE_SECOND_IN_MS).toLocaleString('en_US')} s`
-    } else if (ms < ONE_HOUR_IN_MS) {
-      return `${(ms / ONE_MINUTE_IN_MS).toLocaleString('en-US')} mins`
-    } else if (ms < ONE_DAY_IN_MS) {
-      return `${(ms / ONE_HOUR_IN_MS).toLocaleString('en-US')} hours`
-    } else {
-      return `${(ms / ONE_DAY_IN_MS).toLocaleString('en-US')} days`
+    let remainingMs = ms;
+    const hours = Math.floor(remainingMs / ONE_HOUR_IN_MS);
+    remainingMs %= ONE_HOUR_IN_MS;
+
+    const minutes = Math.floor(remainingMs / ONE_MINUTE_IN_MS);
+    remainingMs %= ONE_MINUTE_IN_MS;
+
+    const seconds = Math.floor(remainingMs / ONE_SECOND_IN_MS);
+    remainingMs %= ONE_SECOND_IN_MS;
+
+    const milliseconds = remainingMs;
+
+    let result = '';
+    if (hours > 0) {
+      result += `${hours.toFixed(0)} hour${hours.toFixed(0) > 1 ? 's' : ''}, `;
     }
+    if (minutes > 0) {
+      result += `${minutes.toFixed(0)} minute${minutes.toFixed(0) > 1 ? 's' : ''}, `;
+    }
+    if (seconds > 0) {
+      result += `${seconds.toFixed(0)} second${seconds.toFixed(0) > 1 ? 's' : ''}, `;
+    }
+    if (milliseconds > 0) {
+      result += `${milliseconds.toFixed(0)} millisecond${milliseconds.toFixed(0) > 1 ? 's' : ''}`;
+    }
+    if (result.endsWith(', ')) {
+      result = result.slice(0, -2);
+    }
+
+    return result;
   } catch (err) {
     return `${ms} ms`
   }

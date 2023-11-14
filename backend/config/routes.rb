@@ -204,6 +204,7 @@ Rails.application.routes.draw do
       get :'/admin/ingestion/queue_stats', to: 'admin/ingestion#queue_stats'
       get :'/admin/ingestion/event_counts', to: 'admin/ingestion#event_counts'
       get :'/admin/ingestion/ingestion_batches', to: 'admin/ingestion#ingestion_batches'
+      get :'/admin/data_syncs', to: 'admin/data_syncs#index'
 
       namespace :webhooks do
         post :stripe, to: 'stripe#receive'
