@@ -2,9 +2,10 @@
 
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { ArrowLongRightIcon, CursorArrowRaysIcon, EllipsisVerticalIcon, ExclamationTriangleIcon, PauseCircleIcon, PlayCircleIcon, PlusCircleIcon, TrashIcon } from '@heroicons/react/24/outline'
+import { Fragment } from 'react'
 import { getToken } from '@/lib/auth'
 import LoadingSpinner from '@/components/LoadingSpinner'
-import { Menu, Transition, Fragment } from '@headlessui/react'
+import { Menu, Transition } from '@headlessui/react'
 import NewSlackEventTriggerModal from '@/components/SlackEventTriggers/NewModal'
 import SwishjamAPI from '@/lib/api-client/swishjam-api'
 import { RocketIcon } from "@radix-ui/react-icons"
