@@ -1,21 +1,13 @@
-![Swishjam Performance Monitoring Instrumentation](https://swishjam.com/readme.png)
+![Swishjam](https://swishjam.com/readme.png)
 
 <div align="center"> <strong>Swishjam</strong></div>
-<div align="center">Build incredible customer experiences delivered at lightning speed.</div>
+<div align="center">The Brain for your SaaS</div>
 <br />
 <div align="center">
 <a href="https://swishjam.com">Website</a>
 <span> · </span>
 <a href="https://github.com/swishjam/swishjam">GitHub</a>
 </div>
-
-## Swishjam is a open-source toolset for people who care about beautiful web experiences.
-- Real User Monitoring via Lightweight javascript capture of core web vitals, page load waterfalls, & more
-- Lab tests to run Lighthouse tests
-- CrUX data included. Pull data from CrUX to get the latest data from Google on your site performance.
-- [Coming soon] Notifications, Alerts, Reporting 
-- [Coming soon] Automatic page loading optimizations
-- Drop us a message to discuss upcoming features
 
 ## Our goal
 We want everyone to build awesome web experiences. We see Swishjam becoming a collection of tools to measure, monitor, and enhance your users experience and help it perform better.
