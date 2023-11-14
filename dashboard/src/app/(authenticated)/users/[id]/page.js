@@ -70,11 +70,13 @@ const UserProfile = ({ params }) => {
                   {userData.poweruser ? <PowerUserBadge className="absolute top-5 right-5" size={8} /> : ''}
                   {userData.churnwarning ? <ChurnWarningUserBadge className="absolute top-5 right-5" size={8} /> : ''}
                   <CardTitle className='text-2xl'>
-                    {userData.full_name}
+                    {userData.full_name || userData.email}
                   </CardTitle>
-                  <CardDescription className='text-base text-gray-500'>
-                    {userData.email}
-                  </CardDescription>
+                  {userData.fullName && (
+                    <CardDescription className='text-base text-gray-500'>
+                      {userData.email}
+                    </CardDescription>
+                  )}
                 </div>
               </div>
             </CardHeader>

@@ -1,6 +1,7 @@
 module DataSynchronizers
   class UserRetention
-    def initialize(workspace, oldest_cohort_date: 12.months.ago, oldest_activity_week: 1.week.ago)
+    # making the dates required because there seems to be a bug when it's not passed, not sure why but it leads to impossible retention results.
+    def initialize(workspace, oldest_cohort_date:, oldest_activity_week:)
       @workspace = workspace
       @oldest_cohort_date = oldest_cohort_date
       @oldest_activity_week = oldest_activity_week

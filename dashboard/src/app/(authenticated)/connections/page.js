@@ -10,9 +10,11 @@ import AddConnectionButton from './AddConnectionButton';
 import ExistingConnectionButton from './ExistingConnectionButton';
 import { RxCardStack } from 'react-icons/rx';
 
+import CalComConnectView from '@/components/Connections/ConnectViews/CalCom';
 import ConnectStripeView from '@/components/Connections/ConnectViews/Stripe';
 import ResendConnectView from '@/components/Connections/ConnectViews/Resend';
 
+import CalComLogo from '@public/logos/calcom.png'
 // import HubspotLogo from '@public/logos/hubspot.jpeg';
 import ResendLogo from '@public/logos/resend.png'
 // import SalesforceLogo from '@public/logos/salesforce.png'
@@ -32,6 +34,11 @@ const ALL_CONNECTIONS = {
     connectComponent: onNewConnection => <ResendConnectView onNewConnection={onNewConnection} />,
     borderImage: true,
   },
+  'Cal.com': {
+    img: CalComLogo,
+    description: 'Connect your Cal.com to Swishjam to automatically capture your Cal.com calendar events.',
+    connectComponent: onNewConnection => <CalComConnectView onNewConnection={onNewConnection} />,
+  }
   // Hubspot: { img: HubspotLogo },
   // Salesforce: { img: SalesforceLogo },
   // Zendesk: {
@@ -48,7 +55,7 @@ export default function Connections() {
 
   const setConnectionAsConnected = connection => {
     setEnabledConnections([...enabledConnections, connection]);
-    setAvailableConnections(availableConnections.filter(({ id }) => id === connection.Id));
+    setAvailableConnections(availableConnections.filter(({ id }) => id === connection.id));
   }
 
   const disableConnection = async connectionId => {
@@ -158,10 +165,11 @@ export default function Connections() {
                       />
                     ))}
                   </ul>
-                  <ul role="list" className="grid grid-cols-1 gap-x-6 gap-y-8 lg:grid-cols-3 xl:gap-x-8">
+                  <ul role="list" className="grid grid-cols-1 gap-x-6 gap-y-8 lg:grid-cols-3 xl:gap-x-8 mt-2">
                     {disabledConnections.map(connection => (
                       <ExistingConnectionButton
                         key={connection.id}
+                        img={ALL_CONNECTIONS[connection.name].img}
                         connection={connection}
                         onRemoveClick={deleteConnection}
                         onEnableClick={enableConnection}
