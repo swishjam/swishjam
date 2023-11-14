@@ -45,7 +45,7 @@ export default function CalComConnectView({ onNewConnection }) {
       </Link> in your Cal.com settings.
     </>,
     <>
-      Paste this URL into the Subscriber URL field:{' '}
+      Paste this URL into the <span className='italic'>Subscriber URL</span> field:{' '}
       <CopiableSnippet value={`https://capture.swishjam.com/api/v1/webhooks/cal_com/${currentWorkspaceId}`} />
     </>,
     <>Add/remove the Cal.com events you would like Swishjam to capture in the <span className='italic'>Event Triggers</span> section.</>,
@@ -56,15 +56,6 @@ export default function CalComConnectView({ onNewConnection }) {
     <>
       Click the <span className='italic'>Create Webhook</span> button to save your changes.
     </>,
-    <>
-      <button
-        onClick={createIntegration}
-        className={`whitespace-nowrap ml-2 flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white focus:outline-none focus:ring-2 ${isLoading ? 'bg-gray-400' : 'bg-swishjam hover:bg-swishjam-dark'}`}
-        disabled={isLoading}
-      >
-        {isLoading ? <LoadingSpinner color='white' /> : <>Complete connection</>}
-      </button>
-    </>
   ]
 
   return (
@@ -91,17 +82,15 @@ export default function CalComConnectView({ onNewConnection }) {
                     ? <span className="absolute left-4 top-4 -ml-px h-full w-0.5 bg-gray-200" aria-hidden="true" />
                     : null
                   }
-                  <div className="relative flex space-x-3">
+                  <div className="relative flex items-center space-x-3">
                     <div>
                       <span className='h-8 w-8 rounded-full flex items-center justify-center bg-gray-200'>
                         {i + 1}
                       </span>
                     </div>
-                    <div className="flex min-w-0 flex-1 justify-between space-x-4 pt-1.5">
-                      <div>
-                        <p className="text-sm text-gray-700">
-                          {step}
-                        </p>
+                    <div className="flex min-w-0 flex-1 justify-between space-x-4">
+                      <div className="text-sm text-gray-700">
+                        {step}
                       </div>
                     </div>
                   </div>
@@ -109,6 +98,13 @@ export default function CalComConnectView({ onNewConnection }) {
               </li>
             ))}
           </ul>
+          <button
+            onClick={createIntegration}
+            className={`w-full whitespace-nowrap ml-2 flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white focus:outline-none focus:ring-2 ${isLoading ? 'bg-gray-400' : 'bg-swishjam hover:bg-swishjam-dark'}`}
+            disabled={isLoading}
+          >
+            {isLoading ? <LoadingSpinner color='white' /> : <>Complete connection</>}
+          </button>
         </div>
       )
   )

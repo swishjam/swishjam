@@ -36,7 +36,7 @@ const ALL_CONNECTIONS = {
   },
   'Cal.com': {
     img: CalComLogo,
-    description: 'Connect your Cal.com to Swishjam to automatically capture your Cal.com events calendar events.',
+    description: 'Connect your Cal.com to Swishjam to automatically capture your Cal.com calendar events.',
     connectComponent: onNewConnection => <CalComConnectView onNewConnection={onNewConnection} />,
   }
   // Hubspot: { img: HubspotLogo },
