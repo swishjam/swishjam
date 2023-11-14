@@ -15,19 +15,8 @@ import { BsArrowRightShort } from 'react-icons/bs'
 //import ClickableValueCard from '@/components/Dashboards/Components/ClickableValueCard';
 //import RetentionWidget from '@/components/Dashboards/Components/RetentionWidget';
 
-const currentChart = (selected, mrrChart, sessionsChart, activeSubsChart) => {
-  if (selected === 'MRR') {
-    return mrrChart;
-  } else if (selected === 'Sessions') {
-    return sessionsChart;
-  } else if (selected === 'Active Subscriptions') {
-    return activeSubsChart;
-  }
-}
-
 export default function Home() {
   const [activeSubsChart, setActiveSubsChart] = useState();
-  const [currentSelectedChart, setCurrentSelectedChart] = useState('Sessions');
   const [isRefreshing, setIsRefreshing] = useState();
   const [mrrChart, setMrrChart] = useState();
   const [newOrganizationsData, setNewOrganizationsData] = useState();
@@ -140,7 +129,6 @@ export default function Home() {
     getAllData(timeframeFilter);
   }, []);
 
-  const selectedChart = currentChart(currentSelectedChart, mrrChart, sessionsChart, activeSubsChart)
 
   return (
     <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mb-8">
@@ -271,7 +259,7 @@ export default function Home() {
       <h3 className='pt-8 font-semibold text-sm text-slate-600'>New Users & Organizations</h3>  
       <div className='grid grid-cols-2 gap-6 pt-8'>
         <ItemizedList
-          fallbackAvatarGenerator={user => user.initials}
+          fallbackAvatarGenerator={user => user.initials.slice(0,2)}
           items={newUsersData}
           titleFormatter={user => user.full_name || user.email || user.user_unique_identifier}
           subTitleFormatter={user => user.full_name ? user.email : null}
@@ -287,7 +275,7 @@ export default function Home() {
           maxNumItems={5}
         />
         <ItemizedList
-          fallbackAvatarGenerator={org => org.initials}
+          fallbackAvatarGenerator={org => org.initials.slice(0,2)}
           items={newOrganizationsData}
           titleFormatter={org => org.name || org.organization_unique_identifier}
           linkFormatter={org => `/organizations/${org.id}`}
