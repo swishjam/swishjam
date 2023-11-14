@@ -208,6 +208,7 @@ Rails.application.routes.draw do
       namespace :webhooks do
         post :stripe, to: 'stripe#receive'
         post :'resend/:workspace_id', to: 'resend#receive'
+        post :'cal_com/:workspace_id', to: 'cal_com#receive'
       end
     end
   end
