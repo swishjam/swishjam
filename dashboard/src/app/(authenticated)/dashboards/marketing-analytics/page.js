@@ -15,6 +15,7 @@ import BarChart from "@/components/Dashboards/Components/BarChart";
 import Link from 'next/link'
 // import LoadingView from './LoadingView'
 
+/*
 const convertToBarList = (data) => {
   if(!data) return ''
   let o = {}
@@ -36,6 +37,7 @@ const convertToBarList = (data) => {
   console.log('here1', barList);
   return barList;
 }
+*/
 
 const sessionsFormatter = (num) => num.toLocaleString("en-US");
 

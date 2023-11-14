@@ -67,12 +67,15 @@ const CustomTooltip = ({ active, payload, valueFormatter, dateFormatter, onDispl
   return null;
 }
 
-const SettingsDropdown = ({ showXAxis, showYAxis, setShowXAxis, setShowYAxis, onSettingChange = () => { } }) => (
-  <DropdownMenu>
-    <DropdownMenuTrigger>
-      <Cog8ToothIcon className="active:opacity-100 focus:opacity-100 group-hover:opacity-100 opacity-0 duration-500 transition h-5 w-5 text-gray-500 cursor-pointer" />
+const SettingsDropdown = ({ showXAxis, showYAxis, setShowXAxis, setShowYAxis, onSettingChange = () => { } }) => {
+  const [open, setOpen] = useState()
+
+  return (
+  <DropdownMenu open={open} onOpenChange={setOpen}>
+    <DropdownMenuTrigger className="outline-0 ring-0">
+      <Cog8ToothIcon className={`${open ? '!opacity-100':''} outline-0 ring-0 active:opacity-100 focus:opacity-100 group-hover:opacity-100 opacity-0 duration-300 transition h-5 w-5 text-gray-500 cursor-pointer`} />
     </DropdownMenuTrigger>
-    <DropdownMenuContent>
+    <DropdownMenuContent align={'end'}>
       <DropdownMenuItem
         className={`cursor-pointer ${showXAxis ? 'text-swishjam font-medium hover:text-swishjam' : ''}`}
         onClick={() => {
@@ -111,8 +114,8 @@ const SettingsDropdown = ({ showXAxis, showYAxis, setShowXAxis, setShowYAxis, on
       </DropdownMenuItem>
     </DropdownMenuContent>
   </DropdownMenu>
-)
-
+  )
+}
 
 export default function LineChartWithValue({
   includeCard = true,
@@ -172,7 +175,7 @@ export default function LineChartWithValue({
                 <span className='underline decoration-dotted'>{valueFormatter(Math.abs(currentValue - comparisonValue))}</span>
               </p>
             </HoverCardTrigger>
-            <HoverCardContent className='flex items-center text-gray-500'>
+            <HoverCardContent align={'end'} className='flex items-center text-gray-500'>
               <CalendarIcon className="h-6 w-6 inline-block mr-2" />
               <span className='text-xs'>There were {valueFormatter(comparisonValue)} {title} on {dateFormatter(comparisonValueDate)}.</span>
             </HoverCardContent>
