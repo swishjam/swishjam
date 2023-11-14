@@ -41,6 +41,7 @@ module Api
               properties: swishjam_obj.except('uuid', 'name', 'timestamp', 'source'),
             )
             Ingestion::QueueManager.push_records_into_queue(Ingestion::QueueManager::Queues.EVENTS, [formatted_event])
+            render json: { message: 'ok' }, status: :ok
           end
         end
       end
