@@ -20,11 +20,11 @@ export default function LoadingState() {
             <tr key={i}>
               <>
                 <td className="pr-2">
-                  <Skeleton className='h-8 w-20' />
+                  <Skeleton className='h-8 w-6' />
                 </td>
                 {Array.from(({ length: 10 }), (_, i) => (
                   <td key={i}>
-                    <Skeleton className="w-20 h-20" />
+                    <Skeleton className="w-6 h-6" />
                   </td>
                 ))}
               </>

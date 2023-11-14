@@ -9,6 +9,7 @@ function classNames(...classes) {
 export default function RetentionWidgetTiny({ retentionCohorts, isExpandable = true, includeCard = true, className }) {
 
   console.log(retentionCohorts)
+  const lastFourItems = retentionCohorts?.slice(-4);
 
   return (
     <ConditionalCardWrapper
@@ -20,7 +21,10 @@ export default function RetentionWidgetTiny({ retentionCohorts, isExpandable = t
         </div>
       }
     >
-      <RetentionGrid retentionCohorts={retentionCohorts} isExpandable={isExpandable} />
+      <RetentionGrid
+        retentionCohorts={lastFourItems}
+        isExpandable={isExpandable}
+      />
     </ConditionalCardWrapper>
   )
 }

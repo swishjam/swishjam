@@ -165,7 +165,7 @@ export default function Home() {
 
       <div className='pt-8 flex justify-between'>
         <h3 className='font-semibold text-sm text-slate-600'>Key Product Metrics</h3>  
-        <Link href="/" className='group'>
+        <Link href="/dashboards/product-analytics" className='group'>
           <h3 className='font-semibold text-sm text-slate-600 group-hover:text-swishjam transition-all duration-500'>Deep Dive Report <BsArrowRightShort size={24} className='inline'/></h3>  
         </Link>
       </div> 
@@ -189,11 +189,14 @@ export default function Home() {
           timeseries={sessionsChart?.timeseries}
           valueFormatter={numSubs => numSubs.toLocaleString('en-US')}
         />
-        <RetentionWidgetTiny retentionCohorts={userRetentionData} />
+        <RetentionWidgetTiny
+          retentionCohorts={userRetentionData}
+          isExpandable={false}
+        />
       </div>
       <div className='pt-8 flex justify-between'>
         <h3 className='font-semibold text-sm text-slate-600'>Key SaaS Metrics</h3>  
-        <Link href="/" className='group'>
+        <Link href="#" className='group opacity-50'>
           <h3 className='font-semibold text-sm text-slate-600 group-hover:text-swishjam transition-all duration-500'>Deep Dive Report <BsArrowRightShort size={24} className='inline'/></h3>  
         </Link>
       </div> 

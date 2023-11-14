@@ -43,10 +43,10 @@ export default function RetentionGrid({ retentionCohorts, isExpandable }) {
             {sortedCohorts.map(({ id, num_users_in_cohort, retention_cohort_activity_periods, time_period: cohortDate }) => (
               <tr key={id}>
                 <>
-                  {/*<td className="whitespace-nowrap text-sm pr-4">
+                  <td className="whitespace-nowrap text-sm pr-4">
                     <span className='block' style={{ fontSize: '0.85rem' }}>{new Date(cohortDate).toLocaleDateString()}</span>
                     <span className='text-xs text-gray-400 block' style={{ fontSize: '0.7rem' }}>{num_users_in_cohort} users</span>
-            </td>*/}
+                  </td>
                   {retention_cohort_activity_periods.map(({ time_period: activityTimePeriod, num_active_users, num_periods_after_cohort }) => {
                     return (
                       <td className="whitespace-nowrap text-sm" key={`${id}-${num_periods_after_cohort}`}>
