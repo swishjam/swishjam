@@ -24,7 +24,6 @@ import useCommandBar from '@/hooks/useCommandBar';
 const appNav = [
   { name: 'Home', href: '/', icon: HomeIcon },
   { name: 'Dashboards', href: '/dashboards', icon: RxBarChart },
-  //{ name: 'Visitor Trends', href: '/visitor-trends', icon: RxBarChart },
   // { name: 'Event Explorer', href: '/events', icon: GlobeAmericasIcon }, // HIDING FROM NAV FOR NOW
   { name: 'Users', href: '/users', icon: UserIcon },
   { name: 'Organizations', href: '/organizations', icon: UserGroupIcon },

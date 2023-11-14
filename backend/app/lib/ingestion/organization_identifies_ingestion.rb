@@ -42,7 +42,7 @@ module Ingestion
     def create_or_update_organization_profiles!(events)
       new_profile_data = []
       events.each do |event_json|
-        properties = event_json['properties'] || {}
+        properties = JSON.parse(event_json['properties'] || '{}')
         unique_identifier = properties['organizationIdentifier'] || properties['organization_identifier'] || properties['organizationId'] || properties['organization_id']
         org_name = properties['name']
         metadata = properties.except(
@@ -80,7 +80,8 @@ module Ingestion
     end
 
     def formatted_organization_identify_event(event_json)
-      unique_identifier = event_json['properties']['organizationIdentifier'] || event_json['properties']['organization_identifier'] || event_json['properties']['organizationId'] || event_json['properties']['organization_id']
+      properties = JSON.parse(event_json['properties'] || '{}')
+      unique_identifier = properties['organizationIdentifier'] || properties['organization_identifier'] || properties['organizationId'] || properties['organization_id']
       workspace = Workspace.for_public_key(event_json['swishjam_api_key'])
       if workspace
         profile = workspace.analytics_organization_profiles.find_by(organization_unique_identifier: unique_identifier)
@@ -88,7 +89,7 @@ module Ingestion
           {
             swishjam_api_key: event_json['swishjam_api_key'],
             swishjam_organization_id: profile.id,
-            organization_device_identifier: event_json['properties'][Analytics::Event::ReservedPropertyNames.ORGANIZATION_DEVICE_IDENTIFIER],
+            organization_device_identifier: properties[Analytics::Event::ReservedPropertyNames.ORGANIZATION_DEVICE_IDENTIFIER],
             occurred_at: event_json['occurred_at'],
           }
         else

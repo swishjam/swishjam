@@ -18,7 +18,7 @@ class Integration < Transactional
   end
 
   def self.TYPES
-    [Integrations::Stripe, Integrations::Resend]
+    [Integrations::Stripe, Integrations::Resend, Integrations::CalCom]
   end
 
   def self.friendly_name

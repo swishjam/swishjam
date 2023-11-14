@@ -1,6 +1,6 @@
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import { ArrowTopRightOnSquareIcon, ClipboardDocumentIcon, CheckCircleIcon, PlusIcon } from "@heroicons/react/24/outline";
-import CopyToClipboard from "react-copy-to-clipboard";
+import { ArrowTopRightOnSquareIcon, PlusIcon } from "@heroicons/react/24/outline";
+import CopiableSnippet from "./CopiableSnippet";
 import Link from "next/link";
 import LoadingSpinner from "@/components/LoadingSpinner";
 import { RocketIcon } from "@radix-ui/react-icons"
@@ -14,7 +14,6 @@ export default function ResendConnectView({ onNewConnection }) {
   const [errorMessage, setErrorMessage] = useState();
   const [isLoading, setIsLoading] = useState(false);
   const [signingSecret, setSigningSecret] = useState();
-  const [showCopiedState, setShowCopiedState] = useState(false);
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
 
   const createIntegration = async e => {
@@ -52,20 +51,7 @@ export default function ResendConnectView({ onNewConnection }) {
     </div>,
     <>
       Paste this URL into the endpoint field:{' '}
-      <CopyToClipboard
-        text={`https://capture.swishjam.com/api/v1/webhooks/resend/${currentWorkspaceId}`}
-        onCopy={() => {
-          setShowCopiedState(true)
-          setTimeout(() => setShowCopiedState(false), 5_000);
-        }}
-      >
-        <span className='cursor-pointer bg-gray-200 mt-2 inline-flex items-center gap-x-2 hover:bg-gray-300 transition-all w-fit rounded-md px-2 py-1'>
-          <span className='italic'>https://capture.swishjam.com/api/v1/webhooks/resend/{currentWorkspaceId}</span>
-          {showCopiedState
-            ? <CheckCircleIcon className='inline h-6 w-6 text-green-700' />
-            : <ClipboardDocumentIcon className='inline h-6 w-6' />}
-        </span>
-      </CopyToClipboard>
+      <CopiableSnippet value={`https://capture.swishjam.com/api/v1/webhooks/resend/${currentWorkspaceId}`} />
     </>,
     <>Select the Resend events you would like Swishjam to capture and click <span className='inline-flex items-center bg-white px-2 py-1 border border-black rounded text-black mx-1 cursor-default'>Add</span>.</>,
     <>

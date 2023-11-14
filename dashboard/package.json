@@ -39,6 +39,7 @@
     "formik": "^2.2.9",
     "lucide-react": "^0.265.0",
     "luxon": "^3.3.0",
+    "markdown-it": "^13.0.2",
     "mjml": "^4.14.1",
     "next": "^13.1.1",
     "nextjs-cors": "^2.1.2",

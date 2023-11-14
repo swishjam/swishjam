@@ -8,7 +8,9 @@ module Api
           return
         end
         payload = JSON.parse(request.body.read || '{}')
-        if (ENV['API_KEYS_FOR_NEW_INGESTION'] || '').split(',').map{ |s| s.strip }.include?(api_key)
+        if ENV['USE_LEGACY_INGESTION_JOB']
+          CaptureAnalyticDataJob.perform_async(api_key, payload, request.ip)
+        else
           events = payload.map do |e|
             Analytics::Event.formatted_for_ingestion(
               uuid: e['uuid'], 
@@ -19,8 +21,6 @@ module Api
             )
           end
           Ingestion::QueueManager.push_records_into_queue(Ingestion::QueueManager::Queues.EVENTS, events)
-        else
-          CaptureAnalyticDataJob.perform_async(api_key, payload, request.ip)
         end
         render json: { message: 'ok' }, status: :ok
       rescue => e

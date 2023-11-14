@@ -36,7 +36,9 @@ class CaptureAnalyticDataJob
   def valid_api_key_provided?(api_key)
     ApiKey.enabled.find_by!(public_key: api_key)
   rescue ActiveRecord::RecordNotFound => e
-    Rails.logger.warn "Invalid API key provided to `CaptureAnalyticDataJob`: #{api_key}"
+    msg = "Invalid API key provided to `CaptureAnalyticDataJob`: #{api_key}"
+    Rails.logger.warn msg
+    Sentry.capture_message(msg)
     return false
   end
 end

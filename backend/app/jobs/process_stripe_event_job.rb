@@ -12,7 +12,9 @@ class ProcessStripeEventJob
       if integration
         swishjam_event_data = StripeHelpers::WebhookEventParser.event_attributes_for(stripe_event)
         public_key = integration.workspace.api_keys.for_data_source!(ApiKey::ReservedDataSources.STRIPE).public_key
-        if (ENV['API_KEYS_FOR_NEW_INGESTION'] || '').split(',').map{ |s| s.strip }.include?(public_key)
+        if ENV['USE_LEGACY_INGESTION_JOB']
+          CaptureAnalyticDataJob.perform_async(public_key, [swishjam_event_data], nil)
+        else
           formatted_event = Analytics::Event.formatted_for_ingestion(
             uuid: swishjam_event_data['uuid'],
             swishjam_api_key: public_key,
@@ -21,8 +23,6 @@ class ProcessStripeEventJob
             properties: swishjam_event_data.except('uuid', 'event', 'event_name', 'name', 'timestamp', 'source'),
           )
           Ingestion::QueueManager.push_records_into_queue(Ingestion::QueueManager::Queues.EVENTS, [formatted_event])
-        else
-          CaptureAnalyticDataJob.perform_async(public_key, [swishjam_event_data], nil)
         end
       else
         Sentry.capture_message("Unable to find Stripe integration for account: #{stripe_account_id}")

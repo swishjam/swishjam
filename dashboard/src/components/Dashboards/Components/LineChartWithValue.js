@@ -134,10 +134,10 @@ export default function LineChartWithValue({
 }) {
   if ([null, undefined].includes(timeseries)) return <LoadingState title={title} includeCard={includeCard} />;
 
-  const [comparisonValue, setComparisonValue] = useState(timeseries[0]?.comparisonValue);
-  const [comparisonValueDate, setComparisonValueDate] = useState(timeseries[0]?.comparisonDate);
-  const [currentValue, setCurrentValue] = useState(timeseries[0]?.value || '');
-  const [currentValueDate, setCurrentValueDate] = useState(timeseries[0]?.date);
+  const [comparisonValue, setComparisonValue] = useState(timeseries[timeseries.length - 1]?.comparisonValue);
+  const [comparisonValueDate, setComparisonValueDate] = useState(timeseries[timeseries.length - 1]?.comparisonDate);
+  const [currentValue, setCurrentValue] = useState(timeseries[timeseries.length - 1]?.value);
+  const [currentValueDate, setCurrentValueDate] = useState(timeseries[timeseries.length - 1]?.date);
   const [showXAxis, setShowXAxis] = useState(showAxis);
   const [showYAxis, setShowYAxis] = useState(showAxis);
 

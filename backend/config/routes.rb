@@ -17,6 +17,7 @@ Rails.application.routes.draw do
   post '/auth/logout' => 'sessions#destroy'
 
   get '/oauth/stripe/callback' => 'oauth/stripe#callback'
+  get '/oauth/slack/callback' => 'oauth/slack#callback'
 
   get :ping, to: 'application#ping'
 
@@ -183,6 +184,21 @@ Rails.application.routes.draw do
           patch :disable
         end
       end
+
+      resources :event_triggers, only: [:destroy, :index, :create] do
+        member do
+          post :test_trigger
+          patch :enable
+          patch :disable
+        end
+      end
+
+      resources :slack_connections, only: [:index]
+      resources :slack, only: [] do
+        collection do
+          get :channels
+        end
+      end
       
       get :'/admin/ingestion/queuing', to: 'admin/ingestion#queueing'
       get :'/admin/ingestion/queue_stats', to: 'admin/ingestion#queue_stats'
@@ -192,6 +208,7 @@ Rails.application.routes.draw do
       namespace :webhooks do
         post :stripe, to: 'stripe#receive'
         post :'resend/:workspace_id', to: 'resend#receive'
+        post :'cal_com/:workspace_id', to: 'cal_com#receive'
       end
     end
   end

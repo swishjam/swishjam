@@ -30,6 +30,8 @@ module Ingestion
         Rails.logger.error "Failed to ingest from analytics queue: #{e.inspect}"
         Sentry.capture_exception(e)
       end
+
+      EventTriggers::Evaluator.evaluate_ingested_events(formatted_events)
       @ingestion_batch
     end
 
@@ -52,6 +54,5 @@ module Ingestion
         events
       end
     end
-
   end
 end

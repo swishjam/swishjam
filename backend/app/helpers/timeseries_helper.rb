@@ -17,9 +17,9 @@ module TimeseriesHelper
 
   def derived_group_by(start_ts:, end_ts:)
     case end_ts - start_ts
-    when 0..(7.days + 1.minute)
+    when 0..(8.days - 1.second)
       :hour
-    when (7.days + 1.minute)..(1.month + 1.day)
+    when 8.days..(1.month + 1.day)
       :day
     when (1.month + 1.day)..3.months
       :week

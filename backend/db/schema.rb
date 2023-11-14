@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2023_11_09_032117) do
+ActiveRecord::Schema.define(version: 2023_11_10_220101) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
@@ -111,6 +111,23 @@ ActiveRecord::Schema.define(version: 2023_11_09_032117) do
     t.index ["workspace_id"], name: "index_data_syncs_on_workspace_id"
   end
 
+  create_table "event_trigger_steps", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "event_trigger_id"
+    t.string "type"
+    t.jsonb "config"
+    t.index ["event_trigger_id"], name: "index_event_trigger_steps_on_event_trigger_id"
+  end
+
+  create_table "event_triggers", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "workspace_id"
+    t.boolean "enabled"
+    t.string "title"
+    t.string "event_name"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["workspace_id"], name: "index_event_triggers_on_workspace_id"
+  end
+
   create_table "ingestion_batches", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.string "event_type"
     t.float "num_seconds_to_complete"
@@ -153,6 +170,25 @@ ActiveRecord::Schema.define(version: 2023_11_09_032117) do
     t.index ["time_granularity"], name: "index_retention_cohorts_on_time_granularity"
     t.index ["time_period"], name: "index_retention_cohorts_on_time_period"
     t.index ["workspace_id"], name: "index_retention_cohorts_on_workspace_id"
+  end
+
+  create_table "slack_connections", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "workspace_id"
+    t.string "access_token"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["workspace_id"], name: "index_slack_connections_on_workspace_id"
+  end
+
+  create_table "triggered_event_triggers", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "event_trigger_id"
+    t.uuid "workspace_id"
+    t.jsonb "event_json"
+    t.float "seconds_from_occurred_at_to_triggered"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["event_trigger_id"], name: "index_triggered_event_triggers_on_event_trigger_id"
+    t.index ["workspace_id"], name: "index_triggered_event_triggers_on_workspace_id"
   end
 
   create_table "user_profile_enrichment_attempts", force: :cascade do |t|
