@@ -11,7 +11,7 @@ module Api
           # TODO: verify signature
           # provided_secret = request.headers['X-Cal-Signature-256']
           public_key = workspace.api_keys.for_data_source!(ApiKey::ReservedDataSources.CAL_COM).public_key
-          integration = workspace.integrations.find_by!(type: Integrations::CalCom.to_s)
+          integration = workspace.integrations.enabled.find_by!(type: Integrations::CalCom.to_s)
           swishjam_obj = {
             'swishjam_api_key' => public_key,
             'uuid' => params.dig('payload', 'uid') || SecureRandom.uuid,
@@ -25,8 +25,10 @@ module Api
             'end_time' => params.dig('payload', 'endTime') ? DateTime.parse(params.dig('payload', 'endTime')) : '',
             'length' => params.dig('payload', 'length'),
           }
-          responses = (params.dig('payload', 'responses') || {}).keys.map do |key|
-            swishjam_obj["response_#{key}"] = params.dig('payload', 'responses', key)
+          (params.dig('payload', 'responses') || {}).keys.each do |key|
+            value = params.dig('payload', 'responses', key, 'value')
+            next if !value.is_a?(String)
+            swishjam_obj["response_#{key}"] = params.dig('payload', 'responses', key, 'value')
           end
           if ENV['USE_LEGACY_INGESTION_JOB']
             CaptureAnalyticDataJob.perform_async(public_key, [swishjam_obj], nil)
