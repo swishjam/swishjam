@@ -19,12 +19,18 @@ export default function Home() {
   const [activeSubsChart, setActiveSubsChart] = useState();
   const [isRefreshing, setIsRefreshing] = useState();
   const [mrrChart, setMrrChart] = useState();
+  const [timeframeFilter, setTimeframeFilter] = useState('thirty_days');
+  
+  const [pageViewsTimeseriesData, setPageViewsTimeseriesData] = useState();
+  const [sessionsMarketingChart, setSessionsMarketingChart] = useState();
+  const [uniqueVisitorsMarketingChartData, setUniqueVisitorsMarketingChartData] = useState();
+  const [uniqueVisitorsMarketingGrouping, setUniqueVisitorsMarketingGrouping] = useState('daily');
+ 
+  const [sessionsProductChart, setSessionsProductChart] = useState();
+  const [uniqueVisitorsProductChartData, setUniqueVisitorsProductChartData] = useState();
+  const [uniqueVisitorsProductGrouping, setUniqueVisitorsProductGrouping] = useState('weekly');
   const [newOrganizationsData, setNewOrganizationsData] = useState();
   const [newUsersData, setNewUsersData] = useState();
-  const [sessionsChart, setSessionsChart] = useState();
-  const [timeframeFilter, setTimeframeFilter] = useState('thirty_days');
-  const [uniqueVisitorsChartData, setUniqueVisitorsChartData] = useState();
-  const [uniqueVisitorsGrouping, setUniqueVisitorsGrouping] = useState('weekly');
   const [userRetentionData, setUserRetentionData] = useState();
 
   const getBillingData = async timeframe => {
@@ -57,9 +63,28 @@ export default function Home() {
     });
   }
 
-  const getSessionsData = async timeframe => {
-    return await SwishjamAPI.Sessions.timeseries({ dataSource: 'product', timeframe }).then((sessionData) => {
-      setSessionsChart({
+  const getPageViewsTimeseriesData = async timeframe => {
+    return await SwishjamAPI.PageViews.timeseries({ timeframe, dataSource: 'marketing' }).then(
+      ({ current_count, comparison_count, comparison_end_time, timeseries, comparison_timeseries, grouped_by }) => {
+        setPageViewsTimeseriesData({
+          groupedBy: grouped_by,
+          previousValue: comparison_count,
+          previousValueDate: comparison_end_time,
+          timeseries: timeseries.map((timeseries, index) => ({
+            ...timeseries,
+            comparisonDate: comparison_timeseries[index]?.date,
+            comparisonValue: comparison_timeseries[index]?.value,
+          })),
+          value: current_count,
+          valueChange: current_count - comparison_count,
+          valueFormatter: sessionsFormatter,
+        });
+      });
+  };
+
+  const getSessionsMarketingData = async timeframe => {
+    return await SwishjamAPI.Sessions.timeseries({ dataSource: 'marketing', timeframe }).then((sessionData) => {
+      setSessionsMarketingChart({
         value: sessionData.current_count,
         previousValue: sessionData.comparison_count,
         previousValueDate: sessionData.comparison_end_time,
@@ -72,12 +97,29 @@ export default function Home() {
         }))
       })
     })
-  }
+  };
+  
+  const getSessionsProductData = async timeframe => {
+    return await SwishjamAPI.Sessions.timeseries({ dataSource: 'product', timeframe }).then((sessionData) => {
+      setSessionsProductChart({
+        value: sessionData.current_count,
+        previousValue: sessionData.comparison_count,
+        previousValueDate: sessionData.comparison_end_time,
+        valueChange: sessionData.count - sessionData.comparison_count,
+        groupedBy: sessionData.grouped_by,
+        timeseries: sessionData.timeseries.map((timeseries, index) => ({
+          ...timeseries,
+          comparisonDate: sessionData.comparison_timeseries[index]?.date,
+          comparisonValue: sessionData.comparison_timeseries[index]?.value
+        }))
+      })
+    })
+  };
 
-  const getUniqueVisitorsData = async (timeframe, type) => {
-    return await SwishjamAPI.Users.Active.timeseries({ timeframe, dataSource: 'product', type, include_comparison: true }).then(
+  const getUniqueVisitorsMarketingData = async (timeframe, type) => {
+    return await SwishjamAPI.Users.Active.timeseries({ timeframe, dataSource: 'marketing', type, include_comparison: true }).then(
       ({ current_value, timeseries, comparison_value, comparison_timeseries, comparison_end_time, grouped_by }) => {
-        setUniqueVisitorsChartData({
+        setUniqueVisitorsMarketingChartData({
           value: current_value || 0,
           previousValue: comparison_value || 0,
           previousValueDate: comparison_end_time,
@@ -93,31 +135,55 @@ export default function Home() {
     );
   };
 
+  const getUniqueVisitorsProductData = async (timeframe, type) => {
+    return await SwishjamAPI.Users.Active.timeseries({ timeframe, dataSource: 'product', type, include_comparison: true }).then(
+      ({ current_value, timeseries, comparison_value, comparison_timeseries, comparison_end_time, grouped_by }) => {
+        setUniqueVisitorsProductChartData({
+          value: current_value || 0,
+          previousValue: comparison_value || 0,
+          previousValueDate: comparison_end_time,
+          valueChange: (current_value || 0) - (comparison_value || 0),
+          groupedBy: grouped_by,
+          timeseries: timeseries?.map((timeseries, index) => ({
+            ...timeseries,
+            comparisonDate: comparison_timeseries[index]?.date,
+            comparisonValue: comparison_timeseries[index]?.value,
+          })),
+        });
+      }
+    );
+  };
+
+
   const getUserRetentionData = async () => {
     return await SwishjamAPI.RetentionCohorts.get().then(setUserRetentionData)
-  }
+  };
 
   const getUsersData = async () => {
     return await SwishjamAPI.Users.list().then(({ users }) => setNewUsersData(users))
-  }
+  };
 
   const getOrganizationsData = async () => {
     return await SwishjamAPI.Organizations.list().then(({ organizations }) => setNewOrganizationsData(organizations));
-  }
+  };
 
   const getAllData = async timeframe => {
-    setSessionsChart();
+    setSessionsMarketingChart();
+    setSessionsProductChart();
     setMrrChart();
     setActiveSubsChart();
-    setUniqueVisitorsChartData();
+    setUniqueVisitorsMarketingChartData();
+    setUniqueVisitorsProductChartData();
     setNewUsersData();
     setNewOrganizationsData();
     setUserRetentionData();
     setIsRefreshing(true);
     await Promise.all([
-      getSessionsData(timeframe),
+      getSessionsMarketingData(timeframe),
+      getSessionsProductData(timeframe),
       getBillingData(timeframe),
-      getUniqueVisitorsData(timeframe, uniqueVisitorsGrouping),
+      getUniqueVisitorsMarketingData(timeframe, uniqueVisitorsMarketingGrouping),
+      getUniqueVisitorsProductData(timeframe, uniqueVisitorsProductGrouping),
       getUsersData(),
       getOrganizationsData(),
       getUserRetentionData(),
@@ -132,7 +198,7 @@ export default function Home() {
 
   return (
     <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mb-8">
-      <InstallBanner hidden={isRefreshing || parseInt(sessionsChart?.value) > 0 || parseFloat(mrrChart?.value) > 0 || parseInt(activeSubsChart?.value) > 0} />
+      <InstallBanner hidden={isRefreshing || parseInt(sessionsMarketingChart?.value) > 0 || parseFloat(mrrChart?.value) > 0 || parseInt(activeSubsChart?.value) > 0} />
       <div className='grid grid-cols-2 mt-8 flex items-center'>
         <div>
           <h1 className="text-lg font-medium text-gray-700 mb-0">Dashboard</h1>
@@ -159,22 +225,22 @@ export default function Home() {
       </div> 
       <div className='grid grid-cols-3 gap-4 pt-2'>
         <ActiveUsersLineChartWithValue
-          data={uniqueVisitorsChartData}
-          selectedGrouping={uniqueVisitorsGrouping}
+          data={uniqueVisitorsProductChartData}
+          selectedGrouping={uniqueVisitorsProductGrouping}
           showAxis={false}
           onGroupingChange={group => {
-            setUniqueVisitorsChartData();
-            setUniqueVisitorsGrouping(group);
-            getUniqueVisitorsData(timeframeFilter, group);
+            setUniqueVisitorsProductChartData();
+            setUniqueVisitorsProductGrouping(group);
+            getUniqueVisitorsProductData(timeframeFilter, group);
           }}
         />
         <LineChartWithValue
           title='New Users'
-          value={sessionsChart?.value}
-          previousValue={sessionsChart?.previousValue}
-          previousValueDate={sessionsChart?.previousValueDate}
+          value={sessionsProductChart?.value}
+          previousValue={sessionsProductChart?.previousValue}
+          previousValueDate={sessionsProductChart?.previousValueDate}
           showAxis={false}
-          timeseries={sessionsChart?.timeseries}
+          timeseries={sessionsProductChart?.timeseries}
           valueFormatter={numSubs => numSubs.toLocaleString('en-US')}
         />
         <RetentionWidgetTiny
@@ -194,7 +260,7 @@ export default function Home() {
           value={mrrChart?.value}
           previousValue={mrrChart?.previousValue}
           previousValueDate={mrrChart?.previousValueDate}
-          valueFormatter={mrr => {return (mrr / 100)?.toLocaleString('en-US', { style: "currency", currency: "USD" }) || 0}}
+          valueFormatter={mrr => ((mrr || 0) / 100)?.toLocaleString('en-US', { style: "currency", currency: "USD" })}
           showAxis={false}
           timeseries={mrrChart?.timeseries}
         />
@@ -227,29 +293,29 @@ export default function Home() {
       <div className='grid grid-cols-3 gap-4 pt-2'>
         <LineChartWithValue
           title='Sessions'
-          value={sessionsChart?.value}
-          previousValue={sessionsChart?.previousValue}
-          previousValueDate={sessionsChart?.previousValueDate}
+          value={sessionsMarketingChart?.value}
+          previousValue={sessionsMarketingChart?.previousValue}
+          previousValueDate={sessionsMarketingChart?.previousValueDate}
           showAxis={true}
-          timeseries={sessionsChart?.timeseries}
+          timeseries={sessionsMarketingChart?.timeseries}
           valueFormatter={numSubs => numSubs.toLocaleString('en-US')}
         />
         <LineChartWithValue
           title='Page Views'
-          value={sessionsChart?.value}
-          previousValue={sessionsChart?.previousValue}
-          previousValueDate={sessionsChart?.previousValueDate}
+          value={sessionsMarketingChart?.value}
+          previousValue={sessionsMarketingChart?.previousValue}
+          previousValueDate={sessionsMarketingChart?.previousValueDate}
           showAxis={true}
-          timeseries={sessionsChart?.timeseries}
+          timeseries={sessionsMarketingChart?.timeseries}
           valueFormatter={numSubs => numSubs.toLocaleString('en-US')}
         />
         <LineChartWithValue
           title='Unique Visitors'
-          value={sessionsChart?.value}
-          previousValue={sessionsChart?.previousValue}
-          previousValueDate={sessionsChart?.previousValueDate}
+          value={uniqueVisitorsMarketingChartData?.value}
+          previousValue={uniqueVisitorsMarketingChartData?.previousValue}
+          previousValueDate={uniqueVisitorsMarketingChartData?.previousValueDate}
           showAxis={true}
-          timeseries={sessionsChart?.timeseries}
+          timeseries={uniqueVisitorsMarketingChartData?.timeseries}
           valueFormatter={numSubs => numSubs.toLocaleString('en-US')}
         />
       </div>

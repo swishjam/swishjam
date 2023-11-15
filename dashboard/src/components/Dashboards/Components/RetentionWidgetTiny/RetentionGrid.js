@@ -7,7 +7,7 @@ import LoadingState from "./LoadingGrid";
 
 const weekFormatter = dateFormatterForGrouping('week');
 
-export default function RetentionGrid({ retentionCohorts, isExpandable }) {
+export default function RetentionGrid({ retentionCohorts, }) {
   if (!retentionCohorts) return <LoadingState />
   if (retentionCohorts.length === 0) {
     return (
@@ -17,28 +17,12 @@ export default function RetentionGrid({ retentionCohorts, isExpandable }) {
     )
   }
 
-  const [isExpanded, setIsExpanded] = useState(false);
-  const canExpand = isExpandable && retentionCohorts.length > 4;
-
-  const sortedCohorts = retentionCohorts.sort((a, b) => new Date(a.time_period) - new Date(b.time_period))
-  const maxNumWeeks = sortedCohorts[0].retention_cohort_activity_periods.length;
+  const sortedCohorts = retentionCohorts.sort((a, b) => new Date(a.time_period) - new Date(b.time_period))?.slice(-4)
 
   return (
     <div className='relative'>
-      <div className={`no-scrollbar overflow-scroll min-w-full relative transition-all ${isExpanded ? '' : 'max-h-44'}`}>
+      <div className={`no-scrollbar overflow-scroll min-w-full relative transition-all max-h-44`}>
         <table>
-          {/* <thead>
-           <tr className='font-normal'>
-              <th className="text-left text-sm text-gray-700 font-normal pr-4" style={{ fontSize: '0.75rem' }}>
-                Week 
-              </th>
-              {Array.from({ length: maxNumWeeks }).map((_, i) => (
-                <th key={i} className="text-left text-sm text-gray-700 text-center font-normal" style={{ fontSize: '0.75rem' }}>
-                  {i}
-                </th>
-              ))}
-            </tr>
-          </thead>*/}
           <tbody className="bg-white">
             {sortedCohorts.map(({ id, num_users_in_cohort, retention_cohort_activity_periods, time_period: cohortDate }) => (
               <tr key={id}>
@@ -65,11 +49,6 @@ export default function RetentionGrid({ retentionCohorts, isExpandable }) {
           </tbody>
         </table>
       </div>
-      {canExpand && (
-        <div className='absolute bottom-0 right-0 bg-white p-2 rounded-full bg-opacity-50 duration-500 cursor-pointer transition-all hover:bg-gray-100' onClick={() => setIsExpanded(!isExpanded)}>
-          {isExpanded ? <BsArrowsAngleContract className='h-4 w-4 text-gray-700' /> : <BsArrowsAngleExpand className='h-4 w-4 text-gray-700' />}
-        </div>
-      )}
     </div>
   )
 }
