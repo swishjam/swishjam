@@ -194,7 +194,7 @@ export default function Home() {
           value={mrrChart?.value}
           previousValue={mrrChart?.previousValue}
           previousValueDate={mrrChart?.previousValueDate}
-          valueFormatter={mrr => (mrr / 100).toLocaleString('en-US', { style: "currency", currency: "USD" })}
+          valueFormatter={mrr => (mrr / 100)?.toLocaleString('en-US', { style: "currency", currency: "USD" })}
           showAxis={false}
           timeseries={mrrChart?.timeseries}
         />
@@ -205,7 +205,7 @@ export default function Home() {
           value={activeSubsChart?.value}
           previousValue={activeSubsChart?.previousValue}
           previousValueDate={activeSubsChart?.previousValueDate}
-          valueFormatter={numSubs => numSubs.toLocaleString('en-US')}
+          valueFormatter={numSubs => numSubs?.toLocaleString('en-US')}
         />
         <LineChartWithValue
           title='Churn (Coming Soon)'
