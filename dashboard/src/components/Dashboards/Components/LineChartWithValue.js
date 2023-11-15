@@ -67,52 +67,55 @@ const CustomTooltip = ({ active, payload, valueFormatter, dateFormatter, onDispl
   return null;
 }
 
-const SettingsDropdown = ({ showXAxis, showYAxis, setShowXAxis, setShowYAxis, onSettingChange = () => { } }) => (
-  <DropdownMenu>
-    <DropdownMenuTrigger>
-      <Cog8ToothIcon className="active:opacity-100 focus:opacity-100 group-hover:opacity-100 opacity-0 duration-500 transition h-5 w-5 text-gray-500 cursor-pointer" />
-    </DropdownMenuTrigger>
-    <DropdownMenuContent>
-      <DropdownMenuItem
-        className={`cursor-pointer ${showXAxis ? 'text-swishjam font-medium hover:text-swishjam' : ''}`}
-        onClick={() => {
-          const currentValueChangedFrom = showXAxis;
-          const currentValueChangedTo = !showXAxis;
-          setShowXAxis(currentValueChangedTo)
-          onSettingChange({
-            attribute: 'show-y-axis',
-            currentValueWas: currentValueChangedFrom,
-            currentValue: currentValueChangedTo
-          })
-        }}
-      >
-        {showXAxis && (
-          <CheckCircleIcon className='h-4 w-4 absolute' />
-        )}
-        <span className='mx-6'>Show X-Axis</span>
-      </DropdownMenuItem>
-      <DropdownMenuItem
-        className={`cursor-pointer ${showYAxis ? 'text-swishjam font-medium hover:text-swishjam' : ''}`}
-        onClick={() => {
-          const currentValueChangedFrom = showYAxis;
-          const currentValueChangedTo = !showYAxis;
-          setShowYAxis(currentValueChangedTo)
-          onSettingChange({
-            attribute: 'show-x-axis',
-            currentValueWas: currentValueChangedFrom,
-            currentValue: currentValueChangedTo
-          })
-        }}
-      >
-        {showYAxis && (
-          <CheckCircleIcon className='h-4 w-4 absolute' />
-        )}
-        <span className='ml-6'>Show Y-Axis</span>
-      </DropdownMenuItem>
-    </DropdownMenuContent>
-  </DropdownMenu>
-)
+const SettingsDropdown = ({ showXAxis, showYAxis, setShowXAxis, setShowYAxis, onSettingChange = () => { } }) => {
+  const [open, setOpen] = useState()
 
+  return (
+    <DropdownMenu open={open} onOpenChange={setOpen}>
+      <DropdownMenuTrigger className="outline-0 ring-0">
+        <Cog8ToothIcon className={`${open ? '!opacity-100' : ''} outline-0 ring-0 active:opacity-100 focus:opacity-100 group-hover:opacity-100 opacity-0 duration-300 transition h-5 w-5 text-gray-500 cursor-pointer`} />
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align={'end'}>
+        <DropdownMenuItem
+          className={`cursor-pointer ${showXAxis ? 'text-swishjam font-medium hover:text-swishjam' : ''}`}
+          onClick={() => {
+            const currentValueChangedFrom = showXAxis;
+            const currentValueChangedTo = !showXAxis;
+            setShowXAxis(currentValueChangedTo)
+            onSettingChange({
+              attribute: 'show-y-axis',
+              currentValueWas: currentValueChangedFrom,
+              currentValue: currentValueChangedTo
+            })
+          }}
+        >
+          {showXAxis && (
+            <CheckCircleIcon className='h-4 w-4 absolute' />
+          )}
+          <span className='mx-6'>Show X-Axis</span>
+        </DropdownMenuItem>
+        <DropdownMenuItem
+          className={`cursor-pointer ${showYAxis ? 'text-swishjam font-medium hover:text-swishjam' : ''}`}
+          onClick={() => {
+            const currentValueChangedFrom = showYAxis;
+            const currentValueChangedTo = !showYAxis;
+            setShowYAxis(currentValueChangedTo)
+            onSettingChange({
+              attribute: 'show-x-axis',
+              currentValueWas: currentValueChangedFrom,
+              currentValue: currentValueChangedTo
+            })
+          }}
+        >
+          {showYAxis && (
+            <CheckCircleIcon className='h-4 w-4 absolute' />
+          )}
+          <span className='ml-6'>Show Y-Axis</span>
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  )
+}
 
 export default function LineChartWithValue({
   includeCard = true,
@@ -177,6 +180,9 @@ export default function LineChartWithValue({
             </HoverCard>
           </div>
         ) : <></>}
+        <div className=''>
+          <span className='text-xs font-light cursor-default block'>{currentValueDate ? dateFormatter(currentValueDate) : ''}</span>
+        </div>
       </div>
       <span className='text-xs font-light cursor-default block'>{dateFormatter(currentValueDate)}</span>
       {timeseries.length > 0
