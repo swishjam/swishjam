@@ -2,36 +2,27 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 export default function LoadingState() {
   return (
-    <div className='overflow-x-scroll'>
-      <table className="min-w-full">
-        <thead>
-          <tr className='font-normal pb-2'>
-            <th className="text-left text-sm text-gray-700 font-normal">
-            </th>
-            {Array.from(({ length: 10 }), (_, i) => (
-              <th key={i} className="text-left text-sm text-gray-700 text-center font-normal">
-                Week {i + 1}
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody className="bg-white mt-2">
-          {Array.from(({ length: 5 }), (_, i) => (
-            <tr key={i}>
-              <>
-                <td className="pr-2">
-                  <Skeleton className='h-8 w-6' />
-                </td>
-                {Array.from(({ length: 10 }), (_, i) => (
-                  <td key={i}>
-                    <Skeleton className="w-6 h-6" />
+    <div className='relative'>
+      <div className='no-scrollbar overflow-scroll min-w-full relative transition-all'>
+        <table>
+          <tbody className="bg-white">
+            {Array.from(({ length: 4 }), (_, i) => (
+              <tr key={i}>
+                <>
+                  <td className="whitespace-nowrap text-sm pr-4">
+                    <span className='block' style={{ fontSize: '0.85rem' }}><Skeleton className='w-8 h-5' /></span>
                   </td>
-                ))}
-              </>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+                  {Array.from(({ length: 4 - i }), (_, i) => (
+                    <td className="whitespace-nowrap text-sm" key={i}>
+                      <Skeleton className="w-6 h-6" />
+                    </td>
+                  ))}
+                </>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   )
 }
