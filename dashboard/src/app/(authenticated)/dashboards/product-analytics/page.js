@@ -132,70 +132,6 @@ export default function PageMetrics() {
         </div>
       </div>
       <div className='pt-8 flex justify-between'>
-        <h3 className='font-semibold text-sm text-slate-600'>Summary</h3>  
-      </div>
-      <div className='grid grid-cols-3 gap-4 pt-4'>
-        <ActiveUsersLineChartWithValue
-          data={uniqueVisitorsChartData}
-          selectedGrouping={uniqueVisitorsGrouping}
-          showAxis={false}
-          onGroupingChange={group => {
-            setUniqueVisitorsChartData();
-            setUniqueVisitorsGrouping(group);
-            getUniqueVisitorsData(timeframeFilter, group);
-          }}
-        />
-        <LineChartWithValue
-          title='New Users'
-          value={sessionsChart?.value}
-          previousValue={sessionsChart?.previousValue}
-          previousValueDate={sessionsChart?.previousValueDate}
-          showAxis={false}
-          timeseries={sessionsChart?.timeseries}
-          valueFormatter={numSubs => numSubs.toLocaleString('en-US')}
-        />
-        <ActiveUsersLineChartWithValue
-          data={uniqueVisitorsChartData}
-          selectedGrouping={uniqueVisitorsGrouping}
-          showAxis={false}
-          onGroupingChange={group => {
-            setUniqueVisitorsChartData();
-            setUniqueVisitorsGrouping(group);
-            getUniqueVisitorsData(timeframeFilter, group);
-          }}
-        />
-        <ActiveUsersLineChartWithValue
-          data={uniqueVisitorsChartData}
-          selectedGrouping={uniqueVisitorsGrouping}
-          showAxis={false}
-          onGroupingChange={group => {
-            setUniqueVisitorsChartData();
-            setUniqueVisitorsGrouping(group);
-            getUniqueVisitorsData(timeframeFilter, group);
-          }}
-        />
-        <ActiveUsersLineChartWithValue
-          data={uniqueVisitorsChartData}
-          selectedGrouping={uniqueVisitorsGrouping}
-          showAxis={false}
-          onGroupingChange={group => {
-            setUniqueVisitorsChartData();
-            setUniqueVisitorsGrouping(group);
-            getUniqueVisitorsData(timeframeFilter, group);
-          }}
-        />
-        <ActiveUsersLineChartWithValue
-          data={uniqueVisitorsChartData}
-          selectedGrouping={uniqueVisitorsGrouping}
-          showAxis={false}
-          onGroupingChange={group => {
-            setUniqueVisitorsChartData();
-            setUniqueVisitorsGrouping(group);
-            getUniqueVisitorsData(timeframeFilter, group);
-          }}
-        />
-      </div> 
-      <div className='pt-8 flex justify-between'>
         <h3 className='font-semibold text-sm text-slate-600'>User Breakdown</h3>  
       </div>
       <div className="grid grid-cols-6 gap-4 pt-8">
@@ -264,6 +200,70 @@ export default function PageMetrics() {
       </div>
       <div className='pt-8 flex justify-between'>
         <h3 className='font-semibold text-sm text-slate-600'>Organization Breakdown</h3>  
+      </div>
+      <div className="grid grid-cols-6 gap-4 pt-8">
+        <div className="col-span-3">
+          <ActiveUsersLineChartWithValue
+            data={uniqueVisitorsChartData}
+            selectedGrouping={uniqueVisitorsGrouping}
+            showAxis={true}
+            onGroupingChange={group => {
+              setUniqueVisitorsChartData();
+              setUniqueVisitorsGrouping(group);
+              getUniqueVisitorsData(timeframeFilter, group);
+            }}
+          />
+        </div>
+        <div className="col-span-3">
+          <LineChartWithValue
+            title='New Users'
+            value={sessionsChart?.value}
+            previousValue={sessionsChart?.previousValue}
+            previousValueDate={sessionsChart?.previousValueDate}
+            showAxis={true}
+            timeseries={sessionsChart?.timeseries}
+            valueFormatter={numSubs => numSubs.toLocaleString('en-US')}
+          />
+        </div>
+        <div className="col-span-6">
+          <RetentionWidget retentionCohorts={userRetentionData} />
+        </div>
+        <div className="col-span-3">
+        <ItemizedList
+          fallbackAvatarGenerator={user => user.initials.slice(0,2)}
+          items={newUsersData}
+          titleFormatter={user => user.full_name || user.email || user.user_unique_identifier}
+          subTitleFormatter={user => user.full_name ? user.email : null}
+          linkFormatter={user => `/users/${user.id}`}
+          rightItemKey='created_at'
+          rightItemKeyFormatter={date => {
+            return new Date(date)
+              .toLocaleDateString('en-us', { weekday: "short", year: "numeric", month: "short", day: "numeric" })
+              .replace(`, ${new Date(date).getFullYear()}`, '')
+          }}
+          title='Power Users'
+          viewMoreUrl='/users'
+          maxNumItems={5}
+        />
+        </div>
+        <div className="col-span-3">
+          <ItemizedList
+            fallbackAvatarGenerator={user => user.initials.slice(0,2)}
+            items={newUsersData}
+            titleFormatter={user => user.full_name || user.email || user.user_unique_identifier}
+            subTitleFormatter={user => user.full_name ? user.email : null}
+            linkFormatter={user => `/users/${user.id}`}
+            rightItemKey='created_at'
+            rightItemKeyFormatter={date => {
+              return new Date(date)
+                .toLocaleDateString('en-us', { weekday: "short", year: "numeric", month: "short", day: "numeric" })
+                .replace(`, ${new Date(date).getFullYear()}`, '')
+            }}
+            title='Recently Inactive (7 days)'
+            viewMoreUrl='/users'
+            maxNumItems={5}
+          />
+        </div>
       </div>
       <div className='pt-8 flex justify-between'>
         <h3 className='font-semibold text-sm text-slate-600'>Feature Breakdown</h3>  
