@@ -2,14 +2,8 @@ import RetentionGrid from "./RetentionWidgetTiny/RetentionGrid";
 import { CardTitle } from "@/components/ui/card";
 import ConditionalCardWrapper from './ConditionalCardWrapper';
 
-function classNames(...classes) {
-  return classes.filter(Boolean).join(' ')
-}
-
 export default function RetentionWidgetTiny({ retentionCohorts, isExpandable = true, includeCard = true, className }) {
-
-  //console.log(retentionCohorts)
-  const lastFourItems = retentionCohorts?.slice(-4) || [];
+  const lastFourItems = retentionCohorts?.slice(-4);
 
   return (
     <ConditionalCardWrapper
