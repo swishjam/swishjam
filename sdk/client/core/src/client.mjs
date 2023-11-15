@@ -45,9 +45,11 @@ export class Client {
       const previouslySetOrganization = DataPersister.get('organizationId');
       // set the new organization so the potential new session has the correct organization
       DataPersister.set('organizationId', organizationIdentifier);
-      // we assume anytime setOrganization is called with a new org, we want a new session
-      if (previouslySetOrganization && previouslySetOrganization !== organizationIdentifier) this.newSession();
-      this.record('organization', { organizationIdentifier, ...traits })
+      // we only want to record the organization if it's different than the previously set organization
+      if (previouslySetOrganization && previouslySetOrganization !== organizationIdentifier) {
+        this.newSession();
+        this.record('organization', { organizationIdentifier, ...traits })
+      }
     });
   }
 
