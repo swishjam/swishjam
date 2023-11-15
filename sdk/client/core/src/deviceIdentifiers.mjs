@@ -12,7 +12,7 @@ export class DeviceIdentifiers {
 
   static getOrganizationDeviceIdentifierValue = () => {
     CookieHelper.deleteCookie(LEGACY_SWISHJAM_ORGANIZATION_DEVICE_IDENTIFIER_COOKIE_NAME);
-    return CookieHelper.getCookie(SWISHJAM_ORGANIZATION_DEVICE_IDENTIFIER_COOKIE_NAME) || this._setCookie(SWISHJAM_ORGANIZATION_DEVICE_IDENTIFIER_COOKIE_NAME, { expiresIn: null, prefix: 'org' });
+    return CookieHelper.getCookie(SWISHJAM_ORGANIZATION_DEVICE_IDENTIFIER_COOKIE_NAME) || this._setCookie(SWISHJAM_ORGANIZATION_DEVICE_IDENTIFIER_COOKIE_NAME, { expiresIn: null, prefix: 'org2' });
   }
 
   static resetUserDeviceIdentifierValue = () => {
