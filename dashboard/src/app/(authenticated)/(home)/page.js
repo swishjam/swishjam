@@ -257,7 +257,7 @@ export default function Home() {
         <RetentionWidget retentionCohorts={userRetentionData} />
       </div>*/}
       <h3 className='pt-8 font-semibold text-sm text-slate-600'>New Users & Organizations</h3>  
-      <div className='grid grid-cols-2 gap-6 pt-8'>
+      <div className='grid grid-cols-2 gap-4 pt-8'>
         <ItemizedList
           fallbackAvatarGenerator={user => user.initials.slice(0,2)}
           items={newUsersData}

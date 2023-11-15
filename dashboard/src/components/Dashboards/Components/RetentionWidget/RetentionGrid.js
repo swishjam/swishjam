@@ -1,6 +1,6 @@
 import { dateFormatterForGrouping } from '@/lib/utils/timeseriesHelpers';
 import { useState } from 'react'
-import { ChevronDownIcon, ChevronUpIcon } from "@heroicons/react/24/outline";
+import { BsArrowsAngleExpand, BsArrowsAngleContract } from 'react-icons/bs'
 import RetentionGridCell from './RetentionGridCell';
 import LoadingState from "./LoadingGrid";
 
@@ -23,8 +23,8 @@ export default function RetentionGrid({ retentionCohorts, isExpandable }) {
   const maxNumWeeks = sortedCohorts[0].retention_cohort_activity_periods.length;
 
   return (
-    <>
-      <div className={`overflow-scroll min-w-full relative transition-all ${isExpanded ? '' : 'max-h-96'}`}>
+    <div className='relative'>
+      <div className={`no-scrollbar overflow-scroll min-w-full relative transition-all ${isExpanded ? '' : 'max-h-96'}`}>
         <table>
           <thead>
             <tr className='font-normal'>
@@ -65,10 +65,10 @@ export default function RetentionGrid({ retentionCohorts, isExpandable }) {
         </table>
       </div>
       {canExpand && (
-        <div className='w-full h-10 flex items-center justify-center bg-white bg-opacity-50 w-full text-center cursor-pointer transition-background hover:bg-gray-50' onClick={() => setIsExpanded(!isExpanded)}>
-          {isExpanded ? <ChevronUpIcon className='h-4 w-4 text-gray-700' /> : <ChevronDownIcon className='h-4 w-4 text-gray-700' />}
+        <div className='absolute bottom-0 right-0 bg-white p-2 rounded-full bg-opacity-50 duration-500 cursor-pointer transition-all hover:bg-gray-100' onClick={() => setIsExpanded(!isExpanded)}>
+          {isExpanded ? <BsArrowsAngleContract className='h-4 w-4 text-gray-700' /> : <BsArrowsAngleExpand className='h-4 w-4 text-gray-700' />}
         </div>
       )}
-    </>
+    </div>
   )
 }

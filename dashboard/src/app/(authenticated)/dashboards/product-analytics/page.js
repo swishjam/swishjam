@@ -13,7 +13,9 @@ import { BsArrowLeftShort } from 'react-icons/bs'
 import LineChartWithValue from "@/components/Dashboards/Components/LineChartWithValue";
 import ClickableValueCard from "@/components/Dashboards/Components/ClickableValueCard";
 import BarList from "@/components/Dashboards/Components/BarList";
+import ItemizedList from '@/components/Dashboards/Components/ItemizedList';
 import Link from 'next/link'
+import RetentionWidget from '@/components/Dashboards/Components/RetentionWidget';
 // import LoadingView from './LoadingView'
 
 export default function PageMetrics() {
@@ -22,6 +24,10 @@ export default function PageMetrics() {
   const [timeframeFilter, setTimeframeFilter] = useState("thirty_days");
   const [uniqueVisitorsChartData, setUniqueVisitorsChartData] = useState();
   const [uniqueVisitorsGrouping, setUniqueVisitorsGrouping] = useState('weekly');
+  const [sessionsChart, setSessionsChart] = useState();
+  const [userRetentionData, setUserRetentionData] = useState();
+  const [newOrganizationsData, setNewOrganizationsData] = useState();
+  const [newUsersData, setNewUsersData] = useState();
 
   const getUniqueVisitorsData = async (timeframe, type) => {
     return await SwishjamAPI.Users.Active.timeseries({ timeframe, dataSource: 'product', type, include_comparison: true }).then(
@@ -41,15 +47,52 @@ export default function PageMetrics() {
       }
     );
   };
+  
+  const getSessionsData = async timeframe => {
+    return await SwishjamAPI.Sessions.timeseries({ dataSource: 'product', timeframe }).then((sessionData) => {
+      setSessionsChart({
+        value: sessionData.current_count,
+        previousValue: sessionData.comparison_count,
+        previousValueDate: sessionData.comparison_end_time,
+        valueChange: sessionData.count - sessionData.comparison_count,
+        groupedBy: sessionData.grouped_by,
+        timeseries: sessionData.timeseries.map((timeseries, index) => ({
+          ...timeseries,
+          comparisonDate: sessionData.comparison_timeseries[index]?.date,
+          comparisonValue: sessionData.comparison_timeseries[index]?.value
+        }))
+      })
+    })
+  }
+  
+  const getUserRetentionData = async () => {
+    return await SwishjamAPI.RetentionCohorts.get().then(setUserRetentionData)
+  }
+
+  const getUsersData = async () => {
+    return await SwishjamAPI.Users.list().then(({ users }) => setNewUsersData(users))
+  }
+
+  const getOrganizationsData = async () => {
+    return await SwishjamAPI.Organizations.list().then(({ organizations }) => setNewOrganizationsData(organizations));
+  }
 
   const getAllData = async timeframe => {
     // Reset All Data
     setIsRefreshing(true);
     setUniqueVisitorsChartData();
+    setSessionsChart();
+    setNewUsersData();
+    setNewOrganizationsData();
+    setUserRetentionData();
 
     // Reload all the data
     await Promise.all([
-      getUniqueVisitorsData(timeframe, uniqueVisitorsGrouping)
+      getUniqueVisitorsData(timeframe, uniqueVisitorsGrouping),
+      getSessionsData(timeframe),
+      getUserRetentionData(),
+      getUsersData(),
+      getOrganizationsData(),
     ]);
     setIsRefreshing(false);
   };
@@ -88,6 +131,9 @@ export default function PageMetrics() {
           </Button>
         </div>
       </div>
+      <div className='pt-8 flex justify-between'>
+        <h3 className='font-semibold text-sm text-slate-600'>Summary</h3>  
+      </div>
       <div className='grid grid-cols-3 gap-4 pt-4'>
         <ActiveUsersLineChartWithValue
           data={uniqueVisitorsChartData}
@@ -99,12 +145,128 @@ export default function PageMetrics() {
             getUniqueVisitorsData(timeframeFilter, group);
           }}
         />
+        <LineChartWithValue
+          title='New Users'
+          value={sessionsChart?.value}
+          previousValue={sessionsChart?.previousValue}
+          previousValueDate={sessionsChart?.previousValueDate}
+          showAxis={false}
+          timeseries={sessionsChart?.timeseries}
+          valueFormatter={numSubs => numSubs.toLocaleString('en-US')}
+        />
+        <ActiveUsersLineChartWithValue
+          data={uniqueVisitorsChartData}
+          selectedGrouping={uniqueVisitorsGrouping}
+          showAxis={false}
+          onGroupingChange={group => {
+            setUniqueVisitorsChartData();
+            setUniqueVisitorsGrouping(group);
+            getUniqueVisitorsData(timeframeFilter, group);
+          }}
+        />
+        <ActiveUsersLineChartWithValue
+          data={uniqueVisitorsChartData}
+          selectedGrouping={uniqueVisitorsGrouping}
+          showAxis={false}
+          onGroupingChange={group => {
+            setUniqueVisitorsChartData();
+            setUniqueVisitorsGrouping(group);
+            getUniqueVisitorsData(timeframeFilter, group);
+          }}
+        />
+        <ActiveUsersLineChartWithValue
+          data={uniqueVisitorsChartData}
+          selectedGrouping={uniqueVisitorsGrouping}
+          showAxis={false}
+          onGroupingChange={group => {
+            setUniqueVisitorsChartData();
+            setUniqueVisitorsGrouping(group);
+            getUniqueVisitorsData(timeframeFilter, group);
+          }}
+        />
+        <ActiveUsersLineChartWithValue
+          data={uniqueVisitorsChartData}
+          selectedGrouping={uniqueVisitorsGrouping}
+          showAxis={false}
+          onGroupingChange={group => {
+            setUniqueVisitorsChartData();
+            setUniqueVisitorsGrouping(group);
+            getUniqueVisitorsData(timeframeFilter, group);
+          }}
+        />
       </div> 
-      <div className="grid grid-cols-4 gap-4 pt-8">
-        <div className="grid gap-4">
+      <div className='pt-8 flex justify-between'>
+        <h3 className='font-semibold text-sm text-slate-600'>User Breakdown</h3>  
+      </div>
+      <div className="grid grid-cols-6 gap-4 pt-8">
+        <div className="col-span-3">
+          <ActiveUsersLineChartWithValue
+            data={uniqueVisitorsChartData}
+            selectedGrouping={uniqueVisitorsGrouping}
+            showAxis={true}
+            onGroupingChange={group => {
+              setUniqueVisitorsChartData();
+              setUniqueVisitorsGrouping(group);
+              getUniqueVisitorsData(timeframeFilter, group);
+            }}
+          />
         </div>
         <div className="col-span-3">
+          <LineChartWithValue
+            title='New Users'
+            value={sessionsChart?.value}
+            previousValue={sessionsChart?.previousValue}
+            previousValueDate={sessionsChart?.previousValueDate}
+            showAxis={true}
+            timeseries={sessionsChart?.timeseries}
+            valueFormatter={numSubs => numSubs.toLocaleString('en-US')}
+          />
         </div>
+        <div className="col-span-6">
+          <RetentionWidget retentionCohorts={userRetentionData} />
+        </div>
+        <div className="col-span-3">
+        <ItemizedList
+          fallbackAvatarGenerator={user => user.initials.slice(0,2)}
+          items={newUsersData}
+          titleFormatter={user => user.full_name || user.email || user.user_unique_identifier}
+          subTitleFormatter={user => user.full_name ? user.email : null}
+          linkFormatter={user => `/users/${user.id}`}
+          rightItemKey='created_at'
+          rightItemKeyFormatter={date => {
+            return new Date(date)
+              .toLocaleDateString('en-us', { weekday: "short", year: "numeric", month: "short", day: "numeric" })
+              .replace(`, ${new Date(date).getFullYear()}`, '')
+          }}
+          title='Power Users'
+          viewMoreUrl='/users'
+          maxNumItems={5}
+        />
+        </div>
+        <div className="col-span-3">
+          <ItemizedList
+            fallbackAvatarGenerator={user => user.initials.slice(0,2)}
+            items={newUsersData}
+            titleFormatter={user => user.full_name || user.email || user.user_unique_identifier}
+            subTitleFormatter={user => user.full_name ? user.email : null}
+            linkFormatter={user => `/users/${user.id}`}
+            rightItemKey='created_at'
+            rightItemKeyFormatter={date => {
+              return new Date(date)
+                .toLocaleDateString('en-us', { weekday: "short", year: "numeric", month: "short", day: "numeric" })
+                .replace(`, ${new Date(date).getFullYear()}`, '')
+            }}
+            title='Recently Inactive (7 days)'
+            viewMoreUrl='/users'
+            maxNumItems={5}
+          />
+        </div>
+      </div>
+      <div className='pt-8 flex justify-between'>
+        <h3 className='font-semibold text-sm text-slate-600'>Organization Breakdown</h3>  
+      </div>
+      <div className='pt-8 flex justify-between'>
+        <h3 className='font-semibold text-sm text-slate-600'>Feature Breakdown</h3>  
       </div>
     </main>
   );

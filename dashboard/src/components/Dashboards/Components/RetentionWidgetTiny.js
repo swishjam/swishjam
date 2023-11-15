@@ -8,8 +8,8 @@ function classNames(...classes) {
 
 export default function RetentionWidgetTiny({ retentionCohorts, isExpandable = true, includeCard = true, className }) {
 
-  console.log(retentionCohorts)
-  const lastFourItems = retentionCohorts?.slice(-4);
+  //console.log(retentionCohorts)
+  const lastFourItems = retentionCohorts?.slice(-4) || [];
 
   return (
     <ConditionalCardWrapper
