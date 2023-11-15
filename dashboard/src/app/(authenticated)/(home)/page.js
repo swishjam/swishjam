@@ -12,28 +12,32 @@ import InstallBanner from '@/components/InstallBanner';
 import ItemizedList from '@/components/Dashboards/Components/ItemizedList';
 import RetentionWidgetTiny from '@/components/Dashboards/Components/RetentionWidgetTiny';
 import { BsArrowRightShort } from 'react-icons/bs'
-//import ClickableValueCard from '@/components/Dashboards/Components/ClickableValueCard';
-//import RetentionWidget from '@/components/Dashboards/Components/RetentionWidget';
 
-const sessionsFormatter = (num) => num.toLocaleString("en-US");
+const sessionsFormatter = (num) => { return num?.toLocaleString("en-US") || 0};
 
 export default function Home() {
-  const [activeSubsChart, setActiveSubsChart] = useState();
   const [isRefreshing, setIsRefreshing] = useState();
-  const [mrrChart, setMrrChart] = useState();
   const [timeframeFilter, setTimeframeFilter] = useState('thirty_days');
-  
+ 
+  // SaaS Metrics Data
+  const [mrrChart, setMrrChart] = useState();
+  const [activeSubsChart, setActiveSubsChart] = useState();
+
+  // Marketing Analytics Data
   const [pageViewsTimeseriesData, setPageViewsTimeseriesData] = useState();
   const [sessionsMarketingChart, setSessionsMarketingChart] = useState();
   const [uniqueVisitorsMarketingChartData, setUniqueVisitorsMarketingChartData] = useState();
   const [uniqueVisitorsMarketingGrouping, setUniqueVisitorsMarketingGrouping] = useState('daily');
- 
+
+  // Product Analytics data
   const [sessionsProductChart, setSessionsProductChart] = useState();
   const [uniqueVisitorsProductChartData, setUniqueVisitorsProductChartData] = useState();
   const [uniqueVisitorsProductGrouping, setUniqueVisitorsProductGrouping] = useState('weekly');
+  const [userRetentionData, setUserRetentionData] = useState();
+ 
+  // Other
   const [newOrganizationsData, setNewOrganizationsData] = useState();
   const [newUsersData, setNewUsersData] = useState();
-  const [userRetentionData, setUserRetentionData] = useState();
 
   const getBillingData = async timeframe => {
     return await SwishjamAPI.BillingData.timeseries({ timeframe }).then(paymentData => {
@@ -335,7 +339,7 @@ export default function Home() {
       <h3 className='pt-8 font-semibold text-sm text-slate-600'>New Users & Organizations</h3>  
       <div className='grid grid-cols-2 gap-4 pt-8'>
         <ItemizedList
-          fallbackAvatarGenerator={user => user.initials.slice(0,2)}
+          fallbackAvatarGenerator={user => {return user?.initials?.slice(0,2) || ''}}
           items={newUsersData}
           titleFormatter={user => user.full_name || user.email || user.user_unique_identifier}
           subTitleFormatter={user => user.full_name ? user.email : null}
@@ -351,7 +355,7 @@ export default function Home() {
           maxNumItems={5}
         />
         <ItemizedList
-          fallbackAvatarGenerator={org => org.initials.slice(0,2)}
+          fallbackAvatarGenerator={org => {return org?.initials?.slice(0,2) || ''}}
           items={newOrganizationsData}
           titleFormatter={org => org.name || org.organization_unique_identifier}
           linkFormatter={org => `/organizations/${org.id}`}
