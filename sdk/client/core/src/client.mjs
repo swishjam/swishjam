@@ -43,11 +43,13 @@ export class Client {
   setOrganization = (organizationIdentifier, traits = {}) => {
     return this.errorHandler.executeWithErrorHandling(() => {
       const previouslySetOrganization = DataPersister.get('organizationId');
-      // set the new organization so the potential new session has the correct organization
-      DataPersister.set('organizationId', organizationIdentifier);
       // we only want to record the organization if it's different than the previously set organization
-      if (previouslySetOrganization && previouslySetOrganization !== organizationIdentifier) {
-        this.newSession();
+      if (previouslySetOrganization !== organizationIdentifier) {
+        // if there was a previously defined organization, we need to start a new session
+        // which will reset the organization identifier
+        if (previouslySetOrganization) this.newSession();
+        DataPersister.set('organizationId', organizationIdentifier);
+        // at this point we will have a new organization device identifier
         this.record('organization', { organizationIdentifier, ...traits })
       }
     });
@@ -61,8 +63,14 @@ export class Client {
 
   newSession = ({ registerPageView = true } = {}) => {
     return this.errorHandler.executeWithErrorHandling(() => {
-      // important to set this first because the new Event reads from the DataPersister
+      // important to set this first because the new_session Event needs to have the new sessionId
       DataPersister.set('sessionId', UUID.generate('s'));
+      DataPersister.delete('organizationId');
+      // because the organization device identifier only persists for the duration of the session
+      // if this is a brand new session, this cookie would not have even been set yet, so this will set it
+      // if the user called setOrganization or logout the organization device identifier will be rotated here
+      DeviceIdentifiers.resetOrganizationDeviceIdentifierValue();
+
       this.record('new_session', {
         referrer: this.pageViewManager.previousUrl(),
         ...this.deviceDetails.all()

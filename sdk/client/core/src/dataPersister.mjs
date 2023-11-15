@@ -10,6 +10,12 @@ export class DataPersister {
     return this.all()[key];
   }
 
+  static delete(key) {
+    const currentMemory = this.all();
+    delete currentMemory[key];
+    sessionStorage.setItem('swishjam', JSON.stringify(currentMemory));
+  }
+
   static all() {
     return JSON.parse(sessionStorage.getItem('swishjam') || '{}');
   }
