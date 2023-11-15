@@ -8,9 +8,36 @@ import BarList from "@/components/Dashboards/Components/BarList";
 import Timefilter from "@/components/Timefilter";
 import { Button } from "@/components/ui/button";
 import { ArrowPathIcon } from "@heroicons/react/24/outline";
+import { BsArrowLeftShort } from 'react-icons/bs'
+import { RxBarChart } from 'react-icons/rx'
 import { dateFormatterForGrouping } from "@/lib/utils/timeseriesHelpers";
-import BarChartComponent from "@/components/Dashboards/Components/BarChart";
+import BarChart from "@/components/Dashboards/Components/BarChart";
+import Link from 'next/link'
 // import LoadingView from './LoadingView'
+
+/*
+const convertToBarList = (data) => {
+  if(!data) return ''
+  let o = {}
+
+  data.map((d) => {
+    delete d['date']
+    data.map((d) => {
+      for (const key in d) {
+        if(o[key]) {
+          o[key] += d[key]
+        } else {
+          o[key] = d[key]
+        } 
+      }
+    });
+  });
+
+  const barList = Object.entries(o).map(([name, value]) => ({ name, value }));
+  console.log('here1', barList);
+  return barList;
+}
+*/
 
 const sessionsFormatter = (num) => num.toLocaleString("en-US");
 
@@ -144,8 +171,11 @@ export default function PageMetrics() {
     <main className="mx-auto mb-8 max-w-7xl px-4 sm:px-6 lg:px-8">
       <div className="mt-8 flex grid grid-cols-2 items-center">
         <div>
+          <Link href="/dashboards" className="mb-0 text-xs font-medium text-gray-400 flex hover:text-swishjam transition duration-300 hover:underline">
+            <RxBarChart size={16} className="mr-1" />Dashboards 
+          </Link>
           <h1 className="mb-0 text-lg font-medium text-gray-700">
-            Visitor Trends
+            Marketing Analytics 
           </h1>
         </div>
 
@@ -167,8 +197,8 @@ export default function PageMetrics() {
           </Button>
         </div>
       </div>
-      <div className="grid grid-cols-4 gap-6 pt-8">
-        <div className="grid gap-6">
+      <div className="grid grid-cols-4 gap-4 pt-8">
+        <div className="grid gap-4">
           <ClickableValueCard
             title="Sessions"
             selected={currentSelectedChart == "Sessions"}
@@ -214,13 +244,25 @@ export default function PageMetrics() {
         </div>
       </div>
 
-      <div className='grid grid-cols-2 gap-6 pt-8'>
-        <BarChartComponent title='Referrers' data={referrersBarChartData} />
-        <BarChartComponent title='Page Views' data={pageViewsBarChartData} />
+      <div className='grid grid-cols-8 gap-4 pt-4'>
+        <BarChart
+          title='Page Views'
+          className="col-span-8"
+          data={pageViewsBarChartData}
+          showTableInsteadOfLegend={true}
+        />
       </div>
-      <div className='grid grid-cols-2 gap-6 pt-8'>
-        <BarChartComponent title='Devices' data={deviceTypesBarChartData} />
-        <BarChartComponent title='Browsers' data={browsersBarChartData} />
+      <div className='grid grid-cols-8 gap-4 pt-4'>
+        <BarChart 
+          title='Referrers'
+          className="col-span-8"
+          data={referrersBarChartData}
+          showTableInsteadOfLegend={true}
+         />
+      </div>
+      <div className='grid grid-cols-2 gap-4 pt-4'>
+        <BarChart title='Devices' data={deviceTypesBarChartData} />
+        <BarChart title='Browsers' data={browsersBarChartData} />
       </div>
     </main>
   );

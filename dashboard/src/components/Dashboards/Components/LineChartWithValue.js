@@ -8,6 +8,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { HoverCard, HoverCardTrigger, HoverCardContent } from "@/components/ui/hover-card";
 import { ArrowTrendingDownIcon, ArrowTrendingUpIcon, CalendarIcon, Cog8ToothIcon } from "@heroicons/react/24/outline";
 import { CircleIcon } from "@radix-ui/react-icons"
+import { BsCloudSlash } from "react-icons/bs"
 import { CheckCircleIcon } from '@heroicons/react/20/solid';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import ConditionalCardWrapper from './ConditionalCardWrapper';
@@ -67,12 +68,15 @@ const CustomTooltip = ({ active, payload, valueFormatter, dateFormatter, onDispl
   return null;
 }
 
-const SettingsDropdown = ({ showXAxis, showYAxis, setShowXAxis, setShowYAxis, onSettingChange = () => { } }) => (
-  <DropdownMenu>
-    <DropdownMenuTrigger>
-      <Cog8ToothIcon className="active:opacity-100 focus:opacity-100 group-hover:opacity-100 opacity-0 duration-500 transition h-5 w-5 text-gray-500 cursor-pointer" />
+const SettingsDropdown = ({ showXAxis, showYAxis, setShowXAxis, setShowYAxis, onSettingChange = () => { } }) => {
+  const [open, setOpen] = useState()
+
+  return (
+  <DropdownMenu open={open} onOpenChange={setOpen}>
+    <DropdownMenuTrigger className="outline-0 ring-0">
+      <Cog8ToothIcon className={`${open ? '!opacity-100':''} outline-0 ring-0 active:opacity-100 focus:opacity-100 group-hover:opacity-100 opacity-0 duration-300 transition h-5 w-5 text-gray-500 cursor-pointer`} />
     </DropdownMenuTrigger>
-    <DropdownMenuContent>
+    <DropdownMenuContent align={'end'}>
       <DropdownMenuItem
         className={`cursor-pointer ${showXAxis ? 'text-swishjam font-medium hover:text-swishjam' : ''}`}
         onClick={() => {
@@ -111,8 +115,8 @@ const SettingsDropdown = ({ showXAxis, showYAxis, setShowXAxis, setShowYAxis, on
       </DropdownMenuItem>
     </DropdownMenuContent>
   </DropdownMenu>
-)
-
+  )
+}
 
 export default function LineChartWithValue({
   includeCard = true,
@@ -126,6 +130,7 @@ export default function LineChartWithValue({
   timeseries,
   title,
   valueFormatter = val => val,
+  className,
 }) {
   if ([null, undefined].includes(timeseries)) return <LoadingState title={title} includeCard={includeCard} />;
 
@@ -140,7 +145,7 @@ export default function LineChartWithValue({
 
   return (
     <ConditionalCardWrapper
-      className='group'
+      className={`${className} group`}
       includeCard={includeCard}
       title={
         <div className='grid grid-cols-2'>
@@ -159,26 +164,28 @@ export default function LineChartWithValue({
         </div>
       }
     >
-      <div className='flex items-center'>
-        <span className="text-2xl font-bold cursor-default">{valueFormatter(currentValue)}</span>
-        {includeComparisonData && typeof currentValue !== 'undefined' && typeof comparisonValue !== 'undefined' ? (
-          <div className='inline-block'>
+      <div className="">
+        <div className="text-2xl font-bold cursor-default flex">
+          {valueFormatter(currentValue)}
+          {includeComparisonData && typeof currentValue !== 'undefined' && typeof comparisonValue !== 'undefined' ? (
             <HoverCard>
-              <HoverCardTrigger className='block w-fit ml-2'>
+              <HoverCardTrigger className='block w-fit ml-2 pt-2'>
                 <p className="text-xs text-muted-foreground cursor-default">
                   {currentValue < comparisonValue ? <ArrowTrendingDownIcon className="h-4 w-4 inline-block text-red-500 mr-1" /> : <ArrowTrendingUpIcon className="h-4 w-4 inline-block text-green-500 mr-1" />}
                   <span className='underline decoration-dotted'>{valueFormatter(Math.abs(currentValue - comparisonValue))}</span>
                 </p>
               </HoverCardTrigger>
-              <HoverCardContent className='flex items-center text-gray-500'>
+              <HoverCardContent align={'center'} sideOffset={0} className='flex items-center text-gray-500'>
                 <CalendarIcon className="h-6 w-6 inline-block mr-2" />
                 <span className='text-xs'>There were {valueFormatter(comparisonValue)} {title} on {dateFormatter(comparisonValueDate)}.</span>
               </HoverCardContent>
             </HoverCard>
-          </div>
-        ) : <></>}
+          ) : <></>}
+        </div>
+        <div className=''>
+          <span className='text-xs font-light cursor-default block'>{currentValueDate ? dateFormatter(currentValueDate):''}</span>
+        </div>
       </div>
-      <span className='text-xs font-light cursor-default block'>{dateFormatter(currentValueDate)}</span>
       {timeseries.length > 0
         ? (
           <div className='flex align-center justify-center mt-6'>
@@ -258,7 +265,8 @@ export default function LineChartWithValue({
             </ResponsiveContainer>
           </div>
         ) : (
-          <div className="flex items-center justify-center h-20">
+          <div className="flex items-center justify-center h-20 mt-6">
+            <BsCloudSlash size={24} className='text-gray-500 mr-2' />
             <span className="text-sm text-gray-500">{noDataMessage}</span>
           </div>
         )
