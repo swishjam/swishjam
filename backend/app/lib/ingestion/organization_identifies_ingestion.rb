@@ -69,6 +69,10 @@ module Ingestion
               created_at: event_json['timestamp'],
             }
           end
+          Analytics::UserOrganizationRelationship.create!(
+            organization_device_identifier: event_json[Analytics::Event::ReservedPropertyNames.ORGANIZATION_DEVICE_IDENTIFIER],
+            user_device_identifier: event_json[Analytics::Event::ReservedPropertyNames.USER_DEVICE_IDENTIFIER],
+          )
         else
           msg = "Unrecognized API Key found in Ingestion::UserIdentifiesIngestion: #{event_json['swishjam_api_key']}"
           Rails.logger.warn msg
