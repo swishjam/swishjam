@@ -15,6 +15,8 @@ import { BsArrowRightShort } from 'react-icons/bs'
 //import ClickableValueCard from '@/components/Dashboards/Components/ClickableValueCard';
 //import RetentionWidget from '@/components/Dashboards/Components/RetentionWidget';
 
+const sessionsFormatter = (num) => num.toLocaleString("en-US");
+
 export default function Home() {
   const [activeSubsChart, setActiveSubsChart] = useState();
   const [isRefreshing, setIsRefreshing] = useState();
@@ -168,25 +170,32 @@ export default function Home() {
   };
 
   const getAllData = async timeframe => {
-    setSessionsMarketingChart();
+    setIsRefreshing(true);
+    // Product 
     setSessionsProductChart();
+    setUniqueVisitorsProductChartData();
+    setUserRetentionData();
+    // Marketing 
+    setUniqueVisitorsMarketingChartData();
+    setPageViewsTimeseriesData(); 
+    setSessionsMarketingChart();
+    // SaaS Metrics 
     setMrrChart();
     setActiveSubsChart();
-    setUniqueVisitorsMarketingChartData();
-    setUniqueVisitorsProductChartData();
+   
+    // Users & Orgs
     setNewUsersData();
     setNewOrganizationsData();
-    setUserRetentionData();
-    setIsRefreshing(true);
     await Promise.all([
+      getPageViewsTimeseriesData(timeframe), 
       getSessionsMarketingData(timeframe),
-      getSessionsProductData(timeframe),
-      getBillingData(timeframe),
       getUniqueVisitorsMarketingData(timeframe, uniqueVisitorsMarketingGrouping),
       getUniqueVisitorsProductData(timeframe, uniqueVisitorsProductGrouping),
+      getSessionsProductData(timeframe),
+      getUserRetentionData(),
+      getBillingData(timeframe),
       getUsersData(),
       getOrganizationsData(),
-      getUserRetentionData(),
     ])
     setIsRefreshing(false);
   }
@@ -298,16 +307,17 @@ export default function Home() {
           previousValueDate={sessionsMarketingChart?.previousValueDate}
           showAxis={true}
           timeseries={sessionsMarketingChart?.timeseries}
+         
           valueFormatter={numSubs => numSubs.toLocaleString('en-US')}
         />
         <LineChartWithValue
           title='Page Views'
-          value={sessionsMarketingChart?.value}
-          previousValue={sessionsMarketingChart?.previousValue}
-          previousValueDate={sessionsMarketingChart?.previousValueDate}
+          value={pageViewsTimeseriesData?.value}
+          previousValue={pageViewsTimeseriesData?.previousValue}
+          previousValueDate={pageViewsTimeseriesData?.previousValueDate}
           showAxis={true}
-          timeseries={sessionsMarketingChart?.timeseries}
-          valueFormatter={numSubs => numSubs.toLocaleString('en-US')}
+          timeseries={pageViewsTimeseriesData?.timeseries}
+          valueFormatter={pageViewsTimeseriesData?.valueFormatter}
         />
         <LineChartWithValue
           title='Unique Visitors'
