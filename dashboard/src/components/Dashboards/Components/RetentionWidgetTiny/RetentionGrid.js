@@ -1,5 +1,6 @@
 import { dateFormatterForGrouping } from '@/lib/utils/timeseriesHelpers';
 import { useState } from 'react'
+//import { ChevronDownIcon, ChevronUpIcon } from "@heroicons/react/24/outline";
 import { BsArrowsAngleExpand, BsArrowsAngleContract } from 'react-icons/bs'
 import RetentionGridCell from './RetentionGridCell';
 import LoadingState from "./LoadingGrid";
@@ -24,26 +25,26 @@ export default function RetentionGrid({ retentionCohorts, isExpandable }) {
 
   return (
     <div className='relative'>
-      <div className={`no-scrollbar overflow-scroll min-w-full relative transition-all ${isExpanded ? '' : 'max-h-96'}`}>
+      <div className={`no-scrollbar overflow-scroll min-w-full relative transition-all ${isExpanded ? '' : 'max-h-44'}`}>
         <table>
-          <thead>
-            <tr className='font-normal'>
+          {/* <thead>
+           <tr className='font-normal'>
               <th className="text-left text-sm text-gray-700 font-normal pr-4" style={{ fontSize: '0.75rem' }}>
-                {/* Cohort */}
+                Week 
               </th>
               {Array.from({ length: maxNumWeeks }).map((_, i) => (
                 <th key={i} className="text-left text-sm text-gray-700 text-center font-normal" style={{ fontSize: '0.75rem' }}>
-                  Week {i}
+                  {i}
                 </th>
               ))}
             </tr>
-          </thead>
+          </thead>*/}
           <tbody className="bg-white">
             {sortedCohorts.map(({ id, num_users_in_cohort, retention_cohort_activity_periods, time_period: cohortDate }) => (
               <tr key={id}>
                 <>
                   <td className="whitespace-nowrap text-sm pr-4">
-                    <span className='block' style={{ fontSize: '0.85rem' }}>{weekFormatter(cohortDate)}</span>
+                    <span className='block' style={{ fontSize: '0.85rem' }}>{new Date(cohortDate).toLocaleDateString()}</span>
                     <span className='text-xs text-gray-400 block' style={{ fontSize: '0.7rem' }}>{num_users_in_cohort} users</span>
                   </td>
                   {retention_cohort_activity_periods.map(({ time_period: activityTimePeriod, num_active_users, num_periods_after_cohort }) => {

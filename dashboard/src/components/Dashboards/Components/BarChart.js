@@ -23,13 +23,15 @@ export default function BarChartComponent({
   showLegend = true,
   showXAxis = true,
   showYAxis = true,
+  showTableInsteadOfLegend = false,
   title,
   valueFormatter = val => val,
   xAxisKey = 'date',
+  className,
 }) {
   if ([null, undefined].includes(data)) {
     return (
-      <ConditionalCardWrapper includeCard={includeCard} title={title}>
+      <ConditionalCardWrapper includeCard={includeCard} title={title} className={className}>
         <Skeleton className="w-[100px] h-[30px] rounded-sm" />
         <Skeleton className="w-full h-44 rounded-sm mt-1" />
       </ConditionalCardWrapper>
@@ -40,7 +42,7 @@ export default function BarChartComponent({
   const [includeYAxis, setIncludeYAxis] = useState(showYAxis);
   const [includeGridLines, setIncludeGridLines] = useState(showGridLines);
   const [includeLegendOrTable, setIncludeLegendOrTableOrTable] = useState(showLegend);
-  const [useTableInsteadOfLegend, setUseTableInsteadOfLegend] = useState(false);
+  const [useTableInsteadOfLegend, setUseTableInsteadOfLegend] = useState(showTableInsteadOfLegend);
 
   const dateFormatter = dateFormatterForGrouping(groupedBy)
 
@@ -91,7 +93,7 @@ export default function BarChartComponent({
 
   return (
     <ConditionalCardWrapper
-      className='group'
+      className={`${className} group`}
       includeCard={includeCard}
       title={
         <div className="flex flex-row items-center justify-between space-y-0 pb-2">

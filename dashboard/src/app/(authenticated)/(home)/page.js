@@ -1,31 +1,22 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Link from 'next/link'
 import { SwishjamAPI } from '@/lib/api-client/swishjam-api';
 import LineChartWithValue from '@/components/Dashboards/Components/LineChartWithValue';
-import ClickableValueCard from '@/components/Dashboards/Components/ClickableValueCard';
 import ActiveUsersLineChartWithValue from '@/components/Dashboards/Components/ActiveUsersLineChartWithValue'
 import Timefilter from '@/components/Timefilter';
-import { Separator } from "@/components/ui/separator"
 import { Button } from '@/components/ui/button';
 import { ArrowPathIcon } from '@heroicons/react/24/outline';
 import InstallBanner from '@/components/InstallBanner';
 import ItemizedList from '@/components/Dashboards/Components/ItemizedList';
-import RetentionWidget from '@/components/Dashboards/Components/RetentionWidget';
-
-const currentChart = (selected, mrrChart, sessionsChart, activeSubsChart) => {
-  if (selected === 'MRR') {
-    return mrrChart;
-  } else if (selected === 'Sessions') {
-    return sessionsChart;
-  } else if (selected === 'Active Subscriptions') {
-    return activeSubsChart;
-  }
-}
+import RetentionWidgetTiny from '@/components/Dashboards/Components/RetentionWidgetTiny';
+import { BsArrowRightShort } from 'react-icons/bs'
+//import ClickableValueCard from '@/components/Dashboards/Components/ClickableValueCard';
+//import RetentionWidget from '@/components/Dashboards/Components/RetentionWidget';
 
 export default function Home() {
   const [activeSubsChart, setActiveSubsChart] = useState();
-  const [currentSelectedChart, setCurrentSelectedChart] = useState('Sessions');
   const [isRefreshing, setIsRefreshing] = useState();
   const [mrrChart, setMrrChart] = useState();
   const [newOrganizationsData, setNewOrganizationsData] = useState();
@@ -138,7 +129,6 @@ export default function Home() {
     getAllData(timeframeFilter);
   }, []);
 
-  const selectedChart = currentChart(currentSelectedChart, mrrChart, sessionsChart, activeSubsChart)
 
   return (
     <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mb-8">
@@ -160,7 +150,14 @@ export default function Home() {
           </Button>
         </div>
       </div>
-      <div className='grid grid-cols-3 gap-4 pt-8'>
+
+      <div className='pt-8 flex justify-between'>
+        <h3 className='font-semibold text-sm text-slate-600'>Key Product Metrics</h3>  
+        <Link href="/dashboards/product-analytics" className='group'>
+          <h3 className='font-semibold text-sm text-slate-600 group-hover:text-swishjam transition-all duration-500'>Deep Dive Report <BsArrowRightShort size={24} className='inline'/></h3>  
+        </Link>
+      </div> 
+      <div className='grid grid-cols-3 gap-4 pt-2'>
         <ActiveUsersLineChartWithValue
           data={uniqueVisitorsChartData}
           selectedGrouping={uniqueVisitorsGrouping}
@@ -170,16 +167,6 @@ export default function Home() {
             setUniqueVisitorsGrouping(group);
             getUniqueVisitorsData(timeframeFilter, group);
           }}
-        />
-        <LineChartWithValue
-          title='MRR'
-          value={mrrChart?.value}
-          selected={currentSelectedChart == 'MRR'}
-          previousValue={mrrChart?.previousValue}
-          previousValueDate={mrrChart?.previousValueDate}
-          valueFormatter={mrr => (mrr / 100).toLocaleString('en-US', { style: "currency", currency: "USD" })}
-          showAxis={false}
-          timeseries={mrrChart?.timeseries}
         />
         <LineChartWithValue
           title='New Users'
@@ -190,61 +177,54 @@ export default function Home() {
           timeseries={sessionsChart?.timeseries}
           valueFormatter={numSubs => numSubs.toLocaleString('en-US')}
         />
-      </div>
-      <div className='grid grid-cols-3 gap-6 pt-8'>
-        <ClickableValueCard
-          title='Sessions'
-          value={sessionsChart?.value}
-          selected={currentSelectedChart == 'Sessions'}
-          previousValue={sessionsChart?.previousValue}
-          previousValueDate={sessionsChart?.previousValueDate}
-          valueFormatter={numSubs => numSubs.toLocaleString('en-US')}
-          onClick={() => setCurrentSelectedChart('Sessions')}
+        <RetentionWidgetTiny
+          retentionCohorts={userRetentionData}
+          isExpandable={false}
         />
-        <ClickableValueCard
+      </div>
+      <div className='pt-8 flex justify-between'>
+        <h3 className='font-semibold text-sm text-slate-600'>Key SaaS Metrics</h3>  
+        <Link href="#" className='group opacity-50'>
+          <h3 className='font-semibold text-sm text-slate-600 group-hover:text-swishjam transition-all duration-500'>Deep Dive Report <BsArrowRightShort size={24} className='inline'/></h3>  
+        </Link>
+      </div> 
+      <div className='grid grid-cols-3 gap-4 pt-2'>
+        <LineChartWithValue
           title='MRR'
           value={mrrChart?.value}
-          selected={currentSelectedChart == 'MRR'}
           previousValue={mrrChart?.previousValue}
           previousValueDate={mrrChart?.previousValueDate}
-          valueFormatter={mrr => (mrr / 100).toLocaleString('en-US', { style: "currency", currency: "USD" })}
-          onClick={() => setCurrentSelectedChart('MRR')}
+          valueFormatter={mrr => {return (mrr / 100)?.toLocaleString('en-US', { style: "currency", currency: "USD" }) || 0}}
+          showAxis={false}
+          timeseries={mrrChart?.timeseries}
         />
-        <ClickableValueCard
-          title='Active Subscriptions'
-          value={activeSubsChart?.value}
-          selected={currentSelectedChart == 'Active Subscriptions'}
-          previousValue={activeSubsChart?.previousValue}
-          previousValueDate={sessionsChart?.previousValueDate}
-          valueFormatter={numSubs => numSubs.toLocaleString('en-US')}
-          onClick={() => setCurrentSelectedChart('Active Subscriptions')}
-        />
-      </div>
-      <div className='grid grid-cols-1 gap-6 pt-8'>
         <LineChartWithValue
-          title={currentSelectedChart}
-          value={selectedChart?.value}
-          previousValue={selectedChart?.previousValue}
-          previousValueDate={selectedChart?.previousValueDate}
-          timeseries={selectedChart?.timeseries}
-          groupedBy={selectedChart?.groupedBy}
-          valueFormatter={numSubs => currentSelectedChart === 'MRR' ? (numSubs / 100).toLocaleString('en-US', { style: "currency", currency: "USD" }) : numSubs.toLocaleString('en-US')}
-          showAxis={true}
+          title='Active Subscriptions'
+          showAxis={false}
+          timeseries={activeSubsChart?.timeseries}
+          value={activeSubsChart?.value}
+          previousValue={activeSubsChart?.previousValue}
+          previousValueDate={activeSubsChart?.previousValueDate}
+          valueFormatter={numSubs => {return numSubs?.toLocaleString('en-US') || 0}}
         />
-        <Separator className="my-6" />
-
+        <LineChartWithValue
+          title='Churn (Coming Soon)'
+          value={0}
+          previousValue={0}
+          previousValueDate={new Date()}
+          valueFormatter={() => (0).toLocaleString('en-US', { style: "currency", currency: "USD" })}
+          showAxis={false}
+          timeseries={[]}
+          className={'opacity-50'}
+        />
       </div>
-      <div className='grid grid-cols-2 gap-6 pt-8'>
-        <ActiveUsersLineChartWithValue
-          data={uniqueVisitorsChartData}
-          selectedGrouping={uniqueVisitorsGrouping}
-          showAxis={true}
-          onGroupingChange={group => {
-            setUniqueVisitorsChartData();
-            setUniqueVisitorsGrouping(group);
-            getUniqueVisitorsData(timeframeFilter, group);
-          }}
-        />
+      <div className='pt-8 flex justify-between'>
+        <h3 className='font-semibold text-sm text-slate-600'>Key Marketing Metrics</h3>  
+        <Link href="/dashboards/marketing-analytics" className='group'>
+          <h3 className='font-semibold text-sm text-slate-600 group-hover:text-swishjam transition-all duration-500'>Deep Dive Report <BsArrowRightShort size={24} className='inline'/></h3>  
+        </Link>
+      </div> 
+      <div className='grid grid-cols-3 gap-4 pt-2'>
         <LineChartWithValue
           title='Sessions'
           value={sessionsChart?.value}
@@ -254,13 +234,32 @@ export default function Home() {
           timeseries={sessionsChart?.timeseries}
           valueFormatter={numSubs => numSubs.toLocaleString('en-US')}
         />
+        <LineChartWithValue
+          title='Page Views'
+          value={sessionsChart?.value}
+          previousValue={sessionsChart?.previousValue}
+          previousValueDate={sessionsChart?.previousValueDate}
+          showAxis={true}
+          timeseries={sessionsChart?.timeseries}
+          valueFormatter={numSubs => numSubs.toLocaleString('en-US')}
+        />
+        <LineChartWithValue
+          title='Unique Visitors'
+          value={sessionsChart?.value}
+          previousValue={sessionsChart?.previousValue}
+          previousValueDate={sessionsChart?.previousValueDate}
+          showAxis={true}
+          timeseries={sessionsChart?.timeseries}
+          valueFormatter={numSubs => numSubs.toLocaleString('en-US')}
+        />
       </div>
-      <div className='pt-8'>
+      {/*<div className='pt-8'>
         <RetentionWidget retentionCohorts={userRetentionData} />
-      </div>
-      <div className='grid grid-cols-2 gap-6 pt-8'>
+      </div>*/}
+      <h3 className='pt-8 font-semibold text-sm text-slate-600'>New Users & Organizations</h3>  
+      <div className='grid grid-cols-2 gap-4 pt-8'>
         <ItemizedList
-          fallbackAvatarGenerator={user => user.initials}
+          fallbackAvatarGenerator={user => user.initials.slice(0,2)}
           items={newUsersData}
           titleFormatter={user => user.full_name || user.email || user.user_unique_identifier}
           subTitleFormatter={user => user.full_name ? user.email : null}
@@ -273,9 +272,10 @@ export default function Home() {
           }}
           title='New Users'
           viewMoreUrl='/users'
+          maxNumItems={5}
         />
         <ItemizedList
-          fallbackAvatarGenerator={org => org.initials}
+          fallbackAvatarGenerator={org => org.initials.slice(0,2)}
           items={newOrganizationsData}
           titleFormatter={org => org.name || org.organization_unique_identifier}
           linkFormatter={org => `/organizations/${org.id}`}
@@ -288,6 +288,7 @@ export default function Home() {
           }}
           title='New Organizations'
           viewMoreUrl='/organizations'
+          maxNumItems={5}
         />
       </div>
     </main>

@@ -7,6 +7,7 @@ import {
   UserCircleIcon,
   UserGroupIcon
 } from "@heroicons/react/24/outline";
+import { BsArrowUpRight } from 'react-icons/bs'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Button } from "@/components/ui/button"
 import {
@@ -34,9 +35,9 @@ export default function UserFlyout() {
   return (
     <DropdownMenu className='w-full'>
       <DropdownMenuTrigger asChild>
-        <Button variant='outline' className='w-full border-none flex justify-between'>
+        <Button variant='outline' className='w-full border-none rounded-none flex justify-between !ring-0'>
           <div className='flex items-center truncate'>
-            <UserCircleIcon className='text-gray-400 group-hover:text-swishjam duration-300 transition h-6 w-6 shrink-0 inline-block mr-2' />
+            <UserCircleIcon className='text-gray-400 group-hover:text-swishjam duration-500 transition h-6 w-6 shrink-0 inline-block mr-2' />
             <span className='truncate text-gray-700'>{email}</span>
           </div>
           <EllipsisVerticalIcon className="h-5 w-5 text-gray-400" aria-hidden="true" />
@@ -56,7 +57,7 @@ export default function UserFlyout() {
               <DropdownMenuShortcut>⌘,</DropdownMenuShortcut>
             </DropdownMenuItem>
           </Link>
-          <Link href='/team'>
+          <Link href='settings/team'>
             <DropdownMenuItem className='cursor-pointer py-3'>
               <UserGroupIcon className='h-5 w-5 text-gray-700 mr-2' />
               Team Management
@@ -105,6 +106,9 @@ export default function UserFlyout() {
             <DropdownMenuItem className='cursor-pointer py-3'>
               <DocumentTextIcon className='h-5 w-5 text-gray-700 mr-2' />
               Docs
+              <DropdownMenuShortcut>
+                <BsArrowUpRight size={14} className="" />
+              </DropdownMenuShortcut>
             </DropdownMenuItem>
           </Link>
         </DropdownMenuGroup>

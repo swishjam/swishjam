@@ -1,6 +1,7 @@
 "use client"
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { ScrollArea } from "@/components/ui/scroll-area"
 
 export default function DataTable({ headers, barChartData, getColor, ignoredKeys = ['date'] }) {
   let tableData = {};
@@ -14,9 +15,9 @@ export default function DataTable({ headers, barChartData, getColor, ignoredKeys
   tableData = Object.keys(tableData).map(key => ({ value: key, count: tableData[key] })).sort((a, b) => parseInt(b.count) - parseInt(a.count))
 
   return (
-    <div className="rounded-md border max-h-44 overflow-scroll">
+    <ScrollArea className="rounded-sm border h-64 w-full -mb-6 mt-4">
       <Table>
-        <TableHeader>
+        <TableHeader className="bg-gray-50">
           <TableRow>
             {headers.map((header, i) => (
               <TableHead key={i}>
@@ -55,6 +56,6 @@ export default function DataTable({ headers, barChartData, getColor, ignoredKeys
           }
         </TableBody>
       </Table>
-    </div>
+    </ScrollArea>
   )
 }
