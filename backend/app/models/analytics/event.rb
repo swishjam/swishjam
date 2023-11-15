@@ -51,5 +51,17 @@ module Analytics
         properties: properties.to_json,
       }
     end
+
+    def self.parsed_from_ingestion_queue(event_json_or_string)
+      event_json = event_json_or_string.is_a?(String) ? JSON.parse(event_json_or_string) : event_json_or_string
+      properties = (event_json['properties'] || {}).is_a?(String) ? JSON.parse(event_json['properties']) : event_json['properties']
+      OpenStruct.new(
+        uuid: event_json['uuid'],
+        swishjam_api_key: event_json['swishjam_api_key'],
+        name: event_json['name'],
+        occurred_at: event_json['occurred_at'],
+        properties: properties,
+      )
+    end
   end
 end

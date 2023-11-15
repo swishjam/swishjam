@@ -20,7 +20,7 @@ module Ingestion
         @ingestion_batch.num_seconds_to_complete = @ingestion_batch.completed_at - @ingestion_batch.started_at
         @ingestion_batch.save!
       rescue => e
-        Ingestion::QueueManager.push_records_into_queue(Ingestion::QueueManager::Queues.EVENTS, formatted_events)
+        Ingestion::QueueManager.push_records_into_queue(Ingestion::QueueManager::Queues.EVENTS_DEAD_LETTER_QUEUE, formatted_events)
         
         @ingestion_batch.completed_at = Time.current
         @ingestion_batch.num_seconds_to_complete = @ingestion_batch.completed_at - @ingestion_batch.started_at
