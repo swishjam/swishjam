@@ -20,6 +20,7 @@ export default function AdminPage() {
     setEventCountsTimeseries();
     setIngestionBatches();
     setQueueStats();
+    setDataSyncs();
     await Promise.all([
       SwishjamAPI.Admin.Ingestion.eventCounts().then(setEventCountsTimeseries),
       SwishjamAPI.Admin.Ingestion.queueStats().then(setQueueStats),
@@ -130,6 +131,9 @@ export default function AdminPage() {
             <thead>
               <tr className='grid grid-cols-5'>
                 <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+                  Workspace
+                </th>
+                <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
                   Provider
                 </th>
                 <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
@@ -149,6 +153,7 @@ export default function AdminPage() {
                   key={sync.id}
                   className="group hover:bg-gray-50 duration-300 transition grid grid-cols-5 items-center"
                 >
+                  <td className="whitespace-nowrap px-3 py-3.5 text-sm">{sync.workspace.name}</td>
                   <td className="whitespace-nowrap px-3 py-3.5 text-sm">{sync.provider}</td>
                   <td className="whitespace-nowrap px-3 py-3.5 text-sm">{new Date(sync.started_at).toLocaleDateString('en-us', { weekday: "short", year: "numeric", month: "short", day: "numeric", hour: 'numeric', minute: 'numeric' })}</td>
                   <td className="whitespace-nowrap px-3 py-3.5 text-sm">{sync.duration_in_seconds ? intelligentlyFormattedMs(sync.duration_in_seconds * 1_000) : 'In progress?'}</td>
