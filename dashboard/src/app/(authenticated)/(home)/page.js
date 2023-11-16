@@ -152,11 +152,11 @@ export default function Home() {
       </div>
 
       <div className='pt-8 flex justify-between'>
-        <h3 className='font-semibold text-sm text-slate-600'>Key Product Metrics</h3>  
+        <h3 className='font-semibold text-sm text-slate-600'>Key Product Metrics</h3>
         <Link href="/dashboards/product-analytics" className='group'>
-          <h3 className='font-semibold text-sm text-slate-600 group-hover:text-swishjam transition-all duration-500'>Deep Dive Report <BsArrowRightShort size={24} className='inline'/></h3>  
+          <h3 className='font-semibold text-sm text-slate-600 group-hover:text-swishjam transition-all duration-500'>Deep Dive Report <BsArrowRightShort size={24} className='inline' /></h3>
         </Link>
-      </div> 
+      </div>
       <div className='grid grid-cols-3 gap-4 pt-2'>
         <ActiveUsersLineChartWithValue
           data={uniqueVisitorsChartData}
@@ -183,18 +183,18 @@ export default function Home() {
         />
       </div>
       <div className='pt-8 flex justify-between'>
-        <h3 className='font-semibold text-sm text-slate-600'>Key SaaS Metrics</h3>  
+        <h3 className='font-semibold text-sm text-slate-600'>Key SaaS Metrics</h3>
         <Link href="#" className='group opacity-50'>
-          <h3 className='font-semibold text-sm text-slate-600 group-hover:text-swishjam transition-all duration-500'>Deep Dive Report <BsArrowRightShort size={24} className='inline'/></h3>  
+          <h3 className='font-semibold text-sm text-slate-600 group-hover:text-swishjam transition-all duration-500'>Deep Dive Report <BsArrowRightShort size={24} className='inline' /></h3>
         </Link>
-      </div> 
+      </div>
       <div className='grid grid-cols-3 gap-4 pt-2'>
         <LineChartWithValue
           title='MRR'
           value={mrrChart?.value}
           previousValue={mrrChart?.previousValue}
           previousValueDate={mrrChart?.previousValueDate}
-          valueFormatter={mrr => {return (mrr / 100)?.toLocaleString('en-US', { style: "currency", currency: "USD" }) || 0}}
+          valueFormatter={mrr => { return (mrr / 100)?.toLocaleString('en-US', { style: "currency", currency: "USD" }) || 0 }}
           showAxis={false}
           timeseries={mrrChart?.timeseries}
         />
@@ -205,7 +205,7 @@ export default function Home() {
           value={activeSubsChart?.value}
           previousValue={activeSubsChart?.previousValue}
           previousValueDate={activeSubsChart?.previousValueDate}
-          valueFormatter={numSubs => {return numSubs?.toLocaleString('en-US') || 0}}
+          valueFormatter={numSubs => { return numSubs?.toLocaleString('en-US') || 0 }}
         />
         <LineChartWithValue
           title='Churn (Coming Soon)'
@@ -219,11 +219,11 @@ export default function Home() {
         />
       </div>
       <div className='pt-8 flex justify-between'>
-        <h3 className='font-semibold text-sm text-slate-600'>Key Marketing Metrics</h3>  
+        <h3 className='font-semibold text-sm text-slate-600'>Key Marketing Metrics</h3>
         <Link href="/dashboards/marketing-analytics" className='group'>
-          <h3 className='font-semibold text-sm text-slate-600 group-hover:text-swishjam transition-all duration-500'>Deep Dive Report <BsArrowRightShort size={24} className='inline'/></h3>  
+          <h3 className='font-semibold text-sm text-slate-600 group-hover:text-swishjam transition-all duration-500'>Deep Dive Report <BsArrowRightShort size={24} className='inline' /></h3>
         </Link>
-      </div> 
+      </div>
       <div className='grid grid-cols-3 gap-4 pt-2'>
         <LineChartWithValue
           title='Sessions'
@@ -256,10 +256,10 @@ export default function Home() {
       {/*<div className='pt-8'>
         <RetentionWidget retentionCohorts={userRetentionData} />
       </div>*/}
-      <h3 className='pt-8 font-semibold text-sm text-slate-600'>New Users & Organizations</h3>  
+      <h3 className='pt-8 font-semibold text-sm text-slate-600'>New Users & Organizations</h3>
       <div className='grid grid-cols-2 gap-4 pt-8'>
         <ItemizedList
-          fallbackAvatarGenerator={user => user.initials.slice(0,2)}
+          fallbackAvatarGenerator={user => user.initials?.slice(0, 2)}
           items={newUsersData}
           titleFormatter={user => user.full_name || user.email || user.user_unique_identifier}
           subTitleFormatter={user => user.full_name ? user.email : null}
@@ -275,7 +275,7 @@ export default function Home() {
           maxNumItems={5}
         />
         <ItemizedList
-          fallbackAvatarGenerator={org => org.initials.slice(0,2)}
+          fallbackAvatarGenerator={org => org.initials?.slice(0, 2)}
           items={newOrganizationsData}
           titleFormatter={org => org.name || org.organization_unique_identifier}
           linkFormatter={org => `/organizations/${org.id}`}

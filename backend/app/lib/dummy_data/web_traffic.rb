@@ -18,7 +18,7 @@ module DummyData
 
       sessions = @number_of_sessions.times.map do
         session_event = create_session_with_page_views_and_events!(
-          start_time: Time.current - rand(-10..@data_begins_max_number_of_days_ago).days,
+          start_time: Time.current - rand(-10..@data_begins_max_number_of_days_ago.to_f).days,
           device_identifier: @device_identifiers.sample, 
         )
 
@@ -52,7 +52,7 @@ module DummyData
           os: ['Mac OS X', 'Windows', 'Linux'].sample,
           os_version: rand(1..10).to_s,
           user_agent: Faker::Internet.user_agent,
-        }
+        }.to_json
       )
 
       rand(1..10).times do |i|
@@ -85,7 +85,7 @@ module DummyData
           page_view_identifier: SecureRandom.uuid,
           url: "https://#{@host_url}#{@url_paths.sample}",
           # referrer: referrer_url,
-        }
+        }.to_json
       )
     end
 
@@ -102,7 +102,7 @@ module DummyData
           device_identifier: device_identifier,
           session_identifier: session_identifier,
           url: "https://#{@host_url}#{@url_paths.sample}",
-        })
+        }).to_json
       )
     end
   end
