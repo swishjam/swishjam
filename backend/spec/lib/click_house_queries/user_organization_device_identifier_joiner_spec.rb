@@ -77,7 +77,6 @@ RSpec.describe ClickHouseQueries::UserOrganizationDeviceIdentifierJoiner do
 
       joiner = described_class.new('my_public_key', org_profile_id: '1')
       user_ids = joiner.get_all_user_ids_associated_with_org
-      byebug
       expect(user_ids.count).to be(3)
       expect(user_ids).to include('1')
       expect(user_ids).to include('2')

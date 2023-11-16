@@ -70,8 +70,10 @@ module Ingestion
             }
           end
           Analytics::UserOrganizationRelationship.create!(
+            swishjam_api_key: event_json['swishjam_api_key'],
             organization_device_identifier: event_json[Analytics::Event::ReservedPropertyNames.ORGANIZATION_DEVICE_IDENTIFIER],
             user_device_identifier: event_json[Analytics::Event::ReservedPropertyNames.USER_DEVICE_IDENTIFIER],
+            created_at: event_json['timestamp'],
           )
         else
           msg = "Unrecognized API Key found in Ingestion::UserIdentifiesIngestion: #{event_json['swishjam_api_key']}"
