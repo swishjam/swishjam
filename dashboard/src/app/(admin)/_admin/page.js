@@ -156,7 +156,7 @@ export default function AdminPage() {
                   <td className="whitespace-nowrap px-3 py-3.5 text-sm">{sync.workspace.name}</td>
                   <td className="whitespace-nowrap px-3 py-3.5 text-sm">{sync.provider}</td>
                   <td className="whitespace-nowrap px-3 py-3.5 text-sm">{new Date(sync.started_at).toLocaleDateString('en-us', { weekday: "short", year: "numeric", month: "short", day: "numeric", hour: 'numeric', minute: 'numeric' })}</td>
-                  <td className="whitespace-nowrap px-3 py-3.5 text-sm">{sync.duration_in_seconds ? intelligentlyFormattedMs(sync.duration_in_seconds * 1_000) : 'In progress?'}</td>
+                  <td className="whitespace-nowrap px-3 py-3.5 text-sm">{sync.completed_at ? intelligentlyFormattedMs(sync.duration_in_seconds * 1_000) : 'In progress?'}</td>
                   <td className="px-3 py-3.5 text-sm">{sync.error_message}</td>
                 </tr>
               ))}
