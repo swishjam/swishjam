@@ -16,6 +16,7 @@ module Api
                 name: sync.workspace.name,
               },
             }
+          end
           render json: syncs, status: :ok
         end
       end
