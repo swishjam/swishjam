@@ -1,7 +1,6 @@
 export class CookieHelper {
   static setCookie = ({ name, value, expiresIn, path, domain, secure }) => {
     let cookie = `${name}=${value}`;
-    debugger;
     if (expiresIn) {
       const expires = new Date();
       expires.setTime(expires.getTime() + expiresIn);

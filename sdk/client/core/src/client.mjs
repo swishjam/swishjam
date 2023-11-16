@@ -42,6 +42,7 @@ export class Client {
 
   setOrganization = (organizationIdentifier, traits = {}) => {
     return this.errorHandler.executeWithErrorHandling(() => {
+      // organizationId is only persisted so that we can check if setOrganization has been called before with a different organization
       const previouslySetOrganization = DataPersister.get('organizationId');
       // we only want to record the organization if it's different than the previously set organization
       if (previouslySetOrganization !== organizationIdentifier) {
