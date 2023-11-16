@@ -14,6 +14,8 @@ module StripeHelpers
 
       def custom_attributes_for(stripe_event)
         case stripe_event.type
+        when 'customer.subscription.created'
+          StripeHelpers::EventAttributeParsers::SubscriptionCreated.new(stripe_event).to_json
         when 'charge.failed'
           StripeHelpers::EventAttributeParsers::ChargeFailed.new(stripe_event).to_json
         when 'charge.succeeded'
