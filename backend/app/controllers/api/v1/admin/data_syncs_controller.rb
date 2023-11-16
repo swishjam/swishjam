@@ -3,7 +3,7 @@ module Api
     module Admin
       class DataSyncsController < BaseController
         def index
-          render json: DataSync.all.limit(50), status: :ok
+          render json: DataSync.all.order(started_at: :desc).limit(50), status: :ok
         end
       end
     end

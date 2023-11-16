@@ -16,7 +16,9 @@ export default function EventAndPropertySelector({
   const [uniquePropertiesForEvent, setUniquePropertiesForEvent] = useState();
 
   useEffect(() => {
-    SwishjamAPI.Events.listUnique({ dataSource }).then(setUniqueEvents);
+    SwishjamAPI.Events.listUnique({ dataSource }).then(events => {
+      setUniqueEvents(events.sort((a, b) => a.name.localeCompare(b.name)));
+    });
     setUniquePropertiesForEvent();
   }, [dataSource])
 
