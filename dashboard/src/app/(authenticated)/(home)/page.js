@@ -13,12 +13,12 @@ import ItemizedList from '@/components/Dashboards/Components/ItemizedList';
 import RetentionWidgetTiny from '@/components/Dashboards/Components/RetentionWidgetTiny';
 import { BsArrowRightShort } from 'react-icons/bs'
 
-const sessionsFormatter = (num) => { return num?.toLocaleString("en-US") || 0};
+const sessionsFormatter = (num) => { return num?.toLocaleString("en-US") || 0 };
 
 export default function Home() {
   const [isRefreshing, setIsRefreshing] = useState();
   const [timeframeFilter, setTimeframeFilter] = useState('thirty_days');
- 
+
   // SaaS Metrics Data
   const [mrrChart, setMrrChart] = useState();
   const [activeSubsChart, setActiveSubsChart] = useState();
@@ -34,7 +34,7 @@ export default function Home() {
   const [uniqueVisitorsProductChartData, setUniqueVisitorsProductChartData] = useState();
   const [uniqueVisitorsProductGrouping, setUniqueVisitorsProductGrouping] = useState('weekly');
   const [userRetentionData, setUserRetentionData] = useState();
- 
+
   // Other
   const [newOrganizationsData, setNewOrganizationsData] = useState();
   const [newUsersData, setNewUsersData] = useState();
@@ -104,7 +104,7 @@ export default function Home() {
       })
     })
   };
-  
+
   const getSessionsProductData = async timeframe => {
     return await SwishjamAPI.Sessions.timeseries({ dataSource: 'product', timeframe }).then((sessionData) => {
       setSessionsProductChart({
@@ -181,17 +181,17 @@ export default function Home() {
     setUserRetentionData();
     // Marketing 
     setUniqueVisitorsMarketingChartData();
-    setPageViewsTimeseriesData(); 
+    setPageViewsTimeseriesData();
     setSessionsMarketingChart();
     // SaaS Metrics 
     setMrrChart();
     setActiveSubsChart();
-   
+
     // Users & Orgs
     setNewUsersData();
     setNewOrganizationsData();
     await Promise.all([
-      getPageViewsTimeseriesData(timeframe), 
+      getPageViewsTimeseriesData(timeframe),
       getSessionsMarketingData(timeframe),
       getUniqueVisitorsMarketingData(timeframe, uniqueVisitorsMarketingGrouping),
       getUniqueVisitorsProductData(timeframe, uniqueVisitorsProductGrouping),
@@ -273,11 +273,7 @@ export default function Home() {
           value={mrrChart?.value}
           previousValue={mrrChart?.previousValue}
           previousValueDate={mrrChart?.previousValueDate}
-<<<<<<< HEAD
-          valueFormatter={mrr => { return (mrr / 100)?.toLocaleString('en-US', { style: "currency", currency: "USD" }) || 0 }}
-=======
           valueFormatter={mrr => ((mrr || 0) / 100)?.toLocaleString('en-US', { style: "currency", currency: "USD" })}
->>>>>>> 501f74e63249a355db0cfbc70d4e488789814478
           showAxis={false}
           timeseries={mrrChart?.timeseries}
         />
@@ -315,7 +311,7 @@ export default function Home() {
           previousValueDate={sessionsMarketingChart?.previousValueDate}
           showAxis={true}
           timeseries={sessionsMarketingChart?.timeseries}
-         
+
           valueFormatter={numSubs => numSubs.toLocaleString('en-US')}
         />
         <LineChartWithValue
@@ -343,11 +339,7 @@ export default function Home() {
       <h3 className='pt-8 font-semibold text-sm text-slate-600'>New Users & Organizations</h3>
       <div className='grid grid-cols-2 gap-4 pt-8'>
         <ItemizedList
-<<<<<<< HEAD
-          fallbackAvatarGenerator={user => user.initials?.slice(0, 2)}
-=======
-          fallbackAvatarGenerator={user => {return user?.initials?.slice(0,2) || ''}}
->>>>>>> 501f74e63249a355db0cfbc70d4e488789814478
+          fallbackAvatarGenerator={user => { return user?.initials?.slice(0, 2) || '' }}
           items={newUsersData}
           titleFormatter={user => user.full_name || user.email || user.user_unique_identifier}
           subTitleFormatter={user => user.full_name ? user.email : null}
@@ -363,11 +355,7 @@ export default function Home() {
           maxNumItems={5}
         />
         <ItemizedList
-<<<<<<< HEAD
-          fallbackAvatarGenerator={org => org.initials?.slice(0, 2)}
-=======
-          fallbackAvatarGenerator={org => {return org?.initials?.slice(0,2) || ''}}
->>>>>>> 501f74e63249a355db0cfbc70d4e488789814478
+          fallbackAvatarGenerator={org => { return org?.initials?.slice(0, 2) || '' }}
           items={newOrganizationsData}
           titleFormatter={org => org.name || org.organization_unique_identifier}
           linkFormatter={org => `/organizations/${org.id}`}
