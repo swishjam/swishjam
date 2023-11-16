@@ -28,7 +28,9 @@ module EventTriggers
     def self.find_matching_triggers_for_events(formatted_json_events, triggers)
       formatted_json_events.map do |event|
         matching_triggers_for_this_event = triggers.map do |trigger| 
-          if trigger['event_name'] == event['name'] && trigger['public_key'] == event['swishjam_api_key']
+          if trigger['event_name'] == event['name'] && 
+              trigger['public_key'] == event['swishjam_api_key'] &&
+              should_ignore_event?(event) == false
             {
               event: event,
               trigger_id: trigger['trigger_id']
@@ -36,6 +38,14 @@ module EventTriggers
           end
         end.compact
       end.flatten
+    end
+
+    def self.should_ignore_event?(event)
+      parsed_event = Analytics::Event.parsed_from_ingestion_queue(event)
+      is_design_patterns = ['swishjam_prdct-c094a41f338335c4', 'swishjam_mrkt-9a3639e811447334'].include?(parsed_event.swishjam_api_key)
+      is_design_patterns &&
+        parsed_event.name == 'presented_with_your_subscription' &&
+        (parsed_event.properties['userEmail']&.ends_with?('gmail.com') || parsed_event.properties['userEmail']&.ends_with?('.ru') )
     end
   end
 end

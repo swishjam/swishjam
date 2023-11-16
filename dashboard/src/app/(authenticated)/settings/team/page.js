@@ -1,5 +1,6 @@
 'use client';
 
+import { usePathname } from 'next/navigation'
 import CopyToClipboard from 'react-copy-to-clipboard';
 import InviteModal from '@/components/TeamManagement/NewInvitationModal';
 import RemoveWorkspaceMemberModal from '@/components/TeamManagement/RemoveWorkspaceMemberModal';
@@ -8,10 +9,12 @@ import { SwishjamAPI } from "@/lib/api-client/swishjam-api";
 import { useAuthData } from '@/hooks/useAuthData'
 import { UserPlusIcon, ClipboardDocumentIcon, EllipsisVerticalIcon, TrashIcon } from '@heroicons/react/24/outline';
 import { useState, useEffect, Fragment } from 'react';
+import Tabs from '@/components/Settings/Tabs';
 
 const classNames = (...classes) => classes.filter(Boolean).join(' ')
 
 export default function Team() {
+  const pathname = usePathname();
   const { userId: currentUserId } = useAuthData()
   const [inviteModalIsOpen, setInviteModalIsOpen] = useState(false);
   const [workspaceMembers, setWorkspaceMembers] = useState();
@@ -39,6 +42,14 @@ export default function Team() {
         />
       )}
       <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mb-8 mt-12">
+        <div className='grid grid-cols-2 my-8 flex items-center'>
+          <div>
+            <h1 className="text-lg font-medium text-gray-700 mb-0">Settings</h1>
+          </div>
+        </div>
+
+        <Tabs className="mb-8" currentPath={pathname} />
+    
         <div className='my-8 grid grid-cols-2'>
           <h1 className="text-lg font-medium text-gray-700 mb-0">Team Management</h1>
           <div className='flex justify-end'>
