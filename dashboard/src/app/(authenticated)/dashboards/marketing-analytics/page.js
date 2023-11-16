@@ -98,7 +98,7 @@ export default function PageMetrics() {
     ])
   };
 
-  const getpageViewsTimeseriesData = async timeframe => {
+  const getPageViewsTimeseriesData = async timeframe => {
     return await SwishjamAPI.PageViews.timeseries({ timeframe, dataSource: 'marketing' }).then(
       ({ current_count, comparison_count, comparison_end_time, timeseries, comparison_timeseries, grouped_by }) => {
         setPageViewsTimeseriesData({
@@ -154,7 +154,7 @@ export default function PageMetrics() {
     // Reload all the data
     await Promise.all([
       getSessionTimeseriesData(timeframe),
-      getpageViewsTimeseriesData(timeframe),
+      getPageViewsTimeseriesData(timeframe),
       getUniqueVisitorsTimeseries(timeframe),
       getPageViewsBarChartData(timeframe),
       getDemographicsBarChartData(timeframe),
