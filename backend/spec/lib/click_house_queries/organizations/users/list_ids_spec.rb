@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-RSpec.describe ClickHouseQueries::UserOrganizationDeviceIdentifierJoiner do
+RSpec.describe ClickHouseQueries::Organizations::Users::ListIds do
   describe '#get_all_user_ids_associated_with_org' do
     it 'returns all the swishjam user IDs for the specified organization' do
       def register_user_identify_event(user_device_identifier:, org_device_identifier:, swishjam_user_id:, swishjam_api_key: 'my_public_key', occurred_at: Time.current)

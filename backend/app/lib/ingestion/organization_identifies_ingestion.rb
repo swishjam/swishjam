@@ -24,7 +24,7 @@ module Ingestion
         @ingestion_batch.num_seconds_to_complete = @ingestion_batch.completed_at - @ingestion_batch.started_at
         @ingestion_batch.save!
       rescue => e
-        Ingestion::QueueManager.push_records_into_queue(Ingestion::QueueManager::Queues.ORGANIZATION, queued_organization_identify_events)
+        Ingestion::QueueManager.push_records_into_queue(Ingestion::QueueManager::Queues.ORGANIZATION_DEAD_LETTER_QUEUE, queued_organization_identify_events)
         @ingestion_batch.num_records = queued_organization_identify_events.count
         @ingestion_batch.completed_at = Time.current
         @ingestion_batch.num_seconds_to_complete = @ingestion_batch.completed_at - @ingestion_batch.started_at
@@ -44,12 +44,13 @@ module Ingestion
       events.each do |event_json|
         properties = JSON.parse(event_json['properties'] || '{}')
         unique_identifier = properties['organizationIdentifier'] || properties['organization_identifier'] || properties['organizationId'] || properties['organization_id']
-        org_name = properties['name']
+        org_name = properties['name'] || properties['organizationName'] || properties['organization_name'] || properties['orgName'] || properties['org_name']
         metadata = properties.except(
           'source', 'sdk_version', 'url', 'device_identifier', 'user_device_identifier', 'organization_device_identifier', 'session_identifier', 'page_view_identifier',
           'organizationIdentifier', 'organization_identifier', 'organizationId', 'organization_id', 'name'
         )
 
+        byebug
         workspace = Workspace.for_public_key(event_json['swishjam_api_key'])
         if workspace
           profile = workspace.analytics_organization_profiles.find_by(organization_unique_identifier: unique_identifier)
@@ -60,20 +61,21 @@ module Ingestion
               organization_unique_identifier: unique_identifier, 
               name: org_name, 
               metadata: metadata,
-              created_at: event_json['timestamp'],
+              created_at: event_json['occurred_at'] ? DateTime.parse(event_json['occurred_at']) : Time.current,
             )
             new_profile_data << { 
               swishjam_api_key: event_json['swishjam_api_key'], 
               unique_identifier: unique_identifier,
               swishjam_organization_id: profile.id,
-              created_at: event_json['timestamp'],
+              created_at: event_json['occurred_at'] ? DateTime.parse(event_json['occurred_at']) : Time.current,
             }
           end
-          Analytics::UserOrganizationRelationship.create!(
+          byebug
+          Analytics::UserOrganizationDeviceIdentifier.create!(
             swishjam_api_key: event_json['swishjam_api_key'],
-            organization_device_identifier: event_json[Analytics::Event::ReservedPropertyNames.ORGANIZATION_DEVICE_IDENTIFIER],
-            user_device_identifier: event_json[Analytics::Event::ReservedPropertyNames.USER_DEVICE_IDENTIFIER],
-            created_at: event_json['timestamp'],
+            organization_device_identifier: properties[Analytics::Event::ReservedPropertyNames.ORGANIZATION_DEVICE_IDENTIFIER],
+            user_device_identifier: properties[Analytics::Event::ReservedPropertyNames.USER_DEVICE_IDENTIFIER],
+            created_at: event_json['occurred_at'] ? DateTime.parse(event_json['occurred_at']) : Time.current,
           )
         else
           msg = "Unrecognized API Key found in Ingestion::UserIdentifiesIngestion: #{event_json['swishjam_api_key']}"
@@ -96,7 +98,7 @@ module Ingestion
             swishjam_api_key: event_json['swishjam_api_key'],
             swishjam_organization_id: profile.id,
             organization_device_identifier: properties[Analytics::Event::ReservedPropertyNames.ORGANIZATION_DEVICE_IDENTIFIER],
-            occurred_at: event_json['occurred_at'],
+            occurred_at: event_json['occurred_at'] ? DateTime.parse(event_json['occurred_at']) : Time.current,
           }
         else
           msg = "Unable to find AnalyticsOrganizationProfile for #{unique_identifier}. This should have been created or updated in the previous method `create_or_update_organization_profiles!`"

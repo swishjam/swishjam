@@ -6,7 +6,6 @@ const ONE_YEAR_IN_MS = 365 * 24 * 60 * 60 * 1000;
 
 export class DeviceIdentifiers {
   static getUserDeviceIdentifierValue = () => {
-    debugger;
     return CookieHelper.getCookie(SWISHJAM_USER_DEVICE_IDENTIFIER_COOKIE_NAME) || this._setCookie(SWISHJAM_USER_DEVICE_IDENTIFIER_COOKIE_NAME, { expiresIn: ONE_YEAR_IN_MS, prefix: 'user' });
   }
 

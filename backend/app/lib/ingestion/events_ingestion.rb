@@ -13,6 +13,7 @@ module Ingestion
     def ingest!
       formatted_events = parse_events_from_queue_and_push_identify_events_into_queues!
       begin
+        byebug
         Analytics::Event.insert_all!(formatted_events) if formatted_events.any?
         
         @ingestion_batch.num_records = formatted_events.count

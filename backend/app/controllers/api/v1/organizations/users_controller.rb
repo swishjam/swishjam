@@ -3,7 +3,10 @@ module Api
     module Organizations
       class UsersController < BaseController
         def index
-          render json: @organization.analytics_user_profiles, each_serializer: UserProfileSerializer, status: :ok
+          params[:data_source] ||= ApiKey::ReservedDataSources.PRODUCT
+          user_ids = ClickHouseQueries::Organizations::Users::ListIds.new(public_keys_for_requested_data_source, org_profile_id: @organization.id).get_all_user_ids_associated_with_org
+          user_profiles = AnalyticsUserProfile.where(id: user_ids)
+          render json: user_profiles, each_serializer: UserProfileSerializer, status: :ok
         end
 
         def active

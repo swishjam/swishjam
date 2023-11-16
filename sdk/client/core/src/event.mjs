@@ -27,9 +27,9 @@ export class Event {
       session_identifier: this.sessionId,
       page_view_identifier: this.pageViewId,
       url: this.url,
-      ...this.attributes,
       sdk_version: SDK_VERSION,
-      source: 'web'
+      source: 'web',
+      ...this.attributes,
     }
   }
 }

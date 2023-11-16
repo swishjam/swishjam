@@ -51,7 +51,7 @@ export class Client {
         if (previouslySetOrganization) this.newSession();
         DataPersister.set('organizationId', organizationIdentifier);
         // at this point we will have a new organization device identifier
-        this.record('organization', { organizationIdentifier, ...traits })
+        return this.record('organization', { organizationIdentifier, ...traits })
       }
     });
   }

@@ -22,7 +22,7 @@ const OrgProfileCard = ({ orgData, ...props }) => {
             <Avatar className="h-16 w-16 mr-4 border border-slate-200">
               {orgData.avatarUrl
                 ? <AvatarImage src={orgData.avatarUrl} alt="Avatar" />
-                : <AvatarFallback className="text-lg">{orgData.name.split(' ').map(word => word[0]).join('').toUpperCase()}</AvatarFallback>
+                : <AvatarFallback className="text-lg">{orgData.initials}</AvatarFallback>
               }
             </Avatar>
             <div>
@@ -105,32 +105,7 @@ const OrgProfileCard = ({ orgData, ...props }) => {
     </Card>
   )
 }
-/*
-<div className='flex flex-col items-end justify-end text-base text-gray-500'>
-            <div className='space-y-2'>
-              <div className='flex items-center'>
-                <CalendarIcon className='h-4 w-4 text-gray-500 inline-block mr-2' />
-                <span className='text-base'>
-                  {((orgData.mrr || 0) / 100).toLocaleString('en-us', { style: 'currency', currency: 'USD' })} MRR
-                </span>
-              </div>
 
-              <div className='flex items-center'>
-                <CalendarIcon className='h-4 w-4 text-gray-500 inline-block mr-2' />
-                <span className='text-base'>
-                  {((orgData.lifetimeRevenue || 0) / 100).toLocaleString('en-us', { style: 'currency', currency: 'USD' })} LTV
-                </span>
-              </div>
-
-              <div className='flex items-center'>
-                <CalendarIcon className='h-4 w-4 text-gray-500 inline-block mr-2' />
-                <span className='text-base'>
-                  {new Date(orgData.createdAt).toLocaleDateString('en-us', { weekday: "short", year: "numeric", month: "short", day: "numeric" })}
-                </span>
-              </div>
-            </div>
-          </div>
-*/
 const OrganizationProfile = ({ params }) => {
   const { id } = params;
 
@@ -150,7 +125,7 @@ const OrganizationProfile = ({ params }) => {
       title: organizationData?.name || `Unknown Org: ${organizationData?.id.split('-')[0]}`,
       url: null
     }
-  ] 
+  ]
 
   const getActiveUsersData = type => {
     const derivedTimeframe = type === 'monthly' ? 'six_months' : type === 'weekly' ? 'three_months' : 'thirty_days'
@@ -185,6 +160,8 @@ const OrganizationProfile = ({ params }) => {
     });
   }, [])
 
+  console.log(topUsers);
+
   if (!organizationData) return <LoadingView />
 
   return (
@@ -192,7 +169,7 @@ const OrganizationProfile = ({ params }) => {
       <Breadcrumbs paths={breadcrumbPaths} />
       <div className='grid grid-cols-10 gap-4 mt-8'>
         <OrgProfileCard
-          className="col-span-4" 
+          className="col-span-4"
           orgData={organizationData}
         />
         <div className='col-span-6'>
@@ -213,17 +190,17 @@ const OrganizationProfile = ({ params }) => {
             leftItemHeaderKey='name'
             leftItemSubHeaderKey='email'
             rightItemKey='session_count'
-            rightItemKeyFormatter={value => value ? `${value} sessions`:''}
+            rightItemKeyFormatter={value => value ? `${value} sessions` : ''}
             fallbackAvatarGenerator={item => item.full_name.split(' ').map(word => word[0]).join('').toUpperCase()}
             linkFormatter={user => `/users/${user.id}`}
           />
           <BarList
-            className="mt-4" 
+            className="mt-4"
             title='Top pages'
             items={pageHitData}
           />
         </div>
-      </div> 
+      </div>
     </main>
   )
 }
