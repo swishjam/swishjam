@@ -4,39 +4,32 @@ require 'tty-progressbar'
 namespace :tasks do
   desc "Enqueues the UserRetentionSyncJob to sync all user retention data for all workspaces"
   task sync_user_retention_data: [:environment] do
-    prompter = TTY::Prompt.new
-    
-    oldest_cohort_selected = prompter.select('What is the oldest cohort we should update/create?', ['1 week old', '1 month old', '3 months old', '6 months old', '12 months old', '18 months old']){ |q| q.default '1 month old' }
-    oldest_cohort_date = {
-      '1 week old' => 1.week.ago,
-      '1 month old' => 1.month.ago,
-      '3 months old' => 3.months.ago,
-      '6 months old' => 6.months.ago,
-      '12 months old' => 12.months.ago,
-      '18 months old' => 18.months.ago,
-    }[oldest_cohort_selected]
-    
-    oldest_activity_period_selected = prompter.select('How far back should we update/create activity periods for each cohort??', ['1 week', '1 month', '3 months', '6 months', '12 months', '18 months']){ |q| q.default '1 month' }
-    oldest_activity_period = {
-      '1 week' => 1.week.ago,
-      '1 month' => 1.month.ago,
-      '3 months' => 3.months.ago,
-      '6 months' => 6.months.ago,
-      '12 months' => 12.months.ago,
-      '18 months' => 18.months.ago,
-    }[oldest_activity_period_selected]
-
+    # duplicated from UserRetentionSyncJob so we can access the data_syncs
     ActiveRecord::Base.logger.silence do
-      start_time = Time.now
-      workspaces = Workspace.all
-      progress_bar = TTY::ProgressBar.new("Syncing #{workspaces.count} workspaces\' user retention data [:bar]", total: workspaces.count, bar_format: :block)
-      workspaces.each do |workspace|
-        puts "Synchornizing #{workspace.name} user retention data...".colorize(:yellow)
-        DataSynchronizers::UserRetention.new(workspace, oldest_cohort_date: oldest_cohort_date, oldest_activity_week: oldest_activity_period).sync_workspaces_retention_cohort_data!
+      progress_bar = TTY::ProgressBar.new("Syncing user retention data for all workspaces [:bar]", total: Workspace.count, bar_format: :block)
+      syncs = Workspace.all.map do |workspace|
+        data_sync = DataSync.create(workspace: workspace, provider: 'swishjam_user_retention', started_at: Time.current)
+        begin
+          DataSynchronizers::UserRetention.new(workspace, oldest_cohort_date: 12.months.ago, oldest_activity_week: 8.weeks.ago).sync_workspaces_retention_cohort_data!
+          puts "Synced workspace #{workspace.name} (#{workspace.id}) user retention data (data sync: #{data_sync.id})".colorize(:green)
+          data_sync.completed!
+        rescue => e
+          puts "Failed to sync workspace #{workspace.name} (#{workspace.id}) user retention data (data sync: #{data_sync.id}): #{e.inspect}".colorize(:red)
+          data_sync.failed!(e.message)
+        end
         progress_bar.advance
-        puts "\n"
+        data_sync
       end
-      puts "Synced #{workspaces.count} workspace in #{Time.now - start_time} seconds.".colorize(:green)
+
+      puts "\nRan #{syncs.count} data syncs".colorize(:grey)
+      if syncs.any?(&:error_message)
+        puts "Some data syncs failed:".colorize(:red)
+        syncs.select(&:error_message).each do |data_sync|
+          puts "  #{data_sync.workspace.name}: #{data_sync.error_message}".colorize(:red)
+        end
+      else
+        puts "All data syncs succeeded".colorize(:green)
+      end
     end
   end
 end
