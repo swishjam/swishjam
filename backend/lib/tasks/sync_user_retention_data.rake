@@ -6,9 +6,10 @@ namespace :tasks do
   task sync_user_retention_data: [:environment] do
     # duplicated from UserRetentionSyncJob so we can access the data_syncs
     ActiveRecord::Base.logger.silence do
-      progress_bar = TTY::ProgressBar.new("Syncing user retention data for all workspaces [:bar]", total: Workspace.count, bar_format: :block)
-      syncs = Workspace.all.map do |workspace|
-        data_sync = DataSync.create(workspace: workspace, provider: 'swishjam_user_retention', started_at: Time.current)
+      all_workspaces = Workspace.all
+      progress_bar = TTY::ProgressBar.new("Syncing user retention data for all #{all_workspaces.count} workspaces [:bar]", total: all_workspaces.count, bar_format: :block)
+      syncs = all_workspaces.map do |workspace|
+        data_sync = DataSync.create!(workspace: workspace, provider: 'swishjam_user_retention', started_at: Time.current)
         begin
           DataSynchronizers::UserRetention.new(workspace, oldest_cohort_date: 12.months.ago, oldest_activity_week: 8.weeks.ago).sync_workspaces_retention_cohort_data!
           puts "Synced workspace #{workspace.name} (#{workspace.id}) user retention data (data sync: #{data_sync.id})".colorize(:green)
@@ -22,13 +23,12 @@ namespace :tasks do
       end
 
       puts "\nRan #{syncs.count} data syncs".colorize(:grey)
-      if syncs.any?(&:error_message)
-        puts "Some data syncs failed:".colorize(:red)
-        syncs.select(&:error_message).each do |data_sync|
-          puts "  #{data_sync.workspace.name}: #{data_sync.error_message}".colorize(:red)
+      syncs.each do |sync|
+        if sync.failed?
+          puts "Data sync failed for workspace #{sync.workspace.name} (#{sync.workspace.id}): #{sync.error_message}".colorize(:red)
+        else
+          puts "Data sync succeeded for workspace #{sync.workspace.name} (#{sync.workspace.id})".colorize(:green)
         end
-      else
-        puts "All data syncs succeeded".colorize(:green)
       end
     end
   end

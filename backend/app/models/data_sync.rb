@@ -11,4 +11,20 @@ class DataSync < Transactional
     Sentry.capture_message("Data sync #{id} failed for workspace #{workspace.name}: #{error_message}")
     update!(error_message: error_message, completed_at: Time.current, duration_in_seconds: Time.current - started_at)
   end
+
+  def succeeded?
+    completed? && !failed?
+  end
+
+  def failed?
+    error_message.present?
+  end
+
+  def completed?
+    completed_at.present?
+  end
+
+  def pending?
+    !completed?
+  end
 end
