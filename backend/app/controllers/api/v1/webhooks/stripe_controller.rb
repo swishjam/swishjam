@@ -28,7 +28,6 @@ module Api
             Sentry.capture_message("Received Stripe webhook from account #{params[:account]}, but unable to find matching enabled Stripe integration record.")
           end
           render json: {}, status: :ok
-        end
         rescue => e
           Sentry.capture_exception(e)
           Rails.logger.error "Unable to process Stripe Webhook: #{e.inspect}"
