@@ -60,15 +60,7 @@ export default function RenderingEngine({
               onDelete={() => onDashboardComponentDelete(i)}
               onDuplicate={() => onDashboardComponentDuplicate({ id: configuration.i, configuration })}
             >
-              <RenderingEngineDashboardComponent
-                // title={configuration.title}
-                // event={configuration.event}
-                // property={configuration.property}
-                // calculation={configuration.calculation}
-                // dataSource={configuration.dataSource || 'all'}
-                configuration={configuration}
-                timeframe={timeframe}
-              />
+              <RenderingEngineDashboardComponent configuration={configuration} timeframe={timeframe} />
             </ContextMenuableComponent>
           </Card>
         )
