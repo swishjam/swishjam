@@ -92,7 +92,7 @@ export default function NewSlackEventTriggerModal({ isOpen, onClose, onNewTrigge
     });
     SwishjamAPI.Events.listUnique().then(events => {
       const sortedEvents = events.sort((a, b) => {
-        if (a.toLowerCase() < b.toLowerCase()) {
+        if (a.name.toLowerCase() < b.name.toLowerCase()) {
           return -1;
         } else if (a.name.toLowerCase() > b.name.toLowerCase()) {
           return 1;
@@ -100,7 +100,7 @@ export default function NewSlackEventTriggerModal({ isOpen, onClose, onNewTrigge
           return 0;
         }
       })
-      setUniqueEvents
+      setUniqueEvents(sortedEvents);
     });
   }, [])
 
