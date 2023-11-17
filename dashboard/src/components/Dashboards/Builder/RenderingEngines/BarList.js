@@ -2,8 +2,9 @@ import { useEffect, useState } from "react";
 import BarList from "@/components/Dashboards/Components/BarList";
 import SwishjamAPI from '@/lib/api-client/swishjam-api';
 
-export default function BarListDashboardComponent({ title, event, property, timeframe, dataSource }) {
+export default function BarListDashboardComponent({ configuration, timeframe }) {
   const [barListData, setBarListData] = useState();
+  const { title, event, property, dataSource } = configuration;
 
   useEffect(() => {
     setBarListData();

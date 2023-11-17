@@ -141,12 +141,13 @@ Rails.application.routes.draw do
           get :bar_chart
         end
       end
-      
-      resources :events, only: [] do
-        collection do
-          get :timeseries
-        end
-      end
+
+      # TODO: I don't think we need this route?
+      # resources :events, only: [] do
+      #   collection do
+      #     get :timeseries
+      #   end
+      # end
       
       resources :events, only: [:show], param: :name, constraints: { name: /[^\/]+/ } do # all the :name parameter to contain any character besides a '/'
         collection do
@@ -163,6 +164,7 @@ Rails.application.routes.draw do
             get :stacked_bar_chart, to: 'events/properties#stacked_bar_chart'
           end
         end
+        resources :users, only: [:index], controller: :'events/users'
       end
 
       resources :dashboards, only: [:index, :show, :create, :update, :destroy]

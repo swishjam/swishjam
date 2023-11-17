@@ -5,6 +5,7 @@ import BarListConfiguration from "@/components/Dashboards/Builder/Configurations
 import { ChartPieIcon, PencilSquareIcon, PlusCircleIcon } from "@heroicons/react/24/outline";
 import ComponentOptionsSlideout from "@/components/Dashboards/Builder/ComponentOptions/OptionsSlideout";
 import DashboardNameDisplayEditor from "@/components/Dashboards/Builder/DashboardNameDisplayEditor";
+import EventsByUserListConfiguration from "@/components/Dashboards/Builder/Configurations/EventsByUserList";
 import LineChartConfiguration from "@/components/Dashboards/Builder/Configurations/LineChart";
 import LoadingSpinner from "@/components/LoadingSpinner";
 import Modal from "@/components/utils/Modal";
@@ -20,6 +21,7 @@ const AUTO_SAVE_CHECK_INTERVAL = 2_500;
 const DEFAULT_GRID_CONFIGURATIONS = {
   BarChart: { w: 20, h: 20, y: 0, x: 0, minH: 10, minW: 10 },
   BarList: { w: 20, h: 15, y: 0, x: 0, minH: 8, minW: 10 },
+  EventsByUserList: { w: 20, h: 15, y: 0, x: 0, minH: 8, minW: 10 },
   LineChart: { w: 15, h: 16, y: 0, x: 0, minH: 10, minW: 10 },
   PieChart: { w: 10, h: 10, y: 0, x: 0, minH: 10, minW: 10 },
   UserRetention: { w: 30, h: 24, y: 0, x: 0, minH: 24, maxH: 24, minW: 20 },
@@ -30,13 +32,14 @@ const ConfigureDashboardComponentModal = ({ componentType, eventOptions, onSave,
   const ConfigurationComponent = {
     BarChart: BarChartConfiguration,
     BarList: BarListConfiguration,
+    EventsByUserList: EventsByUserListConfiguration,
     LineChart: LineChartConfiguration,
     PieChart: PieChartConfiguration,
     ValueCard: ValueCardConfiguration,
   }[componentType];
   return (
     <Modal onClose={onClose} isOpen={true} closeOnBackdropClick={false} size="x-large">
-      <ConfigurationComponent eventOptions={eventOptions} OnConfigurationSave={onSave} />
+      <ConfigurationComponent eventOptions={eventOptions} onConfigurationSave={onSave} />
     </Modal>
   )
 }

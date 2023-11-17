@@ -7,6 +7,7 @@ import LineChartOption from './LineChart'
 import PieChartOption from './PieChart'
 import ValueCardOption from './ValueCard'
 import RetentionWidgetOption from './UserRetention'
+import EventsByUserListOption from './EventsByUserList'
 
 export default function OptionsSlideout({ isOpen, onSelect, onClose = () => { } }) {
   return (
@@ -59,10 +60,11 @@ export default function OptionsSlideout({ isOpen, onSelect, onClose = () => { } 
                     <div className="relative mt-6 flex-1 px-4 sm:px-6 grid gap-y-4">
                       <BarChartOption onClick={() => onSelect('BarChart')} />
                       <LineChartOption onClick={() => onSelect('LineChart')} />
+                      <EventsByUserListOption onClick={() => onSelect('EventsByUserList')} />
                       <ValueCardOption onClick={() => onSelect('ValueCard')} />
                       <BarListOption onClick={() => onSelect('BarList')} />
                       <PieChartOption onClick={() => onSelect('PieChart')} />
-                      <RetentionWidgetOption onClick={() => { onSelect('UserRetention') }} />
+                      <RetentionWidgetOption onClick={() => onSelect('UserRetention')} />
                     </div>
                   </div>
                 </Dialog.Panel>

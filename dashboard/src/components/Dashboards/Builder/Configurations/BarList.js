@@ -4,14 +4,14 @@ import BarList from '@/components/Dashboards/Components/BarList';
 import SwishjamAPI from "@/lib/api-client/swishjam-api";
 import { useState } from "react";
 
-export default function BarListConfiguration({ OnConfigurationSave = () => { } }) {
+export default function BarListConfiguration({ onConfigurationSave = () => { } }) {
   const [barListData, setBarListData] = useState();
 
   return (
     <ConfigurationModal
       type='Bar List'
       includeCalculationsDropdown={false}
-      onSave={OnConfigurationSave}
+      onSave={onConfigurationSave}
       previewDashboardComponent={title => <BarList title={title} items={barListData} />}
       onConfigurationChange={({ eventName, propertyName, dataSource }) => {
         if (eventName && propertyName) {
