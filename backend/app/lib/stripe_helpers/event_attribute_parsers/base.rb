@@ -2,7 +2,7 @@ module StripeHelpers
   module EventAttributeParsers
     class Base
       class << self
-        attr_accessor :attributes_to_capture
+        attr_accessor :attributes_to_capture, :methods_to_capture
       end
 
       def initialize(stripe_event)
@@ -17,6 +17,13 @@ module StripeHelpers
               object.send(method)
             end
             h[attribute.to_s] = attribute_value
+          end
+          (self.class.methods_to_capture || []).each do |method|
+            begin
+              h[method.to_s] = send(method)
+            rescue => e
+              Sentry.capture_exception(e)
+            end
           end
         end
       end
