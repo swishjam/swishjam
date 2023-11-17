@@ -1,6 +1,7 @@
 'use client';
 import { usePathname } from 'next/navigation'
 import {
+  CircleStackIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
   Cog6ToothIcon,
@@ -27,7 +28,7 @@ const appNav = [
   // { name: 'Event Explorer', href: '/events', icon: GlobeAmericasIcon }, // HIDING FROM NAV FOR NOW
   { name: 'Users', href: '/users', icon: UserIcon },
   { name: 'Organizations', href: '/organizations', icon: UserGroupIcon },
-  { name: 'Connections', href: '/connections', icon: SquaresPlusIcon },
+  { name: 'Data Sources', href: '/data-sources', icon: CircleStackIcon },
   { name: 'Settings', href: '/settings', icon: Cog6ToothIcon },
 ]
 

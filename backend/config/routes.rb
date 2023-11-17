@@ -202,6 +202,13 @@ Rails.application.routes.draw do
           get :channels
         end
       end
+
+      resources :google_search_console, only: [] do
+        collection do
+          get :sites
+          get :analytics
+        end
+      end
       
       get :'/admin/ingestion/queuing', to: 'admin/ingestion#queueing'
       get :'/admin/ingestion/queue_stats', to: 'admin/ingestion#queue_stats'

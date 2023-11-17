@@ -6,6 +6,7 @@ import DashboardComponents from './dashboard-components';
 import Dashboards from './dashboards';
 import EventTriggers from './event-triggers';
 import Events from './events';
+import GoogleSearchConsole from './google-search-console';
 import Integrations from './integrations';
 import Organizations from './organizations';
 import PageViews from './page-views';
@@ -30,6 +31,7 @@ export class SwishjamAPI {
   static DashboardComponents = DashboardComponents;
   static Events = Events;
   static EventTriggers = EventTriggers;
+  static GoogleSearchConsole = GoogleSearchConsole;
   static Integrations = Integrations;
   static Organizations = Organizations;
   static PageViews = PageViews;
