@@ -130,6 +130,7 @@ export default function LineChartWithValue({
   timeseries,
   title,
   valueFormatter = val => val,
+  yAxisFormatter = val => val,
   className,
 }) {
   if ([null, undefined].includes(timeseries)) return <LoadingState title={title} includeCard={includeCard} />;
@@ -206,13 +207,13 @@ export default function LineChartWithValue({
                 />
                 {showYAxis &&
                   <YAxis
-                    width={30}
+                    width={40}
                     dataKey="value"
                     allowDecimals={false}
                     axisLine={false}
                     tickLine={false}
                     hide={!showYAxis}
-                    tickFormatter={valueFormatter}
+                    tickFormatter={yAxisFormatter}
                     tick={{ fontSize: 12, fill: "#9CA3AF" }}
                     padding={{ top: 0, bottom: 0, left: 0, right: 20 }}
                   />}
