@@ -19,6 +19,9 @@ Rails.application.routes.draw do
   get '/oauth/stripe/callback' => 'oauth/stripe#callback'
   get '/oauth/slack/callback' => 'oauth/slack#callback'
 
+  get '/oauth/google/redirect' => 'oauth/google#redirect'
+  get '/oauth/google/callback' => 'oauth/google#callback'
+
   get :ping, to: 'application#ping'
 
   namespace :api do
