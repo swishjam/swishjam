@@ -4,7 +4,7 @@ module Api
       class StripeController < BaseController
         def receive
           payload = request.body.read
-          event_json = Stripe::Webhook.construct_event(payload, request.env['HTTP_STRIPE_SIGNATURE'], ENV['STRIPE_WEBHOOK_SECRET'])
+          stripe_event = Stripe::Webhook.construct_event(payload, request.env['HTTP_STRIPE_SIGNATURE'], ENV['STRIPE_WEBHOOK_SECRET'])
           public_key = Integrations::Stripe.joins(workspace: :api_keys)
                                               .where("
                                                 integrations.config->>'account_id' = ? AND 
@@ -14,7 +14,6 @@ module Api
                                               .pluck('api_keys.public_key')
                                               .first
           if public_key
-            stripe_event = Stripe::Event.construct_from(event_json)
             swishjam_event_data = StripeHelpers::WebhookEventParser.event_attributes_for(stripe_event)
             formatted_event = Analytics::Event.formatted_for_ingestion(
               uuid: swishjam_event_data['uuid'],
