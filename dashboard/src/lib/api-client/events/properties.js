@@ -7,6 +7,22 @@ export class Properties extends Base {
 
   static listUnique = this.list;
 
+  static async sum(eventName, propertyName, options = {}) {
+    return await this._get(`/api/v1/events/${window.encodeURIComponent(eventName)}/properties/${window.encodeURIComponent(propertyName)}/sum`, options);
+  }
+
+  static async average(eventName, propertyName, options = {}) {
+    return await this._get(`/api/v1/events/${window.encodeURIComponent(eventName)}/properties/${window.encodeURIComponent(propertyName)}/average`, options);
+  }
+
+  static async maximum(eventName, propertyName, options = {}) {
+    return await this._get(`/api/v1/events/${window.encodeURIComponent(eventName)}/properties/${window.encodeURIComponent(propertyName)}/maximum`, options);
+  }
+
+  static async minimum(eventName, propertyName, options = {}) {
+    return await this._get(`/api/v1/events/${window.encodeURIComponent(eventName)}/properties/${window.encodeURIComponent(propertyName)}/minimum`, options);
+  }
+
   static async getCountsOfPropertyValues(eventName, propertyName, options = {}) {
     return await this._get(`/api/v1/events/${window.encodeURIComponent(eventName)}/properties/${window.encodeURIComponent(propertyName)}/counts`, options);
   }

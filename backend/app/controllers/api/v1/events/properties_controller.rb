@@ -10,6 +10,134 @@ module Api
           render json: properties, status: :ok
         end
 
+        def sum
+          params[:data_source] ||= 'all'
+          event_name = URI.decode_uri_component(params[:event_name])
+          property_name = URI.decode_uri_component(params[:name])
+          sum = ClickHouseQueries::Events::Properties::Sum.new(
+            public_keys_for_requested_data_source, 
+            event_name: event_name, 
+            property_name: property_name,
+            start_time: start_time, 
+            end_time: end_time
+          ).get
+
+          comparison_sum = nil
+          if params[:include_comparison]
+            comparison_sum = ClickHouseQueries::Events::Properties::Sum.new(
+              public_keys_for_requested_data_source,
+              event_name: event_name,
+              property_name: property_name,
+              start_time: comparison_start_time,
+              end_time: comparison_end_time
+            ).get
+          end
+          render json: { 
+            sum: sum, 
+            comparison_sum: comparison_sum,
+            start_time: start_time,
+            end_time: end_time,
+            comparison_start_time: comparison_start_time,
+            comparison_end_time: comparison_end_time,
+          }, status: :ok
+        end
+
+        def average
+          params[:data_source] ||= 'all'
+          event_name = URI.decode_uri_component(params[:event_name])
+          property_name = URI.decode_uri_component(params[:name])
+          average = ClickHouseQueries::Events::Properties::Average.new(
+            public_keys_for_requested_data_source, 
+            event_name: event_name, 
+            property_name: property_name,
+            start_time: start_time, 
+            end_time: end_time
+          ).get
+
+          comparison_average = nil
+          if params[:include_comparison]
+            comparison_average = ClickHouseQueries::Events::Properties::Average.new(
+              public_keys_for_requested_data_source,
+              event_name: event_name,
+              property_name: property_name,
+              start_time: comparison_start_time,
+              end_time: comparison_end_time
+            ).get
+          end
+          render json: { 
+            average: average, 
+            comparison_average: comparison_average,
+            start_time: start_time,
+            end_time: end_time,
+            comparison_start_time: comparison_start_time,
+            comparison_end_time: comparison_end_time,
+          }, status: :ok
+        end
+
+        def minimum
+          params[:data_source] ||= 'all'
+          event_name = URI.decode_uri_component(params[:event_name])
+          property_name = URI.decode_uri_component(params[:name])
+          minimum = ClickHouseQueries::Events::Properties::Minimum.new(
+            public_keys_for_requested_data_source, 
+            event_name: event_name, 
+            property_name: property_name,
+            start_time: start_time, 
+            end_time: end_time
+          ).get
+
+          comparison_minimum = nil
+          if params[:include_comparison]
+            comparison_minimum = ClickHouseQueries::Events::Properties::Minimum.new(
+              public_keys_for_requested_data_source,
+              event_name: event_name,
+              property_name: property_name,
+              start_time: comparison_start_time,
+              end_time: comparison_end_time
+            ).get
+          end
+          render json: { 
+            minimum: minimum, 
+            comparison_minimum: comparison_minimum,
+            start_time: start_time,
+            end_time: end_time,
+            comparison_start_time: comparison_start_time,
+            comparison_end_time: comparison_end_time,
+          }, status: :ok
+        end
+
+        def maximum
+          params[:data_source] ||= 'all'
+          event_name = URI.decode_uri_component(params[:event_name])
+          property_name = URI.decode_uri_component(params[:name])
+          maximum = ClickHouseQueries::Events::Properties::Maximum.new(
+            public_keys_for_requested_data_source, 
+            event_name: event_name, 
+            property_name: property_name,
+            start_time: start_time, 
+            end_time: end_time
+          ).get
+
+          comparison_maximum = nil
+          if params[:include_comparison]
+            comparison_maximum = ClickHouseQueries::Events::Properties::Maximum.new(
+              public_keys_for_requested_data_source,
+              event_name: event_name,
+              property_name: property_name,
+              start_time: comparison_start_time,
+              end_time: comparison_end_time
+            ).get
+          end
+          render json: {
+            maximum: maximum,
+            comparison_maximum: comparison_maximum,
+            start_time: start_time,
+            end_time: end_time,
+            comparison_start_time: comparison_start_time,
+            comparison_end_time: comparison_end_time,
+          }, status: :ok
+        end
+
         def counts
           params[:data_source] ||= 'all'
           limit = params[:limit] || 10
