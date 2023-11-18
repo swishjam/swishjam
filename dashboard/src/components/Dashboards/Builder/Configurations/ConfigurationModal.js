@@ -4,6 +4,7 @@ import { useState } from 'react'
 
 export default function ConfigurationModal({
   AdditionalSettings = <></>,
+  calculationOptions = ['count', 'sum', 'avg', 'min', 'max'],
   defaultDataSource = 'all',
   includeCalculationsDropdown,
   includePropertiesDropdown = true,
@@ -16,7 +17,7 @@ export default function ConfigurationModal({
   const [errorMessage, setErrorMessage] = useState();
   const [selectedPropertyName, setSelectedPropertyName] = useState();
   const [selectedEventName, setSelectedEventName] = useState();
-  const [selectedCalculation, setSelectedCalculation] = useState('count');
+  const [selectedCalculation, setSelectedCalculation] = useState(includeCalculationsDropdown ? null : 'count');
   const [title, setTitle] = useState();
 
   const onFormSubmit = e => {
@@ -41,10 +42,18 @@ export default function ConfigurationModal({
         </div>
       </div>
       <EventAndPropertySelector
-        calculationOptions={includeCalculationsDropdown ? ['count', 'sum', 'avg', 'min', 'max'] : []}
+        calculationOptions={includeCalculationsDropdown ? calculationOptions : []}
         dataSource={dataSourceToPullFrom}
         includePropertiesDropdown={includePropertiesDropdown}
-        onCalculationSelected={setSelectedCalculation}
+        onCalculationSelected={calculation => {
+          setSelectedCalculation(calculation);
+          onConfigurationChange({
+            calculation,
+            eventName: selectedEventName,
+            propertyName: selectedPropertyName,
+            dataSource: dataSourceToPullFrom
+          });
+        }}
         onEventSelected={event => {
           setSelectedEventName(event)
           onConfigurationChange({

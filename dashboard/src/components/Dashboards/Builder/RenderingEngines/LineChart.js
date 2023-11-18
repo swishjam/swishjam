@@ -10,7 +10,6 @@ export default function LineChartRenderingEngine({ title, event, property, calcu
 
   useEffect(() => {
     setTimeseriesData();
-    // TODO: Endpoint doesn't do anything with property or calculation yet.
     SwishjamAPI.Events.timeseries(event, property, { calculation, timeframe, dataSource, include_comparison: includeComparison }).then(
       ({ timeseries, comparison_timeseries, current_count, comparison_count, comparison_end_time, grouped_by }) => {
         setTimeseriesData({
@@ -39,6 +38,21 @@ export default function LineChartRenderingEngine({ title, event, property, calcu
       timeseries={timeseriesData?.timeseries}
       title={title}
       value={timeseriesData?.value}
+      valueFormatter={value => {
+        try {
+          if (configuration.value_formatter === 'currency') {
+            return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(parseFloat(value) / 100)
+          } else if (configuration.value_formatter === 'percent') {
+            return new Intl.NumberFormat('en-US', { style: 'percent', minimumFractionDigits: 2 }).format(value)
+          } else if (configuration.value_formatter === 'number') {
+            return parseFloat(value).toLocaleString('en-US', { maximumFractionDigits: 2 })
+          } else {
+            return value
+          }
+        } catch (error) {
+          return value
+        }
+      }}
     />
   )
 }
