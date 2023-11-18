@@ -3,9 +3,8 @@ import ConfigurationModal from "./ConfigurationModal";
 import EventsByUserList from '@/components/Dashboards/Components/EventsByUserList';
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { SliderPicker } from "react-color";
 import SwishjamAPI from "@/lib/api-client/swishjam-api";
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 
 export default function EventsByUserListConfiguration({ onConfigurationSave = () => { } }) {
   const [barColorConfig, setBarColorConfig] = useState('rgb(186 230 253 )');
