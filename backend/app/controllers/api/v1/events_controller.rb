@@ -181,16 +181,3 @@ module Api
     end
   end
 end
-
-api_key = Workspace.last.api_keys.for_data_source!(ApiKey::ReservedDataSources.PRODUCT).public_key
-1000.times do |i|
-  Analytics::Event.create!(
-    swishjam_api_key: api_key,
-    occurred_at: Time.current - rand(0..30.0).days,
-    name: 'invoice_approved',
-    properties: {
-      amount: rand(10 * 100..100_000 * 100),
-      currency: ['usd', 'eur', 'gbp'].sample,
-    }.to_json
-  )
-end
