@@ -12,22 +12,120 @@ module Api
 
       def timeseries
         params[:data_source] ||= 'all'
+        params[:calculation] ||= 'count'
         event_name = URI.decode_uri_component(params[:name])
-        timeseries = ClickHouseQueries::Events::Count::Timeseries.new(
-          public_keys_for_requested_data_source, 
-          event_name: event_name, 
-          start_time: start_timestamp, 
-          end_time: end_timestamp
-        ).get
-        
+
+        timeseries = nil
         comparison_timeseries = nil
-        if params[:include_comparison]
-          comparison_timeseries = ClickHouseQueries::Events::Count::Timeseries.new(
+
+        case params[:calculation]
+        when 'count'
+          timeseries = ClickHouseQueries::Events::Count::Timeseries.new(
             public_keys_for_requested_data_source, 
             event_name: event_name, 
-            start_time: comparison_start_timestamp, 
-            end_time: comparison_end_timestamp
+            start_time: start_timestamp, 
+            end_time: end_timestamp
           ).get
+          
+          if params[:include_comparison]
+            comparison_timeseries = ClickHouseQueries::Events::Count::Timeseries.new(
+              public_keys_for_requested_data_source, 
+              event_name: event_name, 
+              start_time: comparison_start_timestamp, 
+              end_time: comparison_end_timestamp
+            ).get
+          end
+        when 'sum'
+          if !params[:property]
+            render json: { error: "Property must be provided for sum calculation" }, status: :bad_request
+            return
+          end
+          timeseries = ClickHouseQueries::Events::Sum::Timeseries.new(
+            public_keys_for_requested_data_source, 
+            event_name: event_name, 
+            property: params[:property],
+            start_time: start_timestamp, 
+            end_time: end_timestamp
+          ).get
+          
+          if params[:include_comparison]
+            comparison_timeseries = ClickHouseQueries::Events::Sum::Timeseries.new(
+              public_keys_for_requested_data_source, 
+              event_name: event_name, 
+              property: params[:property],
+              start_time: comparison_start_timestamp, 
+              end_time: comparison_end_timestamp
+            ).get
+          end
+        when 'average', 'avg'
+          if !params[:property]
+            render json: { error: "Property must be provided for average calculation" }, status: :bad_request
+            return
+          end
+          timeseries = ClickHouseQueries::Events::Average::Timeseries.new(
+            public_keys_for_requested_data_source,
+            event_name: event_name,
+            property: params[:property],
+            start_time: start_timestamp,
+            end_time: end_timestamp
+          ).get
+
+          if params[:include_comparison]
+            comparison_timeseries = ClickHouseQueries::Events::Average::Timeseries.new(
+              public_keys_for_requested_data_source,
+              event_name: event_name,
+              property: params[:property],
+              start_time: comparison_start_timestamp,
+              end_time: comparison_end_timestamp
+            ).get
+          end
+        when 'maximum', 'max'
+          if !params[:property]
+            render json: { error: "Property must be provided for maximum calculation" }, status: :bad_request
+            return
+          end
+          timeseries = ClickHouseQueries::Events::Maximum::Timeseries.new(
+            public_keys_for_requested_data_source,
+            event_name: event_name,
+            property: params[:property],
+            start_time: start_timestamp,
+            end_time: end_timestamp
+          ).get
+
+          if params[:include_comparison]
+            comparison_timeseries = ClickHouseQueries::Events::Maximum::Timeseries.new(
+              public_keys_for_requested_data_source,
+              event_name: event_name,
+              property: params[:property],
+              start_time: comparison_start_timestamp,
+              end_time: comparison_end_timestamp
+            ).get
+          end
+        when 'minimum', 'min'
+          if !params[:property]
+            render json: { error: "Property must be provided for minimum calculation" }, status: :bad_request
+            return
+          end
+          timeseries = ClickHouseQueries::Events::Minimum::Timeseries.new(
+            public_keys_for_requested_data_source,
+            event_name: event_name,
+            property: params[:property],
+            start_time: start_timestamp,
+            end_time: end_timestamp
+          ).get
+
+          if params[:include_comparison]
+            comparison_timeseries = ClickHouseQueries::Events::Minimum::Timeseries.new(
+              public_keys_for_requested_data_source,
+              event_name: event_name,
+              property: params[:property],
+              start_time: comparison_start_timestamp,
+              end_time: comparison_end_timestamp
+            ).get
+          end
+        else
+          render json: { error: "Invalid calculation provided: #{params[:calculation]}" }, status: :bad_request
+          return
         end
 
         render json: render_timeseries_json(timeseries, comparison_timeseries), status: :ok
