@@ -8,12 +8,30 @@ export default function BarListDashboardComponent({ configuration, timeframe }) 
 
   useEffect(() => {
     setBarListData();
-    SwishjamAPI.Events.Properties.getCountsOfPropertyValues(event, property, { dataSource, timeframe }).then(data => {
-      setBarListData(data.map(({ value, count }) => ({ name: value, value: count })));
-    });
+    if (configuration.calculation === 'occurrences') {
+      SwishjamAPI.Events.Properties.getCountsOfPropertyValues(event, property, { dataSource, timeframe }).then(data => {
+        setBarListData(data.map(({ value, count }) => ({ name: value, value: count })));
+      });
+    } else if (configuration.calculation === 'users') {
+      SwishjamAPI.Events.Users.list(event, { dataSource, limit: 10 }).then(data => {
+        const formattedData = data.map(({ id, email, full_name: _full_name, count }) => {
+          if (id) {
+            return { name: email, value: count, href: `/users/${id}` }
+          } else {
+            return { name: <span className='italic'>Anonymous User</span>, value: count }
+          }
+        })
+        setBarListData(formattedData);
+      })
+    }
   }, [event, property, timeframe]);
 
   return (
-    <BarList title={title} items={barListData} includeCard={false} />
+    <BarList
+      color={configuration.barColor}
+      includeCard={false}
+      items={barListData}
+      title={title}
+    />
   )
 }

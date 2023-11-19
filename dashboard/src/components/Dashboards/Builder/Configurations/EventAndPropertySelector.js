@@ -39,7 +39,12 @@ export default function EventAndPropertySelector({
               />
             </div>
           ) : <>{' '}occurrences</>
-        } of the
+        }
+        {
+          selectedCalculation === 'users'
+            ? <span className='mx-1'>who have triggered the</span>
+            : <span className='mx-1'>of the</span>
+        }
       </div>
       {uniqueEvents
         ? (
@@ -56,17 +61,20 @@ export default function EventAndPropertySelector({
 
       {selectedCalculation === 'count' || !includePropertiesDropdown
         ? <span className='mx-1'>event over time.</span>
-        : (
-          <>
-            <span className='mx-1'>event's</span>
-            <Dropdown
-              label={<span className='italic'>property</span>}
-              options={uniquePropertiesForEvent || []}
-              onSelect={onPropertySelected}
-            />
-            <span className='mx-1'>property over time.</span>
-          </>
-        )}
+        : selectedCalculation === 'users'
+          ? <span className='mx-1'>the most.</span>
+          : (
+            <>
+              <span className='mx-1'>event's</span>
+              <Dropdown
+                label={<span className='italic'>property</span>}
+                options={uniquePropertiesForEvent || []}
+                onSelect={onPropertySelected}
+              />
+              <span className='mx-1'>property over time.</span>
+            </>
+          )
+      }
     </div>
   )
 }

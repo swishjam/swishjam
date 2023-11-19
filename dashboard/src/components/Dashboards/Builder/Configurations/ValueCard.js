@@ -110,23 +110,6 @@ export default function PieChartConfiguration({ onConfigurationSave = () => { } 
       title='Value Card Configuration'
       calculationOptions={['count', 'sum', 'average', 'max', 'min']}
       type='Value Card'
-<<<<<<< HEAD
-      includeCalculationsDropdown={false}
-      includePropertiesDropdown={false}
-      onSave={onConfigurationSave}
-      previewDashboardComponent={title => <ValueCard title={title} value={valueCardValue} previousValue={valueCardPreviousValue} />}
-      onConfigurationChange={({ eventName, propertyName, calculation, dataSource }) => {
-        if (eventName) {
-          SwishjamAPI.Events.count(eventName, { dataSource }).then(({ count, comparison_count }) => {
-            setValueCardValue(count);
-            setValueCardPreviousValue(comparison_count);
-          });
-        } else {
-          setValueCardValue();
-          setValueCardPreviousValue();
-        }
-      }}
-=======
       includeCalculationsDropdown={true}
       includePropertiesDropdown={true}
       onSave={configuration => OnConfigurationSave({ ...configuration, value_formatter: valueFormatterConfig })}
@@ -153,7 +136,6 @@ export default function PieChartConfiguration({ onConfigurationSave = () => { } 
         />
       )}
       onConfigurationChange={onConfigurationChange}
->>>>>>> main
     />
   )
 }
