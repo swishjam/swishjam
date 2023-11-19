@@ -20,7 +20,7 @@ import GoogleSearchConsole from '@/components/DataSources/ConnectViews/GoogleSea
 import ResendConnectView from '@/components/DataSources/ConnectViews/Resend';
 
 import CalComLogo from '@public/logos/calcom.png'
-import GoogleSearchConsoleLogo from '@public/logos/google-search-console.png'
+import GoogleSearchConsoleLogo from '@public/logos/Google-Search-Console.png'
 // import HubspotLogo from '@public/logos/hubspot.jpeg';
 import ResendLogo from '@public/logos/resend.png'
 // import SalesforceLogo from '@public/logos/salesforce.png'
