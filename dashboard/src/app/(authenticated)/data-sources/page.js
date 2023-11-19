@@ -1,20 +1,26 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { SwishjamAPI } from '@/lib/api-client/swishjam-api';
-import LoadingView from './LoadingView';
-import EmptyView from './EmptyView';
-import Image from 'next/image';
-import Modal from '@/components/utils/Modal';
 import AddConnectionButton from './AddConnectionButton';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
+import EmptyView from './EmptyView';
 import ExistingConnectionButton from './ExistingConnectionButton';
+import Image from 'next/image';
+import LoadingView from './LoadingView';
+import Modal from '@/components/utils/Modal';
+import { RocketIcon } from "@radix-ui/react-icons"
 import { RxCardStack } from 'react-icons/rx';
+import { SwishjamAPI } from '@/lib/api-client/swishjam-api';
+import { useEffect, useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { ExclamationTriangleIcon, XCircleIcon } from '@heroicons/react/24/outline';
 
-import CalComConnectView from '@/components/Connections/ConnectViews/CalCom';
-import ConnectStripeView from '@/components/Connections/ConnectViews/Stripe';
-import ResendConnectView from '@/components/Connections/ConnectViews/Resend';
+import CalComConnectView from '@/components/DataSources/ConnectViews/CalCom';
+import ConnectStripeView from '@/components/DataSources/ConnectViews/Stripe';
+import GoogleSearchConsole from '@/components/DataSources/ConnectViews/GoogleSearchConsole';
+import ResendConnectView from '@/components/DataSources/ConnectViews/Resend';
 
 import CalComLogo from '@public/logos/calcom.png'
+import GoogleSearchConsoleLogo from '@public/logos/Google-Search-Console.png'
 // import HubspotLogo from '@public/logos/hubspot.jpeg';
 import ResendLogo from '@public/logos/resend.png'
 // import SalesforceLogo from '@public/logos/salesforce.png'
@@ -38,7 +44,13 @@ const ALL_CONNECTIONS = {
     img: CalComLogo,
     description: 'Connect your Cal.com to Swishjam to automatically capture your Cal.com calendar events.',
     connectComponent: onNewConnection => <CalComConnectView onNewConnection={onNewConnection} />,
-  }
+  },
+  'Google Search Console': {
+    img: GoogleSearchConsoleLogo,
+    description: 'Connect your Google Search Console account to Swishjam to automatically import your Google Search Console data.',
+    connectComponent: onNewConnection => <GoogleSearchConsole onNewConnection={onNewConnection} />,
+    borderImage: true,
+  },
   // Hubspot: { img: HubspotLogo },
   // Salesforce: { img: SalesforceLogo },
   // Zendesk: {
@@ -52,6 +64,11 @@ export default function Connections() {
   const [disabledConnections, setDisabledConnections] = useState();
   const [availableConnections, setAvailableConnections] = useState();
   const [connectionForModal, setConnectionForModal] = useState(null);
+  // const [errorMessage, setErrorMessage] = useState(useSearchParams().get('error'))
+  // const [showSuccessMessage, setShowSuccessMessage] = useState(useSearchParams().get('success') === 'true');
+  const searchParams = useSearchParams();
+
+  const router = useRouter();
 
   const setConnectionAsConnected = connection => {
     setEnabledConnections([...enabledConnections, connection]);
@@ -133,9 +150,36 @@ export default function Connections() {
                   setConnectionForModal={setConnectionForModal}
                 />
               )}
+              {searchParams.get('success') && (
+                <Alert className='mb-2'>
+                  <RocketIcon className="h-4 w-4" />
+                  <AlertTitle>{window.decodeURIComponent(searchParams.get('newSource') || 'Data source')} is now connected!</AlertTitle>
+                  <div className='absolute top-0 right-0 p-2'>
+                    <XCircleIcon
+                      className='h-5 w-5 rounded-full cursor-pointer hover:bg-gray-200'
+                      onClick={() => router.push('/data-sources')}
+                    />
+                  </div>
+                  <AlertDescription>
+                    Swishjam will automatically import your {window.decodeURIComponent(searchParams.get('newSource') || 'data source')} data now.
+                  </AlertDescription>
+                </Alert>
+              )}
+              {searchParams.get('error') && (
+                <Alert className='mb-2'>
+                  <ExclamationTriangleIcon className="h-4 w-4" />
+                  <AlertTitle>{window.decodeURIComponent(searchParams.get('error') || 'An unexpected error occurred, please try again.')}</AlertTitle>
+                  <div className='absolute top-0 right-0 p-2'>
+                    <XCircleIcon
+                      className='h-5 w-5 rounded-full cursor-pointer hover:bg-gray-200'
+                      onClick={() => router.push('/data-sources')}
+                    />
+                  </div>
+                </Alert>
+              )}
               {enabledConnections.length + disabledConnections.length > 0 && (
                 <>
-                  <h5 className='py-2'>Connections</h5>
+                  <h5 className='py-2'>Connected Data Sources</h5>
                   <ul role="list" className="grid grid-cols-1 gap-x-6 gap-y-8 lg:grid-cols-3 xl:gap-x-8">
                     <ExistingConnectionButton
                       key='marketing-analytics'
@@ -179,13 +223,13 @@ export default function Connections() {
                     ))}
                   </ul>
 
-                  <h5 className='pt-8 pb-2'>Available Connections</h5>
+                  <h5 className='pt-8 pb-2'>Available Data Sources to Connect</h5>
                   <ul role="list" className="grid grid-cols-1 gap-x-6 gap-y-8 lg:grid-cols-3 xl:gap-x-8">
                     {availableConnections.length === 0
                       ? (
                         <div className="text-center col-span-3 my-8">
                           <RxCardStack className="mx-auto h-12 w-12 text-gray-400" />
-                          <h3 className="mt-2 text-sm font-semibold text-gray-900">You have installed all Swishjam connections!</h3>
+                          <h3 className="mt-2 text-sm font-semibold text-gray-900">You have installed all available Swishjam Data Sources.</h3>
                           <p className="mt-1 text-sm text-gray-500">Looking for a connection that is not yet supported? <br />Reach out to us <a className='underline' href='mailto:founders@swishjam.com'>founders@swishjam.com</a></p>
                         </div>
                       ) : (
