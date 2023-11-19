@@ -18,7 +18,8 @@ class Integration < Transactional
   end
 
   def self.TYPES
-    [Integrations::Stripe, Integrations::Resend, Integrations::CalCom, Integrations::GoogleSearchConsole]
+    # Integrations::GoogleSearchConsole - waiting until Google app approval process.
+    [Integrations::Stripe, Integrations::Resend, Integrations::CalCom]
   end
 
   def self.friendly_name
