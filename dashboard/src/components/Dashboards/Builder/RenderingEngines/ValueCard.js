@@ -2,10 +2,11 @@ import { useEffect, useState } from 'react';
 import ValueCard from "@/components/Dashboards/Components/ValueCard";
 import SwishjamAPI from '@/lib/api-client/swishjam-api';
 
-export default function ValueCardRenderingEngine({ title, event, property, calculation, timeframe, dataSource, configuration }) {
+export default function ValueCardRenderingEngine({ configuration, timeframe }) {
   const [value, setValue] = useState();
   const [previousValue, setPreviousValue] = useState();
   const [previousValueDate, setPreviousValueDate] = useState();
+  const { title, event, property, calculation, dataSource } = configuration;
 
   useEffect(() => {
     setValue();

@@ -3,14 +3,14 @@ import PieChart from "@/components/Dashboards/Components/PieChart";
 import SwishjamAPI from "@/lib/api-client/swishjam-api";
 import { useState } from "react";
 
-export default function PieChartConfiguration({ OnConfigurationSave = () => { } }) {
+export default function PieChartConfiguration({ onConfigurationSave = () => { } }) {
   const [pieChartData, setPieChartData] = useState();
 
   return (
     <ConfigurationModal
       type='Pie Chart'
       includeCalculationsDropdown={false}
-      onSave={OnConfigurationSave}
+      onSave={onConfigurationSave}
       previewDashboardComponent={title => <PieChart title={title} data={pieChartData} />}
       onConfigurationChange={({ eventName, propertyName, dataSource }) => {
         if (eventName && propertyName) {

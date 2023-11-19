@@ -6,6 +6,7 @@ export default function ConfigurationModal({
   AdditionalSettings = <></>,
   calculationOptions = ['count', 'sum', 'avg', 'min', 'max'],
   defaultDataSource = 'all',
+  description,
   includeCalculationsDropdown,
   includePropertiesDropdown = true,
   onConfigurationChange,
@@ -35,7 +36,8 @@ export default function ConfigurationModal({
 
   return (
     <form onSubmit={onFormSubmit}>
-      <h1 className='text-lg font-medium text-gray-700 mb-4'>Configure {type}</h1>
+      <h1 className='text-lg font-medium text-gray-700'>Configure {type}</h1>
+      <h2 className='text-sm text-gray-500 mb-4'>{description}</h2>
       <div className='grid grid-cols-2 gap-4 flex items-center'>
         <div>
           <input className='input' placeholder={`${type} Title`} value={title} onChange={e => setTitle(e.target.value)} />

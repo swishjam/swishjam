@@ -2,8 +2,9 @@ import BarChart from "@/components/Dashboards/Components/BarChart";
 import SwishjamAPI from '@/lib/api-client/swishjam-api';
 import { useEffect, useState } from "react";
 
-export default function BarListDashboardComponent({ title, event, property, timeframe, dataSource }) {
+export default function BarListDashboardComponent({ configuration, timeframe }) {
   const [barChartResults, setBarChartResults] = useState();
+  const { title, event, property, dataSource } = configuration;
 
   useEffect(() => {
     setBarChartResults();
