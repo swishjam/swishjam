@@ -64,7 +64,7 @@ export default function EventAndPropertySelector({
               options={uniquePropertiesForEvent || []}
               onSelect={onPropertySelected}
             />
-            <span className='mx-1'>property.</span>
+            <span className='mx-1'>property over time.</span>
           </>
         )}
     </div>

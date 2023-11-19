@@ -13,6 +13,7 @@ class UserProfileSerializer < ActiveModel::Serializer
     # short term bandaid for inadvertently capturing unintentional metadata
     (object.metadata || {}).except('userIdentifier', 'url', 'device_identifier', 'session_identifier', 'page_view_identifier')
   rescue => e
+    Sentry.capture_exception(e)
     Rails.logger.error "Unable to serializer #{object.email} (#{object.id}) user's metadata for workspace #{object.workspace.name} (#{object.workspace.name}): #{e.inspect}"
     {}
   end

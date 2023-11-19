@@ -162,6 +162,10 @@ Rails.application.routes.draw do
           member do
             get :counts, to: 'events/properties#counts'
             get :stacked_bar_chart, to: 'events/properties#stacked_bar_chart'
+            get :sum
+            get :average
+            get :minimum
+            get :maximum
           end
         end
         resources :users, only: [:index], controller: :'events/users'
