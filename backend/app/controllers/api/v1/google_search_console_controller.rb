@@ -12,6 +12,7 @@ module Api
           params[:site_url],
           start_date: start_timestamp,
           end_date: end_timestamp,
+          dimensions: ['date'],
         )
 
         comparison_timeseries_data = nil
@@ -20,6 +21,7 @@ module Api
             params[:site_url], 
             start_date: comparison_start_timestamp,
             end_date: comparison_end_timestamp,
+            dimensions: ['date'],
           )
         end
 
@@ -30,8 +32,17 @@ module Api
           dimensions: ['query'],
           row_limit: 20,
         )
+
+        page_data = GoogleApis::Search.new(integration).get_analytics(
+          params[:site_url],
+          start_date: start_timestamp,
+          end_date: end_timestamp,
+          dimensions: ['page'],
+          row_limit: 20,
+        )
         
         render json: {
+          page_data: page_data,
           query_data: query_data,
           timeseries: current_timeseries_data,
           comparison_timeseries: comparison_timeseries_data,

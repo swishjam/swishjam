@@ -42,7 +42,8 @@ module GoogleApis
         refresh!
         run_with_refresh(&block)
       elsif response.code != 200
-        raise RequestError, "Google Search Console API returned #{response.code} with body: #{response.body}"
+        Sentry.capture_message("Google Search Console API error", extra: { response: response.body })
+        raise RequestError, JSON.parse(response.body).dig('error', 'message') || "An unexpected error occurred."
       end
       response
     end

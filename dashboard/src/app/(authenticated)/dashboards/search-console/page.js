@@ -1,22 +1,23 @@
 "use client";
 
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { ArrowPathIcon, CheckIcon, ExclamationTriangleIcon, LinkIcon } from "@heroicons/react/24/outline";
 import { Button } from "@/components/ui/button";
+import ConditionalCardWrapper from "@/components/Dashboards/Components/ConditionalCardWrapper";
 import { dateFormatterForGrouping } from "@/lib/utils/timeseriesHelpers";
 import GoogleSearchConsoleLogo from '@public/logos/google-logo.png'
+import Image from "next/image";
 import { Label } from "@/components/ui/label";
+import LineChartWithValue from "@/components/Dashboards/Components/LineChartWithValue";
 import Link from 'next/link'
 import { Popover, PopoverContent, PopoverTrigger, PopoverClose } from "@/components/ui/popover"
 import { RxBarChart } from 'react-icons/rx'
-import Timefilter from "@/components/Timefilter";
-import { SwishjamAPI } from "@/lib/api-client/swishjam-api";
-import { useState, useEffect } from "react";
-import LineChartWithValue from "@/components/Dashboards/Components/LineChartWithValue";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Table, TableHeader, TableBody, TableHead, TableRow, TableCell } from "@/components/ui/table";
-import ConditionalCardWrapper from "@/components/Dashboards/Components/ConditionalCardWrapper";
+import { SwishjamAPI } from "@/lib/api-client/swishjam-api";
+import Table from "@/components/utils/Table";
+import Timefilter from "@/components/Timefilter";
 import useAuthData from "@/hooks/useAuthData";
-import Image from "next/image";
+import { useState, useEffect } from "react";
 
 const formattedDay = dateFormatterForGrouping("day");
 
@@ -98,12 +99,14 @@ export default function SearchConsole() {
   const [availableSites, setAvailableSites] = useState();
   const [clicksTimeseriesData, setClicksTimeseriesData] = useState();
   const [ctrTimeseriesData, setCtrTimeseriesData] = useState();
+  const [errorMessage, setErrorMessage] = useState();
   const [isMissingGoogleSearchConsoleConnection, setIsMissingGoogleSearchConsoleConnection] = useState();
   const [isRefreshing, setIsRefreshing] = useState();
   const [impressionsTimeseriesData, setImpressionsTimeseriesData] = useState();
   const [positionTimeseriesData, setPositionTimeseriesData] = useState();
   const [selectedSite, setSelectedSite] = useState();
   const [timeframeFilter, setTimeframeFilter] = useState("thirty_days");
+  const [topPages, setTopPages] = useState();
   const [queryData, setQueryData] = useState();
 
   const setTimeseriesData = (setStateMethod, timeseriesData, timeData) => {
@@ -147,12 +150,29 @@ export default function SearchConsole() {
     setTimeseriesData(setPositionTimeseriesData, formattedPosition, timeData);
   }
 
-  const getAllData = async timeframe => {
-    setIsRefreshing(true);
+  const getDashboardDataForTimeframeAndSiteUrl = async (timeframe, siteUrl) => {
     setClicksTimeseriesData();
     setCtrTimeseriesData();
     setImpressionsTimeseriesData();
     setPositionTimeseriesData();
+    setTopPages();
+    setQueryData();
+
+    return await SwishjamAPI.GoogleSearchConsole.getAnalytics(siteUrl, { timeframe }).then(
+      ({ error, page_data, query_data, timeseries, comparison_timeseries, start_time, end_time, comparison_start_time, comparison_end_time }) => {
+        if (error) {
+          setErrorMessage(error);
+        } else {
+          setQueryData(query_data);
+          setTopPages(page_data);
+          formatTimeseriesData(timeseries, comparison_timeseries, start_time, end_time, comparison_start_time, comparison_end_time);
+        }
+      }
+    );
+  }
+
+  const getAllData = async timeframe => {
+    setIsRefreshing(true);
 
     await SwishjamAPI.GoogleSearchConsole.getSites().then(result => {
       if (result.error) {
@@ -164,14 +184,7 @@ export default function SearchConsole() {
         const validSite = result.find(({ permissionLevel }) => permissionLevel === "siteOwner");
         setAvailableSites(result);
         setSelectedSite(validSite || result[0]);
-        SwishjamAPI.GoogleSearchConsole.getAnalytics((validSite || result[0]).siteUrl, { timeframe }).then(
-          ({ error, query_data, timeseries, comparison_timeseries, start_time, end_time, comparison_start_time, comparison_end_time }) => {
-            if (error) {
-            } else {
-              setQueryData(query_data);
-              formatTimeseriesData(timeseries, comparison_timeseries, start_time, end_time, comparison_start_time, comparison_end_time);
-            }
-          });
+        getDashboardDataForTimeframeAndSiteUrl(timeframe, (validSite || result[0]).siteUrl);
       }
     })
     setIsRefreshing(false);
@@ -199,7 +212,11 @@ export default function SearchConsole() {
               <SiteSelector
                 sites={availableSites}
                 selectedSite={selectedSite}
-                onSelect={setSelectedSite}
+                onSelect={site => {
+                  setErrorMessage();
+                  setSelectedSite(site)
+                  getDashboardDataForTimeframeAndSiteUrl(timeframeFilter, site.siteUrl);
+                }}
               />
               <Timefilter
                 selection={timeframeFilter}
@@ -208,19 +225,30 @@ export default function SearchConsole() {
                   getAllData(date);
                 }}
               />
-              <Button
-                variant="outline"
-                className={`ml-4 bg-white ${isRefreshing ? "cursor-not-allowed" : ""}`}
-                onClick={() => getAllData(timeframeFilter)}
-                disabled={isRefreshing}
-              >
-                <ArrowPathIcon className={`h-4 w-4 ${isRefreshing ? "animate-spin" : ""}`} />
-              </Button>
+              {!isMissingGoogleSearchConsoleConnection && (
+                <Button
+                  variant="outline"
+                  className={`ml-4 bg-white ${isRefreshing ? "cursor-not-allowed" : ""}`}
+                  onClick={() => getAllData(timeframeFilter)}
+                  disabled={isRefreshing}
+                >
+                  <ArrowPathIcon className={`h-4 w-4 ${isRefreshing ? "animate-spin" : ""}`} />
+                </Button>
+              )}
             </>
           )}
         </div>
       </div>
       {isMissingGoogleSearchConsoleConnection && <ConnectGoogleSearchConsoleView />}
+      {errorMessage && (
+        <Alert className='mb-2 mt-8 border-red-400'>
+          <ExclamationTriangleIcon className="h-4 w-4" />
+          <AlertTitle>Google Search Console error</AlertTitle>
+          <AlertDescription>
+            {errorMessage}
+          </AlertDescription>
+        </Alert>
+      )}
       {!isMissingGoogleSearchConsoleConnection && (
         <>
           <div className="grid grid-cols-2 gap-4 mt-8">
@@ -230,8 +258,8 @@ export default function SearchConsole() {
               previousValue={impressionsTimeseriesData?.previousValue}
               previousValueDate={impressionsTimeseriesData?.previousValueDate}
               showAxis={true}
-              timeseries={impressionsTimeseriesData?.timeseries}
-              valueFormatter={n => n.toLocaleString('en-US')}
+              timeseries={errorMessage ? [] : impressionsTimeseriesData?.timeseries}
+              valueFormatter={n => n?.toLocaleString('en-US')}
             />
             <LineChartWithValue
               title='Click Through Rate'
@@ -239,8 +267,8 @@ export default function SearchConsole() {
               previousValue={ctrTimeseriesData?.previousValue}
               previousValueDate={ctrTimeseriesData?.previousValueDate}
               showAxis={true}
-              timeseries={ctrTimeseriesData?.timeseries}
-              valueFormatter={n => `${n.toLocaleString('en-US')}%`}
+              timeseries={errorMessage ? [] : ctrTimeseriesData?.timeseries}
+              valueFormatter={n => `${n?.toLocaleString('en-US')}%`}
             />
             <LineChartWithValue
               title='Clicks'
@@ -248,8 +276,8 @@ export default function SearchConsole() {
               previousValue={clicksTimeseriesData?.previousValue}
               previousValueDate={clicksTimeseriesData?.previousValueDate}
               showAxis={true}
-              timeseries={clicksTimeseriesData?.timeseries}
-              valueFormatter={n => n.toLocaleString('en-US')}
+              timeseries={errorMessage ? [] : clicksTimeseriesData?.timeseries}
+              valueFormatter={n => n?.toLocaleString('en-US')}
             />
             <LineChartWithValue
               title='Average Position'
@@ -257,38 +285,53 @@ export default function SearchConsole() {
               previousValue={positionTimeseriesData?.previousValue}
               previousValueDate={positionTimeseriesData?.previousValueDate}
               showAxis={true}
-              timeseries={positionTimeseriesData?.timeseries}
-              valueFormatter={n => n.toLocaleString('en-US')}
+              timeseries={errorMessage ? [] : positionTimeseriesData?.timeseries}
+              valueFormatter={n => n?.toLocaleString('en-US')}
             />
           </div>
           <div className='mt-4'>
             <ConditionalCardWrapper title='Top Queries' includeCard={true}>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className='cursor-default'>Search Term</TableHead>
-                    <TableHead className='cursor-default'>Total Clicks</TableHead>
-                    <TableHead className='cursor-default'>Click Through Rate</TableHead>
-                    <TableHead className='cursor-default'>Total Impressions</TableHead>
-                    <TableHead className='cursor-default'>Average Position</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {(queryData || []).map((data, i) => (
-                    <TableRow key={i}>
-                      <TableCell className='cursor-default'>{data.keys[0]}</TableCell>
-                      <TableCell className='cursor-default'>{data.clicks}</TableCell>
-                      <TableCell className='cursor-default'>{(data.ctr * 100).toFixed(2)}%</TableCell>
-                      <TableCell className='cursor-default'>{data.impressions}</TableCell>
-                      <TableCell className='cursor-default'>{data.position.toFixed(2)}</TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+              <Table
+                headers={['Query', 'Total Clicks', 'Click Through Rate', 'Total Impressions', 'Average Position']}
+                rows={
+                  errorMessage
+                    ? []
+                    : (
+                      queryData?.map(data => [
+                        data.keys[0],
+                        data.clicks,
+                        `${(data.ctr * 100).toFixed(2)}%`,
+                        data.impressions,
+                        data.position.toFixed(2)
+                      ])
+                    )
+                }
+              />
+            </ConditionalCardWrapper>
+          </div>
+          <div className='mt-4'>
+            <ConditionalCardWrapper title='Top Pages' includeCard={true}>
+              <Table
+                headers={['Page', 'Total Clicks', 'Click Through Rate', 'Total Impressions', 'Average Position']}
+                rows={
+                  errorMessage
+                    ? []
+                    : (
+                      topPages?.map(data => [
+                        data.keys[0],
+                        data.clicks,
+                        `${(data.ctr * 100).toFixed(2)}%`,
+                        data.impressions,
+                        data.position.toFixed(2)
+                      ])
+                    )
+                }
+              />
             </ConditionalCardWrapper>
           </div>
         </>
-      )}
-    </main>
+      )
+      }
+    </main >
   );
 }

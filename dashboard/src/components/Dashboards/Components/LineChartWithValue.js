@@ -166,7 +166,7 @@ export default function LineChartWithValue({
     >
       <div className="">
         <div className="text-2xl font-bold cursor-default flex">
-          {valueFormatter(currentValue)}
+          {typeof currentValue !== 'undefined' ? valueFormatter(currentValue) : ''}
           {includeComparisonData && typeof currentValue !== 'undefined' && typeof comparisonValue !== 'undefined' ? (
             <HoverCard>
               <HoverCardTrigger className='block w-fit ml-2 pt-2'>
