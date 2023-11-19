@@ -2,8 +2,9 @@ import { useState, useEffect } from 'react';
 import PieChart from '../../Components/PieChart';
 import SwishjamAPI from '@/lib/api-client/swishjam-api';
 
-export default function PieChartDashboardComponent({ title, event, property, timeframe, dataSource }) {
+export default function PieChartDashboardComponent({ configuration, timeframe }) {
   const [pieChartData, setPieChartData] = useState();
+  const { title, event, property, calculation, dataSource } = configuration;
 
   useEffect(() => {
     setPieChartData();

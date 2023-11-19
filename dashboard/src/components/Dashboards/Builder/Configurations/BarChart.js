@@ -3,7 +3,7 @@ import ConfigurationModal from "./ConfigurationModal";
 import SwishjamAPI from "@/lib/api-client/swishjam-api";
 import { useState } from "react";
 
-export default function BarChartConfiguration({ OnConfigurationSave = () => { } }) {
+export default function BarChartConfiguration({ onConfigurationSave = () => { } }) {
   const [barChartResults, setBarChartResults] = useState();
 
   const onConfigurationChange = ({ eventName, propertyName, dataSource }) => {
@@ -23,7 +23,7 @@ export default function BarChartConfiguration({ OnConfigurationSave = () => { } 
       includeCalculationsDropdown={false}
       includePropertiesDropdown={true}
       onConfigurationChange={onConfigurationChange}
-      onSave={OnConfigurationSave}
+      onSave={onConfigurationSave}
       previewDashboardComponent={title => (
         <BarChartComponent
           title={title}

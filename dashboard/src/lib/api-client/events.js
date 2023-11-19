@@ -1,8 +1,10 @@
 import Base from "./base";
 import Properties from "./events/properties";
+import { Users } from "./events/users";
 
 export class Events extends Base {
   static Properties = Properties;
+  static Users = Users;
 
   static async listUnique(options = {}) {
     return await this._get('/api/v1/events/unique', options)

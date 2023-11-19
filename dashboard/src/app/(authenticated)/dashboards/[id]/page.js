@@ -36,7 +36,7 @@ const ConfigureDashboardComponentModal = ({ componentType, eventOptions, onSave,
   }[componentType];
   return (
     <Modal onClose={onClose} isOpen={true} closeOnBackdropClick={false} size="x-large">
-      <ConfigurationComponent eventOptions={eventOptions} OnConfigurationSave={onSave} />
+      <ConfigurationComponent eventOptions={eventOptions} onConfigurationSave={onSave} />
     </Modal>
   )
 }

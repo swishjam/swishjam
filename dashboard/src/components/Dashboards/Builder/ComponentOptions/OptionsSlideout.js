@@ -62,7 +62,7 @@ export default function OptionsSlideout({ isOpen, onSelect, onClose = () => { } 
                       <ValueCardOption onClick={() => onSelect('ValueCard')} />
                       <BarListOption onClick={() => onSelect('BarList')} />
                       <PieChartOption onClick={() => onSelect('PieChart')} />
-                      <RetentionWidgetOption onClick={() => { onSelect('UserRetention') }} />
+                      <RetentionWidgetOption onClick={() => onSelect('UserRetention')} />
                     </div>
                   </div>
                 </Dialog.Panel>
