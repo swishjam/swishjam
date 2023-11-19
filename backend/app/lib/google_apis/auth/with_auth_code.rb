@@ -9,7 +9,7 @@ module GoogleApis
           client_secret: ENV['GOOGLE_CLIENT_SECRET'],
           code: code,
           grant_type: 'authorization_code',
-          redirect_uri: "https://#{ENV['GOOGLE_REDIRECT_HOST'] || '56b9-2603-8000-7200-9d38-51d0-1b32-6c01-f3d5.ngrok-free.app'}/oauth/google/callback",
+          redirect_uri: "https://#{ENV['GOOGLE_REDIRECT_HOST'] || 'capture.swishjam.com'}/oauth/google/callback",
         })
         auth_data = JSON.parse(response.body)
         if auth_data['error'] || !auth_data['access_token']

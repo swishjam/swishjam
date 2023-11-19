@@ -1,13 +1,12 @@
 import useAuthData from "@/hooks/useAuthData"
 
 export default function GoogleSearchConsole() {
-  const { token } = useAuthData();
+  const { token, email } = useAuthData();
   const clientId = '411519113339-t2fidfed57o2pbkd2mc203in85k87fms.apps.googleusercontent.com';
-  const redirectHost = '56b9-2603-8000-7200-9d38-51d0-1b32-6c01-f3d5.ngrok-free.app';
+  const redirectHost = process.env.NEXT_PUBLIC_GOOGLE_OATUH_REDIRECT_HOST || 'capture.swishjam.com';
   const redirectUri = `https://${redirectHost}/oauth/google/callback`;
-  const loginHint = 'collin@swishjam.com'
   const scope = 'https://www.googleapis.com/auth/webmasters.readonly'
-  const authUrl = `https://accounts.google.com/o/oauth2/auth?client_id=${clientId}&login_hint=${loginHint}&redirect_uri=${redirectUri}&scope=${scope}&state=${token}&response_type=code&access_type=offline&approval_prompt=force&include_granted_scopes=true`;
+  const authUrl = `https://accounts.google.com/o/oauth2/auth?client_id=${clientId}&login_hint=${email}&redirect_uri=${redirectUri}&scope=${scope}&state=${token}&response_type=code&access_type=offline&approval_prompt=force&include_granted_scopes=true`;
 
   return (
     <a
