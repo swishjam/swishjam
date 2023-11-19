@@ -3,7 +3,6 @@ import BarList from '@/components/Dashboards/Builder/RenderingEngines/BarList';
 import BarChart from '@/components/Dashboards/Builder/RenderingEngines/BarChart';
 import { Card } from '@/components/ui/card';
 import ContextMenuableComponent from '@/components/Dashboards/Builder/DashboardComponentContextMenu';
-import EventsByUserList from '@/components/Dashboards/Builder/RenderingEngines/EventsByUserList';
 import LineChart from '@/components/Dashboards/Builder/RenderingEngines/LineChart';
 import PieChart from '@/components/Dashboards/Builder/RenderingEngines/PieChart';
 import ReactGridLayout, { WidthProvider } from 'react-grid-layout'
@@ -14,7 +13,6 @@ import ValueCard from '@/components/Dashboards/Builder/RenderingEngines/ValueCar
 const RENDERING_ENGINE_DASHBOARD_COMPONENT_FOR_CONFIGURATION_TYPE = {
   BarList,
   BarChart,
-  EventsByUserList,
   LineChart,
   PieChart,
   ValueCard,
