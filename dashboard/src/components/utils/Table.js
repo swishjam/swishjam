@@ -1,4 +1,4 @@
-import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@/components/ui/Table'
+import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@/components/ui/table'
 import { Skeleton } from '../ui/skeleton'
 
 export default function TableComponent({ headers, rows, noDataMessage = 'No data.' }) {
