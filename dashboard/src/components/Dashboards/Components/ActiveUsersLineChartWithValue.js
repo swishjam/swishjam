@@ -11,6 +11,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { CalendarDaysIcon } from '@heroicons/react/24/outline';
+import { formatShrinkNumbers } from '@/lib/utils/numberHelpers';
+
 // import { SwishjamMemory } from '@/lib/swishjam-memory';
 
 const GroupingDropdown = ({ currentGrouping, onSelection }) => (
@@ -52,6 +54,7 @@ export default function ActiveUsersLineChart({ data, selectedGrouping, onGroupin
       timeseries={data?.timeseries}
       groupedBy={data?.groupedBy}
       valueFormatter={n => n.toLocaleString('en-US')}
+      yAxisFormatter={formatShrinkNumbers}
       includeSettingsDropdown={includeSettingsDropdown}
     />
   )

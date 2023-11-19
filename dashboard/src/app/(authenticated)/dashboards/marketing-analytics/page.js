@@ -4,42 +4,24 @@ import { useState, useEffect } from "react";
 import { SwishjamAPI } from "@/lib/api-client/swishjam-api";
 import LineChartWithValue from "@/components/Dashboards/Components/LineChartWithValue";
 import ClickableValueCard from "@/components/Dashboards/Components/ClickableValueCard";
-import BarList from "@/components/Dashboards/Components/BarList";
 import Timefilter from "@/components/Timefilter";
 import { Button } from "@/components/ui/button";
 import { ArrowPathIcon } from "@heroicons/react/24/outline";
-import { BsArrowLeftShort } from 'react-icons/bs'
 import { RxBarChart } from 'react-icons/rx'
-import { dateFormatterForGrouping } from "@/lib/utils/timeseriesHelpers";
 import BarChart from "@/components/Dashboards/Components/BarChart";
 import Link from 'next/link'
+import {
+  formatMoney,
+  formatNumbers,
+  formatShrinkNumbers,
+  formatShrinkMoney
+} from "@/lib/utils/numberHelpers";
+
+//import BarList from "@/components/Dashboards/Components/BarList";
+//import { BsArrowLeftShort } from 'react-icons/bs'
+//import { dateFormatterForGrouping } from "@/lib/utils/timeseriesHelpers";
 // import LoadingView from './LoadingView'
 
-/*
-const convertToBarList = (data) => {
-  if(!data) return ''
-  let o = {}
-
-  data.map((d) => {
-    delete d['date']
-    data.map((d) => {
-      for (const key in d) {
-        if(o[key]) {
-          o[key] += d[key]
-        } else {
-          o[key] = d[key]
-        } 
-      }
-    });
-  });
-
-  const barList = Object.entries(o).map(([name, value]) => ({ name, value }));
-  console.log('here1', barList);
-  return barList;
-}
-*/
-
-const sessionsFormatter = (num) => num.toLocaleString("en-US");
 
 export default function PageMetrics() {
   const [browsersBarChartData, setBrowsersBarChartData] = useState();
@@ -73,7 +55,6 @@ export default function PageMetrics() {
           })),
           value: current_count,
           valueChange: current_count - comparison_count,
-          valueFormatter: sessionsFormatter,
         });
       });
   };
@@ -112,7 +93,6 @@ export default function PageMetrics() {
           })),
           value: current_count,
           valueChange: current_count - comparison_count,
-          valueFormatter: sessionsFormatter,
         });
       });
   };
@@ -206,7 +186,7 @@ export default function PageMetrics() {
             previousValue={sessionsTimeseriesData?.previousValue}
             previousValueDate={sessionsTimeseriesData?.previousValueDate}
             timeseries={sessionsTimeseriesData?.timeseries}
-            valueFormatter={(numSubs) => numSubs.toLocaleString("en-US")}
+            valueFormatter={formatNumbers}
             onClick={() => setCurrentSelectedChart("Sessions")}
           />
           <ClickableValueCard
@@ -216,7 +196,7 @@ export default function PageMetrics() {
             previousValue={uniqueVisitorsChart?.previousValue}
             previousValueDate={uniqueVisitorsChart?.previousValueDate}
             timeseries={uniqueVisitorsChart?.timeseries}
-            valueFormatter={(numSubs) => numSubs.toLocaleString("en-US")}
+            valueFormatter={formatNumbers}
             onClick={() => setCurrentSelectedChart("Unique Visitors")}
           />
           <ClickableValueCard
@@ -226,7 +206,7 @@ export default function PageMetrics() {
             previousValue={pageViewsTimeseriesData?.previousValue}
             previousValueDate={pageViewsTimeseriesData?.previousValueDate}
             timeseries={pageViewsTimeseriesData?.timeseries}
-            valueFormatter={numPageViews => numPageViews.toLocaleString("en-US")}
+            valueFormatter={formatNumbers}
             onClick={() => setCurrentSelectedChart("Page Views")}
           />
         </div>
@@ -239,7 +219,8 @@ export default function PageMetrics() {
             timeseries={currentChartLookup[currentSelectedChart]?.timeseries}
             title={currentSelectedChart}
             value={currentChartLookup[currentSelectedChart]?.value}
-            valueFormatter={currentChartLookup[currentSelectedChart]?.valueFormatter}
+            valueFormatter={formatNumbers}
+            yAxisFormatter={formatShrinkNumbers}
           />
         </div>
       </div>

@@ -12,8 +12,7 @@ import InstallBanner from '@/components/InstallBanner';
 import ItemizedList from '@/components/Dashboards/Components/ItemizedList';
 import RetentionWidgetTiny from '@/components/Dashboards/Components/RetentionWidgetTiny';
 import { BsArrowRightShort } from 'react-icons/bs'
-
-const sessionsFormatter = (num) => { return num?.toLocaleString("en-US") || 0 };
+import { formatMoney, formatNumbers, formatShrinkNumbers, formatShrinkMoney } from '@/lib/utils/numberHelpers';
 
 export default function Home() {
   const [isRefreshing, setIsRefreshing] = useState();
@@ -83,7 +82,6 @@ export default function Home() {
           })),
           value: current_count,
           valueChange: current_count - comparison_count,
-          valueFormatter: sessionsFormatter,
         });
       });
   };
@@ -240,6 +238,7 @@ export default function Home() {
         <ActiveUsersLineChartWithValue
           data={uniqueVisitorsProductChartData}
           selectedGrouping={uniqueVisitorsProductGrouping}
+          valueFormatter={formatNumbers}
           showAxis={false}
           onGroupingChange={group => {
             setUniqueVisitorsProductChartData();
@@ -254,7 +253,8 @@ export default function Home() {
           previousValueDate={sessionsProductChart?.previousValueDate}
           showAxis={false}
           timeseries={sessionsProductChart?.timeseries}
-          valueFormatter={numSubs => numSubs.toLocaleString('en-US')}
+          valueFormatter={formatNumbers}
+          yAxisFormatter={formatShrinkNumbers}
         />
         <RetentionWidgetTiny
           retentionCohorts={userRetentionData}
@@ -273,7 +273,8 @@ export default function Home() {
           value={mrrChart?.value}
           previousValue={mrrChart?.previousValue}
           previousValueDate={mrrChart?.previousValueDate}
-          valueFormatter={mrr => ((mrr || 0) / 100)?.toLocaleString('en-US', { style: "currency", currency: "USD" })}
+          valueFormatter={formatMoney}
+          yAxisFormatter={formatShrinkMoney} 
           showAxis={false}
           timeseries={mrrChart?.timeseries}
         />
@@ -284,14 +285,16 @@ export default function Home() {
           value={activeSubsChart?.value}
           previousValue={activeSubsChart?.previousValue}
           previousValueDate={activeSubsChart?.previousValueDate}
-          valueFormatter={numSubs => { return numSubs?.toLocaleString('en-US') || 0 }}
+          valueFormatter={formatNumbers}
+          yAxisFormatter={formatShrinkNumbers} 
         />
         <LineChartWithValue
           title='Churn (Coming Soon)'
           value={0}
           previousValue={0}
           previousValueDate={new Date()}
-          valueFormatter={() => (0).toLocaleString('en-US', { style: "currency", currency: "USD" })}
+          valueFormatter={formatMoney}
+          yAxisFormatter={formatShrinkMoney} 
           showAxis={false}
           timeseries={[]}
           className={'opacity-50'}
@@ -311,8 +314,8 @@ export default function Home() {
           previousValueDate={sessionsMarketingChart?.previousValueDate}
           showAxis={true}
           timeseries={sessionsMarketingChart?.timeseries}
-
-          valueFormatter={numSubs => numSubs.toLocaleString('en-US')}
+          valueFormatter={formatNumbers}
+          yAxisFormatter={formatShrinkNumbers} 
         />
         <LineChartWithValue
           title='Page Views'
@@ -321,7 +324,8 @@ export default function Home() {
           previousValueDate={pageViewsTimeseriesData?.previousValueDate}
           showAxis={true}
           timeseries={pageViewsTimeseriesData?.timeseries}
-          valueFormatter={pageViewsTimeseriesData?.valueFormatter}
+          valueFormatter={formatNumbers}
+          yAxisFormatter={formatShrinkNumbers} 
         />
         <LineChartWithValue
           title='Unique Visitors'
@@ -330,7 +334,8 @@ export default function Home() {
           previousValueDate={uniqueVisitorsMarketingChartData?.previousValueDate}
           showAxis={true}
           timeseries={uniqueVisitorsMarketingChartData?.timeseries}
-          valueFormatter={numSubs => numSubs.toLocaleString('en-US')}
+          valueFormatter={formatNumbers}
+          yAxisFormatter={formatShrinkNumbers} 
         />
       </div>
       {/*<div className='pt-8'>
