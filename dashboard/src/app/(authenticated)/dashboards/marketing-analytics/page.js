@@ -196,7 +196,7 @@ export default function PageMetrics() {
             previousValue={uniqueVisitorsChart?.previousValue}
             previousValueDate={uniqueVisitorsChart?.previousValueDate}
             timeseries={uniqueVisitorsChart?.timeseries}
-            valueFormatter={(numSubs) => numSubs.toLocaleString("en-US")}
+            valueFormatter={formatNumbers}
             onClick={() => setCurrentSelectedChart("Unique Visitors")}
           />
           <ClickableValueCard
@@ -206,7 +206,7 @@ export default function PageMetrics() {
             previousValue={pageViewsTimeseriesData?.previousValue}
             previousValueDate={pageViewsTimeseriesData?.previousValueDate}
             timeseries={pageViewsTimeseriesData?.timeseries}
-            valueFormatter={numPageViews => numPageViews.toLocaleString("en-US")}
+            valueFormatter={formatNumbers}
             onClick={() => setCurrentSelectedChart("Page Views")}
           />
         </div>
@@ -219,7 +219,8 @@ export default function PageMetrics() {
             timeseries={currentChartLookup[currentSelectedChart]?.timeseries}
             title={currentSelectedChart}
             value={currentChartLookup[currentSelectedChart]?.value}
-            valueFormatter={currentChartLookup[currentSelectedChart]?.valueFormatter}
+            valueFormatter={formatNumbers}
+            yAxisFormatter={formatShrinkNumbers}
           />
         </div>
       </div>

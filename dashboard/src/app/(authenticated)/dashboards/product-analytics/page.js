@@ -7,16 +7,20 @@ import { Button } from "@/components/ui/button";
 import { ArrowPathIcon } from "@heroicons/react/24/outline";
 import { RxBarChart } from 'react-icons/rx'
 import ActiveUsersLineChartWithValue from "@/components/Dashboards/Components/ActiveUsersLineChartWithValue";
-import { dateFormatterForGrouping } from "@/lib/utils/timeseriesHelpers";
-import BarChart from "@/components/Dashboards/Components/BarChart";
-import { BsArrowLeftShort } from 'react-icons/bs'
 import LineChartWithValue from "@/components/Dashboards/Components/LineChartWithValue";
-import ClickableValueCard from "@/components/Dashboards/Components/ClickableValueCard";
-import BarList from "@/components/Dashboards/Components/BarList";
 import ItemizedList from '@/components/Dashboards/Components/ItemizedList';
 import Link from 'next/link'
 import RetentionWidget from '@/components/Dashboards/Components/RetentionWidget';
-// import LoadingView from './LoadingView'
+import {
+  formatNumbers,
+} from "@/lib/utils/numberHelpers";
+
+//import { dateFormatterForGrouping } from "@/lib/utils/timeseriesHelpers";
+//import BarChart from "@/components/Dashboards/Components/BarChart";
+//import { BsArrowLeftShort } from 'react-icons/bs'
+//import ClickableValueCard from "@/components/Dashboards/Components/ClickableValueCard";
+//import BarList from "@/components/Dashboards/Components/BarList";
+//import LoadingView from './LoadingView'
 
 export default function PageMetrics() {
   
@@ -155,7 +159,7 @@ export default function PageMetrics() {
             previousValueDate={sessionsChart?.previousValueDate}
             showAxis={true}
             timeseries={sessionsChart?.timeseries}
-            valueFormatter={numSubs => numSubs.toLocaleString('en-US')}
+            valueFormatter={formatNumbers}
           />
         </div>
         <div className="col-span-6">

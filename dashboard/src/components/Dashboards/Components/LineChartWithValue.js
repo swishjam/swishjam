@@ -189,8 +189,16 @@ export default function LineChartWithValue({
       </div>
       {timeseries.length > 0
         ? (
-          <div className='flex align-center justify-center mt-6'>
-            <ResponsiveContainer width="100%" aspect={3}>
+          <div 
+            onMouseLeave={() => {
+              setCurrentValue(timeseries[timeseries.length - 1]?.value)
+              setComparisonValue(timeseries[timeseries.length - 1]?.comparisonValue);
+              setCurrentValueDate(timeseries[timeseries.length - 1]?.date);
+              setComparisonValueDate(timeseries[timeseries.length - 1]?.comparisonDate);
+            }}
+            className='flex align-center justify-center mt-6'
+          >
+            <ResponsiveContainer width="100%" aspect={3} >
               <AreaChart data={timeseries} margin={{ top: 5, right: 0, left: 0, bottom: 0 }}>
                 <XAxis
                   dataKey="date"
