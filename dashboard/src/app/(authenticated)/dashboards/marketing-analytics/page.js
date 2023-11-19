@@ -55,7 +55,6 @@ export default function PageMetrics() {
           })),
           value: current_count,
           valueChange: current_count - comparison_count,
-          valueFormatter: sessionsFormatter,
         });
       });
   };
@@ -94,7 +93,6 @@ export default function PageMetrics() {
           })),
           value: current_count,
           valueChange: current_count - comparison_count,
-          valueFormatter: sessionsFormatter,
         });
       });
   };
@@ -188,7 +186,7 @@ export default function PageMetrics() {
             previousValue={sessionsTimeseriesData?.previousValue}
             previousValueDate={sessionsTimeseriesData?.previousValueDate}
             timeseries={sessionsTimeseriesData?.timeseries}
-            valueFormatter={(numSubs) => numSubs.toLocaleString("en-US")}
+            valueFormatter={formatNumbers}
             onClick={() => setCurrentSelectedChart("Sessions")}
           />
           <ClickableValueCard
