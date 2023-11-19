@@ -14,7 +14,7 @@ import SwishjamAPI from "@/lib/api-client/swishjam-api";
 import { useState } from "react";
 import ValueCard from "@/components/Dashboards/Components/ValueCard";
 
-export default function PieChartConfiguration({ OnConfigurationSave = () => { } }) {
+export default function PieChartConfiguration({ onConfigurationSave = () => { } }) {
   const [valueCardValue, setValueCardValue] = useState();
   const [valueCardPreviousValue, setValueCardPreviousValue] = useState();
   const [valueFormatterConfig, setValueFormatterConfig] = useState('number');

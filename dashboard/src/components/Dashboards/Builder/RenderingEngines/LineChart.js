@@ -2,11 +2,12 @@ import { useEffect, useState } from 'react';
 import LineChartWithValue from "../../Components/LineChartWithValue";
 import SwishjamAPI from '@/lib/api-client/swishjam-api';
 
-export default function LineChartRenderingEngine({ title, event, property, calculation, timeframe, dataSource, configuration }) {
+export default function LineChartRenderingEngine({ configuration, timeframe }) {
   const [timeseriesData, setTimeseriesData] = useState();
   const includeComparison = configuration.include_comparison ?? true;
   const includeSettingsDropdown = configuration.include_settings_dropdown ?? true;
   const hideAxis = configuration.hide_axis ?? false;
+  const { title, event, property, calculation, dataSource } = configuration;
 
   useEffect(() => {
     setTimeseriesData();

@@ -15,7 +15,7 @@ import Toggle from "@/components/utils/Toggle";
 import { useState } from "react";
 import { ChevronDownIcon } from "@radix-ui/react-icons";
 
-export default function LineChartConfiguration({ OnConfigurationSave = () => { } }) {
+export default function LineChartConfiguration({ onConfigurationSave = () => { } }) {
   const [hideAxisConfig, setHideAxisConfig] = useState(false);
   const [includeSettingsDropdownConfig, setIncludeSettingsDropdownConfig] = useState(true);
   const [includeComparisonDataConfig, setIncludeComparisonDataConfig] = useState(true);
@@ -108,7 +108,7 @@ export default function LineChartConfiguration({ OnConfigurationSave = () => { }
   )
 
   const onSave = componentConfiguration => {
-    OnConfigurationSave({
+    onConfigurationSave({
       include_comparison: includeComparisonDataConfig,
       include_settings_dropdown: includeSettingsDropdownConfig,
       value_formatter: valueFormatterConfig,

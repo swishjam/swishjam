@@ -16,7 +16,7 @@ const LoadingState = () => (
   </div>
 )
 
-export default function BarList({ title, items, includeCard = true, ...props }) {
+export default function BarList({ title, items, color, includeCard = true, ...props }) {
   if (!items) {
     return (
       <ConditionalCardWrapper title={title} includeCard={includeCard} {...props}>
@@ -37,7 +37,11 @@ export default function BarList({ title, items, includeCard = true, ...props }) 
               <div
                 key={item.name}
                 className="bg-sky-200 rounded flex items-center h-9 mb-2 transition duration-300 ease-in-out"
-                style={{ width: (item.value / total) * 100 + '%', transition: 'all 1s ease 0s' }}
+                style={{
+                  width: (item.value / total) * 100 + '%',
+                  transition: 'all 1s ease 0s',
+                  backgroundColor: color
+                }}
               >
                 <div className="absolute max-w-full flex left-2">
                   {item.icon && <item.icon className="h-4 w-4 mr-2" />}
