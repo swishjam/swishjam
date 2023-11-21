@@ -15,7 +15,7 @@ export default function DataTable({ headers, barChartData, getColor, ignoredKeys
   tableData = Object.keys(tableData).map(key => ({ value: key, count: tableData[key] })).sort((a, b) => parseInt(b.count) - parseInt(a.count))
 
   return (
-    <ScrollArea className="rounded-sm border h-64 w-full -mb-6 mt-4">
+    <ScrollArea className="rounded-sm border h-96 w-full -mb-6 mt-4">
       <Table>
         <TableHeader className="bg-gray-50">
           <TableRow>
