@@ -23,9 +23,10 @@ export default function RetentionGrid({ retentionCohorts, isExpandable }) {
 
   const [isExpanded, setIsExpanded] = useState(false);
   const canExpand = isExpandable && Object.keys(retentionCohorts).length > 4;
+  console.log(retentionCohorts);
 
-  const availableCohortPeriods = Object.keys(retentionCohorts);
-  const maxNumWeeks = Object.keys(retentionCohorts[availableCohortPeriods[0]].activity_periods).length;
+  const cohortDates = Object.keys(retentionCohorts);
+  const maxNumWeeks = Object.keys(retentionCohorts[cohortDates[0]].activity_periods).length;
 
   return (
     <div className='relative'>
@@ -54,7 +55,7 @@ export default function RetentionGrid({ retentionCohorts, isExpandable }) {
             </tr>
           </thead>
           <tbody className="bg-white">
-            {Object.keys(retentionCohorts).map(cohortPeriod => {
+            {cohortDates.map(cohortPeriod => {
               const cohortData = retentionCohorts[cohortPeriod];
               return (
                 <tr key={cohortPeriod}>

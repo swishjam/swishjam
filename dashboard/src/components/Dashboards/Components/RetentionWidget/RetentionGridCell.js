@@ -5,7 +5,7 @@ import { dateFormatterForGrouping } from "@/lib/utils/timeseriesHelpers";
 const weekFormatter = dateFormatterForGrouping('weeky');
 
 export default function RetentionCell({
-  activityWeek,
+  activityDate,
   cohortDate,
   cohortSize,
   numActiveUsers,
@@ -33,7 +33,7 @@ export default function RetentionCell({
             </div>
           </div>
           <TooltipContent className='text-xs text-gray-700'>
-            {numActiveUsers} of the {cohortSize} users that registered the week of {weekFormatter(cohortDate)} were active within the week of {weekFormatter(activityWeek)}.
+            {numActiveUsers} of the {cohortSize} users that registered the week of {cohortDate} were active within the week of {activityDate}.
           </TooltipContent>
         </TooltipTrigger>
       </Tooltip>
@@ -44,7 +44,7 @@ export default function RetentionCell({
     //     className="relative w-20 h-8 mr-1 flex items-center justify-center p-1 text-gray-900 hover:text-black transition-all cursor-default"
     //     onMouseOver={() => {
     //       setIsHovered(true)
-    //       onActivityPeriodHover({ cohortDate, activityWeek, numActiveUsers, cohortSize })
+    //       onActivityPeriodHover({ cohortDate, activityDate, numActiveUsers, cohortSize })
     //     }}
     //     onMouseOut={() => {
     //       setIsHovered(false)
