@@ -25,7 +25,9 @@ export default function BarChartComponent({
   showYAxis = true,
   showTableInsteadOfLegend = false,
   title,
+  tableTitle,
   valueFormatter = val => val,
+  yAxisFormatter = val => val, 
   xAxisKey = 'date',
   className,
 }) {
@@ -136,17 +138,23 @@ export default function BarChartComponent({
               <BarChart data={data} margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>
                 {includeGridLines && <CartesianGrid strokeDasharray="4 4" vertical={false} opacity={0.75} />}
                 {includeXAxis && <XAxis dataKey={xAxisKey} tickFormatter={dateFormatter} angle={0} tick={{ fontSize: '12px' }} />}
-                {includeYAxis && <YAxis tick={{ fontSize: '12px' }} tickFormatter={valueFormatter} />}
+                {includeYAxis &&
+                  <YAxis
+                    width={40}
+                    tick={{ fontSize: '12px', fill: "#9CA3AF" }}
+                    tickFormatter={yAxisFormatter}
+                    allowDecimals={false}
+                    axisLine={false}
+                    tickLine={false}
+                    padding={{ top: 0, bottom: 0, left: 0, right: 20 }}
+                  />
+                }
                 {includeLegendOrTable && (
                   <Legend
                     content={({ payload }) => {
                       return (
                         useTableInsteadOfLegend
-                          ? (
-                            <div className='pl-8'>
-                              <BarChartTable headers={[title || 'Value', 'Total Count']} barChartData={data} getColor={getColorForName} />
-                            </div>
-                          ) : (
+                          ? (null) : (
                             <div className='flex flex-wrap items-center justify-center gap-2 border border-gray-200 px-4 py-2 mt-4 rounded max-h-24 overflow-scroll'>
                               {payload.map((entry, index) => (
                                 <div key={index} className='inline-flex items-center justify-center w-fit rounded-md transition-all px-2 py-1'>
@@ -173,6 +181,12 @@ export default function BarChartComponent({
                 {uniqueKeys.map((key, i) => <Bar key={i} dataKey={key} stackId='a' fill={getColorForName(key)} />)}
               </BarChart>
             </ResponsiveContainer>
+            
+            {includeLegendOrTable && useTableInsteadOfLegend && (
+              <div className='w-96 ml-4 -mt-6'>
+                <BarChartTable headers={[tableTitle || 'Value', 'Total Count']} barChartData={data} getColor={getColorForName} />
+              </div>
+            )}
           </div>
         )
       }
