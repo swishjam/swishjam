@@ -2,22 +2,17 @@
 
 import { useState, useEffect } from "react";
 import { SwishjamAPI } from "@/lib/api-client/swishjam-api";
-import LineChartWithValue from "@/components/Dashboards/Components/LineChartWithValue";
-import ClickableValueCard from "@/components/Dashboards/Components/ClickableValueCard";
 import Timefilter from "@/components/Timefilter";
 import { Button } from "@/components/ui/button";
 import { ArrowPathIcon } from "@heroicons/react/24/outline";
 import { RxBarChart } from 'react-icons/rx'
-import BarChart from "@/components/Dashboards/Components/BarChart";
 import Link from 'next/link'
-import {
-  formatMoney,
-  formatNumbers,
-  formatShrinkNumbers,
-  formatShrinkMoney
-} from "@/lib/utils/numberHelpers";
 
-//import BarList from "@/components/Dashboards/Components/BarList";
+import LineChartWithValue from "@/components/Dashboards/Components/LineChartWithValue";
+import ClickableValueCard from "@/components/Dashboards/Components/ClickableValueCard";
+import BarList from "@/components/Dashboards/Components/BarList";
+import BarChart from "@/components/Dashboards/Components/BarChart";
+import { formatNumbers, formatShrinkNumbers } from "@/lib/utils/numberHelpers";
 //import { BsArrowLeftShort } from 'react-icons/bs'
 //import { dateFormatterForGrouping } from "@/lib/utils/timeseriesHelpers";
 // import LoadingView from './LoadingView'
@@ -28,6 +23,7 @@ export default function PageMetrics() {
   const [currentSelectedChart, setCurrentSelectedChart] = useState("Sessions");
   const [deviceTypesBarChartData, setDeviceTypesBarChartData] = useState();
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [pageViewsListData, setPageViewsListData] = useState();
   const [pageViewsTimeseriesData, setPageViewsTimeseriesData] = useState();
   const [sessionsTimeseriesData, setSessionsTimeseriesData] = useState();
   const [referrersBarChartData, setReferrersBarChartData] = useState();
@@ -79,6 +75,13 @@ export default function PageMetrics() {
     ])
   };
 
+  const getPageViewsListData = async timeframe => {
+    return await SwishjamAPI.PageViews.list({ timeframe, dataSource: 'marketing' }).then((data) => {
+      console.log('barlist data', data)
+      setPageViewsListData(data.page_view_counts.map(d => {return {name: d.url, value: d.count}})) 
+    });
+  };
+
   const getPageViewsTimeseriesData = async timeframe => {
     return await SwishjamAPI.PageViews.timeseries({ timeframe, dataSource: 'marketing' }).then(
       ({ current_count, comparison_count, comparison_end_time, timeseries, comparison_timeseries, grouped_by }) => {
@@ -124,6 +127,7 @@ export default function PageMetrics() {
     // Reset All Data
     setIsRefreshing(true);
     setSessionsTimeseriesData();
+    setPageViewsListData();
     setPageViewsTimeseriesData();
     setUniqueVisitorsChart();
     setReferrersBarChartData();
@@ -135,6 +139,7 @@ export default function PageMetrics() {
     await Promise.all([
       getSessionTimeseriesData(timeframe),
       getPageViewsTimeseriesData(timeframe),
+      getPageViewsListData(timeframe),
       getUniqueVisitorsTimeseries(timeframe),
       getPageViewsBarChartData(timeframe),
       getDemographicsBarChartData(timeframe),
@@ -224,26 +229,61 @@ export default function PageMetrics() {
           />
         </div>
       </div>
-
-      <div className='grid grid-cols-8 gap-4 pt-4'>
+      {/*<div className='pt-8 flex justify-between'>
+        <h3 className='font-semibold text-sm text-slate-600'>Page Views</h3>
+          </div>*/}
+      <div className='grid grid-cols-8 gap-4 pt-2'>
         <BarChart
-          title='Page Views'
+          title={`Page Views`}
+          TableTitle='Top Pages'
           className="col-span-8"
           data={pageViewsBarChartData}
+          valueFormatter={formatNumbers}
+          yAxisFormatter={formatShrinkNumbers}
+          showLegend={true}
+          showTableInsteadOfLegend={true}
+        />
+        {/*<BarList
+          title='Top Pages by View Count'
+          className="col-span-3"
+          items={pageViewsListData}
+          />*/}
+      </div>
+      <div className='grid grid-cols-8 gap-4 pt-4'>
+        <BarChart
+          title={`Referrers`}
+          TableTitle='Top Referrers'
+          className="col-span-8"
+          data={referrersBarChartData}
+          valueFormatter={formatNumbers}
+          yAxisFormatter={formatShrinkNumbers}
+          showLegend={true}
           showTableInsteadOfLegend={true}
         />
       </div>
       <div className='grid grid-cols-8 gap-4 pt-4'>
-        <BarChart 
-          title='Referrers'
+        <BarChart
+          title={`Devices`}
+          TableTitle='Top Devices'
           className="col-span-8"
-          data={referrersBarChartData}
+          data={deviceTypesBarChartData}
+          valueFormatter={formatNumbers}
+          yAxisFormatter={formatShrinkNumbers}
+          showLegend={true}
           showTableInsteadOfLegend={true}
-         />
+        />
       </div>
       <div className='grid grid-cols-2 gap-4 pt-4'>
-        <BarChart title='Devices' data={deviceTypesBarChartData} />
-        <BarChart title='Browsers' data={browsersBarChartData} />
+        <BarChart
+          title={`Browsers`}
+          TableTitle='Top Browsers'
+          className="col-span-8"
+          data={deviceTypesBarChartData}
+          valueFormatter={formatNumbers}
+          yAxisFormatter={formatShrinkNumbers}
+          showLegend={true}
+          showTableInsteadOfLegend={true}
+        />
       </div>
     </main>
   );
