@@ -1,6 +1,6 @@
 class ApiKey < Transactional
   class ReservedDataSources
-    SOURCES = %i[product marketing stripe resend cal_com].freeze
+    SOURCES = %i[product marketing stripe resend cal_com google_search_console].freeze
     
     class << self
       SOURCES.each do |source|

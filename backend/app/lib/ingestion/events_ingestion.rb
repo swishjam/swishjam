@@ -1,6 +1,8 @@
 module Ingestion
   class EventsIngestion
     attr_accessor :ingestion_batch
+
+    EVENT_NAMES_TO_IGNORE = %w[sdk_error].freeze
     
     def initialize
       @ingestion_batch = IngestionBatch.new(started_at: Time.current, event_type: 'events')
@@ -43,15 +45,19 @@ module Ingestion
         organization_events = []
         events = Ingestion::QueueManager.pop_all_records_from_queue(Ingestion::QueueManager::Queues.EVENTS)
         formatted_events = events.each do |e|
-          if e['name'] == 'identify'
+          case e['name']
+          when 'identify'
             identify_events << e
-          elsif e['name'] == 'organization'
+          when 'organization'
             organization_events << e
+          when 'sdk_error'
+            Sentry.capture_message("SDK Error: #{e.dig('properties', 'error', 'message')}", level: 'error')
           end
         end
         Ingestion::QueueManager.push_records_into_queue(Ingestion::QueueManager::Queues.IDENTIFY, identify_events) if identify_events.count > 0
         Ingestion::QueueManager.push_records_into_queue(Ingestion::QueueManager::Queues.ORGANIZATION, organization_events) if organization_events.count > 0
-        events
+        filtered_events = events.reject { |e| EVENT_NAMES_TO_IGNORE.include?(e['name']) }
+        filtered_events
       end
     end
   end

@@ -1,5 +1,5 @@
 import { Fragment, useState } from 'react'
-import { UserGroupIcon, UserIcon, ChartPieIcon, HomeIcon, SquaresPlusIcon, Cog6ToothIcon } from '@heroicons/react/24/outline'
+import { CircleStackIcon, UserGroupIcon, UserIcon, ChartPieIcon, HomeIcon, Cog6ToothIcon } from '@heroicons/react/24/outline'
 import { Combobox, Dialog, Transition } from '@headlessui/react'
 import { SwishjamAPI } from '@/lib/api-client/swishjam-api'
 import SearchForm from './SearchForm';
@@ -11,7 +11,7 @@ const dashboardOptions = [
   { name: 'Visitor Trends', href: '/visitor-trends', icon: ChartPieIcon },
   { name: 'Users', href: '/users', icon: UserIcon },
   { name: 'Organizations', href: '/organizations', icon: UserGroupIcon },
-  { name: 'Connections', href: '/connections', icon: SquaresPlusIcon },
+  { name: 'Data Sources', href: '/data-sources', icon: CircleStackIcon },
   { name: 'Settings', href: '/settings', icon: Cog6ToothIcon }
 ]
 

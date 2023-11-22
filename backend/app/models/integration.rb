@@ -3,7 +3,7 @@ class Integration < Transactional
 
   scope :enabled, -> { where(enabled: true) }
   scope :disabled, -> { where(enabled: false) }
-  scope :by_type, -> (type) { where(type: type) }
+  scope :by_type, -> (type) { where(type: type.to_s) }
 
   attribute :enabled, :boolean, default: -> { true }
   attribute :config, :jsonb, default: -> { {} }
@@ -18,6 +18,8 @@ class Integration < Transactional
   end
 
   def self.TYPES
+    # Integrations::GoogleSearchConsole - waiting until Google app approval process.
+    # [Integrations::Stripe, Integrations::Resend, Integrations::CalCom, Integrations::GoogleSearchConsole]
     [Integrations::Stripe, Integrations::Resend, Integrations::CalCom]
   end
 

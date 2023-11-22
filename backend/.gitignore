@@ -29,3 +29,5 @@
 coverage/
 clickhouse-server/*
 clickhouse/*
+
+client_secret.json

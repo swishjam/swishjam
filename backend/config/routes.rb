@@ -18,6 +18,7 @@ Rails.application.routes.draw do
 
   get '/oauth/stripe/callback' => 'oauth/stripe#callback'
   get '/oauth/slack/callback' => 'oauth/slack#callback'
+  get '/oauth/google/callback' => 'oauth/google#callback'
 
   get :ping, to: 'application#ping'
 
@@ -203,6 +204,13 @@ Rails.application.routes.draw do
       resources :slack, only: [] do
         collection do
           get :channels
+        end
+      end
+
+      resources :google_search_console, only: [] do
+        collection do
+          get :sites
+          get :analytics
         end
       end
       
