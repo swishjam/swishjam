@@ -112,7 +112,7 @@ export default function PieChartConfiguration({ onConfigurationSave = () => { } 
       type='Value Card'
       includeCalculationsDropdown={true}
       includePropertiesDropdown={true}
-      onSave={configuration => OnConfigurationSave({ ...configuration, value_formatter: valueFormatterConfig })}
+      onSave={configuration => onConfigurationSave({ ...configuration, value_formatter: valueFormatterConfig })}
       previewDashboardComponent={title => (
         <ValueCard
           title={title}
