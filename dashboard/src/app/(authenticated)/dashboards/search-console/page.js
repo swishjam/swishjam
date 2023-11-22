@@ -24,19 +24,19 @@ const formattedDay = dateFormatterForGrouping("day");
 const SiteSelector = ({ sites, selectedSite, onSelect }) => {
   if (!sites) {
     return (
-      <Button variant="outline" className='mr-2 flex items-center'>
+      <Button variant="outline" className='mr-4 flex items-center'>
         <LinkIcon className='h-4 w-4 text-gray-700 inline-block mr-1' /> <Skeleton className='h-6 w-14' />
       </Button>
     )
   } else if (sites.length === 0) {
     return (
-      <Button variant="outline" className="mr-2 flex items-center">
+      <Button variant="outline" className="mr-4 flex items-center">
         <LinkIcon className='h-4 w-4 text-gray-700 inline-block mr-1' /> No sites found
       </Button>
     )
   } else if (sites.length === 1) {
     return (
-      <Button variant="outline" className="mr-2 flex items-center">
+      <Button variant="outline" className="mr-4 flex items-center">
         <LinkIcon className='h-4 w-4 text-gray-700 inline-block mr-1' /> {sites[0].siteUrl.split('sc-domain:')[1] || sites[0].siteUrl}
       </Button>
     )
@@ -44,7 +44,7 @@ const SiteSelector = ({ sites, selectedSite, onSelect }) => {
     return (
       <Popover>
         <PopoverTrigger asChild>
-          <Button variant="outline" className="mr-2 flex items-center">
+          <Button variant="outline" className="mr-4 flex items-center">
             <LinkIcon className='h-4 w-4 text-gray-700 inline-block mr-1' />
             {selectedSite
               ? selectedSite.siteUrl.split('sc-domain:')[1] || selectedSite.siteUrl
