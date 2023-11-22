@@ -16,14 +16,29 @@ export default function RetentionGrid({ retentionCohorts, isExpandable }) {
     )
   }
 
-  const [isExpanded, setIsExpanded] = useState(false);
-  const canExpand = isExpandable && retentionCohorts.length > 4;
+  const [numActiveUsersToDisplay, setNumActiveUsersToDisplay] = useState();
+  const [numUsersInCohortToDisplay, setNumUsersInCohortToDisplay] = useState();
+  const [activityDateToDisplay, setActivityDateToDisplay] = useState();
+  const [cohortDateToDisplay, setCohortDateToDisplay] = useState();
 
-  const sortedCohorts = retentionCohorts.sort((a, b) => new Date(a.time_period) - new Date(b.time_period))
-  const maxNumWeeks = sortedCohorts[0].retention_cohort_activity_periods.length;
+  const [isExpanded, setIsExpanded] = useState(false);
+  const canExpand = isExpandable && Object.keys(retentionCohorts).length > 4;
+
+  const availableCohortPeriods = Object.keys(retentionCohorts);
+  const maxNumWeeks = Object.keys(retentionCohorts[availableCohortPeriods[0]].activity_periods).length;
 
   return (
     <div className='relative'>
+      {/* <div className='h-12'>
+        {numUsersInCohortToDisplay && (
+          <>
+            <h1 className='text-lg font-medium text-gray-700'>{((numActiveUsersToDisplay / numUsersInCohortToDisplay) * 100).toFixed(2)}%</h1>
+            <h2 className='text-xs text-gray-400'>
+              {numActiveUsersToDisplay} of the {numUsersInCohortToDisplay} users in the {cohortDateToDisplay} cohort were active during the week of {activityDateToDisplay}.
+            </h2>
+          </>
+        )}
+      </div> */}
       <div className={`no-scrollbar overflow-scroll min-w-full relative transition-all ${isExpanded ? '' : 'max-h-96'}`}>
         <table>
           <thead>
@@ -39,28 +54,43 @@ export default function RetentionGrid({ retentionCohorts, isExpandable }) {
             </tr>
           </thead>
           <tbody className="bg-white">
-            {sortedCohorts.map(({ id, num_users_in_cohort, retention_cohort_activity_periods, time_period: cohortDate }) => (
-              <tr key={id}>
-                <>
-                  <td className="whitespace-nowrap text-sm pr-4">
-                    <span className='block' style={{ fontSize: '0.85rem' }}>{weekFormatter(cohortDate)}</span>
-                    <span className='text-xs text-gray-400 block' style={{ fontSize: '0.7rem' }}>{num_users_in_cohort} users</span>
-                  </td>
-                  {retention_cohort_activity_periods.map(({ time_period: activityTimePeriod, num_active_users, num_periods_after_cohort }) => {
-                    return (
-                      <td className="whitespace-nowrap text-sm" key={`${id}-${num_periods_after_cohort}`}>
-                        <RetentionGridCell
-                          cohortDate={cohortDate}
-                          activityWeek={activityTimePeriod}
-                          numActiveUsers={num_active_users}
-                          cohortSize={num_users_in_cohort}
-                        />
-                      </td>
-                    )
-                  })}
-                </>
-              </tr>
-            ))}
+            {Object.keys(retentionCohorts).map(cohortPeriod => {
+              const cohortData = retentionCohorts[cohortPeriod];
+              return (
+                <tr key={cohortPeriod}>
+                  <>
+                    <td className="whitespace-nowrap text-sm pr-4">
+                      <span className='block' style={{ fontSize: '0.85rem' }}>{weekFormatter(cohortPeriod)}</span>
+                      <span className='text-xs text-gray-400 block' style={{ fontSize: '0.7rem' }}>{cohortData.num_users_in_cohort} users</span>
+                    </td>
+                    {Object.keys(cohortData.activity_periods).map(activityTimePeriod => {
+                      return (
+                        <td className="whitespace-nowrap text-sm" key={`${cohortPeriod}-${activityTimePeriod}`}>
+                          <RetentionGridCell
+                            cohortDate={cohortPeriod}
+                            activityDate={activityTimePeriod}
+                            numActiveUsers={cohortData.activity_periods[activityTimePeriod].num_active_users}
+                            cohortSize={cohortData.num_users_in_cohort}
+                            onActivityPeriodHover={({ numActiveUsers, cohortSize, activityDate, cohortDate }) => {
+                              setNumActiveUsersToDisplay(numActiveUsers);
+                              setNumUsersInCohortToDisplay(cohortSize);
+                              setActivityDateToDisplay(activityDate);
+                              setCohortDateToDisplay(cohortDate);
+                            }}
+                            onActivityPeriodMouseOut={() => {
+                              setNumActiveUsersToDisplay();
+                              setNumUsersInCohortToDisplay();
+                              setActivityDateToDisplay();
+                              setCohortDateToDisplay();
+                            }}
+                          />
+                        </td>
+                      )
+                    })}
+                  </>
+                </tr>
+              )
+            })}
           </tbody>
         </table>
       </div>

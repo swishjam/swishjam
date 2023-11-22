@@ -1,8 +1,11 @@
 module UserRetentionCalculators
  class Weekly
   def self.get(public_keys, oldest_cohort_date: nil, events_to_be_considered_active: nil)
+    oldest_cohort_date = (oldest_cohort_date || 4.weeks.ago).beginning_of_week
     querier = ClickHouseQueries::Users::Retention::Weekly.new(public_keys, oldest_cohort_date: oldest_cohort_date, events_to_be_considered_active: events_to_be_considered_active)
-    
+
+    # returns an array of hashes containing the cohort period, and the number of users in that cohort
+    # if there are no users in a given cohort, it will not be included in the array
     cohort_sizes = querier.get_cohort_sizes
     formatted_cohort_sizes = Hash.new.tap do |hash|
       cohort_sizes.each do |row|
@@ -11,16 +14,42 @@ module UserRetentionCalculators
       end
     end
 
-    retention_data = querier.get_retention_data
+    # returns an array of hashes containing the cohort period, the activity period, and the number of active users for that activity period
+    # if there are no active users for a given activity period, it will not be included in the array
+    activity_data = querier.get_activity_data_by_cohorts
     formatted_cohort_data = Hash.new.tap do |hash|
-      retention_data.each do |row|
+      activity_data.each do |row|
         cohort_period = row['cohort_period']
         activity_period = row['activity_period']
         num_active_users = row['num_active_users']
         hash[cohort_period] ||= { 'num_users_in_cohort' => formatted_cohort_sizes[cohort_period], 'activity_periods' => {} }
-        hash[cohort_period]['activity_periods'][activity_period] = num_active_users
+        hash[cohort_period]['activity_periods'][activity_period] = { 'num_active_users' => num_active_users }
       end
     end
+
+    fill_in_cohorts_and_activity_data(oldest_cohort_date, formatted_cohort_data)
+  end
+
+  private
+
+  def self.fill_in_cohorts_and_activity_data(starting, cohorts)
+    current_cohort_period_ts = starting.beginning_of_week
+    cohort_data = {}
+    while current_cohort_period_ts <= Time.current.beginning_of_week
+      cohort_data[current_cohort_period_ts.to_date.to_s] = cohorts[current_cohort_period_ts.to_date.to_s] || { 'num_users_in_cohort' => 0, 'activity_periods' => {}}
+      
+      current_activity_period_ts = current_cohort_period_ts.beginning_of_week
+      num_periods_after_cohort = 0
+      while current_activity_period_ts <= Time.current.beginning_of_week
+        cohort_data[current_cohort_period_ts.to_date.to_s]['activity_periods'][current_activity_period_ts.to_date.to_s] ||= { 'num_active_users' => 0 }
+        cohort_data[current_cohort_period_ts.to_date.to_s]['activity_periods'][current_activity_period_ts.to_date.to_s]['num_periods_after_cohort'] = num_periods_after_cohort
+        num_periods_after_cohort += 1
+        current_activity_period_ts += 1.week
+      end
+      
+      current_cohort_period_ts += 1.week
+    end
+    cohort_data
   end
  end 
 end

@@ -29,7 +29,7 @@ module Api
         else
           users = current_workspace
                     .analytics_user_profiles
-                    .includes(:analytics_organization_profiles)
+                    .includes(:analytics_organization_profiles, :user_profile_enrichment_data)
                     .order(created_at: :desc)
                     .page(page)
                     .per(per_page)
