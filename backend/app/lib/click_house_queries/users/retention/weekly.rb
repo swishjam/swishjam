@@ -10,31 +10,23 @@ module ClickHouseQueries
           @events_to_be_considered_active = events_to_be_considered_active
         end
 
-        def get
-          formatted_retention_data = {}
-          formatted_query_results.each do |row|
-            if formatted_retention_data[row['cohort_period']].nil?
-              formatted_retention_data[row['cohort_period']] = {}
-            end
-            formatted_retention_data[row['cohort_period']][row['activity_period']] = row['num_active_users']
-          end
-          formatted_retention_data
+        def get_cohort_sizes
+          cohort_sizes_sql = <<~SQL
+            SELECT
+              toStartOfWeek(swishjam_user_profiles.created_at, 1) AS cohort_period,
+              CAST(COUNT(DISTINCT(swishjam_user_profiles.swishjam_user_id)) AS INT) AS num_users_in_cohort
+            FROM swishjam_user_profiles
+            WHERE 
+              swishjam_user_profiles.swishjam_api_key IN #{formatted_in_clause(@public_keys)} AND
+              swishjam_user_profiles.created_at >= '#{formatted_time(@oldest_cohort_date)}'
+            GROUP BY cohort_period
+            ORDER BY cohort_period
+          SQL
+          Analytics::ClickHouseRecord.execute_sql(cohort_sizes_sql)
         end
 
-        def formatted_query_results
-          result = Analytics::ClickHouseRecord.connected_to(role: :reading) do
-            Analytics::ClickHouseRecord.connection.execute(sql)
-          end
-
-          meta = result['meta']
-          data = result['data']
-
-          data.map do |row|
-            row.each_with_index.with_object({}) do |(value, index), hash|
-              column_name = meta[index]['name']
-              hash[column_name] = value
-            end
-          end
+        def get_retention_data
+          Analytics::ClickHouseRecord.execute_sql(sql)
         end
 
         def sql
