@@ -55,6 +55,27 @@ module UserRetentionCalculators
       
       current_cohort_period_ts += 1.week
     end
+
+    # if the cohort data stops early, fill in the rest of the cohort periods with 0 users
+    # this is separate from the FILL_IN_COHORT_PERIODS_WITH_ZERO_USERS flag because we always want to make sure the most recent cohort period is included
+    # but not necessarily earlier ones
+    most_recent_cohort_period = cohort_data.keys.sort.last
+    if most_recent_cohort_period && most_recent_cohort_period.to_date < Time.current.beginning_of_week.to_date
+      current_cohort_period_ts = most_recent_cohort_period.to_date + 1.week
+      while current_cohort_period_ts <= Time.current.beginning_of_week
+        cohort_data[current_cohort_period_ts.to_date.to_s] = { 'num_users_in_cohort' => 0, 'activity_periods' => {}}
+        current_activity_period_ts = current_cohort_period_ts.beginning_of_week
+        num_periods_after_cohort = 0
+        while current_activity_period_ts <= Time.current.beginning_of_week
+          cohort_data[current_cohort_period_ts.to_date.to_s]['activity_periods'][current_activity_period_ts.to_date.to_s] ||= { 'num_active_users' => 0 }
+          cohort_data[current_cohort_period_ts.to_date.to_s]['activity_periods'][current_activity_period_ts.to_date.to_s]['num_periods_after_cohort'] = num_periods_after_cohort
+          num_periods_after_cohort += 1
+          current_activity_period_ts += 1.week
+        end
+        current_cohort_period_ts += 1.week
+      end
+    end
+
     cohort_data
   end
  end 

@@ -26,9 +26,7 @@ module ClickHouseQueries
         end
 
         def get_activity_data_by_cohorts
-          Rails.cache.fetch("retention_cohorts/#{@public_keys.join('-')}/#{@oldest_cohort_date}/#{(@events_to_be_considered_active || []).join('-')}", expires_in: 1.hour) do
-            Analytics::ClickHouseRecord.execute_sql(sql)
-          end
+          Analytics::ClickHouseRecord.execute_sql(sql)
         end
 
         def sql
