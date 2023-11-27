@@ -22,7 +22,7 @@ const CustomTooltip = ({ active, payload, colorsDictionary, disabledCohortDates 
                   style={{ backgroundColor: colorsDictionary[cohortDate] }}
                 />
                 <span className='text-xs text-gray-700'>
-                  {weekFormatter(cohortDate)}: <span className='font-medium'>{parseFloat(data[cohortDate]).toFixed(2)}%</span>
+                  {weekFormatter(cohortDate)} Cohort: <span className='font-medium'>{parseFloat(data[cohortDate]).toFixed(2)}%</span>
                 </span>
               </div>
             )
@@ -81,7 +81,7 @@ export default function RetentionLineChart({ retentionCohorts }) {
 
   // results in:
   // [ { numPeriodsAfterCohort: 0, '11-13-2023': 100 }, { numPeriodsAfterCohort: 1, '11-20-2023': 84.2 } ...]
-  const lineChartData = allRetentionActivityPeriods.map((activityPeriodDate, i) => {
+  const lineChartData = allRetentionActivityPeriods.sort((a, b) => new Date(b) - new Date(a)).map((activityPeriodDate, i) => {
     const lineChartItem = { numPeriodsAfterCohort: i };
     cohortPeriods.forEach(cohortPeriodDate => {
       const cohortData = retentionCohorts[cohortPeriodDate];

@@ -23,7 +23,6 @@ export default function RetentionGrid({ retentionCohorts, isExpandable }) {
 
   const [isExpanded, setIsExpanded] = useState(false);
   const canExpand = isExpandable && Object.keys(retentionCohorts).length > 4;
-  console.log(retentionCohorts);
 
   const cohortDates = Object.keys(retentionCohorts);
   const maxNumWeeks = Object.keys(retentionCohorts[cohortDates[0]].activity_periods).length;

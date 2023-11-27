@@ -14,9 +14,7 @@ export default function RetentionWidgetTiny({ retentionCohorts, includeCard = tr
         </div>
       }
     >
-      <RetentionGrid
-        retentionCohorts={retentionCohorts}
-      />
+      <RetentionGrid retentionCohorts={retentionCohorts} />
     </ConditionalCardWrapper>
   )
 }
