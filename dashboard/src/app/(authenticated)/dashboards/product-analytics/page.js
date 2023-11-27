@@ -60,7 +60,7 @@ export default function PageMetrics() {
   }
 
   const getUserRetentionData = async () => {
-    return await SwishjamAPI.RetentionCohorts.get({ numOfCohorts: 10 }).then(setUserRetentionData)
+    return await SwishjamAPI.RetentionCohorts.get({ numCohorts: 10 }).then(setUserRetentionData)
   }
 
   const getUsersData = async () => {

@@ -171,8 +171,6 @@ export default function Home() {
     return await SwishjamAPI.Organizations.list().then(({ organizations }) => setNewOrganizationsData(organizations));
   };
 
-  console.log(userRetentionData);
-
   const getAllData = async timeframe => {
     setIsRefreshing(true);
     // Product 
