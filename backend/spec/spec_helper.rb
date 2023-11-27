@@ -22,24 +22,22 @@ RSpec.configure do |config|
   config.before(:each) do |example|
     DatabaseCleaner.start
 
-    # this sucks, how come I cant use DatabaseCleaner or at least purge data
     ActiveRecord::Base.logger.silence do
-      puts "Setting up Clickhouse DB...."
-      system('rails db:drop:clickhouse')
-      system('rails db:create:clickhouse')
-      system('rails db:migrate:clickhouse')
+      Analytics::ClickHouseRecord.connection.tables.excluding('schema_migrations', 'ar_internal_metadata').each do |table|
+        Analytics::ClickHouseRecord.execute_sql("DELETE FROM #{table} WHERE swishjam_api_key IS NOT NULL", format: nil)
+        Analytics::ClickHouseRecord.execute_sql("OPTIMIZE TABLE #{table} FINAL", format: nil)
+      end
     end
   end
 
   config.after(:each) do |example|
     DatabaseCleaner.clean
 
-    # this sucks, how come I cant use DatabaseCleaner or at least purge data
     ActiveRecord::Base.logger.silence do
-      puts "Breaking down Clickhouse DB...."
-      system('rails db:drop:clickhouse')
-      # system('rails db:create:clickhouse')
-      # system('rails db:migrate:clickhouse')
+      Analytics::ClickHouseRecord.connection.tables.excluding('schema_migrations', 'ar_internal_metadata').each do |table|
+        Analytics::ClickHouseRecord.execute_sql("DELETE FROM #{table} WHERE swishjam_api_key IS NOT NULL", format: nil)
+        Analytics::ClickHouseRecord.execute_sql("OPTIMIZE TABLE #{table} FINAL", format: nil)
+      end
     end
   end
 end

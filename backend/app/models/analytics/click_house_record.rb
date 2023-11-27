@@ -9,5 +9,19 @@ module Analytics
     def self.formatted_time(time)
       time.strftime('%Y-%m-%d %H:%M:%S')
     end
+
+    def self.execute_sql(sql, format: 'JSONCompact')
+      result = Analytics::ClickHouseRecord.connected_to(role: :reading) do
+        Analytics::ClickHouseRecord.connection.do_execute(sql, nil, format: format)
+      end
+
+      return if result.nil?
+      result['data'].map do |row|
+        row.each_with_index.with_object({}) do |(value, index), hash|
+          column_name = result['meta'][index]['name']
+          hash[column_name] = value
+        end
+      end
+    end
   end
 end

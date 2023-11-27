@@ -1,8 +1,8 @@
 import Base from "./base";
 
 export class RetentionCohorts extends Base {
-  static async get() {
-    return await this._get('/api/v1/retention_cohorts');
+  static async get({ numCohorts = 3 } = {}) {
+    return await this._get('/api/v1/retention_cohorts', { num_cohorts: numCohorts });
   }
 }
 

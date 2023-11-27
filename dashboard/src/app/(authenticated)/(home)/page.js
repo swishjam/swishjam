@@ -274,7 +274,7 @@ export default function Home() {
           previousValue={mrrChart?.previousValue}
           previousValueDate={mrrChart?.previousValueDate}
           valueFormatter={formatMoney}
-          yAxisFormatter={formatShrinkMoney} 
+          yAxisFormatter={formatShrinkMoney}
           showAxis={false}
           timeseries={mrrChart?.timeseries}
         />
@@ -286,7 +286,7 @@ export default function Home() {
           previousValue={activeSubsChart?.previousValue}
           previousValueDate={activeSubsChart?.previousValueDate}
           valueFormatter={formatNumbers}
-          yAxisFormatter={formatShrinkNumbers} 
+          yAxisFormatter={formatShrinkNumbers}
         />
         <LineChartWithValue
           title='Churn (Coming Soon)'
@@ -294,7 +294,7 @@ export default function Home() {
           previousValue={0}
           previousValueDate={new Date()}
           valueFormatter={formatMoney}
-          yAxisFormatter={formatShrinkMoney} 
+          yAxisFormatter={formatShrinkMoney}
           showAxis={false}
           timeseries={[]}
           className={'opacity-50'}
@@ -315,7 +315,7 @@ export default function Home() {
           showAxis={true}
           timeseries={sessionsMarketingChart?.timeseries}
           valueFormatter={formatNumbers}
-          yAxisFormatter={formatShrinkNumbers} 
+          yAxisFormatter={formatShrinkNumbers}
         />
         <LineChartWithValue
           title='Page Views'
@@ -325,7 +325,7 @@ export default function Home() {
           showAxis={true}
           timeseries={pageViewsTimeseriesData?.timeseries}
           valueFormatter={formatNumbers}
-          yAxisFormatter={formatShrinkNumbers} 
+          yAxisFormatter={formatShrinkNumbers}
         />
         <LineChartWithValue
           title='Unique Visitors'
@@ -335,7 +335,7 @@ export default function Home() {
           showAxis={true}
           timeseries={uniqueVisitorsMarketingChartData?.timeseries}
           valueFormatter={formatNumbers}
-          yAxisFormatter={formatShrinkNumbers} 
+          yAxisFormatter={formatShrinkNumbers}
         />
       </div>
       {/*<div className='pt-8'>

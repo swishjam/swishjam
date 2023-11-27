@@ -18,6 +18,11 @@ module DummyData
               end
             end
           )
+          Analytics::SwishjamUserProfile.create!(
+            swishjam_api_key: workspace.api_keys.for_data_source!(ApiKey::ReservedDataSources.PRODUCT).public_key, 
+            swishjam_user_id: user.id, 
+            created_at: user.created_at
+          )
           progress_bar.advance
           user
         end
