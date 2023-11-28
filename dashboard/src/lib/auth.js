@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { SwishjamAPI } from '@/lib/api-client/swishjam-api'
 import { swishjam } from '@swishjam/react'
+import * as Sentry from '@sentry/nextjs';
 
 export const LOCAL_STORAGE_TOKEN_KEY = 'swishjam-token';
 
@@ -18,6 +19,8 @@ export const logUserOut = async () => {
     throw error;
   } else {
     swishjam.logout();
+    debugger;
+    Sentry.setUser(null);
     clearToken();
   }
 }
@@ -37,6 +40,7 @@ export const signUserUp = async ({ email, password, companyUrl, inviteCode }) =>
     swishjam.identify(user.id, { email, first_name, last_name });
     swishjam.setOrganization(workspace.id, { name: workspace.name, company_url: workspace.company_url });
     swishjam.event('user_signup', { ...user, workspace: workspace.name });
+    Sentry.setUser({ email, id: user.id });
     setAuthToken(token);
   }
   return { error, user, workspace, token };
@@ -49,6 +53,7 @@ export const logUserIn = async ({ email, password }) => {
     swishjam.identify(user.id, { email, first_name, last_name });
     swishjam.setOrganization(workspace.id, { name: workspace.name, company_url: workspace.company_url });
     swishjam.event('user_login', { ...user, workspace: workspace.name });
+    Sentry.setUser({ email, id: user.id });
     setAuthToken(token);
   }
   return { error, user, token };
