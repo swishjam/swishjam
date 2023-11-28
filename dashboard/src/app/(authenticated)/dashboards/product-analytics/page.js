@@ -18,10 +18,10 @@ export default function PageMetrics() {
   const [timeframeFilter, setTimeframeFilter] = useState("thirty_days");
   const [uniqueVisitorsChartData, setUniqueVisitorsChartData] = useState();
   const [uniqueVisitorsGrouping, setUniqueVisitorsGrouping] = useState('weekly');
-  const [sessionsChart, setSessionsChart] = useState();
+  const [newUsersLineChartData, setNewUsersLineChartData] = useState();
   const [userRetentionData, setUserRetentionData] = useState();
   const [newOrganizationsData, setNewOrganizationsData] = useState();
-  const [newUsersData, setNewUsersData] = useState();
+  const [newUsersItemizedListData, setNewUsersItemizedListData] = useState();
 
   const getUniqueVisitorsData = async (timeframe, type) => {
     return await SwishjamAPI.Users.Active.timeseries({ timeframe, dataSource: 'product', type, include_comparison: true }).then(
@@ -42,18 +42,18 @@ export default function PageMetrics() {
     );
   };
 
-  const getSessionsData = async timeframe => {
-    return await SwishjamAPI.Sessions.timeseries({ dataSource: 'product', timeframe }).then((sessionData) => {
-      setSessionsChart({
-        value: sessionData.current_count,
-        previousValue: sessionData.comparison_count,
-        previousValueDate: sessionData.comparison_end_time,
-        valueChange: sessionData.count - sessionData.comparison_count,
-        groupedBy: sessionData.grouped_by,
-        timeseries: sessionData.timeseries.map((timeseries, index) => ({
+  const getNewUsersLineChartData = async timeframe => {
+    return await SwishjamAPI.Sessions.timeseries({ dataSource: 'product', timeframe }).then(newUserData => {
+      setNewUsersLineChartData({
+        value: newUserData.current_count,
+        previousValue: newUserData.comparison_count,
+        previousValueDate: newUserData.comparison_end_time,
+        valueChange: newUserData.count - newUserData.comparison_count,
+        groupedBy: newUserData.grouped_by,
+        timeseries: newUserData.timeseries.map((timeseries, index) => ({
           ...timeseries,
-          comparisonDate: sessionData.comparison_timeseries[index]?.date,
-          comparisonValue: sessionData.comparison_timeseries[index]?.value
+          comparisonDate: newUserData.comparison_timeseries[index]?.date,
+          comparisonValue: newUserData.comparison_timeseries[index]?.value
         }))
       })
     })
@@ -63,8 +63,8 @@ export default function PageMetrics() {
     return await SwishjamAPI.RetentionCohorts.get({ numCohorts: 10 }).then(setUserRetentionData)
   }
 
-  const getUsersData = async () => {
-    return await SwishjamAPI.Users.list().then(({ users }) => setNewUsersData(users))
+  const getNewUsersItemizedListData = async () => {
+    return await SwishjamAPI.Users.list().then(({ users }) => setNewUsersItemizedListData(users))
   }
 
   const getOrganizationsData = async () => {
@@ -75,17 +75,17 @@ export default function PageMetrics() {
     // Reset All Data
     setIsRefreshing(true);
     setUniqueVisitorsChartData();
-    setSessionsChart();
-    setNewUsersData();
+    setNewUsersLineChartData();
+    setNewUsersItemizedListData();
     setNewOrganizationsData();
     setUserRetentionData();
 
     // Reload all the data
     await Promise.all([
       getUniqueVisitorsData(timeframe, uniqueVisitorsGrouping),
-      getSessionsData(timeframe),
+      getNewUsersLineChartData(timeframe),
       getUserRetentionData(),
-      getUsersData(),
+      getNewUsersItemizedListData(),
       getOrganizationsData(),
     ]);
     setIsRefreshing(false);
@@ -144,11 +144,11 @@ export default function PageMetrics() {
         <div className="col-span-3">
           <LineChartWithValue
             title='New Users'
-            value={sessionsChart?.value}
-            previousValue={sessionsChart?.previousValue}
-            previousValueDate={sessionsChart?.previousValueDate}
+            value={newUsersLineChartData?.value}
+            previousValue={newUsersLineChartData?.previousValue}
+            previousValueDate={newUsersLineChartData?.previousValueDate}
             showAxis={true}
-            timeseries={sessionsChart?.timeseries}
+            timeseries={newUsersLineChartData?.timeseries}
             valueFormatter={formatNumbers}
           />
         </div>
@@ -157,8 +157,8 @@ export default function PageMetrics() {
         </div>
         <div className="col-span-3">
           <ItemizedList
-            fallbackAvatarGenerator={user => user.initials.slice(0, 2)}
-            items={newUsersData}
+            fallbackAvatarGenerator={user => user.initials?.slice(0, 2)}
+            items={newUsersItemizedListData}
             titleFormatter={user => user.full_name || user.email || user.user_unique_identifier}
             subTitleFormatter={user => user.full_name ? user.email : null}
             linkFormatter={user => `/users/${user.id}`}
@@ -176,7 +176,7 @@ export default function PageMetrics() {
         <div className="col-span-3">
           {/*<ItemizedList
             fallbackAvatarGenerator={user => user.initials.slice(0,2)}
-            items={newUsersData}
+            items={newUsersItemizedListData}
             titleFormatter={user => user.full_name || user.email || user.user_unique_identifier}
             subTitleFormatter={user => user.full_name ? user.email : null}
             linkFormatter={user => `/users/${user.id}`}

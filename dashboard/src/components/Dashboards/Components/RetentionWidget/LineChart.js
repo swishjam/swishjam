@@ -16,7 +16,7 @@ const CustomTooltip = ({ active, payload, colorsDictionary, disabledCohortDates 
           <span className='block text-sm font-medium'>Week {data.numPeriodsAfterCohort}</span>
           {Object.keys(data).filter(key => ![...disabledCohortDates, 'numPeriodsAfterCohort'].includes(key)).map(cohortDate => (
             isNaN(data[cohortDate]) ? null : (
-              <div className='flex items-center justify-center w-fit px-2 py-1'>
+              <div className='flex items-center justify-center w-fit px-2 py-1' key={cohortDate}>
                 <div
                   className='rounded-full h-2 w-2 mr-2'
                   style={{ backgroundColor: colorsDictionary[cohortDate] }}
@@ -80,18 +80,23 @@ export default function RetentionLineChart({ retentionCohorts }) {
   cohortPeriods.forEach((cohortPeriod, i) => cohortColorDictionary[cohortPeriod] = COLORS[i])
 
   // results in:
-  // [ { numPeriodsAfterCohort: 0, '11-13-2023': 100 }, { numPeriodsAfterCohort: 1, '11-20-2023': 84.2 } ...]
-  const lineChartData = allRetentionActivityPeriods.sort((a, b) => new Date(b) - new Date(a)).map((activityPeriodDate, i) => {
-    const lineChartItem = { numPeriodsAfterCohort: i };
-    cohortPeriods.forEach(cohortPeriodDate => {
-      const cohortData = retentionCohorts[cohortPeriodDate];
-      const retentionDataForCohortsRetentionPeriod = cohortData.activity_periods[activityPeriodDate]
-      if (retentionDataForCohortsRetentionPeriod) {
-        lineChartItem[cohortPeriodDate] = (retentionDataForCohortsRetentionPeriod.num_active_users / cohortData.num_users_in_cohort) * 100;
-      }
-    });
-    return lineChartItem;
-  });
+  // { 0: { '11-13-2023': 100, '11-20'2023': 100 }}, 1: {'11-20-2023': 84.2 } ...}
+  let lineChartDict = {}
+  Object.keys(retentionCohorts).map(cohortPeriod => {
+    const cohortData = retentionCohorts[cohortPeriod];
+    Object.keys(cohortData.activity_periods).forEach(activityPeriod => {
+      const activityPeriodData = cohortData.activity_periods[activityPeriod];
+      lineChartDict[activityPeriodData.num_periods_after_cohort] = lineChartDict[activityPeriodData.num_periods_after_cohort] || {}
+      lineChartDict[activityPeriodData.num_periods_after_cohort][cohortPeriod] = (activityPeriodData.num_active_users / cohortData.num_users_in_cohort) * 100
+    })
+  })
+
+  const lineChartData = Object.keys(lineChartDict).map(numPeriodsAfterCohort => {
+    return {
+      numPeriodsAfterCohort,
+      ...lineChartDict[numPeriodsAfterCohort]
+    }
+  })
 
   return (
     <div className='h-96 w-full'>

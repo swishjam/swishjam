@@ -29,7 +29,7 @@ export default function Home() {
   const [uniqueVisitorsMarketingGrouping, setUniqueVisitorsMarketingGrouping] = useState('daily');
 
   // Product Analytics data
-  const [sessionsProductChart, setSessionsProductChart] = useState();
+  const [newUsersChartData, setNewUsersChartData] = useState();
   const [uniqueVisitorsProductChartData, setUniqueVisitorsProductChartData] = useState();
   const [uniqueVisitorsProductGrouping, setUniqueVisitorsProductGrouping] = useState('weekly');
   const [userRetentionData, setUserRetentionData] = useState();
@@ -103,18 +103,18 @@ export default function Home() {
     })
   };
 
-  const getSessionsProductData = async timeframe => {
-    return await SwishjamAPI.Sessions.timeseries({ dataSource: 'product', timeframe }).then((sessionData) => {
-      setSessionsProductChart({
-        value: sessionData.current_count,
-        previousValue: sessionData.comparison_count,
-        previousValueDate: sessionData.comparison_end_time,
-        valueChange: sessionData.count - sessionData.comparison_count,
-        groupedBy: sessionData.grouped_by,
-        timeseries: sessionData.timeseries.map((timeseries, index) => ({
+  const getNewUsersChartData = async timeframe => {
+    return await SwishjamAPI.Users.timeseries({ timeframe }).then(newUserData => {
+      setNewUsersChartData({
+        value: newUserData.current_count,
+        previousValue: newUserData.comparison_count,
+        previousValueDate: newUserData.comparison_end_time,
+        valueChange: newUserData.count - newUserData.comparison_count,
+        groupedBy: newUserData.grouped_by,
+        timeseries: newUserData.timeseries.map((timeseries, index) => ({
           ...timeseries,
-          comparisonDate: sessionData.comparison_timeseries[index]?.date,
-          comparisonValue: sessionData.comparison_timeseries[index]?.value
+          comparisonDate: newUserData.comparison_timeseries[index]?.date,
+          comparisonValue: newUserData.comparison_timeseries[index]?.value
         }))
       })
     })
@@ -174,7 +174,7 @@ export default function Home() {
   const getAllData = async timeframe => {
     setIsRefreshing(true);
     // Product 
-    setSessionsProductChart();
+    setNewUsersChartData();
     setUniqueVisitorsProductChartData();
     setUserRetentionData();
     // Marketing 
@@ -193,7 +193,7 @@ export default function Home() {
       getSessionsMarketingData(timeframe),
       getUniqueVisitorsMarketingData(timeframe, uniqueVisitorsMarketingGrouping),
       getUniqueVisitorsProductData(timeframe, uniqueVisitorsProductGrouping),
-      getSessionsProductData(timeframe),
+      getNewUsersChartData(timeframe),
       getUserRetentionData(),
       getBillingData(timeframe),
       getUsersData(),
@@ -248,11 +248,11 @@ export default function Home() {
         />
         <LineChartWithValue
           title='New Users'
-          value={sessionsProductChart?.value}
-          previousValue={sessionsProductChart?.previousValue}
-          previousValueDate={sessionsProductChart?.previousValueDate}
+          value={newUsersChartData?.value}
+          previousValue={newUsersChartData?.previousValue}
+          previousValueDate={newUsersChartData?.previousValueDate}
           showAxis={false}
-          timeseries={sessionsProductChart?.timeseries}
+          timeseries={newUsersChartData?.timeseries}
           valueFormatter={formatNumbers}
           yAxisFormatter={formatShrinkNumbers}
         />
