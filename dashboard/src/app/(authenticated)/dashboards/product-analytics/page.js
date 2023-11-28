@@ -43,7 +43,7 @@ export default function PageMetrics() {
   };
 
   const getNewUsersLineChartData = async timeframe => {
-    return await SwishjamAPI.Sessions.timeseries({ dataSource: 'product', timeframe }).then(newUserData => {
+    return await SwishjamAPI.Users.timeseries({ timeframe }).then(newUserData => {
       setNewUsersLineChartData({
         value: newUserData.current_count,
         previousValue: newUserData.comparison_count,
