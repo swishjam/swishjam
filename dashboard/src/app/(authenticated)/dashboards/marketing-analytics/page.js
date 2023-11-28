@@ -78,7 +78,7 @@ export default function PageMetrics() {
   const getPageViewsListData = async timeframe => {
     return await SwishjamAPI.PageViews.list({ timeframe, dataSource: 'marketing' }).then((data) => {
       console.log('barlist data', data)
-      setPageViewsListData(data.page_view_counts.map(d => {return {name: d.url, value: d.count}})) 
+      setPageViewsListData(data.page_view_counts.map(d => { return { name: d.url, value: d.count } }))
     });
   };
 
@@ -157,10 +157,10 @@ export default function PageMetrics() {
       <div className="mt-8 flex grid grid-cols-2 items-center">
         <div>
           <Link href="/dashboards" className="mb-0 text-xs font-medium text-gray-400 flex hover:text-swishjam transition duration-300 hover:underline">
-            <RxBarChart size={16} className="mr-1" />Dashboards 
+            <RxBarChart size={16} className="mr-1" />Dashboards
           </Link>
           <h1 className="mb-0 text-lg font-medium text-gray-700">
-            Marketing Analytics 
+            Marketing Analytics
           </h1>
         </div>
 
@@ -278,7 +278,7 @@ export default function PageMetrics() {
           title={`Browsers`}
           TableTitle='Top Browsers'
           className="col-span-8"
-          data={deviceTypesBarChartData}
+          data={browsersBarChartData}
           valueFormatter={formatNumbers}
           yAxisFormatter={formatShrinkNumbers}
           showLegend={true}

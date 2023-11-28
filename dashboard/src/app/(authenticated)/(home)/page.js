@@ -209,7 +209,7 @@ export default function Home() {
 
   return (
     <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mb-8">
-      <InstallBanner hidden={isRefreshing || parseInt(sessionsMarketingChart?.value) > 0 || parseFloat(mrrChart?.value) > 0 || parseInt(activeSubsChart?.value) > 0} />
+      {/* <InstallBanner hidden={isRefreshing || parseInt(sessionsMarketingChart?.value) > 0 || parseFloat(mrrChart?.value) > 0 || parseInt(activeSubsChart?.value) > 0} /> */}
       <div className='grid grid-cols-2 mt-8 flex items-center'>
         <div>
           <h1 className="text-lg font-medium text-gray-700 mb-0">Dashboard</h1>
