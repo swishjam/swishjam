@@ -20,7 +20,7 @@ export default function RetentionWidget({ retentionCohorts, isExpandable = true,
     <ConditionalCardWrapper
       includeCard={includeCard}
       title={
-        <div className='flex items-center justify-between space-y-0 pb-4'>
+        <div className='flex items-center justify-between space-y-0'>
           <CardTitle className="text-sm font-medium cursor-default">User Retention</CardTitle>
           <TooltipProvider>
             <Tooltip delayDuration={300} className='cursor-default'>

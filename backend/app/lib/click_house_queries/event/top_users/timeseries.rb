@@ -17,7 +17,6 @@ module ClickHouseQueries
         def get
           return @data if @data.present?
           raw_data = Analytics::Event.find_by_sql(sql.squish!)
-          byebug
           user_ids = raw_data.find_all{ |raw| !raw.is_anonymous }.collect(&:device_identifier_or_swishjam_user_id)
           users = AnalyticsUserProfile.where(id: user_ids)
           @data = raw_data.map do |raw|

@@ -11,27 +11,17 @@ import LineChartWithValue from "@/components/Dashboards/Components/LineChartWith
 import ItemizedList from '@/components/Dashboards/Components/ItemizedList';
 import Link from 'next/link'
 import RetentionWidget from '@/components/Dashboards/Components/RetentionWidget';
-import {
-  formatNumbers,
-} from "@/lib/utils/numberHelpers";
-
-//import { dateFormatterForGrouping } from "@/lib/utils/timeseriesHelpers";
-//import BarChart from "@/components/Dashboards/Components/BarChart";
-//import { BsArrowLeftShort } from 'react-icons/bs'
-//import ClickableValueCard from "@/components/Dashboards/Components/ClickableValueCard";
-//import BarList from "@/components/Dashboards/Components/BarList";
-//import LoadingView from './LoadingView'
+import { formatNumbers } from "@/lib/utils/numberHelpers";
 
 export default function PageMetrics() {
-  
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [timeframeFilter, setTimeframeFilter] = useState("thirty_days");
   const [uniqueVisitorsChartData, setUniqueVisitorsChartData] = useState();
   const [uniqueVisitorsGrouping, setUniqueVisitorsGrouping] = useState('weekly');
-  const [sessionsChart, setSessionsChart] = useState();
+  const [newUsersLineChartData, setNewUsersLineChartData] = useState();
   const [userRetentionData, setUserRetentionData] = useState();
   const [newOrganizationsData, setNewOrganizationsData] = useState();
-  const [newUsersData, setNewUsersData] = useState();
+  const [newUsersItemizedListData, setNewUsersItemizedListData] = useState();
 
   const getUniqueVisitorsData = async (timeframe, type) => {
     return await SwishjamAPI.Users.Active.timeseries({ timeframe, dataSource: 'product', type, include_comparison: true }).then(
@@ -51,51 +41,51 @@ export default function PageMetrics() {
       }
     );
   };
-  
-  const getSessionsData = async timeframe => {
-    return await SwishjamAPI.Sessions.timeseries({ dataSource: 'product', timeframe }).then((sessionData) => {
-      setSessionsChart({
-        value: sessionData.current_count,
-        previousValue: sessionData.comparison_count,
-        previousValueDate: sessionData.comparison_end_time,
-        valueChange: sessionData.count - sessionData.comparison_count,
-        groupedBy: sessionData.grouped_by,
-        timeseries: sessionData.timeseries.map((timeseries, index) => ({
+
+  const getNewUsersLineChartData = async timeframe => {
+    return await SwishjamAPI.Users.timeseries({ timeframe }).then(newUserData => {
+      setNewUsersLineChartData({
+        value: newUserData.current_count,
+        previousValue: newUserData.comparison_count,
+        previousValueDate: newUserData.comparison_end_time,
+        valueChange: newUserData.count - newUserData.comparison_count,
+        groupedBy: newUserData.grouped_by,
+        timeseries: newUserData.timeseries.map((timeseries, index) => ({
           ...timeseries,
-          comparisonDate: sessionData.comparison_timeseries[index]?.date,
-          comparisonValue: sessionData.comparison_timeseries[index]?.value
+          comparisonDate: newUserData.comparison_timeseries[index]?.date,
+          comparisonValue: newUserData.comparison_timeseries[index]?.value
         }))
       })
     })
   }
-  
+
   const getUserRetentionData = async () => {
-    return await SwishjamAPI.RetentionCohorts.get().then(setUserRetentionData)
+    return await SwishjamAPI.RetentionCohorts.get({ numCohorts: 10 }).then(setUserRetentionData)
   }
 
-  const getUsersData = async () => {
-    return await SwishjamAPI.Users.list().then(({ users }) => setNewUsersData(users))
+  const getNewUsersItemizedListData = async () => {
+    return await SwishjamAPI.Users.list().then(({ users }) => setNewUsersItemizedListData(users))
   }
 
   const getOrganizationsData = async () => {
-    return await SwishjamAPI.Organizations.list().then(({ organizations }) => setNewOrganizationsData(organizations));
+    // return await SwishjamAPI.Organizations.list().then(({ organizations }) => setNewOrganizationsData(organizations));
   }
 
   const getAllData = async timeframe => {
     // Reset All Data
     setIsRefreshing(true);
     setUniqueVisitorsChartData();
-    setSessionsChart();
-    setNewUsersData();
+    setNewUsersLineChartData();
+    setNewUsersItemizedListData();
     setNewOrganizationsData();
     setUserRetentionData();
 
     // Reload all the data
     await Promise.all([
       getUniqueVisitorsData(timeframe, uniqueVisitorsGrouping),
-      getSessionsData(timeframe),
+      getNewUsersLineChartData(timeframe),
       getUserRetentionData(),
-      getUsersData(),
+      getNewUsersItemizedListData(),
       getOrganizationsData(),
     ]);
     setIsRefreshing(false);
@@ -110,10 +100,10 @@ export default function PageMetrics() {
       <div className="mt-8 flex grid grid-cols-2 items-center">
         <div>
           <Link href="/dashboards" className="mb-0 text-xs font-medium text-gray-400 flex hover:text-swishjam transition duration-300 hover:underline">
-            <RxBarChart size={16} className="mr-1" />Dashboards 
+            <RxBarChart size={16} className="mr-1" />Dashboards
           </Link>
           <h1 className="mb-0 text-lg font-medium text-gray-700">
-            Product Analytics 
+            Product Analytics
           </h1>
         </div>
 
@@ -136,7 +126,7 @@ export default function PageMetrics() {
         </div>
       </div>
       <div className='pt-8 flex justify-between'>
-        <h3 className='font-semibold text-sm text-slate-600'>User Breakdown</h3>  
+        <h3 className='font-semibold text-sm text-slate-600'>User Breakdown</h3>
       </div>
       <div className="grid grid-cols-6 gap-4 pt-8">
         <div className="col-span-3">
@@ -154,11 +144,11 @@ export default function PageMetrics() {
         <div className="col-span-3">
           <LineChartWithValue
             title='New Users'
-            value={sessionsChart?.value}
-            previousValue={sessionsChart?.previousValue}
-            previousValueDate={sessionsChart?.previousValueDate}
+            value={newUsersLineChartData?.value}
+            previousValue={newUsersLineChartData?.previousValue}
+            previousValueDate={newUsersLineChartData?.previousValueDate}
             showAxis={true}
-            timeseries={sessionsChart?.timeseries}
+            timeseries={newUsersLineChartData?.timeseries}
             valueFormatter={formatNumbers}
           />
         </div>
@@ -166,27 +156,27 @@ export default function PageMetrics() {
           <RetentionWidget retentionCohorts={userRetentionData} />
         </div>
         <div className="col-span-3">
-        <ItemizedList
-          fallbackAvatarGenerator={user => user.initials.slice(0,2)}
-          items={newUsersData}
-          titleFormatter={user => user.full_name || user.email || user.user_unique_identifier}
-          subTitleFormatter={user => user.full_name ? user.email : null}
-          linkFormatter={user => `/users/${user.id}`}
-          rightItemKey='created_at'
-          rightItemKeyFormatter={date => {
-            return new Date(date)
-              .toLocaleDateString('en-us', { weekday: "short", year: "numeric", month: "short", day: "numeric" })
-              .replace(`, ${new Date(date).getFullYear()}`, '')
-          }}
-          title='Power Users'
-          viewMoreUrl='/users'
-          maxNumItems={5}
-        />
+          <ItemizedList
+            fallbackAvatarGenerator={user => user.initials?.slice(0, 2)}
+            items={newUsersItemizedListData}
+            titleFormatter={user => user.full_name || user.email || user.user_unique_identifier}
+            subTitleFormatter={user => user.full_name ? user.email : null}
+            linkFormatter={user => `/users/${user.id}`}
+            rightItemKey='created_at'
+            rightItemKeyFormatter={date => {
+              return new Date(date)
+                .toLocaleDateString('en-us', { weekday: "short", year: "numeric", month: "short", day: "numeric" })
+                .replace(`, ${new Date(date).getFullYear()}`, '')
+            }}
+            title='Recently Identified Users'
+            viewMoreUrl='/users'
+            maxNumItems={5}
+          />
         </div>
         <div className="col-span-3">
           {/*<ItemizedList
             fallbackAvatarGenerator={user => user.initials.slice(0,2)}
-            items={newUsersData}
+            items={newUsersItemizedListData}
             titleFormatter={user => user.full_name || user.email || user.user_unique_identifier}
             subTitleFormatter={user => user.full_name ? user.email : null}
             linkFormatter={user => `/users/${user.id}`}
@@ -202,14 +192,14 @@ export default function PageMetrics() {
           />*/}
         </div>
       </div>
-      <div className='pt-8 flex justify-between'>
-        <h3 className='font-semibold text-sm text-slate-600'>Organization Breakdown (Coming Soon)</h3>  
+      {/* <div className='pt-8 flex justify-between'>
+        <h3 className='font-semibold text-sm text-slate-600'>Organization Breakdown (Coming Soon)</h3>
       </div>
       <div className="grid grid-cols-6 gap-4 pt-8">
       </div>
       <div className='pt-8 flex justify-between'>
-        <h3 className='font-semibold text-sm text-slate-600'>Feature Breakdown (Coming Soon)</h3>  
-      </div>
+        <h3 className='font-semibold text-sm text-slate-600'>Feature Breakdown (Coming Soon)</h3>
+      </div> */}
     </main>
   );
 }

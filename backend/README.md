@@ -22,3 +22,11 @@ Things you may want to cover:
 * Deployment instructions
 
 * ...
+
+
+### How to run in local development
+- Turn on the server, in /backend run `bundle exec rails s`
+- Make sure Postgres turned on (We use macOS Postgres app that's always running)
+- Turn on redis server, in /backend run `redis-server`
+- Turn on the worker, in /backend run `bundle exec sidekiq`
+- Turn on clickhouse, in /backend/clickhouse-server (or where you installed clickhouse) run `./clickhouse server`

@@ -15,15 +15,17 @@ const CustomTooltip = ({ active, payload, colorsDictionary, disabledCohortDates 
         <CardContent className="py-2">
           <span className='block text-sm font-medium'>Week {data.numPeriodsAfterCohort}</span>
           {Object.keys(data).filter(key => ![...disabledCohortDates, 'numPeriodsAfterCohort'].includes(key)).map(cohortDate => (
-            <div className='flex items-center justify-center w-fit px-2 py-1'>
-              <div
-                className='rounded-full h-2 w-2 mr-2'
-                style={{ backgroundColor: colorsDictionary[cohortDate] }}
-              />
-              <span className='text-xs text-gray-700'>
-                {weekFormatter(cohortDate)}: <span className='font-medium'>{parseFloat(data[cohortDate]).toFixed(2)}%</span>
-              </span>
-            </div>
+            isNaN(data[cohortDate]) ? null : (
+              <div className='flex items-center justify-center w-fit px-2 py-1' key={cohortDate}>
+                <div
+                  className='rounded-full h-2 w-2 mr-2'
+                  style={{ backgroundColor: colorsDictionary[cohortDate] }}
+                />
+                <span className='text-xs text-gray-700'>
+                  {weekFormatter(cohortDate)} Cohort: <span className='font-medium'>{parseFloat(data[cohortDate]).toFixed(2)}%</span>
+                </span>
+              </div>
+            )
           ))}
         </CardContent>
       </Card>
@@ -67,27 +69,34 @@ export default function RetentionLineChart({ retentionCohorts }) {
       </div>
     )
   }
-  const sortedCohorts = retentionCohorts.sort((a, b) => new Date(a.time_period) - new Date(b.time_period));
-  const allRetentionActivityPeriods = sortedCohorts[0].retention_cohort_activity_periods;
-
-  const cohortColorDictionary = {};
-  sortedCohorts.forEach((cohort, i) => {
-    cohortColorDictionary[cohort.time_period] = COLORS[i];
-  })
-
-  const lineChartData = Array.from({ length: allRetentionActivityPeriods.length }).map((_, i) => {
-    const lineChartItem = { numPeriodsAfterCohort: i };
-    retentionCohorts.forEach(({ num_users_in_cohort, retention_cohort_activity_periods, time_period: cohortDate }) => {
-      const retentionDataForCohortsRetentionPeriod = retention_cohort_activity_periods.find(activityPeriodData => activityPeriodData.num_periods_after_cohort === i);
-      if (retentionDataForCohortsRetentionPeriod) {
-        lineChartItem[cohortDate] = (retentionDataForCohortsRetentionPeriod.num_active_users / num_users_in_cohort) * 100;
-      }
-    });
-    return lineChartItem;
-  });
-
   const [disabledCohortDates, setDisabledCohortDates] = useState([]);
   const [hoveredCohortLegendItemDate, setHoveredCohortLegendItemDate] = useState();
+
+  // we assume these are always sorted, but not sure if that's a safe assumption
+  const cohortPeriods = Object.keys(retentionCohorts);
+  const allRetentionActivityPeriods = Object.keys(retentionCohorts[cohortPeriods[0]].activity_periods);
+
+  const cohortColorDictionary = {};
+  cohortPeriods.forEach((cohortPeriod, i) => cohortColorDictionary[cohortPeriod] = COLORS[i])
+
+  // results in:
+  // { 0: { '11-13-2023': 100, '11-20'2023': 100 }}, 1: {'11-20-2023': 84.2 } ...}
+  let lineChartDict = {}
+  Object.keys(retentionCohorts).map(cohortPeriod => {
+    const cohortData = retentionCohorts[cohortPeriod];
+    Object.keys(cohortData.activity_periods).forEach(activityPeriod => {
+      const activityPeriodData = cohortData.activity_periods[activityPeriod];
+      lineChartDict[activityPeriodData.num_periods_after_cohort] = lineChartDict[activityPeriodData.num_periods_after_cohort] || {}
+      lineChartDict[activityPeriodData.num_periods_after_cohort][cohortPeriod] = (activityPeriodData.num_active_users / cohortData.num_users_in_cohort) * 100
+    })
+  })
+
+  const lineChartData = Object.keys(lineChartDict).map(numPeriodsAfterCohort => {
+    return {
+      numPeriodsAfterCohort,
+      ...lineChartDict[numPeriodsAfterCohort]
+    }
+  })
 
   return (
     <div className='h-96 w-full'>
@@ -119,17 +128,17 @@ export default function RetentionLineChart({ retentionCohorts }) {
             allowEscapeViewBox={{ x: false, y: true }}
             animationEasing='ease-in-out'
           />
-          {sortedCohorts.map((cohortData, i) => {
+          {cohortPeriods.map((cohortPeriod, i) => {
             return (
               <Line
                 key={i}
-                dataKey={cohortData.time_period}
+                dataKey={cohortPeriod}
                 type="monotone"
-                stroke={cohortColorDictionary[cohortData.time_period]}
+                stroke={cohortColorDictionary[cohortPeriod]}
                 dot={{ r: 0 }}
                 activeDot={{ r: 4 }}
-                strokeWidth={hoveredCohortLegendItemDate === cohortData.time_period ? 4 : 2}
-                hide={disabledCohortDates.includes(cohortData.time_period)}
+                strokeWidth={hoveredCohortLegendItemDate === cohortPeriod ? 4 : 2}
+                hide={disabledCohortDates.includes(cohortPeriod)}
               />
             )
           })}
@@ -148,9 +157,7 @@ export default function RetentionLineChart({ retentionCohorts }) {
                         const newDisabledCohorts = disabledCohortDates.filter(date => date !== cohortDate)
                         setDisabledCohortDates(newDisabledCohorts);
                       }}
-                      onDisable={cohortDate => {
-                        setDisabledCohortDates([...disabledCohortDates, cohortDate])
-                      }}
+                      onDisable={cohortDate => setDisabledCohortDates([...disabledCohortDates, cohortDate])}
                     />
                   ))}
                 </div>

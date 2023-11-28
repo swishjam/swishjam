@@ -29,7 +29,7 @@ module Api
         else
           users = current_workspace
                     .analytics_user_profiles
-                    .includes(:analytics_organization_profiles)
+                    .includes(:analytics_organization_profiles, :user_profile_enrichment_data)
                     .order(created_at: :desc)
                     .page(page)
                     .per(per_page)
@@ -83,9 +83,19 @@ module Api
       def timeseries
         group_by = derived_group_by(start_ts: start_timestamp, end_ts: end_timestamp)
 
+        timeseries_data = current_workspace.analytics_user_profiles.where(created_at: start_timestamp..end_timestamp).send(:"group_by_#{group_by}", :created_at).count
+        formatted_timeseries_data = timeseries_data.keys.sort.map do |timestamp|
+          { date: timestamp, value: timeseries_data[timestamp] }
+        end
+        
+        comparison_timeseries_data = current_workspace.analytics_user_profiles.where(created_at: comparison_start_timestamp..comparison_end_timestamp - 1.second).send(:"group_by_#{group_by}", :created_at).count
+        formatted_comparison_timeseries_data = comparison_timeseries_data.keys.sort.map do |timestamp|
+          { date: timestamp, value: comparison_timeseries_data[timestamp] }
+        end
+
         render json: {
-          timeseries: current_workspace.analytics_user_profiles.where(created_at: start_timestamp..end_timestamp).send(:"group_by_#{group_by}", :created_at).count,
-          comparison_timeseries: current_workspace.analytics_user_profiles.where(created_at: comparison_start_timestamp..comparison_end_timestamp - 1.second).send(:"group_by_#{group_by}", :created_at).count,
+          timeseries: formatted_timeseries_data,
+          comparison_timeseries: formatted_comparison_timeseries_data,
           start_time: start_timestamp,
           end_time: end_timestamp,
           comparison_start_time: comparison_start_timestamp,

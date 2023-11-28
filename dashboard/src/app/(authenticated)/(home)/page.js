@@ -29,7 +29,7 @@ export default function Home() {
   const [uniqueVisitorsMarketingGrouping, setUniqueVisitorsMarketingGrouping] = useState('daily');
 
   // Product Analytics data
-  const [sessionsProductChart, setSessionsProductChart] = useState();
+  const [newUsersChartData, setNewUsersChartData] = useState();
   const [uniqueVisitorsProductChartData, setUniqueVisitorsProductChartData] = useState();
   const [uniqueVisitorsProductGrouping, setUniqueVisitorsProductGrouping] = useState('weekly');
   const [userRetentionData, setUserRetentionData] = useState();
@@ -103,18 +103,18 @@ export default function Home() {
     })
   };
 
-  const getSessionsProductData = async timeframe => {
-    return await SwishjamAPI.Sessions.timeseries({ dataSource: 'product', timeframe }).then((sessionData) => {
-      setSessionsProductChart({
-        value: sessionData.current_count,
-        previousValue: sessionData.comparison_count,
-        previousValueDate: sessionData.comparison_end_time,
-        valueChange: sessionData.count - sessionData.comparison_count,
-        groupedBy: sessionData.grouped_by,
-        timeseries: sessionData.timeseries.map((timeseries, index) => ({
+  const getNewUsersChartData = async timeframe => {
+    return await SwishjamAPI.Users.timeseries({ timeframe }).then(newUserData => {
+      setNewUsersChartData({
+        value: newUserData.current_count,
+        previousValue: newUserData.comparison_count,
+        previousValueDate: newUserData.comparison_end_time,
+        valueChange: newUserData.count - newUserData.comparison_count,
+        groupedBy: newUserData.grouped_by,
+        timeseries: newUserData.timeseries.map((timeseries, index) => ({
           ...timeseries,
-          comparisonDate: sessionData.comparison_timeseries[index]?.date,
-          comparisonValue: sessionData.comparison_timeseries[index]?.value
+          comparisonDate: newUserData.comparison_timeseries[index]?.date,
+          comparisonValue: newUserData.comparison_timeseries[index]?.value
         }))
       })
     })
@@ -174,7 +174,7 @@ export default function Home() {
   const getAllData = async timeframe => {
     setIsRefreshing(true);
     // Product 
-    setSessionsProductChart();
+    setNewUsersChartData();
     setUniqueVisitorsProductChartData();
     setUserRetentionData();
     // Marketing 
@@ -193,7 +193,7 @@ export default function Home() {
       getSessionsMarketingData(timeframe),
       getUniqueVisitorsMarketingData(timeframe, uniqueVisitorsMarketingGrouping),
       getUniqueVisitorsProductData(timeframe, uniqueVisitorsProductGrouping),
-      getSessionsProductData(timeframe),
+      getNewUsersChartData(timeframe),
       getUserRetentionData(),
       getBillingData(timeframe),
       getUsersData(),
@@ -209,7 +209,7 @@ export default function Home() {
 
   return (
     <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mb-8">
-      <InstallBanner hidden={isRefreshing || parseInt(sessionsMarketingChart?.value) > 0 || parseFloat(mrrChart?.value) > 0 || parseInt(activeSubsChart?.value) > 0} />
+      {/* <InstallBanner hidden={isRefreshing || parseInt(sessionsMarketingChart?.value) > 0 || parseFloat(mrrChart?.value) > 0 || parseInt(activeSubsChart?.value) > 0} /> */}
       <div className='grid grid-cols-2 mt-8 flex items-center'>
         <div>
           <h1 className="text-lg font-medium text-gray-700 mb-0">Dashboard</h1>
@@ -248,11 +248,11 @@ export default function Home() {
         />
         <LineChartWithValue
           title='New Users'
-          value={sessionsProductChart?.value}
-          previousValue={sessionsProductChart?.previousValue}
-          previousValueDate={sessionsProductChart?.previousValueDate}
+          value={newUsersChartData?.value}
+          previousValue={newUsersChartData?.previousValue}
+          previousValueDate={newUsersChartData?.previousValueDate}
           showAxis={false}
-          timeseries={sessionsProductChart?.timeseries}
+          timeseries={newUsersChartData?.timeseries}
           valueFormatter={formatNumbers}
           yAxisFormatter={formatShrinkNumbers}
         />
@@ -274,7 +274,7 @@ export default function Home() {
           previousValue={mrrChart?.previousValue}
           previousValueDate={mrrChart?.previousValueDate}
           valueFormatter={formatMoney}
-          yAxisFormatter={formatShrinkMoney} 
+          yAxisFormatter={formatShrinkMoney}
           showAxis={false}
           timeseries={mrrChart?.timeseries}
         />
@@ -286,7 +286,7 @@ export default function Home() {
           previousValue={activeSubsChart?.previousValue}
           previousValueDate={activeSubsChart?.previousValueDate}
           valueFormatter={formatNumbers}
-          yAxisFormatter={formatShrinkNumbers} 
+          yAxisFormatter={formatShrinkNumbers}
         />
         <LineChartWithValue
           title='Churn (Coming Soon)'
@@ -294,7 +294,7 @@ export default function Home() {
           previousValue={0}
           previousValueDate={new Date()}
           valueFormatter={formatMoney}
-          yAxisFormatter={formatShrinkMoney} 
+          yAxisFormatter={formatShrinkMoney}
           showAxis={false}
           timeseries={[]}
           className={'opacity-50'}
@@ -315,7 +315,7 @@ export default function Home() {
           showAxis={true}
           timeseries={sessionsMarketingChart?.timeseries}
           valueFormatter={formatNumbers}
-          yAxisFormatter={formatShrinkNumbers} 
+          yAxisFormatter={formatShrinkNumbers}
         />
         <LineChartWithValue
           title='Page Views'
@@ -325,7 +325,7 @@ export default function Home() {
           showAxis={true}
           timeseries={pageViewsTimeseriesData?.timeseries}
           valueFormatter={formatNumbers}
-          yAxisFormatter={formatShrinkNumbers} 
+          yAxisFormatter={formatShrinkNumbers}
         />
         <LineChartWithValue
           title='Unique Visitors'
@@ -335,7 +335,7 @@ export default function Home() {
           showAxis={true}
           timeseries={uniqueVisitorsMarketingChartData?.timeseries}
           valueFormatter={formatNumbers}
-          yAxisFormatter={formatShrinkNumbers} 
+          yAxisFormatter={formatShrinkNumbers}
         />
       </div>
       {/*<div className='pt-8'>

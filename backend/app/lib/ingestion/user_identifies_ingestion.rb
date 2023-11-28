@@ -43,41 +43,50 @@ module Ingestion
     def create_or_update_user_profiles!(events)
       new_profile_data = []
       events.each do |event_json|
-        properties = JSON.parse(event_json['properties'] || '{}')
-        unique_identifier = properties['userIdentifier'] || properties['user_identifier'] || properties['userId'] || properties['user_id']
-        first_name = properties['firstName'] || properties['first_name']
-        last_name = properties['lastName'] || properties['last_name']
-        email = properties['email']
-        metadata = properties.except(
-          'source', 'sdk_version', 'url', 'device_identifier', 'user_device_identifier', 'organization_device_identifier', 'session_identifier', 'page_view_identifier',
-          'userId', 'user_id', 'userIdentifier', 'firstName', 'first_name', 'lastName', 'last_name', 'email', 
-        )
+        begin
+          properties = JSON.parse(event_json['properties'] || '{}')
+          unique_identifier = properties['userIdentifier'] || properties['user_identifier'] || properties['userId'] || properties['user_id']
+          first_name = properties['firstName'] || properties['first_name']
+          last_name = properties['lastName'] || properties['last_name']
+          email = properties['email']
+          metadata = properties.except(
+            'source', 'sdk_version', 'url', 'device_identifier', 'user_device_identifier', 'organization_device_identifier', 'session_identifier', 'page_view_identifier',
+            'userId', 'user_id', 'userIdentifier', 'firstName', 'first_name', 'lastName', 'last_name', 'email', 
+          )
 
-        workspace = Workspace.for_public_key(event_json['swishjam_api_key'])
-        if workspace
-          profile = workspace.analytics_user_profiles.find_by(user_unique_identifier: unique_identifier)
-          if profile
-            profile.update!(first_name: first_name, last_name: last_name, email: email, metadata: metadata)
-          else
-            profile = workspace.analytics_user_profiles.create!(
-              user_unique_identifier: unique_identifier, 
-              first_name: first_name, 
-              last_name: last_name, 
-              email: email, 
-              metadata: metadata,
-              created_at: event_json['timestamp'],
-            )
-            new_profile_data << { 
-              swishjam_api_key: event_json['swishjam_api_key'], 
-              unique_identifier: unique_identifier,
-              swishjam_user_id: profile.id,
-              created_at: event_json['timestamp'],
-            }
+          if !unique_identifier
+            Sentry.capture_message("No unique identifier provided in event payload in Ingestion::UserIdentifiesIngestion: #{event_json.inspect}")
+            return
           end
-        else
-          msg = "Unrecognized API Key found in Ingestion::UserIdentifiesIngestion: #{event_json['swishjam_api_key']}"
-          Rails.logger.warn msg
-          Sentry.capture_message(msg)
+
+          workspace = Workspace.for_public_key(event_json['swishjam_api_key'])
+          if workspace
+            profile = workspace.analytics_user_profiles.find_by(user_unique_identifier: unique_identifier)
+            if profile
+              profile.update!(first_name: first_name, last_name: last_name, email: email, metadata: metadata)
+            else
+              profile = workspace.analytics_user_profiles.create!(
+                user_unique_identifier: unique_identifier, 
+                first_name: first_name, 
+                last_name: last_name, 
+                email: email, 
+                metadata: metadata,
+                created_at: event_json['occurred_at'] || Time.current,
+              )
+              new_profile_data << { 
+                swishjam_api_key: event_json['swishjam_api_key'], 
+                unique_identifier: unique_identifier,
+                swishjam_user_id: profile.id,
+                created_at: event_json['occurred_at'] || Time.current,
+              }
+            end
+          else
+            msg = "Unrecognized API Key found in Ingestion::UserIdentifiesIngestion: #{event_json['swishjam_api_key']}"
+            Rails.logger.warn msg
+            Sentry.capture_message(msg)
+          end
+        rescue => e
+          Sentry.capture_exception(e)
         end
       end
       new_profile_data
