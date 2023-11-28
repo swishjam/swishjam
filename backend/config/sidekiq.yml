@@ -4,17 +4,14 @@
 :scheduler:
   :schedule:
     ingest_events_queue:
-      cron: '*/1 * * * *' # every minute
+      cron: "*/1 * * * *" # every minute
       class: IngestJobs::Events
     ingest_user_identifies_queue:
-      cron: '*/10 * * * *'
+      cron: "*/10 * * * *"
       class: IngestJobs::UserIdentifies
     ingest_organization_identifies_queue:
-      cron: '*/10 * * * *'
+      cron: "*/10 * * * *"
       class: IngestJobs::OrganizationIdentifies
     stripe_data_daily_sync:
-      cron: '0 8 * * *' # every day @ 8am UTC
+      cron: "0 8 * * *" # every day @ 8am UTC
       class: DataSyncJobs::Stripe
-    user_retention_sync_new:
-      cron: '0 6,12,18,0 * * *' # 4 times a day @ 6am, 12pm, 6pm, 12am UTC
-      class: UserRetentionSyncJob
