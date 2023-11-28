@@ -19,7 +19,6 @@ export const logUserOut = async () => {
     throw error;
   } else {
     swishjam.logout();
-    debugger;
     Sentry.setUser(null);
     clearToken();
   }
