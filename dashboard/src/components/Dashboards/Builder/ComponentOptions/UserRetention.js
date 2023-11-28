@@ -4,51 +4,61 @@ const DUMMY_RETENTION_DATA = {
   '2023-07-10': {
     'num_users_in_cohort': 100,
     'activity_periods': {
-      '2023-07-10': 100,
-      '2023-07-17': 90,
-      '2023-07-24': 80,
-      '2023-07-31': 70,
-      '2023-08-07': 60,
+      '2023-07-10': {
+        'num_active_users': 100,
+        'num_periods_after_cohort': 0
+      },
+      '2023-07-17': {
+        'num_active_users': 50,
+        'num_periods_after_cohort': 1
+      },
+      '2023-07-24': {
+        'num_active_users': 25,
+        'num_periods_after_cohort': 2
+      },
+      '2023-07-31': {
+        'num_active_users': 12,
+        'num_periods_after_cohort': 3
+      },
     }
   },
   '2023-07-17': {
     'num_users_in_cohort': 50,
     'activity_periods': {
-      '2023-07-17': 50,
-      '2023-07-24': 46,
-      '2023-07-31': 42,
-      '2023-08-07': 38,
-      '2023-08-14': 32,
+      '2023-07-17': {
+        'num_active_users': 50,
+        'num_periods_after_cohort': 0
+      },
+      '2023-07-24': {
+        'num_active_users': 25,
+        'num_periods_after_cohort': 1
+      },
+      '2023-07-31': {
+        'num_active_users': 12,
+        'num_periods_after_cohort': 2
+      },
     }
   },
   '2023-07-24': {
-    'num_users_in_cohort': 100,
+    'num_users_in_cohort': 25,
     'activity_periods': {
-      '2023-07-24': 100,
-      '2023-07-31': 100,
-      '2023-08-07': 95,
-      '2023-08-14': 90,
-      '2023-08-21': 85,
+      '2023-07-24': {
+        'num_active_users': 25,
+        'num_periods_after_cohort': 0
+      },
+      '2023-07-31': {
+        'num_active_users': 12,
+        'num_periods_after_cohort': 1
+      },
     }
   },
   '2023-07-31': {
-    'num_users_in_cohort': 75,
+    'num_users_in_cohort': 12,
     'activity_periods': {
-      '2023-07-31': 73,
-      '2023-08-07': 50,
-      '2023-08-14': 40,
-      '2023-08-21': 30,
-      '2023-08-28': 30,
-    }
-  },
-  '2023-08-07': {
-    'num_users_in_cohort': 100,
-    'activity_periods': {
-      '2023-08-07': 100,
-      '2023-08-14': 100,
-      '2023-08-21': 100,
-      '2023-08-28': 95,
-      '2023-09-04': 80,
+      '2023-07-31': {
+        'num_active_users': 12,
+        'num_periods_after_cohort': 0
+      },
     }
   },
 }
