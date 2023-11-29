@@ -27,7 +27,7 @@ export default function BarChartComponent({
   title,
   tableTitle,
   valueFormatter = val => val,
-  yAxisFormatter = val => val, 
+  yAxisFormatter = val => val,
   xAxisKey = 'date',
   className,
 }) {
@@ -52,6 +52,12 @@ export default function BarChartComponent({
   if (uniqueKeys.length > 50) {
     console.error('BarChart can only accept up to 50 unique keys.');
     uniqueKeys = uniqueKeys.slice(0, 50)
+  } else if (uniqueKeys.length === 0) {
+    return (
+      <ConditionalCardWrapper includeCard={includeCard} title={title} className={className}>
+        <EmptyState msg={noDataMessage} />
+      </ConditionalCardWrapper>
+    )
   }
 
   const colorDict = useRef({});
@@ -181,7 +187,7 @@ export default function BarChartComponent({
                 {uniqueKeys.map((key, i) => <Bar key={i} dataKey={key} stackId='a' fill={getColorForName(key)} />)}
               </BarChart>
             </ResponsiveContainer>
-            
+
             {includeLegendOrTable && useTableInsteadOfLegend && (
               <div className='w-96 ml-4 -mt-6'>
                 <BarChartTable headers={[tableTitle || 'Value', 'Total Count']} barChartData={data} getColor={getColorForName} />

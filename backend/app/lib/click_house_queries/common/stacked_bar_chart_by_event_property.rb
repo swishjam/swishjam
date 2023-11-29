@@ -33,7 +33,10 @@ module ClickHouseQueries
             SELECT
               JSONExtractString(properties, '#{@property}') AS #{@property},
               COUNT() as total_count,
-              RANK() OVER (ORDER BY COUNT() DESC) as rank
+              RANK() OVER (
+                ORDER BY COUNT() DESC,
+                JSONExtractString(properties, '#{@property}')
+              ) as rank
             FROM events
             WHERE
               swishjam_api_key IN #{formatted_in_clause(@public_keys)} AND

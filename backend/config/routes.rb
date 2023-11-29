@@ -133,6 +133,11 @@ Rails.application.routes.draw do
               get :bar_chart
             end
           end
+          resources :url_parameters, only: [], controller: :'sessions/url_parameters' do
+            collection do
+              get :bar_chart
+            end
+          end
         end
       end
 
