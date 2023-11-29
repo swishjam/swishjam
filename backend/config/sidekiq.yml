@@ -20,5 +20,5 @@
       class: UserRetentionSyncJob
     daily_triggers:
       cron: '* * * * *' # every minute
-      class: DailyTriggers 
+      class: DailyReports
       #cron: '0 8 * * *' # every day @ 8am UTC

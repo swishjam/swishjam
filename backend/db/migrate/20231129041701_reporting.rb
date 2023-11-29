@@ -1,4 +1,4 @@
-class ReportingV1 < ActiveRecord::Migration[6.1]
+class Reporting < ActiveRecord::Migration[6.1]
   def change
     create_table :reports, id: :uuid do |t|
       t.references :workspace, type: :uuid

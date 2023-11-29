@@ -1,4 +1,4 @@
-class DailyTriggers
+class DailyReports
   include Sidekiq::Job
   queue_as :default
 
