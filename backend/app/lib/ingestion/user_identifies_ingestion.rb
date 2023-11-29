@@ -51,8 +51,9 @@ module Ingestion
           email = properties['email']
           metadata = properties.except(
             'source', 'sdk_version', 'url', 'device_identifier', 'user_device_identifier', 'organization_device_identifier', 'session_identifier', 'page_view_identifier',
-            'userId', 'user_id', 'userIdentifier', 'firstName', 'first_name', 'lastName', 'last_name', 'email', 
+            'userId', 'user_id', 'userIdentifier', 'firstName', 'first_name', 'lastName', 'last_name', 'email', 'user_attributes'
           )
+          immutable_metadata = (properties['user_attributes'] || {}).except('email', 'firstName', 'lastName')
 
           if !unique_identifier
             Sentry.capture_message("No unique identifier provided in event payload in Ingestion::UserIdentifiesIngestion: #{event_json.inspect}")
@@ -60,6 +61,7 @@ module Ingestion
           end
 
           workspace = Workspace.for_public_key(event_json['swishjam_api_key'])
+          byebug
           if workspace
             profile = workspace.analytics_user_profiles.find_by(user_unique_identifier: unique_identifier)
             if profile
@@ -71,12 +73,15 @@ module Ingestion
                 last_name: last_name, 
                 email: email, 
                 metadata: metadata,
+                # right now this should only ever be the `original_referrer`, are there other things we want to store here?
+                immutable_metadata: immutable_metadata,
                 created_at: event_json['occurred_at'] || Time.current,
               )
               new_profile_data << { 
                 swishjam_api_key: event_json['swishjam_api_key'], 
                 unique_identifier: unique_identifier,
                 swishjam_user_id: profile.id,
+                immutable_metadata: (immutable_metadata || {}).to_json,
                 created_at: event_json['occurred_at'] || Time.current,
               }
             end

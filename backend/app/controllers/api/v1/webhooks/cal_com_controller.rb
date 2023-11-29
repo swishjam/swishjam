@@ -30,19 +30,15 @@ module Api
             next if !value.is_a?(String)
             swishjam_obj["response_#{key}"] = params.dig('payload', 'responses', key, 'value')
           end
-          if ENV['USE_LEGACY_INGESTION_JOB']
-            CaptureAnalyticDataJob.perform_async(public_key, [swishjam_obj], nil)
-          else
-            formatted_event = Analytics::Event.formatted_for_ingestion(
-              uuid: swishjam_obj['uuid'],
-              swishjam_api_key: public_key,
-              name: swishjam_obj['name'],
-              occurred_at: Time.at(swishjam_obj['timestamp'] / 1_000),
-              properties: swishjam_obj.except('uuid', 'name', 'timestamp', 'source'),
-            )
-            Ingestion::QueueManager.push_records_into_queue(Ingestion::QueueManager::Queues.EVENTS, [formatted_event])
-            render json: { message: 'ok' }, status: :ok
-          end
+          formatted_event = Analytics::Event.formatted_for_ingestion(
+            uuid: swishjam_obj['uuid'],
+            swishjam_api_key: public_key,
+            name: swishjam_obj['name'],
+            occurred_at: Time.at(swishjam_obj['timestamp'] / 1_000),
+            properties: swishjam_obj.except('uuid', 'name', 'timestamp', 'source'),
+          )
+          Ingestion::QueueManager.push_records_into_queue(Ingestion::QueueManager::Queues.EVENTS, [formatted_event])
+          render json: { message: 'ok' }, status: :ok
         end
       end
     end

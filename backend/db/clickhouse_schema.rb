@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ClickhouseActiverecord::Schema.define(version: 2023_11_09_212543) do
+ClickhouseActiverecord::Schema.define(version: 2023_11_28_221019) do
 
   # TABLE: billing_data_snapshots
   # SQL: CREATE TABLE swishjam_analytics_dev.billing_data_snapshots ( `swishjam_api_key` LowCardinality(String), `mrr_in_cents` UInt32, `total_revenue_in_cents` UInt32, `num_active_subscriptions` UInt32, `num_free_trial_subscriptions` UInt32, `num_canceled_subscriptions` UInt32, `captured_at` DateTime, `num_paid_subscriptions` Nullable(Int32) ) ENGINE = MergeTree PRIMARY KEY (swishjam_api_key, captured_at) ORDER BY (swishjam_api_key, captured_at) SETTINGS index_granularity = 8192
@@ -62,12 +62,13 @@ ClickhouseActiverecord::Schema.define(version: 2023_11_09_212543) do
   end
 
   # TABLE: swishjam_user_profiles
-  # SQL: CREATE TABLE swishjam_analytics_dev.swishjam_user_profiles ( `swishjam_api_key` String, `swishjam_user_id` String, `unique_identifier` String, `created_at` DateTime ) ENGINE = MergeTree PRIMARY KEY (swishjam_api_key, created_at) ORDER BY (swishjam_api_key, created_at) SETTINGS index_granularity = 8192
+  # SQL: CREATE TABLE swishjam_analytics_dev.swishjam_user_profiles ( `swishjam_api_key` String, `swishjam_user_id` String, `unique_identifier` String, `created_at` DateTime, `immutable_metadata` String ) ENGINE = MergeTree PRIMARY KEY (swishjam_api_key, created_at) ORDER BY (swishjam_api_key, created_at) SETTINGS index_granularity = 8192
   create_table "swishjam_user_profiles", id: false, options: "MergeTree PRIMARY KEY (swishjam_api_key, created_at) ORDER BY (swishjam_api_key, created_at) SETTINGS index_granularity = 8192", force: :cascade do |t|
     t.string "swishjam_api_key", null: false
     t.string "swishjam_user_id", null: false
     t.string "unique_identifier", null: false
     t.datetime "created_at", null: false
+    t.string "immutable_metadata", null: false
   end
 
   # TABLE: user_identify_events

@@ -3,6 +3,10 @@ import { CookieHelper } from "./cookieHelper.mjs";
 import { SWISHJAM_USER_DEVICE_IDENTIFIER_COOKIE_NAME, SWISHJAM_ORGANIZATION_DEVICE_IDENTIFIER_COOKIE_NAME } from './constants.mjs'
 
 export class DeviceIdentifiers {
+  static hasUserDeviceIdentifierValue = () => {
+    return !!CookieHelper.getCookie(SWISHJAM_USER_DEVICE_IDENTIFIER_COOKIE_NAME);
+  }
+
   static getUserDeviceIdentifierValue = () => {
     return CookieHelper.getCookie(SWISHJAM_USER_DEVICE_IDENTIFIER_COOKIE_NAME) || this._setCookie(SWISHJAM_USER_DEVICE_IDENTIFIER_COOKIE_NAME, 'user');
   }

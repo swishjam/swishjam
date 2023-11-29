@@ -4,6 +4,7 @@ import { DeviceIdentifiers } from "./deviceIdentifiers.mjs";
 import { ErrorHandler } from './errorHandler.mjs';
 import { EventQueueManager } from "./eventQueueManager.mjs";
 import { PageViewManager } from "./pageViewManager.mjs";
+import { PersistentUserDataManager } from "./persistentUserDataManager.mjs";
 import { Requester } from "./requester.mjs";
 import { SDK_VERSION } from './constants.mjs'
 import { UUID } from "./uuid.mjs";
@@ -35,7 +36,8 @@ export class Client {
 
   identify = (userIdentifier, traits = {}) => {
     return this.errorHandler.executeWithErrorHandling(() => {
-      this._extractOrganizationFromIdentifyCall(traits)
+      this._extractOrganizationFromIdentifyCall(traits);
+      PersistentUserDataManager.setUserAttributes(traits);
       return this.record('identify', { userIdentifier, ...traits })
     })
   }
@@ -61,10 +63,14 @@ export class Client {
     return this.errorHandler.executeWithErrorHandling(() => {
       // important to set this first because the new Event reads from the DataPersister
       DataPersister.set('sessionId', UUID.generate('s'));
+      debugger;
       this.record('new_session', {
         referrer: this.pageViewManager.previousUrl(),
+        // is this the best way to determine if this is a new user?
+        is_new_user: !DeviceIdentifiers.hasUserDeviceIdentifierValue(),
         ...this.deviceDetails.all()
       });
+      PersistentUserDataManager.setReferrerDataIfNecessary(this.pageViewManager.previousUrl());
       if (registerPageView) this.pageViewManager.recordPageView();
       return this.getSession();
     });
@@ -73,6 +79,7 @@ export class Client {
   logout = () => {
     return this.errorHandler.executeWithErrorHandling(() => {
       DeviceIdentifiers.resetAllDeviceIdentifierValues();
+      PersistentUserDataManager.reset();
       return this.newSession();
     });
   }

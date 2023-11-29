@@ -1,5 +1,5 @@
 {
-  "version": "0.0.25",
+  "version": "0.0.2511111111111",
   "name": "@swishjam/core",
   "description": "The official Swishjam JS client to instrument your webpages with.",
   "homepage": "https://swishjam.com",
@@ -17,6 +17,7 @@
     "jest-environment-jsdom": "^29.6.2"
   },
   "dependencies": {
+    "lz-string": "^1.5.0",
     "ua-parser-js": "^1.0.36"
   }
 }
