@@ -5,7 +5,8 @@ class Reporting < ActiveRecord::Migration[6.1]
       t.boolean :enabled
       t.string :name
       t.jsonb :config
-      t.string :type
+      t.string :sending_mechanism # ENUM of slack, email (TBD), Other??? 
+      t.string :cadence # ENUM of daily, weekly, monthly
       t.timestamps
     end
 

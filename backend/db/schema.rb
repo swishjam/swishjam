@@ -152,7 +152,8 @@ ActiveRecord::Schema.define(version: 2023_11_29_041701) do
     t.boolean "enabled"
     t.string "name"
     t.jsonb "config"
-    t.string "type"
+    t.string "sending_mechanism"
+    t.string "cadence"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.index ["workspace_id"], name: "index_reports_on_workspace_id"
