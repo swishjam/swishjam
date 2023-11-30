@@ -1,4 +1,4 @@
-import { DataPersister } from "./dataPersister.mjs";
+import { SessionPersistance } from "./sessionPersistance.mjs";
 import { DeviceDetails } from "./deviceDetails.mjs";
 import { DeviceIdentifiers } from "./deviceIdentifiers.mjs";
 import { ErrorHandler } from './errorHandler.mjs';
@@ -44,9 +44,9 @@ export class Client {
 
   setOrganization = (organizationIdentifier, traits = {}) => {
     return this.errorHandler.executeWithErrorHandling(() => {
-      const previouslySetOrganization = DataPersister.get('organizationId');
+      const previouslySetOrganization = SessionPersistance.get('organizationId');
       // set the new organization so the potential new session has the correct organization
-      DataPersister.set('organizationId', organizationIdentifier);
+      SessionPersistance.set('organizationId', organizationIdentifier);
       // we assume anytime setOrganization is called with a new org, we want a new session
       if (previouslySetOrganization && previouslySetOrganization !== organizationIdentifier) this.newSession();
       this.record('organization', { organizationIdentifier, ...traits })
@@ -55,15 +55,14 @@ export class Client {
 
   getSession = () => {
     return this.errorHandler.executeWithErrorHandling(() => (
-      DataPersister.get('sessionId')
+      SessionPersistance.get('sessionId')
     ));
   }
 
   newSession = ({ registerPageView = true } = {}) => {
     return this.errorHandler.executeWithErrorHandling(() => {
-      // important to set this first because the new Event reads from the DataPersister
-      DataPersister.set('sessionId', UUID.generate('s'));
-      debugger;
+      // important to set this first because the new Event reads from the SessionPersistance
+      SessionPersistance.set('sessionId', UUID.generate('s'));
       this.record('new_session', {
         referrer: this.pageViewManager.previousUrl(),
         // is this the best way to determine if this is a new user?
@@ -105,7 +104,7 @@ export class Client {
 
       this.pageViewManager.onNewPage((_newUrl, previousUrl) => {
         return this.errorHandler.executeWithErrorHandling(() => {
-          DataPersister.set('pageViewId', UUID.generate('pv'));
+          SessionPersistance.set('pageViewId', UUID.generate('pv'));
           this.eventQueueManager.recordEvent('page_view', { referrer: previousUrl });
         });
       });

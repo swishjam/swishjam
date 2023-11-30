@@ -1,4 +1,4 @@
-export class DataPersister {
+export class SessionPersistance {
   static set(key, value) {
     const currentMemory = this.all();
     currentMemory[key] = value;
@@ -15,4 +15,4 @@ export class DataPersister {
   }
 }
 
-export default DataPersister;
+export default SessionPersistance;
