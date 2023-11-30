@@ -19,7 +19,7 @@ class SendReportJob
 		}
   end
 
-  def slack_dates(start_date, end_date: nil)
+  def slack_dates(start_date, end_date = nil)
     if end_date
       slack_mkdwn(":calendar: #{start_date.strftime('%m/%d/%Y')} — #{end_date.strftime('%m/%d/%Y')}")
     else
@@ -61,11 +61,12 @@ class SendReportJob
     Rails.logger.info "Report: #{report.inspect}"
 
     ### Actually DO the shit
-    url_hosts = report.workspace.url_segments.pluck(:url_host)
 
     # Get the data for the report / Query Clickhouse
-    daily_active_users = ClickHouseQueries::Users::Active::Daily.new(workspace: report.workspace).perform
-    sessions_timeseries_data = ClickHouseQueries::Sessions::Timeseries.new(public_keys: ['current_workspace', 'marketing']).perform
+    #byebug
+    product_key = report.workspace.api_keys.for_data_source(ApiKey::ReservedDataSources.PRODUCT).public_key
+    daily_active_users = ClickHouseQueries::Users::Active::Daily.new(product_key).timeseries
+    #sessions_timeseries_data = ClickHouseQueries::Sessions::Timeseries.new(public_keys: ['current_workspace', 'marketing']).perform
 
 =begin
     querier = ClickHouseQueries::Organizations::Sessions::Timeseries.new(
