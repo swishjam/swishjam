@@ -56,6 +56,19 @@ class SendReportJob
 		}
   end
 
+  def percent_diff(num1, num2)
+    if (num1.nil? || num2.nil? || num1.zero?)
+      0
+    else
+      percent = ((num2 - num1) / num1.to_f) * 100
+      if percent.negative?
+        "-#{percent.abs}"
+      else
+        "+#{percent}"
+      end
+    end
+  end
+
   def perform(report_id)
     report = Report.find(report_id)
     Rails.logger.info "Report: #{report.inspect}"
@@ -63,9 +76,18 @@ class SendReportJob
     ### Actually DO the shit
 
     # Get the data for the report / Query Clickhouse
-    #byebug
     product_key = report.workspace.api_keys.for_data_source(ApiKey::ReservedDataSources.PRODUCT).public_key
-    daily_active_users = ClickHouseQueries::Users::Active::Timeseries::Daily.new(product_key).timeseries
+    #daily_active_users = ClickHouseQueries::Users::Active::Timeseries::Daily.new(product_key).timeseries
+    two_days_ago_daily_active_users = ClickHouseQueries::Users::Active::Count.new(
+      product_key,
+      start_time: 2.days.ago.beginning_of_day,
+      end_time: 2.days.ago.end_of_day
+    ).count
+    yesterday_daily_active_users = ClickHouseQueries::Users::Active::Count.new(
+      product_key,
+      start_time:Time.current.yesterday.beginning_of_day,
+      end_time:Time.current.yesterday.end_of_day
+    ).count
     #sessions_timeseries_data = ClickHouseQueries::Sessions::Timeseries.new(public_keys: ['current_workspace', 'marketing']).perform
 
 =begin
@@ -102,15 +124,15 @@ class SendReportJob
           slack_divider(), 
           slack_mkdwn(" "),
           slack_mkdwn(":technologist: *Product Usage:*"),
-          slack_mkdwn(":chart_with_upwards_trend: *Daily Active Users:* #{daily_active_users}"),
+          slack_mkdwn(":chart_with_upwards_trend: *Daily Active Users:* #{yesterday_daily_active_users} (#{percent_diff(yesterday_daily_active_users, two_days_ago_daily_active_users)}% vs yesterday)"),
           slack_mkdwn(":chart_with_upwards_trend: *Sessions:* 6,700 (+56% vs last week)"),
           slack_mkdwn(":chart_with_upwards_trend: *New Users:* 6,700 (+56% vs last week)"),
-          slack_divider(), 
-          slack_mkdwn(" "),
-          slack_mkdwn(":money_with_wings: *Financial Metrics:*"),
-          slack_mkdwn(":chart_with_upwards_trend: *Current MRR:* 6,700 (+56% vs last week)"),
-          slack_mkdwn(":chart_with_upwards_trend: *Total Revenue:* 6,700 (+56% vs last week)"),
-          slack_mkdwn(":chart_with_upwards_trend: *Active Subscribers:* 6,700 (+56% vs last week)"),
+          # slack_divider(),
+          # slack_mkdwn(" "),
+          # slack_mkdwn(":money_with_wings: *Financial Metrics:*"),
+          # slack_mkdwn(":chart_with_upwards_trend: *Current MRR:* 6,700 (+56% vs last week)"),
+          # slack_mkdwn(":chart_with_upwards_trend: *Total Revenue:* 6,700 (+56% vs last week)"),
+          # slack_mkdwn(":chart_with_upwards_trend: *Active Subscribers:* 6,700 (+56% vs last week)"),
           view_in_swishjam('https://app.swishjam.com/')
         ].to_json
       )
