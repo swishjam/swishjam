@@ -53,17 +53,17 @@ module Api
         params[:type] ||= 'weekly'
         raise "Invalid `type` provided: #{params[:type]}" unless %w(daily weekly monthly).include?(params[:type])
         active_users = {
-          'daily' => ClickHouseQueries::Users::Active::Daily,
-          'weekly' => ClickHouseQueries::Users::Active::Weekly,
-          'monthly' => ClickHouseQueries::Users::Active::Monthly
+          'daily' => ClickHouseQueries::Users::Active::Timeseries::Daily,
+          'weekly' => ClickHouseQueries::Users::Active::Timeseries::Weekly,
+          'monthly' => ClickHouseQueries::Users::Active::Timeseries::Monthly
         }[params[:type]].new(public_keys_for_requested_data_source, start_time: start_timestamp, end_time: end_timestamp).timeseries
 
         comparison_active_users = nil
         if params[:include_comparison]
           comparison_active_users = {
-            'daily' => ClickHouseQueries::Users::Active::Daily,
-            'weekly' => ClickHouseQueries::Users::Active::Weekly,
-            'monthly' => ClickHouseQueries::Users::Active::Monthly
+            'daily' => ClickHouseQueries::Users::Active::Timeseries::Daily,
+            'weekly' => ClickHouseQueries::Users::Active::Timeseries::Weekly,
+            'monthly' => ClickHouseQueries::Users::Active::Timeseries::Monthly
           }[params[:type]].new(public_keys_for_requested_data_source, start_time: comparison_start_timestamp, end_time: comparison_end_timestamp).timeseries
         end
         render json: { 

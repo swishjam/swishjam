@@ -65,7 +65,7 @@ class SendReportJob
     # Get the data for the report / Query Clickhouse
     #byebug
     product_key = report.workspace.api_keys.for_data_source(ApiKey::ReservedDataSources.PRODUCT).public_key
-    daily_active_users = ClickHouseQueries::Users::Active::Daily.new(product_key).timeseries
+    daily_active_users = ClickHouseQueries::Users::Active::Timeseries::Daily.new(product_key).timeseries
     #sessions_timeseries_data = ClickHouseQueries::Sessions::Timeseries.new(public_keys: ['current_workspace', 'marketing']).perform
 
 =begin
