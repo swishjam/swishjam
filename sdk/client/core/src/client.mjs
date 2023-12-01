@@ -63,13 +63,29 @@ export class Client {
     return this.errorHandler.executeWithErrorHandling(() => {
       // important to set this first because the new Event reads from the SessionPersistance
       SessionPersistance.set('sessionId', UUID.generate('s'));
+
+      PersistentUserDataManager.setIfNull('initial_url', this.pageViewManager.currentUrl());
+      PersistentUserDataManager.setIfNull('initial_referrer', this.pageViewManager.previousUrl());
+
+      const previousSessionStartedAt = PersistentUserDataManager.get('last_session_started_at');
+      PersistentUserDataManager.set('last_session_started_at', new Date().toISOString());
+
+      let userStatus = 'new';
+      if (previousSessionStartedAt) {
+        const msSinceLastSession = new Date() - new Date(previousSessionStartedAt);
+        const oneDayInMs = 24 * 60 * 60 * 1000;
+        if (msSinceLastSession > oneDayInMs * 30) {
+          userStatus = 'resurrecting';
+        } else {
+          userStatus = 'returning';
+        }
+      }
+
       this.record('new_session', {
         referrer: this.pageViewManager.previousUrl(),
-        // is this the best way to determine if this is a new user?
-        is_new_user: !DeviceIdentifiers.hasUserDeviceIdentifierValue(),
+        user_status: userStatus,
         ...this.deviceDetails.all()
       });
-      PersistentUserDataManager.setReferrerDataIfNecessary(this.pageViewManager.previousUrl());
       if (registerPageView) this.pageViewManager.recordPageView();
       return this.getSession();
     });

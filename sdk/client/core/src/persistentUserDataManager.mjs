@@ -4,14 +4,10 @@ import LZString from "lz-string";
 const COOKIE_NAME = 'swishjam_persistent';
 
 export class PersistentUserDataManager {
-  static setReferrerDataIfNecessary = referrer => {
-    this.setIfNull('original_referrer', referrer || window.location.referrer || '');
-  }
-
   static setUserAttributes = ({ email, firstName, lastName }) => {
-    this.set('email', email);
-    this.set('firstName', firstName);
-    this.set('lastName', lastName);
+    if (email) this.set('email', email);
+    if (firstName) this.set('firstName', firstName);
+    if (lastName) this.set('lastName', lastName);
   }
 
   static getAll = () => {
