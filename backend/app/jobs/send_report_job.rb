@@ -76,69 +76,64 @@ class SendReportJob
     ### Actually DO the shit
 
     # Get the data for the report / Query Clickhouse
+    # Marketing data    
+    marketing_key = report.workspace.api_keys.for_data_source(ApiKey::ReservedDataSources.MARKETING).public_key
+    yesterday_marketing_sessions = fetch_count(ClickHouseQueries::Sessions::Count, marketing_key, Time.current.yesterday)
+    two_days_ago_marketing_sessions = fetch_count(ClickHouseQueries::Sessions::Count, marketing_key, 2.days.ago)
+    yesterday_marketing_page_views = fetch_count(ClickHouseQueries::PageViews::Count, marketing_key, Time.current.yesterday)
+    two_days_ago_marketing_page_views = fetch_count(ClickHouseQueries::PageViews::Count, marketing_key, 2.days.ago)
+    two_days_ago_marketing_unique_users = fetch_count(ClickHouseQueries::Users::Active::Count, marketing_key, 2.days.ago)
+    yesterday_marketing_unique_users = fetch_count(ClickHouseQueries::Users::Active::Count, marketing_key, Time.current.yesterday)
+    # Product Data
     product_key = report.workspace.api_keys.for_data_source(ApiKey::ReservedDataSources.PRODUCT).public_key
-    #daily_active_users = ClickHouseQueries::Users::Active::Timeseries::Daily.new(product_key).timeseries
-    two_days_ago_daily_active_users = ClickHouseQueries::Users::Active::Count.new(
-      product_key,
-      start_time: 2.days.ago.beginning_of_day,
-      end_time: 2.days.ago.end_of_day
-    ).count
-    yesterday_daily_active_users = ClickHouseQueries::Users::Active::Count.new(
-      product_key,
-      start_time:Time.current.yesterday.beginning_of_day,
-      end_time:Time.current.yesterday.end_of_day
-    ).count
-    #sessions_timeseries_data = ClickHouseQueries::Sessions::Timeseries.new(public_keys: ['current_workspace', 'marketing']).perform
+    two_days_ago_daily_active_users = fetch_count(ClickHouseQueries::Users::Active::Count, product_key, 2.days.ago)
+    yesterday_daily_active_users = fetch_count(ClickHouseQueries::Users::Active::Count, product_key, Time.current.yesterday)
+    yesterday_sessions = fetch_count(ClickHouseQueries::Sessions::Count, product_key, Time.current.yesterday)
+    two_days_ago_sessions = fetch_count(ClickHouseQueries::Sessions::Count, product_key, 2.days.ago)
+    yesterday_new_users = fetch_count(ClickHouseQueries::Users::New::Count, product_key, Time.current.yesterday)
+    two_days_ago_new_users = fetch_count(ClickHouseQueries::Users::New::Count, product_key, 2.days.ago)
 
-=begin
-    querier = ClickHouseQueries::Organizations::Sessions::Timeseries.new(
-      # current_workspace.public_key, 
-      @organization.id, 
-      url_hosts: url_hosts, 
-      # start_time: start_timestamp, 
-      start_time: 3.months.ago,
-      end_time: end_timestamp
-    )
-    render json: { timeseries: querier.timeseries }, status: :ok
-=end
-    # Format the report 
-
-    # send to slack / email / sms / etc
+    # Send to slack / email / sms / etc
     access_token = report.workspace.slack_connection.access_token
     slack_client = ::Slack::Client.new(access_token)
 
-      #parsed_message_body = message_body.gsub(/\{([^}]+)\}/) do |match|
-        #JSON.parse(event['properties'] || '{}')[$1] || match
-      #end
+    slack_client.post_message_to_channel(
+      channel: report.config.channel_id, 
+      blocks: [
+        slack_header(report.workspace.name, report.cadence),
+        slack_dates(DateTime.now),
+        slack_mkdwn(" "),
+        slack_mkdwn(":mega: *Marketing Site:*"),
+        slack_mkdwn(":chart_with_upwards_trend: *Sessions:* #{yesterday_marketing_sessions} (#{percent_diff(yesterday_marketing_sessions, two_days_ago_marketing_sessions)}% vs yesterday)"),
+        slack_mkdwn(":chart_with_downwards_trend: *Unique Visitors:* #{yesterday_marketing_unique_users} (#{percent_diff(yesterday_marketing_unique_users, two_days_ago_marketing_unique_users)}% vs last week)"),
+        slack_mkdwn(":left_right_arrow: *Page Views:* #{yesterday_marketing_page_views} (#{percent_diff(yesterday_marketing_page_views, two_days_ago_marketing_page_views)}% vs last week)"),
+        slack_divider(), 
+        slack_mkdwn(" "),
+        slack_mkdwn(":technologist: *Product Usage:*"),
+        slack_mkdwn(":chart_with_upwards_trend: *Daily Active Users:* #{yesterday_daily_active_users} (#{percent_diff(yesterday_daily_active_users, two_days_ago_daily_active_users)}% vs yesterday)"),
+        slack_mkdwn(":chart_with_upwards_trend: *Sessions:* #{yesterday_sessions} (#{percent_diff(yesterday_sessions, two_days_ago_sessions)}% vs yesterday)"),
+        slack_mkdwn(":chart_with_upwards_trend: *New Users:* #{yesterday_new_users} (#{percent_diff(yesterday_new_users, two_days_ago_new_users)}% vs yesterday)"),
+        # slack_divider(),
+        # slack_mkdwn(" "),
+        # slack_mkdwn(":money_with_wings: *Financial Metrics:*"),
+        # slack_mkdwn(":chart_with_upwards_trend: *Current MRR:* 6,700 (+56% vs last week)"),
+        # slack_mkdwn(":chart_with_upwards_trend: *Total Revenue:* 6,700 (+56% vs last week)"),
+        # slack_mkdwn(":chart_with_upwards_trend: *Active Subscribers:* 6,700 (+56% vs last week)"),
+        view_in_swishjam('https://app.swishjam.com')
+      ].to_json
+    )
+  # Save to triggered reports table that we executed this
 
-      slack_client.post_message_to_channel(
-        channel: 'C0681689WE8', #report.config.channel_id, 
-        blocks: [
-          slack_header(report.workspace.name, report.cadence),
-          slack_dates(DateTime.now),
-          slack_mkdwn(" "),
-          slack_mkdwn(":mega: *Marketing Site:*"),
-          slack_mkdwn(":chart_with_upwards_trend: *Visitor Sessions:* 6,700 (+56% vs last week)"),
-          slack_mkdwn(":chart_with_downwards_trend: *Unique Visitors:* 6,700 (+56% vs last week)"),
-          slack_mkdwn(":left_right_arrow: *Page Views:* 6,700 (+56% vs last week)"),
-          slack_divider(), 
-          slack_mkdwn(" "),
-          slack_mkdwn(":technologist: *Product Usage:*"),
-          slack_mkdwn(":chart_with_upwards_trend: *Daily Active Users:* #{yesterday_daily_active_users} (#{percent_diff(yesterday_daily_active_users, two_days_ago_daily_active_users)}% vs yesterday)"),
-          slack_mkdwn(":chart_with_upwards_trend: *Sessions:* 6,700 (+56% vs last week)"),
-          slack_mkdwn(":chart_with_upwards_trend: *New Users:* 6,700 (+56% vs last week)"),
-          # slack_divider(),
-          # slack_mkdwn(" "),
-          # slack_mkdwn(":money_with_wings: *Financial Metrics:*"),
-          # slack_mkdwn(":chart_with_upwards_trend: *Current MRR:* 6,700 (+56% vs last week)"),
-          # slack_mkdwn(":chart_with_upwards_trend: *Total Revenue:* 6,700 (+56% vs last week)"),
-          # slack_mkdwn(":chart_with_upwards_trend: *Active Subscribers:* 6,700 (+56% vs last week)"),
-          view_in_swishjam('https://app.swishjam.com/')
-        ].to_json
-      )
-
-    # Save to triggered reports table that we executed this
-    # TODO
+  # TODO
   end
+
+  private
+    def fetch_count(query_class, key, time)
+      query_class.new(
+        key,
+        start_time: time.beginning_of_day,
+        end_time: time.end_of_day
+      ).count
+    end
 
 end

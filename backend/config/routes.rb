@@ -207,6 +207,13 @@ Rails.application.routes.draw do
         end
       end
 
+      resources :reports, only: [:index, :show, :create, :update, :destroy]
+      # resources :slack, only: [] do
+      #   collection do
+      #     get :channels
+      #   end
+      # end
+
       resources :google_search_console, only: [] do
         collection do
           get :sites
