@@ -13,6 +13,10 @@ export class SessionPersistance {
   static all() {
     return JSON.parse(sessionStorage.getItem('swishjam') || '{}');
   }
+
+  static clear() {
+    sessionStorage.removeItem('swishjam');
+  }
 }
 
 export default SessionPersistance;

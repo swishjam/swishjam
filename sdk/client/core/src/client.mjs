@@ -51,7 +51,6 @@ export class Client {
       // set the new organization so the potential new session has the correct organization
       SessionPersistance.set('organizationId', organizationIdentifier);
       // we assume anytime setOrganization is called with a new org, we want a new session
-      debugger;
       if (previouslySetOrganization && previouslySetOrganization !== organizationIdentifier) this.newSession();
       this.eventQueueManager.recordEvent('organization', { organizationIdentifier, ...traits })
     });
@@ -107,7 +106,7 @@ export class Client {
     const { organization, org } = identifyTraits;
     if (organization || org) {
       const extractedOrganizationData = organization || org;
-      const { organizationIdentifier: extractedOrganizationIdentifier, orgIdentifier, identifier, organizationId, orgId, id } = extractedOrganizationData;
+      const { extractedOrganizationIdentifier, orgIdentifier, identifier, organizationId, orgId, id } = extractedOrganizationData;
       const organizationIdentifier = extractedOrganizationIdentifier || orgIdentifier || identifier || organizationId || orgId || id;
       let orgTraits = {};
       Object.keys(extractedOrganizationData).forEach(key => {
@@ -115,7 +114,12 @@ export class Client {
           orgTraits[key] = extractedOrganizationData[key];
         }
       });
-      this.setOrganization(organizationIdentifier, orgTraits);
+      if (organizationIdentifier) {
+        // this will call the organization event before the identify event, is that best? or should identify come first?
+        this.setOrganization(organizationIdentifier, orgTraits);
+      } else {
+        console.warn('SwishjamJS: identify call included an organization object but did not include an organizationIdentifier. Organization object was ignored.')
+      }
     }
   }
 
