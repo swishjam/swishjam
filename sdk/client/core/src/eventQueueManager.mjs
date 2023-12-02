@@ -8,6 +8,8 @@ export class EventQueueManager {
     this.maxQueueSize = options.maxQueueSize || 20;
     this.heartbeatMs = options.heartbeatMs || 10_000;
     this.disabledUrls = options.disabledUrls || [];
+    this.maxNumFailedRequests = options.maxNumFailedRequests || 3;
+    this.numFailedRequests = 0;
 
     this.queue = [];
 

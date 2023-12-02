@@ -106,11 +106,11 @@ export class Client {
     const { organization, org } = identifyTraits;
     if (organization || org) {
       const extractedOrganizationData = organization || org;
-      const { extractedOrganizationIdentifier, orgIdentifier, identifier, organizationId, orgId, id } = extractedOrganizationData;
-      const organizationIdentifier = extractedOrganizationIdentifier || orgIdentifier || identifier || organizationId || orgId || id;
+      const { id, identifier, orgIdentifier, org_identifier, organizationId, ogranization_id, orgId, org_id } = extractedOrganizationData;
+      const organizationIdentifier = id || identifier || orgIdentifier || org_identifier || organizationId || ogranization_id || orgId || org_id;
       let orgTraits = {};
       Object.keys(extractedOrganizationData).forEach(key => {
-        if (!['organizationIdentifier', 'orgIdentifier', 'identifier', 'organizationId', 'orgId', 'id'].includes(key)) {
+        if (!['id', 'identifier', 'orgIdentifier', 'org_identifier', 'organizationId', 'ogranization_id', 'orgId', 'org_id'].includes(key)) {
           orgTraits[key] = extractedOrganizationData[key];
         }
       });
