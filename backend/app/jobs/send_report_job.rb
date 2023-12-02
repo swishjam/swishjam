@@ -122,9 +122,10 @@ class SendReportJob
         view_in_swishjam('https://app.swishjam.com')
       ].to_json
     )
+ 
   # Save to triggered reports table that we executed this
+  TriggeredReport.create(report_id: report.id, workspace: report.workspace)
 
-  # TODO
   end
 
   private
