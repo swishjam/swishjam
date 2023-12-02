@@ -40,7 +40,7 @@ export class Client {
   identify = (userIdentifier, traits = {}) => {
     return this.errorHandler.executeWithErrorHandling(() => {
       this._extractOrganizationFromIdentifyCall(traits);
-      PersistentUserDataManager.setUserAttributes(traits);
+      PersistentUserDataManager.setUserAttributes({ userIdentifier, ...traits });
       return this.eventQueueManager.recordEvent('identify', { userIdentifier, ...traits })
     })
   }
