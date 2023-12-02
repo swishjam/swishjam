@@ -2,72 +2,6 @@ class SendReportJob
   include Sidekiq::Job
   queue_as :default
 
-  def slack_header(name, cadence)
-    {
-      type: 'header',
-      text: {
-        type: 'plain_text',
-        text: "#{name} #{cadence.capitalize} Update",
-        emoji: true
-      }
-    }
-  end
-
-  def slack_divider
-    {
-			"type": "divider"
-		}
-  end
-
-  def slack_dates(start_date, end_date = nil)
-    if end_date
-      slack_mkdwn(":calendar: #{start_date.strftime('%m/%d/%Y')} — #{end_date.strftime('%m/%d/%Y')}")
-    else
-      slack_mkdwn(":calendar: #{start_date.strftime('%m/%d/%Y')}")
-    end
-  end
-
-  def slack_mkdwn(content)
-    {
-			"type": "section",
-			"text": {
-				"type": "mrkdwn",
-				"text": "#{content}"
-			}
-		}
-  end
-
-  def view_in_swishjam(link)
-    {
-			"type": "section",
-			"text": {
-				"type": "mrkdwn",
-				"text": " "
-			},
-			"accessory": {
-				"type": "button",
-				"text": {
-					"type": "plain_text",
-					"text": "View in Swishjam :mag_right:",
-					"emoji": true
-				},
-				"url": link,
-			}
-		}
-  end
-
-  def percent_diff(num1, num2)
-    if (num1.nil? || num2.nil? || num1.zero?)
-      0
-    else
-      percent = ((num2 - num1) / num1.to_f) * 100
-      if percent.negative?
-        "-#{percent.abs}"
-      else
-        "+#{percent}"
-      end
-    end
-  end
 
   def perform(report_id)
     report = Report.find(report_id)
@@ -124,8 +58,24 @@ class SendReportJob
     )
  
   # Save to triggered reports table that we executed this
-  TriggeredReport.create(report_id: report.id, workspace: report.workspace)
+  TriggeredReport.create(report_id: report.id, workspace: report.workspace, payload: {
+    slack_channel_id: report.config.channel_id,
+    yesterday_marketing_sessions: yesterday_marketing_sessions,
+    two_days_ago_marketing_sessions: two_days_ago_marketing_sessions,
+    yesterday_marketing_page_views: yesterday_marketing_page_views,
+    two_days_ago_marketing_page_views: two_days_ago_marketing_page_views,
+    two_days_ago_marketing_unique_users: two_days_ago_marketing_unique_users,
+    yesterday_marketing_unique_users: yesterday_marketing_unique_users,
+    two_days_ago_daily_active_users: two_days_ago_daily_active_users,
+    yesterday_daily_active_users: yesterday_daily_active_users,
+    yesterday_sessions: yesterday_sessions,
+    two_days_ago_sessions: two_days_ago_sessions,
+    yesterday_new_users: yesterday_new_users
+  })
 
+  rescue => e
+    Sentry.capture_exception(e)
+    Rails.logger.error "Failed to trigger the EventTrigger for Report ID: #{report_id},  #{e.message}"
   end
 
   private
@@ -137,4 +87,71 @@ class SendReportJob
       ).count
     end
 
+
+    def slack_header(name, cadence)
+      {
+        type: 'header',
+        text: {
+          type: 'plain_text',
+          text: "#{name} #{cadence.capitalize} Update",
+          emoji: true
+        }
+      }
+    end
+  
+    def slack_divider
+      {
+        "type": "divider"
+      }
+    end
+  
+    def slack_dates(start_date, end_date = nil)
+      if end_date
+        slack_mkdwn(":calendar: #{start_date.strftime('%m/%d/%Y')} — #{end_date.strftime('%m/%d/%Y')}")
+      else
+        slack_mkdwn(":calendar: #{start_date.strftime('%m/%d/%Y')}")
+      end
+    end
+  
+    def slack_mkdwn(content)
+      {
+        "type": "section",
+        "text": {
+          "type": "mrkdwn",
+          "text": "#{content}"
+        }
+      }
+    end
+  
+    def view_in_swishjam(link)
+      {
+        "type": "section",
+        "text": {
+          "type": "mrkdwn",
+          "text": " "
+        },
+        "accessory": {
+          "type": "button",
+          "text": {
+            "type": "plain_text",
+            "text": "View in Swishjam :mag_right:",
+            "emoji": true
+          },
+          "url": link,
+        }
+      }
+    end
+  
+    def percent_diff(num1, num2)
+      if (num1.nil? || num2.nil? || num1.zero?)
+        0
+      else
+        percent = ((num2 - num1) / num1.to_f) * 100
+        if percent.negative?
+          "-#{percent.abs}"
+        else
+          "+#{percent}"
+        end
+      end
+    end
 end
