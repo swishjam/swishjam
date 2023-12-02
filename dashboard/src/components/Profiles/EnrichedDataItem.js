@@ -6,7 +6,7 @@ export default function EnrichedDataItem({ title, enrichmentData, enrichmentKey,
       <dt className="text-sm font-medium leading-6 text-gray-900">{title}</dt>
       <dd className="text-sm leading-6 text-gray-700 flex justify-end">
         {enrichmentData
-          ? enrichmentData[enrichmentKey] ? formatter(enrichmentData[enrichmentKey]) : '-'
+          ? typeof enrichmentData[enrichmentKey] === 'undefined' ? '-' : formatter(enrichmentData[enrichmentKey])
           : <Skeleton className='h-8 w-12' />
         }
       </dd>

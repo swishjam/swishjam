@@ -29,6 +29,9 @@ export class Client {
   }
 
   record = (eventName, properties = {}) => {
+    if (['page_view', 'page_left', 'new_session', 'identify', 'organization'].includes(eventName)) {
+      throw new Error(`Cannot name a Swishjam event '${eventName}' because it is a reserved event name.`)
+    }
     return this.errorHandler.executeWithErrorHandling(() => (
       this.eventQueueManager.recordEvent(eventName, properties)
     ))
@@ -38,7 +41,7 @@ export class Client {
     return this.errorHandler.executeWithErrorHandling(() => {
       this._extractOrganizationFromIdentifyCall(traits);
       PersistentUserDataManager.setUserAttributes(traits);
-      return this.record('identify', { userIdentifier, ...traits })
+      return this.eventQueueManager.recordEvent('identify', { userIdentifier, ...traits })
     })
   }
 
@@ -48,8 +51,9 @@ export class Client {
       // set the new organization so the potential new session has the correct organization
       SessionPersistance.set('organizationId', organizationIdentifier);
       // we assume anytime setOrganization is called with a new org, we want a new session
+      debugger;
       if (previouslySetOrganization && previouslySetOrganization !== organizationIdentifier) this.newSession();
-      this.record('organization', { organizationIdentifier, ...traits })
+      this.eventQueueManager.recordEvent('organization', { organizationIdentifier, ...traits })
     });
   }
 
@@ -64,26 +68,26 @@ export class Client {
       // important to set this first because the new Event reads from the SessionPersistance
       SessionPersistance.set('sessionId', UUID.generate('s'));
 
-      PersistentUserDataManager.setIfNull('initial_url', this.pageViewManager.currentUrl());
-      PersistentUserDataManager.setIfNull('initial_referrer', this.pageViewManager.previousUrl());
+      PersistentUserDataManager.setIfNull('initial_url', window.location.href);
+      PersistentUserDataManager.setIfNull('initial_referrer', document.referrer);
 
-      const previousSessionStartedAt = PersistentUserDataManager.get('last_session_started_at');
-      PersistentUserDataManager.set('last_session_started_at', new Date().toISOString());
+      const previousSessionStartedAt = PersistentUserDataManager.get('previous_session_started_at');
+      PersistentUserDataManager.set('previous_session_started_at', new Date());
 
-      let userStatus = 'new';
+      let userVisitStatus = 'new';
       if (previousSessionStartedAt) {
         const msSinceLastSession = new Date() - new Date(previousSessionStartedAt);
         const oneDayInMs = 24 * 60 * 60 * 1000;
         if (msSinceLastSession > oneDayInMs * 30) {
-          userStatus = 'resurrecting';
+          userVisitStatus = 'resurrecting';
         } else {
-          userStatus = 'returning';
+          userVisitStatus = 'returning';
         }
       }
+      SessionPersistance.set('userVisitStatus', userVisitStatus)
 
-      this.record('new_session', {
-        referrer: this.pageViewManager.previousUrl(),
-        user_status: userStatus,
+      this.eventQueueManager.recordEvent('new_session', {
+        referrer: document.referrer,
         ...this.deviceDetails.all()
       });
       if (registerPageView) this.pageViewManager.recordPageView();
@@ -93,7 +97,7 @@ export class Client {
 
   logout = () => {
     return this.errorHandler.executeWithErrorHandling(() => {
-      DeviceIdentifiers.resetAllDeviceIdentifierValues();
+      DeviceIdentifiers.resetUserDeviceIdentifierValue();
       PersistentUserDataManager.reset();
       return this.newSession();
     });

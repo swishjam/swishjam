@@ -44,7 +44,6 @@ module Ingestion
         identify_events = []
         organization_events = []
         events = Ingestion::QueueManager.pop_all_records_from_queue(Ingestion::QueueManager::Queues.EVENTS)
-        byebug
         formatted_events = events.each do |e|
           case e['name']
           when 'identify'

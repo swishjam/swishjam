@@ -14,14 +14,12 @@ module Api
             swishjam_api_key: api_key, 
             name: e['event'] || e['event_name'] || e['name'], 
             occurred_at: Time.at(e['timestamp'] / 1_000),
-            properties: e['attributes'] || e.except('uuid', 'event', 'event_name', 'name', 'timestamp', 'source', 'sdk_version'),
+            properties: e['attributes'] || e.except('uuid', 'event', 'event_name', 'name', 'timestamp', 'source'),
           )
         end
-        byebug
         Ingestion::QueueManager.push_records_into_queue(Ingestion::QueueManager::Queues.EVENTS, events)
         render json: { message: 'ok' }, status: :ok
       rescue => e
-        byebug
         Rails.logger.error "Error capturing analytic event: #{e.message}"
         Rails.logger.error e.backtrace.join("\n")
         Sentry.capture_exception(e) if ENV['SENTRY_DSN'].present?

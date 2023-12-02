@@ -6,14 +6,16 @@ const COOKIE_NAME = 'swishjam_persistent';
 export class PersistentUserDataManager {
   static setUserAttributes = ({ email, firstName, lastName }) => {
     if (email) this.set('email', email);
-    if (firstName) this.set('firstName', firstName);
-    if (lastName) this.set('lastName', lastName);
+    if (firstName) this.set('first_name', firstName);
+    if (lastName) this.set('last_name', lastName);
   }
 
-  static getAll = () => {
+  static getAll = ({ except = [] } = {}) => {
     const cookie = CookieHelper.getCookie(COOKIE_NAME);
     if (cookie) {
-      return JSON.parse(LZString.decompressFromUTF16(cookie));
+      const json = JSON.parse(LZString.decompressFromUTF16(cookie));
+      except.forEach(key => delete json[key])
+      return json;
     }
     return {};
   }

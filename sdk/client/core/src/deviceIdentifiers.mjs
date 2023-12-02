@@ -1,33 +1,15 @@
 import { UUID } from "./uuid.mjs";
 import { CookieHelper } from "./cookieHelper.mjs";
-import { SWISHJAM_USER_DEVICE_IDENTIFIER_COOKIE_NAME, SWISHJAM_ORGANIZATION_DEVICE_IDENTIFIER_COOKIE_NAME } from './constants.mjs'
+import { SWISHJAM_USER_DEVICE_IDENTIFIER_COOKIE_NAME } from './constants.mjs'
 
 export class DeviceIdentifiers {
-  static hasUserDeviceIdentifierValue = () => {
-    return !!CookieHelper.getCookie(SWISHJAM_USER_DEVICE_IDENTIFIER_COOKIE_NAME);
-  }
-
   static getUserDeviceIdentifierValue = () => {
     return CookieHelper.getCookie(SWISHJAM_USER_DEVICE_IDENTIFIER_COOKIE_NAME) || this._setCookie(SWISHJAM_USER_DEVICE_IDENTIFIER_COOKIE_NAME, 'user');
-  }
-
-  static getOrganizationDeviceIdentifierValue = () => {
-    return CookieHelper.getCookie(SWISHJAM_ORGANIZATION_DEVICE_IDENTIFIER_COOKIE_NAME) || this._setCookie(SWISHJAM_ORGANIZATION_DEVICE_IDENTIFIER_COOKIE_NAME, 'org');
   }
 
   static resetUserDeviceIdentifierValue = () => {
     CookieHelper.deleteCookie(SWISHJAM_USER_DEVICE_IDENTIFIER_COOKIE_NAME);
     return this._setCookie(SWISHJAM_USER_DEVICE_IDENTIFIER_COOKIE_NAME, 'user');
-  }
-
-  static resetOrganizationDeviceIdentifierValue = () => {
-    CookieHelper.deleteCookie(SWISHJAM_ORGANIZATION_DEVICE_IDENTIFIER_COOKIE_NAME);
-    return this._setCookie(SWISHJAM_ORGANIZATION_DEVICE_IDENTIFIER_COOKIE_NAME, 'org');
-  }
-
-  static resetAllDeviceIdentifierValues = () => {
-    this.resetUserDeviceIdentifierValue();
-    this.resetOrganizationDeviceIdentifierValue();
   }
 
   static _setCookie = (cookieName, prefix = '') => {
