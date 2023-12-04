@@ -1,0 +1,42 @@
+'use client';
+
+import { usePathname } from 'next/navigation'
+import { VerticalTabs } from '@components/VerticalTabs'
+import Divider from '@/components/Divider';
+import { LuWorkflow, LuSparkles } from "react-icons/lu";
+import { TbReport } from "react-icons/tb";
+
+const sidebarNavItems = [
+  {
+    title: "Workflows",
+    href: "/automations",
+    icon: LuWorkflow,
+  },
+  {
+    title: "Reports",
+    href: "/automations/reports",
+    icon: TbReport,
+  },
+]
+
+export default function AutomationsLayout({ children }) {
+  const pathname = usePathname();
+
+  return (
+    <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mb-8">
+      <div className='grid grid-cols-2 my-8 flex items-center'>
+        <div>
+          <h1 className="text-lg font-medium text-gray-700 mb-0">Automations</h1>
+        </div>
+      </div>
+      <Divider />
+      <div className="flex flex-col space-y-8 lg:flex-row lg:space-x-12 lg:space-y-0 mt-8">
+        <aside className="lg:w-1/5">
+          <VerticalTabs items={sidebarNavItems} />
+        </aside>
+        <div className="flex-1">{children}</div>
+      </div> 
+      {/*<Tabs className="mb-8" currentPath={pathname} />*/}
+    </main>
+  )
+}

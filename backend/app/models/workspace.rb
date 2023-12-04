@@ -14,7 +14,7 @@ class Workspace < Transactional
   has_many :workspace_invitations, dependent: :destroy
   has_many :workspace_members, dependent: :destroy
   has_many :users, through: :workspace_members
-  has_many :reports, through: :reports
+  has_many :reports, dependent: :destroy
 
   after_create_commit { ApiKey.generate_default_keys_for(self) }
   after_create_commit { WorkspaceSetting.generate_default_for(self) }

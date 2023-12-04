@@ -21,6 +21,8 @@ import Workspace from './workspace';
 import WorkspaceInvitations from './workspace-invitations';
 import WorkspaceMembers from './workspace-members';
 import WorkspaceSettings from './workspace-settings';
+import Reports from './reports';
+
 
 export class SwishjamAPI {
   static Admin = Admin;
@@ -46,6 +48,7 @@ export class SwishjamAPI {
   static WorkspaceInvitations = WorkspaceInvitations;
   static WorkspaceMembers = WorkspaceMembers;
   static WorkspaceSettings = WorkspaceSettings;
+  static Reports = Reports;
 }
 
 export default SwishjamAPI;

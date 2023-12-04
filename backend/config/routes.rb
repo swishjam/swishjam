@@ -209,7 +209,6 @@ Rails.application.routes.draw do
 
       resources :reports, only: [:destroy, :index, :create] do
         member do
-          post :test_trigger
           patch :enable
           patch :disable
         end

@@ -4,7 +4,7 @@ class EventTrigger < Transactional
   accepts_nested_attributes_for :event_trigger_steps
   has_many :triggered_event_triggers, dependent: :destroy
 
-  validates :event_name, presence: truej
+  validates :event_name, presence: true
 
   def trigger!(event, as_test: false)
     event_trigger_steps.each{ |step| step.trigger!(event) }

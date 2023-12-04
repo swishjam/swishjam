@@ -11,8 +11,6 @@ import WorkspaceForm from "@/components/Settings/WorkspaceForm";
 import WorkspaceSettingsToggles from "@/components/Settings/WorkspaceSettingsToggles";
 import Tabs from '@/components/Settings/Tabs';
 
-const Divider = () => <div className="my-6 w-full border-t border-gray-300" />
-
 export default function SettingsPage() {
   const pathname = usePathname();
   const [apiKeys, setApiKeys] = useState();

@@ -1,6 +1,6 @@
 class Report < Transactional
   belongs_to :workspace
-  has_many :triggered_report, dependent: :destroy
+  has_many :triggered_reports, dependent: :destroy
 
   validates :name, presence: true
   validates :cadence, presence: true, inclusion: { in: %w(daily weekly monthly) }

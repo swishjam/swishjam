@@ -2,35 +2,36 @@ module Api
   module V1
     class ReportsController < BaseController
       def index
-        render json: current_workspace.reports, each_serializer: EventTriggerSerializer, status: :ok
+        #render json: current_workspace.reports, each_serializer: ReportSerializer, status: :ok
+        render json: current_workspace.reports, status: :ok
       end
 
-      def create
-        report = current_workspace.reports.new(
-          enabled: true,
-          name: params[:name], 
-          cadence: params[:cadence], 
-          sending_mechanism: params[:sending_mechanism],  
-        )
-        if report.save
-          render json: { trigger: ReportSerializer.new(report) }, status: :ok
-        else
-          render json: { error: report.errors.full_messages.join(' ') }, status: :unprocessable_entity
-        end
-      end
+      # def create
+      #   report = current_workspace.reports.new(
+      #     enabled: true,
+      #     name: params[:name], 
+      #     cadence: params[:cadence], 
+      #     sending_mechanism: params[:sending_mechanism],  
+      #   )
+      #   if report.save
+      #     render json: { trigger: ReportSerializer.new(report) }, status: :ok
+      #   else
+      #     render json: { error: report.errors.full_messages.join(' ') }, status: :unprocessable_entity
+      #   end
+      # end
 
-      def destroy
-        report = current_workspace.report.find_by(id: params[:id])
-        if report.present?
-          if report.destroy
-            render json: { report: ReportSerializer.new(report) }, status: :ok
-          else
-            render json: { error: report.errors.full_messages.join(' ') }, status: :unprocessable_entity
-          end
-        else
-          render json: { error: 'Report not found' }, status: :not_found
-        end
-      end
+      # def destroy
+      #   report = current_workspace.report.find_by(id: params[:id])
+      #   if report.present?
+      #     if report.destroy
+      #       render json: { report: ReportSerializer.new(report) }, status: :ok
+      #     else
+      #       render json: { error: report.errors.full_messages.join(' ') }, status: :unprocessable_entity
+      #     end
+      #   else
+      #     render json: { error: 'Report not found' }, status: :not_found
+      #   end
+      # end
 
       # def test_trigger
       #   if params[:test_event].blank?
@@ -46,25 +47,25 @@ module Api
       #   end
       # end
 
-      def enable
-        report = current_workspace.reports.find_by(id: params[:id])
-        if report.present?
-          report.update(enabled: true)
-          render json: { trigger: ReportSerializer.new(report) }, status: :ok
-        else
-          render json: { error: 'Report not found' }, status: :not_found
-        end
-      end
+      # def enable
+      #   report = current_workspace.reports.find_by(id: params[:id])
+      #   if report.present?
+      #     report.update(enabled: true)
+      #     render json: { trigger: ReportSerializer.new(report) }, status: :ok
+      #   else
+      #     render json: { error: 'Report not found' }, status: :not_found
+      #   end
+      # end
 
-      def disable
-        report = current_workspace.reports.find_by(id: params[:id])
-        if report.present?
-          report.update(enabled: false)
-          render json: { report: ReportSerializer.new(report) }, status: :ok
-        else
-          render json: { error: 'Report not found' }, status: :not_found
-        end
-      end
+      # def disable
+      #   report = current_workspace.reports.find_by(id: params[:id])
+      #   if report.present?
+      #     report.update(enabled: false)
+      #     render json: { report: ReportSerializer.new(report) }, status: :ok
+      #   else
+      #     render json: { error: 'Report not found' }, status: :not_found
+      #   end
+      # end
     end
   end
 end
