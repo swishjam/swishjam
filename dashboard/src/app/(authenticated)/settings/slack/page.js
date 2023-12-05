@@ -14,6 +14,8 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useSearchParams } from 'next/navigation'
 import { XCircleIcon } from 'lucide-react'
+import { swishjam } from '@swishjam/react'
+import { useAuthData } from '@/hooks/useAuthData'
 
 export default function SlackSettings() {
   const [hasSlackConnection, setHasSlackConnection] = useState(undefined);
@@ -25,6 +27,7 @@ export default function SlackSettings() {
 
   const authToken = getToken();
   const router = useRouter();
+  const { workspaceId, workspaceName } = useAuthData();
 
   const disableTrigger = triggerId => {
     SwishjamAPI.EventTriggers.disable(triggerId).then(({ trigger, error }) => {
@@ -147,7 +150,15 @@ export default function SlackSettings() {
       <NewSlackEventTriggerModal
         isOpen={newModalIsOpen}
         onClose={() => setNewModalIsOpen(false)}
-        onNewTrigger={newTrigger => setSlackEventTriggers([...slackEventTriggers, newTrigger])}
+        onNewTrigger={newTrigger => {
+          swishjam.event('slack_trigger_created', {
+            workspace_id: workspaceId,
+            workspace_name: workspaceName,
+            event_name: newTrigger.event_name,
+            channel_name: newTrigger.steps?.[0]?.config?.channel_name
+          })
+          setSlackEventTriggers([...slackEventTriggers, newTrigger])
+        }}
       />
       <div className='grid grid-cols-2 my-8 flex items-center'>
         <h1 className="text-lg font-medium text-gray-700 mb-0">Slack Notifications</h1>
