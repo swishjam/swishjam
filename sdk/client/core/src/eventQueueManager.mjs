@@ -8,10 +8,15 @@ export class EventQueueManager {
     this.maxQueueSize = options.maxQueueSize || 20;
     this.heartbeatMs = options.heartbeatMs || 10_000;
     this.disabledUrls = options.disabledUrls || [];
+    this.maxNumFailedRequests = options.maxNumFailedRequests || 3;
+    this.numFailedRequests = 0;
 
     this.queue = [];
 
     this._initHeartbeat();
+    if (!this._shouldRecordEvents()) {
+      console.log(`%cSwishjam is in development mode, no events will be reported.`, `color: #7487F7; font-weight: bold;`)
+    }
   }
 
   getData = () => this.queue;
@@ -25,7 +30,6 @@ export class EventQueueManager {
           this._reportDataIfNecessary();
         }
       } else {
-        console.log(`%cSwishjam is in development mode, no events will be reported.`, `color: #7487F7; font-weight: bold;`)
         console.log(`%cNew Swishjam event:`, `color: #7487F7; font-weight: bold;`)
         console.log(`%O`, { event: event.eventName, attributes: event.attributes });
       }

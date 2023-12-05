@@ -1,14 +1,38 @@
 module DummyData
   class UserSpecificData
     class << self
-      def prompt_user_and_generate_user_specific_data_if_necessary(workspace:, url_host:, url_paths:, event_name_options:, data_begins_max_number_of_days_ago:)
+      def prompt_user_and_generate_user_specific_data_if_necessary(
+        workspace:, 
+        url_host:, 
+        url_paths:, 
+        event_name_options:, 
+        data_begins_max_number_of_days_ago:,
+        initial_url:
+      )
         prompter = TTY::Prompt.new
         should_generate = prompter.select('Generate data for specific user?', ['yes', 'no']){ |q| q.default 'yes' }
         if should_generate == 'yes'
           email = prompter.ask("Enter the email for the user:"){ |q| q.required true }
           first_name = prompter.ask('Enter first name for the user:'){ |q| q.required true }
           last_name = prompter.ask('Enter last name for the user:'){ |q| q.required true }
-          user_profile = AnalyticsUserProfile.create!(workspace: workspace, email: email, first_name: first_name, last_name: last_name, user_unique_identifier: email)
+          user_profile = AnalyticsUserProfile.create!(
+            workspace: workspace, 
+            email: email, 
+            first_name: first_name, 
+            last_name: last_name, 
+            user_unique_identifier: email,
+            immutable_metadata: {
+              initial_referrer: 'https://reddit.com',
+              initial_url: initial_url,
+            },
+          )
+
+          Analytics::SwishjamUserProfile.create!(
+            swishjam_api_key: workspace.api_keys.for_data_source!(ApiKey::ReservedDataSources.PRODUCT).public_key, 
+            swishjam_user_id: user_profile.id, 
+            immutable_metadata: user_profile.immutable_metadata,
+            created_at: user_profile.created_at
+          )
 
           domain_name = email.split('@')[-1]
           organization_name = domain_name.split('.')[0].capitalize

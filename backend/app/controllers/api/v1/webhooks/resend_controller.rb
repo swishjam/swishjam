@@ -20,18 +20,14 @@ module Api
             swishjam_obj['click_timestamp'] = params.dig('click', 'timestamp')
             swishjam_obj['click_user_agent'] = params.dig('click', 'userAgent')
           end
-          if ENV['USE_LEGACY_INGESTION_JOB']
-            CaptureAnalyticDataJob.perform_async(public_key, [swishjam_obj], nil)
-          else
-            formatted_event = Analytics::Event.formatted_for_ingestion(
-              uuid: swishjam_obj['uuid'],
-              swishjam_api_key: public_key,
-              name: swishjam_obj['event'],
-              occurred_at: Time.at(swishjam_obj['timestamp'] / 1_000),
-              properties: swishjam_obj.except('uuid', 'event', 'timestamp', 'source'),
-            )
-            Ingestion::QueueManager.push_records_into_queue(Ingestion::QueueManager::Queues.EVENTS, [formatted_event])
-          end
+          formatted_event = Analytics::Event.formatted_for_ingestion(
+            uuid: swishjam_obj['uuid'],
+            swishjam_api_key: public_key,
+            name: swishjam_obj['event'],
+            occurred_at: Time.at(swishjam_obj['timestamp'] / 1_000),
+            properties: swishjam_obj.except('uuid', 'event', 'timestamp', 'source'),
+          )
+          Ingestion::QueueManager.push_records_into_queue(Ingestion::QueueManager::Queues.EVENTS, [formatted_event])
         end
       end
     end

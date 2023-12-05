@@ -1,5 +1,5 @@
 {
-  "version": "0.0.25",
+  "version": "0.0.3",
   "name": "@swishjam/core",
   "description": "The official Swishjam JS client to instrument your webpages with.",
   "homepage": "https://swishjam.com",
@@ -9,14 +9,20 @@
   },
   "main": "./src/swishjam.mjs",
   "exports": "./src/swishjam.mjs",
-  "scripts": {},
+  "scripts": {
+    "test": "jest"
+  },
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "jest": "^29.6.2",
-    "jest-environment-jsdom": "^29.6.2"
+    "@babel/core": "^7.23.5",
+    "@babel/preset-env": "^7.23.5",
+    "babel-jest": "^29.7.0",
+    "jest": "^29.7.0",
+    "jsdom": "^23.0.0"
   },
   "dependencies": {
+    "lz-string": "^1.5.0",
     "ua-parser-js": "^1.0.36"
   }
 }

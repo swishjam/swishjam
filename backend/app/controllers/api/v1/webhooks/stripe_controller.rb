@@ -20,7 +20,7 @@ module Api
               swishjam_api_key: public_key,
               name: swishjam_event_data['event'],
               occurred_at: Time.at(swishjam_event_data['timestamp'] / 1_000),
-              properties: swishjam_event_data.except('uuid', 'event', 'event_name', 'name', 'timestamp', 'source'),
+              properties: swishjam_event_data.except('uuid', 'event', 'timestamp'),
             )
             Ingestion::QueueManager.push_records_into_queue(Ingestion::QueueManager::Queues.EVENTS, [formatted_event])
           else
