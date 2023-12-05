@@ -5,6 +5,7 @@ import AuthenticatedView from "@/components/Auth/AuthenticatedView";
 import CommandBarProvider from '@/providers/CommandBarProvider';
 import HotKeyProvider from '@/providers/HotKeyProvider';
 import LoadingSpinner from '@/components/LoadingSpinner';
+import { Toaster } from '@/components/ui/toaster';
 
 export default function layout({ children }) {
   const LoadingView = getLoadingView(children);
@@ -13,6 +14,7 @@ export default function layout({ children }) {
       <HotKeyProvider>
         <AuthenticatedView LoadingView={LoadingView}>
           {children}
+          <Toaster />
         </AuthenticatedView>
       </HotKeyProvider>
     </CommandBarProvider>

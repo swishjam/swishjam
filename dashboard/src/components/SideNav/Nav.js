@@ -5,10 +5,8 @@ import {
   ChevronLeftIcon,
   ChevronRightIcon,
   Cog6ToothIcon,
-  GlobeAmericasIcon,
   HomeIcon,
   MagnifyingGlassIcon,
-  SquaresPlusIcon,
   UserGroupIcon,
   UserIcon,
 } from '@heroicons/react/24/outline'
