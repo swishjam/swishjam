@@ -53,10 +53,11 @@ module Ingestion
             'source', 'sdk_version', 'url', 'device_identifier', 'user_device_identifier', 'organization_device_identifier', 'session_identifier', 'page_view_identifier',
             'userId', 'user_id', 'userIdentifier', 'firstName', 'first_name', 'lastName', 'last_name', 'email', 'user_attributes', 'user_visit_status'
           )
-          immutable_metadata = {
-            initial_url: properties.dig('user_attributes', 'initial_url'),
-            initial_referrer: properties.dig('user_attributes', 'initial_referrer'),
-          }
+          immutable_metadata = {}
+          if properties['user_attributes'].present?
+            immutable_metadata[:initial_url] = properties.dig('user_attributes', 'initial_url')
+            immutable_metadata[:initial_referrer] = properties.dig('user_attributes', 'initial_referrer')
+          end
 
           if !unique_identifier
             Sentry.capture_message("No unique identifier provided in event payload in Ingestion::UserIdentifiesIngestion: #{event_json.inspect}")
