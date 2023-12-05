@@ -10,7 +10,6 @@ import Link from 'next/link'
 
 import LineChartWithValue from "@/components/Dashboards/Components/LineChartWithValue";
 import ClickableValueCard from "@/components/Dashboards/Components/ClickableValueCard";
-import BarList from "@/components/Dashboards/Components/BarList";
 import BarChart from "@/components/Dashboards/Components/BarChart";
 import { formatNumbers, formatShrinkNumbers } from "@/lib/utils/numberHelpers";
 //import { BsArrowLeftShort } from 'react-icons/bs'
@@ -23,13 +22,17 @@ export default function PageMetrics() {
   const [currentSelectedChart, setCurrentSelectedChart] = useState("Sessions");
   const [deviceTypesBarChartData, setDeviceTypesBarChartData] = useState();
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const [pageViewsListData, setPageViewsListData] = useState();
   const [pageViewsTimeseriesData, setPageViewsTimeseriesData] = useState();
   const [sessionsTimeseriesData, setSessionsTimeseriesData] = useState();
   const [referrersBarChartData, setReferrersBarChartData] = useState();
   const [timeframeFilter, setTimeframeFilter] = useState("thirty_days");
   const [pageViewsBarChartData, setPageViewsBarChartData] = useState();
   const [uniqueVisitorsChart, setUniqueVisitorsChart] = useState();
+  const [utmMediumsBarChartData, setUtmMediumsBarChartData] = useState();
+  const [utmSourcesBarChartData, setUtmSourcesBarChartData] = useState();
+  const [utmTermsBarChartData, setUtmTermsBarChartData] = useState();
+  const [utmContentsBarChartData, setUtmContentsBarChartData] = useState();
+  const [utmCampaignsBarChartData, setUtmCampaignsBarChartData] = useState();
 
   const currentChartLookup = {
     Sessions: sessionsTimeseriesData,
@@ -70,16 +73,9 @@ export default function PageMetrics() {
 
   const getDemographicsBarChartData = async timeframe => {
     return await Promise.all([
-      SwishjamAPI.Sessions.Browsers.barChart({ timeframe }).then(({ data }) => setBrowsersBarChartData(data)),
-      SwishjamAPI.Sessions.DeviceTypes.barChart({ timeframe }).then(({ data }) => setDeviceTypesBarChartData(data))
+      SwishjamAPI.Sessions.Browsers.barChart({ timeframe, dataSource: 'marketing' }).then(({ data }) => setBrowsersBarChartData(data)),
+      SwishjamAPI.Sessions.DeviceTypes.barChart({ timeframe, dataSource: 'marketing' }).then(({ data }) => setDeviceTypesBarChartData(data))
     ])
-  };
-
-  const getPageViewsListData = async timeframe => {
-    return await SwishjamAPI.PageViews.list({ timeframe, dataSource: 'marketing' }).then((data) => {
-      console.log('barlist data', data)
-      setPageViewsListData(data.page_view_counts.map(d => { return { name: d.url, value: d.count } }))
-    });
   };
 
   const getPageViewsTimeseriesData = async timeframe => {
@@ -123,27 +119,42 @@ export default function PageMetrics() {
     await SwishjamAPI.PageViews.barChart({ timeframe, dataSource: 'marketing' }).then(({ data }) => setPageViewsBarChartData(data));
   };
 
+  const getUtmBarChartData = async timeframe => {
+    await SwishjamAPI.Sessions.UrlParameters.barChart({ queryParams: ['utm_source', 'utm_campaign', 'utm_medium', 'utm_term', 'utm_content'], timeframe }).then(
+      ({ utm_source, utm_campaign, utm_medium, utm_term, utm_content }) => {
+        setUtmSourcesBarChartData(utm_source);
+        setUtmCampaignsBarChartData(utm_campaign);
+        setUtmMediumsBarChartData(utm_medium);
+        setUtmTermsBarChartData(utm_term);
+        setUtmContentsBarChartData(utm_content);
+      });
+  };
+
   const getAllData = async timeframe => {
     // Reset All Data
     setIsRefreshing(true);
     setSessionsTimeseriesData();
-    setPageViewsListData();
     setPageViewsTimeseriesData();
     setUniqueVisitorsChart();
     setReferrersBarChartData();
     setPageViewsBarChartData();
     setDeviceTypesBarChartData();
     setBrowsersBarChartData();
+    setUtmCampaignsBarChartData();
+    setUtmMediumsBarChartData();
+    setUtmSourcesBarChartData();
+    setUtmTermsBarChartData();
+    setUtmContentsBarChartData();
 
     // Reload all the data
     await Promise.all([
       getSessionTimeseriesData(timeframe),
       getPageViewsTimeseriesData(timeframe),
-      getPageViewsListData(timeframe),
       getUniqueVisitorsTimeseries(timeframe),
       getPageViewsBarChartData(timeframe),
       getDemographicsBarChartData(timeframe),
       getSessionReferrersBarChartData(timeframe),
+      getUtmBarChartData(timeframe),
     ]);
     setIsRefreshing(false);
   };
@@ -229,12 +240,9 @@ export default function PageMetrics() {
           />
         </div>
       </div>
-      {/*<div className='pt-8 flex justify-between'>
-        <h3 className='font-semibold text-sm text-slate-600'>Page Views</h3>
-          </div>*/}
       <div className='grid grid-cols-8 gap-4 pt-2'>
         <BarChart
-          title={`Page Views`}
+          title='Page Views'
           TableTitle='Top Pages'
           className="col-span-8"
           data={pageViewsBarChartData}
@@ -243,15 +251,10 @@ export default function PageMetrics() {
           showLegend={true}
           showTableInsteadOfLegend={true}
         />
-        {/*<BarList
-          title='Top Pages by View Count'
-          className="col-span-3"
-          items={pageViewsListData}
-          />*/}
       </div>
       <div className='grid grid-cols-8 gap-4 pt-4'>
         <BarChart
-          title={`Referrers`}
+          title='Referrers'
           TableTitle='Top Referrers'
           className="col-span-8"
           data={referrersBarChartData}
@@ -263,7 +266,7 @@ export default function PageMetrics() {
       </div>
       <div className='grid grid-cols-8 gap-4 pt-4'>
         <BarChart
-          title={`Devices`}
+          title='Devices'
           TableTitle='Top Devices'
           className="col-span-8"
           data={deviceTypesBarChartData}
@@ -275,7 +278,7 @@ export default function PageMetrics() {
       </div>
       <div className='grid grid-cols-2 gap-4 pt-4'>
         <BarChart
-          title={`Browsers`}
+          title='Browsers'
           TableTitle='Top Browsers'
           className="col-span-8"
           data={browsersBarChartData}
@@ -283,6 +286,45 @@ export default function PageMetrics() {
           yAxisFormatter={formatShrinkNumbers}
           showLegend={true}
           showTableInsteadOfLegend={true}
+        />
+      </div>
+      <div className='grid grid-cols-2 gap-4 pt-4'>
+        <BarChart
+          title='UTM Campaigns'
+          TableTitle='Top UTM Campaigns'
+          data={utmCampaignsBarChartData}
+          valueFormatter={formatNumbers}
+          yAxisFormatter={formatShrinkNumbers}
+          showLegend={true}
+          showTableInsteadOfLegend={false}
+        />
+        <BarChart
+          title='UTM Mediums'
+          TableTitle='Top UTM Mediums'
+          data={utmMediumsBarChartData}
+          valueFormatter={formatNumbers}
+          yAxisFormatter={formatShrinkNumbers}
+          showLegend={true}
+          showTableInsteadOfLegend={false}
+        />
+        <BarChart
+          title='UTM Sources'
+          TableTitle='Top UTM Sources'
+          data={utmSourcesBarChartData}
+          valueFormatter={formatNumbers}
+          yAxisFormatter={formatShrinkNumbers}
+          showLegend={true}
+          showTableInsteadOfLegend={false}
+        />
+        <BarChart
+          title='UTM Terms'
+          TableTitle='Top UTM Terms'
+          className="col-span"
+          data={utmTermsBarChartData}
+          valueFormatter={formatNumbers}
+          yAxisFormatter={formatShrinkNumbers}
+          showLegend={true}
+          showTableInsteadOfLegend={false}
         />
       </div>
     </main>
