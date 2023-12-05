@@ -1,8 +1,8 @@
-EVENT_PROCESSOR_KLASS_DICT = {
-  identify: WebEventProcessors::Identify,
-  organization: WebEventProcessors::Organization,
-  sdk_error: WebEventProcessors::SdkError
-}
+# EVENT_PROCESSOR_KLASS_DICT = {
+#   identify: WebEventProcessors::Identify,
+#   organization: WebEventProcessors::Organization,
+#   sdk_error: WebEventProcessors::SdkError
+# }
 
 class CaptureAnalyticDataJob
   class InvalidApiKeyError < StandardError; end
@@ -10,6 +10,7 @@ class CaptureAnalyticDataJob
   queue_as :default
 
   def perform(api_key, event_payload, requesting_ip_address)
+    raise "CaptureAnalyticDataJob is deprecated, events should be sent to Ingestion::EventsIngestion instead."
     start = Time.now
     return if !valid_api_key_provided?(api_key)
 

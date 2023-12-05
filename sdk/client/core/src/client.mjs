@@ -1,9 +1,10 @@
-import { DataPersister } from "./dataPersister.mjs";
+import { SessionPersistance } from "./sessionPersistance.mjs";
 import { DeviceDetails } from "./deviceDetails.mjs";
 import { DeviceIdentifiers } from "./deviceIdentifiers.mjs";
 import { ErrorHandler } from './errorHandler.mjs';
 import { EventQueueManager } from "./eventQueueManager.mjs";
 import { PageViewManager } from "./pageViewManager.mjs";
+import { PersistentUserDataManager } from "./persistentUserDataManager.mjs";
 import { Requester } from "./requester.mjs";
 import { SDK_VERSION } from './constants.mjs'
 import { UUID } from "./uuid.mjs";
@@ -28,6 +29,9 @@ export class Client {
   }
 
   record = (eventName, properties = {}) => {
+    if (['page_view', 'page_left', 'new_session', 'identify', 'organization'].includes(eventName)) {
+      throw new Error(`Cannot name a Swishjam event '${eventName}' because it is a reserved event name.`)
+    }
     return this.errorHandler.executeWithErrorHandling(() => (
       this.eventQueueManager.recordEvent(eventName, properties)
     ))
@@ -35,34 +39,54 @@ export class Client {
 
   identify = (userIdentifier, traits = {}) => {
     return this.errorHandler.executeWithErrorHandling(() => {
-      this._extractOrganizationFromIdentifyCall(traits)
-      return this.record('identify', { userIdentifier, ...traits })
+      this._extractOrganizationFromIdentifyCall(traits);
+      PersistentUserDataManager.setUserAttributes({ userIdentifier, ...traits });
+      return this.eventQueueManager.recordEvent('identify', { userIdentifier, ...traits })
     })
   }
 
   setOrganization = (organizationIdentifier, traits = {}) => {
     return this.errorHandler.executeWithErrorHandling(() => {
-      const previouslySetOrganization = DataPersister.get('organizationId');
+      const previouslySetOrganization = SessionPersistance.get('organizationId');
       // set the new organization so the potential new session has the correct organization
-      DataPersister.set('organizationId', organizationIdentifier);
+      SessionPersistance.set('organizationId', organizationIdentifier);
       // we assume anytime setOrganization is called with a new org, we want a new session
       if (previouslySetOrganization && previouslySetOrganization !== organizationIdentifier) this.newSession();
-      this.record('organization', { organizationIdentifier, ...traits })
+      this.eventQueueManager.recordEvent('organization', { organizationIdentifier, ...traits })
     });
   }
 
   getSession = () => {
     return this.errorHandler.executeWithErrorHandling(() => (
-      DataPersister.get('sessionId')
+      SessionPersistance.get('sessionId')
     ));
   }
 
   newSession = ({ registerPageView = true } = {}) => {
     return this.errorHandler.executeWithErrorHandling(() => {
-      // important to set this first because the new Event reads from the DataPersister
-      DataPersister.set('sessionId', UUID.generate('s'));
-      this.record('new_session', {
-        referrer: this.pageViewManager.previousUrl(),
+      // important to set this first because the new Event reads from the SessionPersistance
+      SessionPersistance.set('sessionId', UUID.generate('s'));
+
+      PersistentUserDataManager.setIfNull('initial_url', window.location.href);
+      PersistentUserDataManager.setIfNull('initial_referrer', document.referrer);
+
+      const previousSessionStartedAt = PersistentUserDataManager.get('previous_session_started_at');
+      PersistentUserDataManager.set('previous_session_started_at', new Date());
+
+      let userVisitStatus = 'new';
+      if (previousSessionStartedAt) {
+        const msSinceLastSession = new Date() - new Date(previousSessionStartedAt);
+        const oneDayInMs = 24 * 60 * 60 * 1000;
+        if (msSinceLastSession > oneDayInMs * 30) {
+          userVisitStatus = 'resurrecting';
+        } else {
+          userVisitStatus = 'returning';
+        }
+      }
+      SessionPersistance.set('userVisitStatus', userVisitStatus)
+
+      this.eventQueueManager.recordEvent('new_session', {
+        referrer: document.referrer,
         ...this.deviceDetails.all()
       });
       if (registerPageView) this.pageViewManager.recordPageView();
@@ -72,7 +96,8 @@ export class Client {
 
   logout = () => {
     return this.errorHandler.executeWithErrorHandling(() => {
-      DeviceIdentifiers.resetAllDeviceIdentifierValues();
+      DeviceIdentifiers.resetUserDeviceIdentifierValue();
+      PersistentUserDataManager.reset();
       return this.newSession();
     });
   }
@@ -81,15 +106,20 @@ export class Client {
     const { organization, org } = identifyTraits;
     if (organization || org) {
       const extractedOrganizationData = organization || org;
-      const { organizationIdentifier: extractedOrganizationIdentifier, orgIdentifier, identifier, organizationId, orgId, id } = extractedOrganizationData;
-      const organizationIdentifier = extractedOrganizationIdentifier || orgIdentifier || identifier || organizationId || orgId || id;
+      const { id, identifier, orgIdentifier, org_identifier, organizationId, ogranization_id, orgId, org_id } = extractedOrganizationData;
+      const organizationIdentifier = id || identifier || orgIdentifier || org_identifier || organizationId || ogranization_id || orgId || org_id;
       let orgTraits = {};
       Object.keys(extractedOrganizationData).forEach(key => {
-        if (!['organizationIdentifier', 'orgIdentifier', 'identifier', 'organizationId', 'orgId', 'id'].includes(key)) {
+        if (!['id', 'identifier', 'orgIdentifier', 'org_identifier', 'organizationId', 'ogranization_id', 'orgId', 'org_id'].includes(key)) {
           orgTraits[key] = extractedOrganizationData[key];
         }
       });
-      this.setOrganization(organizationIdentifier, orgTraits);
+      if (organizationIdentifier) {
+        // this will call the organization event before the identify event, is that best? or should identify come first?
+        this.setOrganization(organizationIdentifier, orgTraits);
+      } else {
+        console.warn('SwishjamJS: identify call included an organization object but did not include an organizationIdentifier. Organization object was ignored.')
+      }
     }
   }
 
@@ -98,7 +128,7 @@ export class Client {
 
       this.pageViewManager.onNewPage((_newUrl, previousUrl) => {
         return this.errorHandler.executeWithErrorHandling(() => {
-          DataPersister.set('pageViewId', UUID.generate('pv'));
+          SessionPersistance.set('pageViewId', UUID.generate('pv'));
           this.eventQueueManager.recordEvent('page_view', { referrer: previousUrl });
         });
       });

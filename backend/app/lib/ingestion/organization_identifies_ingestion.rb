@@ -47,7 +47,7 @@ module Ingestion
         org_name = properties['name']
         metadata = properties.except(
           'source', 'sdk_version', 'url', 'device_identifier', 'user_device_identifier', 'organization_device_identifier', 'session_identifier', 'page_view_identifier',
-          'organizationIdentifier', 'organization_identifier', 'organizationId', 'organization_id', 'name'
+          'organizationIdentifier', 'organization_identifier', 'organizationId', 'organization_id', 'name', 'user_attributes', 'user_visit_status'
         )
 
         workspace = Workspace.for_public_key(event_json['swishjam_api_key'])

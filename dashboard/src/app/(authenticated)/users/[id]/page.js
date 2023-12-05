@@ -47,7 +47,7 @@ const UserProfile = ({ params }) => {
       url: '/users'
     },
     {
-      title: userData?.full_name || userData?.email || `Unknown User: ${userData?.user_unique_identifier}`,
+      title: userData?.full_name || userData?.email || `Un-named User: ${userData?.user_unique_identifier}`,
       url: null
     }
   ]
@@ -72,7 +72,7 @@ const UserProfile = ({ params }) => {
                   <CardTitle className='text-2xl'>
                     {userData.full_name || userData.email}
                   </CardTitle>
-                  {userData.fullName && (
+                  {userData.full_name && (
                     <CardDescription className='text-base text-gray-500'>
                       {userData.email}
                     </CardDescription>
@@ -113,6 +113,27 @@ const UserProfile = ({ params }) => {
                       </dd>
                     </div>
                     <>
+                      <EnrichedDataItem
+                        title='Initial Referrer'
+                        enrichmentData={{ initial_referrer: userData?.immutable_metadata?.initial_referrer }}
+                        enrichmentKey='initial_referrer'
+                        formatter={referrer => referrer === '' ? 'Direct' : referrer}
+                      />
+                      <EnrichedDataItem
+                        title='Initial Landing Page'
+                        enrichmentData={{ initial_url: userData?.immutable_metadata?.initial_url }}
+                        enrichmentKey='initial_url'
+                        formatter={url => (
+                          <a
+                            className="hover:underline hover:text-blue-400 transition duration-500 flex items-center justify-end"
+                            href={url}
+                            target="_blank"
+                          >
+                            {url}
+                            <ArrowTopRightOnSquareIcon className='inline-block ml-1 h-3 w-3' />
+                          </a>
+                        )}
+                      />
                       <EnrichedDataItem
                         title='Plan/Subscription Type'
                         enrichmentData={userData.enrichment_data}
