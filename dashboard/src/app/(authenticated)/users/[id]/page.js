@@ -72,17 +72,17 @@ const UserProfile = ({ params }) => {
             <BarList className="mt-4" title='Page Views' items={pageViewsData} />
             <EventFeed
               className="col-span-6 mt-4"
-              title='Recent Events'
               events={recentEvents}
-              leftItemHeaderKey='name'
-              rightItemKey='occurred_at'
               initialLimit={5}
+              leftItemHeaderKey='name'
               loadMoreEventsIncrement={5}
+              rightItemKey='occurred_at'
               rightItemKeyFormatter={date => {
                 return new Date(date)
                   .toLocaleDateString('en-us', { weekday: "short", year: "numeric", month: "short", day: "numeric" })
                   .replace(`, ${new Date(date).getFullYear()}`, '')
               }}
+              title='Recent Events'
             />
           </div>
         </div>

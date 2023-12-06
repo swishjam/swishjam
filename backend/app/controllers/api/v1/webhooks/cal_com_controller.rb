@@ -24,11 +24,15 @@ module Api
             'start_time' => params.dig('payload', 'startTime') ? DateTime.parse(params.dig('payload', 'startTime')) : '',
             'end_time' => params.dig('payload', 'endTime') ? DateTime.parse(params.dig('payload', 'endTime')) : '',
             'length' => params.dig('payload', 'length'),
+            'attendees' => (params.dig('payload', 'attendees') || []).map{ |a| a['email'] }.join(', '),
           }
           (params.dig('payload', 'responses') || {}).keys.each do |key|
             value = params.dig('payload', 'responses', key, 'value')
             next if !value.is_a?(String)
             swishjam_obj["response_#{key}"] = params.dig('payload', 'responses', key, 'value')
+          end
+          if params.dig('payload', 'attendees') && params.dig('payload', 'attendees').any?
+            swishjam_obj['user_profile_email'] = params.dig('payload', 'attendees')[0]['email']
           end
           formatted_event = Analytics::Event.formatted_for_ingestion(
             uuid: swishjam_obj['uuid'],

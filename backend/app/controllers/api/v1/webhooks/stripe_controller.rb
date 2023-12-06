@@ -3,8 +3,7 @@ module Api
     module Webhooks
       class StripeController < BaseController
         def receive
-          payload = request.body.read
-          stripe_event = Stripe::Webhook.construct_event(payload, request.env['HTTP_STRIPE_SIGNATURE'], ENV['STRIPE_WEBHOOK_SECRET'])
+          stripe_event = Stripe::Webhook.construct_event(request.body.read, request.env['HTTP_STRIPE_SIGNATURE'], ENV['STRIPE_WEBHOOK_SECRET'])
           public_key = Integrations::Stripe.joins(workspace: :api_keys)
                                               .where("
                                                 integrations.config->>'account_id' = ? AND 
@@ -16,7 +15,7 @@ module Api
           if public_key
             stripe_customer = nil
             if stripe_event.data.object&.customer.is_a?(String) && !ENV['STRIPE_SKIP_CUSTOMER_LOOKUP']
-              stripe_customer = Stripe::Customer.retrieve(stripe_event.data.object.customer)
+              stripe_customer = Stripe::Customer.retrieve(stripe_event.data.object.customer, { stripe_account: params[:account] })
             end
             swishjam_event_data = StripeHelpers::WebhookEventParser.event_attributes_for(stripe_event, stripe_customer)
             formatted_event = Analytics::Event.formatted_for_ingestion(
@@ -27,6 +26,13 @@ module Api
               properties: swishjam_event_data.except('uuid', 'event', 'timestamp'),
             )
             Ingestion::QueueManager.push_records_into_queue(Ingestion::QueueManager::Queues.EVENTS, [formatted_event])
+            # there's other subscription events, but I think these are the only ones we care about
+            if %w[customer.subscription.created customer.subscription.updated customer.subscription.deleted].include?(stripe_event.type)
+              SyncCustomerSubscriptionFromStripeJob.perform_async(
+                stripe_account_id: params[:account],
+                stripe_subscription_id: stripe_event.data.object.id,
+              )
+            end
           else
             Sentry.capture_message("Received Stripe webhook from account #{params[:account]}, but unable to find matching enabled Stripe integration record.")
           end

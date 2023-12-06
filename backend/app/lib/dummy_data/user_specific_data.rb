@@ -47,6 +47,24 @@ module DummyData
             occurred_at: Faker::Time.between(from: 1.year.ago, to: Time.now),
           )
 
+          workspace.customer_subscriptions.create!(
+            parent_profile: user_profile,
+            subscription_provider: 'stripe',
+            subscription_provider_object_id: SecureRandom.uuid,
+            status: 'active',
+            customer_subscription_items_attributes: [{
+              subscription_provider_object_id: SecureRandom.uuid,
+              product_name: 'Pro',
+              quantity: 1,
+              price_unit_amount: 7900,
+              price_nickname: 'Pro',
+              price_billing_scheme: 'per_unit',
+              price_recurring_interval: 'month',
+              price_recurring_interval_count: 1,
+              price_recurring_usage_type: 'licensed',
+            }]
+          )
+
           puts "Generating 10 random sessions with events for #{user_profile.email}".colorize(:green)
           web_traffic_seeder = WebTraffic.new(
             public_key: public_key,
@@ -60,6 +78,15 @@ module DummyData
           10.times do
             web_traffic_seeder.create_session_with_page_views_and_events!(device_identifier: device_identifier, start_time: Time.current - rand(-10..30).days)
           end
+
+          puts "Generating random Resend and Stripe events for #{user_profile.email}".colorize(:green)
+          Integrations.seed_events!(
+            workspace: workspace,
+            number_of_stripe_events: 10,
+            number_of_resend_events: 10,
+            data_begins_max_number_of_days_ago: data_begins_max_number_of_days_ago,
+            user_profile_email: user_profile.email,
+          )
         else
           puts "Not generating specific user data.".colorize(:yellow)
         end

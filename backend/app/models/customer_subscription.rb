@@ -2,6 +2,7 @@ class CustomerSubscription < Transactional
   belongs_to :workspace
   belongs_to :parent_profile, polymorphic: true
   has_many :customer_subscription_items, dependent: :destroy
+  accepts_nested_attributes_for :customer_subscription_items, allow_destroy: true
 
   %i[active trialing canceled past_due unpaid incomplete incomplete_expired].each do |status|
     define_method("#{status}?") do
