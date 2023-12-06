@@ -4,8 +4,9 @@ class AnalyticsUserProfile < Transactional
   alias_attribute :enrichment_data, :user_profile_enrichment_data
   has_many :analytics_organization_profile_users, dependent: :destroy
   has_many :analytics_organization_profiles, through: :analytics_organization_profile_users
+  has_many :customer_subscriptions, as: :parent_profile, dependent: :destroy
 
-  validates :user_unique_identifier, presence: true, uniqueness: { scope: :workspace_id }
+  validates :user_unique_identifier, uniqueness: { scope: :workspace_id }, if: -> { user_unique_identifier.present? }
 
   after_create :enrich_profile!
 

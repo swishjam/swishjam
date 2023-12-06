@@ -14,7 +14,11 @@ module Api
                                               .pluck('api_keys.public_key')
                                               .first
           if public_key
-            swishjam_event_data = StripeHelpers::WebhookEventParser.event_attributes_for(stripe_event)
+            stripe_customer = nil
+            if stripe_event.data.object&.customer.is_a?(String) && !ENV['STRIPE_SKIP_CUSTOMER_LOOKUP']
+              stripe_customer = Stripe::Customer.retrieve(stripe_event.data.object.customer)
+            end
+            swishjam_event_data = StripeHelpers::WebhookEventParser.event_attributes_for(stripe_event, stripe_customer)
             formatted_event = Analytics::Event.formatted_for_ingestion(
               uuid: swishjam_event_data['uuid'],
               swishjam_api_key: public_key,

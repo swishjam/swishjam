@@ -1,7 +1,7 @@
 module StripeHelpers
   module EventAttributeParsers
     class SubscriptionCreated < Base
-      self.attributes_to_capture = [:'id', :'customer']
+      self.attributes_to_capture = [:'id']
       self.methods_to_capture = [:'amount', :'products']
 
       def amount

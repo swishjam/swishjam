@@ -9,6 +9,7 @@ Sentry.init do |config|
   # of transactions for performance monitoring.
   # We recommend adjusting this value in production.
   config.traces_sample_rate = (ENV['SENTRY_TRACE_SAMPLE_RATE'] || 1.0).to_f
+  config.profiles_sample_rate = (ENV['SENTRY_PROFILE_SAMPLE_RATE'] || 1.0).to_f
 
   config.release = SWISHJAM_VERSION
 end
