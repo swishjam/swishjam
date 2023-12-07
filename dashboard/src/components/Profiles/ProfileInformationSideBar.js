@@ -88,14 +88,19 @@ export default function ProfileInformationSideBar({ userData, hasStripeIntegrati
                   enrichmentData={{ initial_url: userData?.immutable_metadata?.initial_url }}
                   enrichmentKey='initial_url'
                   formatter={url => (
-                    <a
-                      className="hover:underline hover:text-blue-400 transition duration-500 flex items-center justify-end"
-                      href={url}
-                      target="_blank"
-                    >
-                      {url}
-                      <ArrowTopRightOnSquareIcon className='inline-block ml-1 h-3 w-3' />
-                    </a>
+                    <Tooltipable content={url}>
+                      <a
+                        className="hover:underline hover:text-blue-400 transition duration-500 flex items-center justify-end max-w-full"
+                        href={url}
+                        target="_blank"
+                        title={url}
+                      >
+                        <span className='truncate'>
+                          {url}
+                        </span>
+                        <ArrowTopRightOnSquareIcon className='inline-block ml-1 h-3 w-3' />
+                      </a>
+                    </Tooltipable>
                   )}
                 />
                 <div className='relative'>

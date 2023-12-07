@@ -32,6 +32,11 @@ module Api
                 stripe_account_id: params[:account],
                 stripe_subscription_id: stripe_event.data.object.id,
               )
+            elsif stripe_event.type == 'charge.succeeded'
+              UpdateLifetimeValueFromStripeChargeJob.perform_async(
+                stripe_account_id: params[:account],
+                stripe_charge_id: stripe_event.data.object.id,
+              )
             end
           else
             Sentry.capture_message("Received Stripe webhook from account #{params[:account]}, but unable to find matching enabled Stripe integration record.")

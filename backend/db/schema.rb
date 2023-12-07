@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2023_12_06_235718) do
+ActiveRecord::Schema.define(version: 2023_12_07_031446) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
@@ -23,6 +23,7 @@ ActiveRecord::Schema.define(version: 2023_12_06_235718) do
     t.jsonb "metadata"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.integer "lifetime_value_in_cents", default: 0, null: false
     t.index ["organization_unique_identifier"], name: "index_analytics_organization_profiles_unique_identifier"
     t.index ["workspace_id"], name: "index_analytics_organization_profiles_on_workspace_id"
   end
@@ -47,6 +48,7 @@ ActiveRecord::Schema.define(version: 2023_12_06_235718) do
     t.datetime "updated_at", precision: 6, null: false
     t.jsonb "immutable_metadata", default: {}
     t.string "gravatar_url"
+    t.integer "lifetime_value_in_cents", default: 0, null: false
     t.index ["user_unique_identifier"], name: "index_analytics_user_profiles_on_user_unique_identifier"
     t.index ["workspace_id"], name: "index_analytics_user_profiles_on_workspace_id"
   end
