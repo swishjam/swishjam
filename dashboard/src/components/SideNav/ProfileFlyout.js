@@ -8,7 +8,7 @@ import {
   UserGroupIcon
 } from "@heroicons/react/24/outline";
 import { BsArrowUpRight } from 'react-icons/bs'
-import { Avatar, AvatarFallback } from '@/components/ui/avatar'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -26,6 +26,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { useAuthData } from '@/hooks/useAuthData'
 import Link from "next/link";
+import md5 from 'md5';
 import { usePathname } from "next/navigation";
 
 export default function UserFlyout() {
@@ -37,7 +38,9 @@ export default function UserFlyout() {
       <DropdownMenuTrigger asChild>
         <Button variant='outline' className='w-full border-none rounded-none flex justify-between !ring-0'>
           <div className='flex items-center truncate'>
-            <UserCircleIcon className='text-gray-400 group-hover:text-swishjam duration-500 transition h-6 w-6 shrink-0 inline-block mr-2' />
+            <Avatar className="h-6 w-6 mr-2 bg-gray-300">
+              <AvatarImage src={`https://www.gravatar.com/avatar/${md5(email)}?d=mp`} />
+            </Avatar>
             <span className='truncate text-gray-700'>{email}</span>
           </div>
           <EllipsisVerticalIcon className="h-5 w-5 text-gray-400" aria-hidden="true" />
@@ -45,8 +48,15 @@ export default function UserFlyout() {
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56">
         <DropdownMenuLabel>
-          <span className='block font-medium text-gray-900'>{email}</span>
-          <span className='block font-light text-gray-700'>{currentWorkspaceName}</span>
+          <div className='flex items-center'>
+            <Avatar className="h-8 w-8 mr-2 bg-gray-300">
+              <AvatarImage src={`https://www.gravatar.com/avatar/${md5(email)}?d=mp`} />
+            </Avatar>
+            <div>
+              <span className='block font-medium text-gray-900'>{email}</span>
+              <span className='block font-light text-gray-700'>{currentWorkspaceName}</span>
+            </div>
+          </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>

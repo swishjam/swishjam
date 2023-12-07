@@ -13,7 +13,7 @@ module Api
             'from' => params.dig('data', 'from'),
             'to' => (params.dig('data', 'to') || []).join(', '),
             'subject' => params.dig('data', 'subject'),
-            'user_profile_email' => (params.dig('data', 'to') || [])[0]
+            Analytics::Event::ReservedPropertyNames.USER_PROFILE_EMAIL => (params.dig('data', 'to') || [])[0]
           }
           if params['type'] == 'email.clicked'
             swishjam_obj['click_ip_address'] = params.dig('click', 'ipAddress')

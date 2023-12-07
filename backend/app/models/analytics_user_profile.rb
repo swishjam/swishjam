@@ -8,6 +8,7 @@ class AnalyticsUserProfile < Transactional
 
   validates :user_unique_identifier, uniqueness: { scope: :workspace_id }, if: -> { user_unique_identifier.present? }
 
+  after_create :try_to_set_gravatar_url
   after_create :enrich_profile!
 
   def full_name
@@ -27,5 +28,13 @@ class AnalyticsUserProfile < Transactional
     ProfileEnrichers::User.new(self).try_to_enrich_profile_if_necessary!
   rescue => e
     Sentry.capture_exception(e)
+  end
+
+  def try_to_set_gravatar_url
+    return unless email.present?
+    url = "https://www.gravatar.com/avatar/#{Digest::MD5.hexdigest(email.downcase)}?d=404"
+    response = HTTParty.get(url)
+    return unless response.code == 200
+    update_column :gravatar_url, url
   end
 end

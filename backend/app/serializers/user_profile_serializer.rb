@@ -10,14 +10,6 @@ class UserProfileSerializer < ActiveModel::Serializer
     object.enrichment_data || {}
   end
 
-  def gravatar_url
-    if object.email.present? 
-      url = "https://www.gravatar.com/avatar/#{Digest::MD5.hexdigest(object.email.downcase)}?d=404"
-      response = HTTParty.get(url)
-      return url if response.code == 200
-    end
-  end
-
   def active_subscriptions
     object.customer_subscriptions.active.map do |subscription|
       {

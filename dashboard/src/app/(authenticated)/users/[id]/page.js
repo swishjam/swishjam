@@ -21,7 +21,7 @@ const UserProfile = ({ params }) => {
 
   useEffect(() => {
     SwishjamAPI.Users.retrieve(userId).then(setUserData);
-    SwishjamAPI.Users.Events.list(userId).then(setRecentEvents);
+    SwishjamAPI.Users.Events.list(userId, { limit: 5 }).then(setRecentEvents);
     SwishjamAPI.Users.PageViews.list(userId).then(pageViews => {
       setPageViewsData(pageViews.map(({ url, count }) => ({ name: url, value: count })));
     });
@@ -75,14 +75,20 @@ const UserProfile = ({ params }) => {
               events={recentEvents}
               initialLimit={5}
               leftItemHeaderKey='name'
+              leftItemSubHeaderFormatter={event => {
+                if (event.name === 'page_view') {
+                  return JSON.parse(event.properties).url
+                }
+              }}
               loadMoreEventsIncrement={5}
               rightItemKey='occurred_at'
               rightItemKeyFormatter={date => {
                 return new Date(date)
-                  .toLocaleDateString('en-us', { weekday: "short", year: "numeric", month: "short", day: "numeric" })
+                  .toLocaleDateString('en-us', { month: "long", day: "numeric", year: "numeric", hour: "2-digit", minute: "2-digit" })
                   .replace(`, ${new Date(date).getFullYear()}`, '')
               }}
               title='Recent Events'
+              viewAllLink={`/users/${userId}/events`}
             />
           </div>
         </div>

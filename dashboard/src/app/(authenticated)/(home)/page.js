@@ -164,11 +164,11 @@ export default function Home() {
   };
 
   const getUsersData = async () => {
-    return await SwishjamAPI.Users.list().then(({ users }) => setNewUsersData(users))
+    return await SwishjamAPI.Users.list({ limit: 5 }).then(({ users }) => setNewUsersData(users))
   };
 
   const getOrganizationsData = async () => {
-    return await SwishjamAPI.Organizations.list().then(({ organizations }) => setNewOrganizationsData(organizations));
+    return await SwishjamAPI.Organizations.list({ limit: 5 }).then(({ organizations }) => setNewOrganizationsData(organizations));
   };
 
   const getAllData = async timeframe => {

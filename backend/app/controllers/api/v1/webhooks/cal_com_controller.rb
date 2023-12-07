@@ -32,7 +32,7 @@ module Api
             swishjam_obj["response_#{key}"] = params.dig('payload', 'responses', key, 'value')
           end
           if params.dig('payload', 'attendees') && params.dig('payload', 'attendees').any?
-            swishjam_obj['user_profile_email'] = params.dig('payload', 'attendees')[0]['email']
+            swishjam_obj[Analytics::Event::ReservedPropertyNames.USER_PROFILE_EMAIL] = params.dig('payload', 'attendees')[0]['email']
           end
           formatted_event = Analytics::Event.formatted_for_ingestion(
             uuid: swishjam_obj['uuid'],

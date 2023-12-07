@@ -12,7 +12,7 @@ module StripeHelpers
           swishjam_event_data["metadata_#{key}"] = value
         end
         if stripe_customer
-          swishjam_event_data['user_profile_email'] = stripe_customer.email if stripe_customer.email
+          swishjam_event_data[Analytics::Event::ReservedPropertyNames.USER_PROFILE_EMAIL] = stripe_customer.email if stripe_customer.email
           swishjam_event_data['customer_email'] = stripe_customer.email if stripe_customer.email
           swishjam_event_data['customer_id'] = stripe_customer.id
           stripe_customer.metadata.each do |key, value|
