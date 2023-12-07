@@ -163,6 +163,16 @@ export default function ProfileInformationSideBar({ userData, hasStripeIntegrati
                       </span>
                     )}
                   />
+                  <EnrichedDataItem
+                    title='Subscription MRR'
+                    enrichmentData={userData}
+                    enrichmentKey='lifetime_value_in_cents'
+                    formatter={ltv => (
+                      <span className="inline-flex items-center rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20">
+                        {(ltv / 100).toLocaleString('en-US', { style: 'currency', currency: 'USD' })}
+                      </span>
+                    )}
+                  />
                 </div>
                 <div className='relative'>
                   {hasProfileEnrichmentEnabled === false && hasNoEnrichmentData && (

@@ -16,6 +16,7 @@ import {
   PiggyBankIcon,
   ReceiptIcon,
   ZapIcon,
+  PanelTopIcon,
 } from "lucide-react";
 
 import CalComLogo from '@public/logos/calcom.png'
@@ -34,6 +35,7 @@ function classNames(...classes) {
 }
 
 const EVENT_ICON_DICT = {
+  'new_session': <PanelTopIcon className='h-4 w-4 text-swishjam' />,
   'page_view': <GlobeIcon className='h-4 w-4 text-swishjam' />,
   'resend.email.sent': <MailIcon className="h-4 w-4 text-gray-400" />,
   'resend.email.bounced': <MailWarningIcon className="h-4 w-4 text-red-400" />,

@@ -74,6 +74,7 @@ const UserProfile = ({ params }) => {
               className="col-span-6 mt-4"
               events={recentEvents}
               initialLimit={5}
+              includeDateSeparators={true}
               leftItemHeaderKey='name'
               leftItemSubHeaderFormatter={event => {
                 if (event.name === 'page_view') {
@@ -83,9 +84,9 @@ const UserProfile = ({ params }) => {
               loadMoreEventsIncrement={5}
               rightItemKey='occurred_at'
               rightItemKeyFormatter={date => {
-                return new Date(date)
-                  .toLocaleDateString('en-us', { month: "long", day: "numeric", year: "numeric", hour: "2-digit", minute: "2-digit" })
-                  .replace(`, ${new Date(date).getFullYear()}`, '')
+                return new Date(date).toLocaleTimeString('en-us', { hour: 'numeric', minute: "2-digit" })
+                // .toLocaleDateString('en-us', { month: "long", day: "numeric", year: "numeric", hour: "2-digit", minute: "2-digit" })
+                // .replace(`, ${new Date(date).getFullYear()}`, '')
               }}
               title='Recent Events'
               viewAllLink={`/users/${userId}/events`}

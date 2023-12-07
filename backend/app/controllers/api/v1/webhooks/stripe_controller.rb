@@ -28,12 +28,17 @@ module Api
             Ingestion::QueueManager.push_records_into_queue(Ingestion::QueueManager::Queues.EVENTS, [formatted_event])
             # there's other subscription events, but I think these are the only ones we care about
             if %w[customer.subscription.created customer.subscription.updated customer.subscription.deleted].include?(stripe_event.type)
-              SyncCustomerSubscriptionFromStripeJob.perform_async(
+              StripeDataJobs::SyncCustomerSubscriptionFromStripe.perform_async(
                 stripe_account_id: params[:account],
                 stripe_subscription_id: stripe_event.data.object.id,
               )
             elsif stripe_event.type == 'charge.succeeded'
-              UpdateLifetimeValueFromStripeChargeJob.perform_async(
+              StripeDataJobs::UpdateLifetimeValueFromStripeCharge.perform_async(
+                stripe_account_id: params[:account],
+                stripe_charge_id: stripe_event.data.object.id,
+              )
+            elsif stripe_event.type == 'charge.refunded'
+              StripeDataJobs::UpdateLifetimeValueFromStripeRefund.perform_async(
                 stripe_account_id: params[:account],
                 stripe_charge_id: stripe_event.data.object.id,
               )
