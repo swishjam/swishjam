@@ -4,8 +4,8 @@ import {
   Cog6ToothIcon,
   DocumentTextIcon,
   EllipsisVerticalIcon,
-  UserCircleIcon,
-  UserGroupIcon
+  UserGroupIcon,
+  PhoneArrowUpRightIcon,
 } from "@heroicons/react/24/outline";
 import { BsArrowUpRight } from 'react-icons/bs'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
@@ -112,6 +112,15 @@ export default function UserFlyout() {
               </DropdownMenuPortal>
             </DropdownMenuSub>
           )}
+          <Link href='https://cal.com/collin-swishjam' target='_blank'>
+            <DropdownMenuItem className='cursor-pointer py-3'>
+              <PhoneArrowUpRightIcon className='h-5 w-5 text-gray-700 mr-2' />
+              Talk to founder
+              <DropdownMenuShortcut>
+                <BsArrowUpRight size={14} className="" />
+              </DropdownMenuShortcut>
+            </DropdownMenuItem>
+          </Link>
           <Link href='https://docs.swishjam.com' target='_blank'>
             <DropdownMenuItem className='cursor-pointer py-3'>
               <DocumentTextIcon className='h-5 w-5 text-gray-700 mr-2' />

@@ -85,7 +85,7 @@ module DummyData
             number_of_stripe_events: 10,
             number_of_resend_events: 10,
             data_begins_max_number_of_days_ago: data_begins_max_number_of_days_ago,
-            user_unique_identifier: user_profile.email,
+            user_profile_id: user_profile.id,
           )
         else
           puts "Not generating specific user data.".colorize(:yellow)
