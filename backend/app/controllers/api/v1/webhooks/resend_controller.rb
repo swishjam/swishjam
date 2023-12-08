@@ -3,7 +3,7 @@ module Api
     module Webhooks
       class ResendController < BaseController
         def receive
-          EventReceivers::Resend.new(params[:workspace_id], event_payload).receive!
+          EventReceivers::Resend.new(params[:workspace_id], params).receive!
           render json: { message: 'ok' }, status: :ok
         end
       end
