@@ -26,22 +26,12 @@ module Api
               properties: swishjam_event_data.except('uuid', 'event', 'timestamp'),
             )
             Ingestion::QueueManager.push_records_into_queue(Ingestion::QueueManager::Queues.EVENTS, [formatted_event])
+            
             # there's other subscription events, but I think these are the only ones we care about
             if %w[customer.subscription.created customer.subscription.updated customer.subscription.deleted].include?(stripe_event.type)
-              StripeDataJobs::SyncCustomerSubscriptionFromStripe.perform_async(
-                stripe_account_id: params[:account],
-                stripe_subscription_id: stripe_event.data.object.id,
-              )
-            elsif stripe_event.type == 'charge.succeeded'
-              StripeDataJobs::UpdateLifetimeValueFromStripeCharge.perform_async(
-                stripe_account_id: params[:account],
-                stripe_charge_id: stripe_event.data.object.id,
-              )
-            elsif stripe_event.type == 'charge.refunded'
-              StripeDataJobs::UpdateLifetimeValueFromStripeRefund.perform_async(
-                stripe_account_id: params[:account],
-                stripe_charge_id: stripe_event.data.object.id,
-              )
+              StripeDataJobs::TryToSyncCustomerSubscriptionFromStripeSubscription.perform_async(stripe_event.data.object.id, params[:account])
+            elsif %w[charge.succeeded charge.refunded].include?(stripe_event.type)
+              StripeDataJobs::TryToSyncLifetimeValueFromStripeCharge.perform_async(stripe_event.data.object.id, params[:account])
             end
           else
             Sentry.capture_message("Received Stripe webhook from account #{params[:account]}, but unable to find matching enabled Stripe integration record.")

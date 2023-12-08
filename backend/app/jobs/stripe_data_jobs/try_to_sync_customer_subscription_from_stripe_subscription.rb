@@ -1,11 +1,11 @@
 module StripeDataJobs
-  class SyncCustomerSubscriptionFromStripe
+  class TryToSyncCustomerSubscriptionFromStripeSubscription
     class FailedSyncError < StandardError; end
 
     include Sidekiq::Worker
     queue_as :default
 
-    def perform(stripe_account_id:, stripe_subscription_id:)
+    def perform(stripe_subscription_id, stripe_account_id)
       integration = Integrations::Stripe.includes(:workspace).where("integrations.config->>'stripe_account_id' = ?", stripe_account_id).limit(1).first
       raise FailedSyncError, "Unable to find `Integrations::Stripe` with Stripe Account ID #{stripe_account_id}, skipping `SyncCustomerSubscriptionFromStripeJob`" if !integration
       raise FailedSyncError, "Integration with Stripe Account ID #{stripe_account_id} is not enabled, skipping `SyncCustomerSubscriptionFromStripeJob`" if !integration.enabled?

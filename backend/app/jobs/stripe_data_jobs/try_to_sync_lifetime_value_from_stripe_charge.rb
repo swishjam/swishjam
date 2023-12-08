@@ -1,10 +1,11 @@
 module StripeDataJobs
-  class UpdateLifetimeValueFromStripeCharge
+  class TryToSyncLifetimeValueFromStripeCharge 
     class FailedUpdateError < StandardError; end
+
     include Sidekiq::Worker
     queue_as :default
 
-    def perform(stripe_account_id:, stripe_charge_id:)
+    def perform(stripe_charge_id, stripe_account_id)
       integration = Integrations::Stripe.includes(:workspace).where("integrations.config->>'stripe_account_id' = ?", stripe_account_id).limit(1).first
       raise FailedUpdateError, "Unable to find `Integrations::Stripe` with Stripe Account ID #{stripe_account_id}, skipping `UpdateLifetimeValueFromStripeCharge`" if !integration
       raise FailedUpdateError, "Integration with Stripe Account ID #{stripe_account_id} is not enabled, skipping `UpdateLifetimeValueFromStripeCharge`" if !integration.enabled?
@@ -16,7 +17,7 @@ module StripeDataJobs
       )
       customer_profile = workspace.analytics_user_profiles.find_by(email: stripe_charge.customer.email)
       if customer_profile
-        customer_profile.lifetime_value_in_cents -= stripe_charge.amount_refunded
+        customer_profile.lifetime_value_in_cents += (stripe_charge.amount - stripe_charge.amount_refunded)
         customer_profile.save!
       else
         Sentry.capture_message("Could not find a matching user profile for stripe customer with email #{stripe_charge.customer.email} in workspace #{workspace.name} (#{workspace.id}), skipping `UpdateLifetimeValueFromStripeCharge`")
