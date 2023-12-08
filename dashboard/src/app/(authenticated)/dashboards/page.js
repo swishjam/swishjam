@@ -32,7 +32,7 @@ export default function Dashboards() {
           <Card className={`group hover:ring-2 offset-2 ring-swishjam duration-300 transition cursor-pointer`}>
             <CardContent>
               <div className="mt-6 border rounded-sm overflow-hidden">
-                <Image src='/visitor-trends.png' width={400} height={100} />
+                <Image src='/visitor-trends.png' width={200} height={200} />
               </div>
               <h3 className="text-sm font-medium mt-2 border-t-2 border-white cursor-pointer">Marketing Analytics</h3>
               <p className="text-sm mt-2 cursor-pointer">Site traffic, sessions, referrers, top pages, and more</p>
@@ -46,7 +46,7 @@ export default function Dashboards() {
           <Card className={`group hover:ring-2 offset-2 ring-swishjam duration-300 transition cursor-pointer`}>
             <CardContent>
               <div className="mt-6 border rounded-sm overflow-hidden">
-                <Image src='/product-analytics.png' width={400} height={100} />
+                <Image src='/product-analytics.png' width={200} height={200} />
               </div>
               <h3 className="text-sm font-medium mt-2 border-t-2 border-white cursor-pointer">Product Analytics</h3>
               <p className="text-sm mt-2 cursor-pointer">Active users, retention, feature breakdowns, and more</p>
@@ -59,7 +59,7 @@ export default function Dashboards() {
         <Card className={'opacity-50'}>
           <CardContent>
             <div className="mt-6 border rounded-sm overflow-hidden">
-              <Image src='/visitor-trends.png' width={400} height={100} />
+              <Image src='/visitor-trends.png' width={200} height={200} />
             </div>
             <h3 className="text-sm font-medium cursor-default mt-2 border-t-2 border-white">SaaS Metrics</h3>
             <p className="text-sm cursor-default mt-2">MRR, ARR, Churn, new subscriptions, and more</p>

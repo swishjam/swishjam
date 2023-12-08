@@ -19,8 +19,8 @@ module DummyData
         event_name_options = EventsToGenerate.prompt_user_for_or_generate_event_names
         data_begins_max_number_of_days_ago = { 100 => 15, 500 => 30, 1_000 => 45, 5_000 => 60, 10_000 => 90, 20_000 => 180 }[number_of_sessions_to_generate]
 
-        ::Integrations::Stripe.create(workspace: workspace, enabled: true, config: { stubbed: true }) 
-        ::Integrations::Resend.create(workspace: workspace, enabled: true, config: { stubbed: true })
+        ::Integrations::Stripe.create!(workspace: workspace, enabled: true, config: { stubbed: true, account_id: 'stubbed' }) 
+        ::Integrations::Resend.create!(workspace: workspace, enabled: true, config: { stubbed: true })
 
         swishjam_user.workspaces << workspace unless swishjam_user.workspaces.include?(workspace)
 

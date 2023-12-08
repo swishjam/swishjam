@@ -87,7 +87,7 @@ module DummyData
           device_identifier: device_identifier,
           session_identifier: session_identifier,
           page_view_identifier: SecureRandom.uuid,
-          url: "https://#{@host_url}#{@url_paths.sample}",
+          url: "https://#{@url_host}#{@url_paths.sample}",
           # referrer: referrer_url,
         }.to_json
       )

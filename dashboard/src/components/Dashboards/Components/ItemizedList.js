@@ -6,6 +6,7 @@ import Link from "next/link"
 import EmptyState from "@/components/EmptyState"
 
 export default function ItemizedList({
+  avatarKey = 'gravatar_url',
   className,
   hoverable = true,
   fallbackAvatarGenerator,
@@ -54,11 +55,11 @@ export default function ItemizedList({
                       href={linkFormatter ? linkFormatter(item) : '#'}
                       className={`transition duration-500 flex items-center py-4 px-2 rounded-sm border border-transparent ${hoverable ? 'hover:bg-gray-50 hover:border-gray-200' : ''}`}
                     >
-                      {(item.avatar_url || fallbackAvatarGenerator) && (
+                      {(item[avatarKey] || fallbackAvatarGenerator) && (
                         <Avatar className="h-9 w-9 border border-slate-200">
                           {
-                            item.avatar_url
-                              ? <AvatarImage src={item.avatar_url} alt="Avatar" />
+                            item[avatarKey]
+                              ? <AvatarImage src={item[avatarKey]} alt="Avatar" />
                               : <AvatarFallback>{fallbackAvatarGenerator(item)}</AvatarFallback>
                           }
                         </Avatar>
