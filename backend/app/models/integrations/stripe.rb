@@ -4,6 +4,10 @@ module Integrations
     after_create :run_data_sync_job
 
     validate :config_has_account_id
+
+    def self.find_by_account_id(account_id)
+      includes(:workspace).where("integrations.config->>'account_id' = ?", account_id).limit(1).first
+    end
     
     def account_id
       config['account_id']
