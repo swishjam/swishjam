@@ -35,10 +35,11 @@ const HotKeyProvider = ({ children }) => {
 
   return (
     <>
-      <HotKeyModal 
-        isOpen={hotKeyModalIsOpen} 
-        onClose={() => setHotKeyModalIsOpen(false)} 
+      <HotKeyModal
+        isOpen={hotKeyModalIsOpen}
+        onClose={() => setHotKeyModalIsOpen(false)}
         descriptions={[
+          { key: 'k', description: 'Open command bar' },
           { key: ',', description: 'Navigate to settings' },
           { key: 'u', description: 'Navigate to users list page' },
           { key: 'o', description: 'Navigate to organizations list page' },

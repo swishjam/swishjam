@@ -83,11 +83,7 @@ const UserProfile = ({ params }) => {
               }}
               loadMoreEventsIncrement={5}
               rightItemKey='occurred_at'
-              rightItemKeyFormatter={date => {
-                return new Date(date).toLocaleTimeString('en-us', { hour: 'numeric', minute: "2-digit" })
-                // .toLocaleDateString('en-us', { month: "long", day: "numeric", year: "numeric", hour: "2-digit", minute: "2-digit" })
-                // .replace(`, ${new Date(date).getFullYear()}`, '')
-              }}
+              rightItemKeyFormatter={date => new Date(date).toLocaleTimeString('en-us', { hour: 'numeric', minute: "2-digit" })}
               title='Recent Events'
               viewAllLink={`/users/${userId}/events`}
             />

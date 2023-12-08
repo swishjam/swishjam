@@ -164,7 +164,7 @@ export default function ProfileInformationSideBar({ userData, hasStripeIntegrati
                     )}
                   />
                   <EnrichedDataItem
-                    title='Subscription MRR'
+                    title='Lifetime Value'
                     enrichmentData={userData}
                     enrichmentKey='lifetime_value_in_cents'
                     formatter={ltv => (
