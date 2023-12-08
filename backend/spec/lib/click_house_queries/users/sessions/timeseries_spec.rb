@@ -1,9 +1,6 @@
 require 'spec_helper'
 
 describe ClickHouseQueries::Users::Sessions::Timeseries do
-  before do
-  end
-
   describe '#timeseries' do
     it 'returns the correct count of sessions for the specified user and timeframe in a timeseries format' do
       workspace = FactoryBot.create(:workspace)
@@ -19,7 +16,7 @@ describe ClickHouseQueries::Users::Sessions::Timeseries do
       FactoryBot.create(:analytics_event, name: Analytics::Event::ReservedNames.NEW_SESSION, swishjam_user_id: user.id, occurred_at: 4.days.ago)
       FactoryBot.create(:analytics_event, name: Analytics::Event::ReservedNames.NEW_SESSION, swishjam_user_id: user.id, occurred_at: 4.days.ago)
       FactoryBot.create(:analytics_event, name: Analytics::Event::ReservedNames.NEW_SESSION, swishjam_user_id: user.id, occurred_at: 4.days.ago)
-      FactoryBot.create(:analytics_event, name: Analytics::Event::ReservedNames.NEW_SESSION, swishjam_user_id: user.id, occurred_at: 5.days.ago
+      FactoryBot.create(:analytics_event, name: Analytics::Event::ReservedNames.NEW_SESSION, swishjam_user_id: user.id, occurred_at: 5.days.ago)
     end
   end
 end
