@@ -3,21 +3,22 @@ module Api
     module Webhooks
       class StripeController < BaseController
         def receive
+          integration = Integrations::Stripe.includes(:workspace).where("config->>'account_id' = ? AND enabled = ?", params[:account], true).first
+          if integration.nil?
+            Sentry.capture_message("Received Stripe webhook from Stripe account #{params[:account]}, but unable to find matching enabled Stripe integration record.")
+            render json: {}, status: :ok
+            return
+          end
+          
           stripe_event = Stripe::Webhook.construct_event(request.body.read, request.env['HTTP_STRIPE_SIGNATURE'], ENV['STRIPE_WEBHOOK_SECRET'])
-          public_key = Integrations::Stripe.joins(workspace: :api_keys)
-                                              .where("
-                                                integrations.config->>'account_id' = ? AND 
-                                                integrations.enabled = ? AND
-                                                api_keys.data_source = ?
-                                              ", params[:account], true, ApiKey::ReservedDataSources.STRIPE)
-                                              .pluck('api_keys.public_key')
-                                              .first
+          public_key = integration.workspace.api_keys.for_data_source(ApiKey::ReservedDataSources.STRIPE)&.public_key
+
           if public_key
             stripe_customer = nil
             if stripe_event.data.object&.customer.is_a?(String) && !ENV['STRIPE_SKIP_CUSTOMER_LOOKUP']
               stripe_customer = Stripe::Customer.retrieve(stripe_event.data.object.customer, { stripe_account: params[:account] })
             end
-            swishjam_event_data = StripeHelpers::WebhookEventParser.event_attributes_for(stripe_event, stripe_customer)
+            swishjam_event_data = StripeHelpers::WebhookEventParser.event_attributes_for(stripe_event, integration.workspace, stripe_customer)
             formatted_event = Analytics::Event.formatted_for_ingestion(
               uuid: swishjam_event_data['uuid'],
               swishjam_api_key: public_key,

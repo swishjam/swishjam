@@ -1,7 +1,7 @@
 module StripeHelpers
   class WebhookEventParser
     class << self
-      def event_attributes_for(stripe_event, stripe_customer = nil)
+      def event_attributes_for(stripe_event, workspace, stripe_customer = nil)
         swishjam_event_data = {
           'uuid' => stripe_event.id,
           'event' => "stripe.#{stripe_event.type}",
@@ -12,7 +12,13 @@ module StripeHelpers
           swishjam_event_data["metadata_#{key}"] = value
         end
         if stripe_customer
-          swishjam_event_data[Analytics::Event::ReservedPropertyNames.USER_PROFILE_EMAIL] = stripe_customer.email if stripe_customer.email
+          maybe_user_profile = workspace.analytics_user_profiles.where("lower(email) = ?", stripe_customer.email.downcase).first
+          if maybe_user_profile
+            swishjam_event_data[Analytics::Event::ReservedPropertyNames.USER_PROFILE_ID] = maybe_user_profile.id
+          else
+            Sentry.capture_message("Could not find user profile for Stripe event #{stripe_event.type} customer email #{stripe_customer.email} in workspace #{workspace.name} (#{workspace.id})")
+          end
+          
           swishjam_event_data['customer_email'] = stripe_customer.email if stripe_customer.email
           swishjam_event_data['customer_id'] = stripe_customer.id
           stripe_customer.metadata.each do |key, value|

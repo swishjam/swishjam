@@ -13,14 +13,25 @@ module Api
             'from' => params.dig('data', 'from'),
             'to' => (params.dig('data', 'to') || []).join(', '),
             'subject' => params.dig('data', 'subject'),
-            Analytics::Event::ReservedPropertyNames.USER_PROFILE_EMAIL => (params.dig('data', 'to') || [])[0]
           }
+
+          if (params.dig('data', 'to') || []).any?
+            email = (params.dig('data', 'to') || [])[0]
+            maybe_user_profile = workspace.analytics_user_profiles.where("lower(email) = ?", email.downcase).first
+            if maybe_user_profile
+              swishjam_obj[Analytics::Event::ReservedPropertyNames.USER_PROFILE_ID] = maybe_user_profile.id
+            else
+              Sentry.capture_message("Could not find user profile for Resend event #{params['type']} email #{email} in workspace #{workspace.name} (#{workspace.id})")
+            end
+          end
+
           if params['type'] == 'email.clicked'
             swishjam_obj['click_ip_address'] = params.dig('click', 'ipAddress')
             swishjam_obj['click_link'] = params.dig('click', 'link')
             swishjam_obj['click_timestamp'] = params.dig('click', 'timestamp')
             swishjam_obj['click_user_agent'] = params.dig('click', 'userAgent')
           end
+          
           formatted_event = Analytics::Event.formatted_for_ingestion(
             uuid: swishjam_obj['uuid'],
             swishjam_api_key: public_key,

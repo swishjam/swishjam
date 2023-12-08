@@ -15,7 +15,7 @@ module StripeDataJobs
         { id: stripe_subscription_id, expand: ['customer', 'items.data.price.product'] }, 
         { stripe_account: stripe_account_id }
       )
-      existing_customer_subscription = workspace.customer_subscriptions.find_by_provider_object_id(stripe_subscription.id)
+      existing_customer_subscription = workspace.customer_subscriptions.find_by(subscription_provider_object_id: stripe_subscription.id)
 
       if existing_customer_subscription
         update_customer_subscription(existing_customer_subscription, stripe_subscription)
