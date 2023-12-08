@@ -59,7 +59,7 @@ module StripeDataJobs
 
     def update_customer_subscription(existing_customer_subscription, stripe_subscription)
       existing_customer_subscription.update!(status: stripe_subscription.status)
-      subscription_items = stripe_subscription.items
+      subscription_items = stripe_subscription.items.to_a
       existing_customer_subscription.customer_subscription_items.each do |existing_customer_subscription_item|
         stripe_subscription_item = subscription_items.find{ |item| item.id == existing_customer_subscription_item.subscription_provider_object_id }
         if stripe_subscription_item
