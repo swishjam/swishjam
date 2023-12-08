@@ -1,7 +1,8 @@
 module EventReceivers
   class Stripe
-    def initialize(event_payload, signing_secret)
-      @event_payload = event_payload
+    def initialize(request_body, signing_secret)
+      @request_body = request_body
+      @event_payload = JSON.parse(@request_body)
       @signing_secret = signing_secret
     end
 
@@ -10,16 +11,16 @@ module EventReceivers
       if integration
         public_key = integration.workspace.api_keys.for_data_source(ApiKey::ReservedDataSources.STRIPE)&.public_key
         if public_key
-          stripe_event = ::Stripe::Webhook.construct_event(@event_payload, @signing_secret, ENV['STRIPE_WEBHOOK_SECRET'])
+          stripe_event = ::Stripe::Webhook.construct_event(@request_body, @signing_secret, ENV['STRIPE_WEBHOOK_SECRET'])
           format_event_data_and_enqueue_it_to_be_processed(stripe_event, integration.workspace, public_key)
           enqueue_sync_jobs_if_necessary(stripe_event)
           true
         else
-          Sentry.capture_message("Received Stripe event from account #{@event_payload[:account]}, but unable to find matching enabled Stripe integration record.")
+          Sentry.capture_message("Received Stripe event from account #{@event_payload['account']}, but unable to find matching enabled Stripe integration record.")
           false
         end
       else
-        Sentry.capture_message("Received Stripe webhook from Stripe account #{@event_payload[:account]}, but unable to find matching enabled Stripe integration record.")
+        Sentry.capture_message("Received Stripe webhook from Stripe account #{@event_payload['account']}, but unable to find matching enabled Stripe integration record.")
         false
       end
     end
@@ -41,20 +42,20 @@ module EventReceivers
 
     def enqueue_sync_jobs_if_necessary(stripe_event)
       if %w[customer.subscription.created customer.subscription.updated customer.subscription.deleted].include?(stripe_event.type)
-        StripeDataJobs::TryToSyncCustomerSubscriptionFromStripeSubscription.perform_async(stripe_event.data.object.id, @event_payload[:account])
+        StripeDataJobs::TryToSyncCustomerSubscriptionFromStripeSubscription.perform_async(stripe_event.data.object.id, @event_payload['account'])
       elsif %w[charge.succeeded charge.refunded].include?(stripe_event.type)
-        StripeDataJobs::TryToSyncLifetimeValueFromStripeCharge.perform_async(stripe_event.data.object.id, @event_payload[:account])
+        StripeDataJobs::TryToSyncLifetimeValueFromStripeCharge.perform_async(stripe_event.data.object.id, @event_payload['account'])
       end
     end
 
     def get_stripe_customer_if_necessary(stripe_event)
       if stripe_event.data.object&.customer.is_a?(String) && !ENV['STRIPE_SKIP_CUSTOMER_LOOKUP']
-        ::Stripe::Customer.retrieve(stripe_event.data.object.customer, { stripe_account: @event_payload[:account] })
+        ::Stripe::Customer.retrieve(stripe_event.data.object.customer, { stripe_account: @event_payload['account'] })
       end
     end
     
     def get_integration_for_stripe_account
-      Integrations::Stripe.includes(:workspace).where("config->>'account_id' = ? AND enabled = ?", @event_payload[:account], true).first
+      Integrations::Stripe.includes(:workspace).where("config->>'account_id' = ? AND enabled = ?", @event_payload['account'], true).first
     end
   end
 end
