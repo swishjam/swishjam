@@ -29,10 +29,15 @@ module Api
 
           if params.dig('payload', 'attendees') && params.dig('payload', 'attendees').any?
             attendee_email = params.dig('payload', 'attendees')[0]['email']
-            maybe_attendee_user_profile = workspace.analytics_user_profiles.where("lower(email) = ?", attendee_email.downcase).first
+            maybe_attendee_user_profile = workspace.analytics_user_profiles.find_by_case_insensitive_email(attendee_email)
             if maybe_attendee_user_profile
               event_properties[Analytics::Event::ReservedPropertyNames.USER_PROFILE_ID] = maybe_attendee_user_profile.id
             else
+              new_user_profile = AnalyticsUserProfile.create!(
+                workspace: workspace,
+                email: attendee_email,
+                created_by_data_source: ApiKey::ReservedDataSources.CAL_COM,
+              )
               Sentry.capture_message("Could not find user profile for Cal.com event #{params['triggerEvent']} attendee email #{attendee_email} in workspace #{workspace.name} (#{workspace.id})")
             end
           end

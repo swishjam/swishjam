@@ -12,11 +12,19 @@ module StripeHelpers
           swishjam_event_data["metadata_#{key}"] = value
         end
         if stripe_customer
-          maybe_user_profile = workspace.analytics_user_profiles.where("lower(email) = ?", stripe_customer.email.downcase).first
+          maybe_user_profile = workspace.analytics_user_profiles.find_by_case_insensitive_email(stripe_customer.email)
           if maybe_user_profile
             swishjam_event_data[Analytics::Event::ReservedPropertyNames.USER_PROFILE_ID] = maybe_user_profile.id
           else
-            Sentry.capture_message("Could not find user profile for Stripe event #{stripe_event.type} customer email #{stripe_customer.email} in workspace #{workspace.name} (#{workspace.id})")
+            new_user_profile = AnalyticsUserProfile.create!(
+              workspace: workspace,
+              email: stripe_customer.email,
+              first_name: stripe_customer.name.blank? ? nil : stripe_customer.name.split(' ')[0],
+              last_name: stripe_customer.name.blank? ? nil : stripe_customer.name.split(' ')[1],
+              created_by_data_source: ApiKey::ReservedDataSources.STRIPE,
+            )
+            swishjam_event_data[Analytics::Event::ReservedPropertyNames.USER_PROFILE_ID] = new_user_profile.id
+            Sentry.capture_message("Could not find user profile for Stripe event #{stripe_event.type} customer email #{stripe_customer.email} in workspace #{workspace.name} (#{workspace.id}), so we created a new one (#{new_user_profile.id})")
           end
           
           swishjam_event_data['customer_email'] = stripe_customer.email if stripe_customer.email

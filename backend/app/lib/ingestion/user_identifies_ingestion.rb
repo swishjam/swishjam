@@ -67,9 +67,17 @@ module Ingestion
           workspace = Workspace.for_public_key(event_json['swishjam_api_key'])
           if workspace
             profile = workspace.analytics_user_profiles.find_by(user_unique_identifier: unique_identifier)
+            if profile.nil? && email.present?
+              profile = workspace.analytics_user_profiles.find_by_case_insensitive_email(email)
+            end
             if profile
-              # not updating immutable_metadata yet, there really shouldn't be a need to considering it should never change after the initial create
-              profile.update!(first_name: first_name, last_name: last_name, email: email, metadata: metadata)
+              profile.update!(
+                email: email, 
+                first_name: first_name, 
+                last_name: last_name, 
+                metadata: metadata, 
+                immutable_metadata: immutable_metadata.merge(profile.immutable_metadata || {})
+              )
             else
               profile = workspace.analytics_user_profiles.create!(
                 user_unique_identifier: unique_identifier, 
@@ -79,6 +87,7 @@ module Ingestion
                 metadata: metadata,
                 immutable_metadata: immutable_metadata,
                 created_at: (event_json['occurred_at'] || Time.current).to_datetime,
+                created_by_data_source: workspace.api_keys.find_by!(public_key: event_json['swishjam_api_key']).data_source,
               )
               new_profile_data << { 
                 swishjam_api_key: event_json['swishjam_api_key'], 

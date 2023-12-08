@@ -11,6 +11,10 @@ class AnalyticsUserProfile < Transactional
   after_create :try_to_set_gravatar_url
   after_create :enrich_profile!
 
+  def self.find_by_case_insensitive_email(email)
+    where("lower(email) = ?", email.downcase).first
+  end
+
   def full_name
     return nil if first_name.blank? || last_name.blank?
     "#{first_name} #{last_name}"
