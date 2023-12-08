@@ -240,7 +240,6 @@ describe UserRetentionCalculators::Weekly do
       FactoryBot.create(:analytics_event, name: 'my_active_user_event', swishjam_api_key: 'someone_else', occurred_at: 2.weeks.ago, properties: { device_identifier: 'device_3' }.to_json)
 
       data = described_class.get([my_public_key], oldest_cohort_date: 5.weeks.ago)
-      byebug
       expect(data.keys.count).to be(6)
 
       this_weeks_cohort_data = data[Time.current.beginning_of_week.to_date.to_s]
