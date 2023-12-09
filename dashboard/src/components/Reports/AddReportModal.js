@@ -1,80 +1,49 @@
-import Dropdown from '@/components/utils/Dropdown';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import Modal from '@/components/utils/Modal';
-import SwishjamAPI from '@/lib/api-client/swishjam-api';
-import { Textarea } from '@/components/ui/textarea';
 import { useEffect, useState } from 'react';
-import SlackMessagePreview from './SlackMessagePreview';
-import MessageBodyMarkdownRenderer from './MessageBodyMarkdownRenderer';
-import EventTriggerStepsSelectors from './EventTriggerStepsSelectors';
-import LoadingSpinner from '../LoadingSpinner';
-// import { PaperAirplaneIcon } from '@heroicons/react/24/outline';
+import SwishjamAPI from '@/lib/api-client/swishjam-api';
+import { LuPlus } from "react-icons/lu";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
+import { Input } from '@/components/ui/input';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import { Button } from "@/components/ui/button"
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form"
+import { useForm } from "react-hook-form"
+import LoadingSpinner from '@components/LoadingSpinner';
 
-export default function AddReportModal({ isOpen, onClose, onNewTrigger }) {
-  const [errorMessage, setErrorMessage] = useState();
-  const [isLoading, setIsLoading] = useState(false);
-  const [propertyOptionsForSelectedEvent, setPropertyOptionsForSelectedEvent] = useState();
-  const [selectedEvent, setSelectedEvent] = useState();
-  const [selectedSlackChannel, setSelectedSlackChannel] = useState();
-  const [slackChannels, setSlackChannels] = useState();
-  const [slackMessageBody, setSlackMessageBody] = useState();
-  const [slackMessageHeader, setSlackMessageHeader] = useState();
-  const [uniqueEvents, setUniqueEvents] = useState();
-
-  const saveTrigger = async e => {
-    e.preventDefault();
-    if (!selectedEvent) {
-      setErrorMessage('Please select an event from the event dropdown.');
-      return;
-    }
-    if (!selectedSlackChannel) {
-      setErrorMessage('Please select a Slack channel from the Slack channel dropdown.');
-      return;
-    }
-    setIsLoading(true)
-    const config = {
-      message_header: slackMessageHeader,
-      message_body: slackMessageBody,
-      channel_id: selectedSlackChannel.id,
-      channel_name: selectedSlackChannel.name
-    }
-    const { error, trigger } = await SwishjamAPI.EventTriggers.create({
-      eventName: selectedEvent,
-      steps: [{ type: 'EventTriggerSteps::Slack', config }]
-    })
-    if (error) {
-      setIsLoading(false);
-      setErrorMessage(error);
-    } else {
-      onNewTrigger(trigger);
-      setSelectedEvent();
-      setSelectedSlackChannel();
-      setErrorMessage();
-      setSlackMessageHeader();
-      setSlackMessageBody();
-      onClose();
-      setTimeout(() => setIsLoading(false), 500);
-    }
-  }
-
-  const findSlackChannelByNameAndSetAsSelected = channelName => {
-    const channel = slackChannels.find(c => c.name === channelName);
-    setSelectedSlackChannel(channel);
-    setErrorMessage();
-  }
-
-  const setSelectedEventAndGetPropertiesAndAutofillMessageContentIfNecessary = async (eventName) => {
-    setSelectedEvent(eventName);
-    setErrorMessage();
-    SwishjamAPI.Events.Properties.listUnique(eventName).then(properties => {
-      setPropertyOptionsForSelectedEvent(properties);
-      // we re-set this every time they change the event..?
-      setSlackMessageHeader(`✨ ${eventName} occurred ✨`);
-      let formattedPropertyOptions = '';
-      properties.forEach(property => formattedPropertyOptions += `- ${property}: {${property}}  \n`)
-      setSlackMessageBody(`The _${eventName}_ event has the following properties: \n${formattedPropertyOptions}`);
-    });
+export default function AddReportModal() {
+  const form = useForm();
+  const [ loading, setLoading ] = useState(false);
+  const [ slackChannels, setSlackChannels ] = useState();
+  
+  async function onSubmit(values) {
+    setLoading(true)
+    console.log('Submission Values', values)
+    // post to the api
+      // on error push to a toast
+    // reset the form
+    // reset the loading
+    // close dialog
+    // reload the page an pull report
+    
   }
 
   useEffect(() => {
@@ -90,85 +59,120 @@ export default function AddReportModal({ isOpen, onClose, onNewTrigger }) {
       })
       setSlackChannels(sortedChannels);
     });
-    SwishjamAPI.Events.listUnique().then(events => {
-      const sortedEvents = events.sort((a, b) => {
-        if (a.name.toLowerCase() < b.name.toLowerCase()) {
-          return -1;
-        } else if (a.name.toLowerCase() > b.name.toLowerCase()) {
-          return 1;
-        } else {
-          return 0;
-        }
-      })
-      setUniqueEvents(sortedEvents);
-    });
   }, [])
 
   return (
-    <Modal
-      isOpen={isOpen}
-      onClose={() => {
-        setSelectedEvent();
-        setSelectedSlackChannel();
-        setErrorMessage();
-        setSlackMessageHeader();
-        setSlackMessageBody();
-        onClose();
-        setTimeout(() => setIsLoading(false), 500);
-      }}
-      title='New Slack Trigger'
-    >
-      <form onSubmit={saveTrigger}>
-        <div className='flex text-sm text-gray-700 items-center'>
-          <EventTriggerStepsSelectors
-            eventOptions={uniqueEvents}
-            onSlackChannelSelected={findSlackChannelByNameAndSetAsSelected}
-            onEventSelected={setSelectedEventAndGetPropertiesAndAutofillMessageContentIfNecessary}
-            slackChannelOptions={slackChannels}
-          />
-        </div>
-        <div className='mt-2'>
-          <Label htmlFor='header'>Header</Label>
-          <Input
-            id='header'
-            disabled={!selectedEvent}
-            value={slackMessageHeader}
-            onChange={e => setSlackMessageHeader(e.target.value)}
-          />
-        </div>
-        <div className='mt-2'>
-          <Label htmlFor='body'>Body</Label>
-          <Textarea
-            id='body'
-            disabled={!selectedEvent}
-            value={slackMessageBody}
-            onChange={e => setSlackMessageBody(e.target.value)}
-          />
-        </div>
-        <div className='mt-2'>
-          <Label>Message Preview</Label>
-          <SlackMessagePreview
-            header={slackMessageHeader}
-            body={<MessageBodyMarkdownRenderer body={slackMessageBody} availableEventOptions={propertyOptionsForSelectedEvent} />}
-          />
-        </div>
-        {errorMessage && <div className='mt-2 text-red-500 text-sm'>{errorMessage}</div>}
-        <div className='w-full flex justify-end mt-4'>
-          {/* <button
-            className={`${isLoading ? 'bg-gray-200 text-gray-600 cursor-not-allowed' : 'text-gray-600 bg-white hover:bg-gray-200 outline outline-gray-200'} ml-2 inline-flex items-center px-4 py-2 rounded-md shadow-sm text-sm font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-swishjam`}
-            onClick={sendTestTrigger}
-          >
-            <PaperAirplaneIcon className='w-5 h-5 mr-1' />
-            Send test message
-          </button> */}
-          <button
-            type='submit'
-            className={`${isLoading ? 'bg-gray-200 text-gray-600 cursor-not-allowed' : 'text-white bg-swishjam hover:bg-swishjam-dark'} ml-2 inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-swishjam`}
-          >
-            {isLoading ? <LoadingSpinner className='w-5 h-5' /> : 'Save'}
-          </button>
-        </div>
-      </form>
-    </Modal>
+    <Dialog>
+      <DialogTrigger
+        className={`duration-300 transition-all ml-2 flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white focus:outline-none focus:ring-2 bg-swishjam hover:bg-swishjam-dark`}
+      >
+        <LuPlus className="h-4 w-4 mt-0.5 mr-2"/> 
+        Add Report
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Create a Report</DialogTitle>
+          <DialogDescription>
+            Schedule an automated report of your key data to slack or via email  
+          </DialogDescription>
+        </DialogHeader> 
+
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <FormField
+              control={form.control}
+              name="name"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Report Name</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="search"
+                      placeholder="Summary"
+                      autoComplete="off"
+                      {...form.register("name")}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="cadence"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Frequency</FormLabel>
+                  <Select onValueChange={field.onChange} disabled>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Daily" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem className="cursor-pointer" value="daily">Daily</SelectItem>
+                      <SelectItem value="weekly" disabled>Monthly</SelectItem>
+                      <SelectItem value="monthly" disabled>Yearly</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="sending_mechanism"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Delivery Method</FormLabel>
+                  <Select onValueChange={field.onChange} disabled>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Slack" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem className="cursor-pointer" value="slack">Slack</SelectItem>
+                      <SelectItem value="email" disabled>Email</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="slack_channel"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Slack Channel</FormLabel>
+                  <Select 
+                    onValueChange={field.onChange}
+                    defaultValue={field.value} 
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select your slack channel" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {slackChannels.map(c => <SelectItem key={c.id} className="cursor-pointer" value={c.id}>#{c.name}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <Button
+              className={`!mt-6 w-full flex items-center justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white focus:outline-none focus:ring-2 ${loading ? 'bg-swishjam-dark':'bg-swishjam'} hover:bg-swishjam-dark`} 
+              type="submit"
+            >
+              {loading ? <LoadingSpinner color="white"/>:'Create Report'}
+            </Button>
+          </form>
+        </Form>
+
+      </DialogContent>
+    </Dialog>
   )
 }

@@ -9,9 +9,7 @@ import { SiSlack } from "react-icons/si";
 import { HiOutlineMail } from "react-icons/hi";
 import { LuClock, LuPlus } from "react-icons/lu";
 import { Cog6ToothIcon } from '@heroicons/react/24/outline'
-import { useToast } from "@/components/ui/use-toast"
-//import AddReportModal from "@/components/Reports/AddReportModal"; 
-
+import AddReportModal from "@/components/Reports/AddReportModal"; 
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -23,10 +21,9 @@ import {
 } from "@/components/ui/dropdown-menu"
 
 export default function ReportsPage() {
-  const { toast } = useToast();
   const [reports, setReports] = useState();
   const [isLoading, setIsLoading] = useState(true);
-  const [newModalIsOpen, setNewModalIsOpen] = useState();
+  const [newModalIsOpen, setNewModalIsOpen] = useState(false);
 
   const pauseReport = (reportId) => {
     SwishjamAPI.Reports.disable(reportId).then(({report, error}) => {
@@ -76,31 +73,18 @@ export default function ReportsPage() {
       console.log('Reports', reports)
       setReports(reports)
       setIsLoading(false)
-      // handle reports
      });
-    // SwishjamAPI.Config.retrieve().then(({ api_keys, settings }) => {
-    //   setApiKeys(api_keys);
-    //   setWorkspaceSettings(settings);
-    // });
   }, []);
 
   return (
     <div>
-      {/* <AddReportModal
-        isOpen={newModalIsOpen}
-        onClose={() => setNewModalIsOpen(false)}
-        onNewReport={newReport => console.log('new report', newReport)}
-      /> */}
       <div className="flex items-center justify-between">
         <h2 className="text-md font-medium text-gray-700 mb-0">Reports</h2>
-        <button
-          type="submit"
-          className={`duration-300 transition-all ml-2 flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white focus:outline-none focus:ring-2 ${isLoading ? 'bg-gray-400' : 'bg-swishjam hover:bg-swishjam-dark'}`}
-          disabled={isLoading}
-        >
-          <LuPlus className="h-4 w-4 mt-0.5 mr-2"/> 
-          Add Report
-        </button>
+        <AddReportModal
+          isOpen={newModalIsOpen}
+          onClose={() => setNewModalIsOpen(false)}
+          onNewReport={newReport => console.log('new report', newReport)}
+        />
       </div>
       {isLoading ? 
         <div className="mt-24 h-5 w-5 mx-auto">
