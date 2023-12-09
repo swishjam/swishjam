@@ -23,9 +23,8 @@ import {
 export default function ReportsPage() {
   const [reports, setReports] = useState();
   const [isLoading, setIsLoading] = useState(true);
-  const [newModalIsOpen, setNewModalIsOpen] = useState(false);
 
-  const pauseReport = (reportId) => {
+  const pauseReport = async (reportId) => {
     SwishjamAPI.Reports.disable(reportId).then(({report, error}) => {
       if (error) {
         console.error(error) 
@@ -39,7 +38,7 @@ export default function ReportsPage() {
     })
   }
   
-  const resumeReport = (reportId) => {
+  const resumeReport = async (reportId) => {
     SwishjamAPI.Reports.enable(reportId).then(({report, error}) => {
       if (error) {
         console.error(error) 
@@ -54,7 +53,7 @@ export default function ReportsPage() {
     })
   }
   
-  const deleteReport = (reportId) => {
+  const deleteReport = async (reportId) => {
     SwishjamAPI.Reports.delete(reportId).then(({report, error}) => {
       if (error) {
         console.error(error) 
@@ -68,12 +67,16 @@ export default function ReportsPage() {
     })
   }
 
-  useEffect(() => {
+  const loadReports = async () => {
      SwishjamAPI.Reports.list().then(reports => {
       console.log('Reports', reports)
       setReports(reports)
       setIsLoading(false)
      });
+  }
+
+  useEffect(() => {
+    loadReports()
   }, []);
 
   return (
@@ -81,9 +84,7 @@ export default function ReportsPage() {
       <div className="flex items-center justify-between">
         <h2 className="text-md font-medium text-gray-700 mb-0">Reports</h2>
         <AddReportModal
-          isOpen={newModalIsOpen}
-          onClose={() => setNewModalIsOpen(false)}
-          onNewReport={newReport => console.log('new report', newReport)}
+          onNewReport={newReport => setReports([...reports, newReport])}
         />
       </div>
       {isLoading ? 
@@ -154,7 +155,7 @@ export default function ReportsPage() {
               ))}
             </ul>
           </div>:
-          <EmptyState title="Add a Report" />
+          <EmptyState title="No Reports" />
         )
       }
     </div>

@@ -6,19 +6,20 @@ module Api
         render json: current_workspace.reports, status: :ok
       end
 
-      # def create
-      #   report = current_workspace.reports.new(
-      #     enabled: true,
-      #     name: params[:name], 
-      #     cadence: params[:cadence], 
-      #     sending_mechanism: params[:sending_mechanism],  
-      #   )
-      #   if report.save
-      #     render json: { trigger: ReportSerializer.new(report) }, status: :ok
-      #   else
-      #     render json: { error: report.errors.full_messages.join(' ') }, status: :unprocessable_entity
-      #   end
-      # end
+      def create
+        report = current_workspace.reports.new(
+          enabled: true,
+          name: params[:name], 
+          cadence: params[:cadence], 
+          sending_mechanism: params[:sending_mechanism],  
+          config: params[:congfig],  
+        )
+        if report.save
+          render json: { report: report }, status: :ok
+        else
+          render json: { error: report.errors.full_messages.join(' ') }, status: :unprocessable_entity
+        end
+      end
 
       def destroy
         report = current_workspace.reports.find_by(id: params[:id])

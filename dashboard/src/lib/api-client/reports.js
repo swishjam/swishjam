@@ -5,8 +5,13 @@ export class Reports extends Base {
     return await this._get('/api/v1/reports')
   }
 
-  static async create({ eventName, steps }) {
-    return await this._post('/api/v1/reports', { event_name: eventName, event_trigger_steps: steps });
+  static async create({ name, cadence, sending_mechanism, config}) {
+    return await this._post('/api/v1/reports', {
+      name: name,
+      cadence: cadence,
+      sending_mechanism: sending_mechanism,
+      config: config
+    });
   }
 
   static async delete(id) {

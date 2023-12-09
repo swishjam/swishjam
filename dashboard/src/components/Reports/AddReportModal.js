@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import SwishjamAPI from '@/lib/api-client/swishjam-api';
 import { LuPlus } from "react-icons/lu";
 import {
@@ -28,8 +28,10 @@ import {
 } from "@/components/ui/form"
 import { useForm } from "react-hook-form"
 import LoadingSpinner from '@components/LoadingSpinner';
+import { toast } from 'sonner'
 
-export default function AddReportModal() {
+export default function AddReportModal({ onNewReport }) {
+  const dialogRef = useRef(); 
   const form = useForm();
   const [ loading, setLoading ] = useState(false);
   const [ slackChannels, setSlackChannels ] = useState();
@@ -37,13 +39,36 @@ export default function AddReportModal() {
   async function onSubmit(values) {
     setLoading(true)
     console.log('Submission Values', values)
-    // post to the api
-      // on error push to a toast
-    // reset the form
-    // reset the loading
-    // close dialog
-    // reload the page an pull report
-    
+    if (!values.name || !values.slack_channel) {
+    //if (!values.name || !values.cadence || !values.sending_mechanism || !values.slack_channel) {
+      toast.error('All fields are required')
+      console.error('All fields are required');
+      console.error('All fields are required');
+      setLoading(false);
+      return;
+    }
+      //cadence: values.candence,
+      //sending_mechanism: values.sending_mechanism,
+    const { report, error } = await SwishjamAPI.Reports.create({
+      name: values.name,
+      cadence: 'daily',
+      sending_mechanism: 'slack',
+      config: {
+        channel_id: values.slack_channel
+      }
+    })
+
+    if (error) {
+      console.error(error) 
+      toast.error("Uh oh! Something went wrong.", {
+        description: "Contact founders@swishjam.com for help",
+      })
+    }
+  
+    form.reset();
+    setLoading(false);
+    dialogRef.current.click();
+    onNewReport(report)
   }
 
   useEffect(() => {
@@ -65,6 +90,7 @@ export default function AddReportModal() {
     <Dialog>
       <DialogTrigger
         className={`duration-300 transition-all ml-2 flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white focus:outline-none focus:ring-2 bg-swishjam hover:bg-swishjam-dark`}
+        ref={dialogRef} 
       >
         <LuPlus className="h-4 w-4 mt-0.5 mr-2"/> 
         Add Report
