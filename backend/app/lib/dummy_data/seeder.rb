@@ -19,8 +19,8 @@ module DummyData
         event_name_options = EventsToGenerate.prompt_user_for_or_generate_event_names
         data_begins_max_number_of_days_ago = { 100 => 15, 500 => 30, 1_000 => 45, 5_000 => 60, 10_000 => 90, 20_000 => 180 }[number_of_sessions_to_generate]
 
-        ::Integrations::Stripe.create(workspace: workspace, enabled: true, config: { stubbed: true }) 
-        ::Integrations::Resend.create(workspace: workspace, enabled: true, config: { stubbed: true })
+        ::Integrations::Stripe.create!(workspace: workspace, enabled: true, config: { stubbed: true, account_id: 'stubbed' }) 
+        ::Integrations::Resend.create!(workspace: workspace, enabled: true, config: { stubbed: true })
 
         swishjam_user.workspaces << workspace unless swishjam_user.workspaces.include?(workspace)
 
@@ -30,6 +30,7 @@ module DummyData
           workspace: workspace, 
           number_of_users: (number_of_sessions_to_generate * 0.75).to_i,
           data_begins_max_number_of_days_ago: data_begins_max_number_of_days_ago,
+          initial_url_options: url_paths.map{ |url_path| "https://#{url_host}#{url_path}" },
         )
         organizations = OrganizationProfiles.generate!(workspace, (number_of_users_to_generate * 0.75).to_i)
         UserOrganizationAssigner.assign_user_profiles_to_organization_profiles!(users, organizations)
@@ -71,9 +72,9 @@ module DummyData
           url_host: product_url_host, 
           url_paths: url_paths, 
           event_name_options: event_name_options, 
-          data_begins_max_number_of_days_ago: data_begins_max_number_of_days_ago
+          data_begins_max_number_of_days_ago: data_begins_max_number_of_days_ago,
+          initial_url: "https://#{marketing_url_host}#{url_paths.sample}",
         )
-        RetentionData.generate!(workspace)
 
         puts "Completed seed in #{Time.current - start_time} seconds.".colorize(:green)
       end

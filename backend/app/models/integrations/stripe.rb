@@ -2,6 +2,12 @@ module Integrations
   class Stripe < Integration
     self.data_source = ApiKey::ReservedDataSources.STRIPE
     after_create :run_data_sync_job
+
+    validate :config_has_account_id
+
+    def self.find_by_account_id(account_id)
+      includes(:workspace).where("integrations.config->>'account_id' = ?", account_id).limit(1).first
+    end
     
     def account_id
       config['account_id']
@@ -18,6 +24,10 @@ module Integrations
     rescue => e
       Sentry.capture_exception(e)
       Rails.logger.error "Unable to deauthorize Stripe OAuth from Account ID #{account_id}: #{e.inspect}"
+    end
+
+    def config_has_account_id
+      errors.add(:config, "must have an `account_id` key") if !config['account_id'].present?
     end
   end
 end

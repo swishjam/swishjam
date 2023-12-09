@@ -33,6 +33,7 @@ gem 'sentry-sidekiq'
 gem 'sidekiq', '~> 6.5'
 gem 'sidekiq-failures'
 gem 'sidekiq-scheduler'
+gem 'stackprof'
 gem 'stripe'
 gem "tty-prompt"
 gem 'tty-progressbar'

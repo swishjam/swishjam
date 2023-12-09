@@ -290,6 +290,7 @@ GEM
       actionpack (>= 5.2)
       activesupport (>= 5.2)
       sprockets (>= 3.0.0)
+    stackprof (0.2.25)
     strings-ansi (0.2.0)
     stripe (9.1.0)
     thor (1.2.2)
@@ -365,6 +366,7 @@ DEPENDENCIES
   sidekiq-scheduler
   simplecov
   spring
+  stackprof
   stripe
   tty-progressbar
   tty-prompt

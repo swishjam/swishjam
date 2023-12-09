@@ -1,4 +1,4 @@
-export class DataPersister {
+export class SessionPersistance {
   static set(key, value) {
     const currentMemory = this.all();
     currentMemory[key] = value;
@@ -13,6 +13,10 @@ export class DataPersister {
   static all() {
     return JSON.parse(sessionStorage.getItem('swishjam') || '{}');
   }
+
+  static clear() {
+    sessionStorage.removeItem('swishjam');
+  }
 }
 
-export default DataPersister;
+export default SessionPersistance;

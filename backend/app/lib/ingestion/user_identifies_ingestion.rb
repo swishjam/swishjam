@@ -51,8 +51,13 @@ module Ingestion
           email = properties['email']
           metadata = properties.except(
             'source', 'sdk_version', 'url', 'device_identifier', 'user_device_identifier', 'organization_device_identifier', 'session_identifier', 'page_view_identifier',
-            'userId', 'user_id', 'userIdentifier', 'firstName', 'first_name', 'lastName', 'last_name', 'email', 
+            'userId', 'user_id', 'userIdentifier', 'firstName', 'first_name', 'lastName', 'last_name', 'email', 'user_attributes', 'user_visit_status'
           )
+          immutable_metadata = {}
+          if properties['user_attributes'].present?
+            immutable_metadata[:initial_url] = properties.dig('user_attributes', 'initial_url')
+            immutable_metadata[:initial_referrer] = properties.dig('user_attributes', 'initial_referrer')
+          end
 
           if !unique_identifier
             Sentry.capture_message("No unique identifier provided in event payload in Ingestion::UserIdentifiesIngestion: #{event_json.inspect}")
@@ -62,8 +67,17 @@ module Ingestion
           workspace = Workspace.for_public_key(event_json['swishjam_api_key'])
           if workspace
             profile = workspace.analytics_user_profiles.find_by(user_unique_identifier: unique_identifier)
+            if profile.nil? && email.present?
+              profile = workspace.analytics_user_profiles.find_by_case_insensitive_email(email)
+            end
             if profile
-              profile.update!(first_name: first_name, last_name: last_name, email: email, metadata: metadata)
+              profile.update!(
+                email: email, 
+                first_name: first_name, 
+                last_name: last_name, 
+                metadata: metadata, 
+                immutable_metadata: immutable_metadata.merge(profile.immutable_metadata || {})
+              )
             else
               profile = workspace.analytics_user_profiles.create!(
                 user_unique_identifier: unique_identifier, 
@@ -71,13 +85,16 @@ module Ingestion
                 last_name: last_name, 
                 email: email, 
                 metadata: metadata,
-                created_at: event_json['occurred_at'] || Time.current,
+                immutable_metadata: immutable_metadata,
+                created_at: (event_json['occurred_at'] || Time.current).to_datetime,
+                created_by_data_source: workspace.api_keys.find_by!(public_key: event_json['swishjam_api_key']).data_source,
               )
               new_profile_data << { 
                 swishjam_api_key: event_json['swishjam_api_key'], 
                 unique_identifier: unique_identifier,
                 swishjam_user_id: profile.id,
-                created_at: event_json['occurred_at'] || Time.current,
+                immutable_metadata: (immutable_metadata || {}).to_json,
+                created_at: (event_json['occurred_at'] || Time.current).to_datetime,
               }
             end
           else
