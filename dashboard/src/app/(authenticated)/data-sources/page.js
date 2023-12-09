@@ -21,11 +21,13 @@ import ResendConnectView from '@/components/DataSources/ConnectViews/Resend';
 
 import CalComLogo from '@public/logos/calcom.png'
 import GoogleSearchConsoleLogo from '@public/logos/Google-Search-Console.png'
+import IntercomLogo from '@public/logos/intercom.png'
 // import HubspotLogo from '@public/logos/hubspot.jpeg';
 import ResendLogo from '@public/logos/resend.png'
 // import SalesforceLogo from '@public/logos/salesforce.png'
 import StripeLogo from '@public/logos/stripe.jpeg'
 import SwishjamLogo from '@public/logos/swishjam.png'
+import IntercomConnectionView from '@/components/DataSources/ConnectViews/Intercom';
 // import ZendeskLogo from '@public/logos/Zendesk.webp'
 
 const ALL_CONNECTIONS = {
@@ -51,6 +53,11 @@ const ALL_CONNECTIONS = {
     connectComponent: onNewConnection => <GoogleSearchConsole onNewConnection={onNewConnection} />,
     borderImage: true,
   },
+  Intercom: {
+    img: IntercomLogo,
+    description: 'Connect your Intercom account to Swishjam to automatically import your Intercom data.',
+    connectComponent: onNewConnection => <IntercomConnectionView onNewConnection={onNewConnection} />,
+  }
   // Hubspot: { img: HubspotLogo },
   // Salesforce: { img: SalesforceLogo },
   // Zendesk: {

@@ -1,0 +1,268 @@
+{
+  "type": "notification_event",
+  "app_id": "p7d72soi",
+  "data": {
+    "type": "notification_event_data",
+    "item": {
+      "type": "conversation",
+      "id": "4",
+      "created_at": 1702163110,
+      "updated_at": 1702163111,
+      "waiting_since": 1702163111,
+      "snoozed_until": null,
+      "source": {
+        "type": "conversation",
+        "id": "1960252490",
+        "delivered_as": "customer_initiated",
+        "subject": "",
+        "body": "<p>hi</p>",
+        "author": {
+          "type": "lead",
+          "id": "6574e311b98ed821f3747410",
+          "name": null,
+          "email": ""
+        },
+        "attachments": [],
+        "url": "http://localhost:3001/data-sources?success=true&newSource=Intercom",
+        "redacted": false
+      },
+      "contacts": {
+        "type": "contact.list",
+        "contacts": [
+          {
+            "type": "contact",
+            "id": "6574e311b98ed821f3747410",
+            "external_id": "f24c5026-1d7d-433a-a705-d1dd30123687"
+          }
+        ]
+      },
+      "first_contact_reply": {
+        "created_at": 1702163110,
+        "type": "conversation",
+        "url": "http://localhost:3001/data-sources?success=true&newSource=Intercom"
+      },
+      "admin_assignee_id": null,
+      "team_assignee_id": null,
+      "open": true,
+      "state": "open",
+      "read": true,
+      "tags": {
+        "type": "tag.list",
+        "tags": []
+      },
+      "priority": "not_priority",
+      "sla_applied": null,
+      "statistics": {
+        "type": "conversation_statistics",
+        "time_to_assignment": null,
+        "time_to_admin_reply": null,
+        "time_to_first_close": null,
+        "time_to_last_close": null,
+        "median_time_to_reply": null,
+        "first_contact_reply_at": "2023-12-09T23:05:10.000Z",
+        "first_assignment_at": null,
+        "first_admin_reply_at": null,
+        "first_close_at": null,
+        "last_assignment_at": null,
+        "last_assignment_admin_reply_at": null,
+        "last_contact_reply_at": "2023-12-09T23:05:10.000Z",
+        "last_admin_reply_at": null,
+        "last_close_at": null,
+        "last_closed_by_id": null,
+        "count_reopens": 0,
+        "count_assignments": 0,
+        "count_conversation_parts": 2
+      },
+      "conversation_rating": null,
+      "teammates": {
+        "type": "admin.list",
+        "admins": []
+      },
+      "title": "",
+      "custom_attributes": {
+        "Language": "English"
+      },
+      "topics": {
+        "type": "topic.list",
+        "topics": [],
+        "total_count": 0
+      },
+      "ticket": null,
+      "linked_objects": {
+        "type": "list",
+        "data": [],
+        "total_count": 0,
+        "has_more": false
+      },
+      "conversation_parts": {
+        "type": "conversation_part.list",
+        "conversation_parts": [
+          {
+            "type": "conversation_part",
+            "id": "12",
+            "part_type": "conversation_attribute_updated_by_admin",
+            "body": null,
+            "created_at": 1702163111,
+            "updated_at": 1702163111,
+            "notified_at": 1702163111,
+            "assigned_to": null,
+            "author": {
+              "id": "6973873",
+              "type": "bot",
+              "name": "Fin",
+              "email": "operator+p7d72soi@intercom.io"
+            },
+            "attachments": [],
+            "external_id": null,
+            "redacted": false
+          }
+        ],
+        "total_count": 1
+      }
+    }
+  },
+  "links": {},
+  "id": "notif_fa083dab-daf4-411d-876e-95e98485bf49",
+  "topic": "conversation.user.created",
+  "delivery_status": "pending",
+  "delivery_attempts": 1,
+  "delivered_at": 0,
+  "first_sent_at": 1702163112,
+  "created_at": 1702163112,
+  "self": null,
+  "controller": "api/v1/webhooks/intercom",
+  "action": "receive",
+  "intercom": {
+    "type": "notification_event",
+    "app_id": "p7d72soi",
+    "data": {
+      "type": "notification_event_data",
+      "item": {
+        "type": "conversation",
+        "id": "4",
+        "created_at": 1702163110,
+        "updated_at": 1702163111,
+        "waiting_since": 1702163111,
+        "snoozed_until": null,
+        "source": {
+          "type": "conversation",
+          "id": "1960252490",
+          "delivered_as": "customer_initiated",
+          "subject": "",
+          "body": "<p>hi</p>",
+          "author": {
+            "type": "lead",
+            "id": "6574e311b98ed821f3747410",
+            "name": null,
+            "email": ""
+          },
+          "attachments": [],
+          "url": "http://localhost:3001/data-sources?success=true&newSource=Intercom",
+          "redacted": false
+        },
+        "contacts": {
+          "type": "contact.list",
+          "contacts": [
+            {
+              "type": "contact",
+              "id": "6574e311b98ed821f3747410",
+              "external_id": "f24c5026-1d7d-433a-a705-d1dd30123687"
+            }
+          ]
+        },
+        "first_contact_reply": {
+          "created_at": 1702163110,
+          "type": "conversation",
+          "url": "http://localhost:3001/data-sources?success=true&newSource=Intercom"
+        },
+        "admin_assignee_id": null,
+        "team_assignee_id": null,
+        "open": true,
+        "state": "open",
+        "read": true,
+        "tags": {
+          "type": "tag.list",
+          "tags": []
+        },
+        "priority": "not_priority",
+        "sla_applied": null,
+        "statistics": {
+          "type": "conversation_statistics",
+          "time_to_assignment": null,
+          "time_to_admin_reply": null,
+          "time_to_first_close": null,
+          "time_to_last_close": null,
+          "median_time_to_reply": null,
+          "first_contact_reply_at": "2023-12-09T23:05:10.000Z",
+          "first_assignment_at": null,
+          "first_admin_reply_at": null,
+          "first_close_at": null,
+          "last_assignment_at": null,
+          "last_assignment_admin_reply_at": null,
+          "last_contact_reply_at": "2023-12-09T23:05:10.000Z",
+          "last_admin_reply_at": null,
+          "last_close_at": null,
+          "last_closed_by_id": null,
+          "count_reopens": 0,
+          "count_assignments": 0,
+          "count_conversation_parts": 2
+        },
+        "conversation_rating": null,
+        "teammates": {
+          "type": "admin.list",
+          "admins": []
+        },
+        "title": "",
+        "custom_attributes": {
+          "Language": "English"
+        },
+        "topics": {
+          "type": "topic.list",
+          "topics": [],
+          "total_count": 0
+        },
+        "ticket": null,
+        "linked_objects": {
+          "type": "list",
+          "data": [],
+          "total_count": 0,
+          "has_more": false
+        },
+        "conversation_parts": {
+          "type": "conversation_part.list",
+          "conversation_parts": [
+            {
+              "type": "conversation_part",
+              "id": "12",
+              "part_type": "conversation_attribute_updated_by_admin",
+              "body": null,
+              "created_at": 1702163111,
+              "updated_at": 1702163111,
+              "notified_at": 1702163111,
+              "assigned_to": null,
+              "author": {
+                "id": "6973873",
+                "type": "bot",
+                "name": "Fin",
+                "email": "operator+p7d72soi@intercom.io"
+              },
+              "attachments": [],
+              "external_id": null,
+              "redacted": false
+            }
+          ],
+          "total_count": 1
+        }
+      }
+    },
+    "links": {},
+    "id": "notif_fa083dab-daf4-411d-876e-95e98485bf49",
+    "topic": "conversation.user.created",
+    "delivery_status": "pending",
+    "delivery_attempts": 1,
+    "delivered_at": 0,
+    "first_sent_at": 1702163112,
+    "created_at": 1702163112,
+    "self": null
+  }
+}
