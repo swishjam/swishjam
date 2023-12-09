@@ -51,7 +51,11 @@ module Ingestion
           when 'organization'
             organization_events << e
           when 'sdk_error'
-            Sentry.capture_message("SDK Error: #{e.dig('properties', 'error', 'message')}", level: 'error')
+            begin
+              Sentry.capture_message("SDK Error: #{JSON.parse(e['properties'] || '{}').dig('error', 'message')}", level: 'error')
+            rescue => e
+              Sentry.capture_exception(e)
+            end
           end
         end
         Ingestion::QueueManager.push_records_into_queue(Ingestion::QueueManager::Queues.IDENTIFY, identify_events) if identify_events.count > 0
