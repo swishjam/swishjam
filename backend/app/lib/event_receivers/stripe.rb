@@ -49,7 +49,7 @@ module EventReceivers
     end
 
     def get_stripe_customer_if_necessary(stripe_event)
-      if stripe_event.data.object&.customer.is_a?(String) && !ENV['STRIPE_SKIP_CUSTOMER_LOOKUP']
+      if stripe_event.data.object.respond_to?(:customer) && stripe_event.data.object.customer.is_a?(String) && !ENV['STRIPE_SKIP_CUSTOMER_LOOKUP_IN_WEBHOOKS']
         ::Stripe::Customer.retrieve(stripe_event.data.object.customer, { stripe_account: @event_payload['account'] })
       end
     end
