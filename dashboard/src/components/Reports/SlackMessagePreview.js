@@ -1,4 +1,3 @@
-import FakeReactionButton from './FakeReactionButton';
 import Image from 'next/image'
 import SwishjamLogo from '@public/logos/swishjam.png'
 
@@ -34,10 +33,6 @@ export default function SlackMessagePreview({ header, body, className }) {
             <p>📈 New Users: 456 (+2.0% vs yesterday) </p> 
             {body}
           </div>
-        </div>
-        <div className='flex items-center gap-x-2 mt-2'>
-          <FakeReactionButton emoji={<>👍🏼</>} />
-          <FakeReactionButton emoji={<>🔥</>} />
         </div>
       </div>
     </div>
