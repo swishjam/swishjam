@@ -32,6 +32,10 @@ class Integration < Transactional
     find_by(workspace: workspace)
   end
 
+  def self.find_by_config_attribute(config_attr, val)
+    where("config->>'#{config_attr}' = ?", val).first
+  end
+
   def enabled?
     enabled
   end

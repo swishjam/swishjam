@@ -4,7 +4,7 @@ module Api
       class IntercomController < BaseController
         def receive
           byebug
-          # params[:topic]
+          EventReceivers::Intercom.new(request.body.read).receive!
           render json: {}, status: :ok
         end
       end

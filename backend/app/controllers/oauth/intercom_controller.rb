@@ -15,9 +15,14 @@ module Oauth
       })
       auth_data = JSON.parse(resp.body)
       if auth_data['access_token']
+        account_details = Intercom::Api.new(auth_data['access_token']).get_account_details
         Integrations::Intercom.create!(
           workspace: workspace,
-          config: { access_token: auth_data['access_token'] }
+          config: { 
+            access_token: auth_data['access_token'],
+            app_id: account_details.dig('app', 'id_code'),
+            app_name: account_details.dig('app', 'name'),
+          }
         )
         redirect_to "#{ENV['FRONTEND_URL'] || 'https://app.swishjam.com'}/data-sources?success=true&newSource=Intercom"
       else
