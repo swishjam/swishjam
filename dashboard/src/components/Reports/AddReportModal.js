@@ -29,6 +29,7 @@ import {
 import { useForm } from "react-hook-form"
 import LoadingSpinner from '@components/LoadingSpinner';
 import { toast } from 'sonner'
+import SlackMessagePreview from './SlackMessagePreview';
 
 export default function AddReportModal({ onNewReport }) {
   const dialogRef = useRef(); 
@@ -42,7 +43,6 @@ export default function AddReportModal({ onNewReport }) {
     if (!values.name || !values.slack_channel) {
     //if (!values.name || !values.cadence || !values.sending_mechanism || !values.slack_channel) {
       toast.error('All fields are required')
-      console.error('All fields are required');
       console.error('All fields are required');
       setLoading(false);
       return;
@@ -95,14 +95,24 @@ export default function AddReportModal({ onNewReport }) {
         <LuPlus className="h-4 w-4 mt-0.5 mr-2"/> 
         Add Report
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent className="max-w-4xl">
         <DialogHeader>
           <DialogTitle>Create a Report</DialogTitle>
           <DialogDescription>
             Schedule an automated report of your key data to slack or via email  
           </DialogDescription>
         </DialogHeader> 
-
+        
+        <div className="grid grid-cols-2 gap-8">
+          <div>
+            <h2>Report Preview</h2>
+            <SlackMessagePreview
+              header={'Daily Update'}
+              body={''}
+              className={'mt-2'}
+            />
+          </div>
+          <div>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <FormField
@@ -189,6 +199,7 @@ export default function AddReportModal({ onNewReport }) {
                 </FormItem>
               )}
             />
+
             <Button
               className={`!mt-6 w-full flex items-center justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white focus:outline-none focus:ring-2 ${loading ? 'bg-swishjam-dark':'bg-swishjam'} hover:bg-swishjam-dark`} 
               type="submit"
@@ -197,6 +208,9 @@ export default function AddReportModal({ onNewReport }) {
             </Button>
           </form>
         </Form>
+          </div>
+        </div>
+
 
       </DialogContent>
     </Dialog>

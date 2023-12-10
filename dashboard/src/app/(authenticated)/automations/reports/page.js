@@ -69,8 +69,8 @@ export default function ReportsPage() {
 
   const loadReports = async () => {
      SwishjamAPI.Reports.list().then(reports => {
-      console.log('Reports', reports)
-      setReports(reports)
+      //console.log('Reports', reports)
+      //setReports(reports)
       setIsLoading(false)
      });
   }
@@ -91,7 +91,7 @@ export default function ReportsPage() {
         <div className="mt-24 h-5 w-5 mx-auto">
           <LoadingSpinner size={8} />
         </div> :
-        (reports.length > 0 ? 
+        (reports?.length > 0 ? 
           <div>
             <ul role="list" className="w-full space-y-2 mt-8">
             {reports?.sort((a, b) => new Date(a.created_at) - new Date(b.created_at))?.map(report => (
