@@ -12,6 +12,7 @@ module EventReceivers
         public_key = integration.workspace.api_keys.for_data_source(ApiKey::ReservedDataSources.STRIPE)&.public_key
         if public_key
           stripe_event = ::Stripe::Webhook.construct_event(@request_body, @signing_secret, ENV['STRIPE_WEBHOOK_SECRET'])
+          return if !stripe_event.livemode
           format_event_data_and_enqueue_it_to_be_processed(stripe_event, integration.workspace, public_key)
           enqueue_sync_jobs_if_necessary(stripe_event)
           true

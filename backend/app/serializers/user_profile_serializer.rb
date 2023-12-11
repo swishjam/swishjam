@@ -11,7 +11,7 @@ class UserProfileSerializer < ActiveModel::Serializer
   end
 
   def active_subscriptions
-    object.customer_subscriptions.active.map do |subscription|
+    object.customer_subscriptions.includes(:customer_subscription_items).active.map do |subscription|
       {
         id: subscription.id,
         subscription_provider_object_id: subscription.subscription_provider_object_id,

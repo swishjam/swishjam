@@ -104,170 +104,229 @@ export default function ProfileInformationSideBar({ userData, hasStripeIntegrati
                   )}
                 />
                 <div className='relative'>
-                  {userData.active_subscriptions && userData.active_subscriptions.length === 0 && hasStripeIntegrationEnabled === false && (
-                    <div className='absolute w-1/3 top-0 bottom-0 right-0 group'>
-                      <div className='absolute w-full h-full bg-white blur-md group-hover:blur-xl transition-all' />
-                      <div className='absolute w-full h-full flex items-center justify-center'>
-                        <Tooltipable
-                          content={
-                            <div className='px-4 py-2 text-sm text-gray-500'>
-                              Stripe integration is not enabled. <a href='/data-sources' target='_blank' className='text-blue-400 hover:underline'>Connect your Stripe account</a> to see subscription data.
-                            </div>
-                          }
-                        >
+                  {userData.active_subscriptions && userData.active_subscriptions.length === 0 && hasStripeIntegrationEnabled === false ? (
+                    <div className='group cursor-default relative'>
+                      <Tooltipable
+                        direction="right"
+                        content={
+                          <div className='px-4 py-2 text-sm text-gray-500'>
+                            Payment data is not enabled. <a href='/data-sources' target='_blank' className='text-blue-400 hover:underline'>Connect your Stripe account</a> to begin importing your payments data to Swishjam.
+                          </div>
+                        }
+                      >
+                        <div className='absolute w-1/2 top-0 bottom-0 right-0 flex items-center justify-center group z-10'>
                           <Lock className='h-6 w-6 text-gray-400' />
-                        </Tooltipable>
+                        </div>
+                      </Tooltipable>
+                      <div className="px-4 py-2 col-span-1 sm:px-0 grid grid-cols-2">
+                        <dt className="text-sm font-medium leading-6 text-gray-900">Subscription Plan</dt>
+                        <dd className="text-sm leading-6 text-gray-700 flex justify-end blur-sm group-hover:blur-md transition-all">
+                          <dd>
+                            <span className="blur-md inline-flex items-center rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20">
+                              Gold Plan
+                            </span>
+                          </dd>
+                        </dd>
+                      </div>
+                      <div className="px-4 py-2 col-span-1 sm:px-0 grid grid-cols-2">
+                        <dt className="text-sm font-medium leading-6 text-gray-900">Subscription MRR</dt>
+                        <dd className="text-sm leading-6 text-gray-700 flex justify-end blur-sm group-hover:blur-md transition-all">
+                          <dd>
+                            <span className="blur-md inline-flex items-center rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20">
+                              $79.99
+                            </span>
+                          </dd>
+                        </dd>
+                      </div>
+
+                      <div className="px-4 py-2 col-span-1 sm:px-0 grid grid-cols-2">
+                        <dt className="text-sm font-medium leading-6 text-gray-900">Lifetime Value</dt>
+                        <dd className="text-sm leading-6 text-gray-700 flex justify-end blur-sm group-hover:blur-md transition-all">
+                          <span className="blur-md inline-flex items-center rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20">
+                            $1,234.56
+                          </span>
+                        </dd>
                       </div>
                     </div>
+                  ) : (
+                    <>
+                      <EnrichedDataItem
+                        title='Subscription Plan'
+                        enrichmentData={userData}
+                        enrichmentKey='active_subscriptions'
+                        formatter={subscriptions => (
+                          [].concat(...subscriptions.map(sub => (
+                            sub.subscription_items.map(item => (
+                              <span
+                                key={item.id}
+                                className="inline-flex items-center rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20"
+                              >
+                                {item.product_name}
+                              </span>
+                            ))
+                          )))
+                        )}
+                      />
+                      <EnrichedDataItem
+                        title='Subscription MRR'
+                        enrichmentData={userData}
+                        enrichmentKey='current_mrr_in_cents'
+                        formatter={mrr => (
+                          <span className="inline-flex items-center rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20">
+                            {(mrr / 100).toLocaleString('en-US', { style: 'currency', currency: 'USD' })}
+                          </span>
+                        )}
+                      />
+                      <EnrichedDataItem
+                        title='Lifetime Value'
+                        enrichmentData={userData}
+                        enrichmentKey='lifetime_value_in_cents'
+                        formatter={ltv => (
+                          <span className="inline-flex items-center rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20">
+                            {(ltv / 100).toLocaleString('en-US', { style: 'currency', currency: 'USD' })}
+                          </span>
+                        )}
+                      />
+                    </>
                   )}
-                  <EnrichedDataItem
-                    title='Subscription Plan'
-                    enrichmentData={userData}
-                    enrichmentKey='active_subscriptions'
-                    noDataValue={
-                      hasStripeIntegrationEnabled === false
-                        ? (
-                          <span className="inline-flex items-center rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20">
-                            Gold Plan
-                          </span>
-                        ) : '-'
-                    }
-                    formatter={subscriptions => (
-                      [].concat(...subscriptions.map(sub => (
-                        sub.subscription_items.map(item => (
-                          <span
-                            key={item.id}
-                            className="inline-flex items-center rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20"
-                          >
-                            {item.product_name}
-                          </span>
-                        ))
-                      )))
-                    )}
-                  />
-                  <EnrichedDataItem
-                    title='Subscription MRR'
-                    enrichmentData={userData}
-                    enrichmentKey='current_mrr_in_cents'
-                    noDataValue={
-                      hasStripeIntegrationEnabled === false
-                        ? (
-                          <span className="inline-flex items-center rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20">
-                            $79
-                          </span>
-                        ) : '-'
-                    }
-                    formatter={mrr => (
-                      <span className="inline-flex items-center rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20">
-                        {(mrr / 100).toLocaleString('en-US', { style: 'currency', currency: 'USD' })}
-                      </span>
-                    )}
-                  />
-                  <EnrichedDataItem
-                    title='Lifetime Value'
-                    enrichmentData={userData}
-                    enrichmentKey='lifetime_value_in_cents'
-                    formatter={ltv => (
-                      <span className="inline-flex items-center rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20">
-                        {(ltv / 100).toLocaleString('en-US', { style: 'currency', currency: 'USD' })}
-                      </span>
-                    )}
-                  />
                 </div>
                 <div className='relative'>
-                  {hasProfileEnrichmentEnabled === false && hasNoEnrichmentData && (
-                    <div className='absolute w-1/3 top-0 bottom-0 right-0 group'>
-                      <div className='absolute w-full h-full bg-white blur-lg group-hover:blur-xl transition-all' />
-                      <div className='absolute w-full h-full flex items-center justify-center'>
-                        <Tooltipable
-                          content={
-                            <div className='px-4 py-2 text-sm text-gray-700 bg-white rounded'>
-                              Profile enrichment is not enabled. <a href='/settings' target='_blank' className='text-blue-400 hover:underline'>Enable it now</a> to begin enriching user profiles.
-                            </div>
-                          }
-                        >
+                  {hasProfileEnrichmentEnabled === false && hasNoEnrichmentData ? (
+                    <div className='group cursor-default relative'>
+                      <Tooltipable
+                        direction="right"
+                        content={
+                          <div className='px-4 py-2 text-sm text-gray-500'>
+                            Profile enrichment is not enabled. <a href='/data-sources' target='_blank' className='text-blue-400 hover:underline'>Enable it here</a> to begin enriching user profiles.
+                          </div>
+                        }
+                      >
+                        <div className='absolute w-1/2 top-0 bottom-0 right-0 flex items-center justify-center group z-10'>
                           <Lock className='h-6 w-6 text-gray-400' />
-                        </Tooltipable>
+                        </div>
+                      </Tooltipable>
+                      <div className="px-4 py-2 col-span-1 sm:px-0 grid grid-cols-2">
+                        <dt className="text-sm font-medium leading-6 text-gray-900">Role</dt>
+                        <dd className="text-sm leading-6 text-gray-700 flex justify-end blur-sm group-hover:blur-md transition-all">
+                          <dd>CEO & Founder</dd>
+                        </dd>
+                      </div>
+                      <div className="px-4 py-2 col-span-1 sm:px-0 grid grid-cols-2">
+                        <dt className="text-sm font-medium leading-6 text-gray-900">Twitter Profile</dt>
+                        <dd className="text-sm leading-6 text-gray-700 flex justify-end blur-sm group-hover:blur-md transition-all">
+                          <dd>@CollinSchneid</dd>
+                        </dd>
+                      </div>
+
+                      <div className="px-4 py-2 col-span-1 sm:px-0 grid grid-cols-2">
+                        <dt className="text-sm font-medium leading-6 text-gray-900">LinkedIn Profile</dt>
+                        <dd className="text-sm leading-6 text-gray-700 flex justify-end blur-sm group-hover:blur-md transition-all">
+                          <dd>Collin-Schneider</dd>
+                        </dd>
+                      </div>
+
+                      <div className="px-4 py-2 col-span-1 sm:px-0 grid grid-cols-2">
+                        <dt className="text-sm font-medium leading-6 text-gray-900">Company</dt>
+                        <dd className="text-sm leading-6 text-gray-700 flex justify-end blur-sm group-hover:blur-md transition-all">
+                          <dd>Swishjam</dd>
+                        </dd>
+                      </div>
+
+                      <div className="px-4 py-2 col-span-1 sm:px-0 grid grid-cols-2">
+                        <dt className="text-sm font-medium leading-6 text-gray-900">Company Size</dt>
+                        <dd className="text-sm leading-6 text-gray-700 flex justify-end blur-sm group-hover:blur-md transition-all">
+                          <dd>10-50</dd>
+                        </dd>
+                      </div>
+
+                      <div className="px-4 py-2 col-span-1 sm:px-0 grid grid-cols-2">
+                        <dt className="text-sm font-medium leading-6 text-gray-900">Industry</dt>
+                        <dd className="text-sm leading-6 text-gray-700 flex justify-end blur-sm group-hover:blur-md transition-all">
+                          <dd>Software</dd>
+                        </dd>
+                      </div>
+
+                      <div className="px-4 py-2 col-span-1 sm:px-0 grid grid-cols-2">
+                        <dt className="text-sm font-medium leading-6 text-gray-900">Location</dt>
+                        <dd className="text-sm leading-6 text-gray-700 flex justify-end blur-sm group-hover:blur-md transition-all">
+                          <dd>Los Angeles, CA</dd>
+                        </dd>
                       </div>
                     </div>
-                  )}
-                  <EnrichedDataItem
-                    title='Role'
-                    enrichmentData={userData.enrichment_data}
-                    enrichmentKey='job_title'
-                    noDataValue={hasProfileEnrichmentEnabled === false && hasNoEnrichmentData === true ? 'CEO & Co-founder' : '-'}
-                  />
-                  <EnrichedDataItem
-                    title='Twitter Profile'
-                    enrichmentData={userData.enrichment_data}
-                    enrichmentKey='twitter_url'
-                    noDataValue={hasProfileEnrichmentEnabled === false && hasNoEnrichmentData === true ? '@jack' : '-'}
-                    formatter={url => (
-                      <a
-                        className="hover:underline hover:text-blue-400 transition duration-500"
-                        href={url}
-                        target="_blank"
-                      >
-                        {(safelyParseURL(url).pathname?.split('/') || ['', url])[1]}
-                      </a>
-                    )}
-                  />
-                  <EnrichedDataItem
-                    title='LinkedIn Profile'
-                    enrichmentData={userData.enrichment_data}
-                    enrichmentKey='linkedin_url'
-                    noDataValue={hasProfileEnrichmentEnabled === false && hasNoEnrichmentData === true ? 'Jack-Dorsey' : '-'}
-                    formatter={url => (
-                      <a
-                        className="hover:underline hover:text-blue-400 transition duration-500 flex items-center justify-end"
-                        href={`https://${url}`}
-                        target="_blank"
-                      >
-                        {(safelyParseURL(`https://${url}`).pathname?.split('/') || ['', '', url])[2]}
-                        <ArrowTopRightOnSquareIcon className='inline-block ml-1 h-3 w-3' />
-                      </a>
-                    )}
-                  />
-                  <EnrichedDataItem
-                    title='Company'
-                    enrichmentData={userData.enrichment_data}
-                    enrichmentKey='company_name'
-                    noDataValue={hasProfileEnrichmentEnabled === false && hasNoEnrichmentData === true ? 'Twitter' : '-'}
-                    formatter={name => {
-                      if (userData.enrichment_data.company_website) {
-                        return (
+                  ) : (
+                    <>
+                      <EnrichedDataItem
+                        title='Role'
+                        enrichmentData={userData.enrichment_data}
+                        enrichmentKey='job_title'
+                      />
+                      <EnrichedDataItem
+                        title='Twitter Profile'
+                        enrichmentData={userData.enrichment_data}
+                        enrichmentKey='twitter_url'
+                        formatter={url => (
                           <a
-                            className="hover:underline hover:text-blue-400 transition duration-500 flex items-center justify-end"
-                            href={`https://${userData.enrichment_data.company_website}`}
+                            className="hover:underline hover:text-blue-400 transition duration-500"
+                            href={url}
                             target="_blank"
                           >
-                            {name}
+                            {(safelyParseURL(url).pathname?.split('/') || ['', url])[1]}
+                          </a>
+                        )}
+                      />
+                      <EnrichedDataItem
+                        title='LinkedIn Profile'
+                        enrichmentData={userData.enrichment_data}
+                        enrichmentKey='linkedin_url'
+                        formatter={url => (
+                          <a
+                            className="hover:underline hover:text-blue-400 transition duration-500 flex items-center justify-end"
+                            href={`https://${url}`}
+                            target="_blank"
+                          >
+                            {(safelyParseURL(`https://${url}`).pathname?.split('/') || ['', '', url])[2]}
                             <ArrowTopRightOnSquareIcon className='inline-block ml-1 h-3 w-3' />
                           </a>
-                        )
-                      } else {
-                        return name;
-                      }
-                    }}
-                  />
-                  <EnrichedDataItem
-                    title='Company Size'
-                    enrichmentData={userData.enrichment_data}
-                    enrichmentKey='company_size'
-                    noDataValue={hasProfileEnrichmentEnabled === false && hasNoEnrichmentData === true ? '500 - 750' : '-'}
-                  />
-                  <EnrichedDataItem
-                    title='Industry'
-                    enrichmentData={userData.enrichment_data}
-                    enrichmentKey='company_industry'
-                    noDataValue={hasProfileEnrichmentEnabled === false && hasNoEnrichmentData === true ? 'Software' : '-'}
-                  />
-                  <EnrichedDataItem
-                    title='Location'
-                    enrichmentData={userData.enrichment_data}
-                    enrichmentKey='company_location_metro'
-                    noDataValue={hasProfileEnrichmentEnabled === false && hasNoEnrichmentData === true ? 'San Francisco, CA' : '-'}
-                  />
+                        )}
+                      />
+                      <EnrichedDataItem
+                        title='Company'
+                        enrichmentData={userData.enrichment_data}
+                        enrichmentKey='company_name'
+                        formatter={name => {
+                          if (userData.enrichment_data.company_website) {
+                            return (
+                              <a
+                                className="hover:underline hover:text-blue-400 transition duration-500 flex items-center justify-end"
+                                href={`https://${userData.enrichment_data.company_website}`}
+                                target="_blank"
+                              >
+                                {name}
+                                <ArrowTopRightOnSquareIcon className='inline-block ml-1 h-3 w-3' />
+                              </a>
+                            )
+                          } else {
+                            return name;
+                          }
+                        }}
+                      />
+                      <EnrichedDataItem
+                        title='Company Size'
+                        enrichmentData={userData.enrichment_data}
+                        enrichmentKey='company_size'
+                      />
+                      <EnrichedDataItem
+                        title='Industry'
+                        enrichmentData={userData.enrichment_data}
+                        enrichmentKey='company_industry'
+                      />
+                      <EnrichedDataItem
+                        title='Location'
+                        enrichmentData={userData.enrichment_data}
+                        enrichmentKey='company_location_metro'
+                      />
+                    </>
+                  )}
                 </div>
 
                 <div className="my-4 border-t border-slate-100 w-full" />
