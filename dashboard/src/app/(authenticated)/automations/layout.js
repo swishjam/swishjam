@@ -8,8 +8,8 @@ import { TbReport } from "react-icons/tb";
 
 const sidebarNavItems = [
   {
-    title: "Workflows",
-    href: "/automations",
+    title: "Event Triggers",
+    href: "/automations/event-triggers",
     icon: LuWorkflow,
   },
   {

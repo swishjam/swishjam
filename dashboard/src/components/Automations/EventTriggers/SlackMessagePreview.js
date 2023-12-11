@@ -4,9 +4,9 @@ import SwishjamLogo from '@public/logos/swishjam.png'
 
 export default function SlackMessagePreview({ header, body, className }) {
   return (
-    <div className={`border border-gray-200 rounded-md p-4 flex gap-x-4 hover:bg-gray-100 ${className}`}>
+    <div className={`border border-gray-200 rounded-md p-4 flex gap-x-4 ${className}`}>
       <div className='flex-shrink-0'>
-        <Image src={SwishjamLogo} className='h-12 w-16' />
+        <Image src={SwishjamLogo} className='h-12 w-20' />
       </div>
       <div className='flex-grow'>
         <div className='flex items-end'>

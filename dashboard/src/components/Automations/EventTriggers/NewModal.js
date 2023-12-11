@@ -8,7 +8,7 @@ import { useEffect, useState } from 'react';
 import SlackMessagePreview from './SlackMessagePreview';
 import MessageBodyMarkdownRenderer from './MessageBodyMarkdownRenderer';
 import EventTriggerStepsSelectors from './EventTriggerStepsSelectors';
-import LoadingSpinner from '../LoadingSpinner';
+import LoadingSpinner from '../../LoadingSpinner';
 // import { PaperAirplaneIcon } from '@heroicons/react/24/outline';
 
 export default function NewSlackEventTriggerModal({ isOpen, onClose, onNewTrigger }) {
