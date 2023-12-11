@@ -6,7 +6,7 @@ module StripeHelpers
           'uuid' => stripe_event.id,
           'event' => "stripe.#{stripe_event.type}",
           'timestamp' => stripe_event.created * 1_000,
-          'object_id' => stripe_event.data.object.id,
+          'object_id' => stripe_event.data.object.respond_to?(:id) ? stripe_event.data.object.id : nil,
         }.merge(custom_attributes_for(stripe_event))
         stripe_event.data.object.metadata.each do |key, value|
           swishjam_event_data["metadata_#{key}"] = value
