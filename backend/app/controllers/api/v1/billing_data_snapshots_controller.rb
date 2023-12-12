@@ -40,6 +40,7 @@ module Api
             group_by: current_billing_data_getter.group_by,
             value_method: :mrr_in_cents,
             date_method: :rounded_captured_at,
+            use_previous_value_for_missing_data: true,
           )
 
           comparison_mrr_timeseries_data_formatter = DataFormatters::Timeseries.new(
@@ -49,6 +50,7 @@ module Api
             group_by: comparison_billing_data_getter.group_by,
             value_method: :mrr_in_cents,
             date_method: :rounded_captured_at,
+            use_previous_value_for_missing_data: true,
           )
 
           current_active_subscriptions_timeseries_data_formatter = DataFormatters::Timeseries.new(
@@ -58,6 +60,7 @@ module Api
             group_by: current_billing_data_getter.group_by,
             value_method: :num_active_subscriptions,
             date_method: :rounded_captured_at,
+            use_previous_value_for_missing_data: true,
           )
 
           comparison_active_subscriptions_timeseries_data_formatter = DataFormatters::Timeseries.new(
@@ -67,6 +70,7 @@ module Api
             group_by: comparison_billing_data_getter.group_by,
             value_method: :num_active_subscriptions,
             date_method: :rounded_captured_at,
+            use_previous_value_for_missing_data: true,
           )
 
           render json: {

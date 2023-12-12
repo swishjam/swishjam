@@ -302,12 +302,6 @@ export default function Home() {
           title='Churn (Coming Soon)'
           value={0}
           previousValue={0}
-          noDataMessage={
-            <div className='text-center'>
-              <BsCloudSlash size={24} className='text-gray-500 m-auto' />
-              No data available, <Link className='underline text-blue-700 cursor-pointer' href='/data-sources'>connect your Stripe account</Link> to get started.
-            </div>
-          }
           previousValueDate={new Date()}
           valueFormatter={formatMoney}
           yAxisFormatter={formatShrinkMoney}

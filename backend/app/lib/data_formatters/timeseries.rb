@@ -2,13 +2,14 @@ module DataFormatters
   class Timeseries
     attr_reader :data, :start_time, :end_time, :group_by
     
-    def initialize(data, start_time:, end_time:, group_by:, value_method: :count, date_method: :occurred_at)
+    def initialize(data, start_time:, end_time:, group_by:, value_method: :count, date_method: :occurred_at, use_previous_value_for_missing_data: false)
       @data = data
       @start_time = start_time
       @end_time = end_time
       @group_by = group_by
       @value_method = value_method
       @date_method = date_method
+      @use_previous_value_for_missing_data = use_previous_value_for_missing_data
     end
 
     def raw_data
@@ -19,9 +20,17 @@ module DataFormatters
       return @filled_in_data if @filled_in_data.present?
       current_time = start_time
       @filled_in_data = []
+      most_recent_value = nil
       while current_time <= end_time
         matching_result = data.find{ |result| result.send(@date_method).to_datetime == current_time.to_datetime }
-        @filled_in_data <<  { date: current_time, value: matching_result&.send(@value_method) || 0 }
+        if matching_result.present?
+          @filled_in_data <<  { date: current_time, value: matching_result.send(@value_method) }
+          most_recent_value = matching_result.send(@value_method)
+        elsif @use_previous_value_for_missing_data
+          @filled_in_data << { date: current_time, value: most_recent_value || 0 }
+        else
+          @filled_in_data << { date: current_time, value: 0 }
+        end
         current_time += 1.send(group_by)
       end
       @filled_in_data
