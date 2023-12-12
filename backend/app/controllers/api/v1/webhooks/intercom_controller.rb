@@ -3,7 +3,6 @@ module Api
     module Webhooks
       class IntercomController < BaseController
         def receive
-          byebug
           EventReceivers::Intercom.new(request.body.read).receive!
           render json: {}, status: :ok
         end
