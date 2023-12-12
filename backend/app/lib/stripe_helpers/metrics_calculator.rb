@@ -111,21 +111,8 @@ module StripeHelpers
     end
 
     def calculate_mrr_for_subscription(subscription)
-      @subscription_mrr_map[subscription.id] = 0
-      # an active subscription that is set to be cancelled at the end of the billing period should not be counted towards MRR
-      return 0 unless subscription.status == 'active' && subscription.canceled_at.nil?
-      subscription.items.each do |subscription_item|
-        case subscription_item.price.recurring.interval
-        when 'day'
-          num_days_in_this_month = (Time.current.next_month.beginning_of_month - Time.current.beginning_of_month) / (60 * 60 * 24)
-          @subscription_mrr_map[subscription.id] += subscription_item.price.unit_amount * subscription_item.quantity * num_days_in_this_month
-        when 'month'
-          @subscription_mrr_map[subscription.id] += subscription_item.price.unit_amount * subscription_item.quantity
-        when 'year'
-          @subscription_mrr_map[subscription.id] += subscription_item.price.unit_amount * subscription_item.quantity / 12
-        else
-          raise "Unknown interval: #{subscription_item.price.recurring.interval}, cannot calculate MRR."
-        end
+      if @subscription_mrr_map[subscription.id].nil?
+        @subscription_mrr_map[subscription.id] = StripeHelpers::MrrCalculator.calculate_for_stripe_subscription(subscription)
       end
       @subscription_mrr_map[subscription.id]
     end
