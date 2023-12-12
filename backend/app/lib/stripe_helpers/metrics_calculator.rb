@@ -17,7 +17,7 @@ module StripeHelpers
     def flush_cache!
       @stripe_subscriptions = nil
       @stripe_charges = nil
-      @mrr = nil
+      @total_mrr = nil
       @total_revenue = nil
       @total_num_active_subscriptions = nil
       @total_num_paid_subscriptions = nil
@@ -99,7 +99,8 @@ module StripeHelpers
     def calculate_total_revenue
       @total_revenue = 0
       charges.each do |charge| 
-        @total_revenue += charge.amount if charge.status == 'succeeded'
+        next if charge.status != 'succeeded'
+        @total_revenue += charge.amount - charge.amount_refunded
       end
       @total_revenue
     end
@@ -111,7 +112,8 @@ module StripeHelpers
 
     def calculate_mrr_for_subscription(subscription)
       @subscription_mrr_map[subscription.id] = 0
-      return 0 unless subscription.status == 'active'
+      # an active subscription that is set to be cancelled at the end of the billing period should not be counted towards MRR
+      return 0 unless subscription.status == 'active' && subscription.canceled_at.nil?
       subscription.items.each do |subscription_item|
         case subscription_item.price.recurring.interval
         when 'day'
