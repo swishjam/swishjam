@@ -9,7 +9,7 @@ module Oauth
       resp = HTTParty.post('https://api.intercom.io/auth/eagle/token', {
         body: {
           code: params[:code],
-          client_id: ENV['INTERCOM_CLIENT_ID'],
+          client_id: ENV['INTERCOM_CLIENT_ID'] || '7e8e5fe4-30f3-48f0-8312-43f2886c69a7',
           client_secret: ENV['INTERCOM_CLIENT_SECRET'],
         }
       })

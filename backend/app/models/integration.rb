@@ -19,7 +19,6 @@ class Integration < Transactional
 
   def self.TYPES
     # Integrations::GoogleSearchConsole - waiting until Google app approval process.
-    # [Integrations::Stripe, Integrations::Resend, Integrations::CalCom, Integrations::GoogleSearchConsole]
     [Integrations::Stripe, Integrations::Resend, Integrations::CalCom, Integrations::Intercom]
   end
 

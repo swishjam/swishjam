@@ -2,7 +2,7 @@ import useAuthData from "@/hooks/useAuthData"
 
 export default function IntercomConnectionView() {
   const { token } = useAuthData();
-  const intercomClientId = process.env.NEXT_PUBLIC_INTERCOM_CLIENT_ID;
+  const intercomClientId = process.env.NEXT_PUBLIC_INTERCOM_CLIENT_ID || '7e8e5fe4-30f3-48f0-8312-43f2886c69a7';
 
   return (
     <a
