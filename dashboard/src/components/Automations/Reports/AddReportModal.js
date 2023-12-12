@@ -27,9 +27,13 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { useForm } from "react-hook-form"
-import LoadingSpinner from '@components/LoadingSpinner';
 import { toast } from 'sonner'
-import SlackMessagePreview from './SlackMessagePreview';
+import LoadingSpinner from '@components/LoadingSpinner';
+import SlackMessagePreview from '@/components/Slack/SlackMessagePreview';
+import MessageBodyMarkdownRenderer from '@/components/Slack/MessageBodyMarkdownRenderer';
+import { ScrollArea } from '@/components/ui/scroll-area';
+
+const reportMarkdown = '📅 10/2/2023 \n\n📣 **Marketing Site:** \n\n↔️ Sessions: 500\n\n📉 Unique Visitors: 340\n\n📈 Page Views: 456\n\n **🧑‍💻 Product Usage:**\n\n↔️ Daily Active Users: 500\n\n📉 Sessions: 340\n\n📈 New Users: 456'
 
 export default function AddReportModal({ onNewReport }) {
   const dialogRef = useRef(); 
@@ -106,11 +110,13 @@ export default function AddReportModal({ onNewReport }) {
         <div className="grid grid-cols-2 gap-8">
           <div>
             <h2>Report Preview</h2>
-            <SlackMessagePreview
-              header={'Daily Update'}
-              body={''}
-              className={'mt-2'}
-            />
+            <ScrollArea className="max-h-96 overflow-y-scroll border border-gray-200 rounded-md">
+              <SlackMessagePreview
+                header={'Daily Update'}
+                body={<MessageBodyMarkdownRenderer body={reportMarkdown} />}
+                className={'mt-2 border-0'}
+              />
+            </ScrollArea>
           </div>
           <div>
         <Form {...form}>

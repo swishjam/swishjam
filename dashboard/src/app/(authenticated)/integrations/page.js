@@ -157,7 +157,7 @@ export default function Connections() {
                   <div className='absolute top-0 right-0 p-2'>
                     <XCircleIcon
                       className='h-5 w-5 rounded-full cursor-pointer hover:bg-gray-200'
-                      onClick={() => router.push('/data-sources')}
+                      onClick={() => router.push('/integrations')}
                     />
                   </div>
                   <AlertDescription>
@@ -172,7 +172,7 @@ export default function Connections() {
                   <div className='absolute top-0 right-0 p-2'>
                     <XCircleIcon
                       className='h-5 w-5 rounded-full cursor-pointer hover:bg-gray-200'
-                      onClick={() => router.push('/data-sources')}
+                      onClick={() => router.push('/integrations')}
                     />
                   </div>
                 </Alert>

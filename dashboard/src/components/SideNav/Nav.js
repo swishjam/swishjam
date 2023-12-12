@@ -31,7 +31,7 @@ const appNav = [
   { name: 'Automations', href: '/automations/event-triggers', icon: PiMagicWand }, // HIDING FROM NAV FOR NOW
   { name: 'Users', href: '/users', icon: UserIcon },
   { name: 'Organizations', href: '/organizations', icon: UserGroupIcon },
-  { name: 'Integrations', href: '/data-sources', icon: CircleStackIcon },
+  { name: 'Integrations', href: '/integrations', icon: CircleStackIcon },
   { name: 'Settings', href: '/settings', icon: Cog6ToothIcon },
 ]
 

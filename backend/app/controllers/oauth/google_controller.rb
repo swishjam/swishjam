@@ -3,10 +3,10 @@ module Oauth
     def callback
       integration = GoogleApis::Auth::WithAuthCode.get_and_save_auth_credentials!(params[:code], validate_token_and_return_workspace_id)
       GoogleApis::Search.new(integration).get_and_save_sites
-      redirect_to "#{ENV['FRONTEND_URL'] || 'https://app.swishjam.com'}/data-sources?success=true&newSource=#{URI.encode_uri_component('Google Search Console')}"
+      redirect_to "#{ENV['FRONTEND_URL'] || 'https://app.swishjam.com'}/integrations?success=true&newSource=#{URI.encode_uri_component('Google Search Console')}"
     rescue => e
       Sentry.capture_message("Google oauth error: #{e.message}")
-      redirect_to "#{ENV['FRONTEND_URL'] || 'https://app.swishjam.com'}/data-sources?error=#{e.message}"
+      redirect_to "#{ENV['FRONTEND_URL'] || 'https://app.swishjam.com'}/integrations?error=#{e.message}"
     end
 
     private

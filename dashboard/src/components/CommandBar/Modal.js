@@ -11,7 +11,7 @@ const dashboardOptions = [
   { name: 'Visitor Trends', href: '/visitor-trends', icon: ChartPieIcon },
   { name: 'Users', href: '/users', icon: UserIcon },
   { name: 'Organizations', href: '/organizations', icon: UserGroupIcon },
-  { name: 'Data Sources', href: '/data-sources', icon: CircleStackIcon },
+  { name: 'Integrations', href: '/integrations', icon: CircleStackIcon },
   { name: 'Settings', href: '/settings', icon: Cog6ToothIcon }
 ]
 

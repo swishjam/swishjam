@@ -31,8 +31,8 @@ import {
 import { useForm } from "react-hook-form"
 import LoadingSpinner from '@components/LoadingSpinner';
 import { toast } from 'sonner'
-import SlackMessagePreview from './SlackMessagePreview';
-import MessageBodyMarkdownRenderer from './MessageBodyMarkdownRenderer';
+import SlackMessagePreview from '@components/Slack/SlackMessagePreview';
+import MessageBodyMarkdownRenderer from '@components/Slack/MessageBodyMarkdownRenderer';
 
 export default function AddTriggerModal({ onNewTrigger }) {
   const dialogRef = useRef();
