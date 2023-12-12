@@ -28,10 +28,10 @@ module Api
             },
           }, status: :ok
         else
-          current_billing_data_getter = ClickHouseQueries::BillingDataSnapshots::All.new(public_keys_for_requested_data_source, start_time: start_timestamp, end_time: end_timestamp)
-          comparison_billing_data_getter = ClickHouseQueries::BillingDataSnapshots::All.new(public_keys_for_requested_data_source, start_time: comparison_start_timestamp, end_time: comparison_end_timestamp)
-          current_billing_data = current_billing_data_getter.timeseries
-          comparison_billing_data = comparison_billing_data_getter.timeseries
+          current_billing_data_getter = ClickHouseQueries::BillingDataSnapshots::Timeseries.new(public_keys_for_requested_data_source, start_time: start_timestamp, end_time: end_timestamp)
+          comparison_billing_data_getter = ClickHouseQueries::BillingDataSnapshots::Timeseries.new(public_keys_for_requested_data_source, start_time: comparison_start_timestamp, end_time: comparison_end_timestamp)
+          current_billing_data = current_billing_data_getter.get
+          comparison_billing_data = comparison_billing_data_getter.get
 
           current_mrr_timeseries_data_formatter = DataFormatters::Timeseries.new(
             current_billing_data,
@@ -39,7 +39,7 @@ module Api
             end_time: current_billing_data_getter.end_time,
             group_by: current_billing_data_getter.group_by,
             value_method: :mrr_in_cents,
-            date_method: :captured_at,
+            date_method: :rounded_captured_at,
           )
 
           comparison_mrr_timeseries_data_formatter = DataFormatters::Timeseries.new(
@@ -48,7 +48,7 @@ module Api
             end_time: comparison_billing_data_getter.end_time,
             group_by: comparison_billing_data_getter.group_by,
             value_method: :mrr_in_cents,
-            date_method: :captured_at,
+            date_method: :rounded_captured_at,
           )
 
           current_active_subscriptions_timeseries_data_formatter = DataFormatters::Timeseries.new(
@@ -57,7 +57,7 @@ module Api
             end_time: current_billing_data_getter.end_time,
             group_by: current_billing_data_getter.group_by,
             value_method: :num_active_subscriptions,
-            date_method: :captured_at,
+            date_method: :rounded_captured_at,
           )
 
           comparison_active_subscriptions_timeseries_data_formatter = DataFormatters::Timeseries.new(
@@ -66,7 +66,7 @@ module Api
             end_time: comparison_billing_data_getter.end_time,
             group_by: comparison_billing_data_getter.group_by,
             value_method: :num_active_subscriptions,
-            date_method: :captured_at,
+            date_method: :rounded_captured_at,
           )
 
           render json: {

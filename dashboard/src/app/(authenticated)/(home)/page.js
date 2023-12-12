@@ -287,9 +287,10 @@ export default function Home() {
           showAxis={false}
           timeseries={activeSubsChart?.timeseries}
           noDataMessage={
-            <>
-              No data available, <Link href='/data-sources'>connect your Stripe account</Link> to get started.
-            </>
+            <div className='text-center'>
+              <BsCloudSlash size={24} className='text-gray-500 m-auto' />
+              No data available, <Link className='underline text-blue-700 cursor-pointer' href='/data-sources'>connect your Stripe account</Link> to get started.
+            </div>
           }
           value={activeSubsChart?.value}
           previousValue={activeSubsChart?.previousValue}
@@ -302,9 +303,10 @@ export default function Home() {
           value={0}
           previousValue={0}
           noDataMessage={
-            <>
-              No data available, <Link href='/data-sources'>connect your Stripe account</Link> to get started.
-            </>
+            <div className='text-center'>
+              <BsCloudSlash size={24} className='text-gray-500 m-auto' />
+              No data available, <Link className='underline text-blue-700 cursor-pointer' href='/data-sources'>connect your Stripe account</Link> to get started.
+            </div>
           }
           previousValueDate={new Date()}
           valueFormatter={formatMoney}

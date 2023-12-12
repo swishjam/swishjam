@@ -1,9 +1,8 @@
 module ClickHouseQueries
   module BillingDataSnapshots
-    class All
+    class Timeseries
       include ClickHouseQueries::Helpers
       include TimeseriesHelper
-
       attr_accessor :group_by, :start_time, :end_time
 
       def initialize(public_keys, start_time: 6.months.ago, end_time: Time.current)
@@ -12,26 +11,25 @@ module ClickHouseQueries
         @start_time, @end_time = rounded_timestamps(start_ts: start_time, end_ts: end_time, group_by: @group_by)
       end
 
-      def timeseries
+      def get
         Analytics::BillingDataSnapshot.find_by_sql(sql.squish!)
       end
 
       def sql
         <<~SQL
           SELECT
-            captured_at,
-            mrr_in_cents,
-            total_revenue_in_cents,
-            num_active_subscriptions,
-            num_free_trial_subscriptions,
-            num_canceled_subscriptions,
-            DATE_TRUNC('#{group_by}', captured_at) AS captured_at
+            DATE_TRUNC('#{group_by}', captured_at) AS rounded_captured_at,
+            argMax(mrr_in_cents, captured_at) AS mrr_in_cents,
+            argMax(total_revenue_in_cents, captured_at) AS total_revenue_in_cents,
+            argMax(num_active_subscriptions, captured_at) AS num_active_subscriptions,
+            argMax(num_free_trial_subscriptions, captured_at) AS num_free_trial_subscriptions,
+            argMax(num_canceled_subscriptions, captured_at) AS num_canceled_subscriptions
           FROM billing_data_snapshots
           WHERE 
             swishjam_api_key IN #{formatted_in_clause(@public_keys)} AND
             captured_at BETWEEN '#{formatted_time(start_time)}' AND '#{formatted_time(end_time)}'
-          GROUP BY captured_at, mrr_in_cents, total_revenue_in_cents, num_active_subscriptions, num_free_trial_subscriptions, num_canceled_subscriptions
-          ORDER BY captured_at ASC
+          GROUP BY rounded_captured_at
+          ORDER BY rounded_captured_at ASC
         SQL
       end
     end
