@@ -2,7 +2,7 @@
 
 import AddConnectionButton from './AddConnectionButton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
-import EmptyView from './EmptyView';
+// import EmptyView from './EmptyView';
 import ExistingConnectionButton from './ExistingConnectionButton';
 import Image from 'next/image';
 import LoadingView from './LoadingView';
@@ -143,17 +143,10 @@ export default function Connections() {
               </div>
             </div>
             <div className='pt-12'>
-              {enabledConnections.length + disabledConnections.length === 0 && (
-                <EmptyView
-                  allConnections={ALL_CONNECTIONS}
-                  availableConnections={availableConnections}
-                  setConnectionForModal={setConnectionForModal}
-                />
-              )}
               {searchParams.get('success') && (
                 <Alert className='mb-2'>
                   <RocketIcon className="h-4 w-4" />
-                  <AlertTitle>{window.decodeURIComponent(searchParams.get('newSource') || 'Data source')} is now connected!</AlertTitle>
+                  <AlertTitle>{window.decodeURIComponent(searchParams.get('newSource') || searchParams.get('new_source') || 'Data source')} is now connected!</AlertTitle>
                   <div className='absolute top-0 right-0 p-2'>
                     <XCircleIcon
                       className='h-5 w-5 rounded-full cursor-pointer hover:bg-gray-200'
@@ -161,7 +154,7 @@ export default function Connections() {
                     />
                   </div>
                   <AlertDescription>
-                    Swishjam will automatically import your {window.decodeURIComponent(searchParams.get('newSource') || 'data source')} data now.
+                    Swishjam will automatically import your {window.decodeURIComponent(searchParams.get('newSource') || searchParams.get('new_source') || 'data source')} data now.
                   </AlertDescription>
                 </Alert>
               )}
@@ -177,76 +170,73 @@ export default function Connections() {
                   </div>
                 </Alert>
               )}
-              {enabledConnections.length + disabledConnections.length > 0 && (
-                <>
-                  <h5 className='py-2'>Connected Data Sources</h5>
-                  <ul role="list" className="grid grid-cols-1 gap-x-6 gap-y-8 lg:grid-cols-3 xl:gap-x-8">
-                    <ExistingConnectionButton
-                      key='marketing-analytics'
-                      img={SwishjamLogo}
-                      connection={{ id: 'swishjam-marketing', name: 'Marketing Site Analytics' }}
-                      canEdit={false}
-                      enabled={true}
-                      disableImageBorder={true}
-                    />
-                    <ExistingConnectionButton
-                      key='product-analytics'
-                      img={SwishjamLogo}
-                      connection={{ id: 'swishjam-marketing', name: 'Product Analytics' }}
-                      canEdit={false}
-                      enabled={true}
-                      disableImageBorder={true}
-                    />
-                    {enabledConnections.map(connection => (
-                      <ExistingConnectionButton
-                        key={connection.id}
-                        img={ALL_CONNECTIONS[connection.name].img}
-                        connection={connection}
-                        onDisableClick={disableConnection}
-                        onRemoveClick={deleteConnection}
-                        enabled={true}
-                        borderImage={ALL_CONNECTIONS[connection.name].borderImage}
-                      />
-                    ))}
-                  </ul>
-                  <ul role="list" className="grid grid-cols-1 gap-x-6 gap-y-8 lg:grid-cols-3 xl:gap-x-8 mt-2">
-                    {disabledConnections.map(connection => (
-                      <ExistingConnectionButton
-                        key={connection.id}
-                        img={ALL_CONNECTIONS[connection.name].img}
-                        connection={connection}
-                        onRemoveClick={deleteConnection}
-                        onEnableClick={enableConnection}
-                        enabled={false}
-                        borderImage={ALL_CONNECTIONS[connection.name].borderImage}
-                      />
-                    ))}
-                  </ul>
 
-                  <h5 className='pt-8 pb-2'>Available Data Sources to Connect</h5>
-                  <ul role="list" className="grid grid-cols-1 gap-x-6 gap-y-8 lg:grid-cols-3 xl:gap-x-8">
-                    {availableConnections.length === 0
-                      ? (
-                        <div className="text-center col-span-3 my-8">
-                          <RxCardStack className="mx-auto h-12 w-12 text-gray-400" />
-                          <h3 className="mt-2 text-sm font-semibold text-gray-900">You have installed all available Swishjam Data Sources.</h3>
-                          <p className="mt-1 text-sm text-gray-500">Looking for a connection that is not yet supported? <br />Reach out to us <a className='underline' href='mailto:founders@swishjam.com'>founders@swishjam.com</a></p>
-                        </div>
-                      ) : (
-                        availableConnections.map((connection) => (
-                          <AddConnectionButton
-                            img={ALL_CONNECTIONS[connection.name].img}
-                            key={connection.name}
-                            connection={connection}
-                            onConnectionClick={() => setConnectionForModal(connection)}
-                            borderImage={ALL_CONNECTIONS[connection.name].borderImage}
-                          />
-                        ))
-                      )
-                    }
-                  </ul>
-                </>
-              )}
+              <h5 className='py-2'>Connected Data Sources</h5>
+              <ul role="list" className="grid grid-cols-1 gap-x-6 gap-y-8 lg:grid-cols-3 xl:gap-x-8">
+                <ExistingConnectionButton
+                  key='marketing-analytics'
+                  img={SwishjamLogo}
+                  connection={{ id: 'swishjam-marketing', name: 'Web Analytics' }}
+                  canEdit={false}
+                  enabled={true}
+                  disableImageBorder={true}
+                />
+                <ExistingConnectionButton
+                  key='product-analytics'
+                  img={SwishjamLogo}
+                  connection={{ id: 'swishjam-marketing', name: 'Product Analytics' }}
+                  canEdit={false}
+                  enabled={true}
+                  disableImageBorder={true}
+                />
+                {enabledConnections.map(connection => (
+                  <ExistingConnectionButton
+                    key={connection.id}
+                    img={ALL_CONNECTIONS[connection.name].img}
+                    connection={connection}
+                    onDisableClick={disableConnection}
+                    onRemoveClick={deleteConnection}
+                    enabled={true}
+                    borderImage={ALL_CONNECTIONS[connection.name].borderImage}
+                  />
+                ))}
+              </ul>
+              <ul role="list" className="grid grid-cols-1 gap-x-6 gap-y-8 lg:grid-cols-3 xl:gap-x-8 mt-2">
+                {disabledConnections.map(connection => (
+                  <ExistingConnectionButton
+                    key={connection.id}
+                    img={ALL_CONNECTIONS[connection.name].img}
+                    connection={connection}
+                    onRemoveClick={deleteConnection}
+                    onEnableClick={enableConnection}
+                    enabled={false}
+                    borderImage={ALL_CONNECTIONS[connection.name].borderImage}
+                  />
+                ))}
+              </ul>
+
+              <h5 className='pt-8 pb-2'>Available Data Sources to Connect</h5>
+              <ul role="list" className="grid grid-cols-1 gap-x-6 gap-y-8 lg:grid-cols-3 xl:gap-x-8">
+                {availableConnections.length === 0
+                  ? (
+                    <div className="text-center col-span-3 my-8">
+                      <RxCardStack className="mx-auto h-12 w-12 text-gray-400" />
+                      <h3 className="mt-2 text-sm font-semibold text-gray-900">You have installed all available Swishjam Data Sources.</h3>
+                      <p className="mt-1 text-sm text-gray-500">Looking for a connection that is not yet supported? <br />Reach out to us <a className='underline' href='mailto:founders@swishjam.com'>founders@swishjam.com</a></p>
+                    </div>
+                  ) : (
+                    availableConnections.map((connection) => (
+                      <AddConnectionButton
+                        img={ALL_CONNECTIONS[connection.name].img}
+                        key={connection.name}
+                        connection={connection}
+                        onConnectionClick={() => setConnectionForModal(connection)}
+                        borderImage={ALL_CONNECTIONS[connection.name].borderImage}
+                      />
+                    ))
+                  )
+                }
+              </ul>
             </div>
           </main>
         </>

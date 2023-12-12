@@ -122,7 +122,12 @@ export default function LineChartWithValue({
   includeCard = true,
   includeComparisonData = true,
   includeSettingsDropdown = true,
-  noDataMessage = 'No data available.',
+  noDataMessage = (
+    <div className="flex items-center justify-center">
+      <BsCloudSlash size={24} className='text-gray-500 mr-2' />
+      <span>No date available</span>
+    </div>
+  ),
   groupedBy,
   onSettingChange = () => { },
   showAxis = false,
@@ -189,7 +194,7 @@ export default function LineChartWithValue({
       </div>
       {timeseries.length > 0
         ? (
-          <div 
+          <div
             onMouseLeave={() => {
               setCurrentValue(timeseries[timeseries.length - 1]?.value)
               setComparisonValue(timeseries[timeseries.length - 1]?.comparisonValue);
@@ -274,9 +279,8 @@ export default function LineChartWithValue({
             </ResponsiveContainer>
           </div>
         ) : (
-          <div className="flex items-center justify-center h-20 mt-6">
-            <BsCloudSlash size={24} className='text-gray-500 mr-2' />
-            <span className="text-sm text-gray-500">{noDataMessage}</span>
+          <div className='h-20 my-8 text-sm text-gray-500'>
+            {noDataMessage}
           </div>
         )
       }
