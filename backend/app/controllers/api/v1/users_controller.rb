@@ -98,7 +98,6 @@ module Api
         
         comparison_timeseries_data = current_workspace.analytics_user_profiles.where(created_at: comparison_start_timestamp..comparison_end_timestamp - 1.second).send(:"group_by_#{group_by}", :created_at).count
         formatted_comparison_timeseries_data = comparison_timeseries_data.keys.sort.map do |timestamp|
-          # { date: timestamp, value: comparison_timeseries_data[timestamp] }
           OpenStruct.new(date: timestamp, value: comparison_timeseries_data[timestamp])
         end
         comparison_timeseries = DataFormatters::Timeseries.new(
@@ -111,9 +110,7 @@ module Api
         ).formatted_data
 
         render json: {
-          # timeseries: formatted_timeseries_data,
           timeseries: current_timeseries,
-          # comparison_timeseries: formatted_comparison_timeseries_data,
           comparison_timeseries: comparison_timeseries,
           start_time: start_timestamp,
           end_time: end_timestamp,

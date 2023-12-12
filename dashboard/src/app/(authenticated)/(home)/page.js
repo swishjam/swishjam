@@ -63,19 +63,6 @@ export default function Home() {
           comparisonValue: active_subscriptions.comparison_timeseries[index]?.value
         })),
       })
-
-      // setActiveSubsChart({
-      //   value: paymentData.current_num_active_subscriptions,
-      //   previousValue: paymentData.comparison_num_active_subscriptions,
-      //   previousValueDate: paymentData.comparison_end_time,
-      //   valueChange: paymentData.change_in_num_active_subscriptions,
-      //   groupedBy: paymentData.grouped_by,
-      //   timeseries: paymentData.current_num_active_subscriptions_timeseries.map((timeseries, index) => ({
-      //     ...timeseries,
-      //     comparisonDate: paymentData.comparison_num_active_subscriptions_timeseries[index]?.date,
-      //     comparisonValue: paymentData.comparison_num_active_subscriptions_timeseries[index]?.value
-      //   }))
-      // })
     });
   }
 
