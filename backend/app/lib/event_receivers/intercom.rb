@@ -16,7 +16,7 @@ module EventReceivers
         public_key = integration.workspace.api_keys.for_data_source(ApiKey::ReservedDataSources.INTERCOM)&.public_key
         if public_key
           parser_klass = PARSER_KLASSES[@event_payload['topic']] || Intercom::EventPayloadParsers::Default
-          event_data = parser_klass.new(@event_payload, public_key).to_json
+          event_data = parser_klass.new(integration.workspace, @event_payload, public_key).to_json
           formatted_event = Analytics::Event.formatted_for_ingestion(
             uuid: event_data[:uuid],
             swishjam_api_key: public_key, 
