@@ -28,13 +28,14 @@ module StripeDataJobs
 
     def try_to_create_customer_subscription(workspace, stripe_subscription)
       # eventually this should be more sophisicated, look up by other attributes, as well as find the organization as the parent profile
-      parent_profile = workspace.analytics_user_profiles.find_by(email: stripe_subscription.customer.email)
-      if parent_profile
+      maybe_parent_profile = workspace.analytics_user_profiles.find_by_case_insensitive_email(stripe_subscription.customer.email)
+      if maybe_parent_profile
         customer_subscription = workspace.customer_subscriptions.create!(
-          parent_profile: parent_profile,
+          parent_profile: maybe_parent_profile,
           subscription_provider_object_id: stripe_subscription.id,
           subscription_provider: 'stripe',
           status: stripe_subscription.status,
+          canceled_at: stripe_subscription.canceled_at ? Time.at(stripe_subscription.canceled_at) : nil,
         )
         stripe_subscription.items.each do |item|
           CustomerSubscriptionItem.create!(
@@ -58,7 +59,10 @@ module StripeDataJobs
     end
 
     def update_customer_subscription(existing_customer_subscription, stripe_subscription)
-      existing_customer_subscription.update!(status: stripe_subscription.status)
+      existing_customer_subscription.update!(
+        status: stripe_subscription.status, 
+        canceled_at: stripe_subscription.canceled_at ? Time.at(stripe_subscription.canceled_at) : nil
+      )
       subscription_items = stripe_subscription.items.to_a
       existing_customer_subscription.customer_subscription_items.each do |existing_customer_subscription_item|
         stripe_subscription_item = subscription_items.find{ |item| item.id == existing_customer_subscription_item.subscription_provider_object_id }

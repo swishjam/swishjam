@@ -154,18 +154,22 @@ export default function ProfileInformationSideBar({ userData, hasStripeIntegrati
                         title='Subscription Plan'
                         enrichmentData={userData}
                         enrichmentKey='active_subscriptions'
-                        formatter={subscriptions => (
-                          [].concat(...subscriptions.map(sub => (
-                            sub.subscription_items.map(item => (
-                              <span
-                                key={item.id}
-                                className="inline-flex items-center rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20"
-                              >
-                                {item.product_name}
-                              </span>
-                            ))
-                          )))
-                        )}
+                        formatter={subscriptions => {
+                          if (!subscriptions || subscriptions.length === 0) {
+                            return '-'
+                          } else {
+                            return [].concat(...subscriptions.map(({ subscription_items }) => (
+                              subscription_items.map(item => (
+                                <span
+                                  key={item.id}
+                                  className="inline-flex items-center rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20"
+                                >
+                                  {item.product_name}
+                                </span>
+                              ))
+                            )))
+                          }
+                        }}
                       />
                       <EnrichedDataItem
                         title='Subscription MRR'
