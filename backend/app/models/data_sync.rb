@@ -1,7 +1,17 @@
 class DataSync < Transactional
   belongs_to :workspace
 
-  validates :provider, presence: true, inclusion: { in: %w[stripe swishjam_user_retention] }
+  validates :provider, presence: true, inclusion: { in: %w[stripe] }
+  
+  scope :by_provider, ->(provider) { where(provider: provider) }
+  scope :pending, -> { where(completed_at: nil) }
+  scope :completed, -> { where.not(completed_at: nil) }
+  scope :complete_successfully, -> { completed.where(error_message: nil) }
+  scope :failed, -> { where.not(error_message: nil) }
+
+  def previous_data_sync
+    workspace.data_syncs.by_provider(provider).where('completed_at < ?', started_at).order(completed_at: :desc).first
+  end
 
   def completed!
     update!(completed_at: Time.current, duration_in_seconds: Time.current - started_at)
