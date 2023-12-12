@@ -19,8 +19,7 @@ class Integration < Transactional
 
   def self.TYPES
     # Integrations::GoogleSearchConsole - waiting until Google app approval process.
-    # [Integrations::Stripe, Integrations::Resend, Integrations::CalCom, Integrations::GoogleSearchConsole]
-    [Integrations::Stripe, Integrations::Resend, Integrations::CalCom]
+    [Integrations::Stripe, Integrations::Resend, Integrations::CalCom, Integrations::Intercom]
   end
 
   def self.friendly_name
@@ -30,6 +29,10 @@ class Integration < Transactional
   def self.for_workspace(workspace)
     raise ArgumentError, "Cannot call Integration.for_workspace on the base class." if self == Integration
     find_by(workspace: workspace)
+  end
+
+  def self.find_by_config_attribute(config_attr, val)
+    where("config->>'#{config_attr}' = ?", val).first
   end
 
   def enabled?

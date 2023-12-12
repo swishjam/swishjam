@@ -21,6 +21,7 @@ module DummyData
 
         ::Integrations::Stripe.create!(workspace: workspace, enabled: true, config: { stubbed: true, account_id: 'stubbed' }) 
         ::Integrations::Resend.create!(workspace: workspace, enabled: true, config: { stubbed: true })
+        ::Integrations::Intercom.create!(workspace: workspace, enabled: true, config: { stubbed: true, access_token: 'stubbed' })
 
         swishjam_user.workspaces << workspace unless swishjam_user.workspaces.include?(workspace)
 
@@ -64,6 +65,7 @@ module DummyData
           workspace: workspace,
           number_of_stripe_events: number_of_sessions_to_generate * 0.1,
           number_of_resend_events: number_of_sessions_to_generate * 0.1,
+          number_of_intercom_events: number_of_sessions_to_generate * 0.1,
           data_begins_max_number_of_days_ago: data_begins_max_number_of_days_ago,
         )
 
