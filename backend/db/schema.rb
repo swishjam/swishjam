@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2023_12_08_170644) do
+ActiveRecord::Schema.define(version: 2023_12_12_204215) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
@@ -98,6 +98,7 @@ ActiveRecord::Schema.define(version: 2023_12_08_170644) do
     t.string "subscription_provider_object_id", null: false
     t.string "subscription_provider", null: false
     t.string "status", null: false
+    t.datetime "canceled_at"
     t.index ["parent_profile_type", "parent_profile_id"], name: "index_customer_subscriptions_on_parent_profile"
     t.index ["status"], name: "index_customer_subscriptions_on_status"
     t.index ["subscription_provider"], name: "index_customer_subscriptions_on_subscription_provider"
