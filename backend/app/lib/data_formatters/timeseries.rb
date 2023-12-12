@@ -31,6 +31,7 @@ module DataFormatters
     def current_value
       @current_value ||= filled_in_data.last[:value]
     end
+    alias most_recent_value current_value
 
     def summed_value
       @summed_value ||= filled_in_data.collect{ |h| h[:value] }.sum

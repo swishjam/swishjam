@@ -10,8 +10,7 @@ class Integration < Transactional
 
   validates_uniqueness_of :type, scope: :workspace_id, message: "You already have a connection for this type." 
 
-  after_create :create_api_key_for_data_source
-  after_destroy :destroy_api_key_for_data_source
+  after_create :create_api_key_for_data_source_if_necessary
   after_destroy :after_destroy_callback
 
   class << self
@@ -57,12 +56,10 @@ class Integration < Transactional
 
   private
 
-  def create_api_key_for_data_source
-    ApiKey.create!(workspace: workspace, data_source: self.class.data_source)
-  end
-
-  def destroy_api_key_for_data_source
-    ApiKey.find_by(workspace: workspace, data_source: self.class.data_source)&.destroy
+  def create_api_key_for_data_source_if_necessary
+    if !ApiKey.exists?(workspace: workspace, data_source: self.class.data_source)
+      ApiKey.create!(workspace: workspace, data_source: self.class.data_source)
+    end
   end
 
   # intended to be overrode

@@ -85,17 +85,36 @@ module Api
 
         timeseries_data = current_workspace.analytics_user_profiles.where(created_at: start_timestamp..end_timestamp).send(:"group_by_#{group_by}", :created_at).count
         formatted_timeseries_data = timeseries_data.keys.sort.map do |timestamp|
-          { date: timestamp, value: timeseries_data[timestamp] }
+          OpenStruct.new(date: timestamp, value: timeseries_data[timestamp])
         end
+        current_timeseries = DataFormatters::Timeseries.new(
+          formatted_timeseries_data,
+          start_time: start_timestamp,
+          end_time: end_timestamp,
+          group_by: group_by,
+          value_method: :value,
+          date_method: :date,
+        ).formatted_data
         
         comparison_timeseries_data = current_workspace.analytics_user_profiles.where(created_at: comparison_start_timestamp..comparison_end_timestamp - 1.second).send(:"group_by_#{group_by}", :created_at).count
         formatted_comparison_timeseries_data = comparison_timeseries_data.keys.sort.map do |timestamp|
-          { date: timestamp, value: comparison_timeseries_data[timestamp] }
+          # { date: timestamp, value: comparison_timeseries_data[timestamp] }
+          OpenStruct.new(date: timestamp, value: comparison_timeseries_data[timestamp])
         end
+        comparison_timeseries = DataFormatters::Timeseries.new(
+          formatted_comparison_timeseries_data,
+          start_time: comparison_start_timestamp,
+          end_time: comparison_end_timestamp,
+          group_by: group_by,
+          value_method: :value,
+          date_method: :date,
+        ).formatted_data
 
         render json: {
-          timeseries: formatted_timeseries_data,
-          comparison_timeseries: formatted_comparison_timeseries_data,
+          # timeseries: formatted_timeseries_data,
+          timeseries: current_timeseries,
+          # comparison_timeseries: formatted_comparison_timeseries_data,
+          comparison_timeseries: comparison_timeseries,
           start_time: start_timestamp,
           end_time: end_timestamp,
           comparison_start_time: comparison_start_timestamp,
