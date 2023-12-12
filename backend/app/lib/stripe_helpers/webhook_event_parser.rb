@@ -8,10 +8,20 @@ module StripeHelpers
           'timestamp' => stripe_event.created * 1_000,
           'object_id' => stripe_event.data.object.respond_to?(:id) ? stripe_event.data.object.id : nil,
         }.merge(custom_attributes_for(stripe_event))
-        stripe_event.data.object.metadata.each do |key, value|
-          swishjam_event_data["metadata_#{key}"] = value
+        
+        if stripe_event.data.object.respond_to?(:metadata)
+          stripe_event.data.object.metadata.each do |key, value|
+            swishjam_event_data["metadata_#{key}"] = value
+          end
         end
+
         if stripe_customer
+          swishjam_event_data['customer_email'] = stripe_customer.email if stripe_customer.email
+          swishjam_event_data['customer_id'] = stripe_customer.id
+          stripe_customer.metadata.each do |key, value|
+            swishjam_event_data["customer_metadata_#{key}"] = value
+          end
+
           maybe_user_profile = workspace.analytics_user_profiles.find_by_case_insensitive_email(stripe_customer.email)
           if maybe_user_profile
             swishjam_event_data[Analytics::Event::ReservedPropertyNames.USER_PROFILE_ID] = maybe_user_profile.id
@@ -25,12 +35,6 @@ module StripeHelpers
             )
             swishjam_event_data[Analytics::Event::ReservedPropertyNames.USER_PROFILE_ID] = new_user_profile.id
             Sentry.capture_message("Could not find user profile for Stripe event #{stripe_event.type} customer email #{stripe_customer.email} in workspace #{workspace.name} (#{workspace.id}), so we created a new one (#{new_user_profile.id})")
-          end
-          
-          swishjam_event_data['customer_email'] = stripe_customer.email if stripe_customer.email
-          swishjam_event_data['customer_id'] = stripe_customer.id
-          stripe_customer.metadata.each do |key, value|
-            swishjam_event_data["customer_metadata_#{key}"] = value
           end
         end
         swishjam_event_data

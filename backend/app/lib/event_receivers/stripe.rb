@@ -7,13 +7,14 @@ module EventReceivers
     end
 
     def receive!
+      stripe_event = ::Stripe::Webhook.construct_event(@request_body, @signing_secret, ENV['STRIPE_WEBHOOK_SECRET'])
+      return if !stripe_event.livemode
       integration = get_integration_for_stripe_account
       if integration
         public_key = integration.workspace.api_keys.for_data_source(ApiKey::ReservedDataSources.STRIPE)&.public_key
         if public_key
-          stripe_event = ::Stripe::Webhook.construct_event(@request_body, @signing_secret, ENV['STRIPE_WEBHOOK_SECRET'])
-          return if !stripe_event.livemode
           format_event_data_and_enqueue_it_to_be_processed(stripe_event, integration.workspace, public_key)
+          enqueue_supplemental_events_to_be_processed_if_necessary(stripe_event, integration.workspace, public_key)
           enqueue_sync_jobs_if_necessary(stripe_event)
           true
         else
@@ -41,6 +42,10 @@ module EventReceivers
       Ingestion::QueueManager.push_records_into_queue(Ingestion::QueueManager::Queues.EVENTS, [formatted_event])
     end
 
+    def enqueue_supplemental_events_to_be_processed_if_necessary(stripe_event, workspace, public_key)
+      if stripe_event.type == 'subscription.updated'
+    end
+
     def enqueue_sync_jobs_if_necessary(stripe_event)
       if %w[customer.subscription.created customer.subscription.updated customer.subscription.deleted].include?(stripe_event.type)
         StripeDataJobs::TryToSyncCustomerSubscriptionFromStripeSubscription.perform_async(stripe_event.data.object.id, @event_payload['account'])
@@ -51,7 +56,7 @@ module EventReceivers
 
     def get_stripe_customer_if_necessary(stripe_event)
       if stripe_event.data.object.respond_to?(:customer) && stripe_event.data.object.customer.is_a?(String) && !ENV['STRIPE_SKIP_CUSTOMER_LOOKUP_IN_WEBHOOKS']
-        ::Stripe::Customer.retrieve(stripe_event.data.object.customer, { stripe_account: @event_payload['account'] })
+        @stripe_customer ||= ::Stripe::Customer.retrieve(stripe_event.data.object.customer, { stripe_account: @event_payload['account'] })
       end
     end
     
