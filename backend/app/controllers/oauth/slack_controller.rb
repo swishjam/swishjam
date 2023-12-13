@@ -10,11 +10,11 @@ module Oauth
       auth_data = JSON.parse(response.body)
       if auth_data['error'] || !auth_data['access_token']
         Sentry.capture_message("Slack oauth error: #{auth_data['error'] || 'No access token: ' + auth_data.to_s}")
-        redirect_to "#{ENV['FRONTEND_URL'] || 'https://app.swishjam.com'}/settings/slack?success=false&error=#{auth_data['error']}"
+        redirect_to "#{ENV['FRONTEND_URL'] || 'https://app.swishjam.com'}/integrations/destinations?success=false&error=#{auth_data['error']}"
       else
         workspace_id = validate_token_and_return_workspace_id
         SlackConnection.create!(workspace_id: workspace_id, access_token: auth_data['access_token'])
-        redirect_to "#{ENV['FRONTEND_URL'] || 'https://app.swishjam.com'}/settings/slack?success=true"
+        redirect_to "#{ENV['FRONTEND_URL'] || 'https://app.swishjam.com'}/integrations/destinations?success=true"
       end
     end
 
