@@ -38,5 +38,7 @@ module Intercom
         attrs[Analytics::Event::ReservedPropertyNames.USER_PROFILE_ID] = user_profile.id
         attrs
       end
+
     end
   end
+end
