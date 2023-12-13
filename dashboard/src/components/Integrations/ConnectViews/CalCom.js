@@ -67,13 +67,13 @@ export default function CalComConnectView({ onNewConnection }) {
             <div>
               <AlertTitle>Connection added!</AlertTitle>
               <AlertDescription>
-                Swishjam will now automatically capture your Resend email events.
+                Swishjam will now automatically capture your Cal.com events.
               </AlertDescription>
             </div>
           </div>
         </Alert>
       ) : (
-        <div className="flow-root">
+        <div className="relative">
           <ul role="list">
             {steps.map((step, i) => (
               <li key={i}>
@@ -100,7 +100,7 @@ export default function CalComConnectView({ onNewConnection }) {
           </ul>
           <button
             onClick={createIntegration}
-            className={`w-full whitespace-nowrap ml-2 flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white focus:outline-none focus:ring-2 ${isLoading ? 'bg-gray-400' : 'bg-swishjam hover:bg-swishjam-dark'}`}
+            className={`w-full whitespace-nowrap flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white focus:outline-none focus:ring-2 ${isLoading ? 'bg-gray-400' : 'bg-swishjam hover:bg-swishjam-dark'}`}
             disabled={isLoading}
           >
             {isLoading ? <LoadingSpinner color='white' /> : <>Complete connection</>}

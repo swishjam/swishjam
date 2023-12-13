@@ -6,7 +6,7 @@ import { Fragment } from 'react'
 import { getToken } from '@/lib/auth'
 import LoadingSpinner from '@/components/LoadingSpinner'
 import { Menu, Transition } from '@headlessui/react'
-import NewSlackEventTriggerModal from '@/components/Automations/EventTriggers/NewModal'
+import NewSlackEventTriggerModal from '@/components/Automations/EventTriggers/AddTriggerModal'
 import SwishjamAPI from '@/lib/api-client/swishjam-api'
 import { RocketIcon } from "@radix-ui/react-icons"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'

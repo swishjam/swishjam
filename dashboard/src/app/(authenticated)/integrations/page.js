@@ -1,9 +1,7 @@
 'use client';
 
-import AddConnectionButton from './AddConnectionButton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import EmptyView from './EmptyView';
-import ExistingConnectionButton from './ExistingConnectionButton';
 import Image from 'next/image';
 import LoadingView from './LoadingView';
 import Modal from '@/components/utils/Modal';
@@ -14,50 +12,11 @@ import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { ExclamationTriangleIcon, XCircleIcon } from '@heroicons/react/24/outline';
 
-import CalComConnectView from '@/components/DataSources/ConnectViews/CalCom';
-import ConnectStripeView from '@/components/DataSources/ConnectViews/Stripe';
-import GoogleSearchConsole from '@/components/DataSources/ConnectViews/GoogleSearchConsole';
-import ResendConnectView from '@/components/DataSources/ConnectViews/Resend';
-
-import CalComLogo from '@public/logos/calcom.png'
-import GoogleSearchConsoleLogo from '@public/logos/Google-Search-Console.png'
-// import HubspotLogo from '@public/logos/hubspot.jpeg';
-import ResendLogo from '@public/logos/resend.png'
-// import SalesforceLogo from '@public/logos/salesforce.png'
-import StripeLogo from '@public/logos/stripe.jpeg'
+// Connection Components
+import { AllSources } from './AllIntegrations';
+import AddConnectionButton from './AddConnectionButton';
+import ExistingConnectionButton from './ExistingConnectionButton';
 import SwishjamLogo from '@public/logos/swishjam.png'
-// import ZendeskLogo from '@public/logos/Zendesk.webp'
-
-const ALL_CONNECTIONS = {
-  Stripe: {
-    img: StripeLogo,
-    description: 'Connect your Stripe account to Swishjam to automatically import your Stripe customers and subscriptions.',
-    connectComponent: onNewConnection => <ConnectStripeView onNewConnection={onNewConnection} />,
-  },
-  Resend: {
-    img: ResendLogo,
-    description: 'Connect your Resend account to enable Swishjam to capture email events.',
-    connectComponent: onNewConnection => <ResendConnectView onNewConnection={onNewConnection} />,
-    borderImage: true,
-  },
-  'Cal.com': {
-    img: CalComLogo,
-    description: 'Connect your Cal.com to Swishjam to automatically capture your Cal.com calendar events.',
-    connectComponent: onNewConnection => <CalComConnectView onNewConnection={onNewConnection} />,
-  },
-  'Google Search Console': {
-    img: GoogleSearchConsoleLogo,
-    description: 'Connect your Google Search Console account to Swishjam to automatically import your Google Search Console data.',
-    connectComponent: onNewConnection => <GoogleSearchConsole onNewConnection={onNewConnection} />,
-    borderImage: true,
-  },
-  // Hubspot: { img: HubspotLogo },
-  // Salesforce: { img: SalesforceLogo },
-  // Zendesk: {
-  //   img: ZendeskLogo,
-  //   borderImage: true,
-  // },
-}
 
 export default function Connections() {
   const [enabledConnections, setEnabledConnections] = useState();
@@ -116,40 +75,36 @@ export default function Connections() {
   }, []);
 
   return (
-    enabledConnections === undefined
-      ? <LoadingView />
-      : (
-        <>
-          {connectionForModal && (
-            <Modal size='large' isOpen={true} onClose={() => setConnectionForModal(null)}>
-              <div className='flex flex-col items-center justify-center'>
-                <Image
-                  src={ALL_CONNECTIONS[connectionForModal.name].img}
-                  alt={connectionForModal.name}
-                  className="h-12 w-12 flex-none rounded-lg bg-white object-cover ring-1 ring-gray-900/10"
-                />
-                <h1 className='text-2xl font-medium mb-4 mt-4'>Connect your {connectionForModal.name} account</h1>
-                <p className='text-gray-600 text-center mb-8'>{ALL_CONNECTIONS[connectionForModal.name].description}</p>
-                {ALL_CONNECTIONS[connectionForModal.name].connectComponent(setConnectionAsConnected)}
-              </div>
-            </Modal>
-          )}
-          <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mb-8">
-            <div className='grid grid-cols-2 mt-8 flex items-center'>
-              <div>
-                <h1 className="text-lg font-medium text-gray-700 mb-0">Data Sources</h1>
-              </div>
-              <div className="w-full flex items-center justify-end">
-              </div>
-            </div>
-            <div className='pt-12'>
-              {enabledConnections.length + disabledConnections.length === 0 && (
-                <EmptyView
-                  allConnections={ALL_CONNECTIONS}
-                  availableConnections={availableConnections}
-                  setConnectionForModal={setConnectionForModal}
-                />
-              )}
+    <div>
+      <div className="">
+        <h2 className="text-md font-medium text-gray-700 mb-0">Data Sources</h2>
+        <p className='text-s mt-2'>Pull data into Swishjam and we'll auto reconicle accounts, organizations, and events</p> 
+      </div>
+      {enabledConnections === undefined
+        ? <LoadingView />
+        : (
+          <>
+            {connectionForModal && (
+              <Modal size='large' isOpen={true} onClose={() => setConnectionForModal(null)}>
+                <div className='flex flex-col items-center justify-center'>
+                  <div className='flex flex-col gap-6 xl:flex-row mb-8'>
+                    <div className='w-20'>
+                      <Image
+                        src={AllSources[connectionForModal.name].img}
+                        alt={connectionForModal.name}
+                        className="w-20 rounded-lg bg-white object-cover ring-1 ring-gray-900/10"
+                      />
+                    </div>
+                    <div>
+                      <h1 className='text-2xl font-medium'>Connect your {connectionForModal.name} account</h1>
+                      <p className='text-gray-600'>{AllSources[connectionForModal.name].description}</p>
+                    </div>
+                  </div>
+                  {AllSources[connectionForModal.name].connectComponent(setConnectionAsConnected)}
+                </div>
+              </Modal>
+            )}
+            <div className=''>
               {searchParams.get('success') && (
                 <Alert className='mb-2'>
                   <RocketIcon className="h-4 w-4" />
@@ -177,79 +132,88 @@ export default function Connections() {
                   </div>
                 </Alert>
               )}
-              {enabledConnections.length + disabledConnections.length > 0 && (
-                <>
-                  <h5 className='py-2'>Connected Data Sources</h5>
-                  <ul role="list" className="grid grid-cols-1 gap-x-6 gap-y-8 lg:grid-cols-3 xl:gap-x-8">
+              <>
+                <ul role="list" className="grid grid-cols-1 mt-6 border-t border-gray-200">
+                  <ExistingConnectionButton
+                    key='marketing-analytics'
+                    img={SwishjamLogo}
+                    connection={{ id: 'swishjam-marketing', name: 'Marketing Site Analytics' }}
+                    canEdit={false}
+                    enabled={true}
+                    disableImageBorder={true}
+                  />
+                  <ExistingConnectionButton
+                    key='product-analytics'
+                    img={SwishjamLogo}
+                    connection={{ id: 'swishjam-marketing', name: 'Product Analytics' }}
+                    canEdit={false}
+                    enabled={true}
+                    disableImageBorder={true}
+                  />
+                  {enabledConnections.map(connection => (
                     <ExistingConnectionButton
-                      key='marketing-analytics'
-                      img={SwishjamLogo}
-                      connection={{ id: 'swishjam-marketing', name: 'Marketing Site Analytics' }}
-                      canEdit={false}
+                      key={connection.id}
+                      img={AllSources[connection.name].img}
+                      connection={connection}
+                      onDisableClick={disableConnection}
+                      onRemoveClick={deleteConnection}
                       enabled={true}
-                      disableImageBorder={true}
+                      borderImage={AllSources[connection.name].borderImage}
                     />
+                  ))}
+                </ul>
+                <ul role="list" className="grid grid-cols-1 gap-x-6 gap-y-8 lg:grid-cols-3 xl:gap-x-8 mt-2">
+                  {disabledConnections.map(connection => (
                     <ExistingConnectionButton
-                      key='product-analytics'
-                      img={SwishjamLogo}
-                      connection={{ id: 'swishjam-marketing', name: 'Product Analytics' }}
-                      canEdit={false}
-                      enabled={true}
-                      disableImageBorder={true}
+                      key={connection.id}
+                      img={AllSources[connection.name].img}
+                      connection={connection}
+                      onRemoveClick={deleteConnection}
+                      onEnableClick={enableConnection}
+                      enabled={false}
+                      borderImage={AllSources[connection.name].borderImage}
                     />
-                    {enabledConnections.map(connection => (
-                      <ExistingConnectionButton
-                        key={connection.id}
-                        img={ALL_CONNECTIONS[connection.name].img}
-                        connection={connection}
-                        onDisableClick={disableConnection}
-                        onRemoveClick={deleteConnection}
-                        enabled={true}
-                        borderImage={ALL_CONNECTIONS[connection.name].borderImage}
-                      />
-                    ))}
-                  </ul>
-                  <ul role="list" className="grid grid-cols-1 gap-x-6 gap-y-8 lg:grid-cols-3 xl:gap-x-8 mt-2">
-                    {disabledConnections.map(connection => (
-                      <ExistingConnectionButton
-                        key={connection.id}
-                        img={ALL_CONNECTIONS[connection.name].img}
-                        connection={connection}
-                        onRemoveClick={deleteConnection}
-                        onEnableClick={enableConnection}
-                        enabled={false}
-                        borderImage={ALL_CONNECTIONS[connection.name].borderImage}
-                      />
-                    ))}
-                  </ul>
+                  ))}
+                </ul>
 
-                  <h5 className='pt-8 pb-2'>Available Data Sources to Connect</h5>
-                  <ul role="list" className="grid grid-cols-1 gap-x-6 gap-y-8 lg:grid-cols-3 xl:gap-x-8">
-                    {availableConnections.length === 0
-                      ? (
-                        <div className="text-center col-span-3 my-8">
-                          <RxCardStack className="mx-auto h-12 w-12 text-gray-400" />
-                          <h3 className="mt-2 text-sm font-semibold text-gray-900">You have installed all available Swishjam Data Sources.</h3>
-                          <p className="mt-1 text-sm text-gray-500">Looking for a connection that is not yet supported? <br />Reach out to us <a className='underline' href='mailto:founders@swishjam.com'>founders@swishjam.com</a></p>
-                        </div>
-                      ) : (
-                        availableConnections.map((connection) => (
-                          <AddConnectionButton
-                            img={ALL_CONNECTIONS[connection.name].img}
-                            key={connection.name}
-                            connection={connection}
-                            onConnectionClick={() => setConnectionForModal(connection)}
-                            borderImage={ALL_CONNECTIONS[connection.name].borderImage}
-                          />
-                        ))
-                      )
-                    }
-                  </ul>
-                </>
-              )}
+                <h5 className='pt-8 pb-2'>Available Data Sources</h5>
+                <ul role="list" className="grid grid-cols-1 mt-4 border-t border-gray-200">
+                  {availableConnections.length === 0
+                    ? (
+                      <div className="text-center col-span-3 my-8">
+                        <RxCardStack className="mx-auto h-12 w-12 text-gray-400" />
+                        <h3 className="mt-2 text-sm font-semibold text-gray-900">You have installed all available Swishjam Data Sources.</h3>
+                        <p className="mt-1 text-sm text-gray-500">Looking for a connection that is not yet supported? <br />Reach out to us <a className='underline' href='mailto:founders@swishjam.com'>founders@swishjam.com</a></p>
+                      </div>
+                    ) : (
+                      availableConnections.map((connection) => (
+                        <AddConnectionButton
+                          img={AllSources[connection.name].img}
+                          key={connection.name}
+                          connection={connection}
+                          onConnectionClick={() => setConnectionForModal(connection)}
+                          borderImage={AllSources[connection.name].borderImage}
+                        />
+                      ))
+                    )
+                  }
+                </ul>
+              </>
+
             </div>
-          </main>
-        </>
-      )
+      </>)}
+
+    </div>
   );
 }
+
+/* {isLoading ? */ 
+//   <div className="mt-24 h-5 w-5 mx-auto">
+//     <LoadingSpinner size={8} />
+//   </div> :
+//   (triggers?.length > 0 ?
+//     <div>
+//     </div>:
+//     <EmptyState title={hasSlackConnection ? "No Event Triggers":"Connect Slack To Use Event Triggers"} />
+//   )
+// }

@@ -7,24 +7,24 @@ import { TbReport } from "react-icons/tb";
 
 const sidebarNavItems = [
   {
-    title: "Event Triggers",
-    href: "/automations/event-triggers",
+    title: "Data Sources",
+    href: "/integrations",
     icon: LuWorkflow,
   },
   {
-    title: "Reports",
-    href: "/automations/reports",
+    title: "Destinations",
+    href: "/integrations/destinations",
     icon: TbReport,
   },
 ]
 
-export default function AutomationsLayout({ children }) {
+export default function IntegrationsLayout({ children }) {
 
   return (
     <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mb-8">
       <div className='grid grid-cols-2 my-8 flex items-center'>
         <div>
-          <h1 className="text-lg font-medium text-gray-700 mb-0">Automations</h1>
+          <h1 className="text-lg font-medium text-gray-700 mb-0">Integrations</h1>
         </div>
       </div>
       <Divider />
