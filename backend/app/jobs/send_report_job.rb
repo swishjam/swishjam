@@ -5,13 +5,9 @@ class SendReportJob
 
   def perform(report_id)
     report = Report.find(report_id)
-    Rails.logger.info "Report: #{report.inspect}"
 
-    ### Actually DO the shit
-
-    # Get the data for the report / Query Clickhouse
     # Marketing data    
-    marketing_key = report.workspace.api_keys.for_data_source(ApiKey::ReservedDataSources.MARKETING).public_key
+    marketing_key = report.workspace.api_keys.for_data_source!(ApiKey::ReservedDataSources.MARKETING).public_key
     yesterday_marketing_sessions = fetch_count(ClickHouseQueries::Sessions::Count, marketing_key, Time.current.yesterday)
     two_days_ago_marketing_sessions = fetch_count(ClickHouseQueries::Sessions::Count, marketing_key, 2.days.ago)
     yesterday_marketing_page_views = fetch_count(ClickHouseQueries::PageViews::Count, marketing_key, Time.current.yesterday)
@@ -19,7 +15,7 @@ class SendReportJob
     two_days_ago_marketing_unique_users = fetch_count(ClickHouseQueries::Users::Active::Count, marketing_key, 2.days.ago)
     yesterday_marketing_unique_users = fetch_count(ClickHouseQueries::Users::Active::Count, marketing_key, Time.current.yesterday)
     # Product Data
-    product_key = report.workspace.api_keys.for_data_source(ApiKey::ReservedDataSources.PRODUCT).public_key
+    product_key = report.workspace.api_keys.for_data_source!(ApiKey::ReservedDataSources.PRODUCT).public_key
     two_days_ago_daily_active_users = fetch_count(ClickHouseQueries::Users::Active::Count, product_key, 2.days.ago)
     yesterday_daily_active_users = fetch_count(ClickHouseQueries::Users::Active::Count, product_key, Time.current.yesterday)
     yesterday_sessions = fetch_count(ClickHouseQueries::Sessions::Count, product_key, Time.current.yesterday)
@@ -27,7 +23,6 @@ class SendReportJob
     yesterday_new_users = fetch_count(ClickHouseQueries::Users::New::Count, product_key, Time.current.yesterday)
     two_days_ago_new_users = fetch_count(ClickHouseQueries::Users::New::Count, product_key, 2.days.ago)
 
-    # Send to slack / email / sms / etc
     access_token = report.workspace.slack_connection.access_token
     slack_client = ::Slack::Client.new(access_token)
 
@@ -58,20 +53,24 @@ class SendReportJob
     )
  
   # Save to triggered reports table that we executed this
-  TriggeredReport.create(report_id: report.id, workspace: report.workspace, payload: {
-    slack_channel_id: report.config.channel_id,
-    yesterday_marketing_sessions: yesterday_marketing_sessions,
-    two_days_ago_marketing_sessions: two_days_ago_marketing_sessions,
-    yesterday_marketing_page_views: yesterday_marketing_page_views,
-    two_days_ago_marketing_page_views: two_days_ago_marketing_page_views,
-    two_days_ago_marketing_unique_users: two_days_ago_marketing_unique_users,
-    yesterday_marketing_unique_users: yesterday_marketing_unique_users,
-    two_days_ago_daily_active_users: two_days_ago_daily_active_users,
-    yesterday_daily_active_users: yesterday_daily_active_users,
-    yesterday_sessions: yesterday_sessions,
-    two_days_ago_sessions: two_days_ago_sessions,
-    yesterday_new_users: yesterday_new_users
-  })
+  TriggeredReport.create!(
+    report_id: report.id, 
+    workspace: report.workspace, 
+    payload: {
+      slack_channel_id: report.config.channel_id,
+      yesterday_marketing_sessions: yesterday_marketing_sessions,
+      two_days_ago_marketing_sessions: two_days_ago_marketing_sessions,
+      yesterday_marketing_page_views: yesterday_marketing_page_views,
+      two_days_ago_marketing_page_views: two_days_ago_marketing_page_views,
+      two_days_ago_marketing_unique_users: two_days_ago_marketing_unique_users,
+      yesterday_marketing_unique_users: yesterday_marketing_unique_users,
+      two_days_ago_daily_active_users: two_days_ago_daily_active_users,
+      yesterday_daily_active_users: yesterday_daily_active_users,
+      yesterday_sessions: yesterday_sessions,
+      two_days_ago_sessions: two_days_ago_sessions,
+      yesterday_new_users: yesterday_new_users,
+    }
+  )
 
   rescue => e
     Sentry.capture_exception(e)
