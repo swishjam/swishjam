@@ -1,9 +1,9 @@
 module EventReceivers
   class Intercom
     PARSER_KLASSES = {
-      'conversation.user.created' => Intercom::EventPayloadParsers::ConversationUserCreated,
-      'conversation.admin.replied' => Intercom::EventPayloadParsers::ConversationAdminReplied,
-      'conversation.admin.closed' => Intercom::EventPayloadParsers::ConversationAdminReplied,
+      'conversation.user.created' => ::Intercom::EventPayloadParsers::ConversationUserCreated,
+      'conversation.admin.replied' => ::Intercom::EventPayloadParsers::ConversationAdminReplied,
+      'conversation.admin.closed' => ::Intercom::EventPayloadParsers::ConversationAdminReplied,
     }
     
     def initialize(event_payload)
