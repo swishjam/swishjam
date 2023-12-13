@@ -43,24 +43,21 @@ module StripeHelpers
     end
 
     def customer_churned_event
-      byebug
       Analytics::Event.formatted_for_ingestion(
         uuid: "#{@stripe_event.id}-customer-churned",
         swishjam_api_key: @public_key,
         name: 'stripe.supplemental.customer.churned',
         occurred_at: Time.at(@stripe_event.data.object.canceled_at),
-        properties: supplemental_event_properties.merge(
-          mrr: StripeHelpers::MrrCalculator.calculate_for_stripe_subscription(@stripe_event.data.object, include_canceled: true),
-        ),
+        properties: supplemental_event_properties,
       )
     end
 
-    def supplemental_event_properties
+    def supplemental_event_properties(include_canceled_subscriptions_in_mrr: true)
       {
         stripe_subscription_id: @stripe_event.data.object.id,
         stripe_customer_id: @stripe_customer&.id,
         stripe_customer_email: @stripe_customer&.email,
-        mrr: StripeHelpers::MrrCalculator.calculate_for_stripe_subscription(@stripe_event.data.object),
+        mrr: StripeHelpers::MrrCalculator.calculate_for_stripe_subscription(@stripe_event.data.object, include_canceled: include_canceled_subscriptions_in_mrr),
         cancellation_comment: @stripe_event.data.object.cancellation_details&.comment,
         cancellation_feedback: @stripe_event.data.object.cancellation_details&.feedback,
         cancellation_reason: @stripe_event.data.object.cancellation_details&.reason,

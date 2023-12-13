@@ -1,8 +1,10 @@
 module StripeHelpers
   class MrrCalculator
-    def self.calculate_for_swishjam_subscription_record(subscription)
+    def self.calculate_for_swishjam_subscription_record(subscription, include_canceled: false)
       mrr = 0
-      return mrr unless subscription.status == 'active' && subscription.canceled_at.nil?
+      return mrr unless subscription.status == 'active' && subscription.canceled_at.nil? ||
+                          include_canceled && subscription.status == 'canceled' ||
+                          include_canceled && subscription.canceled_at.present?
       subscription.customer_subscription_items.sum do |item| 
         mrr += mrr_for_subscription_item(
           interval: item.price_recurring_interval,
@@ -18,7 +20,7 @@ module StripeHelpers
       mrr = 0
       return mrr unless subscription.status == 'active' && subscription.canceled_at.nil? || 
                           include_canceled && subscription.status == 'canceled' || 
-                          include_canceled && !subscription.canceled_at.nil?
+                          include_canceled && subscription.canceled_at.present?
       subscription.items.each do |subscription_item|
         mrr += mrr_for_subscription_item(
           interval: subscription_item.price.recurring.interval,

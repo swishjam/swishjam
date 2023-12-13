@@ -17,7 +17,10 @@ RSpec.describe EventReceivers::Stripe do
             'id' => 'sub_1',
             'customer' => 'cus_1',
             'metadata' => { 'metadata_1' => 'some_kind_of_metadata_value' },
-            'items' => {
+            'status' => 'active',
+            'canceled_at' => nil,
+            'items' => Stripe::ListObject.construct_from({
+              'object' => 'list',
               'data' => [
                 {
                   'id' => 'si_1',
@@ -36,13 +39,14 @@ RSpec.describe EventReceivers::Stripe do
                   },
                 },
               ],
-            },
+            }),
           },
         },
       }.to_json
+      expect(Stripe::Webhook).to receive(:construct_event).with(request_payload, 'FAKE_SIGNING_SECRET', ENV['STRIPE_WEBHOOK_SECRET']).and_return(Stripe::Event.construct_from(JSON.parse(request_payload))).once
+      
       existing_user = create(:analytics_user_profile, workspace: workspace, email: 'jenny.rosen@gmail.com')
 
-      expect(Stripe::Webhook).to receive(:construct_event).with(request_payload, 'FAKE_SIGNING_SECRET', ENV['STRIPE_WEBHOOK_SECRET']).and_return(Stripe::Event.construct_from(JSON.parse(request_payload))).once
       expect(Stripe::Customer).to receive(:retrieve).with('cus_1', { stripe_account: 'acct_xyz_fake' }).and_return(Stripe::Customer.construct_from({ 'id' => 'cus_1', 'email' => 'jenny.rosen@gmail.com', 'name' => 'Jenny Rosen', 'metadata' => { 'some_customer_metadata' => 'some_customer_metadata_value!' } })).once
       expect(Ingestion::QueueManager).to receive(:push_records_into_queue).with(
         Ingestion::QueueManager::Queues.EVENTS, 
@@ -55,6 +59,7 @@ RSpec.describe EventReceivers::Stripe do
           properties: {
             'object_id' => 'sub_1',
             'amount' => 100,
+            'mrr' => 100,
             'products' => 'prod_1',
             'metadata_metadata_1' => 'some_kind_of_metadata_value',
             'customer_email' => 'jenny.rosen@gmail.com',
@@ -123,6 +128,8 @@ RSpec.describe EventReceivers::Stripe do
     end
 
     it 'includes supplemental events if criteria is met' do
+      Workspace.destroy_all # SO DUMB! why doesn't the DB get cleaned up properly between tests?!
+      
       workspace = create(:workspace)
       stripe_integration = create(:stripe_integration, workspace: workspace, config: { account_id: 'acct_xyz_fake' })
       event_occurred_at = 10.minutes.ago.to_i
@@ -147,8 +154,9 @@ RSpec.describe EventReceivers::Stripe do
               'reason' => 'some kind of reason',
               'feedback' => 'some kind of feedback',
             },
-            'items' => Stripe::ListObject.construct_from([
-              {
+            'items' => Stripe::ListObject.construct_from({
+              'object' => 'list',
+              'data' => [{
                 'id' => 'si_1',
                 'quantity' => 1,
                 'price' => Stripe::Price.construct_from({
@@ -163,17 +171,15 @@ RSpec.describe EventReceivers::Stripe do
                     'usage_type' => 'licensed',
                   },
                 }),
-              },
-            ]),
+              }],
+            }),
           },
         },
       }.to_json
       existing_user = create(:analytics_user_profile, workspace: workspace, email: 'jenny.rosen@gmail.com')
 
-      byebug
       expect(Stripe::Webhook).to receive(:construct_event).with(request_payload, 'FAKE_SIGNING_SECRET', ENV['STRIPE_WEBHOOK_SECRET']).and_return(Stripe::Event.construct_from(JSON.parse(request_payload))).once
       expect(Stripe::Customer).to receive(:retrieve).with('cus_1', { stripe_account: 'acct_xyz_fake' }).and_return(Stripe::Customer.construct_from({ 'id' => 'cus_1', 'email' => 'jenny.rosen@gmail.com', 'name' => 'Jenny Rosen', 'metadata' => { 'some_customer_metadata' => 'some_customer_metadata_value!' } })).once
-      # expect(Stripe::Subscription).to receive(:list).with({ customer: 'cus_1' }, stripe_account: 'acct_xyz_fake').and_return(Stripe::ListObject.construct_from({ 'data' => [Stripe::Subscription.construct_from({ 'id' => 'sub_1', 'status' => 'canceled', 'canceled_at' => event_occurred_at })] })).once
       expect(Stripe::Subscription).to receive(:list)
                                       .with({ customer: 'cus_1' }, stripe_account: 'acct_xyz_fake')
                                       .and_return(
@@ -183,6 +189,7 @@ RSpec.describe EventReceivers::Stripe do
                                             'status' => 'canceled',
                                             'canceled_at' => event_occurred_at,
                                             'items' => Stripe::ListObject.construct_from({
+                                              'object' => 'list',
                                               'data' => [
                                                 Stripe::SubscriptionItem.construct_from({
                                                   'id' => 'si_1',
@@ -210,14 +217,11 @@ RSpec.describe EventReceivers::Stripe do
       expected_default_stripe_event = Analytics::Event.formatted_for_ingestion(
         uuid: 'evt_1',
         swishjam_api_key: public_key,
-        name: 'stripe.customer.subscription.created',
+        name: 'stripe.customer.subscription.updated',
         occurred_at: Time.at(event_occurred_at),
         # the order of the properties actually matter here, so we need to make sure they're in the right order
         properties: {
           'object_id' => 'sub_1',
-          'amount' => 100,
-          'mrr' => 100,
-          'products' => 'prod_1',
           'metadata_metadata_1' => 'some_kind_of_metadata_value',
           'customer_email' => 'jenny.rosen@gmail.com',
           'customer_id' => 'cus_1',
@@ -246,7 +250,7 @@ RSpec.describe EventReceivers::Stripe do
         swishjam_api_key: public_key,
         name: 'stripe.supplemental.customer.churned',
         occurred_at: Time.at(event_occurred_at),
-                properties: {
+        properties: {
           'stripe_subscription_id' => 'sub_1',
           'stripe_customer_id' => 'cus_1',
           'stripe_customer_email' => 'jenny.rosen@gmail.com',
