@@ -1,15 +1,11 @@
 'use client';
 
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import Image from 'next/image';
 import LoadingView from '../LoadingView';
 import Modal from '@/components/utils/Modal';
-import { RocketIcon } from "@radix-ui/react-icons"
-import { RxCardStack } from 'react-icons/rx';
 import { SwishjamAPI } from '@/lib/api-client/swishjam-api';
 import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { ExclamationTriangleIcon, XCircleIcon } from '@heroicons/react/24/outline';
 
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
