@@ -91,7 +91,7 @@ export default function Connections() {
         <p className='text-sm mt-2'>Pull data into Swishjam and we'll auto reconicle accounts, organizations, and events</p>
       </div>
       {enabledConnections === undefined
-        ? <LoadingView />
+        ? <LoadingView title='Data Sources' subTitle="Pull data into Swishjam and we'll auto reconicle accounts, organizations, and events" />
         : (
           <>
             {connectionForModal && (
