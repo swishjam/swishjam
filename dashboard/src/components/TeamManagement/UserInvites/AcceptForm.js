@@ -5,6 +5,7 @@ import SwishjamAPI from '@/lib/api-client/swishjam-api';
 import { UserPlusIcon } from '@heroicons/react/20/solid';
 import useAuthData from '@/hooks/useAuthData'
 import { useState } from 'react'
+import { swishjam } from '@swishjam/react';
 
 export default function AcceptForm({ userInvite }) {
   const { email: loggedInUserEmail } = useAuthData();
@@ -23,6 +24,13 @@ export default function AcceptForm({ userInvite }) {
       setLoading(false);
       setErrorMsg(error);
     } else {
+      swishjam.event('workspace_invitation_accepted', {
+        workspace_id: userInvite?.workspace?.id,
+        workspace_name: userInvite?.workspace?.name,
+        invited_by_user: userInvite?.invited_by_user?.email,
+        accepted_by_user: loggedInUserEmail,
+        acceptance_method: 'existing'
+      })
       setAuthToken(auth_token);
       window.location.href = '/';
     }
@@ -37,6 +45,13 @@ export default function AcceptForm({ userInvite }) {
       setLoading(false);
       setErrorMsg(error);
     } else {
+      swishjam.event('workspace_invitation_accepted', {
+        workspace_id: userInvite?.workspace?.id,
+        workspace_name: userInvite?.workspace?.name,
+        invited_by_user: userInvite?.invited_by_user?.email,
+        accepted_by_user: email,
+        acceptance_method: 'new'
+      })
       setAuthToken(auth_token);
       window.location = '/';
     }

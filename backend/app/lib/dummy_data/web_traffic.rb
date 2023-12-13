@@ -2,7 +2,7 @@ module DummyData
   class WebTraffic
     REFERRER_OPTIONS = %w[https://google.com https://twitter.com https://facebook.com https://hackernews.com https://ycombinator.com https://tiktok.com https://producthunt.com https://youtube.com https://reddit.com]
 
-    def initialize(public_key:, number_of_sessions:, device_identifiers:, url_host:, url_paths:, event_names:, data_begins_max_number_of_days_ago:)
+    def initialize(public_key:, number_of_sessions:, device_identifiers:, url_host:, url_paths:, event_names:, data_begins_max_number_of_days_ago:, percent_of_sessions_to_include_utms: 0.5)
       @public_key = public_key
       @number_of_sessions = number_of_sessions
       @device_identifiers = device_identifiers
@@ -10,6 +10,7 @@ module DummyData
       @url_paths = url_paths
       @event_names = event_names
       @data_begins_max_number_of_days_ago = data_begins_max_number_of_days_ago
+      @percent_of_sessions_to_include_utms = percent_of_sessions_to_include_utms
     end
 
 
@@ -34,6 +35,9 @@ module DummyData
       session_referrer = REFERRER_OPTIONS.sample
       
       session_start_url = "https://#{@url_host}#{@url_paths[rand(0..@url_paths.count - 1)]}"
+      if rand(0..1) < @percent_of_sessions_to_include_utms
+        session_start_url += "?utm_source=#{Faker::Lorem.word}&utm_medium=#{Faker::Lorem.word}&utm_campaign=#{Faker::Lorem.word}&utm_term=#{Faker::Lorem.word}&utm_content=#{Faker::Lorem.word}"
+      end
 
       session_event = Analytics::Event.create!(
         uuid: SecureRandom.uuid,
@@ -83,7 +87,7 @@ module DummyData
           device_identifier: device_identifier,
           session_identifier: session_identifier,
           page_view_identifier: SecureRandom.uuid,
-          url: "https://#{@host_url}#{@url_paths.sample}",
+          url: "https://#{@url_host}#{@url_paths.sample}",
           # referrer: referrer_url,
         }.to_json
       )

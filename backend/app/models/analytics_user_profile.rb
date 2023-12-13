@@ -4,10 +4,16 @@ class AnalyticsUserProfile < Transactional
   alias_attribute :enrichment_data, :user_profile_enrichment_data
   has_many :analytics_organization_profile_users, dependent: :destroy
   has_many :analytics_organization_profiles, through: :analytics_organization_profile_users
+  has_many :customer_subscriptions, as: :parent_profile, dependent: :destroy
 
-  validates :user_unique_identifier, presence: true, uniqueness: { scope: :workspace_id }
+  validates :user_unique_identifier, uniqueness: { scope: :workspace_id }, if: -> { user_unique_identifier.present? }
 
+  after_create :try_to_set_gravatar_url
   after_create :enrich_profile!
+
+  def self.find_by_case_insensitive_email(email)
+    where("lower(email) = ?", email.downcase).first
+  end
 
   def full_name
     return nil if first_name.blank? || last_name.blank?
@@ -26,5 +32,13 @@ class AnalyticsUserProfile < Transactional
     ProfileEnrichers::User.new(self).try_to_enrich_profile_if_necessary!
   rescue => e
     Sentry.capture_exception(e)
+  end
+
+  def try_to_set_gravatar_url
+    return unless email.present?
+    url = "https://www.gravatar.com/avatar/#{Digest::MD5.hexdigest(email.downcase)}?d=404"
+    response = HTTParty.get(url)
+    return unless response.code == 200
+    update_column :gravatar_url, url
   end
 end

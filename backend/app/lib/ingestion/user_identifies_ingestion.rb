@@ -18,23 +18,17 @@ module Ingestion
         
         formatted_user_identify_events = queued_user_identify_events.map{ |e| formatted_user_identify_event(e) }.compact
         Analytics::UserIdentifyEvent.insert_all!(formatted_user_identify_events) if formatted_user_identify_events.any?
-        
-        @ingestion_batch.num_records = queued_user_identify_events.count
-        @ingestion_batch.completed_at = Time.current
-        @ingestion_batch.num_seconds_to_complete = @ingestion_batch.completed_at - @ingestion_batch.started_at
-        @ingestion_batch.save!
       rescue => e
-        Ingestion::QueueManager.push_records_into_queue(Ingestion::QueueManager::Queues.IDENTIFY, queued_user_identify_events)
-
-        @ingestion_batch.num_records = queued_user_identify_events.count
-        @ingestion_batch.completed_at = Time.current
-        @ingestion_batch.num_seconds_to_complete = @ingestion_batch.completed_at - @ingestion_batch.started_at
         @ingestion_batch.error_message = e.message
-        @ingestion_batch.save!
-        
-        Rails.logger.error "Failed to ingest from analytics queue: #{e.inspect}"
         Sentry.capture_exception(e)
+        Ingestion::QueueManager.push_records_into_queue(Ingestion::QueueManager::Queues.IDENTIFY_DEAD_LETTER_QUEUE, queued_user_identify_events)
+        Sentry.capture_message("Failed to ingest entire batch from user identify queue: #{e.message}, pushed all records into the DLQ...")
       end
+      @ingestion_batch.num_records = queued_user_identify_events.count
+      @ingestion_batch.completed_at = Time.current
+      @ingestion_batch.num_seconds_to_complete = @ingestion_batch.completed_at - @ingestion_batch.started_at
+      @ingestion_batch.save!
+
       @ingestion_batch
     end
 
@@ -51,19 +45,34 @@ module Ingestion
           email = properties['email']
           metadata = properties.except(
             'source', 'sdk_version', 'url', 'device_identifier', 'user_device_identifier', 'organization_device_identifier', 'session_identifier', 'page_view_identifier',
-            'userId', 'user_id', 'userIdentifier', 'firstName', 'first_name', 'lastName', 'last_name', 'email', 
+            'userId', 'user_id', 'userIdentifier', 'firstName', 'first_name', 'lastName', 'last_name', 'email', 'user_attributes', 'user_visit_status'
           )
+          immutable_metadata = {}
+          if properties['user_attributes'].present?
+            immutable_metadata[:initial_url] = properties.dig('user_attributes', 'initial_url')
+            immutable_metadata[:initial_referrer] = properties.dig('user_attributes', 'initial_referrer')
+          end
 
           if !unique_identifier
-            Sentry.capture_message("No unique identifier provided in event payload in Ingestion::UserIdentifiesIngestion: #{event_json.inspect}")
+            Sentry.capture_message("Invalid user identifty event received, no unique identifier provided in event payload in Ingestion::UserIdentifiesIngestion: #{event_json.inspect}, pushing it into the DLQ...")
+            Ingestion::QueueManager.push_records_into_queue(Ingestion::QueueManager::Queues.IDENTIFY_DEAD_LETTER_QUEUE, [event_json])
             return
           end
 
           workspace = Workspace.for_public_key(event_json['swishjam_api_key'])
           if workspace
             profile = workspace.analytics_user_profiles.find_by(user_unique_identifier: unique_identifier)
+            if profile.nil? && email.present?
+              profile = workspace.analytics_user_profiles.find_by_case_insensitive_email(email)
+            end
             if profile
-              profile.update!(first_name: first_name, last_name: last_name, email: email, metadata: metadata)
+              profile.update!(
+                email: email, 
+                first_name: first_name, 
+                last_name: last_name, 
+                metadata: metadata, 
+                immutable_metadata: immutable_metadata.merge(profile.immutable_metadata || {})
+              )
             else
               profile = workspace.analytics_user_profiles.create!(
                 user_unique_identifier: unique_identifier, 
@@ -71,22 +80,26 @@ module Ingestion
                 last_name: last_name, 
                 email: email, 
                 metadata: metadata,
-                created_at: event_json['occurred_at'] || Time.current,
+                immutable_metadata: immutable_metadata,
+                created_at: (event_json['occurred_at'] || Time.current).to_datetime,
+                created_by_data_source: workspace.api_keys.find_by!(public_key: event_json['swishjam_api_key']).data_source,
               )
               new_profile_data << { 
                 swishjam_api_key: event_json['swishjam_api_key'], 
                 unique_identifier: unique_identifier,
                 swishjam_user_id: profile.id,
-                created_at: event_json['occurred_at'] || Time.current,
+                immutable_metadata: (immutable_metadata || {}).to_json,
+                created_at: (event_json['occurred_at'] || Time.current).to_datetime,
               }
             end
           else
-            msg = "Unrecognized API Key found in Ingestion::UserIdentifiesIngestion: #{event_json['swishjam_api_key']}"
-            Rails.logger.warn msg
-            Sentry.capture_message(msg)
+            Sentry.capture_message("Unrecognized API Key found in Ingestion::UserIdentifiesIngestion: #{event_json['swishjam_api_key']}, pushing it into the DLQ...")
+            Ingestion::QueueManager.push_records_into_queue(Ingestion::QueueManager::Queues.IDENTIFY_DEAD_LETTER_QUEUE, [event_json])
           end
         rescue => e
+          Sentry.capture_message("Error occurred when ingesting user identify event in Ingestion::UserIdentifiesIngestion: #{e.message}, pushing it into the DLQ...")
           Sentry.capture_exception(e)
+          Ingestion::QueueManager.push_records_into_queue(Ingestion::QueueManager::Queues.IDENTIFY_DEAD_LETTER_QUEUE, [event_json])
         end
       end
       new_profile_data
@@ -97,7 +110,7 @@ module Ingestion
       unique_identifier = properties['userIdentifier'] || properties['user_identifier'] || properties['userId'] || properties['user_id']
       workspace = Workspace.for_public_key(event_json['swishjam_api_key'])
       if workspace
-        profile = workspace.analytics_user_profiles.find_by!(user_unique_identifier: unique_identifier)
+        profile = workspace.analytics_user_profiles.find_by(user_unique_identifier: unique_identifier)
         if profile
           {
             swishjam_api_key: event_json['swishjam_api_key'],
@@ -106,15 +119,13 @@ module Ingestion
             occurred_at: event_json['occurred_at'],
           }
         else
-          msg = "Unable to find AnalyticsUserProfile for #{unique_identifier}"
-          Rails.logger.error msg
-          Sentry.capture_message(msg)
+          Sentry.capture_message("Unable to find AnalyticsUserProfile for provided unique identifer: #{unique_identifier}, pushing it into the DLQ...")
+          Ingestion::QueueManager.push_records_into_queue(Ingestion::QueueManager::Queues.IDENTIFY_DEAD_LETTER_QUEUE, [event_json])
           nil
         end
       else
-        msg = "Unrecognized API Key found in Ingestion::OrganizationIdentifiesIngestion: #{event_json['swishjam_api_key']}"
-        Rails.logger.warn msg
-        Sentry.capture_message(msg)
+        Sentry.capture_message("Unrecognized API Key found in Ingestion::OrganizationIdentifiesIngestion: #{event_json['swishjam_api_key']}, pushing it into the DLQ...")
+        Ingestion::QueueManager.push_records_into_queue(Ingestion::QueueManager::Queues.IDENTIFY_DEAD_LETTER_QUEUE, [event_json])
         nil
       end
     end

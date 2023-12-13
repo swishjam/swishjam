@@ -20,7 +20,7 @@ module ClickHouseQueries
           <<~SQL
             SELECT e.name, e.properties, e.occurred_at
             FROM events AS e
-            JOIN (
+            LEFT JOIN (
               SELECT
                 device_identifier,
                 argMax(swishjam_user_id, occurred_at) AS swishjam_user_id
@@ -33,7 +33,7 @@ module ClickHouseQueries
             WHERE 
               e.swishjam_api_key IN #{formatted_in_clause(@public_keys)} AND
               e.occurred_at BETWEEN '#{formatted_time(@start_time)}' AND '#{formatted_time(@end_time)}' AND
-              uie.swishjam_user_id = '#{@user_profile_id}' 
+              (uie.swishjam_user_id = '#{@user_profile_id}' OR JSONExtractString(e.properties, '#{Analytics::Event::ReservedPropertyNames.USER_PROFILE_ID}') = '#{@user_profile_id}')
             ORDER BY e.occurred_at DESC
             LIMIT #{@limit}
           SQL

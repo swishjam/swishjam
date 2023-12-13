@@ -10,7 +10,7 @@ class Integration < Transactional
 
   validates_uniqueness_of :type, scope: :workspace_id, message: "You already have a connection for this type." 
 
-  after_create :create_api_key_for_data_source
+  after_create :create_api_key_for_data_source_if_necessary
   after_destroy :after_destroy_callback
 
   class << self
@@ -19,8 +19,7 @@ class Integration < Transactional
 
   def self.TYPES
     # Integrations::GoogleSearchConsole - waiting until Google app approval process.
-    # [Integrations::Stripe, Integrations::Resend, Integrations::CalCom, Integrations::GoogleSearchConsole]
-    [Integrations::Stripe, Integrations::Resend, Integrations::CalCom]
+    [Integrations::Stripe, Integrations::Resend, Integrations::CalCom, Integrations::Intercom]
   end
 
   def self.friendly_name
@@ -30,6 +29,10 @@ class Integration < Transactional
   def self.for_workspace(workspace)
     raise ArgumentError, "Cannot call Integration.for_workspace on the base class." if self == Integration
     find_by(workspace: workspace)
+  end
+
+  def self.find_by_config_attribute(config_attr, val)
+    where("config->>'#{config_attr}' = ?", val).first
   end
 
   def enabled?
@@ -56,8 +59,10 @@ class Integration < Transactional
 
   private
 
-  def create_api_key_for_data_source
-    ApiKey.create!(workspace: workspace, data_source: self.class.data_source)
+  def create_api_key_for_data_source_if_necessary
+    if !ApiKey.exists?(workspace: workspace, data_source: self.class.data_source)
+      ApiKey.create!(workspace: workspace, data_source: self.class.data_source)
+    end
   end
 
   # intended to be overrode

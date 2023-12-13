@@ -2,6 +2,8 @@ class Workspace < Transactional
   has_many :analytics_user_profiles, dependent: :destroy
   has_many :analytics_organization_profiles, dependent: :destroy
   has_many :api_keys, dependent: :destroy
+  has_many :customer_subscriptions, dependent: :destroy
+  has_many :customer_subscription_items, through: :customer_subscriptions
   has_many :dashboards, dependent: :destroy
   has_many :dashboard_components, through: :dashboards
   has_many :event_triggers, dependent: :destroy

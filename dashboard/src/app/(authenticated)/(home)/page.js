@@ -2,13 +2,13 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link'
+import { BsCloudSlash } from "react-icons/bs"
 import { SwishjamAPI } from '@/lib/api-client/swishjam-api';
 import LineChartWithValue from '@/components/Dashboards/Components/LineChartWithValue';
 import ActiveUsersLineChartWithValue from '@/components/Dashboards/Components/ActiveUsersLineChartWithValue'
 import Timefilter from '@/components/Timefilter';
 import { Button } from '@/components/ui/button';
 import { ArrowPathIcon } from '@heroicons/react/24/outline';
-import InstallBanner from '@/components/InstallBanner';
 import ItemizedList from '@/components/Dashboards/Components/ItemizedList';
 import RetentionWidgetTiny from '@/components/Dashboards/Components/RetentionWidgetTiny';
 import { BsArrowRightShort } from 'react-icons/bs'
@@ -39,31 +39,29 @@ export default function Home() {
   const [newUsersData, setNewUsersData] = useState();
 
   const getBillingData = async timeframe => {
-    return await SwishjamAPI.BillingData.timeseries({ timeframe }).then(paymentData => {
+    return await SwishjamAPI.BillingData.timeseries({ timeframe }).then(({ mrr, active_subscriptions }) => {
       setMrrChart({
-        value: paymentData.current_mrr,
-        previousValue: paymentData.comparison_mrr,
-        previousValueDate: paymentData.comparison_end_time,
-        valueChange: paymentData.change_in_mrr,
-        groupedBy: paymentData.grouped_by,
-        timeseries: paymentData.current_mrr_timeseries.map((timeseries, index) => ({
+        value: mrr.current_count,
+        previousValue: mrr.comparison_count,
+        previousValueDate: mrr.comparison_end_time,
+        groupedBy: mrr.grouped_by,
+        timeseries: mrr.timeseries.map((timeseries, index) => ({
           ...timeseries,
-          comparisonDate: paymentData.comparison_mrr_timeseries[index]?.date,
-          comparisonValue: paymentData.comparison_mrr_timeseries[index]?.value
+          comparisonDate: mrr.comparison_timeseries[index]?.date,
+          comparisonValue: mrr.comparison_timeseries[index]?.value
         })),
       })
 
       setActiveSubsChart({
-        value: paymentData.current_num_active_subscriptions,
-        previousValue: paymentData.comparison_num_active_subscriptions,
-        previousValueDate: paymentData.comparison_end_time,
-        valueChange: paymentData.change_in_num_active_subscriptions,
-        groupedBy: paymentData.grouped_by,
-        timeseries: paymentData.current_num_active_subscriptions_timeseries.map((timeseries, index) => ({
+        value: active_subscriptions.current_count,
+        previousValue: active_subscriptions.comparison_count,
+        previousValueDate: active_subscriptions.comparison_end_time,
+        groupedBy: active_subscriptions.grouped_by,
+        timeseries: active_subscriptions.timeseries.map((timeseries, index) => ({
           ...timeseries,
-          comparisonDate: paymentData.comparison_num_active_subscriptions_timeseries[index]?.date,
-          comparisonValue: paymentData.comparison_num_active_subscriptions_timeseries[index]?.value
-        }))
+          comparisonDate: active_subscriptions.comparison_timeseries[index]?.date,
+          comparisonValue: active_subscriptions.comparison_timeseries[index]?.value
+        })),
       })
     });
   }
@@ -164,11 +162,11 @@ export default function Home() {
   };
 
   const getUsersData = async () => {
-    return await SwishjamAPI.Users.list().then(({ users }) => setNewUsersData(users))
+    return await SwishjamAPI.Users.list({ limit: 5 }).then(({ users }) => setNewUsersData(users))
   };
 
   const getOrganizationsData = async () => {
-    return await SwishjamAPI.Organizations.list().then(({ organizations }) => setNewOrganizationsData(organizations));
+    return await SwishjamAPI.Organizations.list({ limit: 5 }).then(({ organizations }) => setNewOrganizationsData(organizations));
   };
 
   const getAllData = async timeframe => {
@@ -273,6 +271,12 @@ export default function Home() {
           value={mrrChart?.value}
           previousValue={mrrChart?.previousValue}
           previousValueDate={mrrChart?.previousValueDate}
+          noDataMessage={
+            <div className='text-center'>
+              <BsCloudSlash size={24} className='text-gray-500 m-auto' />
+              No data available, <Link className='underline text-blue-700 cursor-pointer' href='/data-sources'>connect your Stripe account</Link> to get started.
+            </div>
+          }
           valueFormatter={formatMoney}
           yAxisFormatter={formatShrinkMoney}
           showAxis={false}
@@ -282,6 +286,12 @@ export default function Home() {
           title='Active Subscriptions'
           showAxis={false}
           timeseries={activeSubsChart?.timeseries}
+          noDataMessage={
+            <div className='text-center'>
+              <BsCloudSlash size={24} className='text-gray-500 m-auto' />
+              No data available, <Link className='underline text-blue-700 cursor-pointer' href='/data-sources'>connect your Stripe account</Link> to get started.
+            </div>
+          }
           value={activeSubsChart?.value}
           previousValue={activeSubsChart?.previousValue}
           previousValueDate={activeSubsChart?.previousValueDate}
