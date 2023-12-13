@@ -15,7 +15,7 @@ export default function RetentionWidget({ retentionCohorts, isExpandable = true,
   const [chartType, setChartType] = useState('grid');
 
   const toggleChartType = () => chartType === 'grid' ? setChartType('chart') : setChartType('grid');
-  const hasRetentionData = Object.keys(retentionCohorts).length > 0;
+  const hasRetentionData = retentionCohorts ? Object.keys(retentionCohorts).length > 0: false;
 
   return (
     <ConditionalCardWrapper
