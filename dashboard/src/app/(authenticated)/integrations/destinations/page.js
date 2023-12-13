@@ -17,6 +17,7 @@ import { PlusIcon } from '@heroicons/react/20/solid'
 
 // Connection Components
 import { AllDestinations } from '../AllIntegrations';
+import EmptyView from '../EmptyView';
 //import AddConnectionButton from '../AddConnectionButton';
 //import ExistingConnectionButton from '../ExistingConnectionButton';
 
@@ -80,7 +81,7 @@ export default function IntegrationsDestinations() {
             <div className=''>
               <>
                 <ul role="list" className="grid grid-cols-1 mt-6 border-t border-gray-200">
-                  {hasSlackConnection && 
+                  {hasSlackConnection ?
                   <li
                     className="border-b border-gray-200 group cursor-pointer duration-300 transition offset-2"
                     //onClick={onConnectionClick}
@@ -113,12 +114,14 @@ export default function IntegrationsDestinations() {
                         </DropdownMenu> */}
                       </div>
                     </div>
-                  </li>}
+                  </li>:
+                    <EmptyView title="No Destinations Connected" description={"Connect your first destination"}/> 
+                  }
                 </ul>
 
                 <h5 className='pt-8 pb-2'>Available Destinations</h5>
                 <ul role="list" className="grid grid-cols-1 mt-4 border-t border-gray-200">
-                  {!hasSlackConnection && 
+                  {!hasSlackConnection ?
                   <li
                     className="border-b border-gray-200 group cursor-pointer duration-300 transition offset-2"
                     onClick={() => setConnectionForModal(AllDestinations['Slack'])}
@@ -137,7 +140,9 @@ export default function IntegrationsDestinations() {
                         </Button>
                       </div>
                     </div>
-                  </li>}
+                  </li>:
+                    <EmptyView title="All Destinations Connected" description={"Contact founders@swishjam.com to get more apps connected"}/> 
+                  }
                 </ul>
               </>
             </div>
