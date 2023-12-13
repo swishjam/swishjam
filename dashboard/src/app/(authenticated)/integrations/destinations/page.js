@@ -11,6 +11,7 @@ import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { ExclamationTriangleIcon, XCircleIcon } from '@heroicons/react/24/outline';
 
+import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { PlusIcon } from '@heroicons/react/20/solid'
 
@@ -33,6 +34,17 @@ export default function IntegrationsDestinations() {
       setHasSlackConnection(res !== null);
     }
     getConnections();
+  
+    if (searchParams.get('success')) {
+      toast.success(`${window.decodeURIComponent(searchParams.get('newSource') || 'Data source')} is now connected!`, {
+        description: `Swishjam will automatically import your ${window.decodeURIComponent(searchParams.get('newSource') || 'data source')} data now.`
+      })
+    }
+    if (searchParams.get('error')) {
+      toast.error(`Error connecting ${window.decodeURIComponent(searchParams.get('newSource') || 'Data source')}`, {
+        description: `Contact founders@swishjam.com for help getting setup`
+      })
+    }
   }, []);
 
   return (
