@@ -15,9 +15,6 @@
     stripe_data_daily_sync:
       cron: "0 8 * * *" # every day @ 8am UTC
       class: DataSyncJobs::Stripe
-    user_retention_sync_new:
-      cron: '0 6,12,18,0 * * *' # 4 times a day @ 6am, 12pm, 6pm, 12am UTC
-      class: UserRetentionSyncJob
     daily_reports:
-      cron: '0 8 * * *' # every day @ 8am UTC
+      cron: "0 16 * * *" # every day @ 4pm UTC (8 am PST)
       class: DailyReports
