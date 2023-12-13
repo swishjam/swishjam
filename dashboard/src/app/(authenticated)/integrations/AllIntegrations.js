@@ -3,7 +3,7 @@ import ConnectStripeView from '@/components/Integrations/ConnectViews/Stripe';
 import ConnectSlackView from '@/components/Integrations/ConnectViews/Slack';
 import GoogleSearchConsole from '@/components/Integrations/ConnectViews/GoogleSearchConsole';
 import ResendConnectView from '@/components/Integrations/ConnectViews/Resend';
-import IntercomConnectionView from '@/components/DataSources/ConnectViews/Intercom';
+import IntercomConnectionView from '@/components/Integrations/ConnectViews/Intercom';
 
 import IntercomLogo from '@public/logos/intercom.png'
 import CalComLogo from '@public/logos/calcom.png'
