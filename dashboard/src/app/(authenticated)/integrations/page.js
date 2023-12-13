@@ -1,16 +1,14 @@
 'use client';
 
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import Image from 'next/image';
 import LoadingView from './LoadingView';
 import Modal from '@/components/utils/Modal';
-import { RocketIcon } from "@radix-ui/react-icons"
 import { RxCardStack } from 'react-icons/rx';
 import { SwishjamAPI } from '@/lib/api-client/swishjam-api';
 import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { ExclamationTriangleIcon, XCircleIcon } from '@heroicons/react/24/outline';
 import { toast } from 'sonner';
+import EmptyView from './EmptyView';
 
 // Connection Components
 import { AllSources } from './AllIntegrations';
@@ -90,7 +88,7 @@ export default function Connections() {
     <div>
       <div className="">
         <h2 className="text-md font-medium text-gray-700 mb-0">Data Sources</h2>
-        <p className='text-s mt-2'>Pull data into Swishjam and we'll auto reconicle accounts, organizations, and events</p>
+        <p className='text-sm mt-2'>Pull data into Swishjam and we'll auto reconicle accounts, organizations, and events</p>
       </div>
       {enabledConnections === undefined
         ? <LoadingView />
@@ -162,14 +160,12 @@ export default function Connections() {
 
               <h5 className='pt-8 pb-2'>Available Data Sources</h5>
               <ul role="list" className="grid grid-cols-1 mt-4 border-t border-gray-200">
-                {availableConnections.length === 0
+                {availableConnections.length > 0
                   ? (
-                    <div className="text-center col-span-3 my-8">
-                      <RxCardStack className="mx-auto h-12 w-12 text-gray-400" />
-                      <h3 className="mt-2 text-sm font-semibold text-gray-900">You have installed all available Swishjam Data Sources.</h3>
-                      <p className="mt-1 text-sm text-gray-500">Looking for a connection that is not yet supported? <br />Reach out to us <a className='underline' href='mailto:founders@swishjam.com'>founders@swishjam.com</a></p>
-                    </div>
-                  ) : (
+                  <EmptyView
+                    title="All Sources Connected"
+                    description="Reach out to founders@swishjam.com if you need more"
+                  />) : (
                     availableConnections.map((connection) => (
                       <AddConnectionButton
                         img={AllSources[connection.name].img}

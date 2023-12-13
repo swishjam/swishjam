@@ -1,31 +1,82 @@
-import { RxCardStack } from 'react-icons/rx';
-import AddConnectionButton from './AddConnectionButton'
+import React, { useState } from 'react'
+import { LuWorkflow, LuSparkles } from "react-icons/lu";
+import { PiMagicWand } from "react-icons/pi";
 
-export default function EmptyView({ allConnections, availableConnections, setConnectionForModal }) {
+import { motion } from 'framer-motion'
+import { Card, CardContent } from "@/components/ui/card"
+
+export default function EmptyView({ title, description }) {
+  const [ animate1, setAnimate1 ] = useState()
+  const [ animate2, setAnimate2 ] = useState()
+  const [ animate3, setAnimate3 ] = useState()
+
+  const inOut = (inoutState) => {
+    if(inoutState) {
+      setAnimate1({y: -5})
+      setAnimate2({y: -5, rotate: -5})
+      setAnimate3({y: -5, rotate: 5})
+    } else {
+      setAnimate1({})
+      setAnimate2({})
+      setAnimate3({})
+    }
+  }
 
   return (
-    <div className="w-full mt-12">
-      <div>
-        <div className="text-center">
-          <RxCardStack className="mx-auto h-12 w-12 text-gray-400" />
-          <h2 className="mt-2 text-base font-semibold leading-6 text-gray-900">Add a Data Source connection</h2>
-          <p className="mt-1 text-sm text-gray-500">Data Sources let you pull in data from your key business tools.</p>
-        </div>
-      </div>
-      <div className="mt-10">
-        <h3 className="text-sm font-medium text-gray-500">Recommended Available Data Sources</h3>
-        <ul role="list" className="grid grid-cols-1 gap-x-6 gap-y-8 lg:grid-cols-3 xl:gap-x-8 mt-6">
-          {availableConnections.map((connection, idx) => (
-            <AddConnectionButton
-              key={idx}
-              img={allConnections[connection.name].img}
-              connection={connection}
-              //apiKey='INSTANCE-7da3a8bc'
-              onConnectionClick={() => setConnectionForModal(connection)}
-            />
-          ))}
-        </ul>
+    <div className=" mt-6 py-40 relative group"
+      onMouseEnter={() => inOut(true)}
+      onMouseLeave={() => inOut(false)}
+    >
+      <div className='absolute top-20 left-1/2 w-64 -ml-32'>
+        <motion.div
+          initial={{ scale: 1, rotate: -2 }}
+          animate={animate2}
+          transition={{
+            type: "spring",
+            stiffness: 260,
+            damping: 20
+          }}
+          className="absolute top-6">
+          <Card>
+            <CardContent className="p-6">
+              <LuWorkflow  size={24} className='opacity-50 group-hover:text-rose-400 group-hover:opacity-100 duration-700 transition-all'/> 
+            </CardContent>
+          </Card>
+        </motion.div>
+        <motion.div
+          initial={{ scale: 1 }}
+          animate={animate1}
+          transition={{
+            type: "spring",
+            stiffness: 260,
+            damping: 20
+          }}
+          className="absolute left-20">
+          <Card>
+            <CardContent className="p-6">
+              <PiMagicWand size={24} className='opacity-50 group-hover:text-swishjam group-hover:opacity-100 duration-500 transition-all' />
+            </CardContent>
+          </Card>
+        </motion.div>
+        <motion.div
+          initial={{ scale: 1, rotate: 2 }}
+          animate={animate3}
+          transition={{
+            type: "spring",
+            stiffness: 260,
+            damping: 20
+          }}
+          className="absolute left-40 top-6">
+          <Card>
+            <CardContent className="p-6">
+              <LuSparkles size={24} className='opacity-50 group-hover:text-sky-300 group-hover:opacity-100 duration-500 transition-all' />
+            </CardContent>
+          </Card>
+        </motion.div>
+        <h2 className='text-zinc-800 text-md text-center mt-32'>{title}</h2>
+        <p className='text-zinc-800 text-sm text-center mt-2'>{description}</p>
       </div>
     </div>
   )
+
 }
