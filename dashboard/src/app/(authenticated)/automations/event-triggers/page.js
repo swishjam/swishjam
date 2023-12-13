@@ -11,6 +11,7 @@ import Logo from '@components/Logo'
 import { Cog6ToothIcon } from '@heroicons/react/24/outline'
 import AddTriggerModal from "@/components/Automations/EventTriggers/AddTriggerModal"; 
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
+import { toast } from "sonner";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -30,8 +31,7 @@ export default function () {
     SwishjamAPI.EventTriggers.disable(triggerId).then(({trigger, error}) => {
       if (error) {
         console.error(error) 
-        toast({
-          title: "Uh oh! Something went wrong.",
+        toast.messaage("Uh oh! Something went wrong.", {
           description: "Contact founders@swishjam.com for help",
         })
       } else {
@@ -44,8 +44,7 @@ export default function () {
     SwishjamAPI.EventTriggers.enable(triggerId).then(({trigger, error}) => {
       if (error) {
         console.error(error) 
-        toast({
-          title: "Uh oh! Something went wrong.",
+        toast.message("Uh oh! Something went wrong.", {
           description: "Contact founders@swishjam.com for help",
         })
       } else {
@@ -58,8 +57,7 @@ export default function () {
     SwishjamAPI.EventTriggers.delete(triggerId).then(({trigger, error}) => {
       if (error) {
         console.error(error) 
-        toast({
-          title: "Uh oh! Something went wrong.",
+        toast("Uh oh! Something went wrong.", {
           description: "Contact founders@swishjam.com for help",
         })
       } else {

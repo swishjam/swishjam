@@ -66,33 +66,6 @@ export default function IntegrationsDestinations() {
         : (
           <>
             <div className=''>
-              {searchParams.get('success') && (
-                <Alert className='mb-2'>
-                  <RocketIcon className="h-4 w-4" />
-                  <AlertTitle>{window.decodeURIComponent(searchParams.get('newSource') || 'Data source')} is now connected!</AlertTitle>
-                  <div className='absolute top-0 right-0 p-2'>
-                    <XCircleIcon
-                      className='h-5 w-5 rounded-full cursor-pointer hover:bg-gray-200'
-                      onClick={() => router.push('/integrations')}
-                    />
-                  </div>
-                  <AlertDescription>
-                    Swishjam will automatically import your {window.decodeURIComponent(searchParams.get('newSource') || 'data source')} data now.
-                  </AlertDescription>
-                </Alert>
-              )}
-              {searchParams.get('error') && (
-                <Alert className='mb-2'>
-                  <ExclamationTriangleIcon className="h-4 w-4" />
-                  <AlertTitle>{window.decodeURIComponent(searchParams.get('error') || 'An unexpected error occurred, please try again.')}</AlertTitle>
-                  <div className='absolute top-0 right-0 p-2'>
-                    <XCircleIcon
-                      className='h-5 w-5 rounded-full cursor-pointer hover:bg-gray-200'
-                      onClick={() => router.push('/integrations')}
-                    />
-                  </div>
-                </Alert>
-              )}
               <>
                 <ul role="list" className="grid grid-cols-1 mt-6 border-t border-gray-200">
                   {hasSlackConnection && 

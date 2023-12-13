@@ -9,7 +9,9 @@ import { SiSlack } from "react-icons/si";
 import { HiOutlineMail } from "react-icons/hi";
 import { LuClock, LuPlus } from "react-icons/lu";
 import { Cog6ToothIcon } from '@heroicons/react/24/outline'
-import AddReportModal from "@/components/Automations/Reports/AddReportModal"; 
+import AddReportModal from "@/components/Automations/Reports/AddReportModal";
+import { toast } from "sonner";
+
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -29,8 +31,7 @@ export default function ReportsPage() {
     SwishjamAPI.Reports.disable(reportId).then(({report, error}) => {
       if (error) {
         console.error(error) 
-        toast({
-          title: "Uh oh! Something went wrong.",
+        toast("Uh oh! Something went wrong.", {
           description: "Contact founders@swishjam.com for help",
         })
       } else {
@@ -43,8 +44,7 @@ export default function ReportsPage() {
     SwishjamAPI.Reports.enable(reportId).then(({report, error}) => {
       if (error) {
         console.error(error) 
-        toast({
-          title: "Uh oh! Something went wrong.",
+        toast("Uh oh! Something went wrong.", {
           description: "Contact founders@swishjam.com for help",
         })
       } else {
@@ -58,8 +58,7 @@ export default function ReportsPage() {
     SwishjamAPI.Reports.delete(reportId).then(({report, error}) => {
       if (error) {
         console.error(error) 
-        toast({
-          title: "Uh oh! Something went wrong.",
+        toast("Uh oh! Something went wrong.", {
           description: "Contact founders@swishjam.com for help",
         })
       } else {
