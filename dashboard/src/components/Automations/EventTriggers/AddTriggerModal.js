@@ -47,7 +47,7 @@ export default function AddTriggerModal({ onNewTrigger }) {
   const [propertyOptionsForSelectedEvent, setPropertyOptionsForSelectedEvent] = useState();
 
   const setSelectedEventAndGetPropertiesAndAutofillMessageContentIfNecessary = async (eventName) => {
-    form.setValue('header', '✨ '+eventName+' ✨')
+    form.setValue('header', '✨ ' + eventName + ' ✨')
     SwishjamAPI.Events.Properties.listUnique(eventName).then(properties => {
       setPropertyOptionsForSelectedEvent(properties);
       // we re-set this every time they change the event..?
@@ -59,10 +59,8 @@ export default function AddTriggerModal({ onNewTrigger }) {
 
   async function onSubmit(values) {
     setLoading(true)
-    console.log('Submission Values', values)
     if (!values.event_name || !values.header || !values.body || !values.slack_channel) {
       toast.error('All fields are required')
-      console.error('All fields are required');
       setLoading(false);
       return;
     }
@@ -78,9 +76,7 @@ export default function AddTriggerModal({ onNewTrigger }) {
       steps: [{ type: 'EventTriggerSteps::Slack', config }]
     })
 
-    console.log('trigger', trigger)
     if (error) {
-      console.error(error)
       toast.error("Uh oh! Something went wrong.", {
         description: "Contact founders@swishjam.com for help",
       })
@@ -159,7 +155,7 @@ export default function AddTriggerModal({ onNewTrigger }) {
                     <FormItem>
                       <FormLabel>Trigger Event</FormLabel>
                       <Select
-                        onValueChange={(e) => {setSelectedEventAndGetPropertiesAndAutofillMessageContentIfNecessary(e);field.onChange(e)}}
+                        onValueChange={(e) => { setSelectedEventAndGetPropertiesAndAutofillMessageContentIfNecessary(e); field.onChange(e) }}
                         defaultValue={field.value}
                       >
                         <FormControl>
@@ -227,7 +223,7 @@ export default function AddTriggerModal({ onNewTrigger }) {
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          {slackChannels.map(c => <SelectItem key={c.id} className="cursor-pointer" value={c.id}>#{c.name}</SelectItem>)}
+                          {slackChannels && slackChannels.map(c => <SelectItem key={c.id} className="cursor-pointer hover:bg-gray-100" value={c.id}>#{c.name}</SelectItem>)}
                         </SelectContent>
                       </Select>
                       <FormMessage />
