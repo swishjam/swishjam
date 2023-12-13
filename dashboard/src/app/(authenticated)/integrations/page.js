@@ -160,12 +160,13 @@ export default function Connections() {
 
               <h5 className='pt-8 pb-2'>Available Data Sources</h5>
               <ul role="list" className="grid grid-cols-1 mt-4 border-t border-gray-200">
-                {availableConnections.length > 0
+                {availableConnections.length === 0
                   ? (
-                  <EmptyView
-                    title="All Sources Connected"
-                    description="Reach out to founders@swishjam.com if you need more"
-                  />) : (
+                    <EmptyView
+                      title="All Sources Connected"
+                      description="Reach out to founders@swishjam.com if you need more"
+                    />
+                  ) : (
                     availableConnections.map((connection) => (
                       <AddConnectionButton
                         img={AllSources[connection.name].img}
@@ -179,7 +180,7 @@ export default function Connections() {
                 }
               </ul>
             </div>
-      </>)}
+          </>)}
 
     </div>
   );
