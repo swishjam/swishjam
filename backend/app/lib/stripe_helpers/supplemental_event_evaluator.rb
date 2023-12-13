@@ -9,11 +9,11 @@ module StripeHelpers
 
     def format_supplemental_events_to_be_processed_if_necessary!
       events = []
-      if @stripe_event.type == 'subscription.updated' && is_churned_subscription_event?
+      if @stripe_event.type == 'customer.subscription.updated' && is_churned_subscription_event?
         events << subscription_churned_event
         if @stripe_customer
           # only returns non-canceled subscriptions
-          all_subscriptions_for_customer = ::Stripe::Subscription.list({ customer: @stripe_customer.id }, stripe_account: @event_payload['account'])
+          all_subscriptions_for_customer = ::Stripe::Subscription.list({ customer: @stripe_customer.id }, stripe_account: @stripe_event.account)
           if all_subscriptions_for_customer.data.all?{ |subscription| subscription.status == 'canceled' || !subscription.canceled_at.nil? }
             events << customer_churned_event
           end
@@ -43,12 +43,15 @@ module StripeHelpers
     end
 
     def customer_churned_event
+      byebug
       Analytics::Event.formatted_for_ingestion(
         uuid: "#{@stripe_event.id}-customer-churned",
         swishjam_api_key: @public_key,
         name: 'stripe.supplemental.customer.churned',
         occurred_at: Time.at(@stripe_event.data.object.canceled_at),
-        properties: supplemental_event_properties,
+        properties: supplemental_event_properties.merge(
+          mrr: StripeHelpers::MrrCalculator.calculate_for_stripe_subscription(@stripe_event.data.object, include_canceled: true),
+        ),
       )
     end
 

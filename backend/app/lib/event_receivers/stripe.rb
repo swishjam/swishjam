@@ -66,7 +66,7 @@ module EventReceivers
       )
     end
 
-    def enqueue_sync_jobs_if_necessary(@stripe_event)
+    def enqueue_sync_jobs_if_necessary!
       if %w[customer.subscription.created customer.subscription.updated customer.subscription.deleted].include?(@stripe_event.type)
         StripeDataJobs::TryToSyncCustomerSubscriptionFromStripeSubscription.perform_async(@stripe_event.data.object.id, @event_payload['account'])
       elsif %w[charge.succeeded charge.refunded].include?(@stripe_event.type)

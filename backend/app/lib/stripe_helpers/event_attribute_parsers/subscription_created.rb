@@ -1,12 +1,14 @@
 module StripeHelpers
   module EventAttributeParsers
     class SubscriptionCreated < Base
-      self.methods_to_capture = [:'amount', :'products']
+      self.methods_to_capture = [:'amount', :'mrr', :'products']
 
       def amount
-        @stripe_event.data.object.items.data.sum do |item|
-          item.quantity * item.price.unit_amount
-        end
+        StripeHelpers::MrrCalculator.calculate_for_stripe_subscription(@stripe_event.data.object)
+      end
+
+      def mrr
+        amount
       end
 
       def products

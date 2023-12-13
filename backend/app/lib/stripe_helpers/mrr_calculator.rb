@@ -14,9 +14,11 @@ module StripeHelpers
       mrr
     end
 
-    def self.calculate_for_stripe_subscription(subscription)
+    def self.calculate_for_stripe_subscription(subscription, include_canceled: false)
       mrr = 0
-      return mrr unless subscription.status == 'active' && subscription.canceled_at.nil?
+      return mrr unless subscription.status == 'active' && subscription.canceled_at.nil? || 
+                          include_canceled && subscription.status == 'canceled' || 
+                          include_canceled && !subscription.canceled_at.nil?
       subscription.items.each do |subscription_item|
         mrr += mrr_for_subscription_item(
           interval: subscription_item.price.recurring.interval,

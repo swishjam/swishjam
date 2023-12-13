@@ -3,7 +3,7 @@ module StripeHelpers
     def initialize(stripe_event, workspace, stripe_customer = nil)
       @stripe_event = stripe_event
       @workspace = workspace
-      @@stripe_customer = stripe_customer
+      @stripe_customer = stripe_customer
     end
 
     def formatted_event_data
@@ -44,12 +44,12 @@ module StripeHelpers
       swishjam_event_data
     end
 
-    private
-
     def maybe_user_profile
       return if @stripe_customer.nil? || @stripe_customer.email.blank?
       @maybe_user_profile ||= @workspace.analytics_user_profiles.find_by_case_insensitive_email(@stripe_customer.email)
     end
+
+    private
 
     def custom_attributes_for_event_type
       case @stripe_event.type
