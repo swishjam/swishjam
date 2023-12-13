@@ -213,6 +213,13 @@ Rails.application.routes.draw do
         end
       end
 
+      resources :reports, only: [:destroy, :index, :create] do
+        member do
+          patch :enable
+          patch :disable
+        end
+      end
+
       resources :google_search_console, only: [] do
         collection do
           get :sites

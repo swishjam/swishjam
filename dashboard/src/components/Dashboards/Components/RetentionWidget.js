@@ -15,6 +15,7 @@ export default function RetentionWidget({ retentionCohorts, isExpandable = true,
   const [chartType, setChartType] = useState('grid');
 
   const toggleChartType = () => chartType === 'grid' ? setChartType('chart') : setChartType('grid');
+  const hasRetentionData = Object.keys(retentionCohorts).length > 0;
 
   return (
     <ConditionalCardWrapper
@@ -30,8 +31,9 @@ export default function RetentionWidget({ retentionCohorts, isExpandable = true,
                     as='div'
                     checked={chartType === 'grid'}
                     onChange={toggleChartType}
+                    disabled={!hasRetentionData}
                     className={classNames(
-                      chartType === 'grid' ? 'bg-swishjam' : 'bg-gray-200',
+                      chartType === 'grid' && hasRetentionData ? 'bg-swishjam' : 'bg-gray-200',
                       'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out'
                     )}
                   >
@@ -72,6 +74,11 @@ export default function RetentionWidget({ retentionCohorts, isExpandable = true,
         </div>
       }
     >
+      {!hasRetentionData && (
+        <div className='text-sm text-gray-500 text-center p-8'>
+          No retention data yet. Once you start sending events and identifying users, your retention data will appear here.
+        </div>
+      )}
       {chartType === 'grid'
         ? <RetentionGrid retentionCohorts={retentionCohorts} isExpandable={isExpandable} />
         : <LineChart retentionCohorts={retentionCohorts} />

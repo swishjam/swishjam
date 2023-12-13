@@ -5,6 +5,7 @@ import AuthenticatedView from "@/components/Auth/AuthenticatedView";
 import CommandBarProvider from '@/providers/CommandBarProvider';
 import HotKeyProvider from '@/providers/HotKeyProvider';
 import LoadingSpinner from '@/components/LoadingSpinner';
+import { Toaster } from 'sonner'
 import { IntercomProvider } from 'react-use-intercom';
 
 export default function layout({ children }) {
@@ -16,6 +17,7 @@ export default function layout({ children }) {
         <HotKeyProvider>
           <AuthenticatedView LoadingView={LoadingView}>
             {children}
+            <Toaster richColors closeButton />
           </AuthenticatedView>
         </HotKeyProvider>
       </CommandBarProvider>

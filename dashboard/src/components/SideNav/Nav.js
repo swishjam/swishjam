@@ -5,10 +5,8 @@ import {
   ChevronLeftIcon,
   ChevronRightIcon,
   Cog6ToothIcon,
-  GlobeAmericasIcon,
   HomeIcon,
   MagnifyingGlassIcon,
-  SquaresPlusIcon,
   UserGroupIcon,
   UserIcon,
 } from '@heroicons/react/24/outline'
@@ -19,16 +17,21 @@ import Link from 'next/link'
 import Logo from '@components/Logo'
 import { Bars3Icon } from '@heroicons/react/24/outline'
 import { RxBarChart } from 'react-icons/rx'
+import { LuFlaskConical } from "react-icons/lu";
+import { PiMagicWand } from "react-icons/pi";
+
+
 import useCommandBar from '@/hooks/useCommandBar';
 // import { SwishjamMemory } from '@/lib/swishjam-memory';
 
 const appNav = [
   { name: 'Home', href: '/', icon: HomeIcon },
   { name: 'Dashboards', href: '/dashboards', icon: RxBarChart },
-  // { name: 'Event Explorer', href: '/events', icon: GlobeAmericasIcon }, // HIDING FROM NAV FOR NOW
+  // { name: 'Analyze', href: '/events', icon: LuFlaskConical }, // HIDING FROM NAV FOR NOW
+  { name: 'Automations', href: '/automations/event-triggers', icon: PiMagicWand }, // HIDING FROM NAV FOR NOW
   { name: 'Users', href: '/users', icon: UserIcon },
   { name: 'Organizations', href: '/organizations', icon: UserGroupIcon },
-  { name: 'Data Sources', href: '/data-sources', icon: CircleStackIcon },
+  { name: 'Integrations', href: '/integrations', icon: CircleStackIcon },
   { name: 'Settings', href: '/settings', icon: Cog6ToothIcon },
 ]
 
