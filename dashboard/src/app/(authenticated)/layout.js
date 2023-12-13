@@ -17,11 +17,11 @@ export default function layout({ children }) {
         <HotKeyProvider>
           <AuthenticatedView LoadingView={LoadingView}>
             {children}
-            <Toaster richColors closeButton />
           </AuthenticatedView>
         </HotKeyProvider>
       </CommandBarProvider>
       {/* </IntercomProvider> */}
+      <Toaster richColors closeButton />
     </>
   )
 }
