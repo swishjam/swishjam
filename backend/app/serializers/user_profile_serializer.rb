@@ -11,7 +11,7 @@ class UserProfileSerializer < ActiveModel::Serializer
   end
 
   def active_subscriptions
-    object.customer_subscriptions.active.map do |subscription|
+    object.customer_subscriptions.includes(:customer_subscription_items).active.map do |subscription|
       {
         id: subscription.id,
         subscription_provider_object_id: subscription.subscription_provider_object_id,
@@ -36,19 +36,7 @@ class UserProfileSerializer < ActiveModel::Serializer
 
   def current_mrr_in_cents
     object.customer_subscriptions.active.sum do |subscription| 
-      subscription.customer_subscription_items.sum do |item| 
-        case item.price_recurring_interval
-        when 'day'
-          item.price_unit_amount.to_f * item.quantity.to_f * (30 / item.price_recurring_interval_count.to_f)
-        when 'week'
-          # 52 weeks per year / 12 months = 4.345 weeks per month
-          item.price_unit_amount.to_f * item.quantity.to_f * (4.345 / item.price_recurring_interval_count.to_f)
-        when 'month'
-          item.price_unit_amount.to_f * item.quantity.to_f / item.price_recurring_interval_count.to_f
-        when 'year'
-          item.price_unit_amount.to_f * item.quantity.to_f / (12 * item.price_recurring_interval_count.to_f)
-        end
-      end
+      StripeHelpers::MrrCalculator.calculate_for_swishjam_subscription_record(subscription)
     end
   end
 

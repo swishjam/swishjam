@@ -19,6 +19,7 @@ Rails.application.routes.draw do
   get '/oauth/stripe/callback' => 'oauth/stripe#callback'
   get '/oauth/slack/callback' => 'oauth/slack#callback'
   get '/oauth/google/callback' => 'oauth/google#callback'
+  get '/oauth/intercom/callback' => 'oauth/intercom#callback'
 
   get :ping, to: 'application#ping'
 
@@ -226,9 +227,10 @@ Rails.application.routes.draw do
       get :'/admin/data_syncs', to: 'admin/data_syncs#index'
 
       namespace :webhooks do
-        post :stripe, to: 'stripe#receive'
-        post :'resend/:workspace_id', to: 'resend#receive'
         post :'cal_com/:workspace_id', to: 'cal_com#receive'
+        post :'intercom', to: 'intercom#receive'
+        post :'resend/:workspace_id', to: 'resend#receive'
+        post :stripe, to: 'stripe#receive'
       end
     end
   end
