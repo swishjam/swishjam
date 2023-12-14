@@ -10,9 +10,7 @@ module ClickHouseQueries
       end
 
       def count 
-        return @filled_in_results if defined?(@filled_in_results)
-        data = Analytics::ClickHouseRecord.execute_sql(sql.squish!).count
-        #previous query data = Analytics::Event.find_by_sql(sql.squish!)
+        Analytics::ClickHouseRecord.execute_sql(sql.squish!).first['count']
       end
 
       def sql

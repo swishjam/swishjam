@@ -2,7 +2,6 @@ module ClickHouseQueries
   module Users
     module Active
       class Count
-
         include ClickHouseQueries::Helpers
 
         def initialize(public_keys, start_time:, end_time: Time.current)
@@ -14,8 +13,7 @@ module ClickHouseQueries
         end
 
         def count 
-          raw_results = Analytics::Event.find_by_sql(sql.squish!)
-          raw_results.first.num_unique_users 
+          Analytics::Event.find_by_sql(sql.squish!).first.num_unique_users 
         end
 
         def sql
