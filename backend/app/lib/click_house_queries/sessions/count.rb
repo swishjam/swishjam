@@ -10,14 +10,12 @@ module ClickHouseQueries
       end
 
       def count
-        return @filled_in_results if defined?(@filled_in_results)
-        data = Analytics::ClickHouseRecord.execute_sql(sql.squish!).count
+        Analytics::ClickHouseRecord.execute_sql(sql.squish!).first['count']
       end
 
       def sql
         <<~SQL
-          SELECT
-            CAST(COUNT(DISTINCT JSONExtractString(properties, '#{Analytics::Event::ReservedPropertyNames.SESSION_IDENTIFIER}')) AS int) AS count
+          SELECT CAST(COUNT(DISTINCT JSONExtractString(properties, '#{Analytics::Event::ReservedPropertyNames.SESSION_IDENTIFIER}')) AS int) AS count
           FROM events
           WHERE
             swishjam_api_key IN #{formatted_in_clause(@public_keys)} AND
