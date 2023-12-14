@@ -62,8 +62,8 @@ module DummyData
         BillingData.generate!(workspace)
         Integrations.seed_events!(
           workspace: workspace,
-          number_of_stripe_events: number_of_sessions_to_generate * 0.1,
-          number_of_resend_events: number_of_sessions_to_generate * 0.1,
+          number_of_stripe_events: number_of_sessions_to_generate * 0.25,
+          number_of_resend_events: number_of_sessions_to_generate * 0.25,
           data_begins_max_number_of_days_ago: data_begins_max_number_of_days_ago,
         )
 

@@ -21,6 +21,7 @@ module DataSynchronizers
         num_paid_subscriptions: @stripe_metrics.total_num_paid_subscriptions,
         num_free_trial_subscriptions: @stripe_metrics.total_num_free_trial_subscriptions,
         num_canceled_subscriptions: @stripe_metrics.total_num_canceled_subscriptions,
+        num_customers_with_paid_subscriptions: @stripe_metrics.total_num_customers_with_paid_subscriptions,
         captured_at: Time.current
       )
     end

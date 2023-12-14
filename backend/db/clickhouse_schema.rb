@@ -10,10 +10,10 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ClickhouseActiverecord::Schema.define(version: 2023_11_28_221019) do
+ClickhouseActiverecord::Schema.define(version: 2023_12_13_234928) do
 
   # TABLE: billing_data_snapshots
-  # SQL: CREATE TABLE swishjam_analytics_test.billing_data_snapshots ( `swishjam_api_key` LowCardinality(String), `mrr_in_cents` UInt32, `total_revenue_in_cents` UInt32, `num_active_subscriptions` UInt32, `num_free_trial_subscriptions` UInt32, `num_canceled_subscriptions` UInt32, `captured_at` DateTime, `num_paid_subscriptions` Nullable(Int32) ) ENGINE = MergeTree PRIMARY KEY (swishjam_api_key, captured_at) ORDER BY (swishjam_api_key, captured_at) SETTINGS index_granularity = 8192
+  # SQL: CREATE TABLE swishjam_analytics_test.billing_data_snapshots ( `swishjam_api_key` LowCardinality(String), `mrr_in_cents` UInt32, `total_revenue_in_cents` UInt32, `num_active_subscriptions` UInt32, `num_free_trial_subscriptions` UInt32, `num_canceled_subscriptions` UInt32, `captured_at` DateTime, `num_paid_subscriptions` Nullable(Int32), `num_customers_with_paid_subscriptions` UInt32 DEFAULT 0 ) ENGINE = MergeTree PRIMARY KEY (swishjam_api_key, captured_at) ORDER BY (swishjam_api_key, captured_at) SETTINGS index_granularity = 8192
   create_table "billing_data_snapshots", id: false, options: "MergeTree PRIMARY KEY (swishjam_api_key, captured_at) ORDER BY (swishjam_api_key, captured_at) SETTINGS index_granularity = 8192", force: :cascade do |t|
     t.string "swishjam_api_key", null: false
     t.integer "mrr_in_cents", null: false
@@ -23,6 +23,7 @@ ClickhouseActiverecord::Schema.define(version: 2023_11_28_221019) do
     t.integer "num_canceled_subscriptions", null: false
     t.datetime "captured_at", null: false
     t.integer "num_paid_subscriptions", unsigned: false
+    t.integer "num_customers_with_paid_subscriptions", null: false
   end
 
   # TABLE: customer_billing_data_snapshots

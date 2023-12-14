@@ -218,6 +218,12 @@ Rails.application.routes.draw do
           get :analytics
         end
       end
+
+      resources :saas_metrics, only: [] do
+        collection do
+          :churn_rate
+        end
+      end
       
       get :'/admin/ingestion/queuing', to: 'admin/ingestion#queueing'
       get :'/admin/ingestion/queue_stats', to: 'admin/ingestion#queue_stats'

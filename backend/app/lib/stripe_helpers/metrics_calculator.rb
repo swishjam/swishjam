@@ -23,6 +23,7 @@ module StripeHelpers
       @total_num_paid_subscriptions = nil
       @total_num_free_trial_subscriptions = nil
       @total_num_canceled_subscriptions = nil
+      @total_num_customers_with_paid_subscriptions = nil
       @subscription_mrr_map = {}
       @subscription_revenue_map = {}
     end
@@ -65,6 +66,12 @@ module StripeHelpers
       @total_num_paid_subscriptions
     end
 
+    def total_num_customers_with_paid_subscriptions
+      return @total_num_customers_with_paid_subscriptions if @total_num_customers_with_paid_subscriptions.present?
+      calculate_mrr_and_subscription_counts
+      @total_num_customers_with_paid_subscriptions
+    end
+
     def total_num_free_trial_subscriptions
       return @total_num_free_trial_subscriptions if @total_num_free_trial_subscriptions.present?
       calculate_mrr_and_subscription_counts
@@ -87,13 +94,19 @@ module StripeHelpers
       @total_num_free_trial_subscriptions = 0
       @total_num_canceled_subscriptions = 0
       @total_num_paid_subscriptions = 0
+      @total_num_customers_with_paid_subscriptions = 0
+      customer_ids_with_paid_subscriptions = []
       subscriptions.each do |subscription|
         @total_mrr += calculate_mrr_for_subscription(subscription)
-        @total_num_active_subscriptions += 1 if subscription.status == 'active'
+        @total_num_active_subscriptions += 1 if subscription.status == 'active' && subscription.canceled_at.nil?
         @total_num_free_trial_subscriptions += 1 if subscription.status == 'trialing'
-        @total_num_canceled_subscriptions += 1 if subscription.status == 'canceled'
-        @total_num_paid_subscriptions += 1 if subscription.status == 'active' && subscription.items.sum{ |item| item.price.unit_amount * item.quantity } > 0
+        @total_num_canceled_subscriptions += 1 if subscription.status == 'canceled' || subscription.canceled_at.present?
+        if subscription.status == 'active' && subscription.canceled_at.nil? && subscription.items.any?{ |item| item.price.unit_amount > 0 }
+          @total_num_paid_subscriptions += 1
+          customer_ids_with_paid_subscriptions << subscription.customer.id
+        end
       end
+      @total_num_customers_with_paid_subscriptions = customer_ids_with_paid_subscriptions.uniq.count
     end
 
     def calculate_total_revenue
