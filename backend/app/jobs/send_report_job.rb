@@ -35,7 +35,7 @@ class SendReportJob
       channel: report.slack_channel_id, 
       blocks: [
         slack_header(report.workspace.name, report.cadence),
-        slack_dates(DateTime.yesterday.strftime('%A, %B %d')),
+        slack_dates(DateTime.yesterday),
         slack_mkdwn(" "),
         slack_mkdwn(":mega: *Marketing Site:*"),
         slack_mkdwn(":chart_with_upwards_trend: *Sessions:* #{yesterday_marketing_sessions} (#{percent_diff(yesterday_marketing_sessions, two_days_ago_marketing_sessions)}% vs #{comparison_day})"),
@@ -111,9 +111,9 @@ class SendReportJob
 
   def slack_dates(start_date, end_date = nil)
     if end_date
-      slack_mkdwn(":calendar: #{start_date.strftime('%m/%d/%Y')} — #{end_date.strftime('%m/%d/%Y')}")
+      slack_mkdwn(":calendar: #{start_date.strftime('%A, %B %d')} — #{end_date.strftime('%A, %B %d')}")
     else
-      slack_mkdwn(":calendar: #{start_date.strftime('%m/%d/%Y')}")
+      slack_mkdwn(":calendar: #{start_date.strftime('%A, %B %d')}")
     end
   end
 
