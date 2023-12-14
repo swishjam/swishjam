@@ -44,13 +44,10 @@ export default function AddReportModal({ onNewReport }) {
   async function onSubmit(values) {
     setLoading(true)
     if (!values.name || !values.slack_channel) {
-      //if (!values.name || !values.cadence || !values.sending_mechanism || !values.slack_channel) {
       toast.error('All fields are required')
       setLoading(false);
       return;
     }
-    //cadence: values.candence,
-    //sending_mechanism: values.sending_mechanism,
     const { report, error } = await SwishjamAPI.Reports.create({
       name: values.name,
       cadence: 'daily',
@@ -60,16 +57,15 @@ export default function AddReportModal({ onNewReport }) {
       }
     })
 
-    if (error) {
-      toast.error("Uh oh! Something went wrong.", {
-        description: "Contact founders@swishjam.com for help",
-      })
-    }
-
-    form.reset();
     setLoading(false);
-    dialogRef.current.click();
-    onNewReport(report)
+    if (error) {
+      toast.error(error)
+    } else {
+      toast.success(`${values.name} created successfully..`)
+      form.reset();
+      dialogRef.current.click();
+      onNewReport(report)
+    }
   }
 
   useEffect(() => {
@@ -208,6 +204,7 @@ export default function AddReportModal({ onNewReport }) {
                 <Button
                   className={`!mt-6 w-full flex items-center justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white focus:outline-none focus:ring-2 ${loading ? 'bg-swishjam-dark' : 'bg-swishjam'} hover:bg-swishjam-dark`}
                   type="submit"
+                  disabled={loading}
                 >
                   {loading ? <LoadingSpinner color="white" /> : 'Create Report'}
                 </Button>

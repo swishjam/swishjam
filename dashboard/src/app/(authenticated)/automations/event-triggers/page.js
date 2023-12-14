@@ -9,7 +9,7 @@ import { SiSlack } from "react-icons/si";
 import { LuGitCommit } from "react-icons/lu";
 import Logo from '@components/Logo'
 import { Cog6ToothIcon } from '@heroicons/react/24/outline'
-import AddTriggerModal from "@/components/Automations/EventTriggers/AddTriggerModal"; 
+import AddTriggerModal from "@/components/Automations/EventTriggers/AddTriggerModal";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { toast } from "sonner";
 import {
@@ -28,9 +28,9 @@ export default function () {
   const [hasSlackConnection, setHasSlackConnection] = useState();
 
   const pauseTrigger = async (triggerId) => {
-    SwishjamAPI.EventTriggers.disable(triggerId).then(({trigger, error}) => {
+    SwishjamAPI.EventTriggers.disable(triggerId).then(({ trigger, error }) => {
       if (error) {
-        console.error(error) 
+        console.error(error)
         toast.messaage("Uh oh! Something went wrong.", {
           description: "Contact founders@swishjam.com for help",
         })
@@ -39,11 +39,11 @@ export default function () {
       }
     })
   }
-  
+
   const resumeTrigger = async (triggerId) => {
-    SwishjamAPI.EventTriggers.enable(triggerId).then(({trigger, error}) => {
+    SwishjamAPI.EventTriggers.enable(triggerId).then(({ trigger, error }) => {
       if (error) {
-        console.error(error) 
+        console.error(error)
         toast.message("Uh oh! Something went wrong.", {
           description: "Contact founders@swishjam.com for help",
         })
@@ -54,9 +54,9 @@ export default function () {
   }
 
   const deleteTrigger = async (triggerId) => {
-    SwishjamAPI.EventTriggers.delete(triggerId).then(({trigger, error}) => {
+    SwishjamAPI.EventTriggers.delete(triggerId).then(({ trigger, error }) => {
       if (error) {
-        console.error(error) 
+        console.error(error)
         toast("Uh oh! Something went wrong.", {
           description: "Contact founders@swishjam.com for help",
         })
@@ -68,7 +68,7 @@ export default function () {
 
   const loadTriggers = async () => {
     const triggers = await SwishjamAPI.EventTriggers.list();
-    console.log(triggers) 
+    console.log(triggers)
     setTriggers(triggers)
     const slackConnection = await SwishjamAPI.SlackConnections.get();
     setHasSlackConnection(slackConnection !== null);
@@ -83,28 +83,28 @@ export default function () {
     <div>
       <div className="flex items-center justify-between">
         <h2 className="text-md font-medium text-gray-700 mb-0">Event Triggers</h2>
-        {hasSlackConnection && 
-        <AddTriggerModal
-          onNewTrigger={newTrigger => setTriggers([...triggers, newTrigger])}
-        />}
+        {hasSlackConnection &&
+          <AddTriggerModal
+            onNewTrigger={newTrigger => setTriggers([...triggers, newTrigger])}
+          />}
       </div>
-      {isLoading ? 
+      {isLoading ?
         <div className="mt-24 h-5 w-5 mx-auto">
           <LoadingSpinner size={8} />
         </div> :
-        (triggers?.length > 0 ? 
+        (triggers?.length > 0 ?
           <div>
             <ul role="list" className="w-full space-y-2 mt-8">
-            {triggers?.sort((a, b) => new Date(a.created_at) - new Date(b.created_at))?.map(trigger => (
+              {triggers?.sort((a, b) => new Date(a.created_at) - new Date(b.created_at))?.map(trigger => (
                 <li key={trigger.id} className="bg-white relative flex items-center space-x-4 px-4 py-2 border border-gray-300 rounded">
                   <div className="min-w-0 flex-auto">
                     <div className="flex items-center gap-x-3">
-                      <Logo className="h-4"/>
+                      <Logo className="h-4" />
                       <h2 className="min-w-0 text-sm font-semibold leading-6 text-gray-600">
                         <span className="truncate capitalize">{`${trigger?.event_name}`}</span>
                       </h2>
-                      <LuGitCommit className="w-4 h-4"/>
-                      {trigger.steps[0].type  == 'EventTriggerSteps::Slack' && <SiSlack className="w-4 h-4"/>}
+                      <LuGitCommit className="w-4 h-4" />
+                      {trigger.steps[0].type == 'EventTriggerSteps::Slack' && <SiSlack className="w-4 h-4" />}
                       <h2 className="min-w-0 text-sm font-semibold leading-6 text-gray-600">
                         <span className="truncate capitalize">#{trigger?.steps[0].config.channel_name}</span>
                       </h2>
@@ -149,12 +149,12 @@ export default function () {
                           <DropdownMenuItem onClick={() => pauseTrigger(trigger.id)} className="cursor-pointer">
                             <PauseCircleIcon className='h-4 w-4 inline-block mr-2' />
                             Pause
-                          </DropdownMenuItem>:
+                          </DropdownMenuItem> :
                           <DropdownMenuItem onClick={() => resumeTrigger(trigger.id)} className="cursor-pointer">
                             <PlayCircleIcon className='h-4 w-4 inline-block mr-2' />
                             Resume
                           </DropdownMenuItem>
-                        } 
+                        }
                         <DropdownMenuItem className="!text-red-400 cursor-pointer" onClick={() => deleteTrigger(trigger.id)}>
                           <TrashIcon className='h-4 w-4 inline-block mr-2' />
                           Delete
@@ -165,8 +165,8 @@ export default function () {
                 </li>
               ))}
             </ul>
-          </div>:
-          <EmptyState title={hasSlackConnection ? "No Event Triggers":"Connect Slack To Use Event Triggers"} />
+          </div> :
+          <EmptyState title={hasSlackConnection ? "No Event Triggers" : <><Link className='text-blue-700 underline' href='/integrations/destinations'>Connect Slack</Link> to begin sending event triggers.</>} />
         )
       }
     </div>

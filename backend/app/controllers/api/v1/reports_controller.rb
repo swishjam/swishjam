@@ -2,7 +2,6 @@ module Api
   module V1
     class ReportsController < BaseController
       def index
-        #render json: current_workspace.reports, each_serializer: ReportSerializer, status: :ok
         render json: current_workspace.reports, status: :ok
       end
 
@@ -12,7 +11,7 @@ module Api
           name: params[:name], 
           cadence: params[:cadence], 
           sending_mechanism: params[:sending_mechanism],  
-          config: params[:congfig],  
+          config: JSON.parse(params[:config].to_json),
         )
         if report.save
           render json: { report: report }, status: :ok

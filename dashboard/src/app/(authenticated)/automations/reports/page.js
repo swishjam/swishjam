@@ -35,6 +35,7 @@ export default function ReportsPage() {
           description: "Contact founders@swishjam.com for help",
         })
       } else {
+        toast.success('Report paused')
         setReports([...reports.filter((t) => t.id !== reportId), report])
       }
     })
@@ -47,6 +48,7 @@ export default function ReportsPage() {
           description: "Contact founders@swishjam.com for help",
         })
       } else {
+        toast.success('Report resumed')
         setReports([...reports.filter((t) => t.id !== reportId), report])
       }
     })
@@ -59,15 +61,18 @@ export default function ReportsPage() {
           description: "Contact founders@swishjam.com for help",
         })
       } else {
+        toast.success('Report deleted')
         setReports([...reports.filter((t) => t.id !== reportId)])
       }
     })
   }
 
   const loadReports = async () => {
-    const reports = await SwishjamAPI.Reports.list();
+    const [reports, slackConnection] = await Promise.all([
+      SwishjamAPI.Reports.list(),
+      SwishjamAPI.SlackConnections.get(),
+    ]);
     setReports(reports)
-    const slackConnection = await SwishjamAPI.SlackConnections.get();
     setHasSlackConnection(slackConnection !== null);
     setIsLoading(false)
   }
@@ -80,10 +85,7 @@ export default function ReportsPage() {
     <div>
       <div className="flex items-center justify-between">
         <h2 className="text-md font-medium text-gray-700 mb-0">Reports</h2>
-        {hasSlackConnection &&
-          <AddReportModal
-            onNewReport={newReport => setReports([...reports, newReport])}
-          />}
+        {hasSlackConnection && <AddReportModal onNewReport={newReport => setReports([...reports, newReport])} />}
       </div>
       {isLoading ?
         <div className="mt-24 h-5 w-5 mx-auto">
@@ -153,7 +155,7 @@ export default function ReportsPage() {
               ))}
             </ul>
           </div> :
-          <EmptyState title={hasSlackConnection ? "No Reports" : <><Link className='text-blue-700 underline' href='/integrations/destinations'>Connect Slack</Link> to create begin creating reports.</>} />
+          <EmptyState title={hasSlackConnection ? "No Reports" : <><Link className='text-blue-700 underline' href='/integrations/destinations'>Connect Slack</Link> to begin creating reports.</>} />
         )
       }
     </div>
