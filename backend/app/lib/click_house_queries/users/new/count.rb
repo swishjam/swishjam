@@ -16,7 +16,7 @@ module ClickHouseQueries
 
         def sql
           <<~SQL
-            SELECT COUNT() AS count
+            SELECT CAST(COUNT() AS INT) AS count
             FROM swishjam_user_profiles
             WHERE 
               swishjam_api_key IN #{formatted_in_clause(@public_keys)} AND 

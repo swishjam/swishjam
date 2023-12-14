@@ -35,7 +35,7 @@ class SendReportJob
       channel: report.slack_channel_id, 
       blocks: [
         slack_header(report.workspace.name, report.cadence),
-        slack_dates(DateTime.yesterday),
+        slack_dates(DateTime.yesterday.strftime('%A, %B %d')),
         slack_mkdwn(" "),
         slack_mkdwn(":mega: *Marketing Site:*"),
         slack_mkdwn(":chart_with_upwards_trend: *Sessions:* #{yesterday_marketing_sessions} (#{percent_diff(yesterday_marketing_sessions, two_days_ago_marketing_sessions)}% vs #{comparison_day})"),
@@ -44,7 +44,7 @@ class SendReportJob
         slack_divider(), 
         slack_mkdwn(" "),
         slack_mkdwn(":technologist: *Product Usage:*"),
-        slack_mkdwn(":chart_with_upwards_trend: *Daily Active Users:* #{yesterday_daily_active_users} (#{percent_diff(yesterday_daily_active_users, two_days_ago_daily_active_users)}% vs #{comparison_day})"),
+        slack_mkdwn(":chart_with_upwards_trend: *Active Users:* #{yesterday_daily_active_users} (#{percent_diff(yesterday_daily_active_users, two_days_ago_daily_active_users)}% vs #{comparison_day})"),
         slack_mkdwn(":chart_with_upwards_trend: *Sessions:* #{yesterday_sessions} (#{percent_diff(yesterday_sessions, two_days_ago_sessions)}% vs #{comparison_day})"),
         slack_mkdwn(":chart_with_upwards_trend: *New Users:* #{yesterday_new_users} (#{percent_diff(yesterday_new_users, two_days_ago_new_users)}% vs #{comparison_day})"),
         # slack_divider(),
