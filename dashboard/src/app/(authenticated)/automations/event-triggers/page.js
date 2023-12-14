@@ -101,7 +101,7 @@ export default function () {
                     <div className="flex items-center gap-x-3">
                       <Logo className="h-4" />
                       <h2 className="min-w-0 text-sm font-semibold leading-6 text-gray-600">
-                        <span className="truncate capitalize">{`${trigger?.event_name}`}</span>
+                        <span className="truncate">{`${trigger?.event_name}`}</span>
                       </h2>
                       <LuGitCommit className="w-4 h-4" />
                       {trigger.steps[0].type == 'EventTriggerSteps::Slack' && <SiSlack className="w-4 h-4" />}

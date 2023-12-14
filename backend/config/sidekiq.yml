@@ -17,4 +17,4 @@
       class: DataSyncJobs::Stripe
     daily_reports:
       cron: "0 16 * * *" # every day @ 4pm UTC (8 am PST)
-      class: DailyReports
+      class: DailyReportsBatchRunnerJob

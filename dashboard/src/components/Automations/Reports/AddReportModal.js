@@ -53,7 +53,7 @@ export default function AddReportModal({ onNewReport }) {
       cadence: 'daily',
       sending_mechanism: 'slack',
       config: {
-        channel_id: values.slack_channel
+        slack_channel_id: values.slack_channel
       }
     })
 

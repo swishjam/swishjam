@@ -27,7 +27,7 @@ class SendReportJob
     slack_client = ::Slack::Client.new(access_token)
 
     slack_client.post_message_to_channel(
-      channel: report.config.channel_id, 
+      channel: report.slack_channel_id, 
       blocks: [
         slack_header(report.workspace.name, report.cadence),
         slack_dates(DateTime.now),
@@ -57,7 +57,7 @@ class SendReportJob
     report_id: report.id, 
     workspace: report.workspace, 
     payload: {
-      slack_channel_id: report.config.channel_id,
+      slack_channel_id: report.slack_channel_id,
       yesterday_marketing_sessions: yesterday_marketing_sessions,
       two_days_ago_marketing_sessions: two_days_ago_marketing_sessions,
       yesterday_marketing_page_views: yesterday_marketing_page_views,
