@@ -37,12 +37,20 @@ class ApiKey < Transactional
     ])
   end
 
-  def self.for_data_source(data_source)
-    enabled.find_by(data_source: data_source)
+  def self.for_data_source(data_source, enabled_only: false)
+    if enabled_only
+      enabled.find_by(data_source: data_source)
+    else
+      find_by(data_source: data_source)
+    end
   end
 
-  def self.for_data_source!(data_source)
-    enabled.find_by!(data_source: data_source)
+  def self.for_data_source!(data_source, enabled_only: false)
+    if enabled_only
+      enabled.find_by!(data_source: data_source)
+    else
+      find_by!(data_source: data_source)
+    end
   rescue ActiveRecord::RecordNotFound => e
     raise ActiveRecord::RecordNotFound, "No enabled API key found for data source: #{data_source}"
   end
