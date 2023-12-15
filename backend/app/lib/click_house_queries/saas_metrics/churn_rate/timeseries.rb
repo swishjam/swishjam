@@ -26,8 +26,8 @@ module ClickHouseQueries
               snapshots.captured_at AS snapshot_date,
               snapshots.num_customers_with_paid_subscriptions AS num_customers_with_paid_subscriptions_at_snapshot_date,
               snapshots.captured_at + INTERVAL #{@num_days_in_churn_period} DAY AS churn_period_end_date,
-              CAST(COUNT(churn_events.occurred_at) AS INT) AS num_churned_customers_in_period,
-              CAST(ROUND(COUNT(churn_events.occurred_at) / snapshots.num_customers_with_paid_subscriptions * 100, 2) AS FLOAT) AS churn_rate
+              CAST(COUNT(DISTINCT churn_events.uuid) AS INT) AS num_churned_customers_in_period,
+              CAST(ROUND(COUNT(DISTINCT churn_events.uuid) / snapshots.num_customers_with_paid_subscriptions * 100, 2) AS FLOAT) AS churn_rate
             FROM billing_data_snapshots AS snapshots
             LEFT JOIN events AS churn_events ON snapshots.swishjam_api_key = churn_events.swishjam_api_key
             WHERE 
