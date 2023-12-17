@@ -1,17 +1,24 @@
 module StripeHelpers
-  class MetricsCalculator
-    def initialize(stripe_account_id)
+  class SnapshotCalculator
+    def initialize(stripe_account_id, start_timestamp:, end_timestamp:)
       @stripe_account_id = stripe_account_id
+      @start_timestamp = start_timestamp
+      @end_timestamp = end_timestamp
       @subscription_mrr_map = {}
       @subscription_revenue_map = {}
     end
 
-    def subscriptions
-      @stripe_subscriptions ||= StripeHelpers::DataFetchers.get_all_subscriptions(@stripe_account_id)
+    def sorted_subscriptions_for_time_period
+      # @stripe_subscriptions ||= StripeHelpers::DataFetchers.get_all_subscriptions(@stripe_account_id)
+      @stripe_subscriptions ||= StripeHelpers::DataFetchers.get_all(starts_after: @start_timestamp, ends_before: @end_timestamp) do
+        ::Stripe::Subscription.list({ status: 'all', expand: ['data.customer', 'data.items.data.price'] }, stripe_account: @stripe_account_id)
+      end
     end
 
-    def charges
-      @stripe_charges ||= StripeHelpers::DataFetchers.get_all_charges(@stripe_account_id)
+    def all_charges_for_time_period
+      @stripe_charges ||= StripeHelpers::DataFetchers.get_all(starts_after: @start_timestamp, ends_before: @end_timestamp) do
+        ::Stripe::Charge.list({ limit: 100 }, stripe_account: @stripe_account_id)
+      end
     end
 
     def flush_cache!
@@ -30,7 +37,8 @@ module StripeHelpers
 
     def mrr
       return @total_mrr if @total_mrr.present?
-      calculate_mrr_and_subscription_counts
+      # calculate_mrr_and_subscription_counts
+      mrr_for
       @total_mrr
     end
     alias total_mrr mrr
@@ -128,6 +136,76 @@ module StripeHelpers
         @subscription_mrr_map[subscription.id] = StripeHelpers::MrrCalculator.calculate_for_stripe_subscription(subscription)
       end
       @subscription_mrr_map[subscription.id]
+    end
+
+    #############################
+
+    def mrr_at_time
+      active_subscriptions_for_day(snapshot_date).sum do |subscription|
+        StripeHelpers::MrrCalculator.calculate_for_stripe_subscription(subscription, include_canceled: true)
+      end
+    end
+
+    def num_active_subscribers_for_day(snapshot_date)
+      active_subscriptions_for_day(snapshot_date).map{ |s| s.customer.id }.uniq.count
+    end
+
+    def num_active_subscriptions_for_day(snapshot_date)
+      active_subscriptions_for_day(snapshot_date).count
+    end
+
+    def active_subscriptions_for_time_period
+      @active_subscriptions_for_time_period ||= begin
+        active_subscriptions = []
+        sorted_subscriptions.each do |subscription| 
+          active_subscriptions << subscription if subscription_was_active_at_time?(subscription)
+          break if subscription.start_date > @end_date.to_i
+        end
+        active_subscriptions
+      end
+    end
+
+    def event_occurred_within_snapshot_period?(event)
+      Time.at(event.created) >= @start_date && Time.at(event.created) < @end_date
+    end
+
+    def subscription_was_active_at_time?(subscription)
+      started_before_end_date = subscription.start_date <= @end_date.to_i
+      ended_after_end_date = subscription.ended_at.nil? || subscription.ended_at > @end_date.to_i
+      was_not_canceled_before_end_date = subscription.canceled_at.nil? || subscription.canceled_at > @end_date.to_i
+      was_not_trialing = subscription.trial_start.nil? || subscription.trial_end < @start_date.to_i
+      is_paid_subscription = subscription.items.data.any? { |item| item.price.unit_amount > 0 }
+
+      started_before_snapshot_date && ended_after_snapshot_date && !was_canceled_before_snapshot_date && !was_trialing_at_snapshot_date && is_paid_subscription
+    end
+
+    def earliest_subscription
+      @earliest_subscription ||= sorted_subscriptions.first
+    end
+
+    def sorted_subscriptions_for_time_period
+      @subscriptions ||= begin
+        subscriptions = StripeHelpers::DataFetchers.get_all(starts_after: @start_date, ends_before: @end_date) do
+          Stripe::Subscription.list({ status: 'all', limit: 100, expand: ['data.customer', 'data.items.data.price'] }, stripe_account: @stripe_account_id)
+        end
+        subscriptions.sort_by{ |subscription| subscription.start_date }
+      end
+    end
+
+    def get_customer_with_cache(customer_id)
+      @stripe_customer_dict ||= {}
+      @stripe_customer_dict[customer_id] ||= begin 
+        ::Stripe::Customer.retrieve(customer_id, { stripe_account: @stripe_account_id })
+      end
+    end
+
+    def get_customer_subscriptions_with_cache(customer_id)
+      @stripe_customer_subscriptions_dict ||= {}
+      @stripe_customer_subscriptions_dict[customer_id] ||= begin
+        StripeHelpers::DataFetchers.get_all do
+          Stripe::Subscription.list({ status: 'all', customer: customer_id, expand: ['data.customer', 'data.items.data.price'] }, stripe_account: @stripe_account_id)
+        end
+      end
     end
   end
 end

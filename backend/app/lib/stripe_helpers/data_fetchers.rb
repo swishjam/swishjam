@@ -1,8 +1,22 @@
 module StripeHelpers
   class DataFetchers
-    def self.get_all &block
+    def self.get_all(starts_after: nil, ends_before: nil)
+      raise ArgumentError, "Must provide a block to get_all" unless block_given?
       response = yield
-      response.auto_paging_each.map { |object| object }
+      
+      starts_after = starts_after.to_i if starts_after.present?
+      ends_before = ends_before.to_i if ends_before.present?
+      starts_after = Float::INFINITY * -1 if starts_after.nil?
+      ends_before = Float::INFINITY if ends_before.nil?
+
+      objects = []
+      response.auto_paging_each do |object|
+        break if starts_after && object.created < starts_after
+        if object.created >= starts_after && object.created <= ends_before
+          objects << object
+        end
+      end
+      objects
     end
 
     def self.get_all_subscriptions(stripe_account_id, expand: ['data.customer', 'data.plan.product'], subscriptions: [], starting_after: nil)
