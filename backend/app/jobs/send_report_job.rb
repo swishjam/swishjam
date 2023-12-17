@@ -38,15 +38,15 @@ class SendReportJob
         slack_dates(DateTime.yesterday),
         slack_mkdwn(" "),
         slack_mkdwn(":mega: *Marketing Site:*"),
-        slack_mkdwn(":chart_with_upwards_trend: *Sessions:* #{yesterday_marketing_sessions} (#{percent_diff(yesterday_marketing_sessions, two_days_ago_marketing_sessions)}% vs #{comparison_day})"),
-        slack_mkdwn(":chart_with_downwards_trend: *Unique Visitors:* #{yesterday_marketing_unique_users} (#{percent_diff(yesterday_marketing_unique_users, two_days_ago_marketing_unique_users)}% vs #{comparison_day})"),
-        slack_mkdwn(":left_right_arrow: *Page Views:* #{yesterday_marketing_page_views} (#{percent_diff(yesterday_marketing_page_views, two_days_ago_marketing_page_views)}% vs #{comparison_day})"),
+        slack_mkdwn("#{emoji_for_comparison(yesterday_marketing_sessions, two_days_ago_marketing_sessions)} *Sessions:* #{yesterday_marketing_sessions} (#{formatted_percent_diff(yesterday_marketing_sessions, two_days_ago_marketing_sessions)}% vs #{comparison_day})"),
+        slack_mkdwn("#{emoji_for_comparison(yesterday_marketing_unique_users, two_days_ago_marketing_unique_users)} *Unique Visitors:* #{yesterday_marketing_unique_users} (#{formatted_percent_diff(yesterday_marketing_unique_users, two_days_ago_marketing_unique_users)}% vs #{comparison_day})"),
+        slack_mkdwn("#{emoji_for_comparison(yesterday_marketing_page_views, two_days_ago_marketing_page_views)} *Page Views:* #{yesterday_marketing_page_views} (#{formatted_percent_diff(yesterday_marketing_page_views, two_days_ago_marketing_page_views)}% vs #{comparison_day})"),
         slack_divider(), 
         slack_mkdwn(" "),
         slack_mkdwn(":technologist: *Product Usage:*"),
-        slack_mkdwn(":chart_with_upwards_trend: *Active Users:* #{yesterday_daily_active_users} (#{percent_diff(yesterday_daily_active_users, two_days_ago_daily_active_users)}% vs #{comparison_day})"),
-        slack_mkdwn(":chart_with_upwards_trend: *Sessions:* #{yesterday_sessions} (#{percent_diff(yesterday_sessions, two_days_ago_sessions)}% vs #{comparison_day})"),
-        slack_mkdwn(":chart_with_upwards_trend: *New Users:* #{yesterday_new_users} (#{percent_diff(yesterday_new_users, two_days_ago_new_users)}% vs #{comparison_day})"),
+        slack_mkdwn("#{emoji_for_comparison(yesterday_daily_active_users, two_days_ago_daily_active_users)} *Active Users:* #{yesterday_daily_active_users} (#{formatted_percent_diff(yesterday_daily_active_users, two_days_ago_daily_active_users)}% vs #{comparison_day})"),
+        slack_mkdwn("#{emoji_for_comparison(yesterday_sessions, two_days_ago_sessions)} *Sessions:* #{yesterday_sessions} (#{formatted_percent_diff(yesterday_sessions, two_days_ago_sessions)}% vs #{comparison_day})"),
+        slack_mkdwn("#{emoji_for_comparison(yesterday_new_users, two_days_ago_new_users)} *New Users:* #{yesterday_new_users} (#{formatted_percent_diff(yesterday_new_users, two_days_ago_new_users)}% vs #{comparison_day})"),
         # slack_divider(),
         # slack_mkdwn(" "),
         # slack_mkdwn(":money_with_wings: *Financial Metrics:*"),
@@ -90,6 +90,16 @@ class SendReportJob
       start_time: time.beginning_of_day,
       end_time: time.end_of_day
     ).count
+  end
+
+  def emoji_for_comparison(new_value, old_value)
+    if new_value > old_value
+      ':chart_with_upwards_trend:'
+    elsif new_value < old_value
+      ':chart_with_downwards_trend:'
+    else
+      ':left_right_arrow:'
+    end
   end
 
   def slack_header(name, cadence)
@@ -146,16 +156,20 @@ class SendReportJob
     }
   end
 
-  def percent_diff(num1, num2)
-    if (num1.nil? || num2.nil? || num1.zero?)
+  def formatted_percent_diff(new_val, old_val)
+    if (new_val.nil? || old_val.nil? || new_val.zero?)
       0
     else
-      percent = ((num2 - num1) / num1.to_f) * 100
-      if percent.negative?
-        "-#{percent.abs.round(2)}"
+      percent = ((new_val - old_val) / old_val.to_f) * 100
+      return 'No change' if percent == 0
+      formatted = nil
+      if percent % 1 == 0
+        formatted = "#{percent.to_i}%"
       else
-        "+#{percent.round(2)}"
+        formatted = "#{sprintf('%.2f', percent)}%"
       end
+      formatted = "+#{formatted}" if percent > 0
+      formatted
     end
   end
 end
