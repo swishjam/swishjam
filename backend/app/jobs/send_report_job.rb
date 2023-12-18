@@ -38,15 +38,15 @@ class SendReportJob
         slack_dates(DateTime.yesterday),
         slack_mkdwn(" "),
         slack_mkdwn(":mega: *Marketing Site:*"),
-        slack_mkdwn("#{emoji_for_comparison(yesterday_marketing_sessions, two_days_ago_marketing_sessions)} *Sessions:* #{yesterday_marketing_sessions} (#{formatted_percent_diff(yesterday_marketing_sessions, two_days_ago_marketing_sessions)}% vs #{comparison_day})"),
-        slack_mkdwn("#{emoji_for_comparison(yesterday_marketing_unique_users, two_days_ago_marketing_unique_users)} *Unique Visitors:* #{yesterday_marketing_unique_users} (#{formatted_percent_diff(yesterday_marketing_unique_users, two_days_ago_marketing_unique_users)}% vs #{comparison_day})"),
-        slack_mkdwn("#{emoji_for_comparison(yesterday_marketing_page_views, two_days_ago_marketing_page_views)} *Page Views:* #{yesterday_marketing_page_views} (#{formatted_percent_diff(yesterday_marketing_page_views, two_days_ago_marketing_page_views)}% vs #{comparison_day})"),
+        slack_mkdwn("#{emoji_for_comparison(yesterday_marketing_sessions, two_days_ago_marketing_sessions)} *Sessions:* #{yesterday_marketing_sessions} (#{formatted_percent_diff(yesterday_marketing_sessions, two_days_ago_marketing_sessions)} vs #{comparison_day})"),
+        slack_mkdwn("#{emoji_for_comparison(yesterday_marketing_unique_users, two_days_ago_marketing_unique_users)} *Unique Visitors:* #{yesterday_marketing_unique_users} (#{formatted_percent_diff(yesterday_marketing_unique_users, two_days_ago_marketing_unique_users)} vs #{comparison_day})"),
+        slack_mkdwn("#{emoji_for_comparison(yesterday_marketing_page_views, two_days_ago_marketing_page_views)} *Page Views:* #{yesterday_marketing_page_views} (#{formatted_percent_diff(yesterday_marketing_page_views, two_days_ago_marketing_page_views)} vs #{comparison_day})"),
         slack_divider(), 
         slack_mkdwn(" "),
         slack_mkdwn(":technologist: *Product Usage:*"),
-        slack_mkdwn("#{emoji_for_comparison(yesterday_daily_active_users, two_days_ago_daily_active_users)} *Active Users:* #{yesterday_daily_active_users} (#{formatted_percent_diff(yesterday_daily_active_users, two_days_ago_daily_active_users)}% vs #{comparison_day})"),
-        slack_mkdwn("#{emoji_for_comparison(yesterday_sessions, two_days_ago_sessions)} *Sessions:* #{yesterday_sessions} (#{formatted_percent_diff(yesterday_sessions, two_days_ago_sessions)}% vs #{comparison_day})"),
-        slack_mkdwn("#{emoji_for_comparison(yesterday_new_users, two_days_ago_new_users)} *New Users:* #{yesterday_new_users} (#{formatted_percent_diff(yesterday_new_users, two_days_ago_new_users)}% vs #{comparison_day})"),
+        slack_mkdwn("#{emoji_for_comparison(yesterday_daily_active_users, two_days_ago_daily_active_users)} *Active Users:* #{yesterday_daily_active_users} (#{formatted_percent_diff(yesterday_daily_active_users, two_days_ago_daily_active_users)} vs #{comparison_day})"),
+        slack_mkdwn("#{emoji_for_comparison(yesterday_sessions, two_days_ago_sessions)} *Sessions:* #{yesterday_sessions} (#{formatted_percent_diff(yesterday_sessions, two_days_ago_sessions)} vs #{comparison_day})"),
+        slack_mkdwn("#{emoji_for_comparison(yesterday_new_users, two_days_ago_new_users)} *New Users:* #{yesterday_new_users} (#{formatted_percent_diff(yesterday_new_users, two_days_ago_new_users)} vs #{comparison_day})"),
         # slack_divider(),
         # slack_mkdwn(" "),
         # slack_mkdwn(":money_with_wings: *Financial Metrics:*"),
@@ -157,7 +157,9 @@ class SendReportJob
   end
 
   def formatted_percent_diff(new_val, old_val)
-    if (new_val.nil? || old_val.nil? || new_val.zero?)
+    if new_val.zero? && old_val.zero?
+      'No change'
+    elsif (new_val.nil? || old_val.nil? || new_val.zero?)
       0
     else
       percent = ((new_val - old_val) / old_val.to_f) * 100
