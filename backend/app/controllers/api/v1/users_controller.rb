@@ -20,7 +20,7 @@ module Api
                     .page(page)
                     .per(per_page)
           render json: {
-            users: users.map{ |u| UserProfileSerializer.new(u) },
+            users: users.map{ |u| { id: u.id, email: u.email, full_name: u.full_name, initials: u.initials, user_unique_identifier: u.user_unique_identifier }},
             previous_page: users.prev_page,
             next_page: users.next_page,
             total_pages: users.total_pages,

@@ -225,6 +225,11 @@ Rails.application.routes.draw do
             get :timeseries
           end
         end
+        resources :mrr_movement, only: [] do
+          collection do
+            get :stacked_bar_chart
+          end
+        end
       end
       
       get :'/admin/ingestion/queuing', to: 'admin/ingestion#queueing'

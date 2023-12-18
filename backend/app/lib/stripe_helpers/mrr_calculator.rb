@@ -4,16 +4,12 @@ module StripeHelpers
       return 0 unless subscription.status == 'active' && subscription.canceled_at.nil? ||
                           include_canceled && subscription.status == 'canceled' ||
                           include_canceled && subscription.canceled_at.present?
-      self.calculate_for_stripe_subscription_items(subscription.items)
-    end
-
-    def self.calculate_for_stripe_subscription_items(subscription_items)
-      subscription_items.sum do |subscription_item|
+      subscription.customer_subscription_items.sum do |item|
         mrr_for_subscription_item(
-          interval: subscription_item.price_recurring_interval,
-          unit_amount: subscription_item.price_unit_amount,
-          quantity: subscription_item.quantity,
-          interval_count: subscription_item.price_recurring_interval_count
+          interval: item.price_recurring_interval,
+          unit_amount: item.price_unit_amount,
+          quantity: item.quantity,
+          interval_count: item.price_recurring_interval_count
         )
       end
     end
@@ -33,6 +29,18 @@ module StripeHelpers
       end
       mrr
     end
+
+    def self.calculate_for_stripe_subscription_items(subscription_items)
+      subscription_items.sum do |subscription_item|
+        mrr_for_subscription_item(
+          interval: subscription_item.price.recurring.interval,
+          unit_amount: subscription_item.price.unit_amount,
+          quantity: subscription_item.quantity,
+          interval_count: subscription_item.price.recurring.interval_count
+        )
+      end
+    end
+
 
     private
 

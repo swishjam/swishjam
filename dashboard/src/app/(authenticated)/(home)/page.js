@@ -340,7 +340,7 @@ export default function Home() {
         <h3 className="font-semibold text-sm text-slate-600">
           Key SaaS Metrics
         </h3>
-        <Link href="#" className="group opacity-50">
+        <Link href="/dashboards/saas-metrics" className="group">
           <h3 className="font-semibold text-sm text-slate-600 group-hover:text-swishjam transition-all duration-500">
             Deep Dive Report <BsArrowRightShort size={24} className="inline" />
           </h3>
