@@ -2,7 +2,7 @@ module StripeHelpers
   class MrrMovementHandler
     class MovementTypes
       class << self
-        TYPES = %i[NEW RE_ACTIVATION EXPANSION CONTRACTION CHURN]
+        TYPES = %i[NEW REACTIVATION EXPANSION CONTRACTION CHURN]
         
         TYPES.each do |movement_type|
           define_method(movement_type) do
@@ -19,16 +19,16 @@ module StripeHelpers
       @start_date = start_date
       @end_date = end_date
       @active_subscriptions_for_day = {}
-      @events = []
     end
 
     def enqueue_mrr_movement_events
+      @events = []
       sorted_subscription_events_within_snapshot_period.each do |event|
         stripe_subscription = event.data.object
         stripe_customer = get_customer_with_cache(stripe_subscription.customer)
         case event.type
         when 'customer.subscription.created'
-          evaluate_subscription_created_event(stripe_subscription, stripe_customer)
+          evaluate_subscription_created_event(event, stripe_subscription, stripe_customer)
         when 'customer.subscription.updated'
           evaluate_subscription_updated_event(event, stripe_subscription, stripe_customer)
         end
@@ -37,14 +37,37 @@ module StripeHelpers
       @events.count
     end
 
+    def calculate_and_insert_mrr_snapshot_data_for_time_period
+      raise 'You must enqueue_mrr_movement_events before calling calculate_and_insert_mrr_snapshot_data_for_time_period' if @events.nil?
+      current_date = @start_date
+      while current_date < @end_date
+        all_time_net_mrr_up_until_now = ClickHouseQueries::SaasMetrics::MrrMovement::MrrBasedOnMovement.new(@public_key, start_time: 10.years.ago, end_time: current_date).get
+        # net_mrr_movement_for_day = 
+        current_date += 1.day
+      end
+    end
+
     private
 
-    def evaluate_subscription_created_event(stripe_subscription, stripe_customer)
+    def evaluate_subscription_created_event(event, stripe_subscription, stripe_customer)
       if stripe_subscription.status == 'active' && stripe_subscription.items.data.any?{ |item| item.price.unit_amount.positive? }
         customers_other_subscriptions = get_customer_subscriptions_with_cache(stripe_subscription.customer).reject{ |s| s.id == stripe_subscription.id }
         if customers_other_subscriptions.none?
+          # a brand new subscriber
           @events << Analytics::Event.formatted_for_ingestion(
-            uuid: "#{stripe_subscription.id}-mrr-movement-new",
+            uuid: "#{stripe_customer.id}-new-subscriber",
+            swishjam_api_key: @public_key,
+            name: Analytics::Event::ReservedNames.NEW_SUBSCRIBER,
+            occurred_at: Time.at(stripe_subscription.created),
+            properties: {
+              stripe_subscription_id: stripe_subscription.id,
+              stripe_customer_id: stripe_customer.id,
+              stripe_customer_email: stripe_customer.email,
+            }
+          )
+
+          @events << Analytics::Event.formatted_for_ingestion(
+            uuid: "#{stripe_customer.id}-mrr-movement-new",
             swishjam_api_key: @public_key,
             name: Analytics::Event::ReservedNames.MRR_MOVEMENT,
             occurred_at: Time.at(stripe_subscription.created),
@@ -58,12 +81,24 @@ module StripeHelpers
           )
         elsif customers_other_subscriptions.all?{ |subscription| subscription.canceled_at.present? }
           @events << Analytics::Event.formatted_for_ingestion(
-            uuid: "#{stripe_subscription.id}-mrr-movement-re-activation",
+            uuid: "#{stripe_customer.id}-reactivated-subscriber",
+            swishjam_api_key: @public_key,
+            name: Analytics::Event::ReservedNames.REACTIVATED_SUBSCRIBER,
+            occurred_at: Time.at(stripe_subscription.created),
+            properties: {
+              stripe_subscription_id: stripe_subscription.id,
+              stripe_customer_id: stripe_customer.id,
+              stripe_customer_email: stripe_customer.email,
+            }
+          )
+
+          @events << Analytics::Event.formatted_for_ingestion(
+            uuid: "#{stripe_customer.id}-#{stripe_subscription.id}-mrr-movement-reactivation",
             swishjam_api_key: @public_key,
             name: Analytics::Event::ReservedNames.MRR_MOVEMENT,
             occurred_at: Time.at(stripe_subscription.created),
             properties: {
-              movement_type: MovementTypes.RE_ACTIVATION,
+              movement_type: MovementTypes.REACTIVATION,
               movement_amount: StripeHelpers::MrrCalculator.calculate_for_stripe_subscription(stripe_subscription),
               stripe_subscription_id: stripe_subscription.id,
               stripe_customer_id: stripe_customer.id,
@@ -72,7 +107,7 @@ module StripeHelpers
           )
         elsif customers_other_subscriptions.any?{ |subscription| subscription.items.data.any?{ |item| item.price.unit_amount.positive? } }
           @events << Analytics::Event.formatted_for_ingestion(
-            uuid: "#{stripe_subscription.id}-mrr-movement-expansion",
+            uuid: "#{event.id}-mrr-movement-expansion",
             swishjam_api_key: @public_key,
             name: Analytics::Event::ReservedNames.MRR_MOVEMENT,
             occurred_at: Time.at(stripe_subscription.created),
@@ -114,6 +149,20 @@ module StripeHelpers
             stripe_customer_email: stripe_customer.email,
           }
         )
+        other_active_subscriptions_for_customer = get_customer_subscriptions_with_cache(stripe_subscription.customer).select{ |s| s.id != stripe_subscription.id && s.canceled_at.nil? }
+        if other_active_subscriptions_for_customer.none?
+          @events << Analytics::Event.formatted_for_ingestion(
+            uuid: "#{stripe_customer.id}-#{stripe_subscription.id}-subscriber-churned",
+            swishjam_api_key: @public_key,
+            name: Analytics::Event::ReservedNames.CHURNED_SUBSCRIBER,
+            occurred_at: Time.at(event.created),
+            properties: {
+              stripe_subscription_id: stripe_subscription.id,
+              stripe_customer_id: stripe_customer.id,
+              stripe_customer_email: stripe_customer.email,
+            }
+          )
+        end
       elsif did_just_contract
         @events << Analytics::Event.formatted_for_ingestion(
           uuid: "#{event.id}-mrr-movement-contraction",
@@ -133,7 +182,7 @@ module StripeHelpers
 
     def sorted_subscription_events_within_snapshot_period
       @sorted_subscription_events_within_snapshot_period ||= begin
-        subscription_update_events = StripeHelpers::DataFetchers.get_all(starts_after: @start_date, ends_before: @end_date) do
+        subscription_update_events = StripeHelpers::DataFetchers.get_all(starts_on_or_after: @start_date, ends_on_or_before: @end_date - 1.second) do
           Stripe::Event.list({ types: ['customer.subscription.created', 'customer.subscription.updated'], limit: 100 }, stripe_account: @stripe_account_id)
         end
         subscription_update_events.select{ |event| event.created >= @start_date.to_i && event.created < @end_date.to_i }

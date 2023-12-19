@@ -42,7 +42,7 @@ module DummyData
           end
           if rand() < 0.1
             rand(1..3).times do
-              mrr_movement_events << new_mrr_movement_event(StripeHelpers::MrrMovementHandler::MovementTypes.RE_ACTIVATION, current_date, stripe_public_key)
+              mrr_movement_events << new_mrr_movement_event(StripeHelpers::MrrMovementHandler::MovementTypes.REACTIVATION, current_date, stripe_public_key)
             end
           end
           if rand() < 0.1

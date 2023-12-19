@@ -4,7 +4,7 @@ module Api
       class MrrMovementController < BaseController
         def stacked_bar_chart
           params[:data_source] = ApiKey::ReservedDataSources.STRIPE
-          data = ClickHouseQueries::SaasMetrics::MrrMovement::StackedBarChart.new(
+          data = ClickHouseQueries::SaasMetrics::Mrr::Movement::StackedBarChart.new(
             public_keys_for_requested_data_source,
             start_time: start_timestamp,
             end_time: end_timestamp,

@@ -46,12 +46,12 @@ module StripeHelpers
           )
         elsif customers_other_subscriptions.all?{ |subscription| subscription.canceled_at.present? }
           @events << Analytics::Event.formatted_for_ingestion(
-            uuid: "#{stripe_subscription.id}-mrr-movement-re-activation",
+            uuid: "#{stripe_subscription.id}-mrr-movement-reactivation",
             swishjam_api_key: @public_key,
             name: Analytics::Event::ReservedNames.MRR_MOVEMENT,
             occurred_at: Time.at(stripe_subscription.created),
             properties: {
-              movement_type: 're-activation',
+              movement_type: 'reactivation',
               movement_amount: StripeHelpers::MrrCalculator.calculate_for_stripe_subscription(subscription),
               stripe_subscription_id: subscription.id,
               stripe_customer_id: subscription.customer.id,

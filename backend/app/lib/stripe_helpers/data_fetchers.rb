@@ -1,18 +1,18 @@
 module StripeHelpers
   class DataFetchers
-    def self.get_all(starts_after: nil, ends_before: nil)
+    def self.get_all(starts_on_or_after: nil, ends_on_or_before: nil)
       raise ArgumentError, "Must provide a block to get_all" unless block_given?
       response = yield
       
-      starts_after = starts_after.to_i if starts_after.present?
-      ends_before = ends_before.to_i if ends_before.present?
-      starts_after = Float::INFINITY * -1 if starts_after.nil?
-      ends_before = Float::INFINITY if ends_before.nil?
+      starts_on_or_after = starts_on_or_after.to_i if starts_on_or_after.present?
+      ends_on_or_before = ends_on_or_before.to_i if ends_on_or_before.present?
+      starts_on_or_after = Float::INFINITY * -1 if starts_on_or_after.nil?
+      ends_on_or_before = Float::INFINITY if ends_on_or_before.nil?
 
       objects = []
       response.auto_paging_each do |object|
-        break if starts_after && object.created < starts_after
-        if object.created >= starts_after && object.created <= ends_before
+        break if starts_on_or_after && object.created < starts_on_or_after
+        if object.created >= starts_on_or_after && object.created <= ends_on_or_before
           objects << object
         end
       end

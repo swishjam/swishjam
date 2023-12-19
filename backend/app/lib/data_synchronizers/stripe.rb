@@ -5,7 +5,7 @@ module DataSynchronizers
       @stripe_account_id = stripe_account_id
       @start_timestamp = start_timestamp
       @end_timestamp = end_timestamp
-      @stripe_snapshot_calculator = StripeHelpers::MetricsCalculator.new(stripe_account_id)
+      @stripe_snapshot_calculator = StripeHelpers::SnapshotCalculator.new(stripe_account_id)
     end
 
     def sync!

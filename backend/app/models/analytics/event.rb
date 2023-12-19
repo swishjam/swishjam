@@ -2,7 +2,7 @@ module Analytics
   class Event < ClickHouseRecord
     class ReservedNames
       class << self
-        METHOD_NAMES = %i[PAGE_VIEW PAGE_LEFT NEW_SESSION MRR_MOVEMENT CUSTOMER_CHURNED]
+        METHOD_NAMES = %i[PAGE_VIEW PAGE_LEFT NEW_SESSION MRR_MOVEMENT NEW_SUBSCRIBER CHURNED_SUBSCRIBER REACTIVATED_SUBCRIBER]
         
         METHOD_NAMES.each do |property_name|
           define_method(property_name) do

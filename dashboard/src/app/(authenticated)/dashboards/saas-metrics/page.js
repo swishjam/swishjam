@@ -33,7 +33,7 @@ export default function SaasMetrics() {
         }
       })
       const formattedMrrMovementData = Object.keys(mrrMovementByDateDict).map(date => {
-        const { new: new_business, 're-activation': re_activation, expansion, contraction, churn } = mrrMovementByDateDict[date];
+        const { new: new_business, 'reactivation': re_activation, expansion, contraction, churn } = mrrMovementByDateDict[date];
         return {
           date,
           'New Business': new_business || 0,
