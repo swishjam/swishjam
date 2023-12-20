@@ -11,6 +11,10 @@ class CustomerSubscription < Transactional
 
     scope status, -> { where(status: status.to_s) }
   end
+  scope :not_canceled, -> { where(canceled_at: nil) }
+
+  after_create { parent_profile.enqueue_clickhouse_replication_data }
+  after_update { parent_profile.enqueue_clickhouse_replication_data }
 
   validates :workspace_id, presence: true
   validates :parent_profile_id, presence: true

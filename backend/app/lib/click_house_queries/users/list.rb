@@ -3,7 +3,7 @@ module ClickHouseQueries
     class List
       include ClickHouseQueries::Helpers
 
-      def initialize(workspace_id, columns: ['swishjam_user_id', 'email', 'full_name', 'created_at'], page: 1, limit: 25)
+      def initialize(workspace_id, where: {}, columns: ['swishjam_user_id', 'email', 'full_name', 'created_at'], page: 1, limit: 25)
         @workspace_id = workspace_id.is_a?(Workspace) ? workspace_id.id : workspace_id
         @columns = columns
         @page = page.to_i
@@ -29,14 +29,33 @@ module ClickHouseQueries
       end
 
       def sql
-        <<~SQL
-          SELECT #{@columns.map{ |column| "argMax(#{column}, updated_at) AS #{column}" }.join(', ')}
-          FROM swishjam_user_profiles as user_profiles
-          WHERE workspace_id = '#{@workspace_id}'
-          GROUP BY user_profiles.workspace_id, user_profiles.swishjam_user_id
-          ORDER BY created_at DESC
-          LIMIT #{@limit} OFFSET #{@page * @limit}
-        SQL
+        if where.keys.any?
+          <<~SQL
+            SELECT #{@columns.map{ |column| "argMax(#{column}, updated_at) AS #{column}" }.join(', ')}
+            FROM swishjam_user_profiles as user_profiles
+            WHERE 
+              workspace_id = '#{@workspace_id}' AND
+              #{where.map do |key, value|
+                if key.start_with?('metadata')
+                  "JSONExtractString(metadata, '#{key.split('.')[1..key.split('.').length - 1].join('.')}') = '#{value}'"
+                else
+                  "#{key} = '#{value}'"
+                end
+              end.join(' AND ')}
+            GROUP BY user_profiles.workspace_id, user_profiles.swishjam_user_id
+            ORDER BY created_at DESC
+            LIMIT #{@limit} OFFSET #{@page * @limit}
+          SQL
+        else
+          <<~SQL
+            SELECT #{@columns.map{ |column| "argMax(#{column}, updated_at) AS #{column}" }.join(', ')}
+            FROM swishjam_user_profiles as user_profiles
+            WHERE workspace_id = '#{@workspace_id}'
+            GROUP BY user_profiles.workspace_id, user_profiles.swishjam_user_id
+            ORDER BY created_at DESC
+            LIMIT #{@limit} OFFSET #{@page * @limit}
+          SQL
+        end
       end
     end
   end

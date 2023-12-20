@@ -63,40 +63,42 @@ ClickhouseActiverecord::Schema.define(version: 2023_12_20_012423) do
   end
 
   # TABLE: swishjam_user_profiles
-  # SQL: CREATE TABLE swishjam_analytics_dev.swishjam_user_profiles ( `swishjam_api_key` LowCardinality(String), `workspace_id` String, `swishjam_user_id` String, `user_unique_identifier` String, `email` String, `first_name` String, `last_name` String, `full_name` String, `gravatar_url` String, `lifetime_value_in_cents` Int64, `monthly_recurring_revenue_in_cents` Int64, `current_subscription_plan_name` String, `created_by_data_source` LowCardinality(String), `metadata` String, `enrichment_match_likelihood` Int8, `enrichment_first_name` String, `enrichment_last_name` String, `enrichment_linkedin_url` String, `enrichment_twitter_url` String, `enrichment_github_url` String, `enrichment_personal_email` String, `enrichment_industry` String, `enrichment_job_title` String, `enrichment_company_name` String, `enrichment_company_website` String, `enrichment_company_size` String, `enrichment_year_company_founded` String, `enrichment_company_industry` String, `enrichment_company_linkedin_url` String, `enrichment_company_twitter_url` String, `enrichment_company_location_metro` String, `enrichment_company_location_geo_coordinates` String, `created_at` DateTime, `updated_at` DateTime ) ENGINE = ReplacingMergeTree(updated_at) PRIMARY KEY (workspace_id, swishjam_api_key) ORDER BY (workspace_id, swishjam_api_key, swishjam_user_id) SETTINGS index_granularity = 8192
+  # SQL: CREATE TABLE swishjam_analytics_dev.swishjam_user_profiles ( `swishjam_api_key` LowCardinality(String), `workspace_id` String, `swishjam_user_id` String, `user_unique_identifier` Nullable(String), `email` Nullable(String), `first_name` Nullable(String), `last_name` Nullable(String), `full_name` Nullable(String), `gravatar_url` String, `lifetime_value_in_cents` Int64, `monthly_recurring_revenue_in_cents` Int64, `current_subscription_plan_name` Nullable(String), `created_by_data_source` LowCardinality(String), `initial_landing_page_url` Nullable(String), `initial_referrer_url` Nullable(String), `metadata` String, `enrichment_match_likelihood` Nullable(Int8), `enrichment_first_name` Nullable(String), `enrichment_last_name` Nullable(String), `enrichment_linkedin_url` Nullable(String), `enrichment_twitter_url` Nullable(String), `enrichment_github_url` Nullable(String), `enrichment_personal_email` Nullable(String), `enrichment_industry` Nullable(String), `enrichment_job_title` Nullable(String), `enrichment_company_name` Nullable(String), `enrichment_company_website` Nullable(String), `enrichment_company_size` Nullable(String), `enrichment_year_company_founded` Nullable(String), `enrichment_company_industry` Nullable(String), `enrichment_company_linkedin_url` Nullable(String), `enrichment_company_twitter_url` Nullable(String), `enrichment_company_location_metro` Nullable(String), `enrichment_company_location_geo_coordinates` Nullable(String), `created_at` DateTime, `updated_at` DateTime ) ENGINE = ReplacingMergeTree(updated_at) PRIMARY KEY (workspace_id, swishjam_api_key) ORDER BY (workspace_id, swishjam_api_key, swishjam_user_id) SETTINGS index_granularity = 8192
   create_table "swishjam_user_profiles", id: false, options: "ReplacingMergeTree(updated_at) PRIMARY KEY (workspace_id, swishjam_api_key) ORDER BY (workspace_id, swishjam_api_key, swishjam_user_id) SETTINGS index_granularity = 8192", force: :cascade do |t|
     t.string "swishjam_api_key", null: false
     t.string "workspace_id", null: false
     t.string "swishjam_user_id", null: false
-    t.string "user_unique_identifier", null: false
-    t.string "email", null: false
-    t.string "first_name", null: false
-    t.string "last_name", null: false
-    t.string "full_name", null: false
+    t.string "user_unique_identifier"
+    t.string "email"
+    t.string "first_name"
+    t.string "last_name"
+    t.string "full_name"
     t.string "gravatar_url", null: false
     t.integer "lifetime_value_in_cents", unsigned: false, limit: 8, null: false
     t.integer "monthly_recurring_revenue_in_cents", unsigned: false, limit: 8, null: false
-    t.string "current_subscription_plan_name", null: false
+    t.string "current_subscription_plan_name"
     t.string "created_by_data_source", null: false
+    t.string "initial_landing_page_url"
+    t.string "initial_referrer_url"
     t.string "metadata", null: false
-    t.integer "enrichment_match_likelihood", unsigned: false, limit: 1, null: false
-    t.string "enrichment_first_name", null: false
-    t.string "enrichment_last_name", null: false
-    t.string "enrichment_linkedin_url", null: false
-    t.string "enrichment_twitter_url", null: false
-    t.string "enrichment_github_url", null: false
-    t.string "enrichment_personal_email", null: false
-    t.string "enrichment_industry", null: false
-    t.string "enrichment_job_title", null: false
-    t.string "enrichment_company_name", null: false
-    t.string "enrichment_company_website", null: false
-    t.string "enrichment_company_size", null: false
-    t.string "enrichment_year_company_founded", null: false
-    t.string "enrichment_company_industry", null: false
-    t.string "enrichment_company_linkedin_url", null: false
-    t.string "enrichment_company_twitter_url", null: false
-    t.string "enrichment_company_location_metro", null: false
-    t.string "enrichment_company_location_geo_coordinates", null: false
+    t.integer "enrichment_match_likelihood", unsigned: false, limit: 1
+    t.string "enrichment_first_name"
+    t.string "enrichment_last_name"
+    t.string "enrichment_linkedin_url"
+    t.string "enrichment_twitter_url"
+    t.string "enrichment_github_url"
+    t.string "enrichment_personal_email"
+    t.string "enrichment_industry"
+    t.string "enrichment_job_title"
+    t.string "enrichment_company_name"
+    t.string "enrichment_company_website"
+    t.string "enrichment_company_size"
+    t.string "enrichment_year_company_founded"
+    t.string "enrichment_company_industry"
+    t.string "enrichment_company_linkedin_url"
+    t.string "enrichment_company_twitter_url"
+    t.string "enrichment_company_location_metro"
+    t.string "enrichment_company_location_geo_coordinates"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
