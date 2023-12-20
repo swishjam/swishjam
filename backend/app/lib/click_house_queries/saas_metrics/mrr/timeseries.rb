@@ -5,6 +5,8 @@ module ClickHouseQueries
         include ClickHouseQueries::Helpers
         include TimeseriesHelper
 
+        attr_reader :start_time, :end_time, :group_by
+
         def initialize(public_keys, start_time: 30.days.ago, end_time: Time.current, buffer_amount_for_filled_in_results: 10)
           @public_keys = public_keys.is_a?(Array) ? public_keys : [public_keys]
           @group_by = derived_group_by(start_ts: start_time, end_ts: end_time)

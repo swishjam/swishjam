@@ -23,58 +23,38 @@ export default function SaasMetrics() {
 
   const getMrrMovementData = async timeframe => {
     return await SwishjamAPI.SaasMetrics.MrrMovement.stackedBarChart({ timeframe }).then(mrrMovementData => {
-      const mrrMovementByDateDict = {};
-      mrrMovementData.forEach(({ movement_amount, movement_type, grouped_by_date }) => {
-        if (mrrMovementByDateDict[grouped_by_date]) {
-          mrrMovementByDateDict[grouped_by_date][movement_type] = mrrMovementByDateDict[grouped_by_date][movement_type] || 0;
-          mrrMovementByDateDict[grouped_by_date][movement_type] += movement_amount;
-        } else {
-          mrrMovementByDateDict[grouped_by_date] = { [movement_type]: movement_amount };
-        }
-      })
-      const formattedMrrMovementData = Object.keys(mrrMovementByDateDict).map(date => {
-        const { new: new_business, 'reactivation': re_activation, expansion, contraction, churn } = mrrMovementByDateDict[date];
-        return {
-          date,
-          'New Business': new_business || 0,
-          'Expansion': expansion || 0,
-          'Reactivation': re_activation || 0,
-          'Contraction': contraction || 0,
-          'Churn': churn || 0,
-        }
-      })
-      setMrrMovementData(formattedMrrMovementData)
+      setMrrMovementData(mrrMovementData);
     })
   }
 
   const getBillingData = async (timeframe) => {
-    return await SwishjamAPI.BillingData.timeseries({ timeframe }).then(
-      ({ mrr, active_subscriptions }) => {
+    return await SwishjamAPI.SaasMetrics.Mrr.timeseries({ timeframe }).then(
+      ({ timeseries, comparison_timeseries, grouped_by, comparison_end_time }) => {
         setMrrChart({
-          value: mrr.current_count,
-          previousValue: mrr.comparison_count,
-          previousValueDate: mrr.comparison_end_time,
-          groupedBy: mrr.grouped_by,
-          timeseries: mrr.timeseries.map((timeseries, index) => ({
+          value: timeseries[timeseries.length - 1]?.mrr,
+          previousValue: comparison_timeseries[comparison_timeseries.length - 1]?.mrr,
+          previousValueDate: comparison_end_time,
+          groupedBy: grouped_by,
+          timeseries: timeseries.map((timeseries, index) => ({
             ...timeseries,
-            comparisonDate: mrr.comparison_timeseries[index]?.date,
-            comparisonValue: mrr.comparison_timeseries[index]?.value,
+            comparisonDate: comparison_timeseries[index]?.date,
+            comparisonValue: comparison_timeseries[index]?.value,
           })),
         });
 
-        setActiveSubsChart({
-          value: active_subscriptions.current_count,
-          previousValue: active_subscriptions.comparison_count,
-          previousValueDate: active_subscriptions.comparison_end_time,
-          groupedBy: active_subscriptions.grouped_by,
-          timeseries: active_subscriptions.timeseries.map(
-            (timeseries, index) => ({
-              ...timeseries,
-              comparisonDate: active_subscriptions.comparison_timeseries[index]?.date,
-              comparisonValue: active_subscriptions.comparison_timeseries[index]?.value,
-            }),
-          ),
-        });
+        // setActiveSubsChart({
+        //   value: active_subscriptions.current_count,
+        //   previousValue: active_subscriptions.comparison_count,
+        //   previousValueDate: active_subscriptions.comparison_end_time,
+        //   groupedBy: active_subscriptions.grouped_by,
+        //   timeseries: active_subscriptions.timeseries.map(
+        //     (timeseries, index) => ({
+        //       ...timeseries,
+        //       comparisonDate: active_subscriptions.comparison_timeseries[index]?.date,
+        //       comparisonValue: active_subscriptions.comparison_timeseries[index]?.value,
+        //     }),
+        //   ),
+        // });
       },
     );
   };
@@ -99,6 +79,8 @@ export default function SaasMetrics() {
   const getAllData = async timeframe => {
     setIsRefreshing(true);
     setMrrMovementData();
+    setMrrChart();
+    setChurnRateData();
     await Promise.all([
       getMrrMovementData(timeframe),
       getBillingData(timeframe),
@@ -140,6 +122,8 @@ export default function SaasMetrics() {
       <div className="grid grid-cols-3 gap-4 pt-8">
         <LineChartWithValue
           title="MRR"
+          dateKey='group_by_date'
+          valueKey='mrr'
           value={mrrChart?.value}
           previousValue={mrrChart?.previousValue}
           previousValueDate={mrrChart?.previousValueDate}
@@ -199,11 +183,11 @@ export default function SaasMetrics() {
       <div className='mt-8 grid grid-cols-2 gap-4'>
         <BarChartComponent
           colorsByKey={{
-            'New Business': 'green',
-            'Expansion': 'lightgreen',
-            'Reactivation': 'lime',
-            'Contraction': '#ff7777',
-            'Churn': 'red',
+            'new': 'green',
+            'expansion': 'lightgreen',
+            'reactivation': 'lime',
+            'contraction': '#ff7777',
+            'churn': 'red',
           }}
           data={mrrMovementData}
           stackOffset="sign"

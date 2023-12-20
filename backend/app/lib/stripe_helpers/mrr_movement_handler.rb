@@ -23,6 +23,7 @@ module StripeHelpers
 
     def enqueue_mrr_movement_events
       @events = []
+      byebug
       sorted_subscription_events_within_snapshot_period.each do |event|
         stripe_subscription = event.data.object
         stripe_customer = get_customer_with_cache(stripe_subscription.customer)
@@ -33,18 +34,8 @@ module StripeHelpers
           evaluate_subscription_updated_event(event, stripe_subscription, stripe_customer)
         end
       end
-      # Ingestion::QueueManager.push_records_into_queue(Ingestion::QueueManager::Queues.EVENTS, @events) if @events.any?
+      Ingestion::QueueManager.push_records_into_queue(Ingestion::QueueManager::Queues.EVENTS, @events) if @events.any?
       @events.count
-    end
-
-    def calculate_and_insert_mrr_snapshot_data_for_time_period
-      raise 'You must enqueue_mrr_movement_events before calling calculate_and_insert_mrr_snapshot_data_for_time_period' if @events.nil?
-      current_date = @start_date
-      while current_date < @end_date
-        all_time_net_mrr_up_until_now = ClickHouseQueries::SaasMetrics::MrrMovement::MrrBasedOnMovement.new(@public_key, start_time: 10.years.ago, end_time: current_date).get
-        # net_mrr_movement_for_day = 
-        current_date += 1.day
-      end
     end
 
     private
@@ -58,7 +49,7 @@ module StripeHelpers
             uuid: "#{stripe_customer.id}-new-subscriber",
             swishjam_api_key: @public_key,
             name: Analytics::Event::ReservedNames.NEW_SUBSCRIBER,
-            occurred_at: Time.at(stripe_subscription.created),
+            occurred_at: Time.at(stripe_subscription.created).utc,
             properties: {
               stripe_subscription_id: stripe_subscription.id,
               stripe_customer_id: stripe_customer.id,
@@ -70,7 +61,7 @@ module StripeHelpers
             uuid: "#{stripe_customer.id}-mrr-movement-new",
             swishjam_api_key: @public_key,
             name: Analytics::Event::ReservedNames.MRR_MOVEMENT,
-            occurred_at: Time.at(stripe_subscription.created),
+            occurred_at: Time.at(stripe_subscription.created).utc,
             properties: {
               movement_type: MovementTypes.NEW,
               movement_amount: StripeHelpers::MrrCalculator.calculate_for_stripe_subscription(stripe_subscription),
@@ -84,7 +75,7 @@ module StripeHelpers
             uuid: "#{stripe_customer.id}-reactivated-subscriber",
             swishjam_api_key: @public_key,
             name: Analytics::Event::ReservedNames.REACTIVATED_SUBSCRIBER,
-            occurred_at: Time.at(stripe_subscription.created),
+            occurred_at: Time.at(stripe_subscription.created).utc,
             properties: {
               stripe_subscription_id: stripe_subscription.id,
               stripe_customer_id: stripe_customer.id,
@@ -96,7 +87,7 @@ module StripeHelpers
             uuid: "#{stripe_customer.id}-#{stripe_subscription.id}-mrr-movement-reactivation",
             swishjam_api_key: @public_key,
             name: Analytics::Event::ReservedNames.MRR_MOVEMENT,
-            occurred_at: Time.at(stripe_subscription.created),
+            occurred_at: Time.at(stripe_subscription.created).utc,
             properties: {
               movement_type: MovementTypes.REACTIVATION,
               movement_amount: StripeHelpers::MrrCalculator.calculate_for_stripe_subscription(stripe_subscription),
@@ -110,7 +101,7 @@ module StripeHelpers
             uuid: "#{event.id}-mrr-movement-expansion",
             swishjam_api_key: @public_key,
             name: Analytics::Event::ReservedNames.MRR_MOVEMENT,
-            occurred_at: Time.at(stripe_subscription.created),
+            occurred_at: Time.at(stripe_subscription.created).utc,
             properties: {
               movement_type: MovementTypes.EXPANSION,
               movement_amount: StripeHelpers::MrrCalculator.calculate_for_stripe_subscription(stripe_subscription),
@@ -134,16 +125,16 @@ module StripeHelpers
       did_just_contract = event.data.previous_attributes[:items].present? && StripeHelpers::MrrCalculator.calculate_for_stripe_subscription(stripe_subscription) < StripeHelpers::MrrCalculator.calculate_for_stripe_subscription_items(event.data.previous_attributes[:items][:data])
 
       if did_just_become_active_from_incomplete
-        evaluate_new_active_subscription(stripe_subscription, stripe_customer)
+        evaluate_new_active_subscription(event, stripe_subscription, stripe_customer)
       elsif did_just_cancel
         @events << Analytics::Event.formatted_for_ingestion(
           uuid: "#{event.id}-mrr-movement-churn",
           swishjam_api_key: @public_key,
           name: Analytics::Event::ReservedNames.MRR_MOVEMENT,
-          occurred_at: Time.at(event.created),
+          occurred_at: Time.at(event.created).utc,
           properties: {
             movement_type: MovementTypes.CHURN,
-            movement_amount: StripeHelpers::MrrCalculator.calculate_for_stripe_subscription(stripe_subscription, include_canceled: true),
+            movement_amount: -1 * StripeHelpers::MrrCalculator.calculate_for_stripe_subscription(stripe_subscription, include_canceled: true),
             stripe_subscription_id: stripe_subscription.id,
             stripe_customer_id: stripe_customer.id,
             stripe_customer_email: stripe_customer.email,
@@ -155,7 +146,7 @@ module StripeHelpers
             uuid: "#{stripe_customer.id}-#{stripe_subscription.id}-subscriber-churned",
             swishjam_api_key: @public_key,
             name: Analytics::Event::ReservedNames.CHURNED_SUBSCRIBER,
-            occurred_at: Time.at(event.created),
+            occurred_at: Time.at(event.created).utc,
             properties: {
               stripe_subscription_id: stripe_subscription.id,
               stripe_customer_id: stripe_customer.id,
@@ -164,14 +155,16 @@ module StripeHelpers
           )
         end
       elsif did_just_contract
+        new_mrr = StripeHelpers::MrrCalculator.calculate_for_stripe_subscription(stripe_subscription)
+        previous_mrr = StripeHelpers::MrrCalculator.calculate_for_stripe_subscription_items(event.data.previous_attributes[:items][:data])
         @events << Analytics::Event.formatted_for_ingestion(
           uuid: "#{event.id}-mrr-movement-contraction",
           swishjam_api_key: @public_key,
           name: Analytics::Event::ReservedNames.MRR_MOVEMENT,
-          occurred_at: Time.at(event.created),
+          occurred_at: Time.at(event.created).utc,
           properties: {
             movement_type: MovementTypes.CONTRACTION,
-            movement_amount: StripeHelpers::MrrCalculator.calculate_for_stripe_subscription(stripe_subscription) - StripeHelpers::MrrCalculator.calculate_for_stripe_subscription_items(event.data.previous_attributes['items']['data']),
+            movement_amount: new_mrr - previous_mrr,
             stripe_subscription_id: stripe_subscription.id,
             stripe_customer_id: stripe_customer.id,
             stripe_customer_email: stripe_customer.email,
@@ -182,7 +175,7 @@ module StripeHelpers
 
     def sorted_subscription_events_within_snapshot_period
       @sorted_subscription_events_within_snapshot_period ||= begin
-        subscription_update_events = StripeHelpers::DataFetchers.get_all(starts_on_or_after: @start_date, ends_on_or_before: @end_date - 1.second) do
+        subscription_update_events = StripeHelpers::DataFetchers.get_all do
           Stripe::Event.list({ types: ['customer.subscription.created', 'customer.subscription.updated'], limit: 100 }, stripe_account: @stripe_account_id)
         end
         subscription_update_events.select{ |event| event.created >= @start_date.to_i && event.created < @end_date.to_i }
