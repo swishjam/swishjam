@@ -13,8 +13,8 @@ module Ingestion
     def ingest!
       queued_user_identify_events = Ingestion::QueueManager.pop_all_records_from_queue(Ingestion::QueueManager::Queues.IDENTIFY)
       begin
-        formatted_new_swishjam_profiles = create_or_update_user_profiles!(queued_user_identify_events)
-        Analytics::SwishjamUserProfile.insert_all!(formatted_new_swishjam_profiles) if formatted_new_swishjam_profiles.any?
+        formatted_swishjam_user_profiles = create_or_update_user_profiles!(queued_user_identify_events)
+        Analytics::SwishjamUserProfile.insert_all!(formatted_swishjam_user_profiles) if formatted_swishjam_user_profiles.any?
         
         formatted_user_identify_events = queued_user_identify_events.map{ |e| formatted_user_identify_event(e) }.compact
         Analytics::UserIdentifyEvent.insert_all!(formatted_user_identify_events) if formatted_user_identify_events.any?
@@ -35,7 +35,7 @@ module Ingestion
     private
 
     def create_or_update_user_profiles!(events)
-      new_profile_data = []
+      clickhouse_profile_data = []
       events.each do |event_json|
         begin
           properties = JSON.parse(event_json['properties'] || '{}')
@@ -73,7 +73,24 @@ module Ingestion
                 metadata: metadata, 
                 immutable_metadata: immutable_metadata.merge(profile.immutable_metadata || {})
               )
+              clickhouse_profile_data << { 
+                swishjam_api_key: event_json['swishjam_api_key'], 
+                swishjam_user_id: profile.id,
+                user_unique_identifier: unique_identifier,
+                email: email,
+                first_name: first_name,
+                last_name: last_name,
+                created_by_data_source: created_data_source,
+                gravatar_url: profile.gravatar_url,
+                # lifetime_value_in_cents: profile.lifetime_value_in_cents,
+                # monthly_recurring_revenue_in_cents: profile.monthly_recurring_revenue_in_cents,
+                # current_subscription_plan_name: profile.current_subscription_plan_name,
+                metadata: (immutable_metadata || {}).merge(metadata).to_json,
+                created_at: (event_json['occurred_at'] || Time.current).to_datetime,
+                updated_at: (event_json['occurred_at'] || Time.current).to_datetime,
+              }
             else
+              created_by_data_source = workspace.api_keys.find_by!(public_key: event_json['swishjam_api_key']).data_source
               profile = workspace.analytics_user_profiles.create!(
                 user_unique_identifier: unique_identifier, 
                 first_name: first_name, 
@@ -82,14 +99,23 @@ module Ingestion
                 metadata: metadata,
                 immutable_metadata: immutable_metadata,
                 created_at: (event_json['occurred_at'] || Time.current).to_datetime,
-                created_by_data_source: workspace.api_keys.find_by!(public_key: event_json['swishjam_api_key']).data_source,
+                created_by_data_source: created_by_data_source,
               )
-              new_profile_data << { 
+              clickhouse_profile_data << { 
                 swishjam_api_key: event_json['swishjam_api_key'], 
-                unique_identifier: unique_identifier,
                 swishjam_user_id: profile.id,
-                immutable_metadata: (immutable_metadata || {}).to_json,
+                user_unique_identifier: unique_identifier,
+                email: email,
+                first_name: first_name,
+                last_name: last_name,
+                created_by_data_source: created_by_data_source,
+                # gravatar_url: profile.gravatar_url,
+                # lifetime_value_in_cents: profile.lifetime_value_in_cents,
+                # monthly_recurring_revenue_in_cents: profile.monthly_recurring_revenue_in_cents,
+                # current_subscription_plan_name: profile.current_subscription_plan_name,
+                metadata: (immutable_metadata || {}).merge(metadata).to_json,
                 created_at: (event_json['occurred_at'] || Time.current).to_datetime,
+                updated_at: (event_json['occurred_at'] || Time.current).to_datetime,
               }
             end
           else
@@ -102,7 +128,7 @@ module Ingestion
           Ingestion::QueueManager.push_records_into_queue(Ingestion::QueueManager::Queues.IDENTIFY_DEAD_LETTER_QUEUE, [event_json])
         end
       end
-      new_profile_data
+      clickhouse_profile_data
     end
 
     def formatted_user_identify_event(event_json)

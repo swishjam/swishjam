@@ -29,11 +29,6 @@ export default function Users() {
     });
   }
 
-
-  const navigateToUsersProfile = id => {
-    router.push(`/users/${id}`);
-  };
-
   useEffect(() => {
     getUsers({ page: currentPageNum })
   }, [])
@@ -82,14 +77,14 @@ export default function Users() {
                         <tr
                           key={user.email}
                           className="group hover:bg-gray-50 duration-300 transition cursor-pointer"
-                          onClick={() => navigateToUsersProfile(user.id)}
+                          onClick={() => router.push(`/users/${user.swishjam_user_id}`)}
                         >
                           <td className="whitespace-nowrap py-3 pl-4 pr-3 text-sm sm:pl-6 lg:pl-8">
                             <div className="flex items-center">
                               <div className="flex-shrink-0">
                                 <Avatar className="border border-slate-200">
-                                  <AvatarImage src={user.image} />
-                                  <AvatarFallback>{user.initials || 'NU'}</AvatarFallback>
+                                  <AvatarImage src={user.gravatar_url} />
+                                  <AvatarFallback>{user.full_name ? user.full_name.split(' ').map(n => n[0].toUpperCase()).join('') : ''}</AvatarFallback>
                                 </Avatar>
                               </div>
                               <div className="ml-4">
@@ -101,7 +96,7 @@ export default function Users() {
                           </td>
                           <td className="whitespace-nowrap px-3 py-3 text-sm text-gray-500">{user.email}</td>
                           <td className="relative whitespace-nowrap py-3 pl-3 pr-4 text-right text-sm font-medium sm:pr-6 lg:pr-8">
-                            <Link href={`/users/${user.id}`} className="text-swishjam hover:text-swishjam-dark duration-300 transition">
+                            <Link href={`/users/${user.swishjam_user_id}`} className="text-swishjam hover:text-swishjam-dark duration-300 transition">
                               View<span className="sr-only">, {user.full_name}</span>
                             </Link>
                           </td>
@@ -120,8 +115,6 @@ export default function Users() {
                         <Pagination
                           currentPage={currentPageNum}
                           lastPageNum={lastPageNum}
-                          numRecordsDisplayed={usersData?.length}
-                          totalNumRecords={totalNumRecords}
                           onNewPageSelected={page => getUsers({ page })}
                         />
                       </div>

@@ -7,38 +7,35 @@ module Api
         per_page = params[:per_page] || 10
         page = params[:page] || 1
         if params[:q]
-          users = current_workspace
-                    .analytics_user_profiles
-                    .includes(:analytics_organization_profiles)
-                    .where('
-                      LOWER(email) LIKE :query OR 
-                      LOWER(first_name) LIKE :query OR 
-                      LOWER(last_name) LIKE :query OR 
-                      LOWER(user_unique_identifier) LIKE :query
-                    ', query: "%#{params[:q].downcase}%")
-                    .order(created_at: :desc)
-                    .page(page)
-                    .per(per_page)
+          # users = current_workspace
+          #           .analytics_user_profiles
+          #           .includes(:analytics_organization_profiles)
+          #           .where('
+          #             LOWER(email) LIKE :query OR 
+          #             LOWER(first_name) LIKE :query OR 
+          #             LOWER(last_name) LIKE :query OR 
+          #             LOWER(user_unique_identifier) LIKE :query
+          #           ', query: "%#{params[:q].downcase}%")
+          #           .order(created_at: :desc)
+          #           .page(page)
+          #           .per(per_page)
+          users = ClickHouseQueries::Users::Search.new(current_workspace, query: params[:q], limit: per_page).get
           render json: {
-            users: users.map{ |u| UserProfileSerializer.new(u) },
-            previous_page: users.prev_page,
-            next_page: users.next_page,
-            total_pages: users.total_pages,
-            total_num_records: users.total_count,
+            # users: users.map{ |u| UserProfileSerializer.new(u) },
+            users: users,
+            # previous_page: users.prev_page,
+            # next_page: users.next_page,
+            # total_pages: users.total_pages,
+            # total_num_records: users.total_count,
           }, status: :ok
         else
-          users = current_workspace
-                    .analytics_user_profiles
-                    .includes(:analytics_organization_profiles, :user_profile_enrichment_data, customer_subscriptions: :customer_subscription_items)
-                    .order(created_at: :desc)
-                    .page(page)
-                    .per(per_page)
+          users_results = ClickHouseQueries::Users::List.new(current_workspace, page: page, limit: per_page).get
           render json: {
-            users: users.map{ |u| UserProfileSerializer.new(u) },
-            previous_page: users.prev_page,
-            next_page: users.next_page,
-            total_pages: users.total_pages,
-            total_num_records: users.total_count,
+            users: users_results['users'],
+            previous_page: params[:page].to_i > 1 ? params[:page].to_i - 1 : nil,
+            next_page: params[:page].to_i < users_results['total_num_pages'] ? params[:page].to_i + 1 : nil,
+            total_pages: users_results['total_num_pages'],
+            total_num_records: users_results['total_num_users'],
           }, status: :ok
         end
       end

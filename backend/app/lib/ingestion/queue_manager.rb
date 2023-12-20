@@ -2,7 +2,13 @@ module Ingestion
   class QueueManager
     class Queues
       class << self
-        [:EVENTS, :IDENTIFY, :ORGANIZATION, :EVENTS_DEAD_LETTER_QUEUE, :IDENTIFY_DEAD_LETTER_QUEUE].each do |method|
+        %i[
+          EVENTS EVENTS_DEAD_LETTER_QUEUE
+          IDENTIFY IDENTIFY_DEAD_LETTER_QUEUE
+          ORGANIZATION ORGANIZATION_DEAD_LETTER_QUEUE
+          CLICKHOUSE_USER_PROFILES CLICKHOUSE_USER_PROFILE_DEAD_LETTER_QUEUE
+          CLICKHOUSE_ORGANIZATION_PROFILES CLICKHOUSE_ORGANIZATION_PROFILE_DEAD_LETTER_QUEUE
+        ].each do |method|
           define_method(method.to_s.upcase) { "#{method.to_s.downcase}_ingestion_queue" }
         end
       end

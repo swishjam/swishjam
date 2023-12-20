@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ClickhouseActiverecord::Schema.define(version: 2023_12_13_234928) do
+ClickhouseActiverecord::Schema.define(version: 2023_12_20_012423) do
 
   # TABLE: billing_data_snapshots
   # SQL: CREATE TABLE swishjam_analytics_dev.billing_data_snapshots ( `swishjam_api_key` LowCardinality(String), `mrr_in_cents` UInt32, `total_revenue_in_cents` UInt32, `num_active_subscriptions` UInt32, `num_free_trial_subscriptions` UInt32, `num_canceled_subscriptions` UInt32, `captured_at` DateTime, `num_paid_subscriptions` Nullable(Int32), `num_customers_with_paid_subscriptions` UInt32 DEFAULT 0 ) ENGINE = MergeTree PRIMARY KEY (swishjam_api_key, captured_at) ORDER BY (swishjam_api_key, captured_at) SETTINGS index_granularity = 8192
@@ -63,13 +63,42 @@ ClickhouseActiverecord::Schema.define(version: 2023_12_13_234928) do
   end
 
   # TABLE: swishjam_user_profiles
-  # SQL: CREATE TABLE swishjam_analytics_dev.swishjam_user_profiles ( `swishjam_api_key` String, `swishjam_user_id` String, `unique_identifier` String, `created_at` DateTime, `immutable_metadata` String ) ENGINE = MergeTree PRIMARY KEY (swishjam_api_key, created_at) ORDER BY (swishjam_api_key, created_at) SETTINGS index_granularity = 8192
-  create_table "swishjam_user_profiles", id: false, options: "MergeTree PRIMARY KEY (swishjam_api_key, created_at) ORDER BY (swishjam_api_key, created_at) SETTINGS index_granularity = 8192", force: :cascade do |t|
+  # SQL: CREATE TABLE swishjam_analytics_dev.swishjam_user_profiles ( `swishjam_api_key` LowCardinality(String), `workspace_id` String, `swishjam_user_id` String, `user_unique_identifier` String, `email` String, `first_name` String, `last_name` String, `full_name` String, `gravatar_url` String, `lifetime_value_in_cents` Int64, `monthly_recurring_revenue_in_cents` Int64, `current_subscription_plan_name` String, `created_by_data_source` LowCardinality(String), `metadata` String, `enrichment_match_likelihood` Int8, `enrichment_first_name` String, `enrichment_last_name` String, `enrichment_linkedin_url` String, `enrichment_twitter_url` String, `enrichment_github_url` String, `enrichment_personal_email` String, `enrichment_industry` String, `enrichment_job_title` String, `enrichment_company_name` String, `enrichment_company_website` String, `enrichment_company_size` String, `enrichment_year_company_founded` String, `enrichment_company_industry` String, `enrichment_company_linkedin_url` String, `enrichment_company_twitter_url` String, `enrichment_company_location_metro` String, `enrichment_company_location_geo_coordinates` String, `created_at` DateTime, `updated_at` DateTime ) ENGINE = ReplacingMergeTree(updated_at) PRIMARY KEY (workspace_id, swishjam_api_key) ORDER BY (workspace_id, swishjam_api_key, swishjam_user_id) SETTINGS index_granularity = 8192
+  create_table "swishjam_user_profiles", id: false, options: "ReplacingMergeTree(updated_at) PRIMARY KEY (workspace_id, swishjam_api_key) ORDER BY (workspace_id, swishjam_api_key, swishjam_user_id) SETTINGS index_granularity = 8192", force: :cascade do |t|
     t.string "swishjam_api_key", null: false
+    t.string "workspace_id", null: false
     t.string "swishjam_user_id", null: false
-    t.string "unique_identifier", null: false
+    t.string "user_unique_identifier", null: false
+    t.string "email", null: false
+    t.string "first_name", null: false
+    t.string "last_name", null: false
+    t.string "full_name", null: false
+    t.string "gravatar_url", null: false
+    t.integer "lifetime_value_in_cents", unsigned: false, limit: 8, null: false
+    t.integer "monthly_recurring_revenue_in_cents", unsigned: false, limit: 8, null: false
+    t.string "current_subscription_plan_name", null: false
+    t.string "created_by_data_source", null: false
+    t.string "metadata", null: false
+    t.integer "enrichment_match_likelihood", unsigned: false, limit: 1, null: false
+    t.string "enrichment_first_name", null: false
+    t.string "enrichment_last_name", null: false
+    t.string "enrichment_linkedin_url", null: false
+    t.string "enrichment_twitter_url", null: false
+    t.string "enrichment_github_url", null: false
+    t.string "enrichment_personal_email", null: false
+    t.string "enrichment_industry", null: false
+    t.string "enrichment_job_title", null: false
+    t.string "enrichment_company_name", null: false
+    t.string "enrichment_company_website", null: false
+    t.string "enrichment_company_size", null: false
+    t.string "enrichment_year_company_founded", null: false
+    t.string "enrichment_company_industry", null: false
+    t.string "enrichment_company_linkedin_url", null: false
+    t.string "enrichment_company_twitter_url", null: false
+    t.string "enrichment_company_location_metro", null: false
+    t.string "enrichment_company_location_geo_coordinates", null: false
     t.datetime "created_at", null: false
-    t.string "immutable_metadata", null: false
+    t.datetime "updated_at", null: false
   end
 
   # TABLE: user_identify_events
