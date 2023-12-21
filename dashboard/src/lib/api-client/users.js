@@ -21,6 +21,10 @@ export class Users extends Base {
   static async timeseries({ timeframe } = {}) {
     return await this._get(`/api/v1/users/timeseries`, { timeframe });
   }
+
+  static async uniqueAttributeValues({ attributes } = {}) {
+    return await this._get('/api/v1/users/unique_attributes', { columns: JSON.stringify(attributes) });
+  }
 }
 
 Object.assign(Users, Base);

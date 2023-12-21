@@ -94,6 +94,7 @@ Rails.application.routes.draw do
         collection do
           get :active
           get :timeseries
+          get :unique_attributes
         end
         resources :events, only: [:index], controller: :'users/events'
         resources :organizations, only: [:index], controller: :'users/organizations'

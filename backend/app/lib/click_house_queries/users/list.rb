@@ -35,17 +35,21 @@ module ClickHouseQueries
             WHERE 
               workspace_id = '#{@workspace_id}' AND
               #{@where.map do |key, value|
-                if key.start_with?('metadata')
-                  if value.is_a?(Array)
-                    "JSONExtractString(metadata, '#{key.split('.')[1..key.split('.').length - 1].join('.')}') IN #{formatted_in_clause(value)}"
-                  else
-                    "JSONExtractString(metadata, '#{key.split('.')[1..key.split('.').length - 1].join('.')}') = '#{value}'"
-                  end
+                if value.is_a?(Array) && value.empty?
+                  "1 = 1"
                 else
-                  if value.is_a?(Array)
-                    "#{key} IN #{formatted_in_clause(value)}"
+                  if key.start_with?('metadata')
+                    if value.is_a?(Array)
+                      "JSONExtractString(metadata, '#{key.split('.')[1..key.split('.').length - 1].join('.')}') IN #{formatted_in_clause(value)}"
+                    else
+                      "JSONExtractString(metadata, '#{key.split('.')[1..key.split('.').length - 1].join('.')}') = '#{value}'"
+                    end
                   else
-                    "#{key} = '#{value}'"
+                    if value.is_a?(Array)
+                      "#{key} IN #{formatted_in_clause(value)}"
+                    else
+                      "#{key} = '#{value}'"
+                    end
                   end
                 end
               end.join(' AND ')}
@@ -70,17 +74,21 @@ module ClickHouseQueries
             WHERE 
               workspace_id = '#{@workspace_id}' AND
               #{@where.map do |key, value|
-                if key.start_with?('metadata')
-                  if value.is_a?(Array)
-                    "JSONExtractString(metadata, '#{key.split('.')[1..key.split('.').length - 1].join('.')}') IN #{formatted_in_clause(value)}"
-                  else
-                    "JSONExtractString(metadata, '#{key.split('.')[1..key.split('.').length - 1].join('.')}') = '#{value}'"
-                  end
+                if value.is_a?(Array) && value.empty?
+                  "1 = 1"
                 else
-                  if value.is_a?(Array)
-                    "#{key} IN #{formatted_in_clause(value)}"
+                  if key.start_with?('metadata')
+                    if value.is_a?(Array)
+                      "JSONExtractString(metadata, '#{key.split('.')[1..key.split('.').length - 1].join('.')}') IN #{formatted_in_clause(value)}"
+                    else
+                      "JSONExtractString(metadata, '#{key.split('.')[1..key.split('.').length - 1].join('.')}') = '#{value}'"
+                    end
                   else
-                    "#{key} = '#{value}'"
+                    if value.is_a?(Array)
+                      "#{key} IN #{formatted_in_clause(value)}"
+                    else
+                      "#{key} = '#{value}'"
+                    end
                   end
                 end
               end.join(' AND ')}
