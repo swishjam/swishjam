@@ -7,29 +7,11 @@ module Api
         per_page = params[:per_page] || 10
         page = params[:page] || 1
         if params[:q]
-          # users = current_workspace
-          #           .analytics_user_profiles
-          #           .includes(:analytics_organization_profiles)
-          #           .where('
-          #             LOWER(email) LIKE :query OR 
-          #             LOWER(first_name) LIKE :query OR 
-          #             LOWER(last_name) LIKE :query OR 
-          #             LOWER(user_unique_identifier) LIKE :query
-          #           ', query: "%#{params[:q].downcase}%")
-          #           .order(created_at: :desc)
-          #           .page(page)
-          #           .per(per_page)
           users = ClickHouseQueries::Users::Search.new(current_workspace, query: params[:q], limit: per_page).get
-          render json: {
-            # users: users.map{ |u| UserProfileSerializer.new(u) },
-            users: users,
-            # previous_page: users.prev_page,
-            # next_page: users.next_page,
-            # total_pages: users.total_pages,
-            # total_num_records: users.total_count,
-          }, status: :ok
+          render json: { users: users }, status: :ok
         else
-          users_results = ClickHouseQueries::Users::List.new(current_workspace, page: page, limit: per_page).get
+          where_clause = JSON.parse(params[:where] || {}.to_json)
+          users_results = ClickHouseQueries::Users::List.new(current_workspace, where: where_clause, page: page, limit: per_page).get
           render json: {
             users: users_results['users'],
             previous_page: params[:page].to_i > 1 ? params[:page].to_i - 1 : nil,
