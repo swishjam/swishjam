@@ -42,7 +42,7 @@ module EventTriggerSteps
               text: parsed_message_body
             }
           }
-        ].to_json
+        ]
       )
     end
   end

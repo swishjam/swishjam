@@ -32,15 +32,16 @@ import LoadingSpinner from '@components/LoadingSpinner';
 import SlackMessagePreview from '@/components/Slack/SlackMessagePreview';
 import MessageBodyMarkdownRenderer from '@/components/Slack/MessageBodyMarkdownRenderer';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { swishjam } from '@swishjam/react';
 
 export default function AddReportModal({ onNewReport, open, setOpen }) {
   const dialogRef = useRef();
-  const form = useForm({ defaultValues: { name:'', cadence:'daily', sending_mechanism:'slack', slack_channel:'', messageSections: [] }});
+  const form = useForm({ defaultValues: { name: '', cadence: 'daily', sending_mechanism: 'slack', slack_channel: '', messageSections: [{ type: 'web' }, { type: 'product' }] } });
   const fieldArray = useFieldArray({
     control: form.control,
     name: "messageSections",
-  }); 
-  
+  });
+
   const [loading, setLoading] = useState(false);
   const [slackChannels, setSlackChannels] = useState();
   const [mkdPreview, setMkdPreview] = useState()
@@ -50,7 +51,6 @@ export default function AddReportModal({ onNewReport, open, setOpen }) {
   }
 
   async function onSubmit(values) {
-    
     setLoading(true)
     if (!values.name || !values.slack_channel || values.messageSections.length == 0) {
       toast.error('All fields are required')
@@ -71,6 +71,7 @@ export default function AddReportModal({ onNewReport, open, setOpen }) {
     if (error) {
       toast.error(error)
     } else {
+      swishjam.event('report_created', { report_id: report.id, report_name: report.name })
       toast.success(`${values.name} created successfully..`)
       form.reset();
       dialogRef.current.click();
@@ -93,8 +94,6 @@ export default function AddReportModal({ onNewReport, open, setOpen }) {
     });
   }, [])
 
-  console.log(form.getValues())
-
   const renderMarkdown = () => {
     const slackMessageHeader = '📅 10/2/2023 \n\n'
     const reportWebSection = '📣 **Marketing Site:** \n\n↔️ Sessions: 500\n\n📉 Unique Visitors: 340\n\n📈 Page Views: 456\n\n ';
@@ -102,23 +101,22 @@ export default function AddReportModal({ onNewReport, open, setOpen }) {
     const reportMarkdown = '📅 10/2/2023 \n\n📣 **Marketing Site:** \n\n↔️ Sessions: 500\n\n📉 Unique Visitors: 340\n\n📈 Page Views: 456\n\n **🧑‍💻 Product Usage:**\n\n↔️ Daily Active Users: 500\n\n📉 Sessions: 340\n\n📈 New Users: 456\n\n'
     let msg = slackMessageHeader;
     //slackMessageHeader
-  
+
     form.getValues('messageSections').map((sec) => {
-      if(sec.type == 'web') {
+      if (sec.type == 'web') {
         msg += reportWebSection
       }
-      if(sec.type == 'product') {
-        msg += reportProductSection 
+      if (sec.type == 'product') {
+        msg += reportProductSection
       }
     })
-    
-    setMkdPreview(msg) 
+    setMkdPreview(msg)
   }
 
-  form.watch((data, {name, type}) => renderMarkdown())
+  form.watch((data, { name, type }) => renderMarkdown())
 
   return (
-    <Dialog open={open} onOpenChange={(v) => {resetForm();setOpen(v)}}>
+    <Dialog open={open} onOpenChange={(v) => { resetForm(); setOpen(v) }}>
       <DialogTrigger
         className={`duration-300 transition-all ml-2 flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white focus:outline-none focus:ring-2 bg-swishjam hover:bg-swishjam-dark`}
         ref={dialogRef}
@@ -264,41 +262,45 @@ export default function AddReportModal({ onNewReport, open, setOpen }) {
                                       </SelectTrigger>
                                     </FormControl>
                                     <SelectContent>
-                                      <SelectItem className="cursor-pointer" value="web">Web Analytics</SelectItem>
-                                      <SelectItem className="cursor-pointer" value="product">Product Analytics</SelectItem>
+                                      <SelectItem className="cursor-pointer hover:bg-gray-100" value="web">Web Analytics</SelectItem>
+                                      <SelectItem className="cursor-pointer hover:bg-gray-100" value="product">Product Analytics</SelectItem>
                                     </SelectContent>
                                   </Select>
                                   <FormMessage />
                                 </FormItem>
                               )}
-                            />    
-                        </div> 
+                            />
+                          </div>
+                          <Button
+                            onClick={() => fieldArray.remove(index)}
+                            type={'button'}
+                            variant="ghost"
+                            className='flex-none ml-2 duration-500 hover:text-rose-600'
+                          >
+                            <LuTrash size={14} />
+                          </Button>
+                        </li>
+                      )}
+                      <li key="add-more-button">
                         <Button
-                          onClick={() =>  fieldArray.remove(index)} 
-                          type={'button'}
-                          variant="ghost"
-                          className={`flex-none ml-2 duration-500 hover:text-rose-600`}
+                          onClick={() => {
+                            const otherType = fieldArray.fields[0].type == 'web' ? 'product' : 'web'
+                            fieldArray.append({ type: otherType })
+                          }}
+                          type='button'
+                          variant="outline"
+                          className={`!mt-2 w-full ${fieldArray.fields.length >= 2 ? 'cursor-disabled' : ''}`}
+                          disabled={fieldArray.fields.length >= 2}
                         >
-                          <LuTrash size={14} />
+                          Add Section
                         </Button>
-                      </li> 
-                    )}
-                    <li key="add-more-button">
-                      <Button
-                        onClick={() =>  fieldArray.append({ type: 'web' })} 
-                        type={'button'}
-                        variant="outline" 
-                        className={`!mt-2 w-full`}
-                      >
-                        Add Section
-                      </Button>
-                    </li> 
-                  </ul>}
+                      </li>
+                    </ul>}
                 </div>
                 <Button
                   className={`!mt-6 w-full flex items-center justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white focus:outline-none focus:ring-2 ${loading ? 'bg-swishjam-dark' : 'bg-swishjam'} hover:bg-swishjam-dark`}
                   type="submit"
-                  disabled={loading || form.getValues('messageSections').length == 0 }
+                  disabled={loading || form.getValues('messageSections').length == 0}
                 >
                   {loading ? <LoadingSpinner color="white" /> : 'Create Report'}
                 </Button>

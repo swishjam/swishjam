@@ -9,6 +9,7 @@ import SlackMessagePreview from '../../Slack/SlackMessagePreview';
 import MessageBodyMarkdownRenderer from '../../Slack/MessageBodyMarkdownRenderer';
 import EventTriggerStepsSelectors from './EventTriggerStepsSelectors';
 import LoadingSpinner from '../../LoadingSpinner';
+import { swishjam } from '@swishjam/react';
 // import { PaperAirplaneIcon } from '@heroicons/react/24/outline';
 
 export default function NewSlackEventTriggerModal({ isOpen, onClose, onNewTrigger }) {
@@ -47,6 +48,7 @@ export default function NewSlackEventTriggerModal({ isOpen, onClose, onNewTrigge
       setIsLoading(false);
       setErrorMessage(error);
     } else {
+      swishjam.event('event_trigger_created', { event_name: selectedEvent, trigger_id: trigger.id, message_header: slackMessageHeader })
       onNewTrigger(trigger);
       setSelectedEvent();
       setSelectedSlackChannel();
