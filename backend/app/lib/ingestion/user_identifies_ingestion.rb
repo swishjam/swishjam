@@ -14,8 +14,9 @@ module Ingestion
       queued_user_identify_events = Ingestion::QueueManager.pop_all_records_from_queue(Ingestion::QueueManager::Queues.IDENTIFY)
       begin
         create_or_update_transactional_user_profiles!(queued_user_identify_events)
-        create_user_identify_events!(queued_user_identify_events)
+        # create_user_identify_events!(queued_user_identify_events)
       rescue => e
+        byebug
         @ingestion_batch.error_message = e.message
         Sentry.capture_exception(e)
         Ingestion::QueueManager.push_records_into_queue(Ingestion::QueueManager::Queues.IDENTIFY_DEAD_LETTER_QUEUE, queued_user_identify_events)
@@ -32,6 +33,7 @@ module Ingestion
     private
 
     def create_or_update_transactional_user_profiles!(events)
+      formatted_user_identify_events = []
       events.each do |event_json|
         begin
           properties = JSON.parse(event_json['properties'] || '{}')
@@ -64,16 +66,22 @@ module Ingestion
                 first_name: first_name, 
                 last_name: last_name, 
                 initial_landing_page_url: profile.initial_landing_page_url || initial_referrer_url,
-                initial_referrer_url: profile.initial_referrer || initial_referrer_url,
+                initial_referrer_url: profile.initial_referrer_url || initial_referrer_url,
                 metadata: metadata, 
                 first_seen_at_in_web_app: profile.first_seen_at_in_web_app || (event_json['occurred_at'] || Time.current).to_datetime,
                 # TODO: now that initial_landing_page_url and initial_referrer have their own columns, 
                 # we dont have a use for this yet. need to have an SDK method for users to set custom immutable metadata
                 # immutable_metadata: immutable_metadata.merge(profile.immutable_metadata || {}),
               )
+              formatted_user_identify_events << {
+                swishjam_api_key: event_json['swishjam_api_key'],
+                swishjam_user_id: profile.id,
+                device_identifier: properties[Analytics::Event::ReservedPropertyNames.DEVICE_IDENTIFIER],
+                occurred_at: event_json['occurred_at'],
+              }
             else
               created_by_data_source = workspace.api_keys.find_by!(public_key: event_json['swishjam_api_key']).data_source
-              workspace.analytics_user_profiles.create!(
+              profile = workspace.analytics_user_profiles.create!(
                 user_unique_identifier: unique_identifier, 
                 first_name: first_name, 
                 last_name: last_name, 
@@ -86,6 +94,12 @@ module Ingestion
                 first_seen_at_in_web_app: (event_json['occurred_at'] || Time.current).to_datetime,
                 # immutable_metadata: immutable_metadata,
               )
+              formatted_user_identify_events << {
+                swishjam_api_key: event_json['swishjam_api_key'],
+                swishjam_user_id: profile.id,
+                device_identifier: properties[Analytics::Event::ReservedPropertyNames.DEVICE_IDENTIFIER],
+                occurred_at: event_json['occurred_at'],
+              }
             end
           else
             Sentry.capture_message("Unrecognized API Key found in Ingestion::UserIdentifiesIngestion: #{event_json['swishjam_api_key']}, pushing it into the DLQ...")
@@ -97,33 +111,6 @@ module Ingestion
           Ingestion::QueueManager.push_records_into_queue(Ingestion::QueueManager::Queues.IDENTIFY_DEAD_LETTER_QUEUE, [event_json])
         end
       end
-    end
-
-    def create_user_identify_events!(events)
-      formatted_user_identify_events = events.map do |event_json| 
-        properties = JSON.parse(event_json['properties'] || '{}')
-        unique_identifier = properties['userIdentifier'] || properties['user_identifier'] || properties['userId'] || properties['user_id']
-        workspace = Workspace.for_public_key(event_json['swishjam_api_key'])
-        if workspace
-          profile = workspace.analytics_user_profiles.find_by(user_unique_identifier: unique_identifier)
-          if profile
-            {
-              swishjam_api_key: event_json['swishjam_api_key'],
-              swishjam_user_id: profile.id,
-              device_identifier: properties[Analytics::Event::ReservedPropertyNames.DEVICE_IDENTIFIER],
-              occurred_at: event_json['occurred_at'],
-            }
-          else
-            Sentry.capture_message("Unable to find AnalyticsUserProfile for provided unique identifer: #{unique_identifier}, pushing it into the DLQ...")
-            Ingestion::QueueManager.push_records_into_queue(Ingestion::QueueManager::Queues.IDENTIFY_DEAD_LETTER_QUEUE, [event_json])
-            nil
-          end
-        else
-          Sentry.capture_message("Unrecognized API Key found in Ingestion::OrganizationIdentifiesIngestion: #{event_json['swishjam_api_key']}, pushing it into the DLQ...")
-          Ingestion::QueueManager.push_records_into_queue(Ingestion::QueueManager::Queues.IDENTIFY_DEAD_LETTER_QUEUE, [event_json])
-          nil
-        end
-      end.compact
       Analytics::UserIdentifyEvent.insert_all!(formatted_user_identify_events) if formatted_user_identify_events.any?
     end
   end
