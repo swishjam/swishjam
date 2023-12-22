@@ -11,8 +11,8 @@ class AnalyticsUserProfile < Transactional
   # after_create :try_to_set_gravatar_url
   before_create :try_to_set_gravatar_url
   after_create :enrich_profile!
-  after_create :enqueue_clickhouse_replication_data
-  after_update :enqueue_clickhouse_replication_data
+  after_create :enqueue_into_clickhouse_replication_data
+  after_update :enqueue_into_clickhouse_replication_data
 
   def self.find_by_case_insensitive_email(email)
     where("lower(email) = ?", email.downcase).first
@@ -46,6 +46,10 @@ class AnalyticsUserProfile < Transactional
     # update_column :gravatar_url, url
   end
 
+  def enqueue_into_clickhouse_replication_data
+    Ingestion::QueueManager.push_records_into_queue(Ingestion::QueueManager::Queues.CLICKHOUSE_USER_PROFILES, formatted_for_clickhouse_replication)
+  end
+
   private
 
   def formatted_for_clickhouse_replication
@@ -59,13 +63,13 @@ class AnalyticsUserProfile < Transactional
       last_name: last_name,
       full_name: full_name,
       gravatar_url: gravatar_url,
+      initial_landing_page_url: initial_landing_page_url,
+      initial_referrer_url: initial_referrer_url,
       lifetime_value_in_cents: lifetime_value_in_cents,
       monthly_recurring_revenue_in_cents: customer_subscriptions.active.sum{ |sub| StripeHelpers::MrrCalculator.calculate_for_swishjam_subscription_record(sub) },
       current_subscription_plan_name: customer_subscriptions.active.not_canceled.map{ |sub| sub.customer_subscription_items.map(&:product_name) }.flatten.join(', '),
-      initial_landing_page_url: (immutable_metadata || {}).dig('initial_url'),
-      initial_referrer_url: (immutable_metadata || {}).dig('initial_referrer'),
       created_by_data_source: created_by_data_source,
-      metadata: (immutable_metadata || {}).merge(metadata || {}).except('initial_url', 'initial_referrer').to_json,
+      metadata: (immutable_metadata || {}).merge(metadata || {}).to_json,
       enrichment_match_likelihood: enrichment_data&.match_likelihood,
       enrichment_first_name: enrichment_data&.first_name,
       enrichment_last_name: enrichment_data&.last_name,
@@ -84,12 +88,10 @@ class AnalyticsUserProfile < Transactional
       enrichment_company_twitter_url: enrichment_data&.company_twitter_url,
       enrichment_company_location_metro: enrichment_data&.company_location_metro,
       enrichment_company_location_geo_coordinates: enrichment_data&.company_location_geo_coordinates,
+      first_seen_at_in_web_app: first_seen_at_in_web_app,
       created_at: created_at,
       updated_at: updated_at,
+      last_updated_from_transactional_db_at: Time.current,
     }
-  end
-
-  def enqueue_clickhouse_replication_data
-    Ingestion::QueueManager.push_records_into_queue(Ingestion::QueueManager::Queues.CLICKHOUSE_USER_PROFILES, formatted_for_clickhouse_replication)
   end
 end

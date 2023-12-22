@@ -37,6 +37,8 @@ class MakeClickhouseUserProfilesFullyReplicated < ActiveRecord::Migration[6.1]
         `enrichment_company_twitter_url` Nullable(String),
         `enrichment_company_location_metro` Nullable(String),
         `enrichment_company_location_geo_coordinates` Nullable(String),
+        `first_seen_at_in_web_app` Nullable(DateTime),
+        `last_updated_from_transactional_db_at` Nullable(DateTime),
         `created_at` DateTime,
         `updated_at` DateTime
       )
