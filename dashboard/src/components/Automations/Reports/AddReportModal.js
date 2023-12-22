@@ -33,13 +33,24 @@ import SlackMessagePreview from '@/components/Slack/SlackMessagePreview';
 import MessageBodyMarkdownRenderer from '@/components/Slack/MessageBodyMarkdownRenderer';
 import { ScrollArea } from '@/components/ui/scroll-area';
 
+
+const slackMessageHeader = '📅 10/2/2023 \n\n'
+const reportMarketingSection = '📣 **Marketing Site:** \n\n↔️ Sessions: 500\n\n📉 Unique Visitors: 340\n\n📈 Page Views: 456\n\n ';
+const reportProductSection = '**🧑‍💻 Product Usage:**\n\n↔️ Daily Active Users: 500\n\n📉 Sessions: 340\n\n📈 New Users: 456';
 const reportMarkdown = '📅 10/2/2023 \n\n📣 **Marketing Site:** \n\n↔️ Sessions: 500\n\n📉 Unique Visitors: 340\n\n📈 Page Views: 456\n\n **🧑‍💻 Product Usage:**\n\n↔️ Daily Active Users: 500\n\n📉 Sessions: 340\n\n📈 New Users: 456'
 
-export default function AddReportModal({ onNewReport }) {
+export default function AddReportModal({ onNewReport, open, setOpen }) {
   const dialogRef = useRef();
   const form = useForm();
   const [loading, setLoading] = useState(false);
   const [slackChannels, setSlackChannels] = useState();
+  const [messageSections, setMessageSections] = useState([])
+
+
+  const resetForm = () => {
+    setMessageSections([])
+    form.reset();
+  }
 
   async function onSubmit(values) {
     setLoading(true)
@@ -53,6 +64,7 @@ export default function AddReportModal({ onNewReport }) {
       cadence: 'daily',
       sending_mechanism: 'slack',
       config: {
+        sections: messageSections,
         slack_channel_id: values.slack_channel
       }
     })
@@ -63,6 +75,7 @@ export default function AddReportModal({ onNewReport }) {
     } else {
       toast.success(`${values.name} created successfully..`)
       form.reset();
+      setMessageSections([])
       dialogRef.current.click();
       onNewReport(report)
     }
@@ -84,7 +97,7 @@ export default function AddReportModal({ onNewReport }) {
   }, [])
 
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={(v) => {resetForm();setOpen(v)}}>
       <DialogTrigger
         className={`duration-300 transition-all ml-2 flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white focus:outline-none focus:ring-2 bg-swishjam hover:bg-swishjam-dark`}
         ref={dialogRef}
@@ -106,7 +119,7 @@ export default function AddReportModal({ onNewReport }) {
             <ScrollArea className="max-h-96 overflow-y-scroll border border-gray-200 rounded-md">
               <SlackMessagePreview
                 header={'Daily Update'}
-                body={<MessageBodyMarkdownRenderer body={reportMarkdown} />}
+                body={<MessageBodyMarkdownRenderer body={slackMessageHeader} />}
                 className={'mt-2 border-0'}
               />
             </ScrollArea>
@@ -201,10 +214,68 @@ export default function AddReportModal({ onNewReport }) {
                   )}
                 />
 
+                <div className='mt-4'>
+                  <FormLabel>Report Sections</FormLabel>
+
+                  {messageSections.length == 0 &&
+                  <div 
+                    onClick={() => setMessageSections([{ type: 'web' }])}
+                    className='px-6 py-20 border-2 border-gray-200 border-dashed mt-2 rounded-md text-center text-gray-400 text-sm cursor-pointer duration-500 transition-all hover:border-swishjam hover:text-swishjam'
+                  >
+                    <LuPlus size="24" className='mx-auto mb-4'/>
+                    Add Report Sections 
+                  </div>}
+                  {messageSections.length > 0 &&
+                  <ul className='grid gap-y-2 mt-2'>
+                    {messageSections.map((section, index) => 
+                      <li key={index} className='w-full flex'>
+                        <FormField
+                          className="grow" 
+                          control={form.control}
+                          name={'message_section'+index}
+                          render={({ field }) => (
+                            <FormItem>
+                              <Select onValueChange={field.onChange}>
+                                <FormControl>
+                                  <SelectTrigger>
+                                    <SelectValue placeholder="Web Analytics" />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                  <SelectItem className="cursor-pointer" value="web">Web Analytics</SelectItem>
+                                  <SelectItem className="cursor-pointer" value="product">Product Analytics</SelectItem>
+                                </SelectContent>
+                              </Select>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />    
+                        <Button
+                          onClick={() => setMessageSections([...messageSections, { type: 'web' }])}
+                          type={'button'}
+                          variant="ghost"
+                          className={`flex-none w-14 h-14`}
+                        >
+                          <LuPlus size={12} />
+                        </Button>
+                      </li> 
+                    )}
+                    <li key="add-more-button">
+                      <Button
+                        onClick={() => setMessageSections([...messageSections, {type: 'web'}])} 
+                        type={'button'}
+                        variant="outline" 
+                        className={`!mt-2 w-full`}
+                      >
+                        Add Section
+                      </Button>
+                    </li> 
+                  </ul>}
+                </div>
                 <Button
                   className={`!mt-6 w-full flex items-center justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white focus:outline-none focus:ring-2 ${loading ? 'bg-swishjam-dark' : 'bg-swishjam'} hover:bg-swishjam-dark`}
                   type="submit"
-                  disabled={loading}
+                  disabled={loading || messageSections.length === 0}
                 >
                   {loading ? <LoadingSpinner color="white" /> : 'Create Report'}
                 </Button>
