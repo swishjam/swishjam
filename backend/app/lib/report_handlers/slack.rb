@@ -1,4 +1,4 @@
-module ReportHandler
+module ReportHandlers
   class Slack 
     def initialize(report)
       @report = report
