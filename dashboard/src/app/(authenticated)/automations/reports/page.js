@@ -27,6 +27,7 @@ export default function ReportsPage() {
   const [reports, setReports] = useState();
   const [isLoading, setIsLoading] = useState(true);
   const [hasSlackConnection, setHasSlackConnection] = useState();
+  const [open, setOpen] = useState(false);
 
   const pauseReport = async (reportId) => {
     SwishjamAPI.Reports.disable(reportId).then(({ report, error }) => {
@@ -85,7 +86,7 @@ export default function ReportsPage() {
     <div>
       <div className="flex items-center justify-between">
         <h2 className="text-md font-medium text-gray-700 mb-0">Reports</h2>
-        {hasSlackConnection && <AddReportModal onNewReport={newReport => setReports([...reports, newReport])} />}
+        {hasSlackConnection && <AddReportModal open={open} setOpen={setOpen} onNewReport={newReport => setReports([...reports, newReport])} />}
       </div>
       {isLoading ?
         <div className="mt-24 h-5 w-5 mx-auto">

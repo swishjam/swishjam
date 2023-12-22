@@ -22,7 +22,7 @@ module Slack
       raise BadRequestError, "`post_message_to_channel` must contain either `text` or `blocks` argument." if text.blank? && blocks.blank?
       payload = { channel: channel }
       payload[:text] = text if text.present?
-      payload[:blocks] = blocks if blocks.present?
+      payload[:blocks] = blocks.to_json if blocks.present?
       response = post('chat.postMessage', payload)
     end
 
