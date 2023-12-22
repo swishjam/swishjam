@@ -1,5 +1,5 @@
 module IngestJobs
-  class UserIdentifies
+  class UserProfileClickHouseReplication
     include Sidekiq::Job
     queue_as :default
 
