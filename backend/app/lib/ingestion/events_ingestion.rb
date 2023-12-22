@@ -9,6 +9,10 @@ module Ingestion
     end
 
     def self.ingest!
+      if ENV['HAULT_ALL_INGESTION_JOBS'] || ENV['HAULT_EVENTS_INGESTION']
+        Sentry.capture_message("Haulting `EventsIngestion`` early because either `HAULT_ALL_INGESTION_JOBS` or `HAULT_EVENTS_INGESTION` ENV is set to true. Ingestion will pick back up when these ENVs are unset.")
+        return
+      end
       new.ingest!
     end
 
