@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2023_12_12_204215) do
+ActiveRecord::Schema.define(version: 2023_12_22_165842) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
@@ -50,6 +50,9 @@ ActiveRecord::Schema.define(version: 2023_12_12_204215) do
     t.string "gravatar_url"
     t.integer "lifetime_value_in_cents", default: 0, null: false
     t.string "created_by_data_source"
+    t.text "initial_landing_page_url"
+    t.string "initial_referrer_url"
+    t.datetime "first_seen_at_in_web_app"
     t.index ["user_unique_identifier"], name: "index_analytics_user_profiles_on_user_unique_identifier"
     t.index ["workspace_id"], name: "index_analytics_user_profiles_on_workspace_id"
   end

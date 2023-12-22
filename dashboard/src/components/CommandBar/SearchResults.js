@@ -93,8 +93,8 @@ export default function SearchResults({ organizations, users, dashboards, events
               <div className="flex items-center">
                 <div className="flex-shrink-0 text-gray-700">
                   <Avatar>
-                    <AvatarImage src={user.image} />
-                    <AvatarFallback>{user.initials}</AvatarFallback>
+                    <AvatarImage src={user.gravatar_url} />
+                    <AvatarFallback>{user.full_name ? user.full_name.split(' ').map(w => w[0].toUpperCase()).join('') : '?'}</AvatarFallback>
                   </Avatar>
                 </div>
                 <div className="ml-4">
@@ -103,7 +103,7 @@ export default function SearchResults({ organizations, users, dashboards, events
                 </div>
               </div>
             )}
-            linkGenerator={user => `/users/${user.id}`}
+            linkGenerator={user => `/users/${user.swishjam_user_id}`}
           />
         </li>
         <li className='border-t border-gray-200' style={{ marginTop: 0 }}>

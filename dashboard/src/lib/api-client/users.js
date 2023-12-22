@@ -10,8 +10,8 @@ export class Users extends Base {
   static PageViews = PageViews;
   static Sessions = Sessions;
 
-  static async list({ page, limit } = {}) {
-    return await this._get('/api/v1/users', { page, per_page: limit })
+  static async list({ where, page, limit } = {}) {
+    return await this._get('/api/v1/users', { where: JSON.stringify(where), page, per_page: limit })
   }
 
   static async retrieve(id) {
@@ -20,6 +20,10 @@ export class Users extends Base {
 
   static async timeseries({ timeframe } = {}) {
     return await this._get(`/api/v1/users/timeseries`, { timeframe });
+  }
+
+  static async uniqueAttributeValues({ attributes } = {}) {
+    return await this._get('/api/v1/users/unique_attributes', { columns: JSON.stringify(attributes) });
   }
 }
 

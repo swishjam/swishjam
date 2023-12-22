@@ -1,13 +1,13 @@
 import { Combobox } from "@headlessui/react"
 import { ArrowUturnLeftIcon } from "@heroicons/react/24/outline"
 
-export default function SearchResultSection({ 
-  title, 
-  TitleIcon, 
-  results, 
-  resultDisplayAttr = 'name', 
-  linkGenerator = result => result.href, 
-  resultDisplayGenerator 
+export default function SearchResultSection({
+  title,
+  TitleIcon,
+  results,
+  resultDisplayAttr = 'name',
+  linkGenerator = result => result.href,
+  resultDisplayGenerator
 }) {
   return (
     <>
@@ -27,15 +27,15 @@ export default function SearchResultSection({
               {({ active }) => (
                 <a href={linkGenerator(result)} className='block w-full h-full px-4 py-2 flex items-center justify-between'>
                   <div>
-                  {resultDisplayGenerator 
-                    ? resultDisplayGenerator(result)
-                    : (
-                      <>
-                        {result.icon && <result.icon className='w-4 h-4 inline mr-4' />}
-                        {result[resultDisplayAttr]}
-                      </>
-                    )
-                  }
+                    {resultDisplayGenerator
+                      ? resultDisplayGenerator(result)
+                      : (
+                        <>
+                          {result.icon && <result.icon className='w-4 h-4 inline mr-4' />}
+                          {result[resultDisplayAttr]}
+                        </>
+                      )
+                    }
                   </div>
                   {active && <ArrowUturnLeftIcon className='w-4 h-4 text-gray-50' />}
                 </a>
