@@ -33,6 +33,7 @@ import LoadingSpinner from '@components/LoadingSpinner';
 import { toast } from 'sonner'
 import SlackMessagePreview from '@components/Slack/SlackMessagePreview';
 import MessageBodyMarkdownRenderer from '@components/Slack/MessageBodyMarkdownRenderer';
+import { swishjam } from '@swishjam/react';
 
 export default function AddTriggerModal({ onNewTrigger }) {
   const dialogRef = useRef();
@@ -76,16 +77,17 @@ export default function AddTriggerModal({ onNewTrigger }) {
       steps: [{ type: 'EventTriggerSteps::Slack', config }]
     })
 
+    setLoading(false);
     if (error) {
       toast.error("Uh oh! Something went wrong.", {
         description: "Contact founders@swishjam.com for help",
       })
+    } else {
+      swishjam.event('event_trigger_created', { event_name: selectedEvent, trigger_id: trigger.id, message_header: slackMessageHeader })
+      form.reset();
+      onNewTrigger && onNewTrigger(trigger);
+      dialogRef.current.click();
     }
-
-    form.reset();
-    setLoading(false);
-    onNewTrigger && onNewTrigger(trigger);
-    dialogRef.current.click();
   }
 
   useEffect(() => {
@@ -112,7 +114,6 @@ export default function AddTriggerModal({ onNewTrigger }) {
           return 0;
         }
       })
-      console.log(sortedEvents)
       setUniqueEvents(sortedEvents);
     });
   }, [])

@@ -83,10 +83,7 @@ export default function () {
     <div>
       <div className="flex items-center justify-between">
         <h2 className="text-md font-medium text-gray-700 mb-0">Event Triggers</h2>
-        {hasSlackConnection &&
-          <AddTriggerModal
-            onNewTrigger={newTrigger => setTriggers([...triggers, newTrigger])}
-          />}
+        {hasSlackConnection && <AddTriggerModal onNewTrigger={newTrigger => setTriggers([...triggers, newTrigger])} />}
       </div>
       {isLoading ?
         <div className="mt-24 h-5 w-5 mx-auto">
