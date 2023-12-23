@@ -170,7 +170,7 @@ export default function AddTriggerModal({ onNewTrigger }) {
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          {uniqueEvents?.map(c => <SelectItem key={c.name} className="cursor-pointer" value={c.name}>{c.name}</SelectItem>)}
+                          {uniqueEvents?.map(c => <SelectItem key={c.name} className="cursor-pointer hover:bg-gray-100" value={c.name}>{c.name}</SelectItem>)}
                         </SelectContent>
                       </Select>
                       <FormMessage />
