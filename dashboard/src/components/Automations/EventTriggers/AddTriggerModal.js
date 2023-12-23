@@ -83,7 +83,12 @@ export default function AddTriggerModal({ onNewTrigger }) {
         description: "Contact founders@swishjam.com for help",
       })
     } else {
-      swishjam.event('event_trigger_created', { event_name: selectedEvent, trigger_id: trigger.id, message_header: slackMessageHeader })
+      swishjam.event('event_trigger_created', {
+        event_name: values.event_name,
+        slack_channel: config.channel_name,
+        trigger_id: trigger.id,
+        message_header: slackMessageHeader
+      })
       form.reset();
       onNewTrigger && onNewTrigger(trigger);
       dialogRef.current.click();
