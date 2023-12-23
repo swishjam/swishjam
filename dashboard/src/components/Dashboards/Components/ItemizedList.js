@@ -46,12 +46,11 @@ export default function ItemizedList({
               ))
             ) : (
               items.length === 0
-                ? (
-                  <EmptyState msg={noDataMsg || 'No data to display.'} />
-                ) : (
-                  items.slice(0, (maxNumItems || items.length)).map(item => (
+                ? <EmptyState msg={noDataMsg || 'No data to display.'} />
+                : (
+                  items.slice(0, (maxNumItems || items.length)).map((item, idx) => (
                     <Link
-                      key={item.id}
+                      key={idx}
                       href={linkFormatter ? linkFormatter(item) : '#'}
                       className={`transition duration-500 flex items-center py-4 px-2 rounded-sm border border-transparent ${hoverable ? 'hover:bg-gray-50 hover:border-gray-200' : ''}`}
                     >

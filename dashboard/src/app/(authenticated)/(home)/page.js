@@ -358,7 +358,7 @@ export default function Home() {
           items={newUsersData}
           titleFormatter={user => user.full_name || user.email || user.user_unique_identifier}
           subTitleFormatter={user => user.full_name ? user.email : null}
-          linkFormatter={user => `/users/${user.id}`}
+          linkFormatter={user => `/users/${user.swishjam_user_id}`}
           rightItemKey='created_at'
           rightItemKeyFormatter={date => {
             return new Date(date)
