@@ -48,13 +48,13 @@ const UsersTableBody = ({ currentPageNum, selectedFilters, onUsersFetched = () =
       <tbody className="divide-y divide-gray-200 bg-white">
         {[...Array(10)].map((_, i) => (
           <tr key={i}>
-            <td className="py-3 pl-4 pr-3 text-sm sm:pl-6 lg:pl-8">
+            <td className="py-3 pl-4 pr-3 sm:pl-6 lg:pl-8">
               <Skeleton className='w-24 h-6' />
             </td>
-            <td className="px-3 py-3 text-sm text-gray-500">
+            <td className="px-3 py-3">
               <Skeleton className='w-20 h-6' />
             </td>
-            <td className="py-3 pl-3 pr-4 sm:pr-6 lg:pr-8">
+            <td className="py-3 pl-3 pr-4 sm:pr-6 lg:pr-8 flex justify-end">
               <Skeleton className='w-14 h-6' />
             </td>
           </tr>
@@ -75,9 +75,9 @@ const UsersTableBody = ({ currentPageNum, selectedFilters, onUsersFetched = () =
         </tbody>
       ) : (
         <tbody className="divide-y divide-gray-200 bg-white">
-          {usersData.map((user) => (
+          {usersData.map((user, idx) => (
             <tr
-              key={user.email}
+              key={idx}
               className="group hover:bg-gray-50 duration-300 transition cursor-pointer"
               onClick={() => router.push(`/users/${user.swishjam_user_id}`)}
             >
@@ -121,9 +121,7 @@ export default function Users() {
   const [filterOptions, setFilterOptions] = useState();
 
   useEffect(() => {
-    SwishjamAPI.Config.retrieve().then(({ settings }) => {
-      setHasProfileEnrichmentEnabled(settings.should_enrich_user_profile_data);
-    })
+    SwishjamAPI.Config.retrieve().then(({ settings }) => setHasProfileEnrichmentEnabled(settings.should_enrich_user_profile_data))
     SwishjamAPI.Users.uniqueAttributeValues({ attributes: FILTERABLE_USER_ATTRIBUTES }).then(filterableAttributeValues => {
       const options = [];
       const metadataOptions = {};
@@ -189,6 +187,7 @@ export default function Users() {
                               }
                             }}
                             onChange={({ checked, section: { value: sectionValue }, option: { value: selectedOptionValue } }) => {
+                              setCurrentPageNum(1)
                               if (checked) {
                                 setSelectedFilters({
                                   ...selectedFilters,

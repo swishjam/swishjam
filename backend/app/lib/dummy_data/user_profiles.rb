@@ -14,10 +14,8 @@ module DummyData
             first_name: Faker::Name.first_name,
             last_name: Faker::Name.last_name,
             created_at: rand(0..data_begins_max_number_of_days_ago).days.ago,
-            immutable_metadata: {
-              initial_referrer: REFERRER_OPTIONS.sample,
-              initial_url: initial_url_options.sample,
-            },
+            initial_landing_page_url: REFERRER_OPTIONS.sample,
+            initial_referrer_url: REFERRER_OPTIONS.sample,
             metadata: Hash.new.tap do |h|
               rand(1..user_attribute_options.count).times do |i|
                 h[user_attribute_options[i][:key]] = user_attribute_options[i][:faker_klass].send(user_attribute_options[i][:faker_method])

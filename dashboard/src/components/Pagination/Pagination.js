@@ -5,8 +5,8 @@ export default function Pagination({ currentPage, lastPageNum, onNewPageSelected
   return (
     <nav className="flex items-center justify-between border-t border-gray-200 px-4 sm:px-0">
       <div className="-mt-px flex w-0 flex-1">
-        <PaginationItem 
-          enabled={currentPage > 1} 
+        <PaginationItem
+          enabled={currentPage > 1}
           onSelect={() => onNewPageSelected(currentPage - 1)}
           content={
             <>
@@ -25,7 +25,7 @@ export default function Pagination({ currentPage, lastPageNum, onNewPageSelected
             </span>
           </>
         )}
-        {currentPage === 1 
+        {currentPage === 1
           ? (
             <>
               <PaginationItem isActive={true} content={1} />
