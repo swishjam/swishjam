@@ -87,7 +87,7 @@ export default function AddTriggerModal({ onNewTrigger }) {
         event_name: values.event_name,
         slack_channel: config.channel_name,
         trigger_id: trigger.id,
-        message_header: slackMessageHeader
+        message_header: config.message_header,
       })
       form.reset();
       onNewTrigger && onNewTrigger(trigger);
