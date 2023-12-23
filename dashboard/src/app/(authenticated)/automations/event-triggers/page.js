@@ -1,36 +1,27 @@
 'use client';
 
-import { SwishjamAPI } from "@/lib/api-client/swishjam-api";
-import { useState, useEffect } from "react";
-import EmptyState from '../EmptyState';
-import LoadingSpinner from "@/components/LoadingSpinner";
-import { CursorArrowRaysIcon, PauseCircleIcon, PlayCircleIcon, TrashIcon } from '@heroicons/react/24/outline'
-import { SiSlack } from "react-icons/si";
-import { LuGitCommit } from "react-icons/lu";
-import Logo from '@components/Logo'
-import { Cog6ToothIcon } from '@heroicons/react/24/outline'
 import AddTriggerModal from "@/components/Automations/EventTriggers/AddTriggerModal";
+import { Cog6ToothIcon, CursorArrowRaysIcon, PauseCircleIcon, PlayCircleIcon, TrashIcon } from '@heroicons/react/24/outline'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import EmptyState from '../EmptyState';
+import Link from "next/link";
+import Logo from '@components/Logo'
+import { LuGitCommit } from "react-icons/lu";
+import { SiSlack } from "react-icons/si";
+import { SwishjamAPI } from "@/lib/api-client/swishjam-api";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { toast } from "sonner";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+import { useState, useEffect } from "react";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function () {
   const [triggers, setTriggers] = useState();
-  const [isLoading, setIsLoading] = useState(true);
   const [hasSlackConnection, setHasSlackConnection] = useState();
 
   const pauseTrigger = async (triggerId) => {
     SwishjamAPI.EventTriggers.disable(triggerId).then(({ trigger, error }) => {
       if (error) {
-        toast.messaage("Uh oh! Something went wrong.", {
+        toast.message("Uh oh! Something went wrong.", {
           description: "Contact founders@swishjam.com for help",
         })
       } else {
@@ -70,7 +61,6 @@ export default function () {
     ]);
     setTriggers(triggers)
     setHasSlackConnection(slackConnection !== null);
-    setIsLoading(false)
   }
 
   useEffect(() => {
@@ -81,27 +71,33 @@ export default function () {
     <div>
       <div className="flex items-center justify-between">
         <h2 className="text-md font-medium text-gray-700 mb-0">Event Triggers</h2>
-        {hasSlackConnection && <AddTriggerModal onNewTrigger={newTrigger => setTriggers([...triggers, newTrigger])} />}
+        {triggers === undefined
+          ? <Skeleton className='w-24 h-8' />
+          : hasSlackConnection && <AddTriggerModal onNewTrigger={newTrigger => setTriggers([...triggers, newTrigger])} />
+        }
       </div>
-      {isLoading ?
-        <div className="mt-24 h-5 w-5 mx-auto">
-          <LoadingSpinner size={8} />
-        </div> :
-        (triggers?.length > 0 ?
+      {triggers === undefined ? (
+        <div>
+          <ul role="list" className="w-full space-y-2 mt-8">
+            {Array.from({ length: 5 }).map((_, i) => <Skeleton className='w-full h-10' key={i} />)}
+          </ul>
+        </div>
+      ) : (
+        triggers.length > 0 ? (
           <div>
             <ul role="list" className="w-full space-y-2 mt-8">
-              {triggers?.sort((a, b) => new Date(a.created_at) - new Date(b.created_at))?.map(trigger => (
+              {triggers.sort((a, b) => new Date(a.created_at) - new Date(b.created_at)).map(trigger => (
                 <li key={trigger.id} className="bg-white relative flex items-center space-x-4 px-4 py-2 border border-gray-300 rounded">
                   <div className="min-w-0 flex-auto">
                     <div className="flex items-center gap-x-3">
                       <Logo className="h-4" />
                       <h2 className="min-w-0 text-sm font-semibold leading-6 text-gray-600">
-                        <span className="truncate">{`${trigger?.event_name}`}</span>
+                        <span className="truncate">{trigger.event_name}</span>
                       </h2>
                       <LuGitCommit className="w-4 h-4" />
                       {trigger.steps[0].type == 'EventTriggerSteps::Slack' && <SiSlack className="w-4 h-4" />}
                       <h2 className="min-w-0 text-sm font-semibold leading-6 text-gray-600">
-                        <span className="truncate capitalize">#{trigger?.steps[0].config.channel_name}</span>
+                        <span className="truncate capitalize">#{trigger.steps[0].config.channel_name}</span>
                       </h2>
                     </div>
                   </div>
@@ -160,9 +156,9 @@ export default function () {
                 </li>
               ))}
             </ul>
-          </div> :
-          <EmptyState title={hasSlackConnection ? "No Event Triggers" : <><Link className='text-blue-700 underline' href='/integrations/destinations'>Connect Slack</Link> to begin sending event triggers.</>} />
-        )
+          </div>
+        ) : <EmptyState title={hasSlackConnection ? "No Event Triggers" : <><Link className='text-blue-700 underline' href='/integrations/destinations'>Connect Slack</Link> to begin sending event triggers.</>} />
+      )
       }
     </div>
   )

@@ -60,8 +60,17 @@ export default function AddTriggerModal({ onNewTrigger }) {
 
   async function onSubmit(values) {
     setLoading(true)
-    if (!values.event_name || !values.header || !values.body || !values.slack_channel) {
-      toast.error('All fields are required')
+    const isValid = values.event_name && values.slack_channel && (values.header || values.body)
+    if (!isValid) {
+      Object.keys(values).forEach(key => {
+        if (!values[key]) {
+          if ((key === 'header' || key === 'body') && !values.header && !values.body) {
+            form.setError(key, { message: 'You must provide either a header or a body value for your slack message.' })
+          } else if (key !== 'header' && key !== 'body') {
+            form.setError(key, { message: `${key[0].toUpperCase() + key.slice(1).replace('_', ' ')} is a required field.` })
+          }
+        }
+      })
       setLoading(false);
       return;
     }
@@ -80,7 +89,7 @@ export default function AddTriggerModal({ onNewTrigger }) {
     setLoading(false);
     if (error) {
       toast.error("Uh oh! Something went wrong.", {
-        description: "Contact founders@swishjam.com for help",
+        description: error,
       })
     } else {
       swishjam.event('event_trigger_created', {

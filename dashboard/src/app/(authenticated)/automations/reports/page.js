@@ -1,31 +1,21 @@
 'use client';
 
-import { SwishjamAPI } from "@/lib/api-client/swishjam-api";
-import { useState, useEffect } from "react";
+import AddReportModal from "@/components/Automations/Reports/AddReportModal";
+import { Cog6ToothIcon } from '@heroicons/react/24/outline'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import EmptyState from '../EmptyState';
-import LoadingSpinner from "@/components/LoadingSpinner";
+import { HiOutlineMail } from "react-icons/hi";
+import Link from "next/link";
+import { LuClock } from "react-icons/lu";
 import { PauseCircleIcon, PlayCircleIcon, TrashIcon } from '@heroicons/react/24/outline'
 import { SiSlack } from "react-icons/si";
-import { HiOutlineMail } from "react-icons/hi";
-import { LuClock, LuPlus } from "react-icons/lu";
-import { Cog6ToothIcon } from '@heroicons/react/24/outline'
-import AddReportModal from "@/components/Automations/Reports/AddReportModal";
+import { Skeleton } from "@/components/ui/skeleton";
+import { SwishjamAPI } from "@/lib/api-client/swishjam-api";
 import { toast } from "sonner";
-
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import Link from "next/link";
+import { useState, useEffect } from "react";
 
 export default function ReportsPage() {
   const [reports, setReports] = useState();
-  const [isLoading, setIsLoading] = useState(true);
   const [hasSlackConnection, setHasSlackConnection] = useState();
   const [open, setOpen] = useState(false);
 
@@ -46,7 +36,7 @@ export default function ReportsPage() {
     SwishjamAPI.Reports.enable(reportId).then(({ report, error }) => {
       if (error) {
         toast("Uh oh! Something went wrong.", {
-          description: "Contact founders@swishjam.com for help",
+          description: error,
         })
       } else {
         toast.success('Report resumed')
@@ -55,11 +45,11 @@ export default function ReportsPage() {
     })
   }
 
-  const deleteReport = async (reportId) => {
-    SwishjamAPI.Reports.delete(reportId).then(({ report, error }) => {
+  const deleteReport = async reportId => {
+    SwishjamAPI.Reports.delete(reportId).then(({ error }) => {
       if (error) {
         toast("Uh oh! Something went wrong.", {
-          description: "Contact founders@swishjam.com for help",
+          description: error,
         })
       } else {
         toast.success('Report deleted')
@@ -75,7 +65,6 @@ export default function ReportsPage() {
     ]);
     setReports(reports)
     setHasSlackConnection(slackConnection !== null);
-    setIsLoading(false)
   }
 
   useEffect(() => {
@@ -88,14 +77,17 @@ export default function ReportsPage() {
         <h2 className="text-md font-medium text-gray-700 mb-0">Reports</h2>
         {hasSlackConnection && <AddReportModal open={open} setOpen={setOpen} onNewReport={newReport => setReports([...reports, newReport])} />}
       </div>
-      {isLoading ?
-        <div className="mt-24 h-5 w-5 mx-auto">
-          <LoadingSpinner size={8} />
-        </div> :
-        (reports?.length > 0 ?
+      {reports === undefined ? (
+        <div>
+          <ul role="list" className="w-full space-y-2 mt-8">
+            {Array.from({ length: 5 }).map((_, i) => <Skeleton className='w-full h-10' key={i} />)}
+          </ul>
+        </div>
+      ) : (
+        reports.length > 0 ? (
           <div>
             <ul role="list" className="w-full space-y-2 mt-8">
-              {reports?.sort((a, b) => new Date(a.created_at) - new Date(b.created_at))?.map(report => (
+              {reports.sort((a, b) => new Date(a.created_at) - new Date(b.created_at)).map(report => (
                 <li key={report.id} className="bg-white relative flex items-center space-x-4 px-4 py-2 border border-gray-300 rounded">
                   <div className="min-w-0 flex-auto">
                     <div className="flex items-center gap-x-3">
@@ -112,20 +104,21 @@ export default function ReportsPage() {
                       {report.cadence}
                     </div>
                   }
-                  {report.enabled ?
+                  {report.enabled ? (
                     <span className="inline-flex items-center gap-x-1.5 rounded-md bg-green-100 px-1.5 py-0.5 text-xs font-medium text-green-700 capitalize">
                       <svg className="h-1.5 w-1.5 fill-green-500" viewBox="0 0 6 6" aria-hidden="true">
                         <circle cx={3} cy={3} r={3} />
                       </svg>
                       Enabled
-                    </span> :
+                    </span>
+                  ) : (
                     <span className="inline-flex items-center gap-x-1.5 rounded-md bg-red-100 px-1.5 py-0.5 text-xs font-medium text-red-700">
                       <svg className="h-1.5 w-1.5 fill-red-500" viewBox="0 0 6 6" aria-hidden="true">
                         <circle cx={3} cy={3} r={3} />
                       </svg>
                       Disabled
                     </span>
-                  }
+                  )}
 
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
@@ -135,16 +128,17 @@ export default function ReportsPage() {
                       <DropdownMenuLabel>Edit Report</DropdownMenuLabel>
                       <DropdownMenuSeparator />
                       <DropdownMenuGroup>
-                        {report.enabled ?
+                        {report.enabled ? (
                           <DropdownMenuItem onClick={() => pauseReport(report.id)} className="cursor-pointer">
                             <PauseCircleIcon className='h-4 w-4 inline-block mr-2' />
                             Pause
-                          </DropdownMenuItem> :
+                          </DropdownMenuItem>
+                        ) : (
                           <DropdownMenuItem onClick={() => resumeReport(report.id)} className="cursor-pointer">
                             <PlayCircleIcon className='h-4 w-4 inline-block mr-2' />
                             Resume
                           </DropdownMenuItem>
-                        }
+                        )}
                         <DropdownMenuItem className="!text-red-400 cursor-pointer" onClick={() => deleteReport(report.id)}>
                           <TrashIcon className='h-4 w-4 inline-block mr-2' />
                           Delete
@@ -155,10 +149,17 @@ export default function ReportsPage() {
                 </li>
               ))}
             </ul>
-          </div> :
-          <EmptyState title={hasSlackConnection ? "No Reports" : <><Link className='text-blue-700 underline' href='/integrations/destinations'>Connect Slack</Link> to begin creating reports.</>} />
+          </div>
+        ) : (
+          <EmptyState
+            title={
+              hasSlackConnection
+                ? "No Reports"
+                : <><Link className='text-blue-700 underline' href='/integrations/destinations'>Connect Slack</Link> to begin creating reports.</>
+            }
+          />
         )
-      }
+      )}
     </div>
   )
 }

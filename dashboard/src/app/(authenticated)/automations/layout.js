@@ -19,7 +19,6 @@ const sidebarNavItems = [
 ]
 
 export default function AutomationsLayout({ children }) {
-
   return (
     <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mb-8">
       <div className='grid grid-cols-2 my-8 flex items-center'>
@@ -33,7 +32,7 @@ export default function AutomationsLayout({ children }) {
           <VerticalTabs items={sidebarNavItems} />
         </aside>
         <div className="flex-1">{children}</div>
-      </div> 
+      </div>
       {/*<Tabs className="mb-8" currentPath={pathname} />*/}
     </main>
   )
