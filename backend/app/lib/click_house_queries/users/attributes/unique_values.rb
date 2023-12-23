@@ -29,6 +29,7 @@ module ClickHouseQueries
                 GROUP BY swishjam_user_id
               )
               ARRAY JOIN JSONExtractKeys(metadata) AS property_name
+              WHERE property_name NOT IN ('url', 'page_view_identifier', 'session_identifier', 'device_identifier', 'userIdentifier', 'user_identifier')
               GROUP BY metadata_key, metadata_value
               ORDER BY num_users DESC
             SQL
