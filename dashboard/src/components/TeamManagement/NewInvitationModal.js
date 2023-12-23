@@ -3,7 +3,9 @@ import CopyToClipboard from 'react-copy-to-clipboard';
 import LoadingSpinner from '@/components/LoadingSpinner'
 import Modal from '@/components/utils/Modal';
 import SwishjamAPI from '@/lib/api-client/swishjam-api';
+import { useAuthData } from '@/hooks/useAuthData';
 import { useState } from 'react';
+import { swishjam } from '@swishjam/react';
 
 export default function NewInvitationModal({ isOpen, onClose, onInviteSent }) {
   const [email, setEmail] = useState('');
@@ -12,6 +14,8 @@ export default function NewInvitationModal({ isOpen, onClose, onInviteSent }) {
   const [successMessage, setSuccessMessage] = useState();
   const [userInviteToken, setUserInviteToken] = useState();
   const [copySuccessMessage, setCopySuccessMessage] = useState();
+
+  const { currentWorkspaceId, currentWorkspaceName } = useAuthData();
 
   const inviteUser = async e => {
     e.preventDefault();
@@ -22,9 +26,11 @@ export default function NewInvitationModal({ isOpen, onClose, onInviteSent }) {
     const response = await SwishjamAPI.WorkspaceInvitations.create({ email });
     setIsSubmitting(false);
     if (response.error) {
+      swishjam.event('invite_teammate_error', { error: response.error, workspace: currentWorkspaceName, workspace_id: currentWorkspaceId })
       setError(response.error);
       setSuccessMessage();
     } else {
+      swishjam.event('teammate_invited', { invited_email: response.invited_email, workspace: currentWorkspaceName, workspace_id: currentWorkspaceId })
       setUserInviteToken(response.invite_token);
       setSuccessMessage(`Invitation sent to ${response.invited_email}.`);
       setEmail('');

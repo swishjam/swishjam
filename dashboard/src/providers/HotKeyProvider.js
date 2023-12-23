@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useCommandBar } from '@/hooks/useCommandBar';
 import HotKeyModal from '@/components/HotKeys/Modal';
+import { swishjam } from '@swishjam/react';
 
 const HotKeyProvider = ({ children }) => {
   const router = useRouter();
@@ -12,13 +13,18 @@ const HotKeyProvider = ({ children }) => {
   if (!useCommandBar) throw new Error('HotKeyProvider must be nested within the CommandBarProvider.');
   const { setCommandBarIsOpen } = useCommandBar();
 
+  const onHotKey = (key, action) => {
+    swishjam.event('hot_key_pressed', { key });
+    action();
+  }
+
   const hotKeyActions = {
-    ',': () => router.push('/settings'),
-    '/': () => setHotKeyModalIsOpen(true),
-    k: () => setCommandBarIsOpen(true),
-    u: () => router.push('/users'),
-    o: () => router.push('/organizations'),
-    h: () => router.push('/'),
+    ',': () => onHotKey(',', () => router.push('/settings')),
+    '/': () => onHotKey('/', () => setHotKeyModalIsOpen(true)),
+    k: () => onHotKey('k', () => setCommandBarIsOpen(true)),
+    u: () => onHotKey('u', () => router.push('/users')),
+    o: () => onHotKey('o', () => router.push('/organizations')),
+    h: () => onHotKey('h', () => router.push('/')),
   }
 
   useEffect(() => {

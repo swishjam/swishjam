@@ -3,10 +3,9 @@
 import Image from 'next/image';
 import LoadingView from './LoadingView';
 import Modal from '@/components/utils/Modal';
-import { RxCardStack } from 'react-icons/rx';
 import { SwishjamAPI } from '@/lib/api-client/swishjam-api';
 import { useEffect, useState } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import { toast } from 'sonner';
 import EmptyView from './EmptyView';
 
@@ -15,6 +14,7 @@ import { AllSources } from './AllIntegrations';
 import AddConnectionButton from './AddConnectionButton';
 import ExistingConnectionButton from './ExistingConnectionButton';
 import SwishjamLogo from '@public/logos/swishjam.png'
+import { swishjam } from '@swishjam/react';
 
 export default function Connections() {
   const [enabledConnections, setEnabledConnections] = useState();
@@ -24,8 +24,6 @@ export default function Connections() {
   // const [errorMessage, setErrorMessage] = useState(useSearchParams().get('error'))
   // const [showSuccessMessage, setShowSuccessMessage] = useState(useSearchParams().get('success') === 'true');
   const searchParams = useSearchParams();
-
-  const router = useRouter();
 
   const setConnectionAsConnected = connection => {
     setEnabledConnections([...enabledConnections, connection]);
@@ -71,12 +69,19 @@ export default function Connections() {
     }
     getConnections();
 
-    if (searchParams.get('success')) {
+    if (searchParams.get('success') && searchParams.get('success') !== 'false') {
+      swishjam.event('integration_connected', {
+        integration_name: searchParams.get('newSource') || searchParams.get('new_source') || searchParams.get('source') || 'Not specified',
+      })
       toast.success(`${window.decodeURIComponent(searchParams.get('newSource') || 'Data source')} is now connected!`, {
         description: `Swishjam will automatically import your ${window.decodeURIComponent(searchParams.get('newSource') || 'data source')} data now.`
       })
     }
-    if (searchParams.get('error')) {
+    if (searchParams.get('error') || searchParams.get('success') === 'false') {
+      swishjam.event('error_connecting_integration', {
+        integration_name: searchParams.get('newSource') || searchParams.get('new_source') || searchParams.get('source') || 'Not specified',
+        error: searchParams.get('error') || searchParams.get('message')
+      })
       toast.error(`Error connecting ${window.decodeURIComponent(searchParams.get('newSource') || 'Data source')}`, {
         description: `Contact founders@swishjam.com for help getting setup`
       })
@@ -172,7 +177,10 @@ export default function Connections() {
                         img={AllSources[connection.name].img}
                         key={connection.name}
                         connection={connection}
-                        onConnectionClick={() => setConnectionForModal(connection)}
+                        onConnectionClick={() => {
+                          swishjam.event('add_integration_clicked', { integration_name: connection.name })
+                          setConnectionForModal(connection)
+                        }}
                         borderImage={AllSources[connection.name].borderImage}
                       />
                     ))

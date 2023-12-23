@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { Popover, PopoverContent, PopoverTrigger, PopoverClose } from "@/components/ui/popover"
 import { CalendarDaysIcon } from "@heroicons/react/24/outline";
+import { swishjam } from "@swishjam/react";
 
 const options = [
   { name: 'this hour', value: 'hour' },
@@ -40,8 +41,11 @@ export default function Timefilter({ selection = 'this_month', onSelection }) {
         {options.map((opt) => (
           <PopoverClose key={opt.value} asChild>
             <div
-              onClick={() => onSelection(opt.value)}
-              className={`${selection == opt.value ? 'bg-gray-100':null} group w-full rounded-md p-2 text-center hover:bg-gray-100 transition duration-500 cursor-pointer`}
+              onClick={() => {
+                swishjam.event('time_filter_selected', { time_filter: opt.value })
+                onSelection(opt.value)
+              }}
+              className={`${selection == opt.value ? 'bg-gray-100' : null} group w-full rounded-md p-2 text-center hover:bg-gray-100 transition duration-500 cursor-pointer`}
             >
               <Label className="width capitalize group-hover:cursor-pointer group-hover:text-swishjam duration-500 transition">{opt.name}</Label>
             </div>
