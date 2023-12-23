@@ -30,7 +30,6 @@ export default function () {
   const pauseTrigger = async (triggerId) => {
     SwishjamAPI.EventTriggers.disable(triggerId).then(({ trigger, error }) => {
       if (error) {
-        console.error(error)
         toast.messaage("Uh oh! Something went wrong.", {
           description: "Contact founders@swishjam.com for help",
         })
@@ -43,7 +42,6 @@ export default function () {
   const resumeTrigger = async (triggerId) => {
     SwishjamAPI.EventTriggers.enable(triggerId).then(({ trigger, error }) => {
       if (error) {
-        console.error(error)
         toast.message("Uh oh! Something went wrong.", {
           description: "Contact founders@swishjam.com for help",
         })
@@ -56,7 +54,6 @@ export default function () {
   const deleteTrigger = async (triggerId) => {
     SwishjamAPI.EventTriggers.delete(triggerId).then(({ trigger, error }) => {
       if (error) {
-        console.error(error)
         toast("Uh oh! Something went wrong.", {
           description: "Contact founders@swishjam.com for help",
         })
@@ -67,10 +64,11 @@ export default function () {
   }
 
   const loadTriggers = async () => {
-    const triggers = await SwishjamAPI.EventTriggers.list();
-    console.log(triggers)
+    const [triggers, slackConnection] = await Promise.all([
+      SwishjamAPI.EventTriggers.list(),
+      SwishjamAPI.SlackConnections.get(),
+    ]);
     setTriggers(triggers)
-    const slackConnection = await SwishjamAPI.SlackConnections.get();
     setHasSlackConnection(slackConnection !== null);
     setIsLoading(false)
   }
