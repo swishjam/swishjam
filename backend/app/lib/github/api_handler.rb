@@ -1,5 +1,6 @@
 module Github
   class ApiHandler
+    # TODO: these dont work until we have a way to deploy the .pem file
     def initialize(integration)
       @integration = integration
       @installation_id = integration.installation_id

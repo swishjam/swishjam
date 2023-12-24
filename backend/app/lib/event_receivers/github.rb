@@ -7,7 +7,6 @@ module EventReceivers
     end
 
     def receive!
-      byebug
       if integration && integration.enabled?
         case @event_type
         when 'pull_request'
