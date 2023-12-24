@@ -132,7 +132,7 @@ export default function UserFlyout() {
           </Link>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
-        <Link href='/logout'>
+        <Link href={`/logout?return_url=${window.location.pathname + window.location.search}`}>
           <DropdownMenuItem className='cursor-pointer py-3'>
             <ArrowRightOnRectangleIcon className='h-5 w-5 text-gray-700 mr-2' />
             Log out
