@@ -8,7 +8,7 @@ module Github
       def to_json
         {
           repo: @event_payload.dig('repository', 'full_name'),
-          title: @event_payload.dig('issue', 'title')
+          title: @event_payload.dig('issue', 'title'),
           username: @event_payload.dig('issue', 'user', 'login'),
           reactions_total_count: @event_payload.dig('issue', 'reactions', 'total_count'),
           "reactions_+1": @event_payload.dig('issue', 'reactions', '+1'),

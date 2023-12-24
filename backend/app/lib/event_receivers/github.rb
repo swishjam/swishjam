@@ -7,12 +7,18 @@ module EventReceivers
     end
 
     def receive!
+      byebug
       if integration && integration.enabled?
         case @event_type
         when 'pull_request'
           push_into_ingestion_queue(
             occurred_at: DateTime.parse(@event_payload.dig('pull_request', 'updated_at') || @event_payload.dig('pull_request', 'created_at') || DateTime.now.to_s),
             properties: ::Github::EventPayloadParsers::PullRequest.new(@event_payload).to_json,
+          )
+        when 'push'
+          push_into_ingestion_queue(
+            occurred_at: DateTime.now, # I'm not sure if there's a timestamp for pushes?
+            properties: ::Github::EventPayloadParsers::Push.new(@event_payload).to_json,
           )
         when 'star'
           push_into_ingestion_queue(
@@ -28,6 +34,11 @@ module EventReceivers
           push_into_ingestion_queue(
             occurred_at: DateTime.parse(@event_payload.dig('comment', 'updated_at') || @event_payload.dig('comment', 'created_at') || DateTime.now.to_s),
             properties: ::Github::EventPayloadParsers::IssueComment.new(@event_payload).to_json,
+          )
+        when 'deployment'
+          push_into_ingestion_queue(
+            occurred_at: DateTime.parse(@event_payload.dig('deployment', 'created_at') || DateTime.now.to_s),
+            properties: ::Github::EventPayloadParsers::Deployment.new(@event_payload).to_json,
           )
         else
           Sentry.capture_message("Received Github event of type #{@event_type}, but no parser exists to ingest the event, skipping...")

@@ -17,7 +17,7 @@ export default function GithubAuthPage() {
       type: 'Integrations::Github',
       config: { installation_id: installationId },
       enabled: true,
-    }).then(({ error, integration }) => {
+    }).then(({ error }) => {
       if (error) {
         toast.error('An error occurred.', {
           description: error,
