@@ -4,6 +4,7 @@ import { VerticalTabs } from '@components/VerticalTabs'
 import Divider from '@/components/Divider';
 import { LuWorkflow, LuSparkles } from "react-icons/lu";
 import { TbReport } from "react-icons/tb";
+import { usePathname } from 'next/navigation';
 
 const sidebarNavItems = [
   {
@@ -19,7 +20,11 @@ const sidebarNavItems = [
 ]
 
 export default function IntegrationsLayout({ children }) {
-
+  const path = usePathname();
+  // oh man - hack to allow for the github-auth page to not have the sidebar
+  if (path !== '/integrations' && path !== '/integrations/destinations') {
+    return children;
+  }
   return (
     <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mb-8">
       <div className='grid grid-cols-2 my-8 flex items-center'>
@@ -33,7 +38,7 @@ export default function IntegrationsLayout({ children }) {
           <VerticalTabs items={sidebarNavItems} />
         </aside>
         <div className="flex-1">{children}</div>
-      </div> 
+      </div>
       {/*<Tabs className="mb-8" currentPath={pathname} />*/}
     </main>
   )

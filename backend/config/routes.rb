@@ -239,6 +239,7 @@ Rails.application.routes.draw do
         post :'intercom', to: 'intercom#receive'
         post :'resend/:workspace_id', to: 'resend#receive'
         post :stripe, to: 'stripe#receive'
+        post :github, to: 'github#receive'
       end
     end
   end

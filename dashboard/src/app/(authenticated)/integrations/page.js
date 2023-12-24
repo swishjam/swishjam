@@ -8,21 +8,19 @@ import { useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { toast } from 'sonner';
 import EmptyView from './EmptyView';
+import { swishjam } from '@swishjam/react';
+import SwishjamLogo from '@public/logos/swishjam.png'
 
 // Connection Components
 import { AllSources } from './AllIntegrations';
 import AddConnectionButton from './AddConnectionButton';
 import ExistingConnectionButton from './ExistingConnectionButton';
-import SwishjamLogo from '@public/logos/swishjam.png'
-import { swishjam } from '@swishjam/react';
 
 export default function Connections() {
   const [enabledConnections, setEnabledConnections] = useState();
   const [disabledConnections, setDisabledConnections] = useState();
   const [availableConnections, setAvailableConnections] = useState();
   const [connectionForModal, setConnectionForModal] = useState(null);
-  // const [errorMessage, setErrorMessage] = useState(useSearchParams().get('error'))
-  // const [showSuccessMessage, setShowSuccessMessage] = useState(useSearchParams().get('success') === 'true');
   const searchParams = useSearchParams();
 
   const setConnectionAsConnected = connection => {
@@ -55,18 +53,19 @@ export default function Connections() {
     }
   }
 
+  const getConnections = async () => {
+    const { enabled_integrations, disabled_integrations, available_integrations } = await SwishjamAPI.Integrations.list();
+    setEnabledConnections(enabled_integrations);
+    setDisabledConnections(disabled_integrations);
+    setAvailableConnections([
+      ...available_integrations,
+      // { id: 'hubspot', name: 'Hubspot' },
+      // { id: 'salesforce', name: 'Salesforce' },
+      // { id: 'zendesk', name: 'Zendesk' },
+    ]);
+  }
+
   useEffect(() => {
-    const getConnections = async () => {
-      const { enabled_integrations, disabled_integrations, available_integrations } = await SwishjamAPI.Integrations.list();
-      setEnabledConnections(enabled_integrations);
-      setDisabledConnections(disabled_integrations);
-      setAvailableConnections([
-        ...available_integrations,
-        // { id: 'hubspot', name: 'Hubspot' },
-        // { id: 'salesforce', name: 'Salesforce' },
-        // { id: 'zendesk', name: 'Zendesk' },
-      ]);
-    }
     getConnections();
 
     if (searchParams.get('success') && searchParams.get('success') !== 'false') {
@@ -74,19 +73,20 @@ export default function Connections() {
         integration_name: searchParams.get('newSource') || searchParams.get('new_source') || searchParams.get('source') || 'Not specified',
       })
       toast.success(`${window.decodeURIComponent(searchParams.get('newSource') || 'Data source')} is now connected!`, {
-        description: `Swishjam will automatically import your ${window.decodeURIComponent(searchParams.get('newSource') || 'data source')} data now.`
+        description: `Swishjam will automatically import your ${window.decodeURIComponent(searchParams.get('newSource') || 'data source')} data now.`,
+        duration: 10_000,
       })
     }
     if (searchParams.get('error') || searchParams.get('success') === 'false') {
       swishjam.event('error_connecting_integration', {
         integration_name: searchParams.get('newSource') || searchParams.get('new_source') || searchParams.get('source') || 'Not specified',
-        error: searchParams.get('error') || searchParams.get('message')
+        error: searchParams.get('error') || searchParams.get('message'),
       })
       toast.error(`Error connecting ${window.decodeURIComponent(searchParams.get('newSource') || 'Data source')}`, {
-        description: `Contact founders@swishjam.com for help getting setup`
+        description: `Contact founders@swishjam.com for help getting setup`,
+        duration: 10_000,
       })
     }
-
   }, []);
 
   return (
