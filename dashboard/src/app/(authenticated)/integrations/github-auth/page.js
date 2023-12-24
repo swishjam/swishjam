@@ -13,7 +13,6 @@ export default function GithubAuthPage() {
   const installationId = searchParams.get('installation_id');
 
   useEffect(() => {
-    debugger;
     SwishjamAPI.Integrations.create({
       type: 'Integrations::Github',
       config: { installation_id: installationId },

@@ -82,7 +82,6 @@ export default function Connections() {
         integration_name: searchParams.get('newSource') || searchParams.get('new_source') || searchParams.get('source') || 'Not specified',
         error: searchParams.get('error') || searchParams.get('message'),
       })
-      debugger;
       toast.error(`Error connecting ${window.decodeURIComponent(searchParams.get('newSource') || 'Data source')}`, {
         description: `Contact founders@swishjam.com for help getting setup`,
         duration: 10_000,

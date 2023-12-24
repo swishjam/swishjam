@@ -29,7 +29,6 @@ export default function LoginPage() {
       setErrorMsg(error);
     } else {
       // do full redirect to make sure auth gets set correctly
-      debugger;
       window.location.href = return_url || '/';
     }
   }

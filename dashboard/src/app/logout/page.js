@@ -13,7 +13,6 @@ export default function Logout() {
   const return_url = searchParams.get('return_url');
 
   useEffect(() => {
-    debugger;
     logUserOut().then(() => {
       if (return_url) {
         window.location.href = `/login?return_url=${return_url}`
