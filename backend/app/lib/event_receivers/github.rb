@@ -55,7 +55,7 @@ module EventReceivers
         Analytics::Event.formatted_for_ingestion(
           uuid: @event_uuid,
           swishjam_api_key: public_key,
-          name: "github.#{@event_type}.#{@event_payload.dig('github', 'action')}",
+          name: ['github', @event_type, @event_payload.dig('action')].compact.join('.'),
           occurred_at: occurred_at,
           properties: properties,
         )
