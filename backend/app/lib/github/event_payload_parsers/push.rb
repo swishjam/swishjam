@@ -13,6 +13,7 @@ module Github
           pusher_username: @event_payload.dig('pusher', 'username'),
           most_recent_commit_sha: @event_payload.dig('after'),
           ref: @event_payload.dig('ref'),
+          commit_messages: @event_payload.dig('commits').map { |commit| commit.dig('message') },
         }
       end
     end
