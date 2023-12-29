@@ -8,7 +8,7 @@ module Ingestion
 
     def self.ingest!
       if ENV['HAULT_ALL_INGESTION_JOBS'] || ENV['HAULT_ORGANIZATION_IDENTIFIES_INGESTION']
-        Sentry.capture_message("Haulting `OrganizationIdentifiesIngestion`` early because either `HAULT_ALL_INGESTION_JOBS` or `HAULT_ORGANIZATION_IDENTIFIES_INGESTION` ENV is set to true. Ingestion will pick back up when these ENVs are unset.")
+        Sentry.capture_message("Haulting `OrganizationIdentifiesIngestion` early because either `HAULT_ALL_INGESTION_JOBS` or `HAULT_ORGANIZATION_IDENTIFIES_INGESTION` ENV is set to true. Ingestion will pick back up when these ENVs are unset.")
         return
       end
       new.ingest!
@@ -16,6 +16,7 @@ module Ingestion
 
     def ingest!
       queued_organization_identify_events = Ingestion::QueueManager.pop_all_records_from_queue(Ingestion::QueueManager::Queues.ORGANIZATION)
+      byebug
       begin
         formatted_new_swishjam_profiles = create_or_update_organization_profiles!(queued_organization_identify_events)
         Analytics::SwishjamOrganizationProfile.insert_all!(formatted_new_swishjam_profiles) if formatted_new_swishjam_profiles.any?

@@ -52,7 +52,7 @@ export class Client {
       SessionPersistance.set('organizationId', organizationIdentifier);
       // we assume anytime setOrganization is called with a new org, we want a new session
       if (previouslySetOrganization && previouslySetOrganization !== organizationIdentifier) this.newSession();
-      this.eventQueueManager.recordEvent('organization', { organizationIdentifier, ...traits })
+      return this.eventQueueManager.recordEvent('organization', { organizationIdentifier, ...traits })
     });
   }
 

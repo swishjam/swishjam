@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ClickhouseActiverecord::Schema.define(version: 2023_12_20_012423) do
+ClickhouseActiverecord::Schema.define(version: 2023_12_28_150526) do
 
   # TABLE: billing_data_snapshots
   # SQL: CREATE TABLE swishjam_analytics_dev.billing_data_snapshots ( `swishjam_api_key` LowCardinality(String), `mrr_in_cents` UInt32, `total_revenue_in_cents` UInt32, `num_active_subscriptions` UInt32, `num_free_trial_subscriptions` UInt32, `num_canceled_subscriptions` UInt32, `captured_at` DateTime, `num_paid_subscriptions` Nullable(Int32) ) ENGINE = MergeTree PRIMARY KEY (swishjam_api_key, captured_at) ORDER BY (swishjam_api_key, captured_at) SETTINGS index_granularity = 8192
@@ -53,12 +53,20 @@ ClickhouseActiverecord::Schema.define(version: 2023_12_20_012423) do
   end
 
   # TABLE: swishjam_organization_profiles
-  # SQL: CREATE TABLE swishjam_analytics_dev.swishjam_organization_profiles ( `swishjam_api_key` String, `swishjam_organization_id` String, `unique_identifier` String, `created_at` DateTime ) ENGINE = MergeTree PRIMARY KEY (swishjam_api_key, created_at) ORDER BY (swishjam_api_key, created_at) SETTINGS index_granularity = 8192
-  create_table "swishjam_organization_profiles", id: false, options: "MergeTree PRIMARY KEY (swishjam_api_key, created_at) ORDER BY (swishjam_api_key, created_at) SETTINGS index_granularity = 8192", force: :cascade do |t|
+  # SQL: CREATE TABLE swishjam_analytics_dev.swishjam_organization_profiles ( `swishjam_api_key` LowCardinality(String), `workspace_id` String, `swishjam_organization_id` String, `organization_unique_identifier` Nullable(String), `name` Nullable(String), `lifetime_value_in_cents` Int64, `monthly_recurring_revenue_in_cents` Int64, `current_subscription_plan_name` Nullable(String), `metadata` String, `last_updated_from_transactional_db_at` Nullable(DateTime), `created_at` DateTime, `updated_at` DateTime ) ENGINE = ReplacingMergeTree(updated_at) PRIMARY KEY (workspace_id, swishjam_api_key) ORDER BY (workspace_id, swishjam_api_key, swishjam_organization_id) SETTINGS index_granularity = 8192
+  create_table "swishjam_organization_profiles", id: false, options: "ReplacingMergeTree(updated_at) PRIMARY KEY (workspace_id, swishjam_api_key) ORDER BY (workspace_id, swishjam_api_key, swishjam_organization_id) SETTINGS index_granularity = 8192", force: :cascade do |t|
     t.string "swishjam_api_key", null: false
+    t.string "workspace_id", null: false
     t.string "swishjam_organization_id", null: false
-    t.string "unique_identifier", null: false
+    t.string "organization_unique_identifier"
+    t.string "name"
+    t.integer "lifetime_value_in_cents", unsigned: false, limit: 8, null: false
+    t.integer "monthly_recurring_revenue_in_cents", unsigned: false, limit: 8, null: false
+    t.string "current_subscription_plan_name"
+    t.string "metadata", null: false
+    t.datetime "last_updated_from_transactional_db_at"
     t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   # TABLE: swishjam_user_profiles
