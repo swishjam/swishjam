@@ -11,7 +11,7 @@ function classNames(...classes) {
   return classes.filter(Boolean).join(' ')
 }
 
-export default function RetentionWidget({ retentionCohorts, isExpandable = true, includeCard = true }) {
+export default function RetentionWidget({ title = 'User Retention', retentionCohorts, isExpandable = true, includeCard = true }) {
   const [chartType, setChartType] = useState('grid');
 
   const toggleChartType = () => chartType === 'grid' ? setChartType('chart') : setChartType('grid');
@@ -22,7 +22,7 @@ export default function RetentionWidget({ retentionCohorts, isExpandable = true,
       includeCard={includeCard}
       title={
         <div className='flex items-center justify-between space-y-0'>
-          <CardTitle className="text-sm font-medium cursor-default">User Retention</CardTitle>
+          <CardTitle className="text-sm font-medium cursor-default">{title}</CardTitle>
           <TooltipProvider>
             <Tooltip delayDuration={300} className='cursor-default'>
               <TooltipTrigger>
@@ -75,8 +75,18 @@ export default function RetentionWidget({ retentionCohorts, isExpandable = true,
       }
     >
       {!hasRetentionData && (
-        <div className='text-sm text-gray-500 text-center p-8'>
-          No retention data yet. Once you start sending events and identifying users, your retention data will appear here.
+        <div className='text-sm text-gray-500 text-center p-8 group'>
+          <div className='my-8 mx-auto grid grid-cols-3 gap-2 w-20'>
+            <div className='border-2 border-gray-300 rounded h-5 w-5 group-hover:border-swishjam duration-500 transition-all'/>
+            <div className='border-2 border-gray-300 rounded h-5 w-5 group-hover:border-swishjam duration-500 transition-all'/>
+            <div className='border-2 border-gray-300 rounded h-5 w-5'/>
+            <div className='border-2 border-gray-300 rounded h-5 w-5 group-hover:border-swishjam duration-500 transition-all'/>
+            <div className='border-2 border-gray-300 rounded h-5 w-5'/>
+            <div className='h-5 w-5'/>
+            <div className='border-2 border-gray-300 rounded h-5 w-5'/>
+          </div> 
+          <h3 className='tracking-tight text-sm font-medium cursor-default'>No Retention Data</h3> 
+          <p className='mt-2'>Send events and identify users <br />retention data will appear here</p> 
         </div>
       )}
       {chartType === 'grid'

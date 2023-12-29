@@ -7,15 +7,11 @@ import { Button } from "@/components/ui/button";
 import { ArrowPathIcon } from "@heroicons/react/24/outline";
 import { RxBarChart } from 'react-icons/rx'
 import Link from 'next/link'
-
 import LineChartWithValue from "@/components/Dashboards/Components/LineChartWithValue";
-import ClickableValueCard from "@/components/Dashboards/Components/ClickableValueCard";
-import BarChart from "@/components/Dashboards/Components/BarChart";
+//import BarChart from "@/components/Dashboards/Components/BarChart";
+import BarList from "@/components/Dashboards/Components/BarList";
 import { formatNumbers, formatShrinkNumbers } from "@/lib/utils/numberHelpers";
-//import { BsArrowLeftShort } from 'react-icons/bs'
-//import { dateFormatterForGrouping } from "@/lib/utils/timeseriesHelpers";
-// import LoadingView from './LoadingView'
-
+import RetentionWidget from '@/components/Dashboards/Components/RetentionWidget';
 
 export default function PageMetrics() {
   const [browsersBarChartData, setBrowsersBarChartData] = useState();
@@ -171,7 +167,7 @@ export default function PageMetrics() {
             <RxBarChart size={16} className="mr-1" />Dashboards
           </Link>
           <h1 className="mb-0 text-lg font-medium text-gray-700">
-            Marketing Analytics
+            SaaS Analytics
           </h1>
         </div>
 
@@ -193,140 +189,112 @@ export default function PageMetrics() {
           />
         </div>
       </div>
-      <div className="grid grid-cols-4 gap-2 pt-8">
-        <div className="grid gap-2">
-          <ClickableValueCard
-            title="Sessions"
-            selected={currentSelectedChart == "Sessions"}
-            value={sessionsTimeseriesData?.value}
-            previousValue={sessionsTimeseriesData?.previousValue}
-            previousValueDate={sessionsTimeseriesData?.previousValueDate}
-            timeseries={sessionsTimeseriesData?.timeseries}
-            valueFormatter={formatNumbers}
-            onClick={() => setCurrentSelectedChart("Sessions")}
-          />
-          <ClickableValueCard
-            title="Unique Visitors"
-            selected={currentSelectedChart === "Unique Visitors"}
-            value={uniqueVisitorsChart?.value}
-            previousValue={uniqueVisitorsChart?.previousValue}
-            previousValueDate={uniqueVisitorsChart?.previousValueDate}
-            timeseries={uniqueVisitorsChart?.timeseries}
-            valueFormatter={formatNumbers}
-            onClick={() => setCurrentSelectedChart("Unique Visitors")}
-          />
-          <ClickableValueCard
-            title="Page Views"
-            selected={currentSelectedChart === "Page Views"}
-            value={pageViewsTimeseriesData?.value}
-            previousValue={pageViewsTimeseriesData?.previousValue}
-            previousValueDate={pageViewsTimeseriesData?.previousValueDate}
-            timeseries={pageViewsTimeseriesData?.timeseries}
-            valueFormatter={formatNumbers}
-            onClick={() => setCurrentSelectedChart("Page Views")}
+      <div className="grid grid-cols-3 gap-2 pt-8">
+        <LineChartWithValue
+          groupedBy={currentChartLookup[currentSelectedChart]?.groupedBy}
+          previousValue={currentChartLookup[currentSelectedChart]?.previousValue}
+          previousValueDate={currentChartLookup[currentSelectedChart]?.previousValueDate}
+          showAxis={false}
+          timeseries={currentChartLookup[currentSelectedChart]?.timeseries}
+          title={'Current MRR'}
+          value={currentChartLookup[currentSelectedChart]?.value}
+          valueFormatter={formatNumbers}
+          yAxisFormatter={formatShrinkNumbers}
+        />
+        <LineChartWithValue
+          groupedBy={currentChartLookup[currentSelectedChart]?.groupedBy}
+          previousValue={currentChartLookup[currentSelectedChart]?.previousValue}
+          previousValueDate={currentChartLookup[currentSelectedChart]?.previousValueDate}
+          showAxis={false}
+          timeseries={currentChartLookup[currentSelectedChart]?.timeseries}
+          title={'Active Subscriptions'}
+          value={currentChartLookup[currentSelectedChart]?.value}
+          valueFormatter={formatNumbers}
+          yAxisFormatter={formatShrinkNumbers}
+        />
+        <LineChartWithValue
+          groupedBy={currentChartLookup[currentSelectedChart]?.groupedBy}
+          previousValue={currentChartLookup[currentSelectedChart]?.previousValue}
+          previousValueDate={currentChartLookup[currentSelectedChart]?.previousValueDate}
+          showAxis={false}
+          timeseries={currentChartLookup[currentSelectedChart]?.timeseries}
+          title={'Active Customers'}
+          value={currentChartLookup[currentSelectedChart]?.value}
+          valueFormatter={formatNumbers}
+          yAxisFormatter={formatShrinkNumbers}
+        />
+      </div>
+      <div className='grid grid-cols-8 gap-2 pt-2'>
+        <div className="col-span-4">
+          <RetentionWidget
+            title="Revenue Retention" 
+            retentionCohorts={{}}
           />
         </div>
-        <div className="col-span-3">
-          <LineChartWithValue
-            groupedBy={currentChartLookup[currentSelectedChart]?.groupedBy}
-            previousValue={currentChartLookup[currentSelectedChart]?.previousValue}
-            previousValueDate={currentChartLookup[currentSelectedChart]?.previousValueDate}
-            showAxis={true}
-            timeseries={currentChartLookup[currentSelectedChart]?.timeseries}
-            title={currentSelectedChart}
-            value={currentChartLookup[currentSelectedChart]?.value}
-            valueFormatter={formatNumbers}
-            yAxisFormatter={formatShrinkNumbers}
+        <div className="col-span-4">
+          <RetentionWidget
+            title="Customer Retention"
+            retentionCohorts={{}}
           />
         </div>
       </div>
-      <div className='grid grid-cols-8 gap-2 pt-2'>
-        <BarChart
-          title='Page Views'
-          TableTitle='Top Pages'
-          className="col-span-8"
-          data={pageViewsBarChartData}
+
+      <div className='grid grid-cols-4 gap-2 pt-2'>
+        <LineChartWithValue
+          groupedBy={currentChartLookup[currentSelectedChart]?.groupedBy}
+          previousValue={currentChartLookup[currentSelectedChart]?.previousValue}
+          previousValueDate={currentChartLookup[currentSelectedChart]?.previousValueDate}
+          showAxis={false}
+          timeseries={currentChartLookup[currentSelectedChart]?.timeseries}
+          title={'Avg. Revenue/Customer'}
+          value={currentChartLookup[currentSelectedChart]?.value}
           valueFormatter={formatNumbers}
           yAxisFormatter={formatShrinkNumbers}
-          showLegend={true}
-          showTableInsteadOfLegend={true}
         />
-      </div>
-      <div className='grid grid-cols-8 gap-2 pt-2'>
-        <BarChart
-          title='Referrers'
-          TableTitle='Top Referrers'
-          className="col-span-8"
-          data={referrersBarChartData}
+        <LineChartWithValue
+          groupedBy={currentChartLookup[currentSelectedChart]?.groupedBy}
+          previousValue={currentChartLookup[currentSelectedChart]?.previousValue}
+          previousValueDate={currentChartLookup[currentSelectedChart]?.previousValueDate}
+          showAxis={false}
+          timeseries={currentChartLookup[currentSelectedChart]?.timeseries}
+          title={'New Customers'}
+          value={currentChartLookup[currentSelectedChart]?.value}
           valueFormatter={formatNumbers}
           yAxisFormatter={formatShrinkNumbers}
-          showLegend={true}
-          showTableInsteadOfLegend={true}
         />
-      </div>
-      <div className='grid grid-cols-8 gap-2 pt-2'>
-        <BarChart
-          title='Devices'
-          TableTitle='Top Devices'
-          className="col-span-8"
-          data={deviceTypesBarChartData}
+        <LineChartWithValue
+          groupedBy={currentChartLookup[currentSelectedChart]?.groupedBy}
+          previousValue={currentChartLookup[currentSelectedChart]?.previousValue}
+          previousValueDate={currentChartLookup[currentSelectedChart]?.previousValueDate}
+          showAxis={false}
+          timeseries={currentChartLookup[currentSelectedChart]?.timeseries}
+          title={'New Trials'}
+          value={currentChartLookup[currentSelectedChart]?.value}
           valueFormatter={formatNumbers}
           yAxisFormatter={formatShrinkNumbers}
-          showLegend={true}
-          showTableInsteadOfLegend={true}
+        />
+        <LineChartWithValue
+          groupedBy={currentChartLookup[currentSelectedChart]?.groupedBy}
+          previousValue={currentChartLookup[currentSelectedChart]?.previousValue}
+          previousValueDate={currentChartLookup[currentSelectedChart]?.previousValueDate}
+          showAxis={false}
+          timeseries={currentChartLookup[currentSelectedChart]?.timeseries}
+          title={'Customer Churn'}
+          value={currentChartLookup[currentSelectedChart]?.value}
+          valueFormatter={formatNumbers}
+          yAxisFormatter={formatShrinkNumbers}
         />
       </div>
+      
       <div className='grid grid-cols-2 gap-2 pt-2'>
-        <BarChart
-          title='Browsers'
-          TableTitle='Top Browsers'
-          className="col-span-8"
-          data={browsersBarChartData}
-          valueFormatter={formatNumbers}
-          yAxisFormatter={formatShrinkNumbers}
-          showLegend={true}
-          showTableInsteadOfLegend={true}
+        <BarList
+          title="Top Customers By Revenue"
+        />
+        <BarList
+          title="Zombie Customers (Paid but not active users)"
         />
       </div>
-      <div className='grid grid-cols-2 gap-2 pt-2'>
-        <BarChart
-          title='UTM Campaigns'
-          TableTitle='Top UTM Campaigns'
-          data={utmCampaignsBarChartData}
-          valueFormatter={formatNumbers}
-          yAxisFormatter={formatShrinkNumbers}
-          showLegend={true}
-          showTableInsteadOfLegend={false}
-        />
-        <BarChart
-          title='UTM Mediums'
-          TableTitle='Top UTM Mediums'
-          data={utmMediumsBarChartData}
-          valueFormatter={formatNumbers}
-          yAxisFormatter={formatShrinkNumbers}
-          showLegend={true}
-          showTableInsteadOfLegend={false}
-        />
-        <BarChart
-          title='UTM Sources'
-          TableTitle='Top UTM Sources'
-          data={utmSourcesBarChartData}
-          valueFormatter={formatNumbers}
-          yAxisFormatter={formatShrinkNumbers}
-          showLegend={true}
-          showTableInsteadOfLegend={false}
-        />
-        <BarChart
-          title='UTM Terms'
-          TableTitle='Top UTM Terms'
-          className="col-span"
-          data={utmTermsBarChartData}
-          valueFormatter={formatNumbers}
-          yAxisFormatter={formatShrinkNumbers}
-          showLegend={true}
-          showTableInsteadOfLegend={false}
-        />
-      </div>
+
     </main>
   );
 }

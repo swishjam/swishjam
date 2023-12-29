@@ -125,7 +125,7 @@ export default function LineChartWithValue({
   noDataMessage = (
     <div className="flex items-center justify-center">
       <BsCloudSlash size={24} className='text-gray-500 mr-2' />
-      <span>No date available</span>
+      <span>No data available</span>
     </div>
   ),
   groupedBy,
