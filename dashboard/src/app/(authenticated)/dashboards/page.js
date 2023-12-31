@@ -11,6 +11,28 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { BsArrowRightShort } from 'react-icons/bs'
 
+const ImageCard = ({title, description, img}) => {
+
+  return (
+    <Card className={`group hover:ring-2 offset-2 ring-swishjam duration-500 transition cursor-pointer overflow-hidden`}>
+      <CardContent className={`!p-0`}>
+        <div className="border-b overflow-hidden w-full bg-accent h-36">
+          <div className="mx-auto mt-8 mx-8 rounded-md overflow-hidden border border-gray-200 min-h-20">
+            <img
+              className=""
+              src={img}
+            />
+          </div>
+        </div>
+        <div className="p-6">
+          <h3 className="text-sm font-medium cursor-pointer">{title}</h3>
+          <p className="text-sm mt-2 cursor-pointer truncate">{description}</p>
+        </div> 
+      </CardContent>
+    </Card>
+  )
+}
+
 export function ButtonLink() {
   return
 }
@@ -27,48 +49,30 @@ export default function Dashboards() {
       <div>
         <h1 className="text-lg font-medium text-gray-700 mb-0">Dashboards</h1>
       </div>
-      <div className='grid grid-cols-3 gap-4 mt-8'>
+      <div className='grid grid-cols-3 gap-2 mt-8'>
         <Link href="/dashboards/marketing-analytics">
-          <Card className={`group hover:ring-2 offset-2 ring-swishjam duration-300 transition cursor-pointer`}>
-            <CardContent>
-              <div className="mt-6 border rounded-sm overflow-hidden">
-                <Image src='/visitor-trends.png' width={200} height={200} />
-              </div>
-              <h3 className="text-sm font-medium mt-2 border-t-2 border-white cursor-pointer">Marketing Analytics</h3>
-              <p className="text-sm mt-2 cursor-pointer">Site traffic, sessions, referrers, top pages, and more</p>
-              <div className="flex justify-end">
-                <Button variant="link" className="group-hover:text-swishjam transition duration-500">View <BsArrowRightShort size={16} /></Button>
-              </div>
-            </CardContent>
-          </Card>
+          <ImageCard 
+            title={'Web Analytics'}
+            description={'Site traffic, sessions, referrers, and much more'}
+            img={'/visitor-trends.png'} 
+          />
         </Link>
         <Link href="/dashboards/product-analytics">
-          <Card className={`group hover:ring-2 offset-2 ring-swishjam duration-300 transition cursor-pointer`}>
-            <CardContent>
-              <div className="mt-6 border rounded-sm overflow-hidden">
-                <Image src='/product-analytics.png' width={200} height={200} />
-              </div>
-              <h3 className="text-sm font-medium mt-2 border-t-2 border-white cursor-pointer">Product Analytics</h3>
-              <p className="text-sm mt-2 cursor-pointer">Active users, retention, feature breakdowns, and more</p>
-              <div className="flex justify-end">
-                <Button variant="link" className="group-hover:text-swishjam transition duration-500">View <BsArrowRightShort size={16} /></Button>
-              </div>
-            </CardContent>
-          </Card>
+          <ImageCard 
+            title={'Product Analytics'}
+            description={'Active users, retention, feature breakdowns, and more'}
+            img={'/product-analytics.png'} 
+          />
         </Link>
-        <Card className={'opacity-50'}>
-          <CardContent>
-            <div className="mt-6 border rounded-sm overflow-hidden">
-              <Image src='/visitor-trends.png' width={200} height={200} />
-            </div>
-            <h3 className="text-sm font-medium cursor-default mt-2 border-t-2 border-white">SaaS Metrics</h3>
-            <p className="text-sm cursor-default mt-2">MRR, ARR, Churn, new subscriptions, and more</p>
-            <div className="flex justify-end">
-              <Button variant="cursor-default" className="">View <BsArrowRightShort size={16} /></Button>
-            </div>
-
-          </CardContent>
-        </Card>
+        <Link href="/dashboards/saas-analytics">
+          <ImageCard
+            title={'SaaS Analytics'}
+            description={'MRR, ARR, Churn, new subscriptions, and more'}
+            img={'/product-analytics.png'}
+          />
+        </Link>
+               {/* <Link href="/dashboards/saas-metrics" className={'opacity-50'}>
+        </Link> */}
       </div>
 
       <div className='grid grid-cols-2 mt-8 flex items-center'>
