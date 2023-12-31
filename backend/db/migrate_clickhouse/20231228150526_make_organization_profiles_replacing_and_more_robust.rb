@@ -20,9 +20,23 @@ class MakeOrganizationProfilesReplacingAndMoreRobust < ActiveRecord::Migration[6
       PRIMARY KEY (workspace_id, swishjam_api_key)
       ORDER BY (workspace_id, swishjam_api_key, swishjam_organization_id)
     SQL
+
+    execute <<~SQL
+      CREATE TABLE swishjam_organization_user_relationships (
+        `swishjam_api_key` LowCardinality(String),
+        `workspace_id` String,
+        `swishjam_organization_id` String,
+        `swishjam_user_id` String,
+        `created_at` DateTime
+      )
+      ENGINE = ReplacingMergeTree(created_at)
+      PRIMARY KEY (workspace_id, swishjam_api_key)
+      ORDER BY (workspace_id, swishjam_api_key, swishjam_organization_id, swishjam_user_id)
+    SQL
   end
 
   def down
     execute('DROP TABLE swishjam_organization_profiles')
+    execute('DROP TABLE swishjam_organization_profiles_users')
   end
 end

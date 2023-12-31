@@ -69,6 +69,16 @@ ClickhouseActiverecord::Schema.define(version: 2023_12_28_150526) do
     t.datetime "updated_at", null: false
   end
 
+  # TABLE: swishjam_organization_user_relationships
+  # SQL: CREATE TABLE swishjam_analytics_dev.swishjam_organization_user_relationships ( `swishjam_api_key` LowCardinality(String), `workspace_id` String, `swishjam_organization_id` String, `swishjam_user_id` String, `created_at` DateTime ) ENGINE = ReplacingMergeTree(created_at) PRIMARY KEY (workspace_id, swishjam_api_key) ORDER BY (workspace_id, swishjam_api_key, swishjam_organization_id, swishjam_user_id) SETTINGS index_granularity = 8192
+  create_table "swishjam_organization_user_relationships", id: false, options: "ReplacingMergeTree(created_at) PRIMARY KEY (workspace_id, swishjam_api_key) ORDER BY (workspace_id, swishjam_api_key, swishjam_organization_id, swishjam_user_id) SETTINGS index_granularity = 8192", force: :cascade do |t|
+    t.string "swishjam_api_key", null: false
+    t.string "workspace_id", null: false
+    t.string "swishjam_organization_id", null: false
+    t.string "swishjam_user_id", null: false
+    t.datetime "created_at", null: false
+  end
+
   # TABLE: swishjam_user_profiles
   # SQL: CREATE TABLE swishjam_analytics_dev.swishjam_user_profiles ( `swishjam_api_key` LowCardinality(String), `workspace_id` String, `swishjam_user_id` String, `user_unique_identifier` Nullable(String), `email` Nullable(String), `first_name` Nullable(String), `last_name` Nullable(String), `full_name` Nullable(String), `gravatar_url` String, `lifetime_value_in_cents` Int64, `monthly_recurring_revenue_in_cents` Int64, `current_subscription_plan_name` Nullable(String), `created_by_data_source` LowCardinality(String), `initial_landing_page_url` Nullable(String), `initial_referrer_url` Nullable(String), `metadata` String, `enrichment_match_likelihood` Nullable(Int8), `enrichment_first_name` Nullable(String), `enrichment_last_name` Nullable(String), `enrichment_linkedin_url` Nullable(String), `enrichment_twitter_url` Nullable(String), `enrichment_github_url` Nullable(String), `enrichment_personal_email` Nullable(String), `enrichment_industry` Nullable(String), `enrichment_job_title` Nullable(String), `enrichment_company_name` Nullable(String), `enrichment_company_website` Nullable(String), `enrichment_company_size` Nullable(String), `enrichment_year_company_founded` Nullable(String), `enrichment_company_industry` Nullable(String), `enrichment_company_linkedin_url` Nullable(String), `enrichment_company_twitter_url` Nullable(String), `enrichment_company_location_metro` Nullable(String), `enrichment_company_location_geo_coordinates` Nullable(String), `first_seen_at_in_web_app` Nullable(DateTime), `last_updated_from_transactional_db_at` Nullable(DateTime), `created_at` DateTime, `updated_at` DateTime ) ENGINE = ReplacingMergeTree(updated_at) PRIMARY KEY (workspace_id, swishjam_api_key) ORDER BY (workspace_id, swishjam_api_key, swishjam_user_id) SETTINGS index_granularity = 8192
   create_table "swishjam_user_profiles", id: false, options: "ReplacingMergeTree(updated_at) PRIMARY KEY (workspace_id, swishjam_api_key) ORDER BY (workspace_id, swishjam_api_key, swishjam_user_id) SETTINGS index_granularity = 8192", force: :cascade do |t|

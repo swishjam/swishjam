@@ -1,7 +1,8 @@
 class AnalyticsOrganizationProfile < Transactional
   belongs_to :workspace
-  has_many :analytics_organization_profile_users, dependent: :destroy
+  has_many :analytics_organization_profile_users, foreign_key: :analytics_organization_profile_unique_identifier, primary_key: :organization_unique_identifier, dependent: :destroy
   has_many :analytics_user_profiles, through: :analytics_organization_profile_users
+  alias_attribute :users, :analytics_user_profiles
 
   after_create :enqueue_replication_to_clickhouse
   after_update :enqueue_replication_to_clickhouse
