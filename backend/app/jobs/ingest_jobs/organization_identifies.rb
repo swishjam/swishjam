@@ -4,7 +4,7 @@ module IngestJobs
     queue_as :default
 
     def perform
-      Ingestion::OrganizationIdentifiesIngestion.ingest!
+      Ingestion::OrganizationProfilesIngestion.ingest!
     end
   end
 end

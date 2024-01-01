@@ -16,6 +16,15 @@ ActiveRecord::Schema.define(version: 2023_12_30_172954) do
   enable_extension "pgcrypto"
   enable_extension "plpgsql"
 
+  create_table "analytics_organization_members", force: :cascade do |t|
+    t.uuid "analytics_organization_profile_id", null: false
+    t.uuid "analytics_user_profile_id", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["analytics_organization_profile_id"], name: "index_organization_profiles_users_on_org_unique_identifier"
+    t.index ["analytics_user_profile_id"], name: "index_organization_profiles_users_on_user_unique_identifier"
+  end
+
   create_table "analytics_organization_profiles", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.uuid "workspace_id", null: false
     t.string "organization_unique_identifier"
@@ -26,15 +35,6 @@ ActiveRecord::Schema.define(version: 2023_12_30_172954) do
     t.integer "lifetime_value_in_cents", default: 0, null: false
     t.index ["organization_unique_identifier"], name: "index_analytics_organization_profiles_unique_identifier"
     t.index ["workspace_id"], name: "index_analytics_organization_profiles_on_workspace_id"
-  end
-
-  create_table "analytics_organization_profiles_users", force: :cascade do |t|
-    t.bigint "analytics_organization_profile_id", null: false
-    t.bigint "analytics_user_profile_id", null: false
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
-    t.index ["analytics_organization_profile_id"], name: "index_organization_profiles_users_on_org_unique_identifier"
-    t.index ["analytics_user_profile_id"], name: "index_organization_profiles_users_on_user_unique_identifier"
   end
 
   create_table "analytics_user_profiles", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|

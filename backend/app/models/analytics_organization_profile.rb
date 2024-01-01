@@ -1,7 +1,7 @@
 class AnalyticsOrganizationProfile < Transactional
   belongs_to :workspace
-  has_many :analytics_organization_profile_users, foreign_key: :analytics_organization_profile_unique_identifier, primary_key: :organization_unique_identifier, dependent: :destroy
-  has_many :analytics_user_profiles, through: :analytics_organization_profile_users
+  has_many :analytics_organization_members, dependent: :destroy
+  has_many :analytics_user_profiles, through: :analytics_organization_members
   alias_attribute :users, :analytics_user_profiles
 
   after_create :enqueue_replication_to_clickhouse
@@ -26,7 +26,7 @@ class AnalyticsOrganizationProfile < Transactional
       metadata: metadata,
       lifetime_value_in_cents: 0,
       monthly_recurring_revenue_in_cents: 0,
-      current_subscription_plan_name: 0,
+      current_subscription_plan_name: nil,
       last_updated_from_transactional_db_at: Time.current,
       created_at: created_at,
       updated_at: updated_at,

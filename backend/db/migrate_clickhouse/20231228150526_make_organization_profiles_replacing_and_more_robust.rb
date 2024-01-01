@@ -22,7 +22,7 @@ class MakeOrganizationProfilesReplacingAndMoreRobust < ActiveRecord::Migration[6
     SQL
 
     execute <<~SQL
-      CREATE TABLE swishjam_organization_user_relationships (
+      CREATE TABLE swishjam_organization_members (
         `swishjam_api_key` LowCardinality(String),
         `workspace_id` String,
         `swishjam_organization_id` String,
@@ -37,6 +37,6 @@ class MakeOrganizationProfilesReplacingAndMoreRobust < ActiveRecord::Migration[6
 
   def down
     execute('DROP TABLE swishjam_organization_profiles')
-    execute('DROP TABLE swishjam_organization_profiles_users')
+    execute('DROP TABLE swishjam_organization_user_relationships')
   end
 end

@@ -1,10 +1,10 @@
 module Ingestion
-  class OrganizationIdentifiesIngestion
+  class OrganizationProfilesIngestion
     attr_accessor :ingestion_batch
 
     def self.ingest!
       if ENV['HAULT_ALL_INGESTION_JOBS'] || ENV['HAULT_ORGANIZATION_IDENTIFIES_INGESTION']
-        Sentry.capture_message("Haulting `OrganizationIdentifiesIngestion` early because either `HAULT_ALL_INGESTION_JOBS` or `HAULT_ORGANIZATION_IDENTIFIES_INGESTION` ENV is set to true. Ingestion will pick back up when these ENVs are unset.")
+        Sentry.capture_message("Haulting `OrganizationProfilesIngestion` early because either `HAULT_ALL_INGESTION_JOBS` or `HAULT_ORGANIZATION_IDENTIFIES_INGESTION` ENV is set to true. Ingestion will pick back up when these ENVs are unset.")
         return
       end
       new.ingest!
@@ -43,7 +43,7 @@ module Ingestion
       event = Analytics::Event.parsed_from_ingestion_queue(event_json)
       unique_identifier = event.properties.organizationIdentifier || event.properties.organization_identifier || event.properties.organizationId || event.properties.organization_id
       org_name = event.properties.name
-      metadata = event.properties.as_json.except(
+      metadata = event.properties.to_h.as_json.except(
         'source', 'sdk_version', 'url', 'device_identifier', 'user_device_identifier', 'organization_device_identifier', 'session_identifier', 'page_view_identifier',
         'organizationIdentifier', 'organization_identifier', 'organizationId', 'organization_id', 'name', 'user_attributes', 'user_visit_status'
       )
@@ -66,7 +66,7 @@ module Ingestion
           user_profile = workspace.analytics_user_profiles.find_by(user_unique_identifier: user_unique_identifier)
           if user_profile.nil?
             # ideally this shouldn't happen often, but it's possible that an org is identified before a user is identified, and order is not promised in the ingestion queue
-            Sentry.capture_message("No user profile found for #{user_unique_identifier} during organization identification, creating it instead in Ingestion::OrganizationIdentifiesIngestion: #{event.swishjam_api_key}")
+            Sentry.capture_message("No user profile found for #{user_unique_identifier} during organization identification, creating it instead in Ingestion::OrganizationProfilesIngestion: #{event.swishjam_api_key}")
             user_profile = workspace.analytics_user_profiles.create!(
               user_unique_identifier: user_unique_identifier,
               first_name: event.properties.user_attributes.first_name,
@@ -80,10 +80,10 @@ module Ingestion
           end
           org_profile.users << user_profile unless org_profile.users.include?(user_profile)
         else
-          Sentry.capture_message("No user_unique_identifier found during organization identification, cannot associate user to an org in Ingestion::OrganizationIdentifiesIngestion: #{event.swishjam_api_key}")
+          Sentry.capture_message("No user_unique_identifier found during organization identification, cannot associate user to an org in Ingestion::OrganizationProfilesIngestion: #{event.swishjam_api_key}")
         end
       else
-        msg = "Unrecognized API Key found in Ingestion::OrganizationIdentifiesIngestion: #{event.swishjam_api_key}"
+        msg = "Unrecognized API Key found in Ingestion::OrganizationProfilesIngestion: #{event.swishjam_api_key}"
         Rails.logger.warn msg
         Sentry.capture_message(msg)
         nil

@@ -9,7 +9,7 @@ namespace :tasks do
       puts "Syncing user identify events...".colorize(:green)
       user_identify_batch = Ingestion::UserIdentifiesIngestion.ingest!
       puts "Syncing organization identify events...".colorize(:green)
-      organization_identify_batch = Ingestion::OrganizationIdentifiesIngestion.ingest!
+      organization_identify_batch = Ingestion::OrganizationProfilesIngestion.ingest!
 
       puts "Syncing user profile clickhouse replication...".colorize(:green)
       user_replication_batch = Ingestion::UserProfileClickHouseReplicationIngestion.ingest!

@@ -4,19 +4,25 @@ import LZString from "lz-string";
 const COOKIE_NAME = 'swishjam_persistent';
 
 export class PersistentUserDataManager {
-  static setUserAttributes = ({ userIdentifier, email, firstName, lastName }) => {
+  static setUserAttributes = ({ userIdentifier, email, firstName, lastName, ...metadata }) => {
     if (userIdentifier) this.set('unique_identifier', userIdentifier);
     if (email) this.set('email', email);
     if (firstName) this.set('first_name', firstName);
     if (lastName) this.set('last_name', lastName);
+    if (metadata) this.set('metadata', metadata);
   }
 
   static getAll = ({ except = [] } = {}) => {
     const cookie = CookieHelper.getCookie(COOKIE_NAME);
     if (cookie) {
-      const json = JSON.parse(LZString.decompressFromUTF16(cookie));
-      except.forEach(key => delete json[key])
-      return json;
+      const cookieVal = LZString.decompressFromUTF16(cookie);
+      if (cookieVal === '') {
+        return {};
+      } else {
+        const json = JSON.parse(cookieVal);
+        except.forEach(key => delete json[key])
+        return json;
+      }
     }
     return {};
   }

@@ -20,9 +20,9 @@ module Ingestion
         user_identify_events = queued_user_identify_events.map{ |e| create_or_update_transactional_user_profile!(e) }.compact
         Analytics::UserIdentifyEvent.insert_all!(user_identify_events) if user_identify_events.present?
       rescue => e
+        Ingestion::QueueManager.push_records_into_queue(Ingestion::QueueManager::Queues.IDENTIFY_DEAD_LETTER_QUEUE, queued_user_identify_events)
         @ingestion_batch.error_message = e.message
         Sentry.capture_exception(e)
-        Ingestion::QueueManager.push_records_into_queue(Ingestion::QueueManager::Queues.IDENTIFY_DEAD_LETTER_QUEUE, queued_user_identify_events)
         Sentry.capture_message("Failed to ingest entire batch from user identify queue: #{e.message}, pushed all records into the DLQ...")
       end
       @ingestion_batch.num_records = queued_user_identify_events.count

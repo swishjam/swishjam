@@ -2,8 +2,8 @@ class AnalyticsUserProfile < Transactional
   belongs_to :workspace
   has_one :user_profile_enrichment_data, class_name: UserProfileEnrichmentData.to_s, dependent: :destroy
   alias_attribute :enrichment_data, :user_profile_enrichment_data
-  has_many :analytics_organization_profile_users, foreign_key: :analytics_user_profile_unique_identifier, primary_key: :user_unique_identifier, dependent: :destroy
-  has_many :analytics_organization_profiles, through: :analytics_organization_profile_users
+  has_many :analytics_organization_members, dependent: :destroy
+  has_many :analytics_organization_profiles, through: :analytics_organization_members
   alias_attribute :organizations, :analytics_organization_profiles
   has_many :customer_subscriptions, as: :parent_profile, dependent: :destroy
 

@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-RSpec.describe Ingestion::OrganizationIdentifiesIngestion do
+RSpec.describe Ingestion::OrganizationProfilesIngestion do
   before do
     @workspace_1 = FactoryBot.create(:workspace)
     @api_key_1 = @workspace_1.api_keys.first.public_key
@@ -27,7 +27,7 @@ RSpec.describe Ingestion::OrganizationIdentifiesIngestion do
       expect(Analytics::SwishjamOrganizationProfile.count).to be(0)
       expect(Analytics::OrganizationIdentifyEvent.count).to be(0)
       
-      Ingestion::OrganizationIdentifiesIngestion.new.ingest!
+      Ingestion::OrganizationProfilesIngestion.new.ingest!
 
       expect(IngestionBatch.count).to be(1)
       expect(AnalyticsOrganizationProfile.count).to be(2)
@@ -95,7 +95,7 @@ RSpec.describe Ingestion::OrganizationIdentifiesIngestion do
       expect(Analytics::OrganizationIdentifyEvent.count).to be(1)
       expect(Ingestion::QueueManager).to receive(:push_records_into_queue).exactly(0).times
       
-      Ingestion::OrganizationIdentifiesIngestion.new.ingest!
+      Ingestion::OrganizationProfilesIngestion.new.ingest!
 
       expect(IngestionBatch.count).to be(1)
       expect(AnalyticsOrganizationProfile.count).to be(1)
@@ -121,7 +121,7 @@ RSpec.describe Ingestion::OrganizationIdentifiesIngestion do
 
       expect(IngestionBatch.count).to be(0)
 
-      Ingestion::OrganizationIdentifiesIngestion.new.ingest!
+      Ingestion::OrganizationProfilesIngestion.new.ingest!
 
       expect(IngestionBatch.first.num_records).to be(1)
       expect(IngestionBatch.first.event_type).to eq('organization_identify')
