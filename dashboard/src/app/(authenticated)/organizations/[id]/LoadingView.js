@@ -2,7 +2,7 @@ import Breadcrumbs from "@/components/Breadcrumbs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton";
 
-export default function LoadingView({}) {
+export default function LoadingView({ }) {
   return (
     <main className="mx-auto max-w-7xl px-4 mt-8 sm:px-6 lg:px-8 mb-8">
       <Breadcrumbs userName={<Skeleton className='h-6 w-48' />} />

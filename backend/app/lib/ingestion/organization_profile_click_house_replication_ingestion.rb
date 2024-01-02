@@ -12,13 +12,13 @@ module Ingestion
 
     def ingest!
       formatted_profiles = Ingestion::QueueManager.pop_all_records_from_queue(Ingestion::QueueManager::Queues.CLICKHOUSE_ORGANIZATION_PROFILES)
-      formatted_organization_members = Ingestion::QueueManager.pop_all_records_from_queue(Ingestion::QueueManager::Queues.CLICKHOUSE_ORGANIZATION_MEMBER)
+      formatted_organization_members = Ingestion::QueueManager.pop_all_records_from_queue(Ingestion::QueueManager::Queues.CLICKHOUSE_ORGANIZATION_MEMBERS)
       begin
         Analytics::SwishjamOrganizationProfile.insert_all!(formatted_profiles) if formatted_profiles.any?
         Analytics::SwishjamOrganizationMember.insert_all!(formatted_organization_members) if formatted_organization_members.any?
       rescue => e
         Ingestion::QueueManager.push_records_into_queue(Ingestion::QueueManager::Queues.CLICKHOUSE_ORGANIZATION_PROFILES_DEAD_LETTER_QUEUE, formatted_profiles)
-        Ingestion::QueueManager.push_records_into_queue(Ingestion::QueueManager::Queues.CLICKHOUSE_ORGANIZATION_MEMBER_DEAD_LETTER_QUEUE, formatted_organization_members)
+        Ingestion::QueueManager.push_records_into_queue(Ingestion::QueueManager::Queues.CLICKHOUSE_ORGANIZATION_MEMBERS_DEAD_LETTER_QUEUE, formatted_organization_members)
         @ingestion_batch.error_message = e.message
         Rails.logger.error "Failed to ingest from analytics queue: #{e.inspect}"
         Sentry.capture_exception(e)

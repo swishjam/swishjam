@@ -43,9 +43,12 @@ module Ingestion
       email = properties['email']
       initial_landing_page_url = properties.dig('user_attributes', 'initial_url')
       initial_referrer_url = properties.dig('user_attributes', 'initial_referrer')
+      # all of the properties in the `identify` attributes we dont want to include in the user's metadata
+      # the attributes we want to ignore differs slightly between user and organization profiles, so lets just hardcode them for now.
       metadata = properties.except(
-        'source', 'sdk_version', 'url', 'device_identifier', 'user_device_identifier', 'organization_device_identifier', 'session_identifier', 'page_view_identifier',
-        'userId', 'user_id', 'userIdentifier', 'firstName', 'first_name', 'lastName', 'last_name', 'email', 'user_attributes', 'user_visit_status'
+        'sdk_version', 'url', 'device_identifier', 'user_device_identifier', 'organization_device_identifier', 'session_identifier', 'page_view_identifier', 
+        'firstName', 'first_name', 'lastName', 'last_name', 'email',
+        'user_attributes', 'organization_attributes', 'user_visit_status', 'userIdentifier'
       )
 
       if !unique_identifier

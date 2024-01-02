@@ -23,5 +23,10 @@ module Analytics
         end
       end
     end
+
+    def self._delete_all!(where_clause:)
+      execute_sql("DELETE FROM #{table_name} WHERE #{where_clause}", format: nil)
+      true
+    end
   end
 end

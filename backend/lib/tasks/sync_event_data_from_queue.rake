@@ -19,7 +19,7 @@ namespace :tasks do
       
       puts "\nEvents ingestion #{event_batch.failed? ? "FAILED" : "successful! #{event_batch.num_records} events ingested."}".colorize(event_batch.failed? ? :red : :green)
       puts "User identify events ingestion #{user_identify_batch.failed? ? "FAILED" : "successful! #{user_identify_batch.num_records} events ingested."}".colorize(user_identify_batch.failed? ? :red : :green)
-      puts "Organization identify events ingestion #{organization_identify_batch.failed? ? "FAILED" : "successful! #{organization_identify_batch.num_records} events ingested."}".colorize(organization_identify_batch.failed? ? :red : :green)
+      puts "Organization profile ingestion #{organization_identify_batch.failed? ? "FAILED" : "successful! #{organization_identify_batch.num_records} events ingested."}".colorize(organization_identify_batch.failed? ? :red : :green)
       puts "User profile clickhouse replication ingestion #{user_replication_batch.failed? ? "FAILED" : "successful! #{user_replication_batch.num_records} events ingested."}".colorize(user_replication_batch.failed? ? :red : :green)
       puts "Organization profile clickhouse replication ingestion #{organization_replication_batch.failed? ? "FAILED" : "successful! #{organization_replication_batch.num_records} events ingested."}".colorize(organization_replication_batch.failed? ? :red : :green)
 
