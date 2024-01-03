@@ -1,5 +1,5 @@
 class OrganizationProfileSerializer < ActiveModel::Serializer
-  attributes :id, :name, :initials, :organization_unique_identifier, :created_at, :analytics_user_profiles, :current_mrr, :current_subscription_name
+  attributes :id, :name, :domain, :initials, :organization_unique_identifier, :created_at, :analytics_user_profiles, :current_mrr, :current_subscription_name
 
   def initials
     object.initials

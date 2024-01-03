@@ -38,15 +38,6 @@ ActiveRecord::Schema.define(version: 2024_01_02_184409) do
     t.index ["workspace_id"], name: "index_analytics_organization_profiles_on_workspace_id"
   end
 
-  create_table "analytics_organization_profiles_users", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
-    t.uuid "analytics_organization_profile_id", null: false
-    t.uuid "analytics_user_profile_id", null: false
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
-    t.index ["analytics_organization_profile_id"], name: "index_analytics_organization_profiles_users_organizations"
-    t.index ["analytics_user_profile_id"], name: "index_analytics_organization_profiles_users_users"
-  end
-
   create_table "analytics_user_profiles", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.uuid "workspace_id", null: false
     t.string "user_unique_identifier"
@@ -237,8 +228,6 @@ ActiveRecord::Schema.define(version: 2024_01_02_184409) do
     t.string "access_token"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
-    t.uuid "connected_by_user_id"
-    t.index ["connected_by_user_id"], name: "index_slack_connections_on_connected_by_user_id"
     t.index ["workspace_id"], name: "index_slack_connections_on_workspace_id"
   end
 
@@ -356,8 +345,6 @@ ActiveRecord::Schema.define(version: 2024_01_02_184409) do
   end
 
   add_foreign_key "analytics_organization_profiles", "workspaces"
-  add_foreign_key "analytics_organization_profiles_users", "analytics_organization_profiles"
-  add_foreign_key "analytics_organization_profiles_users", "analytics_user_profiles"
   add_foreign_key "analytics_user_profiles", "workspaces"
   add_foreign_key "api_keys", "workspaces"
   add_foreign_key "auth_sessions", "users"
@@ -366,7 +353,6 @@ ActiveRecord::Schema.define(version: 2024_01_02_184409) do
   add_foreign_key "retention_cohort_activity_periods", "retention_cohorts"
   add_foreign_key "retention_cohort_activity_periods", "workspaces"
   add_foreign_key "retention_cohorts", "workspaces"
-  add_foreign_key "slack_connections", "users", column: "connected_by_user_id"
   add_foreign_key "workspace_invitations", "workspaces"
   add_foreign_key "workspace_members", "users"
   add_foreign_key "workspace_members", "workspaces"

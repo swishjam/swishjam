@@ -64,27 +64,20 @@ module Ingestion
           profile = workspace.analytics_user_profiles.find_by_case_insensitive_email(email)
         end
         if profile
-          profile.update!(
-            email: email, 
-            first_name: first_name, 
-            last_name: last_name, 
-            initial_landing_page_url: profile.initial_landing_page_url || initial_referrer_url,
-            initial_referrer_url: profile.initial_referrer_url || initial_referrer_url,
-            metadata: metadata, 
-            first_seen_at_in_web_app: profile.first_seen_at_in_web_app || (event_json['occurred_at'] || Time.current).to_datetime,
-            # TODO: now that initial_landing_page_url and initial_referrer have their own columns, 
-            # we dont have a use for this yet. need to have an SDK method for users to set custom immutable metadata
-            # immutable_metadata: immutable_metadata.merge(profile.immutable_metadata || {}),
-          )
-          return {
-            swishjam_api_key: event_json['swishjam_api_key'],
-            swishjam_user_id: profile.id,
-            device_identifier: properties[Analytics::Event::ReservedPropertyNames.DEVICE_IDENTIFIER],
-            occurred_at: event_json['occurred_at'],
-          }
+          profile.email = email unless email.blank?
+          profile.first_name = first_name unless first_name.blank?
+          profile.last_name = last_name unless last_name.blank?
+          if !metadata.blank?
+            old_metadata = profile.metadata || {}
+            merged_metadata = old_metadata.merge(metadata)
+            profile.metadata = merged_metadata
+          end
+          profile.initial_landing_page_url = profile.initial_landing_page_url || initial_landing_page_url unless initial_landing_page_url.blank?
+          profile.initial_referrer_url = profile.initial_referrer_url || initial_referrer_url unless initial_referrer_url.blank?
+          profile.first_seen_at_in_web_app = profile.first_seen_at_in_web_app || (event_json['occurred_at'] || Time.current).to_datetime
         else
           created_by_data_source = workspace.api_keys.find_by!(public_key: event_json['swishjam_api_key']).data_source
-          profile = workspace.analytics_user_profiles.create!(
+          profile = workspace.analytics_user_profiles.new(
             user_unique_identifier: unique_identifier, 
             first_name: first_name, 
             last_name: last_name, 
@@ -97,13 +90,14 @@ module Ingestion
             first_seen_at_in_web_app: (event_json['occurred_at'] || Time.current).to_datetime,
             # immutable_metadata: immutable_metadata,
           )
-          return {
-            swishjam_api_key: event_json['swishjam_api_key'],
-            swishjam_user_id: profile.id,
-            device_identifier: properties[Analytics::Event::ReservedPropertyNames.DEVICE_IDENTIFIER],
-            occurred_at: event_json['occurred_at'],
-          }
         end
+        profile.save!
+        return {
+          swishjam_api_key: event_json['swishjam_api_key'],
+          swishjam_user_id: profile.id,
+          device_identifier: properties[Analytics::Event::ReservedPropertyNames.DEVICE_IDENTIFIER],
+          occurred_at: event_json['occurred_at'],
+        }
       else
         Sentry.capture_message("Unrecognized API Key found in Ingestion::UserIdentifiesIngestion: #{event_json['swishjam_api_key']}, pushing it into the DLQ...")
         Ingestion::QueueManager.push_records_into_queue(Ingestion::QueueManager::Queues.IDENTIFY_DEAD_LETTER_QUEUE, [event_json])

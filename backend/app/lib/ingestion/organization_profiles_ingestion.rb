@@ -55,6 +55,11 @@ module Ingestion
         org_profile = workspace.analytics_organization_profiles.find_by(organization_unique_identifier: unique_identifier)
         if org_profile
           org_profile.name = org_name unless org_name.blank?
+          if !metadata.blank?
+            old_metadata = org_profile.metadata || {}
+            merged_metadata = old_metadata.merge(metadata)
+            org_profile.metadata = merged_metadata
+          end
           org_profile.metadata = metadata unless metadata.blank?
           org_profile.domain = provided_org_domain unless provided_org_domain.blank?
         else

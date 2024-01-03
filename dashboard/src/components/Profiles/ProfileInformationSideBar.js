@@ -34,7 +34,7 @@ export default function ProfileInformationSideBar({ userData, hasStripeIntegrati
             {/* {userData.poweruser ? <PowerUserBadge className="absolute top-5 right-5" size={8} /> : ''}
             {userData.churnwarning ? <ChurnWarningUserBadge className="absolute top-5 right-5" size={8} /> : ''} */}
             <CardTitle className='text-2xl'>
-              {userData.full_name || userData.email}
+              {userData.full_name || userData.email || userData.user_unique_identifier}
             </CardTitle>
             {userData.full_name && (
               <CardDescription className='text-base text-gray-500'>
@@ -61,6 +61,12 @@ export default function ProfileInformationSideBar({ userData, hasStripeIntegrati
                   {dateFormatter(userData.created_at)}
                 </dd>
               </div>
+              {/* <div className="px-4 py-2 col-span-1 grid grid-cols-2 sm:px-0">
+                <dt className="text-sm font-medium leading-6 text-gray-900">First Identified By</dt>
+                <dd className="text-sm leading-6 text-gray-700 text-right">
+                  {userData.created_by_data_source}
+                </dd>
+              </div> */}
               <div className="px-4 py-2 col-span-1 grid grid-cols-2 sm:px-0">
                 <dt className="text-sm font-medium leading-6 text-gray-900">Organizations</dt>
                 <dd className="text-sm leading-6 text-gray-700 text-right flex flex-col">

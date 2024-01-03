@@ -35,6 +35,10 @@ export default function UserEventFeed({ params }) {
           leftItemSubHeaderFormatter={event => {
             if (event.name === 'page_view') {
               return JSON.parse(event.properties).url
+            } else if (event.name === 'click') {
+              return JSON.parse(event.properties).clickedText || JSON.parse(event.properties).clickedId || JSON.parse(event.properties).clickedClass
+            } else if (event.name === 'form_submit') {
+              return JSON.parse(event.properties).form_id || JSON.parse(event.properties).form_action || JSON.parse(event.properties).form_class
             }
           }}
           rightItemKey="occurred_at"

@@ -24,9 +24,9 @@ export class InteractionHandler {
         callback({
           type: 'click',
           attributes: {
-            clickedId: e.target.id,
-            clickedClass: e.target.className,
-            clickedText: e.target.innerText,
+            clicked_id: e.target.id,
+            clicked_class: e.target.className,
+            clicked_text: e.target.innerText,
           }
         })
       ));
