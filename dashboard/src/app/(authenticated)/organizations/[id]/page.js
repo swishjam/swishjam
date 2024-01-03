@@ -181,7 +181,7 @@ const OrganizationProfile = ({ params }) => {
             subTitleFormatter={user => user.full_name ? user.email : null}
             rightItemKey='session_count'
             rightItemKeyFormatter={value => value ? `${value} sessions` : ''}
-            fallbackAvatarGenerator={item => item.full_name.split(' ').map(word => word[0]).join('').toUpperCase()}
+            fallbackAvatarGenerator={item => (item.full_name || item.email || item.user_unique_identifier.slice(0, 3)).split(' ').map(word => word[0]).join('').toUpperCase()}
             linkFormatter={user => `/users/${user.id}`}
           />
           <BarList

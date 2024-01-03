@@ -14,6 +14,7 @@ class OrganizationProfileSerializer < ActiveModel::Serializer
         last_name: user.last_name,
         full_name: user.full_name,
         initials: user.initials,
+        user_unique_identifier: user.user_unique_identifier,
         gravatar_url: user.gravatar_url,
       }
     end
