@@ -7,8 +7,7 @@ module Api
         end
 
         def active
-          # params[:data_source] ||= ApiKey::ReservedDataSources.PRODUCT
-          params[:data_source] = 'all'
+          params[:data_source] ||= ApiKey::ReservedDataSources.PRODUCT
           params[:type] ||= 'weekly'
           raise "Invalid `type` provided: #{params[:type]}" unless %w(daily weekly monthly).include?(params[:type])
           
