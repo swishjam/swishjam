@@ -12,6 +12,7 @@ import LineChartWithValue from "@/components/Dashboards/Components/LineChartWith
 import ClickableValueCard from "@/components/Dashboards/Components/ClickableValueCard";
 import BarChart from "@/components/Dashboards/Components/BarChart";
 import { formatNumbers, formatShrinkNumbers } from "@/lib/utils/numberHelpers";
+import withPerformanceMeasurement from "@/lib/performance-wrapper";
 //import { BsArrowLeftShort } from 'react-icons/bs'
 //import { dateFormatterForGrouping } from "@/lib/utils/timeseriesHelpers";
 // import LoadingView from './LoadingView'
@@ -41,34 +42,38 @@ export default function PageMetrics() {
   };
 
   const getSessionTimeseriesData = async timeframe => {
-    return await SwishjamAPI.Sessions.timeseries({ timeframe, dataSource: 'marketing' }).then(
-      ({ current_count, comparison_count, comparison_end_time, timeseries, comparison_timeseries, grouped_by }) => {
-        setSessionsTimeseriesData({
-          groupedBy: grouped_by,
-          previousValue: comparison_count,
-          previousValueDate: comparison_end_time,
-          timeseries: timeseries.map((timeseries, index) => ({
-            ...timeseries,
-            comparisonDate: comparison_timeseries[index]?.date,
-            comparisonValue: comparison_timeseries[index]?.value,
-          })),
-          value: current_count,
-          valueChange: current_count - comparison_count,
-        });
-      });
+    return withPerformanceMeasurement('marketing-sessions-timeseries', async () => (
+      await SwishjamAPI.Sessions.timeseries({ timeframe, dataSource: 'marketing' }).then(
+        ({ current_count, comparison_count, comparison_end_time, timeseries, comparison_timeseries, grouped_by }) => {
+          setSessionsTimeseriesData({
+            groupedBy: grouped_by,
+            previousValue: comparison_count,
+            previousValueDate: comparison_end_time,
+            timeseries: timeseries.map((timeseries, index) => ({
+              ...timeseries,
+              comparisonDate: comparison_timeseries[index]?.date,
+              comparisonValue: comparison_timeseries[index]?.value,
+            })),
+            value: current_count,
+            valueChange: current_count - comparison_count,
+          });
+        })
+    ))
   };
 
   const getSessionReferrersBarChartData = async timeframe => {
-    await SwishjamAPI.Sessions.Referrers.barChart({ timeframe }).then(({ data }) => {
-      const formattedReferrerData = data.map(referrerData => {
-        if (referrerData['']) {
-          referrerData['Direct'] = referrerData[''];
-          delete referrerData[''];
-        }
-        return referrerData;
+    return withPerformanceMeasurement('marketing-sessions-referrers-bar-chart', async () => (
+      await SwishjamAPI.Sessions.Referrers.barChart({ timeframe }).then(({ data }) => {
+        const formattedReferrerData = data.map(referrerData => {
+          if (referrerData['']) {
+            referrerData['Direct'] = referrerData[''];
+            delete referrerData[''];
+          }
+          return referrerData;
+        })
+        setReferrersBarChartData(formattedReferrerData)
       })
-      setReferrersBarChartData(formattedReferrerData)
-    });
+    ))
   };
 
   const getDemographicsBarChartData = async timeframe => {

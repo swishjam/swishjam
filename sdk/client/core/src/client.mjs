@@ -37,6 +37,7 @@ export class Client {
     if (!this.getSession()) this.newSession({ registerPageView: false });
     this._initPageViewListeners();
     this._initInteractionListeners();
+    this._initPerformanceListeners();
     this._recordInMemoryEvents();
   }
 
@@ -192,6 +193,24 @@ export class Client {
         });
       })
     })
+  }
+
+  _initPerformanceListeners = () => {
+    return this.errorHandler.executeWithErrorHandling(() => {
+      if (window && window.performance && window.PerformanceObserver) {
+        const observer = new PerformanceObserver(list => {
+          list.getEntries().forEach(entry => {
+            const { name, startTime, duration } = entry;
+            this.eventQueueManager.recordEvent('performance_measurement', { name, start_time: startTime, duration });
+          });
+        })
+        window.performance.getEntriesByType('measure').forEach(entry => {
+          const { name, startTime, duration } = entry;
+          this.eventQueueManager.recordEvent('performance_measurement', { name, start_time: startTime, duration });
+        });
+        observer.observe({ entryTypes: ['measure'] });
+      }
+    });
   }
 
   _setConfig = options => {
