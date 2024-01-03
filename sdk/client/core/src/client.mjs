@@ -80,6 +80,8 @@ export class Client {
         }
         return acc;
       }, {})
+      // we store all setOrganization calls to persistent storage so it will be included in all future events/sessions
+      // we may eventually want to make this configurable (ie: only make it session based), but for now we will always store it
       PersistentUserDataManager.setOrganizationAttributes({
         organizationIdentifier,
         organizationName: maybeOrgName,
@@ -93,7 +95,6 @@ export class Client {
 
   getSession = () => {
     return this.errorHandler.executeWithErrorHandling(() => (
-      // SessionPersistance.get('sessionId')
       CookieHelper.getCookie(SWISHJAM_SESSION_IDENTIFIER_COOKIE_NAME)
     ));
   }
