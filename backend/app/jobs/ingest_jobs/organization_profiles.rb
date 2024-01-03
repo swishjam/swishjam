@@ -1,5 +1,5 @@
 module IngestJobs
-  class OrganizationIdentifies
+  class OrganizationProfiles
     include Sidekiq::Job
     queue_as :default
 
