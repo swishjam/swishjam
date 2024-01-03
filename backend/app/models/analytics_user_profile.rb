@@ -12,8 +12,8 @@ class AnalyticsUserProfile < Transactional
   # after_create :try_to_set_gravatar_url
   before_create :try_to_set_gravatar_url
   after_create :enrich_profile!
-  after_create :enqueue_into_clickhouse_replication_data
-  after_update :enqueue_into_clickhouse_replication_data
+  after_create :enqueue_replication_to_clickhouse
+  after_update :enqueue_replication_to_clickhouse
 
   def self.find_by_case_insensitive_email(email)
     where("lower(email) = ?", email.downcase).first
@@ -47,7 +47,7 @@ class AnalyticsUserProfile < Transactional
     # update_column :gravatar_url, url
   end
 
-  def enqueue_into_clickhouse_replication_data
+  def enqueue_replication_to_clickhouse
     Ingestion::QueueManager.push_records_into_queue(Ingestion::QueueManager::Queues.CLICKHOUSE_USER_PROFILES, formatted_for_clickhouse_replication)
   end
 

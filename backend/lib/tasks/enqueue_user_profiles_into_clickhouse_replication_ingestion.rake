@@ -8,7 +8,7 @@ namespace :data do
     if scope == 'user'
       user_id = prompter.ask('Enter the user ID:')
       user_profile = AnalyticsUserProfile.find(user_id)
-      user_profile.enqueue_into_clickhouse_replication_data
+      user_profile.enqueue_replication_to_clickhouse
       puts "Successfully enqueue user profile #{user_profile.id} (#{user_profile.email}) into ClickHouse replication ingestion queue".colorize(:green)
     else
       profiles = AnalyticsUserProfile.all
@@ -16,7 +16,7 @@ namespace :data do
       ActiveRecord::Base.logger.silence do
         profiles.each do |user_profile|
           begin
-            user_profile.enqueue_into_clickhouse_replication_data
+            user_profile.enqueue_replication_to_clickhouse
           rescue => e
             puts "Failed to enqueue user profile #{user_profile.id} (#{user_profile.email}) into ClickHouse replication ingestion queue: #{e.message}".colorize(:red)
           end

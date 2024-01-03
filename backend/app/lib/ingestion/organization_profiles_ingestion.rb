@@ -11,7 +11,7 @@ module Ingestion
     end
 
     def initialize
-      @ingestion_batch = IngestionBatch.new(started_at: Time.current, event_type: 'organization_identify')
+      @ingestion_batch = IngestionBatch.new(started_at: Time.current, event_type: 'organization_profiles')
     end
 
     def ingest!
@@ -43,9 +43,11 @@ module Ingestion
       event = Analytics::Event.parsed_from_ingestion_queue(event_json)
       unique_identifier = event.properties.organizationIdentifier || event.properties.organization_identifier || event.properties.organizationId || event.properties.organization_id
       org_name = event.properties.name
+      provided_org_domain = event.properties.domain
+      maybe_user_email = event.properties.user_attributes.email
       metadata = event.properties.to_h.as_json.except(
         'sdk_version', 'url', 'device_identifier', 'user_device_identifier', 'organization_device_identifier', 'session_identifier', 'page_view_identifier', 
-        'name', 'user_attributes', 'organization_attributes', 'user_visit_status', 'organizationIdentifier'
+        'name', 'domain', 'user_attributes', 'organization_attributes', 'user_visit_status', 'organizationIdentifier'
       )
 
       workspace = Workspace.for_public_key(event.swishjam_api_key)
@@ -54,15 +56,21 @@ module Ingestion
         if org_profile
           org_profile.name = org_name unless org_name.blank?
           org_profile.metadata = metadata unless metadata.blank?
-          org_profile.save!
+          org_profile.domain = provided_org_domain unless provided_org_domain.blank?
         else
-         org_profile = workspace.analytics_organization_profiles.create!(
+          org_profile = workspace.analytics_organization_profiles.new(
             organization_unique_identifier: unique_identifier, 
             name: org_name, 
+            domain: provided_org_domain,
             metadata: metadata,
             created_at: event.occurred_at,
           )
         end
+        # if they didn't provide a domain in the setOrganization call, but they did provide a user email, then we infer the domain from the user email
+        if org_profile.domain.blank? && !maybe_user_email.blank? && !GenericEmailDetector.is_generic_email?(maybe_user_email)
+          org_profile.domain = maybe_user_email.split('@').last
+        end
+        org_profile.save!
         user_unique_identifier = event.properties.user_attributes.unique_identifier
         if user_unique_identifier
           user_profile = workspace.analytics_user_profiles.find_by(user_unique_identifier: user_unique_identifier)
