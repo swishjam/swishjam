@@ -1,12 +1,13 @@
-import { SessionPersistance } from "./sessionPersistance.mjs";
+import CookieHelper from "./cookieHelper.mjs";
 import { DeviceDetails } from "./deviceDetails.mjs";
 import { DeviceIdentifiers } from "./deviceIdentifiers.mjs";
 import { ErrorHandler } from './errorHandler.mjs';
 import { EventQueueManager } from "./eventQueueManager.mjs";
+import { InteractionHandler } from "./interactionHandler.mjs";
 import { PageViewManager } from "./pageViewManager.mjs";
 import { PersistentUserDataManager } from "./persistentUserDataManager.mjs";
 import { Requester } from "./requester.mjs";
-import CookieHelper from "./cookieHelper.mjs";
+import { SessionPersistance } from "./sessionPersistance.mjs";
 import { Util } from "./util.mjs";
 
 import {
@@ -28,9 +29,14 @@ export class Client {
     });
     this.pageViewManager = new PageViewManager;
     this.deviceDetails = new DeviceDetails;
+    this.interactionHandler = new InteractionHandler({
+      recordClicks: this.config.recordClicks,
+      recordFormSubmits: this.config.recordFormSubmits,
+    });
     // the order here is important, we want to make sure we have a session before we start register the page views in the _initPageViewListeners
     if (!this.getSession()) this.newSession({ registerPageView: false });
     this._initPageViewListeners();
+    this._initInteractionListeners();
     this._recordInMemoryEvents();
   }
 
@@ -177,6 +183,16 @@ export class Client {
     });
   }
 
+  _initInteractionListeners = () => {
+    return this.errorHandler.executeWithErrorHandling(() => {
+      this.interactionHandler.onInteraction(({ type, attributes }) => {
+        return this.errorHandler.executeWithErrorHandling(() => {
+          this.eventQueueManager.recordEvent(type, attributes);
+        });
+      })
+    })
+  }
+
   _setConfig = options => {
     if (!options.apiKey) throw new Error('Swishjam `apiKey` is required');
     const validOptions = ['apiKey', 'apiEndpoint', 'maxEventsInMemory', 'reportingHeartbeatMs', 'debug', 'disabledUrls', 'disabled'];
@@ -192,6 +208,8 @@ export class Client {
       disabledUrls: options.disabledUrls || ['http://localhost'],
       disabled: typeof options.disabled === 'boolean' ? options.disabled : false,
       debug: typeof options.debug === 'boolean' ? options.debug : false,
+      recordClicks: typeof options.recordClicks === 'boolean' ? options.recordClicks : true,
+      recordFormSubmits: typeof options.recordFormSubmits === 'boolean' ? options.recordFormSubmits : true,
     }
   }
 
