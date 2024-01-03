@@ -1,15 +1,9 @@
-# return unless (Rails.env.production? || ENV['SENTRY_ENABLED']) && ENV['SENTRY_DSN']
+return unless (Rails.env.production? || ENV['SENTRY_ENABLED']) && ENV['SENTRY_DSN']
 SWISHJAM_VERSION = File.read(Rails.root.join('.swishjam-version')).strip
 
 Sentry.init do |config|
   config.dsn = ENV['SENTRY_DSN']
   config.breadcrumbs_logger = [:active_support_logger, :sentry_logger, :http_logger]
-
-  config.before_send = lambda do |event, hint|
-    if !Rails.env.production? && !ENV['SENTRY_ENABLED']
-      raise hint[:exception].class, hint[:exception].message
-    end
-  end
 
   # Set traces_sample_rate to 1.0 to capture 100%
   # of transactions for performance monitoring.
