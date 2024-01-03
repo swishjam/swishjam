@@ -1,4 +1,4 @@
-import { UUID } from "./uuid.mjs";
+import { Util } from "./util.mjs";
 import { CookieHelper } from "./cookieHelper.mjs";
 import { SWISHJAM_USER_DEVICE_IDENTIFIER_COOKIE_NAME } from './constants.mjs'
 
@@ -13,7 +13,7 @@ export class DeviceIdentifiers {
   }
 
   static _setCookie = (cookieName, prefix = '') => {
-    const identifier = UUID.generate(prefix);
+    const identifier = Util.generateUUID(prefix);
     const oneYear = 365 * 24 * 60 * 60 * 1000;
     CookieHelper.setCookie({ name: cookieName, value: identifier, expiresIn: oneYear });
     return identifier;

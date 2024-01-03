@@ -11,11 +11,17 @@ module Api
         def queue_stats
           event_count = Ingestion::QueueManager.num_records_in_queue(Ingestion::QueueManager::Queues.EVENTS)
           user_identify_count = Ingestion::QueueManager.num_records_in_queue(Ingestion::QueueManager::Queues.IDENTIFY)
-          organization_identify_count = Ingestion::QueueManager.num_records_in_queue(Ingestion::QueueManager::Queues.ORGANIZATION)
+          organization_profile_count = Ingestion::QueueManager.num_records_in_queue(Ingestion::QueueManager::Queues.ORGANIZATION)
+          clickhouse_user_profile_count = Ingestion::QueueManager.num_records_in_queue(Ingestion::QueueManager::Queues.CLICKHOUSE_USER_PROFILES)
+          clickhouse_organization_profile_count = Ingestion::QueueManager.num_records_in_queue(Ingestion::QueueManager::Queues.CLICKHOUSE_ORGANIZATION_PROFILES)
+          clickhouse_organization_member_count = Ingestion::QueueManager.num_records_in_queue(Ingestion::QueueManager::Queues.CLICKHOUSE_ORGANIZATION_MEMBERS)
           render json: {
             event_count: event_count,
             user_identify_count: user_identify_count,
-            organization_identify_count: organization_identify_count,
+            organization_profile_count: organization_profile_count,
+            clickhouse_user_profile_count: clickhouse_user_profile_count,
+            clickhouse_organization_profile_count: clickhouse_organization_profile_count,
+            clickhouse_organization_member_count: clickhouse_organization_member_count,
           }, status: :ok
         end
 

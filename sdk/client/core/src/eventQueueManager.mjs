@@ -21,9 +21,9 @@ export class EventQueueManager {
 
   getData = () => this.queue;
 
-  recordEvent = (eventName, properties) => {
+  recordEvent = (eventName, properties, options = {}) => {
     return this.errorHandler.executeWithErrorHandling(() => {
-      const event = new Event(eventName, properties);
+      const event = new Event(eventName, properties, options);
       if (this._shouldRecordEvents()) {
         this.queue.push(event.toJSON());
         if (this.queue.length >= this.maxQueueSize) {

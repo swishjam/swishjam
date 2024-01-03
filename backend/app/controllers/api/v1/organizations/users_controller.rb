@@ -12,14 +12,14 @@ module Api
           raise "Invalid `type` provided: #{params[:type]}" unless %w(daily weekly monthly).include?(params[:type])
           
           active_users_klass = {
-            'daily' => ClickHouseQueries::Organizations::Users::Active::Daily,
-            'weekly' => ClickHouseQueries::Organizations::Users::Active::Weekly,
-            'monthly' => ClickHouseQueries::Organizations::Users::Active::Monthly
+            'daily' => ClickHouseQueries::Users::Active::Timeseries::Daily,
+            'weekly' => ClickHouseQueries::Users::Active::Timeseries::Weekly,
+            'monthly' => ClickHouseQueries::Users::Active::Timeseries::Monthly
           }[params[:type]]
 
           active_users_timeseries = active_users_klass.new(
             public_keys_for_requested_data_source, 
-            organization_profile_id: @organization.id,
+            organization_unique_identifier: @organization.organization_unique_identifier,
             start_time: start_timestamp,
             end_time: end_timestamp
           ).timeseries
@@ -28,7 +28,7 @@ module Api
           if params[:include_comparison]
             comparison_active_users_timeseries = active_users_klass.new(
               public_keys_for_requested_data_source, 
-              organization_profile_id: @organization.id,
+              organization_unique_identifier: @organization.organization_unique_identifier,
               start_time: comparison_start_timestamp,
               end_time: comparison_end_timestamp
             ).timeseries

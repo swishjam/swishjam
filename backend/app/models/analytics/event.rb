@@ -53,14 +53,25 @@ module Analytics
     end
 
     def self.parsed_from_ingestion_queue(event_json_or_string)
-      event_json = event_json_or_string.is_a?(String) ? JSON.parse(event_json_or_string) : event_json_or_string
+      event_json = (event_json_or_string.is_a?(String) ? JSON.parse(event_json_or_string) : event_json_or_string).with_indifferent_access
       properties = (event_json['properties'] || {}).is_a?(String) ? JSON.parse(event_json['properties']) : event_json['properties']
+
+      properties['user_attributes'] ||= {}
+      properties['user_attributes'] = (properties['user_attributes'] || {}).is_a?(String) ? JSON.parse(properties['user_attributes']) : properties['user_attributes']
+      
+      properties['organization_attributes'] ||= {}
+      properties['organization_attributes'] = (properties['organization_attributes'] || {}).is_a?(String) ? JSON.parse(properties['organization_attributes']) : properties['organization_attributes']
+      if event_json['uuid'].blank? || event_json['swishjam_api_key'].blank? || event_json['name'].blank? || (event_json['occurred_at'].blank? && event_json['timestamp'].blank?)
+        raise InvalidEventFormat, "Event JSON must contain `uuid`, `swishjam_api_key`, `name`, and (`occurred_at` or `timestamp`). Provided keys: #{event_json.keys.map{ |k| "#{k}: #{event_json[k]}" }.join(', ')}."
+      end
       OpenStruct.new(
         uuid: event_json['uuid'],
         swishjam_api_key: event_json['swishjam_api_key'],
         name: event_json['name'],
-        occurred_at: event_json['occurred_at'],
-        properties: properties,
+        # pretty sure it's always `timestamp` from instrumentation, but just incase we'll check both
+        occurred_at: Time.parse((event_json['timestamp'] || event_json['occurred_at']).to_s).in_time_zone('UTC'),
+        timestamp: Time.parse((event_json['timestamp'] || event_json['occurred_at']).to_s).in_time_zone('UTC'),
+        properties: Util.deep_to_ostruct(properties),
       )
     end
   end

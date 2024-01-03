@@ -27,12 +27,12 @@ export default function Dashboards() {
       <div>
         <h1 className="text-lg font-medium text-gray-700 mb-0">Dashboards</h1>
       </div>
-      <div className='grid grid-cols-3 gap-4 mt-8'>
+      <div className='grid grid-cols-3 gap-4 mt-8 flex'>
         <Link href="/dashboards/marketing-analytics">
-          <Card className={`group hover:ring-2 offset-2 ring-swishjam duration-300 transition cursor-pointer`}>
+          <Card className={`group hover:ring-2 offset-2 ring-swishjam duration-300 transition cursor-pointer h-full`}>
             <CardContent>
               <div className="mt-6 border rounded-sm overflow-hidden">
-                <Image src='/visitor-trends.png' width={200} height={200} />
+                <Image src='/visitor-trends.png' width={200} height={200} className='w-full' />
               </div>
               <h3 className="text-sm font-medium mt-2 border-t-2 border-white cursor-pointer">Marketing Analytics</h3>
               <p className="text-sm mt-2 cursor-pointer">Site traffic, sessions, referrers, top pages, and more</p>
@@ -43,10 +43,10 @@ export default function Dashboards() {
           </Card>
         </Link>
         <Link href="/dashboards/product-analytics">
-          <Card className={`group hover:ring-2 offset-2 ring-swishjam duration-300 transition cursor-pointer`}>
+          <Card className={`group hover:ring-2 offset-2 ring-swishjam duration-300 transition cursor-pointer h-full`}>
             <CardContent>
               <div className="mt-6 border rounded-sm overflow-hidden">
-                <Image src='/product-analytics.png' width={200} height={200} />
+                <Image src='/product-analytics.png' width={200} height={200} className='w-full' />
               </div>
               <h3 className="text-sm font-medium mt-2 border-t-2 border-white cursor-pointer">Product Analytics</h3>
               <p className="text-sm mt-2 cursor-pointer">Active users, retention, feature breakdowns, and more</p>
@@ -58,8 +58,8 @@ export default function Dashboards() {
         </Link>
         <Card className={'opacity-50'}>
           <CardContent>
-            <div className="mt-6 border rounded-sm overflow-hidden">
-              <Image src='/visitor-trends.png' width={200} height={200} />
+            <div className="mt-6 border rounded-sm overflow-hidden h-full">
+              <Image src='/visitor-trends.png' width={200} height={200} className="w-full" />
             </div>
             <h3 className="text-sm font-medium cursor-default mt-2 border-t-2 border-white">SaaS Metrics</h3>
             <p className="text-sm cursor-default mt-2">MRR, ARR, Churn, new subscriptions, and more</p>

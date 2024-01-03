@@ -3,10 +3,7 @@
 import { useEffect, useState } from "react";
 import { SwishjamAPI } from "@/lib/api-client/swishjam-api";
 import { Card, CardHeader, CardContent, CardTitle, CardDescription } from "@/components/ui/card"
-import { Skeleton } from "@/components/ui/skeleton";
-import { HomeIcon } from '@heroicons/react/20/solid'
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { CalendarIcon } from "@heroicons/react/24/outline";
 import ItemizedList from "@/components/Dashboards/Components/ItemizedList";
 import ActiveUsersLineChartWithValue from "@/components/Dashboards/Components/ActiveUsersLineChartWithValue";
 import BarList from "@/components/Dashboards/Components/BarList";
@@ -27,7 +24,7 @@ const OrgProfileCard = ({ orgData, ...props }) => {
             </Avatar>
             <div>
               <CardTitle className='text-2xl'>
-                {orgData?.name}
+                {orgData?.name || orgData?.organization_unique_identifier}
               </CardTitle>
               <CardDescription className='text-base text-gray-500'>
                 {orgData.domain || '-'}
@@ -41,10 +38,6 @@ const OrgProfileCard = ({ orgData, ...props }) => {
         <div>
           <div className="mt-4">
             <dl className="grid grid-cols-1">
-              <div className="px-4 py-2 col-span-1 sm:px-0 grid grid-cols-2">
-                <dt className="text-sm font-medium leading-6 text-gray-900">Domains</dt>
-                <dd className="text-sm leading-6 text-gray-700 text-right">{orgData?.domains || '-'}</dd>
-              </div>
               <div className="px-4 py-2 col-span-1 sm:px-0 grid grid-cols-2">
                 <dt className="text-sm font-medium leading-6 text-gray-900">Description</dt>
                 <dd className="text-sm leading-6 text-gray-700 text-right">{orgData?.description || '-'}</dd>
@@ -105,32 +98,7 @@ const OrgProfileCard = ({ orgData, ...props }) => {
     </Card>
   )
 }
-/*
-<div className='flex flex-col items-end justify-end text-base text-gray-500'>
-            <div className='space-y-2'>
-              <div className='flex items-center'>
-                <CalendarIcon className='h-4 w-4 text-gray-500 inline-block mr-2' />
-                <span className='text-base'>
-                  {((orgData.mrr || 0) / 100).toLocaleString('en-us', { style: 'currency', currency: 'USD' })} MRR
-                </span>
-              </div>
 
-              <div className='flex items-center'>
-                <CalendarIcon className='h-4 w-4 text-gray-500 inline-block mr-2' />
-                <span className='text-base'>
-                  {((orgData.lifetimeRevenue || 0) / 100).toLocaleString('en-us', { style: 'currency', currency: 'USD' })} LTV
-                </span>
-              </div>
-
-              <div className='flex items-center'>
-                <CalendarIcon className='h-4 w-4 text-gray-500 inline-block mr-2' />
-                <span className='text-base'>
-                  {new Date(orgData.createdAt).toLocaleDateString('en-us', { weekday: "short", year: "numeric", month: "short", day: "numeric" })}
-                </span>
-              </div>
-            </div>
-          </div>
-*/
 const OrganizationProfile = ({ params }) => {
   const { id } = params;
 
@@ -150,7 +118,7 @@ const OrganizationProfile = ({ params }) => {
       title: organizationData?.name || `Unknown Org: ${organizationData?.id.split('-')[0]}`,
       url: null
     }
-  ] 
+  ]
 
   const getActiveUsersData = type => {
     const derivedTimeframe = type === 'monthly' ? 'six_months' : type === 'weekly' ? 'three_months' : 'thirty_days'
@@ -192,11 +160,10 @@ const OrganizationProfile = ({ params }) => {
       <Breadcrumbs paths={breadcrumbPaths} />
       <div className='grid grid-cols-10 gap-4 mt-8'>
         <OrgProfileCard
-          className="col-span-4" 
+          className="col-span-4"
           orgData={organizationData}
         />
         <div className='col-span-6'>
-          {/* <ActiveUsersLineChart scopedOrganizationId={id} /> */}
           <ActiveUsersLineChartWithValue
             data={activeUsersData}
             selectedGrouping={activeUsersGrouping}
@@ -210,20 +177,20 @@ const OrganizationProfile = ({ params }) => {
             className="mt-4"
             title='Top Users'
             items={topUsers}
-            leftItemHeaderKey='name'
-            leftItemSubHeaderKey='email'
+            titleFormatter={user => user.full_name || user.email || user.user_unique_identifier}
+            subTitleFormatter={user => user.full_name ? user.email : null}
             rightItemKey='session_count'
-            rightItemKeyFormatter={value => value ? `${value} sessions`:''}
+            rightItemKeyFormatter={value => value ? `${value} sessions` : ''}
             fallbackAvatarGenerator={item => item.full_name.split(' ').map(word => word[0]).join('').toUpperCase()}
             linkFormatter={user => `/users/${user.id}`}
           />
           <BarList
-            className="mt-4" 
+            className="mt-4"
             title='Top pages'
             items={pageHitData}
           />
         </div>
-      </div> 
+      </div>
     </main>
   )
 }

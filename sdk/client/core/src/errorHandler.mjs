@@ -14,7 +14,7 @@ export class ErrorHandler {
       return func()
     } catch (e) {
       this.captureError(e);
-      console.error(`[Swishjam SDK Error]: ${e}`)
+      console.warn(`[Swishjam SDK Error]: ${e}`)
     }
   }
 
