@@ -5,6 +5,7 @@ import { useEffect } from "react";
 import { setAuthToken } from "@/lib/auth";
 import LoadingSpinner from "@/components/LoadingSpinner";
 import { useSearchParams } from 'next/navigation'
+import { swishjam } from "@swishjam/react";
 
 export default function ChangeWorkspaces({ params }) {
   const { workspaceId } = params;
@@ -12,10 +13,11 @@ export default function ChangeWorkspaces({ params }) {
   const redirectTo = searchParams.get('redirectTo')
 
   useEffect(() => {
-    SwishjamAPI.Workspace.updateCurrentWorkspace(workspaceId).then(({ error, auth_token }) => {
+    SwishjamAPI.Workspace.updateCurrentWorkspace(workspaceId).then(({ error, auth_token, workspace }) => {
       if (auth_token) {
         setAuthToken(auth_token);
       }
+      swishjam.setOrganization(workspace.id, { name: workspace.name, company_url: workspace.company_url });
       window.location.href = redirectTo || '/';
     })
   }, [])
