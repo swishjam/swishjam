@@ -41,90 +41,81 @@ export default function Team() {
           onRemoveWorkspaceMember={workspaceMemberId => setWorkspaceMembers(workspaceMembers.filter(wm => wm.id !== workspaceMemberId))}
         />
       )}
-      <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mb-8 mt-12">
-        <div className='grid grid-cols-2 my-8 flex items-center'>
-          <div>
-            <h1 className="text-lg font-medium text-gray-700 mb-0">Settings</h1>
-          </div>
-        </div>
 
-        <Tabs className="mb-8" currentPath={pathname} />
-    
-        <div className='my-8 grid grid-cols-2'>
-          <h1 className="text-lg font-medium text-gray-700 mb-0">Team Management</h1>
-          <div className='flex justify-end'>
-            <button
-              onClick={() => setInviteModalIsOpen(true)}
-              className="flex items-center rounded-md bg-swishjam px-2.5 py-2 text-sm font-semibold text-white shadow-sm hover:bg-swishjam-dark focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-swishjam transition duration-300"
-            >
-              <UserPlusIcon className='h-4 w-4 inline-block mr-1' />
-              Invite teammate
-            </button>
-          </div>
+      <div className='my-8 grid grid-cols-2'>
+        <h1 className="text-lg font-medium text-gray-700 mb-0">Team Management</h1>
+        <div className='flex justify-end'>
+          <button
+            onClick={() => setInviteModalIsOpen(true)}
+            className="flex items-center rounded-md bg-swishjam px-2.5 py-2 text-sm font-semibold text-white shadow-sm hover:bg-swishjam-dark focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-swishjam transition duration-300"
+          >
+            <UserPlusIcon className='h-4 w-4 inline-block mr-1' />
+            Invite teammate
+          </button>
         </div>
+      </div>
 
-        <table className="min-w-full divide-y divide-gray-300 mt-8">
-          <thead>
-            <tr>
-              <th scope="col" className="py-3.5 px-3 text-left text-sm font-semibold text-gray-900">
-                Email
-              </th>
-              <th scope="col" className="py-3.5 px-3 text-left text-sm font-semibold text-gray-900">
-                Member Since
-              </th>
-              <th scope="col" className="py-3.5 px-3 text-left text-sm font-semibold text-gray-900">
-                Status
-              </th>
-              <th scope="col" className="py-3.5 px-3 text-left text-sm font-semibold text-gray-900">
-              </th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-200 bg-white">
-            {workspaceMembers
-              ? (
-                workspaceMembers.map(({ id, user, created_at, invite_token, status = 'accepted' }) => (
-                  <tr key={id} className='hover:bg-gray-50'>
-                    <td className="cursor-default whitespace-nowrap py-3.5 px-3 text-sm text-gray-700 max-w-xs truncate overflow-hidden">
-                      {user.email}
-                    </td>
-                    <td className="cursor-default whitespace-nowrap py-3.5 px-3 text-sm text-gray-700 max-w-xs truncate overflow-hidden">
-                      {status === 'accepted' && new Date(created_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
-                    </td>
-                    <td className="cursor-default whitespace-nowrap py-3.5 px-3 text-sm text-gray-700 max-w-xs truncate overflow-hidden">
-                      <div className={`inline-flex items-center rounded-md  px-2 py-1 text-xs font-medium ring-1 ring-inset ${status === 'accepted' ? 'bg-green-50 text-green-700 ring-green-600/20' : 'bg-orange-50 text-orange-700 ring-orange-600/20'}`}>
-                        {status}
-                      </div>
-                    </td>
-                    <td className="cursor-default whitespace-nowrap py-3.5 px-3 text-gray-700 text-sm max-w-xs">
-                      <div className="py-1 flex items-center justify-end">
-                        {user.id !== currentUserId && (
-                          <UserDropdown status={status} inviteToken={invite_token} onRemoveUserClick={() => setWorkspaceMemberToDisplayInRemoveModal({ id, user })} />
-                        )}
-                      </div>
-                    </td>
-                  </tr>
-                ))
-              ) : (
-                Array.from({ length: 10 }).map((_, i) => (
-                  <tr key={i}>
-                    <td className="cursor-default whitespace-nowrap py-3.5 px-3 text-sm font-medium text-gray-900 max-w-xs truncate overflow-hidden">
-                      <div className='h-8 w-32 bg-gray-200 rounded animate-pulse' />
-                    </td>
-                    <td className="cursor-default whitespace-nowrap py-3.5 px-3 text-sm font-medium text-gray-900 max-w-xs truncate overflow-hidden">
-                      <div className='h-8 w-24 bg-gray-200 rounded animate-pulse' />
-                    </td>
-                    <td className="cursor-default whitespace-nowrap py-3.5 px-3 text-sm font-medium text-gray-900 max-w-xs truncate overflow-hidden">
-                      <div className='h-8 w-18 bg-gray-200 rounded animate-pulse' />
-                    </td>
-                    <td className="cursor-default whitespace-nowrap py-3.5 px-3 text-sm font-medium text-gray-900 max-w-xs truncate overflow-hidden">
-                    </td>
-                  </tr>
-                ))
-              )
-            }
-          </tbody>
-        </table>
-      </main>
+      <table className="min-w-full divide-y divide-gray-300 mt-8">
+        <thead>
+          <tr>
+            <th scope="col" className="py-3.5 px-3 text-left text-sm font-semibold text-gray-900">
+              Email
+            </th>
+            <th scope="col" className="py-3.5 px-3 text-left text-sm font-semibold text-gray-900">
+              Member Since
+            </th>
+            <th scope="col" className="py-3.5 px-3 text-left text-sm font-semibold text-gray-900">
+              Status
+            </th>
+            <th scope="col" className="py-3.5 px-3 text-left text-sm font-semibold text-gray-900">
+            </th>
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-gray-200 bg-white">
+          {workspaceMembers
+            ? (
+              workspaceMembers.map(({ id, user, created_at, invite_token, status = 'accepted' }) => (
+                <tr key={id} className='hover:bg-gray-50'>
+                  <td className="cursor-default whitespace-nowrap py-3.5 px-3 text-sm text-gray-700 max-w-xs truncate overflow-hidden">
+                    {user.email}
+                  </td>
+                  <td className="cursor-default whitespace-nowrap py-3.5 px-3 text-sm text-gray-700 max-w-xs truncate overflow-hidden">
+                    {status === 'accepted' && new Date(created_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+                  </td>
+                  <td className="cursor-default whitespace-nowrap py-3.5 px-3 text-sm text-gray-700 max-w-xs truncate overflow-hidden">
+                    <div className={`inline-flex items-center rounded-md  px-2 py-1 text-xs font-medium ring-1 ring-inset ${status === 'accepted' ? 'bg-green-50 text-green-700 ring-green-600/20' : 'bg-orange-50 text-orange-700 ring-orange-600/20'}`}>
+                      {status}
+                    </div>
+                  </td>
+                  <td className="cursor-default whitespace-nowrap py-3.5 px-3 text-gray-700 text-sm max-w-xs">
+                    <div className="py-1 flex items-center justify-end">
+                      {user.id !== currentUserId && (
+                        <UserDropdown status={status} inviteToken={invite_token} onRemoveUserClick={() => setWorkspaceMemberToDisplayInRemoveModal({ id, user })} />
+                      )}
+                    </div>
+                  </td>
+                </tr>
+              ))
+            ) : (
+              Array.from({ length: 10 }).map((_, i) => (
+                <tr key={i}>
+                  <td className="cursor-default whitespace-nowrap py-3.5 px-3 text-sm font-medium text-gray-900 max-w-xs truncate overflow-hidden">
+                    <div className='h-8 w-32 bg-gray-200 rounded animate-pulse' />
+                  </td>
+                  <td className="cursor-default whitespace-nowrap py-3.5 px-3 text-sm font-medium text-gray-900 max-w-xs truncate overflow-hidden">
+                    <div className='h-8 w-24 bg-gray-200 rounded animate-pulse' />
+                  </td>
+                  <td className="cursor-default whitespace-nowrap py-3.5 px-3 text-sm font-medium text-gray-900 max-w-xs truncate overflow-hidden">
+                    <div className='h-8 w-18 bg-gray-200 rounded animate-pulse' />
+                  </td>
+                  <td className="cursor-default whitespace-nowrap py-3.5 px-3 text-sm font-medium text-gray-900 max-w-xs truncate overflow-hidden">
+                  </td>
+                </tr>
+              ))
+            )
+          }
+        </tbody>
+      </table>
     </>
   )
 }

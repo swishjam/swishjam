@@ -3,6 +3,8 @@ class WorkspaceSetting < Transactional
 
   alias_attribute :should_enrich_user_profile_data?, :should_enrich_user_profile_data
 
+  validates :enrichment_provider, inclusion: { in: %w[people_data_labs octolane] }, allow_nil: true
+
   def self.generate_default_for(workspace)
     return false if workspace.settings.present?
     create!(
