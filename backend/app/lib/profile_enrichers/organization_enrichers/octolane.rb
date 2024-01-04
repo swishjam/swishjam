@@ -1,19 +1,19 @@
 module ProfileEnrichers
-  module UserEnrichers
+  module OrganizationEnrichers
     class Octolane < ProfileEnrichers::Base
       def params
         {
-          email: enrichable.email,
-          name: enrichable.full_name,
+          domain: enrichable.domain,
+          company_name: enrichable.name,
         }
       end
 
       def make_enrichment_request!
-        if enrichable.email.blank?
-          return enrichment_response(success: false, error_message: 'No email address provided.')
+        if params[:domain].blank?
+          return enrichment_response(success: false, error_message: 'Cannot enrich an Organization without a domain.')
         end
         
-        resp = HTTParty.post('https://enrich.octolane.com/v1/person-by-email', {
+        resp = HTTParty.post('https://enrich.octolane.com/v1/company', {
           body: params.to_json,
           headers: {
             'Content-Type' => 'application/json',

@@ -161,7 +161,8 @@ ActiveRecord::Schema.define(version: 2024_01_04_161412) do
   create_table "enriched_data", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.uuid "workspace_id", null: false
     t.string "enrichable_type", null: false
-    t.bigint "enrichable_id", null: false
+    t.uuid "enrichable_id", null: false
+    t.string "enrichment_service", null: false
     t.jsonb "data", default: {}
     t.index ["enrichable_type", "enrichable_id"], name: "index_enriched_data_on_enrichable"
     t.index ["workspace_id"], name: "index_enriched_data_on_workspace_id"
@@ -170,7 +171,7 @@ ActiveRecord::Schema.define(version: 2024_01_04_161412) do
   create_table "enrichment_attempts", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.uuid "workspace_id", null: false
     t.string "enrichable_type", null: false
-    t.bigint "enrichable_id", null: false
+    t.uuid "enrichable_id", null: false
     t.uuid "enriched_data_id"
     t.string "enrichment_service", null: false
     t.jsonb "attempted_payload", default: {}
@@ -364,6 +365,7 @@ ActiveRecord::Schema.define(version: 2024_01_04_161412) do
     t.boolean "combine_marketing_and_product_data_sources"
     t.boolean "should_enrich_user_profile_data"
     t.string "enrichment_provider"
+    t.boolean "should_enrich_organization_profile_data", default: false
     t.index ["workspace_id"], name: "index_workspace_settings_on_workspace_id"
   end
 

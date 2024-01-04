@@ -1,16 +1,16 @@
 module ProfileEnrichers
   module UserEnrichers
-    class PeopleDataLabs
+    class PeopleDataLabs < ProfileEnrichers::Base
       def params
         {
-          email: user_profile.email,
-          first_name: user_profile.full_name,
-          last_name: user_profile.full_name,
+          email: enrichable.email,
+          first_name: enrichable.full_name,
+          last_name: enrichable.full_name,
         }
       end
 
       def make_enrichment_request!
-        if user_profile.email.blank?
+        if enrichable.email.blank?
           return enrichment_response(success: false, error_message: 'No email address in user profile to enrich.')
         end
 

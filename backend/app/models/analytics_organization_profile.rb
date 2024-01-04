@@ -6,13 +6,22 @@ class AnalyticsOrganizationProfile < Transactional
   has_many :analytics_organization_members, dependent: :destroy
   has_many :analytics_user_profiles, through: :analytics_organization_members
   alias_attribute :users, :analytics_user_profiles
+  has_many :enrichment_attempts, as: :enrichable, dependent: :destroy
 
+  after_create :enrich_profile!
   after_create :enqueue_replication_to_clickhouse
   after_update :enqueue_replication_to_clickhouse
 
   def initials
     return if !name.present?
     name.split(' ').map{ |word| word[0] }.join('').upcase
+  end
+
+  def enrich_profile!(override_sampling: false)
+    return false if override_sampling == false && rand() >= (ENV['ORGANIZATION_ENRICHMENT_SAMPLING_RATE'] || 1.0).to_f
+    ProfileEnrichers::Organization.new(self, enricher: workspace.settings.enrichment_provider).try_to_enrich_profile_if_necessary!
+  rescue => e
+    Sentry.capture_exception(e)
   end
 
   def enqueue_replication_to_clickhouse

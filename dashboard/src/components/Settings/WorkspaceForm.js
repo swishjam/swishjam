@@ -4,8 +4,9 @@ import { useAuthData } from '@/hooks/useAuthData'
 import { setAuthToken } from '@/lib/auth';
 import { SwishjamAPI } from '@/lib/api-client/swishjam-api';
 import { CheckCircleIcon } from '@heroicons/react/24/outline';
+import { toast } from 'sonner';
 
-export default function WorkspaceForm({ onUpdate = () => {}, isSubmittable = true }) {
+export default function WorkspaceForm({ onUpdate = () => { }, isSubmittable = true }) {
   const { currentWorkspaceName } = useAuthData();
   const [workspaceName, setWorkspaceName] = useState();
   const [errorMessage, setErrorMessage] = useState();
@@ -32,6 +33,7 @@ export default function WorkspaceForm({ onUpdate = () => {}, isSubmittable = tru
           setAuthToken(auth_token);
           onUpdate(workspace);
           setShowSuccessIndicator(true);
+          toast.success('Workspace name updated.')
           setTimeout(() => {
             setShowSuccessIndicator(false);
           }, 5_000);
@@ -42,9 +44,6 @@ export default function WorkspaceForm({ onUpdate = () => {}, isSubmittable = tru
 
   return (
     <form onSubmit={handleSubmit}>
-      <label htmlFor="username" className="block text-sm font-medium leading-6 text-gray-900">
-        Workspace name
-      </label>
       <div className="mt-2 flex">
         <div className="flex rounded-md shadow-sm ring-1 ring-inset ring-gray-300 focus-within:ring-2 focus-within:ring-inset focus-within:ring-indigo-600 sm:max-w-md">
           <input
@@ -66,8 +65,8 @@ export default function WorkspaceForm({ onUpdate = () => {}, isSubmittable = tru
                 ? <>
                   Updated <CheckCircleIcon className='w-5 h-5 ml-1' />
                 </>
-                : isLoading 
-                  ? <LoadingSpinner color='white' className='w-5 h-5' /> 
+                : isLoading
+                  ? <LoadingSpinner color='white' className='w-5 h-5' />
                   : 'Update'}
             </button>
           )

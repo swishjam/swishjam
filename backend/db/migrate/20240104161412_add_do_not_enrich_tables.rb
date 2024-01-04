@@ -7,5 +7,6 @@ class AddDoNotEnrichTables < ActiveRecord::Migration[6.1]
     end
 
     add_column :workspace_settings, :enrichment_provider, :string
+    add_column :workspace_settings, :should_enrich_organization_profile_data, :boolean, default: false
   end
 end

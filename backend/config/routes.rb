@@ -227,6 +227,8 @@ Rails.application.routes.draw do
           get :analytics
         end
       end
+
+      resources :do_not_enrich_user_profile_rules, only: [:create, :destroy]
       
       get :'/admin/ingestion/queuing', to: 'admin/ingestion#queueing'
       get :'/admin/ingestion/queue_stats', to: 'admin/ingestion#queue_stats'

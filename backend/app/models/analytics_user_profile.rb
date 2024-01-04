@@ -41,7 +41,7 @@ class AnalyticsUserProfile < Transactional
 
   def enrich_profile!(override_sampling: false)
     return false if override_sampling == false && rand() >= (ENV['USER_ENRICHMENT_SAMPLING_RATE'] || 1.0).to_f
-    ProfileEnrichers::User.new(self).try_to_enrich_profile_if_necessary!
+    ProfileEnrichers::User.new(self, enricher: workspace.settings.enrichment_provider).try_to_enrich_profile_if_necessary!
   rescue => e
     Sentry.capture_exception(e)
   end
