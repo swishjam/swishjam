@@ -47,8 +47,29 @@ module Ingestion
       @formatted_events_to_ingest ||= begin
         identify_events = []
         organization_events = []
+        user_profiles_from_events = []
         events = Ingestion::QueueManager.pop_all_records_from_queue(Ingestion::QueueManager::Queues.EVENTS)
         events.each do |e|
+          # if an event has user info, we want to create a user profile from it
+          # this is different than identify events because those only come from our browser JS
+          # this scenario is how to create user profiles from server-side events
+          properties = JSON.parse(e['properties'] || '{}')
+          if properties['user_id'].present? || properties['userId'] || properties['user'].present?
+            # re-define the property here for our clickhouse queries (ie: /lib/clickhouse_queries/users/events/list.rb)
+            properties['user_unique_identifier'] = properties['user_id'] || properties['userId'] || properties['user']['id']
+            user_profiles_from_events << {
+              uuid: e['uuid'],
+              swishjam_api_key: e['swishjam_api_key'],
+              name: 'user_profile_from_event',
+              occurred_at: e['occurred_at'],
+              properties: (properties['user'] || { id: properties['user_id'] || properties['userId'] }).to_json
+            }
+            properties.delete('user')
+            properties.delete('user_id')
+            properties.delete('userId')
+            e['properties'] = properties.to_json
+          end
+
           case e['name']
           when 'identify'
             identify_events << e
@@ -64,6 +85,7 @@ module Ingestion
         end
         Ingestion::QueueManager.push_records_into_queue(Ingestion::QueueManager::Queues.IDENTIFY, identify_events) if identify_events.count > 0
         Ingestion::QueueManager.push_records_into_queue(Ingestion::QueueManager::Queues.ORGANIZATION, organization_events) if organization_events.count > 0
+        Ingestion::QueueManager.push_records_into_queue(Ingestion::QueueManager::Queues.USER_PROFILES_FROM_EVENTS, user_profiles_from_events) if user_profiles_from_events.count > 0
         filtered_events = events.reject { |e| EVENT_NAMES_TO_IGNORE.include?(e['name']) }
         filtered_events
       end

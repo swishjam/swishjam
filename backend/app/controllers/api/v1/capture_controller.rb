@@ -28,7 +28,9 @@ module Api
 
       def server_side_event
         private_key = request.headers['X-Swishjam-Api-Key']
-        if params[:name].blank?
+        payload = JSON.parse(request.body.read || '{}')
+
+        if payload.is_a?(Hash) && payload['name'].blank?
           render json: { error: 'Missing required `name` key in provided payload' }, status: :bad_request
           return
         end
@@ -37,7 +39,7 @@ module Api
           return
         end
         
-        public_key = Rails.cache.fetch("public_key_for_private_key_#{private_key}", expires_in: 7.days) do
+        public_key = Rails.cache.fetch("public_key_for_private_key_#{private_key}", expires_in: 30.days) do
           ApiKey.find_by(private_key: private_key)&.public_key
         end
         if public_key.blank?
@@ -45,14 +47,17 @@ module Api
           return
         end
 
-        event = Analytics::Event.formatted_for_ingestion(
-          uuid: params[:uuid] || "evt-#{SecureRandom.uuid}", 
-          swishjam_api_key: public_key, 
-          name: params[:name], 
-          occurred_at: Time.at(params[:timestamp] || Time.current.to_i),
-          properties: (params[:attributes] || {}).as_json,
-        )
-        Ingestion::QueueManager.push_records_into_queue(Ingestion::QueueManager::Queues.EVENTS, event)
+        payload = [payload] if payload.is_a?(Hash)
+        events = payload.map do |e|
+          event = Analytics::Event.formatted_for_ingestion(
+            uuid: e['uuid'] || "evt-#{SecureRandom.uuid}", 
+            swishjam_api_key: public_key, 
+            name: e['name'], 
+            occurred_at: Time.at(e['timestamp'] || Time.current.to_i),
+            properties: (e['attributes'] || {}).as_json,
+          )
+        end
+        Ingestion::QueueManager.push_records_into_queue(Ingestion::QueueManager::Queues.EVENTS, events)
         render json: { message: 'ok' }, status: :ok
       rescue => e
         Sentry.capture_exception(e)
