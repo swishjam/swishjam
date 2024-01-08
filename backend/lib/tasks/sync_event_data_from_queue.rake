@@ -18,7 +18,7 @@ namespace :tasks do
       organization_replication_batch = Ingestion::OrganizationProfileClickHouseReplicationIngestion.ingest!
 
       puts "Syncing user profiles from events...".colorize(:green)
-      user_profiles_from_events_batch = Ingestion::UserProfilesFromEventIngestion.ingest!
+      user_profiles_from_events_batch = Ingestion::UserProfilesFromEventsIngestion.ingest!
       
       puts "\nEvents ingestion #{event_batch.failed? ? "FAILED" : "successful! #{event_batch.num_records} events ingested."}".colorize(event_batch.failed? ? :red : :green)
       puts "User identify events ingestion #{user_identify_batch.failed? ? "FAILED" : "successful! #{user_identify_batch.num_records} events ingested."}".colorize(user_identify_batch.failed? ? :red : :green)

@@ -1,14 +1,14 @@
 module Ingestion
-  class UserProfilesFromEventIngestion
+  class UserProfilesFromEventsIngestion
     attr_accessor :ingestion_batch
     
     def initialize
-      @ingestion_batch = IngestionBatch.new(started_at: Time.current, event_type: 'user_profiles_from_event')
+      @ingestion_batch = IngestionBatch.new(started_at: Time.current, event_type: 'user_profiles_from_events')
     end
 
     def self.ingest!
       if ENV['HAULT_ALL_INGESTION_JOBS'] || ENV['HAULT_USER_PROFILES_FROM_EVENT_INGESTION']
-        Sentry.capture_message("Haulting `UserProfilesFromEventIngestion` early because either `HAULT_ALL_INGESTION_JOBS` or `HAULT_USER_PROFILES_FROM_EVENT_INGESTION` ENV is set to true. Ingestion will pick back up when these ENVs are unset.")
+        Sentry.capture_message("Haulting `UserProfilesFromEventsIngestion` early because either `HAULT_ALL_INGESTION_JOBS` or `HAULT_USER_PROFILES_FROM_EVENT_INGESTION` ENV is set to true. Ingestion will pick back up when these ENVs are unset.")
         return
       end
       new.ingest!
@@ -51,7 +51,7 @@ module Ingestion
       metadata = properties.except('id', 'firstName', 'first_name', 'lastName', 'last_name', 'email', 'user_attributes', 'organization_attributes')
 
       if !unique_identifier
-        raise "Invalid user profile received, no unique identifier provided in event payload in Ingestion::UserProfilesFromEventIngestion: #{event_json.inspect}, pushing it into the DLQ..."
+        raise "Invalid user profile received, no unique identifier provided in event payload in Ingestion::UserProfilesFromEventsIngestion: #{event_json.inspect}, pushing it into the DLQ..."
       end
 
       workspace = Workspace.for_public_key(event.swishjam_api_key)
