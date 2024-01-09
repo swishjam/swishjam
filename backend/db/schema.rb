@@ -10,11 +10,20 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2023_12_12_204215) do
+ActiveRecord::Schema.define(version: 2024_01_04_161412) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
   enable_extension "plpgsql"
+
+  create_table "analytics_organization_members", force: :cascade do |t|
+    t.uuid "analytics_organization_profile_id", null: false
+    t.uuid "analytics_user_profile_id", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["analytics_organization_profile_id"], name: "index_organization_profiles_users_on_org_unique_identifier"
+    t.index ["analytics_user_profile_id"], name: "index_organization_profiles_users_on_user_unique_identifier"
+  end
 
   create_table "analytics_organization_profiles", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.uuid "workspace_id", null: false
@@ -24,17 +33,9 @@ ActiveRecord::Schema.define(version: 2023_12_12_204215) do
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.integer "lifetime_value_in_cents", default: 0, null: false
+    t.string "domain"
     t.index ["organization_unique_identifier"], name: "index_analytics_organization_profiles_unique_identifier"
     t.index ["workspace_id"], name: "index_analytics_organization_profiles_on_workspace_id"
-  end
-
-  create_table "analytics_organization_profiles_users", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
-    t.uuid "analytics_organization_profile_id", null: false
-    t.uuid "analytics_user_profile_id", null: false
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
-    t.index ["analytics_organization_profile_id"], name: "index_analytics_organization_profiles_users_organizations"
-    t.index ["analytics_user_profile_id"], name: "index_analytics_organization_profiles_users_users"
   end
 
   create_table "analytics_user_profiles", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -50,6 +51,9 @@ ActiveRecord::Schema.define(version: 2023_12_12_204215) do
     t.string "gravatar_url"
     t.integer "lifetime_value_in_cents", default: 0, null: false
     t.string "created_by_data_source"
+    t.text "initial_landing_page_url"
+    t.string "initial_referrer_url"
+    t.datetime "first_seen_at_in_web_app"
     t.index ["user_unique_identifier"], name: "index_analytics_user_profiles_on_user_unique_identifier"
     t.index ["workspace_id"], name: "index_analytics_user_profiles_on_workspace_id"
   end
@@ -146,6 +150,39 @@ ActiveRecord::Schema.define(version: 2023_12_12_204215) do
     t.index ["workspace_id"], name: "index_data_syncs_on_workspace_id"
   end
 
+  create_table "do_not_enrich_user_profile_rules", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "workspace_id", null: false
+    t.string "email_domain", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["workspace_id"], name: "index_do_not_enrich_user_profile_rules_on_workspace_id"
+  end
+
+  create_table "enriched_data", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "workspace_id", null: false
+    t.string "enrichable_type", null: false
+    t.uuid "enrichable_id", null: false
+    t.string "enrichment_service", null: false
+    t.jsonb "data", default: {}
+    t.index ["enrichable_type", "enrichable_id"], name: "index_enriched_data_on_enrichable"
+    t.index ["workspace_id"], name: "index_enriched_data_on_workspace_id"
+  end
+
+  create_table "enrichment_attempts", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "workspace_id", null: false
+    t.string "enrichable_type", null: false
+    t.uuid "enrichable_id", null: false
+    t.uuid "enriched_data_id"
+    t.string "enrichment_service", null: false
+    t.jsonb "attempted_payload", default: {}
+    t.datetime "attempted_at", default: -> { "now()" }
+    t.boolean "successful", default: false
+    t.string "error_message"
+    t.index ["enrichable_type", "enrichable_id"], name: "index_enrichment_attempts_on_enrichable"
+    t.index ["enriched_data_id"], name: "index_enrichment_attempts_on_enriched_data_id"
+    t.index ["workspace_id"], name: "index_enrichment_attempts_on_workspace_id"
+  end
+
   create_table "event_trigger_steps", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.uuid "event_trigger_id"
     t.string "type"
@@ -180,6 +217,18 @@ ActiveRecord::Schema.define(version: 2023_12_12_204215) do
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.index ["workspace_id"], name: "index_integrations_on_workspace_id"
+  end
+
+  create_table "reports", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "workspace_id"
+    t.boolean "enabled"
+    t.string "name"
+    t.jsonb "config"
+    t.string "sending_mechanism"
+    t.string "cadence"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["workspace_id"], name: "index_reports_on_workspace_id"
   end
 
   create_table "retention_cohort_activity_periods", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -224,6 +273,16 @@ ActiveRecord::Schema.define(version: 2023_12_12_204215) do
     t.datetime "updated_at", precision: 6, null: false
     t.index ["event_trigger_id"], name: "index_triggered_event_triggers_on_event_trigger_id"
     t.index ["workspace_id"], name: "index_triggered_event_triggers_on_workspace_id"
+  end
+
+  create_table "triggered_reports", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "report_id"
+    t.uuid "workspace_id"
+    t.jsonb "payload"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["report_id"], name: "index_triggered_reports_on_report_id"
+    t.index ["workspace_id"], name: "index_triggered_reports_on_workspace_id"
   end
 
   create_table "user_profile_enrichment_attempts", force: :cascade do |t|
@@ -305,6 +364,8 @@ ActiveRecord::Schema.define(version: 2023_12_12_204215) do
     t.datetime "updated_at", precision: 6, null: false
     t.boolean "combine_marketing_and_product_data_sources"
     t.boolean "should_enrich_user_profile_data"
+    t.string "enrichment_provider"
+    t.boolean "should_enrich_organization_profile_data", default: false
     t.index ["workspace_id"], name: "index_workspace_settings_on_workspace_id"
   end
 
@@ -319,8 +380,6 @@ ActiveRecord::Schema.define(version: 2023_12_12_204215) do
   end
 
   add_foreign_key "analytics_organization_profiles", "workspaces"
-  add_foreign_key "analytics_organization_profiles_users", "analytics_organization_profiles"
-  add_foreign_key "analytics_organization_profiles_users", "analytics_user_profiles"
   add_foreign_key "analytics_user_profiles", "workspaces"
   add_foreign_key "api_keys", "workspaces"
   add_foreign_key "auth_sessions", "users"

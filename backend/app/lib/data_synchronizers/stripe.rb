@@ -11,9 +11,17 @@ module DataSynchronizers
     def sync!
       create_billing_data_snapshot!
       enqueue_mrr_movement_events_for_time_period!
+      create_revenue_retention_periods!
     end
 
     private
+
+    def create_revenue_retention_periods!
+      StripeHelpers::RetentionCalculator.new(@stripe_account_id).create_revenue_retention_periods_for_time_period!(
+        start_timestamp: @start_timestamp,
+        end_timestamp: @end_timestamp,
+      )
+    end
 
     def enqueue_mrr_movement_events_for_time_period!
       StripeHelpers::MrrMovementHandler.new(
