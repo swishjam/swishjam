@@ -59,7 +59,7 @@ module Ingestion
             organization_events << event_json
           when 'sdk_error'
             begin
-              Sentry.capture_message("SDK Error: #{JSON.parse(e['properties'] || '{}').dig('error', 'message')}", level: 'error')
+              Sentry.capture_message("SDK Error: #{JSON.parse(event_json['properties'] || '{}').dig('error', 'message')}", level: 'error')
             rescue => e
               Sentry.capture_exception(e)
             end
