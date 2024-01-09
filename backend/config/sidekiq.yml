@@ -27,3 +27,6 @@
     daily_reports:
       cron: "0 16 * * *" # every day @ 4pm UTC (8 am PST)
       class: DailyReportsBatchRunnerJob
+    data_cleanup:
+      cron: "0 0 * * *" # every day @ 12am UTC
+      class: DataCleanupJob
