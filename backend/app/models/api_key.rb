@@ -33,8 +33,8 @@ class ApiKey < Transactional
   def self.generate_default_keys_for(workspace)
     return false if workspace.api_keys.any?
     workspace.api_keys.insert_all([
-      { data_source: ReservedDataSources.PRODUCT , public_key: generate_key("swishjam_prdct", :public_key), private_key: generate_key("swishjam_prdct", :private_key), enabled: true, created_at: Time.current, updated_at: Time.current }, 
-      { data_source: ReservedDataSources.MARKETING, public_key: generate_key("swishjam_web", :public_key), private_key: generate_key("swishjam_web", :private_key), enabled: true, created_at: Time.current, updated_at: Time.current },
+      { data_source: ReservedDataSources.PRODUCT , public_key: generate_key("public--swishjam_prdct", :public_key), private_key: generate_key("private--swishjam_prdct", :private_key), enabled: true, created_at: Time.current, updated_at: Time.current }, 
+      { data_source: ReservedDataSources.MARKETING, public_key: generate_key("public--swishjam_web", :public_key), private_key: generate_key("private--swishjam_web", :private_key), enabled: true, created_at: Time.current, updated_at: Time.current },
     ])
   end
 

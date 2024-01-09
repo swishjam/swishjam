@@ -45,12 +45,12 @@ const CopiableKey = ({ value, displayValue }) => {
 }
 
 export default function ApiKeyRow({ apiKey }) {
-  const redactedPrivateKey = apiKey.private_key.replace(/-(.*)$/, function (match, p1) {
-    return '-' + '*'.repeat(p1.length - 4) + p1.substr(-4);
+  const redactedPrivateKey = apiKey.private_key.replace(/((?:[^-]*-){3}).*$/, function (match, p1) {
+    return p1 + '*'.repeat(match.length - p1.length - 4) + match.substr(-4);
   });
   return (
     <tr key={apiKey.id} className="group hover:bg-gray-50 duration-300 transition cursor-default">
-      <td className="whitespace-nowrap px-3 py-3 text-sm text-gray-500">{apiKey.data_source}</td>
+      <td className="whitespace-nowrap px-3 py-3 text-sm text-gray-500">{apiKey.data_source == 'marketing' ? 'web' : apiKey.data_source}</td>
       <td className="whitespace-nowrap px-3 py-3 text-sm text-gray-500">
         <CopiableKey value={apiKey.public_key} />
       </td>
