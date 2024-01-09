@@ -1,5 +1,7 @@
 module EventTriggerSteps
   class Slack < EventTriggerStep
+    after_create :send_notification_to_slack
+
     def channel_id
       config['channel_id']
     end
@@ -40,6 +42,26 @@ module EventTriggerSteps
             text: {
               type: 'mrkdwn',
               text: parsed_message_body
+            }
+          }
+        ]
+      )
+    end
+
+    private
+
+    def send_notification_to_slack
+      access_token = event_trigger.workspace.slack_connection.access_token
+      slack_client = ::Slack::Client.new(access_token)
+
+      slack_client.post_message_to_channel(
+        channel: channel_id, 
+        blocks: [
+          {
+            type: 'section',
+            text: {
+              type: 'mrkdwn',
+              text: "_A new Event Trigger for the `#{event_trigger.event_name}` event has been created for this channel._"
             }
           }
         ]
