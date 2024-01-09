@@ -11,6 +11,7 @@ import Integrations from './integrations';
 import Organizations from './organizations';
 import PageViews from './page-views';
 import RetentionCohorts from './retention_cohorts';
+import SaasMetrics from './saas-metrics';
 import Search from './search';
 import Sessions from './sessions';
 import Slack from './slack';
@@ -38,6 +39,7 @@ export class SwishjamAPI {
   static Organizations = Organizations;
   static PageViews = PageViews;
   static RetentionCohorts = RetentionCohorts;
+  static SaasMetrics = SaasMetrics;
   static Search = Search;
   static Sessions = Sessions;
   static Slack = Slack;

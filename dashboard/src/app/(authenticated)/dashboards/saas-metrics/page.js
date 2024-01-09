@@ -48,6 +48,60 @@ export default function PageMetrics() {
             comparisonDate: comparison_timeseries[index]?.date,
             comparisonValue: comparison_timeseries[index]?.value,
           })),
+<<<<<<< HEAD
+        });
+
+        // setActiveSubsChart({
+        //   value: active_subscriptions.current_count,
+        //   previousValue: active_subscriptions.comparison_count,
+        //   previousValueDate: active_subscriptions.comparison_end_time,
+        //   groupedBy: active_subscriptions.grouped_by,
+        //   timeseries: active_subscriptions.timeseries.map(
+        //     (timeseries, index) => ({
+        //       ...timeseries,
+        //       comparisonDate: active_subscriptions.comparison_timeseries[index]?.date,
+        //       comparisonValue: active_subscriptions.comparison_timeseries[index]?.value,
+        //     }),
+        //   ),
+        // });
+      },
+    );
+  };
+
+  const getChurnRateData = async (timeframe) => {
+    return await SwishjamAPI.SaasMetrics.ChurnRate.timeseries({ includeComparison: true, timeframe }).then(({ timeseries, comparison_timeseries, error }) => {
+      if (!error) {
+        setChurnRateData({
+          value: timeseries[timeseries.length - 1].churn_rate,
+          groupedBy: 'day',
+          timeseries: timeseries.map((dataPoint, index) => ({
+            date: dataPoint.churn_period_end_date,
+            value: dataPoint.churn_rate,
+            comparisonDate: (comparison_timeseries || [])[index]?.churn_period_end_date,
+            comparisonValue: (comparison_timeseries || [])[index]?.churn_rate,
+          })),
+        });
+      }
+    });
+  };
+
+  const getAllData = async timeframe => {
+    setIsRefreshing(true);
+    setMrrMovementData();
+    setMrrChart();
+    setChurnRateData();
+    await Promise.all([
+      getMrrMovementData(timeframe),
+      getBillingData(timeframe),
+      getChurnRateData(timeframe),
+    ])
+    setIsRefreshing(false);
+  }
+
+  useEffect(() => {
+    getAllData(timeframeFilter);
+  }, [timeframeFilter])
+=======
           value: current_count,
           valueChange: current_count - comparison_count,
         });
@@ -158,6 +212,7 @@ export default function PageMetrics() {
   useEffect(() => {
     getAllData(timeframeFilter);
   }, []);
+>>>>>>> saas-metrics
 
   return (
     <main className="mx-auto mb-8 max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -167,6 +222,19 @@ export default function PageMetrics() {
             <RxBarChart size={16} className="mr-1" />Dashboards
           </Link>
           <h1 className="mb-0 text-lg font-medium text-gray-700">
+<<<<<<< HEAD
+            SaaS Metrics
+          </h1 >
+        </div >
+    <div className="flex w-full items-center justify-end">
+      <Timefilter
+        selection={timeframeFilter}
+        onSelection={setTimeframeFilter}
+      />
+      <Button
+        variant="outline"
+        className={`ml-4 bg-white ${isRefreshing ? "cursor-not-allowed" : ""}`}
+=======
             SaaS Analytics
           </h1>
         </div>
@@ -175,11 +243,62 @@ export default function PageMetrics() {
           <Button
             variant="ghost"
             className={`duration-500 transition-all mr-4 hover:text-swishjam ${isRefreshing ? "cursor-not-allowed text-swishjam" : ""}`}
-            onClick={() => getAllData(timeframeFilter)}
-            disabled={isRefreshing}
-          >
-            <ArrowPathIcon className={`h-4 w-4 ${isRefreshing ? "animate-spin" : ""}`} />
-          </Button>
+>>>>>>> saas-metrics
+        onClick={() => getAllData(timeframeFilter)}
+        disabled={isRefreshing}
+      >
+        <ArrowPathIcon className={`h-4 w-4 ${isRefreshing ? "animate-spin" : ""}`} />
+      </Button>
+<<<<<<< HEAD
+        </div >
+      </div >
+      <div className="grid grid-cols-3 gap-4 pt-8">
+        <LineChartWithValue
+          title="MRR"
+          dateKey='group_by_date'
+          valueKey='mrr'
+          value={mrrChart?.value}
+          previousValue={mrrChart?.previousValue}
+          previousValueDate={mrrChart?.previousValueDate}
+          noDataMessage={
+            <div className="text-center">
+              <BsCloudSlash size={24} className="text-gray-500 m-auto" />
+              No data available,{" "}
+              <Link
+                className="underline text-blue-700 cursor-pointer"
+                href="/data-sources"
+              >
+                connect your Stripe account
+              </Link>{" "}
+              to get started.
+            </div>
+          }
+          valueFormatter={formatMoney}
+          yAxisFormatter={formatShrinkMoney}
+          showAxis={false}
+          timeseries={mrrChart?.timeseries}
+        />
+        <LineChartWithValue
+          title="Active Subscriptions"
+          showAxis={false}
+          timeseries={activeSubsChart?.timeseries}
+          noDataMessage={
+            <div className="text-center">
+              <BsCloudSlash size={24} className="text-gray-500 m-auto" />
+              No data available,{" "}
+              <Link
+                className="underline text-blue-700 cursor-pointer"
+                href="/data-sources"
+              >
+                connect your Stripe account
+              </Link>{" "}
+              to get started.
+            </div>
+          }
+          value={activeSubsChart?.value}
+          previousValue={activeSubsChart?.previousValue}
+          previousValueDate={activeSubsChart?.previousValueDate}
+=======
           <Timefilter
             selection={timeframeFilter}
             onSelection={date => {
@@ -198,10 +317,42 @@ export default function PageMetrics() {
           timeseries={currentChartLookup[currentSelectedChart]?.timeseries}
           title={'Current MRR'}
           value={currentChartLookup[currentSelectedChart]?.value}
+>>>>>>> saas-metrics
           valueFormatter={formatNumbers}
           yAxisFormatter={formatShrinkNumbers}
         />
         <LineChartWithValue
+<<<<<<< HEAD
+          title="Churn Rate"
+          value={churnRateData?.value}
+          // previousValue={0}
+          // previousValueDate={new Date()}
+          valueFormatter={percent => `${percent}%`}
+          // yAxisFormatter={formatShrinkMoney}
+          showAxis={false}
+          timeseries={churnRateData?.timeseries}
+        // className={"opacity-50"}
+        />
+      </div>
+      <div className='mt-8 grid grid-cols-2 gap-4'>
+        <BarChartComponent
+          colorsByKey={{
+            'new': 'green',
+            'expansion': 'lightgreen',
+            'reactivation': 'lime',
+            'contraction': '#ff7777',
+            'churn': 'red',
+          }}
+          data={mrrMovementData}
+          stackOffset="sign"
+          title="MRR Movement"
+          yAxisFormatter={formatShrinkMoney}
+        />
+      </div>
+    </main >
+  )
+}
+=======
           groupedBy={currentChartLookup[currentSelectedChart]?.groupedBy}
           previousValue={currentChartLookup[currentSelectedChart]?.previousValue}
           previousValueDate={currentChartLookup[currentSelectedChart]?.previousValueDate}
@@ -227,7 +378,7 @@ export default function PageMetrics() {
       <div className='grid grid-cols-8 gap-2 pt-2'>
         <div className="col-span-4">
           <RetentionWidget
-            title="Revenue Retention" 
+            title="Revenue Retention"
             retentionCohorts={{}}
           />
         </div>
@@ -285,7 +436,7 @@ export default function PageMetrics() {
           yAxisFormatter={formatShrinkNumbers}
         />
       </div>
-      
+
       <div className='grid grid-cols-2 gap-2 pt-2'>
         <BarList
           title="Top Customers By Revenue"
@@ -298,3 +449,4 @@ export default function PageMetrics() {
     </main>
   );
 }
+>>>>>>> saas-metrics

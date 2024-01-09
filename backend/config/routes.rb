@@ -227,6 +227,24 @@ Rails.application.routes.draw do
           get :analytics
         end
       end
+
+      namespace :saas_metrics, only: [] do
+        resources :churn_rate, only: [] do
+          collection do
+            get :timeseries
+          end
+        end
+        resources :mrr, only: [] do
+          collection do
+            get :timeseries
+          end
+        end
+        resources :mrr_movement, only: [] do
+          collection do
+            get :stacked_bar_chart
+          end
+        end
+      end
       
       get :'/admin/ingestion/queuing', to: 'admin/ingestion#queueing'
       get :'/admin/ingestion/queue_stats', to: 'admin/ingestion#queue_stats'
