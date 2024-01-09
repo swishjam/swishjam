@@ -47,8 +47,21 @@ export default function AdminPage() {
           <ArrowPathIcon className={`h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
         </Button>
       </div>
-      <div className='grid grid-cols-3 gap-4 mb-8'>
-        {['event', 'user_identify', 'organization_profile', 'clickhouse_user_profile', 'clickhouse_organization_profile', 'clickhouse_organization_member'].map(queueName => (
+      <div className='grid gap-4 mb-4 grid-cols-4'>
+        {['event', 'user_identify', 'organization_profile', 'user_profiles_from_events'].map(queueName => (
+          <div className='rounded border border-gray-200 text-gray-700 flex items-center justify-center p-4 bg-white'>
+            <div className='text-center'>
+              <h4 className='text-md'>{queueName} queue</h4>
+              {queueStats
+                ? <h1 className='text-4xl'>{queueStats[`${queueName}_count`]}</h1>
+                : <Skeleton className='h-12 w-8 m-auto' />
+              }
+            </div>
+          </div>
+        ))}
+      </div>
+      <div className='grid gap-4 mb-8 grid-cols-3'>
+        {['clickhouse_user_profile', 'clickhouse_organization_profile', 'clickhouse_organization_member'].map(queueName => (
           <div className='rounded border border-gray-200 text-gray-700 flex items-center justify-center p-4 bg-white'>
             <div className='text-center'>
               <h4 className='text-md'>{queueName} queue</h4>

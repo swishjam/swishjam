@@ -15,6 +15,7 @@ module Api
           clickhouse_user_profile_count = Ingestion::QueueManager.num_records_in_queue(Ingestion::QueueManager::Queues.CLICKHOUSE_USER_PROFILES)
           clickhouse_organization_profile_count = Ingestion::QueueManager.num_records_in_queue(Ingestion::QueueManager::Queues.CLICKHOUSE_ORGANIZATION_PROFILES)
           clickhouse_organization_member_count = Ingestion::QueueManager.num_records_in_queue(Ingestion::QueueManager::Queues.CLICKHOUSE_ORGANIZATION_MEMBERS)
+          user_profiles_from_events_count = Ingestion::QueueManager.num_records_in_queue(Ingestion::QueueManager::Queues.USER_PROFILES_FROM_EVENTS)
           render json: {
             event_count: event_count,
             user_identify_count: user_identify_count,
@@ -22,6 +23,7 @@ module Api
             clickhouse_user_profile_count: clickhouse_user_profile_count,
             clickhouse_organization_profile_count: clickhouse_organization_profile_count,
             clickhouse_organization_member_count: clickhouse_organization_member_count,
+            user_profiles_from_events_count: user_profiles_from_events_count,
           }, status: :ok
         end
 
