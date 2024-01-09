@@ -1,3 +1,6 @@
+import { toast } from "sonner";
+import * as Sentry from '@sentry/nextjs';
+
 const API_HOST = process.env.NEXT_PUBLIC_API_HOST || 'https://api.swishjam.com';
 
 const _filterUndefinedData = data => {
@@ -39,9 +42,19 @@ export class Base {
     const response = await fetch(`${API_HOST}${urlPath}`, opts);
     if (response.status === 401) {
       window.location.href = `/logout?return_url=${window.location.pathname}`
-      return;
+      return {};
+    } else if (response.status === 500) {
+      Sentry.captureMessage('API 500 error in client', {
+        extra: { method, urlPath, payload },
+      })
+      toast.error('An unexpected error occurred..', {
+        description: 'We\'re actively looking into the issue. Please contact founders@swishjam.com for help.',
+        duration: 10_000,
+      })
+      return { error: 'An unexpected error occurred.' };
+    } else {
+      return await response.json();
     }
-    return await response.json();
   }
 }
 

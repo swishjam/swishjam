@@ -27,13 +27,6 @@ module DummyData
             },
           )
 
-          Analytics::SwishjamUserProfile.create!(
-            swishjam_api_key: workspace.api_keys.for_data_source!(ApiKey::ReservedDataSources.PRODUCT).public_key, 
-            swishjam_user_id: user_profile.id, 
-            immutable_metadata: user_profile.immutable_metadata,
-            created_at: user_profile.created_at
-          )
-
           domain_name = email.split('@')[-1]
           organization_name = domain_name.split('.')[0].capitalize
           user_profile.analytics_organization_profiles << AnalyticsOrganizationProfile.create!(workspace: workspace, name: organization_name, organization_unique_identifier: organization_name)
@@ -84,6 +77,7 @@ module DummyData
             workspace: workspace,
             number_of_stripe_events: 10,
             number_of_resend_events: 10,
+            number_of_intercom_events: 10,
             data_begins_max_number_of_days_ago: data_begins_max_number_of_days_ago,
             user_profile_id: user_profile.id,
           )

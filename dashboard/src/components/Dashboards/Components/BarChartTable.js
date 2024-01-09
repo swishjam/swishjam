@@ -3,7 +3,7 @@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { ScrollArea } from "@/components/ui/scroll-area"
 
-export default function DataTable({ headers, barChartData, getColor, ignoredKeys = ['date'] }) {
+export default function BarChartTable({ headers, barChartData, getColor, ignoredKeys = ['date'] }) {
   let tableData = {};
   (barChartData || []).forEach(dataForDate => {
     Object.keys(dataForDate).forEach(key => {

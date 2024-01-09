@@ -11,17 +11,18 @@ function classNames(...classes) {
   return classes.filter(Boolean).join(' ')
 }
 
-export default function RetentionWidget({ retentionCohorts, isExpandable = true, includeCard = true }) {
+export default function RetentionWidget({ title = 'User Retention', retentionCohorts, isExpandable = true, includeCard = true }) {
   const [chartType, setChartType] = useState('grid');
 
   const toggleChartType = () => chartType === 'grid' ? setChartType('chart') : setChartType('grid');
+  const hasRetentionData = retentionCohorts ? Object.keys(retentionCohorts).length > 0: false;
 
   return (
     <ConditionalCardWrapper
       includeCard={includeCard}
       title={
         <div className='flex items-center justify-between space-y-0'>
-          <CardTitle className="text-sm font-medium cursor-default">User Retention</CardTitle>
+          <CardTitle className="text-sm font-medium cursor-default">{title}</CardTitle>
           <TooltipProvider>
             <Tooltip delayDuration={300} className='cursor-default'>
               <TooltipTrigger>
@@ -30,8 +31,9 @@ export default function RetentionWidget({ retentionCohorts, isExpandable = true,
                     as='div'
                     checked={chartType === 'grid'}
                     onChange={toggleChartType}
+                    disabled={!hasRetentionData}
                     className={classNames(
-                      chartType === 'grid' ? 'bg-swishjam' : 'bg-gray-200',
+                      chartType === 'grid' && hasRetentionData ? 'bg-swishjam' : 'bg-gray-200',
                       'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out'
                     )}
                   >
@@ -72,6 +74,21 @@ export default function RetentionWidget({ retentionCohorts, isExpandable = true,
         </div>
       }
     >
+      {!hasRetentionData && (
+        <div className='text-sm text-gray-500 text-center p-8 group'>
+          <div className='my-8 mx-auto grid grid-cols-3 gap-2 w-20'>
+            <div className='border-2 border-gray-300 rounded h-5 w-5 group-hover:border-swishjam duration-500 transition-all'/>
+            <div className='border-2 border-gray-300 rounded h-5 w-5 group-hover:border-swishjam duration-500 transition-all'/>
+            <div className='border-2 border-gray-300 rounded h-5 w-5'/>
+            <div className='border-2 border-gray-300 rounded h-5 w-5 group-hover:border-swishjam duration-500 transition-all'/>
+            <div className='border-2 border-gray-300 rounded h-5 w-5'/>
+            <div className='h-5 w-5'/>
+            <div className='border-2 border-gray-300 rounded h-5 w-5'/>
+          </div> 
+          <h3 className='tracking-tight text-sm font-medium cursor-default'>No Retention Data</h3> 
+          <p className='mt-2'>Send events and identify users <br />retention data will appear here</p> 
+        </div>
+      )}
       {chartType === 'grid'
         ? <RetentionGrid retentionCohorts={retentionCohorts} isExpandable={isExpandable} />
         : <LineChart retentionCohorts={retentionCohorts} />

@@ -201,7 +201,7 @@ export default function ProfileInformationSideBar({ userData, hasStripeIntegrati
                         direction="right"
                         content={
                           <div className='px-4 py-2 text-sm text-gray-500'>
-                            Profile enrichment is not enabled. <a href='/data-sources' target='_blank' className='text-blue-400 hover:underline'>Enable it here</a> to begin enriching user profiles.
+                            Profile enrichment is not enabled. <a href='/settings' target='_blank' className='text-blue-400 hover:underline'>Enable it here</a> to begin enriching user profiles.
                           </div>
                         }
                       >

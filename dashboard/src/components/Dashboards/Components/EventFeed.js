@@ -17,18 +17,16 @@ import {
   ReceiptIcon,
   ZapIcon,
   PanelTopIcon,
+  MessageSquareIcon,
 } from "lucide-react";
 
 import CalComLogo from '@public/logos/calcom.png'
-import GoogleSearchConsoleLogo from '@public/logos/Google-Search-Console.png'
-// import HubspotLogo from '@public/logos/hubspot.jpeg';
+import IntercomLogo from '@public/logos/intercom.png'
 import ResendLogo from '@public/logos/resend.png'
-// import SalesforceLogo from '@public/logos/salesforce.png'
 import StripeLogo from '@public/logos/stripe.jpeg'
-import SwishjamLogo from '@public/logos/swishjam.png'
+// import SwishjamLogo from '@public/logos/swishjam.png'
 import { useRouter } from "next/navigation"
 import { Skeleton } from "@/components/ui/skeleton"
-// import ZendeskLogo from '@public/logos/Zendesk.webp'
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(' ')
@@ -37,6 +35,7 @@ function classNames(...classes) {
 const EVENT_ICON_DICT = {
   'new_session': <PanelTopIcon className='h-4 w-4 text-swishjam' />,
   'page_view': <GlobeIcon className='h-4 w-4 text-swishjam' />,
+  'intercom': <MessageSquareIcon className='h-4 w-4 text-gray-400' />,
   'resend.email.sent': <MailIcon className="h-4 w-4 text-gray-400" />,
   'resend.email.bounced': <MailWarningIcon className="h-4 w-4 text-red-400" />,
   'resend.email.complained': <MailWarningIcon className="h-4 w-4 text-red-400" />,
@@ -50,13 +49,14 @@ const EVENT_ICON_DICT = {
 
 const DATA_SOURCE_IMG_SRC_DICT = {
   'cal': CalComLogo,
+  'intercom': IntercomLogo,
   'stripe': StripeLogo,
   'resend': ResendLogo,
 }
 
 const iconForEvent = event => {
-  const eventIcon = EVENT_ICON_DICT[event.name] || <ZapIcon className="h-4 w-4 text-gray-400" />;
   const dataSource = event.name.split('.')[0];
+  const eventIcon = EVENT_ICON_DICT[event.name] || EVENT_ICON_DICT[dataSource] || <ZapIcon className="h-4 w-4 text-gray-400" />;
   const dataSourceIconUrl = DATA_SOURCE_IMG_SRC_DICT[dataSource];
   if (eventIcon) {
     return <div className='relative rounded-full w-fit flex items-center p-1 bg-gray-100'>

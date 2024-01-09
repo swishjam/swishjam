@@ -457,17 +457,13 @@ export default function Home() {
       </h3>
       <div className="grid grid-cols-2 gap-4 pt-8">
         <ItemizedList
-          fallbackAvatarGenerator={(user) => {
-            return user?.initials?.slice(0, 2) || "";
-          }}
+          fallbackAvatarGenerator={user => user?.initials?.slice(0, 2) || ""}
           items={newUsersData}
-          titleFormatter={(user) =>
-            user.full_name || user.email || user.user_unique_identifier
-          }
-          subTitleFormatter={(user) => (user.full_name ? user.email : null)}
-          linkFormatter={(user) => `/users/${user.id}`}
+          titleFormatter={user => user.full_name || user.email || user.user_unique_identifier}
+          subTitleFormatter={user => (user.full_name ? user.email : null)}
+          linkFormatter={user => `/users/${user.swishjam_user_id}`}
           rightItemKey="created_at"
-          rightItemKeyFormatter={(date) => {
+          rightItemKeyFormatter={date => {
             return new Date(date)
               .toLocaleDateString("en-us", {
                 weekday: "short",
@@ -482,13 +478,9 @@ export default function Home() {
           maxNumItems={5}
         />
         <ItemizedList
-          fallbackAvatarGenerator={(org) => {
-            return org?.initials?.slice(0, 2) || "";
-          }}
+          fallbackAvatarGenerator={org => org?.initials?.slice(0, 2) || ""}
           items={newOrganizationsData}
-          titleFormatter={(org) =>
-            org.name || org.organization_unique_identifier
-          }
+          titleFormatter={(org) => org.name || org.organization_unique_identifier}
           linkFormatter={(org) => `/organizations/${org.id}`}
           noDataMsg="No organizations identified yet."
           rightItemKey="created_at"

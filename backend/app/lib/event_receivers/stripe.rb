@@ -9,6 +9,7 @@ module EventReceivers
 
     def receive!
       return if !@stripe_event.livemode
+      integration = get_integration_for_stripe_account
       if integration
         if public_key
           events = []

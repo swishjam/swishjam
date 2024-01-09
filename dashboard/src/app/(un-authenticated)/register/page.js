@@ -9,6 +9,7 @@ import * as Yup from 'yup';
 import Logo from '@components/Logo';
 import LoadingSpinner from '@components/LoadingSpinner';
 import { signUserUp } from '@/lib/auth';
+import { useSearchParams } from 'next/navigation';
 
 const SignUpSchema = Yup.object().shape({
   email: Yup.string().email('Invalid email').required('Required'),
@@ -17,10 +18,13 @@ const SignUpSchema = Yup.object().shape({
   inviteCode: Yup.string().required('Required')
 });
 
-export default function SignUp() {
+export default function SignUpPage() {
   // const router = useRouter();
   const [errorMsg, setErrorMsg] = useState(null);
   const [loading, setLoading] = useState(false);
+
+  const searchParams = useSearchParams();
+  const return_url = searchParams.get('return_url');
 
   async function signUp(formData) {
     setLoading(true);
@@ -29,8 +33,7 @@ export default function SignUp() {
       setLoading(false);
       setErrorMsg(error);
     } else {
-      // router.push('/');
-      window.location.href = '/';
+      window.location.href = return_url || '/';
     }
   }
 
@@ -171,7 +174,7 @@ export default function SignUp() {
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-lg">
         <p className="text-sm text-gray-600">
-          Already have an account? <span className="font-medium text-swishjam hover:text-swishjam-dark"><Link href="/">Sign in</Link></span>
+          Already have an account? <span className="font-medium text-swishjam hover:text-swishjam-dark"><Link href={`/login?return_url=${return_url}`}>Sign in</Link></span>
         </p>
       </div>
 

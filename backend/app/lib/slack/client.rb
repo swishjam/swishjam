@@ -7,7 +7,7 @@ module Slack
       @access_token = access_token
     end
 
-    def list_channels(cursor: nil, exclude_archived: false, limit: 100, types: 'public_channel,private_channel')
+    def list_channels(cursor: nil, exclude_archived: true, limit: 100, types: 'public_channel')
       params = { 
         limit: limit, 
         types: types,
@@ -22,7 +22,7 @@ module Slack
       raise BadRequestError, "`post_message_to_channel` must contain either `text` or `blocks` argument." if text.blank? && blocks.blank?
       payload = { channel: channel }
       payload[:text] = text if text.present?
-      payload[:blocks] = blocks if blocks.present?
+      payload[:blocks] = blocks.to_json if blocks.present?
       response = post('chat.postMessage', payload)
     end
 

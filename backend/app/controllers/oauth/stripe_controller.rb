@@ -2,13 +2,13 @@ module Oauth
   class StripeController < ApplicationController
     def callback
       if params[:error] || !params[:code] || !params[:state]
-        redirect_to "#{ENV['FRONTEND_URL'] || 'https://app.swishjam.com'}/data-sources?success=false&message=#{params[:error_description]}"
+        redirect_to "#{ENV['FRONTEND_URL'] || 'https://app.swishjam.com'}/integrations?success=false&message=#{params[:error_description]}"
         return
       end
       workspace = validate_token_and_return_workspace
       configuration = get_oauth_response_data
       create_or_update_swishjam_integration(workspace, configuration)
-      redirect_to "#{ENV['FRONTEND_URL'] || 'https://app.swishjam.com'}/data-sources?success=true"
+      redirect_to "#{ENV['FRONTEND_URL'] || 'https://app.swishjam.com'}/integrations?success=true"
     end
 
     private

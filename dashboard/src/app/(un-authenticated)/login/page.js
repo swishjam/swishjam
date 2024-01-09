@@ -7,15 +7,19 @@ import { Field, Form, Formik } from 'formik';
 import * as Yup from 'yup';
 import Logo from '@components/Logo';
 import LoadingSpinner from '@components/LoadingSpinner';
+import { useSearchParams } from 'next/navigation';
 
 const SignInSchema = Yup.object().shape({
   email: Yup.string().email('Invalid email').required('Required'),
   password: Yup.string().required('Required'),
 });
 
-export default function Login() {
+export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState(null);
+
+  const searchParams = useSearchParams();
+  const return_url = searchParams.get('return_url');
 
   async function signIn(formData) {
     setLoading(true);
@@ -25,7 +29,7 @@ export default function Login() {
       setErrorMsg(error);
     } else {
       // do full redirect to make sure auth gets set correctly
-      window.location.href = '/';
+      window.location.href = return_url || '/';
     }
   }
 
@@ -117,7 +121,7 @@ export default function Login() {
 
       {/*<div className="mt-8 sm:mx-auto sm:w-full sm:max-w-lg">
         <p className="text-sm text-gray-600">
-          Don't have an account? <span className="font-medium text-swishjam hover:text-swishjam-dark"><Link href="register"><span className="cursor-pointer">Sign up for free account</span></Link></span>
+          Don't have an account? <span className="font-medium text-swishjam hover:text-swishjam-dark"><Link href={`register?return_url=${return_url}`}><span className="cursor-pointer">Sign up for free account</span></Link></span>
         </p>
       </div>*/}
 

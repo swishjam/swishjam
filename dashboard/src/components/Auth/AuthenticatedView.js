@@ -14,7 +14,7 @@ export default function AuthenticatedView({ children, LoadingView }) {
   const { isAwaitingData, isLoggedOut, email } = useAuthData();
 
   if (isLoggedOut) {
-    router.push("/login");
+    router.push(`/login?return_url=${window.location.pathname + window.location.search}`);
   } else if (isAwaitingData) {
     return (
       <>

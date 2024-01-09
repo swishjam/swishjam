@@ -15,6 +15,7 @@ import SwishjamAPI from "@/lib/api-client/swishjam-api";
 import Timefilter from "@/components/Timefilter";
 import { useEffect, useState, useRef } from "react";
 import ValueCardConfiguration from "@/components/Dashboards/Builder/Configurations/ValueCard";
+import { swishjam } from "@swishjam/react";
 
 const AUTO_SAVE_CHECK_INTERVAL = 2_500;
 const DEFAULT_GRID_CONFIGURATIONS = {
@@ -155,6 +156,7 @@ export default function Dashboard({ params }) {
         onClose={() => setComponentSlideoutIsOpen(false)}
         onSelect={componentType => {
           setComponentSlideoutIsOpen(false);
+          swishjam.event('new_dashboard_component_selected', { component_type: componentType })
           // There is no configuration options for the RetentionWidget, add it to the dashboard immediately
           if (componentType === 'UserRetention') {
             createDashboardComponent({ type: componentType })
@@ -168,6 +170,7 @@ export default function Dashboard({ params }) {
           componentType={dashboardComponentToConfigure}
           onClose={() => setDashboardComponentToConfigure()}
           onSave={componentConfiguration => {
+            swishjam.event('dashboard_component_added', { component_type: dashboardComponentToConfigure, ...componentConfiguration })
             setDashboardComponentToConfigure();
             createDashboardComponent({ type: dashboardComponentToConfigure, ...componentConfiguration });
           }}
@@ -200,7 +203,10 @@ export default function Dashboard({ params }) {
                 <button
                   type="button"
                   className="ml-2 inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-100"
-                  onClick={() => setComponentSlideoutIsOpen(true)}
+                  onClick={() => {
+                    swishjam.event('dashboard_component_picker_opened')
+                    setComponentSlideoutIsOpen(true)
+                  }}
                 >
                   Add Component <PlusCircleIcon className='h-4 w-4 ml-1' />
                 </button>
@@ -245,7 +251,12 @@ export default function Dashboard({ params }) {
                   SwishjamAPI.DashboardComponents.delete(id);
                 }}
               />
-            ) : <EmptyState onClick={() => setComponentSlideoutIsOpen(true)} />
+            ) : <EmptyState
+              onClick={() => {
+                swishjam.event('dashboard_component_picker_opened')
+                setComponentSlideoutIsOpen(true)
+              }}
+            />
           : <LoadingState />
         }
       </div>

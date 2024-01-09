@@ -19,6 +19,7 @@ Rails.application.routes.draw do
   get '/oauth/stripe/callback' => 'oauth/stripe#callback'
   get '/oauth/slack/callback' => 'oauth/slack#callback'
   get '/oauth/google/callback' => 'oauth/google#callback'
+  get '/oauth/intercom/callback' => 'oauth/intercom#callback'
 
   get :ping, to: 'application#ping'
 
@@ -93,6 +94,7 @@ Rails.application.routes.draw do
         collection do
           get :active
           get :timeseries
+          get :unique_attributes
         end
         resources :events, only: [:index], controller: :'users/events'
         resources :organizations, only: [:index], controller: :'users/organizations'
@@ -212,6 +214,13 @@ Rails.application.routes.draw do
         end
       end
 
+      resources :reports, only: [:destroy, :index, :create] do
+        member do
+          patch :enable
+          patch :disable
+        end
+      end
+
       resources :google_search_console, only: [] do
         collection do
           get :sites
@@ -244,9 +253,11 @@ Rails.application.routes.draw do
       get :'/admin/data_syncs', to: 'admin/data_syncs#index'
 
       namespace :webhooks do
-        post :stripe, to: 'stripe#receive'
-        post :'resend/:workspace_id', to: 'resend#receive'
         post :'cal_com/:workspace_id', to: 'cal_com#receive'
+        post :'intercom', to: 'intercom#receive'
+        post :'resend/:workspace_id', to: 'resend#receive'
+        post :stripe, to: 'stripe#receive'
+        post :github, to: 'github#receive'
       end
     end
   end

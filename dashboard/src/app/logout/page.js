@@ -4,15 +4,21 @@ import { useEffect } from "react";
 import { logUserOut } from "@/lib/auth";
 // import { useRouter } from "next/navigation";
 import LoadingSpinner from "@/components/LoadingSpinner";
+import { useSearchParams } from "next/navigation";
+
 
 
 export default function Logout() {
-  // const router = useRouter();
+  const searchParams = useSearchParams();
+  const return_url = searchParams.get('return_url');
 
   useEffect(() => {
     logUserOut().then(() => {
-      // router.push('/login')
-      window.location.href = '/login';
+      if (return_url) {
+        window.location.href = `/login?return_url=${return_url}`
+      } else {
+        window.location.href = '/login';
+      }
     });
   }, []);
 

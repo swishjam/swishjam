@@ -7,38 +7,17 @@ module Api
         per_page = params[:per_page] || 10
         page = params[:page] || 1
         if params[:q]
-          users = current_workspace
-                    .analytics_user_profiles
-                    .includes(:analytics_organization_profiles)
-                    .where('
-                      LOWER(email) LIKE :query OR 
-                      LOWER(first_name) LIKE :query OR 
-                      LOWER(last_name) LIKE :query OR 
-                      LOWER(user_unique_identifier) LIKE :query
-                    ', query: "%#{params[:q].downcase}%")
-                    .order(created_at: :desc)
-                    .page(page)
-                    .per(per_page)
-          render json: {
-            users: users.map{ |u| { id: u.id, email: u.email, full_name: u.full_name, initials: u.initials, user_unique_identifier: u.user_unique_identifier }},
-            previous_page: users.prev_page,
-            next_page: users.next_page,
-            total_pages: users.total_pages,
-            total_num_records: users.total_count,
-          }, status: :ok
+          users = ClickHouseQueries::Users::Search.new(current_workspace, query: params[:q], limit: per_page).get
+          render json: { users: users }, status: :ok
         else
-          users = current_workspace
-                    .analytics_user_profiles
-                    .includes(:analytics_organization_profiles, :user_profile_enrichment_data, customer_subscriptions: :customer_subscription_items)
-                    .order(created_at: :desc)
-                    .page(page)
-                    .per(per_page)
+          where_clause = JSON.parse(params[:where] || {}.to_json)
+          users_results = ClickHouseQueries::Users::List.new(current_workspace, where: where_clause, page: page, limit: per_page).get
           render json: {
-            users: users.map{ |u| UserProfileSerializer.new(u) },
-            previous_page: users.prev_page,
-            next_page: users.next_page,
-            total_pages: users.total_pages,
-            total_num_records: users.total_count,
+            users: users_results['users'],
+            previous_page: params[:page].to_i > 1 ? params[:page].to_i - 1 : nil,
+            next_page: params[:page].to_i < users_results['total_num_pages'] ? params[:page].to_i + 1 : nil,
+            total_pages: users_results['total_num_pages'],
+            total_num_records: users_results['total_num_users'],
           }, status: :ok
         end
       end
@@ -53,17 +32,17 @@ module Api
         params[:type] ||= 'weekly'
         raise "Invalid `type` provided: #{params[:type]}" unless %w(daily weekly monthly).include?(params[:type])
         active_users = {
-          'daily' => ClickHouseQueries::Users::Active::Daily,
-          'weekly' => ClickHouseQueries::Users::Active::Weekly,
-          'monthly' => ClickHouseQueries::Users::Active::Monthly
+          'daily' => ClickHouseQueries::Users::Active::Timeseries::Daily,
+          'weekly' => ClickHouseQueries::Users::Active::Timeseries::Weekly,
+          'monthly' => ClickHouseQueries::Users::Active::Timeseries::Monthly
         }[params[:type]].new(public_keys_for_requested_data_source, start_time: start_timestamp, end_time: end_timestamp).timeseries
 
         comparison_active_users = nil
         if params[:include_comparison]
           comparison_active_users = {
-            'daily' => ClickHouseQueries::Users::Active::Daily,
-            'weekly' => ClickHouseQueries::Users::Active::Weekly,
-            'monthly' => ClickHouseQueries::Users::Active::Monthly
+            'daily' => ClickHouseQueries::Users::Active::Timeseries::Daily,
+            'weekly' => ClickHouseQueries::Users::Active::Timeseries::Weekly,
+            'monthly' => ClickHouseQueries::Users::Active::Timeseries::Monthly
           }[params[:type]].new(public_keys_for_requested_data_source, start_time: comparison_start_timestamp, end_time: comparison_end_timestamp).timeseries
         end
         render json: { 
@@ -118,6 +97,17 @@ module Api
           comparison_end_time: comparison_end_timestamp,
           grouped_by: group_by,
         }, status: :ok
+      end
+
+      def unique_attributes
+        columns = JSON.parse((params[:columns] || %w[metadata current_subscription_plan_name monthly_recurring_revenue_in_cents lifetime_value_in_cents enrichment_company_industry enrichment_company_size enrichment_company_name enrichment_company_website enrichment_job_title enrichment_company_location_metro]).to_s)
+        results = columns.map do |column|
+          {
+            column: column,
+            values: ClickHouseQueries::Users::Attributes::UniqueValues.new(current_workspace, column: column).get
+          }
+        end
+        render json: results, status: :ok
       end
     end
   end

@@ -43,9 +43,10 @@ module EventTriggers
     def self.should_ignore_event?(event)
       parsed_event = Analytics::Event.parsed_from_ingestion_queue(event)
       is_design_patterns = ['swishjam_prdct-c094a41f338335c4', 'swishjam_mrkt-9a3639e811447334'].include?(parsed_event.swishjam_api_key)
-      is_design_patterns &&
-        parsed_event.name == 'presented_with_your_subscription' &&
-        (parsed_event.properties['userEmail']&.ends_with?('gmail.com') || parsed_event.properties['userEmail']&.ends_with?('.ru') )
+      is_presented_with_your_subscription_and_has_generic_email = parsed_event.name == 'presented_with_your_subscription' && 
+                                                                  (parsed_event.properties['userEmail']&.ends_with?('gmail.com') || parsed_event.properties['userEmail']&.ends_with?('.ru') )
+      is_custom_design_selected_and_is_missing_email = parsed_event.name == 'custom_design_system_selected' && parsed_event.properties['userEmail'].nil?
+      is_design_patterns && (is_presented_with_your_subscription_and_has_generic_email || is_custom_design_selected_and_is_missing_email)
     end
   end
 end
