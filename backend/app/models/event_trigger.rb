@@ -4,6 +4,9 @@ class EventTrigger < Transactional
   accepts_nested_attributes_for :event_trigger_steps
   has_many :triggered_event_triggers, dependent: :destroy
 
+  scope :enabled, -> { where(enabled: true) }
+  scope :disabled, -> { where(enabled: false) }
+
   validates :event_name, presence: true
 
   def trigger!(event, as_test: false)
