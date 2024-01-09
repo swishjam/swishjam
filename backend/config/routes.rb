@@ -229,6 +229,7 @@ Rails.application.routes.draw do
       end
 
       namespace :saas_metrics, only: [] do
+        resources :revenue_retention, only: :index
         resources :churn_rate, only: [] do
           collection do
             get :timeseries

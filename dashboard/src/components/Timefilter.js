@@ -29,6 +29,9 @@ const getNameByValue = (value) => {
 }
 
 export default function Timefilter({ selection = 'this_month', onSelection }) {
+  if (!getNameByValue(selection)) {
+    throw new Error(`Invalid time filter value: ${selection}, must be one of ${options.map((opt) => opt.value).join(', ')}.`);
+  }
   return (
     <Popover>
       <PopoverTrigger asChild>

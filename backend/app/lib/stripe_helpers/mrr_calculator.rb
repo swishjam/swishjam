@@ -41,9 +41,6 @@ module StripeHelpers
       end
     end
 
-
-    private
-
     def self.mrr_for_subscription_item(interval:, unit_amount:, quantity:, interval_count:)
       case interval
       when 'day'

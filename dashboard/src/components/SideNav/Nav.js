@@ -17,12 +17,13 @@ import Link from 'next/link'
 import Logo from '@components/Logo'
 import { Bars3Icon } from '@heroicons/react/24/outline'
 import { RxBarChart } from 'react-icons/rx'
-import { LuFlaskConical } from "react-icons/lu";
+// import { LuFlaskConical } from "react-icons/lu";
 import { PiMagicWand } from "react-icons/pi";
 
 
 import useCommandBar from '@/hooks/useCommandBar';
-// import { SwishjamMemory } from '@/lib/swishjam-memory';
+import { SwishjamMemory } from '@/lib/swishjam-memory';
+import { Tooltipable } from '../ui/tooltip';
 
 const appNav = [
   { name: 'Home', href: '/', icon: HomeIcon },
@@ -42,24 +43,26 @@ const DesktopNavItem = ({ item, isCollapsed, currentPath }) => {
 
   return (
     <li key={item.name}>
-      <Link
-        href={item.href}
-        className={classNames(
-          isCurrentPage(item.href)
-            ? 'bg-accent text-swishjam'
-            : 'text-gray-700 hover:bg-accent',
-          `group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold duration-300 transition ${isCollapsed ? 'py-2 px-1' : 'p-2'}`
-        )}
-      >
-        {item.icon && <item.icon
+      <Tooltipable direction='right' content={item.name}>
+        <Link
+          href={item.href}
           className={classNames(
-            isCurrentPage(item.href) ? 'text-swishjam' : 'text-gray-400 duration-300 transition',
-            'h-6 w-6 shrink-0'
+            isCurrentPage(item.href)
+              ? 'bg-accent text-swishjam'
+              : 'text-gray-700 hover:bg-accent',
+            `group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold duration-300 transition ${isCollapsed ? 'py-2 px-1 justify-center' : 'p-2'}`
           )}
-          aria-hidden="true"
-        />}
-        {isCollapsed ? '' : item.name}
-      </Link>
+        >
+          {item.icon && <item.icon
+            className={classNames(
+              isCurrentPage(item.href) ? 'text-swishjam' : 'text-gray-400 duration-300 transition',
+              'h-6 w-6 shrink-0'
+            )}
+            aria-hidden="true"
+          />}
+          {isCollapsed ? '' : item.name}
+        </Link>
+      </Tooltipable>
     </li>
   )
 }
@@ -69,12 +72,12 @@ export default function Sidebar({ onCollapse, onExpand, email }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
   const { setCommandBarIsOpen } = useCommandBar();
-  //typeof SwishjamMemory.get('isNavCollapsed') === 'boolean' ? SwishjamMemory.get('isNavCollapsed') : false);
+  // typeof SwishjamMemory.get('isNavCollapsed') === 'boolean' ? SwishjamMemory.get('isNavCollapsed') : false;
 
   useEffect(() => {
-    // if(typeof SwishjamMemory.get('isNavCollapsed') === 'boolean') {
-    //   setIsCollapsed(SwishjamMemory.get('isNavCollapsed'));
-    // }
+    if (typeof SwishjamMemory.get('isNavCollapsed') === 'boolean') {
+      setIsCollapsed(SwishjamMemory.get('isNavCollapsed'));
+    }
   }, [])
 
   return (
@@ -94,13 +97,15 @@ export default function Sidebar({ onCollapse, onExpand, email }) {
                   <ul role="list" className="space-y-1">
                     {appNav.map((item) => <DesktopNavItem item={item} key={item.name} isCollapsed={isCollapsed} category="" currentPath={pathname} />)}
                     <li>
-                      <a
-                        onClick={() => setCommandBarIsOpen(true)}
-                        className={`flex cursor-pointer text-gray-700 hover:text-swishjam hover:bg-gray-50 group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold duration-500 transition ${isCollapsed ? 'py-2 px-1' : 'p-2'}`}
-                      >
-                        <MagnifyingGlassIcon className='inline text-gray-400 group-hover:text-swishjam duration-500 transition h-6 w-6 shrink-0' />
-                        <span>{isCollapsed ? '' : 'Search'}</span>
-                      </a>
+                      <Tooltipable direction='right' content='Command Bar'>
+                        <a
+                          onClick={() => setCommandBarIsOpen(true)}
+                          className={`flex cursor-pointer text-gray-700 hover:text-swishjam hover:bg-gray-50 group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold duration-500 transition ${isCollapsed ? 'py-2 px-1 justify-center' : 'p-2'}`}
+                        >
+                          <MagnifyingGlassIcon className='inline text-gray-400 group-hover:text-swishjam duration-500 transition h-6 w-6 shrink-0' />
+                          <span>{isCollapsed ? '' : 'Search'}</span>
+                        </a>
+                      </Tooltipable>
                     </li>
                   </ul>
                 </li>
@@ -126,7 +131,7 @@ export default function Sidebar({ onCollapse, onExpand, email }) {
         onClick={() => {
           setIsCollapsed(!isCollapsed);
           isCollapsed ? onExpand() : onCollapse();
-          // SwishjamMemory.set('isNavCollapsed', !isCollapsed);
+          SwishjamMemory.set('isNavCollapsed', !isCollapsed);
         }}
       >
         {isCollapsed ? <ChevronRightIcon className="h-4 w-4 hover:scale-110" /> : <ChevronLeftIcon className="h-4 w-4 hover:scale-110" />}
