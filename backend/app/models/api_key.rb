@@ -24,7 +24,8 @@ class ApiKey < Transactional
   # validate :one_enabled_key_per_data_source, on: [:create, :update]
   before_validation { self.enabled = true if self.enabled.nil? }
   before_validation { self.data_source = self.data_source&.downcase }
-  before_validation :generate_keys, on: :create
+  # I don't think this is ever called because of the insert_all in generate_default_keys_for
+  before_validation :generate_keys, on: :create 
 
   scope :enabled, -> { where(enabled: true) }
   scope :disabled, -> { where(enabled: false) }
@@ -33,7 +34,7 @@ class ApiKey < Transactional
     return false if workspace.api_keys.any?
     workspace.api_keys.insert_all([
       { data_source: ReservedDataSources.PRODUCT , public_key: generate_key("swishjam_prdct", :public_key), private_key: generate_key("swishjam_prdct", :private_key), enabled: true, created_at: Time.current, updated_at: Time.current }, 
-      { data_source: ReservedDataSources.MARKETING, public_key: generate_key("swishjam_mrkt", :public_key), private_key: generate_key("swishjam_mrkt", :private_key), enabled: true, created_at: Time.current, updated_at: Time.current },
+      { data_source: ReservedDataSources.MARKETING, public_key: generate_key("swishjam_web", :public_key), private_key: generate_key("swishjam_web", :private_key), enabled: true, created_at: Time.current, updated_at: Time.current },
     ])
   end
 
@@ -62,7 +63,7 @@ class ApiKey < Transactional
   def generate_keys
     prefix = {
       ReservedDataSources.PRODUCT => 'swishjam_prdct',
-      ReservedDataSources.MARKETING => 'swishjam_mrkt',
+      ReservedDataSources.MARKETING => 'swishjam_web',
     }[self.data_source] || "swishjam_#{data_source[0..5]}"
     self.public_key = self.class.generate_key(prefix, :public_key)
     self.private_key = self.class.generate_key(prefix, :private_key)
