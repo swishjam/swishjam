@@ -1,6 +1,6 @@
 module IngestJobs
   class UserProfilesFromEvents
-        include Sidekiq::Job
+    include Sidekiq::Job
     queue_as :default
 
     def perform
