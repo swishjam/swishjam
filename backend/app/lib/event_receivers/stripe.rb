@@ -9,19 +9,16 @@ module EventReceivers
 
     def receive!
       return if !@stripe_event.livemode
-      integration = get_integration_for_stripe_account
-      if integration
+      if integration.nil?
         if public_key
-          events = []
-          events << format_event_data_to_be_processed!
-          
-          supplemental_events = StripeHelpers::SupplementalEventEvaluator.new(
+          supplemental_events = StripeHelpers::SupplementalEvents::Evaluator.new(
             stripe_event: @stripe_event, 
             stripe_customer: stripe_customer, 
             public_key: public_key, 
             maybe_user_profile_id: @event_parser.maybe_user_profile&.id,
           ).format_supplemental_events_to_be_processed_if_necessary!
-          events.concat(supplemental_events)
+          
+          [formatted_event_to_ingest].concat(supplemental_events)
 
           Ingestion::QueueManager.push_records_into_queue(Ingestion::QueueManager::Queues.EVENTS, events) if events.any?
           enqueue_sync_jobs_if_necessary!
@@ -39,7 +36,7 @@ module EventReceivers
     private
 
     def integration
-      @integration ||= Integrations::Stripe.includes(:workspace).where("config->>'account_id' = ? AND enabled = ?", @event_payload['account'], true).first
+      @integration ||= Integrations::Stripe.includes(:workspace).enabled.find_by_config_attribute("account_id", @event_payload['account'])
     end
 
     def workspace
@@ -56,7 +53,7 @@ module EventReceivers
       end
     end
 
-    def format_event_data_to_be_processed!
+    def formatted_event_to_ingest
       swishjam_event_data = @event_parser.formatted_event_data
       Analytics::Event.formatted_for_ingestion(
         uuid: swishjam_event_data['uuid'],

@@ -157,9 +157,9 @@ export default function LineChartWithValue({
       className={`${className} group`}
       includeCard={includeCard}
       title={
-        <div className='grid grid-cols-2'>
+        <div className='flex justify-between'>
           {title}
-          <div className='flex justify-end'>
+          <div className='flex justify-end flex-shrink'>
             {includeSettingsDropdown && (
               <SettingsDropdown
                 showXAxis={showXAxis}

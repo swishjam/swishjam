@@ -231,6 +231,9 @@ Rails.application.routes.draw do
       namespace :saas_metrics, only: [] do
         resources :revenue_retention, only: :index
         resources :revenue_per_customer, only: :index
+        resources :free_trials, only: [] do
+          get :timeseries, on: :collection
+        end
         resources :customers, only: [] do
           get :timeseries, on: :collection
         end

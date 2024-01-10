@@ -18,6 +18,7 @@ export default function PageMetrics() {
   const [activeSubscriptionsChartData, setActiveSubscriptionsChartData] = useState();
   const [customersWithPaidSubscriptionsChartData, setCustomersWithPaidSubscriptionsChartData] = useState();
   const [customersChartData, setCustomersChartData] = useState();
+  const [freeTrialsChartData, setFreeTrialsChartData] = useState();
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [mrrChartData, setMrrChartData] = useState();
   const [revenuePerCustomerChartData, setRevenuePerCustomerChartData] = useState();
@@ -82,6 +83,10 @@ export default function PageMetrics() {
     return await SwishjamAPI.SaasMetrics.Customers.timeseries({ timeframe }).then(resp => setStateFromTimeseriesResponse(resp, setCustomersChartData));
   }
 
+  const getFreeTrialsChartData = async timeframe => {
+    return await SwishjamAPI.SaasMetrics.FreeTrials.timeseries({ timeframe }).then(resp => setStateFromTimeseriesResponse(resp, setFreeTrialsChartData));
+  }
+
   const getAllData = async timeframe => {
     // Reset All Data
     setIsRefreshing(true);
@@ -91,12 +96,14 @@ export default function PageMetrics() {
     setRevenueRetentionData();
     setRevenuePerCustomerChartData();
     setCustomersChartData();
+    setFreeTrialsChartData();
 
     // Reload all the data
     await Promise.all([
       getBillingData(timeframe),
       getRevenuePerCustomerData(timeframe),
       getCustomersChartData(timeframe),
+      getFreeTrialsChartData(timeframe),
       getRevenueRetentionData(),
     ]);
 
@@ -185,7 +192,7 @@ export default function PageMetrics() {
           previousValueDate={revenuePerCustomerChartData?.previousValueDate}
           showAxis={false}
           timeseries={revenuePerCustomerChartData?.timeseries}
-          title='Revenue/Paid Customer'
+          title='Revenue per Paying Customer'
           value={revenuePerCustomerChartData?.value}
           valueFormatter={formatMoney}
           yAxisFormatter={formatShrinkMoney}
@@ -202,13 +209,13 @@ export default function PageMetrics() {
           yAxisFormatter={formatShrinkNumbers}
         />
         <LineChartWithValue
-          // groupedBy={currentChartLookup[currentSelectedChart]?.groupedBy}
-          // previousValue={currentChartLookup[currentSelectedChart]?.previousValue}
-          // previousValueDate={currentChartLookup[currentSelectedChart]?.previousValueDate}
+          groupedBy={freeTrialsChartData?.groupedBy}
+          previousValue={freeTrialsChartData?.previousValue}
+          previousValueDate={freeTrialsChartData?.previousValueDate}
           showAxis={false}
-          // timeseries={currentChartLookup[currentSelectedChart]?.timeseries}
-          title={'New Trials'}
-          // value={currentChartLookup[currentSelectedChart]?.value}
+          timeseries={freeTrialsChartData?.timeseries}
+          title='Free Trials Started'
+          value={freeTrialsChartData?.value}
           valueFormatter={formatNumbers}
           yAxisFormatter={formatShrinkNumbers}
         />

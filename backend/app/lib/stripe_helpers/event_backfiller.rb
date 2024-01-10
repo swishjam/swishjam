@@ -11,26 +11,37 @@ module StripeHelpers
     end
 
     def enqueue_historical_events_to_be_ingested!
-      # so we don't ingest any webhooks during the backfill
       integration = Integrations::Stripe.for_workspace(@workspace)
+      # so we don't ingest any webhooks during the backfill
       integration.disable!
-      ingestion_data = events_for_all_of_time.map do |event|
+      events_to_ingest = []
+      byebug
+      events_for_all_of_time.each do |event|
         stripe_customer = nil
         if event.data.object.respond_to?(:customer) && event.data.object.customer.is_a?(String) && !ENV['STRIPE_SKIP_CUSTOMER_LOOKUP_IN_WEBHOOKS']
           stripe_customer = get_customer(event.data.object.customer)
         end
-        swishjam_event_data = StripeHelpers::WebhookEventParser.new(event, @workspace, stripe_customer).formatted_event_data
-        Analytics::Event.formatted_for_ingestion(
+        
+        event_parser = StripeHelpers::WebhookEventParser.new(event, @workspace, stripe_customer)
+        swishjam_event_data =  event_parser.formatted_event_data
+        events_to_ingest << Analytics::Event.formatted_for_ingestion(
           uuid: swishjam_event_data['uuid'],
           swishjam_api_key: @public_key,
           name: swishjam_event_data['event'],
           occurred_at: Time.at(swishjam_event_data['timestamp']),
           properties: swishjam_event_data.except('uuid', 'event', 'timestamp'),
         )
+        supplemental_events = StripeHelpers::SupplementalEvents::Evaluator.new(
+          stripe_event: event,
+          stripe_customer: stripe_customer,
+          public_key: @public_key,
+          maybe_user_profile_id: event_parser.maybe_user_profile&.id,
+        ).format_supplemental_events_to_be_processed_if_necessary!
+        events_to_ingest.concat(supplemental_events)
       rescue => e
         Sentry.capture_exception(e)
       end
-      Ingestion::QueueManager.push_records_into_queue(Ingestion::QueueManager::Queues.EVENTS, ingestion_data) if ingestion_data.any?
+      Ingestion::QueueManager.push_records_into_queue(Ingestion::QueueManager::Queues.EVENTS, events_to_ingest) if events_to_ingest.any?
       integration.enable!
     end
 
