@@ -230,20 +230,18 @@ Rails.application.routes.draw do
 
       namespace :saas_metrics, only: [] do
         resources :revenue_retention, only: :index
+        resources :revenue_per_customer, only: :index
+        resources :customers, only: [] do
+          get :timeseries, on: :collection
+        end
         resources :churn_rate, only: [] do
-          collection do
-            get :timeseries
-          end
+          get :timeseries, on: :collection
         end
         resources :mrr, only: [] do
-          collection do
-            get :timeseries
-          end
+          get :timeseries, on: :collection
         end
         resources :mrr_movement, only: [] do
-          collection do
-            get :stacked_bar_chart
-          end
+          get :stacked_bar_chart, on: :collection
         end
       end
       

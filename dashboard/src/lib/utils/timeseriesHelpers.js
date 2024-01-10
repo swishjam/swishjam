@@ -47,4 +47,20 @@ const dateFormatterForGrouping = grouping => {
   }
 }
 
-export { dateFormatterForGrouping }
+const setStateFromTimeseriesResponse = (response, setter) => {
+  setter({
+    value: response.current_count,
+    previousValue: response.comparison_count,
+    previousValueDate: response.comparison_end_time,
+    groupedBy: response.grouped_by,
+    timeseries: response.timeseries.map(
+      (timeseries, index) => ({
+        ...timeseries,
+        comparisonDate: response?.comparison_timeseries?.[index]?.date,
+        comparisonValue: response?.comparison_timeseries?.[index]?.value,
+      }),
+    ),
+  });
+}
+
+export { dateFormatterForGrouping, setStateFromTimeseriesResponse }

@@ -12,6 +12,7 @@ module Integrations
     def account_id
       config['account_id']
     end
+    alias stripe_account_id account_id
     
     def run_data_sync_job
       DataSyncJobs::Stripe.perform_async(self.id)

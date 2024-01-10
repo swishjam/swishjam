@@ -12,12 +12,15 @@ import LineChartWithValue from "@/components/Dashboards/Components/LineChartWith
 import BarList from "@/components/Dashboards/Components/BarList";
 import { formatMoney, formatNumbers, formatShrinkMoney, formatShrinkNumbers } from "@/lib/utils/numberHelpers";
 import RevenueRetentionWidget from '@/components/Dashboards/Components/RevenueRetentionWidget';
+import { setStateFromTimeseriesResponse } from "@/lib/utils/timeseriesHelpers";
 
 export default function PageMetrics() {
   const [activeSubscriptionsChartData, setActiveSubscriptionsChartData] = useState();
   const [customersWithPaidSubscriptionsChartData, setCustomersWithPaidSubscriptionsChartData] = useState();
+  const [customersChartData, setCustomersChartData] = useState();
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [mrrChartData, setMrrChartData] = useState();
+  const [revenuePerCustomerChartData, setRevenuePerCustomerChartData] = useState();
   const [revenueRetentionData, setRevenueRetentionData] = useState();
   const [timeframeFilter, setTimeframeFilter] = useState('thirty_days');
 
@@ -67,10 +70,17 @@ export default function PageMetrics() {
     );
   };
 
-  const getRevenueRetentionData = () => {
-    return SwishjamAPI.SaasMetrics.RevenueRetention.get({ numCohorts: 8 }).then(setRevenueRetentionData)
+  const getRevenueRetentionData = async () => {
+    return await SwishjamAPI.SaasMetrics.RevenueRetention.get({ numCohorts: 8 }).then(setRevenueRetentionData)
   }
 
+  const getRevenuePerCustomerData = async timeframe => {
+    return await SwishjamAPI.SaasMetrics.RevenuePerCustomer.timeseries({ timeframe }).then(resp => setStateFromTimeseriesResponse(resp, setRevenuePerCustomerChartData))
+  }
+
+  const getCustomersChartData = async timeframe => {
+    return await SwishjamAPI.SaasMetrics.Customers.timeseries({ timeframe }).then(resp => setStateFromTimeseriesResponse(resp, setCustomersChartData));
+  }
 
   const getAllData = async timeframe => {
     // Reset All Data
@@ -79,10 +89,14 @@ export default function PageMetrics() {
     setActiveSubscriptionsChartData();
     setCustomersWithPaidSubscriptionsChartData();
     setRevenueRetentionData();
+    setRevenuePerCustomerChartData();
+    setCustomersChartData();
 
     // Reload all the data
     await Promise.all([
       getBillingData(timeframe),
+      getRevenuePerCustomerData(timeframe),
+      getCustomersChartData(timeframe),
       getRevenueRetentionData(),
     ]);
 
@@ -166,24 +180,24 @@ export default function PageMetrics() {
 
       <div className='grid grid-cols-4 gap-2 pt-2'>
         <LineChartWithValue
-          // groupedBy={currentChartLookup[currentSelectedChart]?.groupedBy}
-          // previousValue={currentChartLookup[currentSelectedChart]?.previousValue}
-          // previousValueDate={currentChartLookup[currentSelectedChart]?.previousValueDate}
-          // showAxis={false}
-          // timeseries={currentChartLookup[currentSelectedChart]?.timeseries}
-          title='Avg. Revenue/Customer'
-          // value={currentChartLookup[currentSelectedChart]?.value}
-          valueFormatter={formatNumbers}
-          yAxisFormatter={formatShrinkNumbers}
+          groupedBy={revenuePerCustomerChartData?.groupedBy}
+          previousValue={revenuePerCustomerChartData?.previousValue}
+          previousValueDate={revenuePerCustomerChartData?.previousValueDate}
+          showAxis={false}
+          timeseries={revenuePerCustomerChartData?.timeseries}
+          title='Revenue/Paid Customer'
+          value={revenuePerCustomerChartData?.value}
+          valueFormatter={formatMoney}
+          yAxisFormatter={formatShrinkMoney}
         />
         <LineChartWithValue
-          // groupedBy={currentChartLookup[currentSelectedChart]?.groupedBy}
-          // previousValue={currentChartLookup[currentSelectedChart]?.previousValue}
-          // previousValueDate={currentChartLookup[currentSelectedChart]?.previousValueDate}
+          groupedBy={customersChartData?.groupedBy}
+          previousValue={customersChartData?.previousValue}
+          previousValueDate={customersChartData?.previousValueDate}
           showAxis={false}
-          // timeseries={currentChartLookup[currentSelectedChart]?.timeseries}
+          timeseries={customersChartData?.timeseries}
           title='New Customers'
-          // value={currentChartLookup[currentSelectedChart]?.value}
+          value={customersChartData?.value}
           valueFormatter={formatNumbers}
           yAxisFormatter={formatShrinkNumbers}
         />
