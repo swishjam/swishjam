@@ -24,7 +24,6 @@ module Ingestion
         Ingestion::QueueManager.push_records_into_queue(Ingestion::QueueManager::Queues.CLICKHOUSE_ORGANIZATION_PROFILES_DEAD_LETTER_QUEUE, formatted_profiles)
         Ingestion::QueueManager.push_records_into_queue(Ingestion::QueueManager::Queues.CLICKHOUSE_ORGANIZATION_MEMBERS_DEAD_LETTER_QUEUE, formatted_organization_members)
         @ingestion_batch.error_message = e.message
-        Rails.logger.error "Failed to ingest from analytics queue: #{e.inspect}"
         Sentry.capture_exception(e)
       end
       @ingestion_batch.num_records = formatted_profiles.count

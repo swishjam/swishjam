@@ -9,15 +9,19 @@ module StripeHelpers
         @stripe_event = stripe_event
       end
 
+      def stripe_object
+        @stripe_event.data.object
+      end
+
       def to_json
         Hash.new.tap do |h| 
           (self.class.attributes_to_capture || []).each do |attribute|
             attribute_chain = attribute.to_s.split('.')
-            attribute_value = attribute_chain.inject(@stripe_event.data.object) do |object, method|
+            attribute_value = attribute_chain.inject(stripe_object) do |object, method|
               begin
                 object.send(method)
               rescue => e
-                Sentry.capture_exception("The #{method.to_s} attribute in #{self.class.to_s} threw an error, ignoring from event attributes: #{e.inspect}")
+                Sentry.capture_message("The #{method.to_s} attribute in #{self.class.to_s} threw an error, ignoring from event attributes: #{e.inspect}")
               end
             end
             h[attribute.to_s] = attribute_value
@@ -26,7 +30,7 @@ module StripeHelpers
             begin
               h[method.to_s] = send(method)
             rescue => e
-              Sentry.capture_exception("The #{method.to_s} method in #{self.class.to_s} threw an error, ignoring from event attributes: #{e.inspect}")
+              Sentry.capture_message("The #{method.to_s} method in #{self.class.to_s} threw an error, ignoring from event attributes: #{e.inspect}")
             end
           end
         end

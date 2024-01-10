@@ -21,13 +21,12 @@ module Ingestion
           begin
             create_or_update_organization_profile(event_json)
           rescue => e
-            Rails.logger.error "Failed to ingest an event from organization identify queue: #{e.inspect}. Event: #{event_json}. inserting into dead letter queue."
             Sentry.capture_exception(e)
-            Ingestion::QueueManager.push_records_into_queue(Ingestion::QueueManager::Queues.ORGANIZATION_DEAD_LETTER_QUEUE, [event_json])
+            Ingestion::QueueManager.push_records_into_queue(Ingestion::QueueManager::Queues.ORGANIZATIONS_DEAD_LETTER_QUEUE, [event_json])
           end
         end
       rescue => e
-        Ingestion::QueueManager.push_records_into_queue(Ingestion::QueueManager::Queues.ORGANIZATION_DEAD_LETTER_QUEUE, queued_organization_identify_events)
+        Ingestion::QueueManager.push_records_into_queue(Ingestion::QueueManager::Queues.ORGANIZATIONS_DEAD_LETTER_QUEUE, queued_organization_identify_events)
         @ingestion_batch.error_message = e.message  
         Rails.logger.error "Failed to ingest from analytics queue: #{e.inspect}"
         Sentry.capture_exception(e)

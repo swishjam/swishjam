@@ -1,10 +1,10 @@
 module StripeHelpers
   module EventAttributeParsers
     class SubscriptionCreated < Base
-      self.methods_to_capture = [:'amount_in_cents', :display_amount, :'products']
+      self.methods_to_capture = %i[amount_in_cents display_amount products]
 
       def amount_in_cents
-        @stripe_event.data.object.items.data.sum do |item|
+        stripe_object.items.data.sum do |item|
           item.quantity * item.price.unit_amount
         end
       end
@@ -14,7 +14,7 @@ module StripeHelpers
       end
 
       def products
-        @stripe_event.data.object.items.data.map{ |item| item.price.product }.join(', ')
+        stripe_object.items.data.map{ |item| item.price.product }.join(', ')
       end
     end
   end
