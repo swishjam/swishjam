@@ -103,7 +103,7 @@ export default function Sidebar({ onCollapse, onExpand, email }) {
                           className={`flex cursor-pointer text-gray-700 hover:text-swishjam hover:bg-gray-50 group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold duration-500 transition ${isCollapsed ? 'py-2 px-1 justify-center' : 'p-2'}`}
                         >
                           <MagnifyingGlassIcon className='inline text-gray-400 group-hover:text-swishjam duration-500 transition h-6 w-6 shrink-0' />
-                          <span>{isCollapsed ? '' : 'Search'}</span>
+                          {isCollapsed ? '' : 'Search'}
                         </a>
                       </Tooltipable>
                     </li>

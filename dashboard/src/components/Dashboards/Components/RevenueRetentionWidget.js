@@ -15,7 +15,7 @@ export default function RevenueRetentionWidget({ title = 'User Retention', reten
   const [chartType, setChartType] = useState('grid');
 
   const toggleChartType = () => chartType === 'grid' ? setChartType('chart') : setChartType('grid');
-  const hasRetentionData = retentionCohorts ? Object.keys(retentionCohorts).length > 0 : false;
+  const hasNoRetentionData = retentionCohorts && Object.keys(retentionCohorts).length === 0;
 
   return (
     <ConditionalCardWrapper
@@ -31,9 +31,9 @@ export default function RevenueRetentionWidget({ title = 'User Retention', reten
                     as='div'
                     checked={chartType === 'grid'}
                     onChange={toggleChartType}
-                    disabled={!hasRetentionData}
+                    disabled={hasNoRetentionData}
                     className={classNames(
-                      chartType === 'grid' && hasRetentionData ? 'bg-swishjam' : 'bg-gray-200',
+                      chartType === 'grid' && !hasNoRetentionData ? 'bg-swishjam' : 'bg-gray-200',
                       'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out'
                     )}
                   >
@@ -74,7 +74,7 @@ export default function RevenueRetentionWidget({ title = 'User Retention', reten
         </div>
       }
     >
-      {!hasRetentionData && (
+      {hasNoRetentionData && (
         <div className='text-sm text-gray-500 text-center p-8 group'>
           <div className='my-8 mx-auto grid grid-cols-3 gap-2 w-20'>
             <div className='border-2 border-gray-300 rounded h-5 w-5 group-hover:border-swishjam duration-500 transition-all' />

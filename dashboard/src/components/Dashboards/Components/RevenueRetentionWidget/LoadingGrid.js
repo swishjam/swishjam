@@ -14,7 +14,7 @@ export default function LoadingState() {
             <th className="text-left text-sm text-gray-700 font-normal pr-4" style={{ fontSize: '0.75rem' }}>
               # Subscriptions
             </th>
-            {Array.from(({ length: 10 }), (_, i) => (
+            {Array.from(({ length: 8 }), (_, i) => (
               <th key={i} className="text-left text-sm text-gray-700 text-center font-normal">
                 Month {i + 1}
               </th>
@@ -28,9 +28,15 @@ export default function LoadingState() {
                 <td className="pr-2">
                   <Skeleton className='h-8 w-20' />
                 </td>
-                {Array.from(({ length: 10 }), (_, i) => (
-                  <td key={i}>
-                    <Skeleton className="w-20 h-20" />
+                <td className="pr-2">
+                  <Skeleton className='h-6 w-12' />
+                </td>
+                <td className="pr-2">
+                  <Skeleton className='h-6 w-12' />
+                </td>
+                {Array.from(({ length: 8 - i }), (_, j) => (
+                  <td key={j}>
+                    <Skeleton className="w-20 h-8" />
                   </td>
                 ))}
               </>

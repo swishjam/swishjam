@@ -5,7 +5,12 @@ import { LONG_MONTHS } from '@/lib/utils/timeHelpers';
 import RetentionGridCell from './RetentionGridCell';
 import { useState } from 'react'
 
-const monthFormatter = d => LONG_MONTHS[new Date(d).getUTCMonth()];
+const monthFormatter = (d, includeYear = false) => {
+  const date = new Date(d);
+  const month = LONG_MONTHS[date.getUTCMonth()];
+  const year = date.getUTCFullYear();
+  return `${month}${includeYear ? `, ${year}` : ''}`;
+}
 
 export default function RetentionGrid({ retentionCohorts, isExpandable }) {
   if (!retentionCohorts) return <LoadingState />
@@ -23,7 +28,7 @@ export default function RetentionGrid({ retentionCohorts, isExpandable }) {
           <thead>
             <tr className='font-normal'>
               <th className="text-left text-sm text-gray-700 font-normal pr-4" style={{ fontSize: '0.75rem' }}>
-                {/* Cohort */}
+                Cohort
               </th>
               <th className="text-left text-sm text-gray-700 font-normal pr-4" style={{ fontSize: '0.75rem' }}>
                 Starting MRR
@@ -45,7 +50,7 @@ export default function RetentionGrid({ retentionCohorts, isExpandable }) {
                 <tr key={cohortDate}>
                   <>
                     <td className="whitespace-nowrap text-sm pr-4">
-                      <span className='block' style={{ fontSize: '0.85rem' }}>{monthFormatter(cohortDate)}</span>
+                      <span className='block' style={{ fontSize: '0.85rem' }}>{monthFormatter(cohortDate, true)}</span>
                     </td>
                     <td className="whitespace-nowrap text-sm pr-4">
                       <span className='text-xs text-gray-400 block' style={{ fontSize: '0.7rem' }}>{formatMoney(starting_mrr_in_cents)}</span>

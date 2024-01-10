@@ -10,12 +10,12 @@ import Link from 'next/link'
 import LineChartWithValue from "@/components/Dashboards/Components/LineChartWithValue";
 //import BarChart from "@/components/Dashboards/Components/BarChart";
 import BarList from "@/components/Dashboards/Components/BarList";
-import { formatNumbers, formatShrinkNumbers } from "@/lib/utils/numberHelpers";
+import { formatMoney, formatNumbers, formatShrinkMoney, formatShrinkNumbers } from "@/lib/utils/numberHelpers";
 import RevenueRetentionWidget from '@/components/Dashboards/Components/RevenueRetentionWidget';
 
 export default function PageMetrics() {
-  const [activeCustomersChartData, setActiveCustomersChartData] = useState();
   const [activeSubscriptionsChartData, setActiveSubscriptionsChartData] = useState();
+  const [customersWithPaidSubscriptionsChartData, setCustomersWithPaidSubscriptionsChartData] = useState();
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [mrrChartData, setMrrChartData] = useState();
   const [revenueRetentionData, setRevenueRetentionData] = useState();
@@ -23,7 +23,7 @@ export default function PageMetrics() {
 
   const getBillingData = async timeframe => {
     return await SwishjamAPI.BillingData.timeseries({ timeframe }).then(
-      ({ mrr, active_subscriptions }) => {
+      ({ mrr, active_subscriptions, customers_with_paid_subscriptions }) => {
         setMrrChartData({
           value: mrr.current_count,
           previousValue: mrr.comparison_count,
@@ -49,6 +49,20 @@ export default function PageMetrics() {
             }),
           ),
         });
+
+        setCustomersWithPaidSubscriptionsChartData({
+          value: customers_with_paid_subscriptions.current_count,
+          previousValue: customers_with_paid_subscriptions.comparison_count,
+          previousValueDate: customers_with_paid_subscriptions.comparison_end_time,
+          groupedBy: customers_with_paid_subscriptions.grouped_by,
+          timeseries: customers_with_paid_subscriptions.timeseries.map(
+            (timeseries, index) => ({
+              ...timeseries,
+              comparisonDate: customers_with_paid_subscriptions.comparison_timeseries[index]?.date,
+              comparisonValue: customers_with_paid_subscriptions.comparison_timeseries[index]?.value,
+            }),
+          ),
+        });
       },
     );
   };
@@ -63,7 +77,7 @@ export default function PageMetrics() {
     setIsRefreshing(true);
     setMrrChartData();
     setActiveSubscriptionsChartData();
-    setActiveCustomersChartData();
+    setCustomersWithPaidSubscriptionsChartData();
     setRevenueRetentionData();
 
     // Reload all the data
@@ -77,7 +91,7 @@ export default function PageMetrics() {
 
   useEffect(() => {
     getAllData(timeframeFilter);
-  }, []);
+  }, [timeframeFilter]);
 
   return (
     <main className="mx-auto mb-8 max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -100,13 +114,7 @@ export default function PageMetrics() {
           >
             <ArrowPathIcon className={`h-4 w-4 ${isRefreshing ? "animate-spin" : ""}`} />
           </Button>
-          <Timefilter
-            selection={timeframeFilter}
-            onSelection={date => {
-              setTimeframeFilter(date);
-              getAllData(date);
-            }}
-          />
+          <Timefilter selection={timeframeFilter} onSelection={setTimeframeFilter} />
         </div>
       </div>
       <div className="grid grid-cols-3 gap-2 pt-8">
@@ -116,10 +124,10 @@ export default function PageMetrics() {
           previousValueDate={mrrChartData?.previousValueDate}
           showAxis={false}
           timeseries={mrrChartData?.timeseries}
-          title={'Current MRR'}
+          title='MRR'
           value={mrrChartData?.value}
-          valueFormatter={formatNumbers}
-          yAxisFormatter={formatShrinkNumbers}
+          valueFormatter={formatMoney}
+          yAxisFormatter={formatShrinkMoney}
         />
         <LineChartWithValue
           groupedBy={activeSubscriptionsChartData?.groupedBy}
@@ -127,29 +135,26 @@ export default function PageMetrics() {
           previousValueDate={activeSubscriptionsChartData?.previousValueDate}
           showAxis={false}
           timeseries={activeSubscriptionsChartData?.timeseries}
-          title={'Active Subscriptions'}
+          title='Active Subscriptions'
           value={activeSubscriptionsChartData?.value}
           valueFormatter={formatNumbers}
           yAxisFormatter={formatShrinkNumbers}
         />
         <LineChartWithValue
-          groupedBy={activeCustomersChartData?.groupedBy}
-          previousValue={activeCustomersChartData?.previousValue}
-          previousValueDate={activeCustomersChartData?.previousValueDate}
+          groupedBy={customersWithPaidSubscriptionsChartData?.groupedBy}
+          previousValue={customersWithPaidSubscriptionsChartData?.previousValue}
+          previousValueDate={customersWithPaidSubscriptionsChartData?.previousValueDate}
           showAxis={false}
-          timeseries={activeCustomersChartData?.timeseries}
-          title={'Active Customers'}
-          value={activeCustomersChartData?.value}
+          timeseries={customersWithPaidSubscriptionsChartData?.timeseries}
+          title='Paying Customers'
+          value={customersWithPaidSubscriptionsChartData?.value}
           valueFormatter={formatNumbers}
           yAxisFormatter={formatShrinkNumbers}
         />
       </div>
       <div className='grid grid-cols-8 gap-2 pt-2'>
         <div className="col-span-8">
-          <RevenueRetentionWidget
-            title="Revenue Retention"
-            retentionCohorts={revenueRetentionData}
-          />
+          <RevenueRetentionWidget title="Revenue Retention" retentionCohorts={revenueRetentionData} />
         </div>
         {/* <div className="col-span-4">
           <RetentionWidget

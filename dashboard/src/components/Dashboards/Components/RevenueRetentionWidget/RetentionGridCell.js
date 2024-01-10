@@ -19,7 +19,7 @@ export default function RetentionCell({
       <Tooltip delayDuration={300} className='cursor-default'>
         <TooltipTrigger>
           <div
-            className={`${isPending && startingMrrForCohort > 0 ? 'outline outline-red-200' : ''} relative w-20 h-8 mr-1 flex items-center justify-center p-1 text-gray-900 hover:text-black transition-all cursor-default`}
+            className='relative w-20 h-8 mr-1 flex items-center justify-center p-1 text-gray-900 hover:text-black transition-all cursor-default'
             onMouseOver={() => setIsHovered(true)}
             onMouseOut={() => setIsHovered(false)}
           >
@@ -36,7 +36,6 @@ export default function RetentionCell({
                 opacity,
                 fontSize: '0.75rem',
                 transform: isHovered ? 'scale(1.05)' : 'scale(1)',
-                // backgroundImage: isPending && startingMrrForCohort > 0 ? 'repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(255,255,255,0.5) 10px, rgba(255,255,255,0.5) 20px)' : null,
               }}
             />
           </div>

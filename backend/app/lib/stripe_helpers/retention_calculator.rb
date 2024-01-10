@@ -41,7 +41,7 @@ module StripeHelpers
 
     def calc_retention(group_by:)
       retention = {}
-      invoices_for_all_of_time.each do |invoice|
+      paid_invoices_for_all_of_time.each do |invoice|
         next if invoice.subscription.nil?
         cohort_time_period = Time.at(invoice.subscription.created).send(:"beginning_of_#{group_by}")
         invoice_created_time_period = Time.at(invoice.created).send(:"beginning_of_#{group_by}")
@@ -50,13 +50,14 @@ module StripeHelpers
           next if line.amount.zero?
           StripeHelpers::MrrCalculator.mrr_for_subscription_item(
             interval: line.plan.interval, 
-            unit_amount: line.amount_excluding_tax, 
+            unit_amount: line.unit_amount_excluding_tax.to_i, 
             quantity: line.quantity, 
             interval_count: line.plan.interval_count
           )
         end
         # I think this is the best way to check if this is the first invoice for a subscription 
         # sometimes there's a few seconds of delay between the subscription being created and the first invoice being created
+        # we use the first invoice to determine MRR because Stripe makes it hard to get data from a subscription at a point in time
         invoice_is_first_for_subscription = -1 * (invoice.subscription.start_date - invoice.created) < 1.minute
         if invoice_is_first_for_subscription
           retention[cohort_time_period][:starting_mrr] += mrr_in_cents
@@ -86,9 +87,9 @@ module StripeHelpers
       end
     end
 
-    def invoices_for_all_of_time
-      @invoices_for_all_of_time ||= begin
-        StripeHelpers::DataFetchers.get_all { ::Stripe::Invoice.list({ expand: ['data.customer', 'data.subscription'] }, stripe_account: @stripe_account_id) }
+    def paid_invoices_for_all_of_time
+      @paid_invoices_for_all_of_time ||= begin
+        StripeHelpers::DataFetchers.get_all { ::Stripe::Invoice.list({ status: 'paid', expand: ['data.customer', 'data.subscription'] }, stripe_account: @stripe_account_id) }
       end
     end
   end
