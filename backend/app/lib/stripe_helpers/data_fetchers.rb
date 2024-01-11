@@ -4,8 +4,8 @@ module StripeHelpers
       raise ArgumentError, "Must provide a block to get_all" unless block_given?
       response = yield
       
-      starts_on_or_after = starts_on_or_after.to_i if starts_on_or_after.present?
-      ends_on_or_before = ends_on_or_before.to_i if ends_on_or_before.present?
+      starts_on_or_after = starts_on_or_after.to_time.to_i if starts_on_or_after.present?
+      ends_on_or_before = ends_on_or_before.to_time.to_i if ends_on_or_before.present?
       starts_on_or_after = Float::INFINITY * -1 if starts_on_or_after.nil?
       ends_on_or_before = Float::INFINITY if ends_on_or_before.nil?
 

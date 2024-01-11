@@ -237,6 +237,9 @@ Rails.application.routes.draw do
         resources :customers, only: [] do
           get :timeseries, on: :collection
         end
+        resources :churn, only: [] do
+          get :timeseries, on: :collection
+        end
         resources :churn_rate, only: [] do
           get :timeseries, on: :collection
         end

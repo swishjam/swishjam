@@ -23,7 +23,6 @@ module StripeHelpers
 
     def enqueue_mrr_movement_events
       @events = []
-      byebug
       sorted_subscription_events_within_snapshot_period.each do |event|
         stripe_subscription = event.data.object
         stripe_customer = get_customer_with_cache(stripe_subscription.customer)

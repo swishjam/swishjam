@@ -59,10 +59,10 @@ module StripeHelpers
       end
 
       def is_churned_subscription_event?
-        just_canceled = @stripe_event.data.previous_attributes['status'] == 'active' && stripe_object.status == 'canceled' ||
-                            @stripe_event.data.previous_attributes['canceled_at'].nil? && !stripe_object.canceled_at.nil?
+        just_became_canceled = @stripe_event.data.previous_attributes['status'] == 'active' && stripe_object.status == 'canceled'
+        just_canceled_at = @stripe_event.data.previous_attributes.keys.include?(:canceled_at) && @stripe_event.data.previous_attributes['canceled_at'].nil? && !stripe_object.canceled_at.nil?
         is_paid_subscription = stripe_object.items.data.any?{ |item| item.price.unit_amount.positive? }
-        just_canceled && is_paid_subscription
+        (just_became_canceled || just_canceled_at) && is_paid_subscription
       end
 
       def stripe_object

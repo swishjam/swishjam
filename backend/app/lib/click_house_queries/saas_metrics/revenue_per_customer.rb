@@ -27,11 +27,11 @@ module ClickHouseQueries
 
       def sql
         # argMax(num_customers_with_paid_subscriptions, captured_at) AS num_customers_with_paid_subscriptions_at_time_of_snapshot,
-        # argMax(total_revenue_in_cents, captured_at) AS total_revenue_in_cents_at_time_of_snapshot,
+        # argMax(mrr_in_cents, captured_at) AS total_revenue_in_cents_at_time_of_snapshot,
         # MAX(captured_at) AS snapshot_time,
         <<~SQL
           SELECT 
-            argMax(total_revenue_in_cents, captured_at) / argMax(num_customers_with_paid_subscriptions, captured_at) AS revenue_per_customer,
+            argMax(mrr_in_cents, captured_at) / argMax(num_customers_with_paid_subscriptions, captured_at) AS revenue_per_customer,
             DATE_TRUNC('#{@group_by}', captured_at) AS group_by_date
           FROM #{Analytics::BillingDataSnapshot.table_name}
           WHERE 

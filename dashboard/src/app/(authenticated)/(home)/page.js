@@ -12,12 +12,8 @@ import { ArrowPathIcon } from "@heroicons/react/24/outline";
 import ItemizedList from "@/components/Dashboards/Components/ItemizedList";
 import RetentionWidgetTiny from "@/components/Dashboards/Components/RetentionWidgetTiny";
 import { BsArrowRightShort } from "react-icons/bs";
-import {
-  formatMoney,
-  formatNumbers,
-  formatShrinkNumbers,
-  formatShrinkMoney,
-} from "@/lib/utils/numberHelpers";
+import { formatMoney, formatNumbers, formatShrinkNumbers, formatShrinkMoney } from "@/lib/utils/numberHelpers";
+import { setStateFromTimeseriesResponse } from "@/lib/utils/timeseriesHelpers";
 
 export default function Home() {
   const [isRefreshing, setIsRefreshing] = useState();
@@ -45,182 +41,44 @@ export default function Home() {
   const [newUsersData, setNewUsersData] = useState();
 
   const getBillingData = async (timeframe) => {
-    return await SwishjamAPI.BillingData.timeseries({ timeframe }).then(
-      ({ mrr, active_subscriptions }) => {
-        setMrrChart({
-          value: mrr.current_count,
-          previousValue: mrr.comparison_count,
-          previousValueDate: mrr.comparison_end_time,
-          groupedBy: mrr.grouped_by,
-          timeseries: mrr.timeseries.map((timeseries, index) => ({
-            ...timeseries,
-            comparisonDate: mrr.comparison_timeseries[index]?.date,
-            comparisonValue: mrr.comparison_timeseries[index]?.value,
-          })),
-        });
-
-        setActiveSubsChart({
-          value: active_subscriptions.current_count,
-          previousValue: active_subscriptions.comparison_count,
-          previousValueDate: active_subscriptions.comparison_end_time,
-          groupedBy: active_subscriptions.grouped_by,
-          timeseries: active_subscriptions.timeseries.map(
-            (timeseries, index) => ({
-              ...timeseries,
-              comparisonDate: active_subscriptions.comparison_timeseries[index]?.date,
-              comparisonValue: active_subscriptions.comparison_timeseries[index]?.value,
-            }),
-          ),
-        });
-      },
-    );
-  };
-
-  const getChurnRateData = async (timeframe) => {
-    return await SwishjamAPI.SaasMetrics.ChurnRate.timeseries({ includeComparison: true, timeframe }).then(({ timeseries, comparison_timeseries, error }) => {
-      if (!error) {
-        setChurnRateData({
-          value: timeseries[timeseries.length - 1].churn_rate,
-          groupedBy: 'day',
-          timeseries: timeseries.map((dataPoint, index) => ({
-            date: dataPoint.churn_period_end_date,
-            value: dataPoint.churn_rate,
-            comparisonDate: (comparison_timeseries || [])[index]?.churn_period_end_date,
-            comparisonValue: (comparison_timeseries || [])[index]?.churn_rate,
-          })),
-        });
-      }
+    return await SwishjamAPI.BillingData.timeseries({ timeframe }).then(({ mrr, active_subscriptions }) => {
+      setStateFromTimeseriesResponse(mrr, setMrrChart);
+      setStateFromTimeseriesResponse(active_subscriptions, setActiveSubsChart);
     });
   };
 
+  const getChurnRateData = async (timeframe) => {
+    return await SwishjamAPI.SaasMetrics.ChurnRate.timeseries({ timeframe }).then(resp => setStateFromTimeseriesResponse(resp, setChurnRateData));
+  };
+
   const getPageViewsTimeseriesData = async (timeframe) => {
-    return await SwishjamAPI.PageViews.timeseries({
-      timeframe,
-      dataSource: "marketing",
-    }).then(
-      ({
-        current_count,
-        comparison_count,
-        comparison_end_time,
-        timeseries,
-        comparison_timeseries,
-        grouped_by,
-      }) => {
-        setPageViewsTimeseriesData({
-          groupedBy: grouped_by,
-          previousValue: comparison_count,
-          previousValueDate: comparison_end_time,
-          timeseries: timeseries.map((timeseries, index) => ({
-            ...timeseries,
-            comparisonDate: comparison_timeseries[index]?.date,
-            comparisonValue: comparison_timeseries[index]?.value,
-          })),
-          value: current_count,
-          valueChange: current_count - comparison_count,
-        });
-      },
-    );
+    return await SwishjamAPI.PageViews.timeseries({ timeframe, dataSource: "marketing" }).then(timeseriesData => {
+      setStateFromTimeseriesResponse(timeseriesData, setPageViewsTimeseriesData)
+    });
   };
 
   const getSessionsMarketingData = async (timeframe) => {
-    return await SwishjamAPI.Sessions.timeseries({
-      dataSource: "marketing",
-      timeframe,
-    }).then((sessionData) => {
-      setSessionsMarketingChart({
-        value: sessionData.current_count,
-        previousValue: sessionData.comparison_count,
-        previousValueDate: sessionData.comparison_end_time,
-        valueChange: sessionData.count - sessionData.comparison_count,
-        groupedBy: sessionData.grouped_by,
-        timeseries: sessionData.timeseries.map((timeseries, index) => ({
-          ...timeseries,
-          comparisonDate: sessionData.comparison_timeseries[index]?.date,
-          comparisonValue: sessionData.comparison_timeseries[index]?.value,
-        })),
-      });
+    return await SwishjamAPI.Sessions.timeseries({ dataSource: "marketing", timeframe }).then(timeseriesData => {
+      setStateFromTimeseriesResponse(timeseriesData, setSessionsMarketingChart)
     });
   };
 
   const getNewUsersChartData = async (timeframe) => {
-    return await SwishjamAPI.Users.timeseries({ timeframe }).then(
-      (newUserData) => {
-        setNewUsersChartData({
-          value: newUserData.current_count,
-          previousValue: newUserData.comparison_count,
-          previousValueDate: newUserData.comparison_end_time,
-          valueChange: newUserData.count - newUserData.comparison_count,
-          groupedBy: newUserData.grouped_by,
-          timeseries: newUserData.timeseries.map((timeseries, index) => ({
-            ...timeseries,
-            comparisonDate: newUserData.comparison_timeseries[index]?.date,
-            comparisonValue: newUserData.comparison_timeseries[index]?.value,
-          })),
-        });
-      },
-    );
+    return await SwishjamAPI.Users.timeseries({ timeframe }).then((newUserData) => {
+      setStateFromTimeseriesResponse(newUserData, setNewUsersChartData);
+    });
   };
 
   const getUniqueVisitorsMarketingData = async (timeframe, type) => {
-    return await SwishjamAPI.Users.Active.timeseries({
-      timeframe,
-      dataSource: "marketing",
-      type,
-      include_comparison: true,
-    }).then(
-      ({
-        current_value,
-        timeseries,
-        comparison_value,
-        comparison_timeseries,
-        comparison_end_time,
-        grouped_by,
-      }) => {
-        setUniqueVisitorsMarketingChartData({
-          value: current_value || 0,
-          previousValue: comparison_value || 0,
-          previousValueDate: comparison_end_time,
-          valueChange: (current_value || 0) - (comparison_value || 0),
-          groupedBy: grouped_by,
-          timeseries: timeseries?.map((timeseries, index) => ({
-            ...timeseries,
-            comparisonDate: comparison_timeseries[index]?.date,
-            comparisonValue: comparison_timeseries[index]?.value,
-          })),
-        });
-      },
-    );
+    return await SwishjamAPI.Users.Active.timeseries({ timeframe, dataSource: "marketing", type, include_comparison: true }).then(timeseriesData => {
+      setStateFromTimeseriesResponse(timeseriesData, setUniqueVisitorsMarketingChartData)
+    });
   };
 
   const getUniqueVisitorsProductData = async (timeframe, type) => {
-    return await SwishjamAPI.Users.Active.timeseries({
-      timeframe,
-      dataSource: "product",
-      type,
-      include_comparison: true,
-    }).then(
-      ({
-        current_value,
-        timeseries,
-        comparison_value,
-        comparison_timeseries,
-        comparison_end_time,
-        grouped_by,
-      }) => {
-        setUniqueVisitorsProductChartData({
-          value: current_value || 0,
-          previousValue: comparison_value || 0,
-          previousValueDate: comparison_end_time,
-          valueChange: (current_value || 0) - (comparison_value || 0),
-          groupedBy: grouped_by,
-          timeseries: timeseries?.map((timeseries, index) => ({
-            ...timeseries,
-            comparisonDate: comparison_timeseries[index]?.date,
-            comparisonValue: comparison_timeseries[index]?.value,
-          })),
-        });
-      },
-    );
+    return await SwishjamAPI.Users.Active.timeseries({ timeframe, dataSource: "product", type, include_comparison: true }).then(timeseriesData => {
+      setStateFromTimeseriesResponse(timeseriesData, setUniqueVisitorsProductChartData)
+    });
   };
 
   const getUserRetentionData = async () => {
@@ -228,15 +86,11 @@ export default function Home() {
   };
 
   const getUsersData = async () => {
-    return await SwishjamAPI.Users.list({ limit: 5 }).then(({ users }) =>
-      setNewUsersData(users),
-    );
+    return await SwishjamAPI.Users.list({ limit: 5 }).then(({ users }) => setNewUsersData(users));
   };
 
   const getOrganizationsData = async () => {
-    return await SwishjamAPI.Organizations.list({ limit: 5 }).then(
-      ({ organizations }) => setNewOrganizationsData(organizations),
-    );
+    return await SwishjamAPI.Organizations.list({ limit: 5 }).then(({ organizations }) => setNewOrganizationsData(organizations));
   };
 
   const getAllData = async (timeframe) => {

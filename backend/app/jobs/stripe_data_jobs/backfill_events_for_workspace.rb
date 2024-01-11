@@ -5,7 +5,8 @@ module StripeDataJobs
 
     def perform(workspace_id)
       workspace = Workspace.find(workspace_id)
-      StripeHelpers::EventBackfiller.new(workspace).backfill!
+      StripeHelpers::BackFillers::Events.new(workspace).enqueue_historical_events_to_be_ingested!
+      StripeHelpers::BackFillers::BillingDataSnapshots.new(workspace, starting_from: 60.days.ago).backfill_snapshots!
     end
   end
 end

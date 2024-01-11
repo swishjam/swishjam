@@ -1,17 +1,37 @@
 import ConditionalCardWrapper from './ConditionalCardWrapper';
 import { CardTitle } from "@/components/ui/card";
+import { InfoIcon } from 'lucide-react';
 import LineChart from './RevenueRetentionWidget/LineChart';
 import RetentionGrid from "./RevenueRetentionWidget/RetentionGrid";
 import { Squares2X2Icon, ChartBarIcon } from '@heroicons/react/24/outline';
 import { Switch } from '@headlessui/react'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import useSheet from '@/hooks/useSheet';
 import { useState } from 'react'
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(' ')
 }
 
-export default function RevenueRetentionWidget({ title = 'User Retention', retentionCohorts, isExpandable = true, includeCard = true }) {
+const DocumentationContent = () => (
+  <>
+    <p className='mb-2'>
+      <strong className='block'>Definition:</strong>
+      Revenue Retention is a visualization of how well your business retains its recurring revenue grouped by cohorts.
+      Each cohort is comprised of a group of subscribers by the month in which their subscription began.
+      Each cell in the grid represents the percentage of the recurring revenue that was retained based on the starting MRR for that cohort.
+    </p>
+    <p className='mb-2'>
+      <strong className='block'>Example:</strong>
+      Let's say you have 10 subscribers who started a $10 subscription in the month of January. The total MRR for those 10 subscribers is $100.
+      If 5 of those subscribers churned in February, but 2 of them upgraded to a $20 subscription, then the retained MRR for February would be $70 (Five $10 subscriptions, and two $20 subscriptions).
+      That means the revenue retention rate for February would be 70% (70 / 100 = 0.7).
+    </p>
+  </>
+)
+
+export default function RevenueRetentionWidget({ title = 'Revenue Retention', retentionCohorts, includeInAppDocs = true, isExpandable = true, includeCard = true }) {
+  const { openSheetWithContent } = useSheet();
   const [chartType, setChartType] = useState('grid');
 
   const toggleChartType = () => chartType === 'grid' ? setChartType('chart') : setChartType('grid');
@@ -22,7 +42,17 @@ export default function RevenueRetentionWidget({ title = 'User Retention', reten
       includeCard={includeCard}
       title={
         <div className='flex items-center justify-between space-y-0'>
-          <CardTitle className="text-sm font-medium cursor-default">{title}</CardTitle>
+          <CardTitle className="text-sm font-medium cursor-default flex items-center gap-x-1">
+            {title}
+            {includeInAppDocs && (
+              <a
+                onClick={() => openSheetWithContent({ title, content: DocumentationContent })}
+                className='cursor-pointer text-gray-500 hover:text-gray-700 transition-all rounded-full hover:bg-gray-100 p-1'
+              >
+                <InfoIcon className='h-3 w-3' />
+              </a>
+            )}
+          </CardTitle>
           <TooltipProvider>
             <Tooltip delayDuration={300} className='cursor-default'>
               <TooltipTrigger>

@@ -13,6 +13,8 @@ import { CheckCircleIcon } from '@heroicons/react/20/solid';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import ConditionalCardWrapper from './ConditionalCardWrapper';
 import { dateFormatterForGrouping } from '@/lib/utils/timeseriesHelpers';
+import useSheet from '@/hooks/useSheet';
+import { InfoIcon } from 'lucide-react';
 
 const LoadingState = ({ title, includeCard = true }) => (
   includeCard ? (
@@ -27,7 +29,7 @@ const LoadingState = ({ title, includeCard = true }) => (
     </Card>
   ) : (
     <>
-      <CardTitle className="text-sm font-medium cursor-default pb-4">{title}</CardTitle>
+      <CardTitle className="text-sm font-medium cursor-default pb-2">{title}</CardTitle>
       <Skeleton className="w-[100px] h-[30px] rounded-sm" />
       <Skeleton className="w-full h-20 rounded-sm mt-1" />
     </>
@@ -122,6 +124,7 @@ export default function LineChartWithValue({
   className,
   comparisonValueKey = 'comparisonValue',
   dateKey = 'date',
+  DocumentationContent,
   groupedBy,
   includeCard = true,
   includeComparisonData = true,
@@ -152,13 +155,25 @@ export default function LineChartWithValue({
 
   const dateFormatter = dateFormatterForGrouping(groupedBy)
 
+  const { openSheetWithContent } = useSheet();
+
   return (
     <ConditionalCardWrapper
       className={`${className} group`}
       includeCard={includeCard}
       title={
-        <div className='flex justify-between'>
-          {title}
+        <div className='flex justify-between items-center'>
+          <div className='flex items-center gap-x-1'>
+            {title}
+            {DocumentationContent && (
+              <a
+                onClick={() => openSheetWithContent({ title, content: DocumentationContent })}
+                className='cursor-pointer text-gray-500 hover:text-gray-700 transition-all rounded-full hover:bg-gray-100 p-1'
+              >
+                <InfoIcon className='h-3 w-3' />
+              </a>
+            )}
+          </div>
           <div className='flex justify-end flex-shrink'>
             {includeSettingsDropdown && (
               <SettingsDropdown

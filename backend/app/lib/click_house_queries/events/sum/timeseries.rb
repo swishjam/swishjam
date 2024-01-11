@@ -30,13 +30,20 @@ module ClickHouseQueries
             SELECT
               SUM(JSONExtractFloat(properties, '#{@property}')) AS sum,
               DATE_TRUNC('#{@group_by}', occurred_at) AS group_by_date
-            FROM events
-            WHERE
-              swishjam_api_key IN #{formatted_in_clause(@public_keys)} AND
-              occurred_at BETWEEN '#{formatted_time(@start_time)}' AND '#{formatted_time(@end_time)}' AND
-              name = '#{@event_name}'
+            FROM (
+              SELECT 
+                uuid, 
+                argMax(properties, ingested_at) AS properties,
+                argMax(occurred_at, ingested_at) AS occurred_at
+              FROM events
+              WHERE
+                swishjam_api_key IN #{formatted_in_clause(@public_keys)} AND
+                events.occurred_at BETWEEN '#{formatted_time(@start_time)}' AND '#{formatted_time(@end_time)}' AND
+                name = '#{@event_name}'
+              GROUP BY uuid
+            )
             GROUP BY group_by_date
-            ORDER BY group_by_date
+            ORDER BY group_by_date ASC
           SQL
         end
       end
