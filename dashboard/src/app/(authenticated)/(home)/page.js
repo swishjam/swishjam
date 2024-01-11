@@ -192,9 +192,9 @@ export default function Home() {
       </div>
       <div className="pt-8 flex justify-between">
         <h3 className="font-semibold text-sm text-slate-600">
-          Key SaaS Metrics
+          Key Revenue Metrics
         </h3>
-        <Link href="/dashboards/saas-metrics" className="group">
+        <Link href="/dashboards/revenue-analytics" className="group">
           <h3 className="font-semibold text-sm text-slate-600 group-hover:text-swishjam transition-all duration-500">
             Deep Dive Report <BsArrowRightShort size={24} className="inline" />
           </h3>

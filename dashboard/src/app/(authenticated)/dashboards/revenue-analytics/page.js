@@ -98,7 +98,7 @@ export default function PageMetrics() {
             <RxBarChart size={16} className="mr-1" />Dashboards
           </Link>
           <h1 className="mb-0 text-lg font-medium text-gray-700">
-            SaaS Analytics
+            Revenue Analytics
           </h1>
         </div>
 
