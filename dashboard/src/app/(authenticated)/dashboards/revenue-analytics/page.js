@@ -62,7 +62,7 @@ export default function PageMetrics() {
   }
 
   const getHeatmapData = async metric => {
-    // return await SwishjamAPI.SaasMetrics.Revenue.heatmap().then(setHeatmapData)
+    return await SwishjamAPI.SaasMetrics.Revenue.heatmap().then(setHeatmapData)
   }
 
   const getAllData = async timeframe => {

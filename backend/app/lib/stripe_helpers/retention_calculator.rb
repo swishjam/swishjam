@@ -21,7 +21,7 @@ module StripeHelpers
           }
         end
       end.flatten
-      Analytics::RevenueMonthlyRetentionPeriod.insert_all!(formatted_for_insert)
+      Analytics::RevenueMonthlyRetentionPeriod.insert_all!(formatted_for_insert) if formatted_for_insert.any?
     end
     
     def monthly_retention
@@ -42,38 +42,46 @@ module StripeHelpers
     def calc_retention(group_by:)
       retention = {}
       paid_invoices_for_all_of_time.each do |invoice|
+        puts '.'
         next if invoice.subscription.nil?
         cohort_time_period = Time.at(invoice.subscription.created).send(:"beginning_of_#{group_by}")
-        invoice_created_time_period = Time.at(invoice.created).send(:"beginning_of_#{group_by}")
+        # invoice_created_time_period = Time.at(invoice.created).send(:"beginning_of_#{group_by}")
         retention[cohort_time_period] ||= { num_subscriptions: 0, starting_mrr: 0, unique_subscriptions_for_cohort: Set.new, retention: {} }
-        mrr_in_cents = invoice.lines.data.sum do |line| 
-          next if line.amount.zero?
-          StripeHelpers::MrrCalculator.mrr_for_subscription_item(
-            interval: line.plan.interval, 
-            unit_amount: line.unit_amount_excluding_tax.to_i, 
-            quantity: line.quantity, 
-            interval_count: line.plan.interval_count
-          )
-        end
+
+        retention[cohort_time_period][:unique_subscriptions_for_cohort].add(invoice.subscription.id)
+        retention[cohort_time_period][:num_subscriptions] = retention[cohort_time_period][:unique_subscriptions_for_cohort].size
         # I think this is the best way to check if this is the first invoice for a subscription 
         # sometimes there's a few seconds of delay between the subscription being created and the first invoice being created
         # we use the first invoice to determine MRR because Stripe makes it hard to get data from a subscription at a point in time
         invoice_is_first_for_subscription = (-1 * (invoice.subscription.start_date - invoice.created) < 1.minute) ||
                                               (invoice.subscription.trial_end.present? && -1 * (invoice.subscription.trial_end - invoice.created) < 1.minute)
-        if invoice_is_first_for_subscription
-          retention[cohort_time_period][:starting_mrr] += mrr_in_cents
+
+        invoice.lines.data.each do |line| 
+          next if line.amount.zero?
+          mrr_for_line_item = StripeHelpers::MrrCalculator.mrr_for_subscription_item(
+            interval: line.plan.interval, 
+            unit_amount: line.unit_amount_excluding_tax.to_i, 
+            quantity: line.quantity, 
+            interval_count: line.plan.interval_count
+          )
+          retention[cohort_time_period][:starting_mrr] += mrr_for_line_item if invoice_is_first_for_subscription
+          start_date_for_line_item = Time.at(line.period.start).utc
+          while start_date_for_line_item < Time.at(line.period.end).utc
+            normalized_time_period_to_attribute_recognized_mrr_for = start_date_for_line_item.send(:"beginning_of_#{group_by}")
+            retention[cohort_time_period][:retention][normalized_time_period_to_attribute_recognized_mrr_for] ||= 0
+            retention[cohort_time_period][:retention][normalized_time_period_to_attribute_recognized_mrr_for] += mrr_for_line_item
+            start_date_for_line_item += 1.send(group_by)
+          end
         end
-        retention[cohort_time_period][:unique_subscriptions_for_cohort].add(invoice.subscription.id)
-        retention[cohort_time_period][:num_subscriptions] = retention[cohort_time_period][:unique_subscriptions_for_cohort].size
-        retention[cohort_time_period][:retention][invoice_created_time_period] ||= 0
-        retention[cohort_time_period][:retention][invoice_created_time_period] += mrr_in_cents
       end
+      byebug
       fill_in_retention_results!(retention, group_by)
       retention
     end
 
     def fill_in_retention_results!(retention, group_by)
       current_cohort_date = retention.keys.min
+      return if current_cohort_date.nil?
       while current_cohort_date <= Time.current
         retention[current_cohort_date] ||= { num_subscriptions: 0, starting_mrr: 0, retention: {} }
         retention[current_cohort_date].delete(:unique_subscriptions_for_cohort)
