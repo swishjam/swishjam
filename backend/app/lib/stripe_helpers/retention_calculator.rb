@@ -42,9 +42,9 @@ module StripeHelpers
     def calc_retention(group_by:)
       retention = {}
       paid_invoices_for_all_of_time.each do |invoice|
-        puts '.'
         next if invoice.subscription.nil?
-        cohort_time_period = Time.at(invoice.subscription.created).send(:"beginning_of_#{group_by}")
+        time_of_subscription_start = invoice.subscription.trial_end.present? ? invoice.subscription.trial_end : invoice.subscription.start_date
+        cohort_time_period = Time.at(time_of_subscription_start).utc.send(:"beginning_of_#{group_by}")
         # invoice_created_time_period = Time.at(invoice.created).send(:"beginning_of_#{group_by}")
         retention[cohort_time_period] ||= { num_subscriptions: 0, starting_mrr: 0, unique_subscriptions_for_cohort: Set.new, retention: {} }
 
@@ -55,7 +55,6 @@ module StripeHelpers
         # we use the first invoice to determine MRR because Stripe makes it hard to get data from a subscription at a point in time
         invoice_is_first_for_subscription = (-1 * (invoice.subscription.start_date - invoice.created) < 1.minute) ||
                                               (invoice.subscription.trial_end.present? && -1 * (invoice.subscription.trial_end - invoice.created) < 1.minute)
-
         invoice.lines.data.each do |line| 
           next if line.amount.zero?
           mrr_for_line_item = StripeHelpers::MrrCalculator.mrr_for_subscription_item(
@@ -74,7 +73,6 @@ module StripeHelpers
           end
         end
       end
-      byebug
       fill_in_retention_results!(retention, group_by)
       retention
     end
