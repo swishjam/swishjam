@@ -5,11 +5,11 @@ module ClickHouseQueries
         include ClickHouseQueries::Helpers
         include TimeseriesHelper
 
-        def initialize(public_keys, event_name:, property:, start_time:, end_time:)
+        def initialize(public_keys, event_name:, property:, start_time:, end_time:, group_by: nil)
           @public_keys = public_keys.is_a?(Array) ? public_keys : [public_keys]
           @event_name = event_name
           @property = property
-          @group_by = derived_group_by(start_ts: start_time, end_ts: end_time)
+          @group_by = group_by || derived_group_by(start_ts: start_time, end_ts: end_time)
           @start_time, @end_time = rounded_timestamps(start_ts: start_time, end_ts: end_time, group_by: @group_by)
         end
 

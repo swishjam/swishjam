@@ -104,7 +104,7 @@ export default function RevenueRetentionWidget({ title = 'Revenue Retention', re
         </div>
       }
     >
-      {hasNoRetentionData && (
+      {hasNoRetentionData ? (
         <div className='text-sm text-gray-500 text-center p-8 group'>
           <div className='my-8 mx-auto grid grid-cols-3 gap-2 w-20'>
             <div className='border-2 border-gray-300 rounded h-5 w-5 group-hover:border-swishjam duration-500 transition-all' />
@@ -116,10 +116,9 @@ export default function RevenueRetentionWidget({ title = 'Revenue Retention', re
             <div className='border-2 border-gray-300 rounded h-5 w-5' />
           </div>
           <h3 className='tracking-tight text-sm font-medium cursor-default'>No Retention Data</h3>
-          <p className='mt-2'>Send events and identify users <br />retention data will appear here</p>
+          {/* <p className='mt-2'>Connect your Stripe account to populate this view</p> */}
         </div>
-      )}
-      {chartType === 'grid'
+      ) : chartType === 'grid'
         ? <RetentionGrid retentionCohorts={retentionCohorts} isExpandable={isExpandable} />
         : <LineChart retentionCohorts={retentionCohorts} />
       }

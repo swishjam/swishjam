@@ -38,12 +38,24 @@ const appNav = [
 
 const classNames = (...classes) => classes.filter(Boolean).join(' ')
 
+const TooltipableNavItem = ({ isCollapsed, tooltipText, children }) => {
+  if (isCollapsed) {
+    return (
+      <Tooltipable direction='right' content={tooltipText}>
+        {children}
+      </Tooltipable>
+    )
+  } else {
+    return children;
+  }
+}
+
 const DesktopNavItem = ({ item, isCollapsed, currentPath }) => {
   const isCurrentPage = menuItemHref => currentPath == menuItemHref;
 
   return (
     <li key={item.name}>
-      <Tooltipable direction='right' content={item.name}>
+      <TooltipableNavItem isCollapsed={isCollapsed} tooltipText={item.name}>
         <Link
           href={item.href}
           className={classNames(
@@ -62,7 +74,7 @@ const DesktopNavItem = ({ item, isCollapsed, currentPath }) => {
           />}
           {isCollapsed ? '' : item.name}
         </Link>
-      </Tooltipable>
+      </TooltipableNavItem>
     </li>
   )
 }
@@ -97,7 +109,7 @@ export default function Sidebar({ onCollapse, onExpand, email }) {
                   <ul role="list" className="space-y-1">
                     {appNav.map((item) => <DesktopNavItem item={item} key={item.name} isCollapsed={isCollapsed} category="" currentPath={pathname} />)}
                     <li>
-                      <Tooltipable direction='right' content='Command Bar'>
+                      <TooltipableNavItem isCollapsed={isCollapsed} tooltipText='Command Bar'>
                         <a
                           onClick={() => setCommandBarIsOpen(true)}
                           className={`flex cursor-pointer text-gray-700 hover:text-swishjam hover:bg-gray-50 group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold duration-500 transition ${isCollapsed ? 'py-2 px-1 justify-center' : 'p-2'}`}
@@ -105,7 +117,7 @@ export default function Sidebar({ onCollapse, onExpand, email }) {
                           <MagnifyingGlassIcon className='inline text-gray-400 group-hover:text-swishjam duration-500 transition h-6 w-6 shrink-0' />
                           {isCollapsed ? '' : 'Search'}
                         </a>
-                      </Tooltipable>
+                      </TooltipableNavItem>
                     </li>
                   </ul>
                 </li>

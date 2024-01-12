@@ -28,7 +28,7 @@ module TimestampHelper
       Time.zone.now.beginning_of_day - 6.months
     when :this_year
       Time.zone.now.beginning_of_year
-    when :one_year, :'1_year'
+    when :one_year, :'1_year', :twelve_months, :'12_months'
       Time.zone.now.beginning_of_day - 1.year
     else
       raise "Invalid timeframe #{params[:timeframe]}, supported values are: 'hour', 'today', '24_hours', 'this_week', 'seven_days', 'this_month', 'thirty_days', 'sixty_days', 'two_months', 'ninety_days', 'three_months', 'six_months', 'this_year', or 'one_year'."

@@ -229,8 +229,14 @@ Rails.application.routes.draw do
       end
 
       namespace :saas_metrics, only: [] do
-        resources :revenue_retention, only: :index
-        resources :revenue_per_customer, only: :index
+        resources :revenue, only: [] do
+          collection do
+            get :timeseries
+            get :retention
+            get :heatmap
+            get :per_customer_timeseries
+          end
+        end
         resources :free_trials, only: [] do
           get :timeseries, on: :collection
         end
@@ -244,7 +250,10 @@ Rails.application.routes.draw do
           get :timeseries, on: :collection
         end
         resources :mrr, only: [] do
-          get :timeseries, on: :collection
+          collection do
+            get :timeseries
+            get :heatmap
+          end
         end
         resources :mrr_movement, only: [] do
           get :stacked_bar_chart, on: :collection

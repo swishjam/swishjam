@@ -58,7 +58,8 @@ module StripeHelpers
         # I think this is the best way to check if this is the first invoice for a subscription 
         # sometimes there's a few seconds of delay between the subscription being created and the first invoice being created
         # we use the first invoice to determine MRR because Stripe makes it hard to get data from a subscription at a point in time
-        invoice_is_first_for_subscription = -1 * (invoice.subscription.start_date - invoice.created) < 1.minute
+        invoice_is_first_for_subscription = (-1 * (invoice.subscription.start_date - invoice.created) < 1.minute) ||
+                                              (invoice.subscription.trial_end.present? && -1 * (invoice.subscription.trial_end - invoice.created) < 1.minute)
         if invoice_is_first_for_subscription
           retention[cohort_time_period][:starting_mrr] += mrr_in_cents
         end

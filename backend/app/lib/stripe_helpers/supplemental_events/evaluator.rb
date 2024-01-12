@@ -54,6 +54,23 @@ module StripeHelpers
               user_profile_id: @maybe_user_profile_id
             },
           )
+        elsif @stripe_event.type == 'charge.succeeded'
+          # this way we can backfill all of the charges that happened before we started ingesting charges
+          # with this supplemental event, event though events are only available for 30 days
+          events << Analytics::Event.formatted_for_ingestion(
+            ingested_at: Time.current,
+            uuid: "#{stripe_object.id}-supplemental-charge",
+            swishjam_api_key: @public_key,
+            name: StripeHelpers::SupplementalEvents::Types.CHARGE_SUCCEEDED,
+            occurred_at: Time.at(@stripe_event.created),
+            properties: {
+              stripe_charge_id: stripe_object.id,
+              stripe_customer_id: stripe_object.customer,
+              stripe_customer_email: @stripe_customer&.email,
+              amount_in_cents: stripe_object.amount,
+              user_profile_id: @maybe_user_profile_id
+            },
+          )
         end
         events
       end

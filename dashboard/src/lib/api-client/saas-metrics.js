@@ -5,8 +5,7 @@ import Customers from "./saas-metrics/customers";
 import FreeTrials from "./saas-metrics/free-trials";
 import Mrr from './saas-metrics/mrr';
 import MrrMovement from "./saas-metrics/mrr-movement";
-import RevenuePerCustomer from "./saas-metrics/revenue-per-customer";
-import RevenueRetention from "./saas-metrics/revenue-retention";
+import Revenue from "./saas-metrics/revenue";
 
 export class SaasMetrics extends Base {
   static Churn = Churn;
@@ -15,8 +14,7 @@ export class SaasMetrics extends Base {
   static FreeTrials = FreeTrials;
   static MrrMovement = MrrMovement;
   static Mrr = Mrr;
-  static RevenuePerCustomer = RevenuePerCustomer;
-  static RevenueRetention = RevenueRetention;
+  static Revenue = Revenue;
 }
 
 Object.assign(SaasMetrics, Base);

@@ -2,6 +2,9 @@ module Api
   module V1
     module SaasMetrics
       class MrrController < BaseController
+        def heatmap
+        end
+        
         def timeseries
           public_key = current_workspace.api_keys.for_data_source(ApiKey::ReservedDataSources.STRIPE)&.public_key
           if public_key
@@ -25,7 +28,7 @@ module Api
               grouped_by: timeseries_getter.group_by,
               }, status: :ok
           else
-            render json: { error: 'No Stripe API key found for this workspace' }, status: :unprocessable_entity
+            render json: { timeseries: [], error: 'No Stripe API key found for this workspace' }, status: :unprocessable_entity
           end
         end
       end

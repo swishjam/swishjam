@@ -11,6 +11,7 @@ import { RxBarChart } from 'react-icons/rx'
 import { setStateFromTimeseriesResponse } from "@/lib/utils/timeseriesHelpers";
 import { SwishjamAPI } from "@/lib/api-client/swishjam-api";
 import { useState, useEffect } from "react";
+import Heatmap from "@/components/Dashboards/Components/HeatMap";
 
 export default function PageMetrics() {
   const [activeSubscriptionsChartData, setActiveSubscriptionsChartData] = useState();
@@ -23,6 +24,7 @@ export default function PageMetrics() {
   const [mrrChartData, setMrrChartData] = useState();
   const [revenuePerCustomerChartData, setRevenuePerCustomerChartData] = useState();
   const [revenueRetentionData, setRevenueRetentionData] = useState();
+  const [heatmapData, setHeatmapData] = useState();
   const [timeframeFilter, setTimeframeFilter] = useState('thirty_days');
 
   const getBillingData = async timeframe => {
@@ -36,11 +38,11 @@ export default function PageMetrics() {
   };
 
   const getRevenueRetentionData = async () => {
-    return await SwishjamAPI.SaasMetrics.RevenueRetention.get({ numCohorts: 8 }).then(setRevenueRetentionData)
+    return await SwishjamAPI.SaasMetrics.Revenue.retention({ numCohorts: 8 }).then(setRevenueRetentionData)
   }
 
   const getRevenuePerCustomerData = async timeframe => {
-    return await SwishjamAPI.SaasMetrics.RevenuePerCustomer.timeseries({ timeframe }).then(resp => setStateFromTimeseriesResponse(resp, setRevenuePerCustomerChartData))
+    return await SwishjamAPI.SaasMetrics.Revenue.perCustomerTimeseries({ timeframe }).then(resp => setStateFromTimeseriesResponse(resp, setRevenuePerCustomerChartData))
   }
 
   const getCustomersChartData = async timeframe => {
@@ -59,9 +61,13 @@ export default function PageMetrics() {
     return await SwishjamAPI.SaasMetrics.Churn.timeseries({ timeframe }).then(resp => setStateFromTimeseriesResponse(resp, setChurnedMrrChartData));
   }
 
+  const getHeatmapData = async metric => {
+    // return await SwishjamAPI.SaasMetrics.Revenue.heatmap().then(setHeatmapData)
+  }
+
   const getAllData = async timeframe => {
-    // Reset All Data
     setIsRefreshing(true);
+
     setMrrChartData();
     setActiveSubscriptionsChartData();
     // setCustomersWithPaidSubscriptionsChartData();
@@ -71,8 +77,8 @@ export default function PageMetrics() {
     setFreeTrialsChartData();
     setChurnRateChartData();
     setChurnedMrrChartData();
+    setHeatmapData();
 
-    // Reload all the data
     await Promise.all([
       getBillingData(timeframe),
       getRevenuePerCustomerData(timeframe),
@@ -80,8 +86,9 @@ export default function PageMetrics() {
       getFreeTrialsChartData(timeframe),
       getChurnRateChartData(timeframe),
       getChurnedMrrChartData(timeframe),
+      getHeatmapData(),
       getRevenueRetentionData(),
-    ]);
+    ])
 
     setIsRefreshing(false);
   };
@@ -239,6 +246,12 @@ export default function PageMetrics() {
           valueFormatter={formatMoney}
           yAxisFormatter={formatShrinkMoney}
         />
+      </div>
+
+      <div className='grid grid-cols-2 gap-2 pt-2'>
+        <div className='col-span-2'>
+          <Heatmap data={heatmapData} />
+        </div>
       </div>
 
       {/* <div className='grid grid-cols-2 gap-2 pt-2'>
