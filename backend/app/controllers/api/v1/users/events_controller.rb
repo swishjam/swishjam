@@ -7,7 +7,7 @@ module Api
           params[:data_source] ||= 'all'
           events = ClickHouseQueries::Users::Events::List.new(
             public_keys_for_requested_data_source,
-            user_profile_id: @user.id, 
+            user_profile: @user,
             limit: limit, 
             start_time: 1.year.ago,
             end_time: end_timestamp

@@ -7,15 +7,18 @@ module Slack
       @access_token = access_token
     end
 
-    def list_channels(cursor: nil, exclude_archived: true, limit: 100, types: 'public_channel')
-      params = { 
-        limit: limit, 
-        types: types,
-        exclude_archived: exclude_archived,
-      }
-      params[:cursor] = cursor if cursor.present?
-      response = get('conversations.list', params)
-      response['channels']
+    def list_channels(cursor: nil, exclude_archived: true, limit: 100, types: 'public_channel, private_channel')
+      # dumb hack to get around Slack API weird behavior getting multiple channel types
+      types.split(',').map do |type|
+        params = { 
+          limit: limit, 
+          types: type,
+          exclude_archived: exclude_archived,
+        }
+        params[:cursor] = cursor if cursor.present?
+        response = get('conversations.list', params)
+        response['channels']
+      end.flatten
     end
 
     def post_message_to_channel(channel:, text: nil, blocks: nil)

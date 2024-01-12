@@ -24,9 +24,9 @@ export default function Dashboards() {
       <div>
         <h1 className="text-lg font-medium text-gray-700 mb-0">Dashboards</h1>
       </div>
-      <div className='grid grid-cols-3 gap-4 mt-8'>
+      <div className='grid grid-cols-3 gap-4 mt-8 flex'>
         <Link href="/dashboards/marketing-analytics">
-          <Card className={`group hover:ring-2 offset-2 ring-swishjam duration-300 transition cursor-pointer`}>
+          <Card className={`group hover:ring-2 offset-2 ring-swishjam duration-300 transition cursor-pointer h-full`}>
             <CardContent>
               <div className="mt-6 border rounded-sm overflow-hidden">
                 <Image src='/visitor-trends.png' width={200} height={200} className='w-full' />
@@ -40,7 +40,7 @@ export default function Dashboards() {
           </Card>
         </Link>
         <Link href="/dashboards/product-analytics">
-          <Card className={`group hover:ring-2 offset-2 ring-swishjam duration-300 transition cursor-pointer`}>
+          <Card className={`group hover:ring-2 offset-2 ring-swishjam duration-300 transition cursor-pointer h-full`}>
             <CardContent>
               <div className="mt-6 border rounded-sm overflow-hidden">
                 <Image src='/product-analytics.png' width={200} height={200} className='w-full' />
@@ -57,8 +57,13 @@ export default function Dashboards() {
         {/* <Card className='group hover:ring-2 offset-2 ring-swishjam duration-300 transition cursor-pointer'> */}
         <Card className='opacity-50'>
           <CardContent>
+<<<<<<< HEAD
             <div className="mt-6 border rounded-sm overflow-hidden">
               <Image src='/revenue-analytics.png' width={200} height={200} className='w-full' />
+=======
+            <div className="mt-6 border rounded-sm overflow-hidden h-full">
+              <Image src='/visitor-trends.png' width={200} height={200} className="w-full" />
+>>>>>>> main
             </div>
             <h3 className="text-sm font-medium cursor-default mt-2 border-t-2 border-white">Revenue Analytics</h3>
             <p className="text-sm cursor-default mt-2">MRR, Churn, Revenue Retention, Subscriptions, and more</p>

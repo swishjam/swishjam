@@ -23,9 +23,9 @@ export default function ApiKeysTable({ apiKeys }) {
             <th scope="col" className="px-3 py-3.5 text-left text-xs text-gray-900 font-normal">
               PUBLIC KEY
             </th>
-            {/* <th scope="col" className="px-3 py-3.5 text-left text-xs text-gray-900 font-normal">
+            <th scope="col" className="px-3 py-3.5 text-left text-xs text-gray-900 font-normal">
               PRIVATE KEY
-            </th> */}
+            </th>
             <th scope="col" className="px-3 py-3.5 text-left text-xs text-gray-900 font-normal">
               STATUS
             </th>
@@ -49,9 +49,9 @@ export default function ApiKeysTable({ apiKeys }) {
                   <td className="px-3 py-3">
                     <Skeleton className='w-24 h-4 bg-gray-200' />
                   </td>
-                  {/* <td className="px-3 py-3">
+                  <td className="px-3 py-3">
                     <Skeleton className='w-24 h-4 bg-gray-200' />
-                  </td> */}
+                  </td>
                   <td className="px-3 py-3">
                     <Skeleton className='w-24 h-4 bg-gray-200' />
                   </td>

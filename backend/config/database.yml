@@ -2,6 +2,7 @@ default: &default
   adapter: postgresql
   encoding: unicode
   pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
+  prepared_statements: false
 
 development:
   transactional:
@@ -30,11 +31,7 @@ test:
 production:
   transactional:
     <<: *default
-    host: <%= ENV['POSTGRES_DB_HOST'] %>
-    database: <%= ENV['POSTGRES_DB_NAME'] %>
-    username: <%= ENV['POSTGRES_DB_USERNAME'] %>
-    password: <%= ENV['POSTGRES_DB_PASSWORD'] %>
-    port: <%= ENV['POSTGRES_DB_PORT'] %>
+    url: <%= ENV['POSTGRES_DB_CONNECTION_POOLING_STRING'] %>
   clickhouse:
     adapter: clickhouse
     database: swishjam_analytics

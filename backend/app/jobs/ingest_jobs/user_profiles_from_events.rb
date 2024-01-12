@@ -1,10 +1,10 @@
 module IngestJobs
-  class OrganizationIdentifies
+  class UserProfilesFromEvents
     include Sidekiq::Job
     queue_as :default
 
     def perform
-      Ingestion::OrganizationIdentifiesIngestion.ingest!
+      Ingestion::UserProfilesFromEventsIngestion.ingest!
     end
   end
 end
