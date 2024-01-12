@@ -5,7 +5,7 @@ module StripeDataJobs
     queue_as :default
 
     def perform(workspace_id)
-      data_sync = DataSync.new(workspace_id: workspace_id, provider: 'stripe_backfill', started_at: Time.current)
+      data_sync = DataSync.create!(workspace_id: workspace_id, provider: 'stripe_backfill', started_at: Time.current)
       begin
         workspace = Workspace.find(workspace_id)
         integration = Integrations::Stripe.for_workspace(workspace)

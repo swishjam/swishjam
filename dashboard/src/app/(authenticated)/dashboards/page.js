@@ -53,21 +53,22 @@ export default function Dashboards() {
             </CardContent>
           </Card>
         </Link>
-        <Link href="/dashboards/revenue-analytics">
-          <Card className='group hover:ring-2 offset-2 ring-swishjam duration-300 transition cursor-pointer'>
-            <CardContent>
-              <div className="mt-6 border rounded-sm overflow-hidden">
-                <Image src='/revenue-analytics.png' width={200} height={200} className='w-full' />
-              </div>
-              <h3 className="text-sm font-medium cursor-default mt-2 border-t-2 border-white">Revenue Analytics</h3>
-              <p className="text-sm cursor-default mt-2">MRR, Churn, Revenue Retention, Subscriptions, and more</p>
-              <div className="flex justify-end">
-                <Button variant="cursor-default" className="">View <BsArrowRightShort size={16} /></Button>
-              </div>
+        {/* <Link href="/dashboards/revenue-analytics"> */}
+        {/* <Card className='group hover:ring-2 offset-2 ring-swishjam duration-300 transition cursor-pointer'> */}
+        <Card className='opacity-50'>
+          <CardContent>
+            <div className="mt-6 border rounded-sm overflow-hidden">
+              <Image src='/revenue-analytics.png' width={200} height={200} className='w-full' />
+            </div>
+            <h3 className="text-sm font-medium cursor-default mt-2 border-t-2 border-white">Revenue Analytics</h3>
+            <p className="text-sm cursor-default mt-2">MRR, Churn, Revenue Retention, Subscriptions, and more</p>
+            <div className="flex justify-end">
+              <Button variant="cursor-default" className="">View <BsArrowRightShort size={16} /></Button>
+            </div>
 
-            </CardContent>
-          </Card>
-        </Link>
+          </CardContent>
+        </Card>
+        {/* </Link> */}
       </div>
 
       <div className='grid grid-cols-2 mt-8 flex items-center'>
