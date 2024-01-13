@@ -47,7 +47,11 @@ const dateFormatterForGrouping = grouping => {
   }
 }
 
-const setStateFromTimeseriesResponse = (response, setter) => {
+const setStateFromTimeseriesResponse = (response, setter, onError) => {
+  if (response.timeseries === undefined) {
+    onError && onError(response.error);
+    return;
+  }
   setter({
     value: response.current_count,
     previousValue: response.comparison_count,

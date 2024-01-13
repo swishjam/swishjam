@@ -4,14 +4,17 @@ import { ArrowPathIcon } from "@heroicons/react/24/outline";
 import Timefilter from "@/components/Timefilter";
 import { Button } from "@/components/ui/button";
 import { formatMoney, formatNumbers, formatShrinkMoney, formatShrinkNumbers } from "@/lib/utils/numberHelpers";
+import Heatmap from "@/components/Dashboards/Components/HeatMap";
+import Image from "next/image";
 import Link from 'next/link'
 import LineChartWithValue from "@/components/Dashboards/Components/LineChartWithValue";
+import Modal from "@/components/utils/Modal";
 import RevenueRetentionWidget from '@/components/Dashboards/Components/RevenueRetentionWidget';
 import { RxBarChart } from 'react-icons/rx'
 import { setStateFromTimeseriesResponse } from "@/lib/utils/timeseriesHelpers";
 import { SwishjamAPI } from "@/lib/api-client/swishjam-api";
+import useAuthData from "@/hooks/useAuthData";
 import { useState, useEffect } from "react";
-import Heatmap from "@/components/Dashboards/Components/HeatMap";
 
 export default function PageMetrics() {
   const [activeSubscriptionsChartData, setActiveSubscriptionsChartData] = useState();
@@ -20,12 +23,17 @@ export default function PageMetrics() {
   // const [customersWithPaidSubscriptionsChartData, setCustomersWithPaidSubscriptionsChartData] = useState();
   const [customersChartData, setCustomersChartData] = useState();
   const [freeTrialsChartData, setFreeTrialsChartData] = useState();
+  const [isMissingStripeConnection, setIsMissingStripeConnection] = useState();
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [mrrChartData, setMrrChartData] = useState();
   const [revenuePerCustomerChartData, setRevenuePerCustomerChartData] = useState();
   const [revenueRetentionData, setRevenueRetentionData] = useState();
   const [heatmapData, setHeatmapData] = useState();
   const [timeframeFilter, setTimeframeFilter] = useState('thirty_days');
+
+  const { token } = useAuthData();
+  const redirectUrlHost = process.env.NEXT_PUBLIC_STRIPE_REDIRECT_URL_HOST || 'https://capture.swishjam.com';
+  const stripeClientId = process.env.NEXT_PUBLIC_STRIPE_CLIENT_ID || 'ca_ONSwyVU8wOJ9ZvJ06DmBcx83cvJsGujT';
 
   const getBillingData = async timeframe => {
     return await SwishjamAPI.BillingData.timeseries({ timeframe }).then(
@@ -62,7 +70,13 @@ export default function PageMetrics() {
   }
 
   const getHeatmapData = async metric => {
-    return await SwishjamAPI.SaasMetrics.Revenue.heatmap().then(setHeatmapData)
+    return await SwishjamAPI.SaasMetrics.Revenue.heatmap().then(resp => {
+      if (resp.error && /Stripe is not configured for this account/i.test(resp.error)) {
+        setIsMissingStripeConnection(true)
+      } else {
+        setHeatmapData(resp)
+      }
+    })
   }
 
   const getAllData = async timeframe => {
@@ -99,7 +113,28 @@ export default function PageMetrics() {
 
   return (
     <main className="mx-auto mb-8 max-w-7xl px-4 sm:px-6 lg:px-8">
-      <div className="mt-8 flex grid grid-cols-2 items-center">
+      {isMissingStripeConnection && (
+        <Modal isOpen={true} size='large' title='Connect your Stripe account' closable={false}>
+          <div className='text-center'>
+            <Image className='rounded-md m-auto' src='/logos/stripe.jpeg' width={100} height={100} />
+            <h1 className='text-md mt-4 text-gray-700'>Connect your Stripe account in order to get access to Swishjam Revenue Analytics.</h1>
+            <a
+              className='w-full mt-6 flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white focus:outline-none focus:ring-2 bg-swishjam hover:bg-swishjam-dark'
+              href={`https://connect.stripe.com/oauth/authorize?response_type=code&client_id=${stripeClientId}&scope=read_write&redirect_uri=${redirectUrlHost}/oauth/stripe/callback&state={"authToken":"${token}","redirectPath":"/dashboards/revenue-analytics"}`}
+            >
+              Connect Stripe
+            </a>
+            <span className='text-xs text-gray-700'>or</span>
+            <Link
+              className='w-full flex justify-center py-2 px-4 border border-gray-200 rounded-md shadow-sm text-sm font-medium text-gray-700 focus:outline-none focus:ring-2 bg-white hover:bg-gray-100'
+              href='/'
+            >
+              Go home
+            </Link>
+          </div>
+        </Modal>
+      )}
+      <div className="mt-8 grid grid-cols-2 items-center">
         <div>
           <Link href="/dashboards" className="mb-0 text-xs font-medium text-gray-400 flex hover:text-swishjam transition duration-300 hover:underline">
             <RxBarChart size={16} className="mr-1" />Dashboards

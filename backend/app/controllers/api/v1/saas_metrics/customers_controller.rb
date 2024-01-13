@@ -6,6 +6,10 @@ module Api
 
         def timeseries
           params[:data_source] = ApiKey::ReservedDataSources.STRIPE
+          if public_keys_for_requested_data_source.empty?
+            render json: { timeseries: [], error: 'Stripe is not configured for this account' }, status: :not_found
+            return
+          end
           timeseries = ClickHouseQueries::SaasMetrics::Customers.new(
             public_keys_for_requested_data_source,
             start_time: start_timestamp,

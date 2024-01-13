@@ -12,16 +12,13 @@ export default function HeatMapCell({
   onHoverEnd,
   value,
 }) {
-  if (isHighlighted) {
-    console.log('Am i highlighted?', isHighlighted, date, value)
-  }
   return (
     <Tooltipable
       content={
         <div className='text-center text-sm'>
           {formatMoney(value)} in revenue on {LONG_MONTHS[new Date(date).getUTCMonth()]} {new Date(date).getUTCDate()}.
           {isLargestValueInSet && (
-            <span className='block flex items-center gap-x-1'>
+            <span className='flex items-center gap-x-1'>
               <StarIcon className='w-3 h-3 text-yellow-400' /> This is the highest revenue day in the past year.
             </span>
           )}

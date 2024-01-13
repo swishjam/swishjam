@@ -24,54 +24,52 @@ const LoadingState = ({ title }) => (
       </div>
     }
   >
-    <div className='flex justify-center'>
-      <div>
-        <div className='flex flex-nowrap m-auto overflow-x-scroll p-2'>
-          <div className='inline-flex flex-col w-fit'>
-            <span className='text-xs mb-1' style={{ height: '16px' }}>&nbsp;</span>
-            {Array.from({ length: 7 }).map((_, i) => (
-              <div
-                key={i}
-                className='m-[0.075rem] flex items-center w-fit mr-1 text-xs'
-                style={{ height: '16px' }}
-              >
-                {i === 0 && 'Mon'}
-                {i === 2 && 'Wed'}
-                {i === 4 && 'Fri'}
-                {i === 6 && 'Sun'}
-              </div>
-            ))}
-          </div>
-          {Array.from({ length: 53 }).map((_, weekIndex) => {
-            return (
-              <div key={weekIndex} className='inline-flex flex-col w-fit'>
-                <div className='mb-1' style={{ width: '16px', height: '16px' }}>
-                  <span className='text-xs'>&nbsp;</span>
-                </div>
-                {Array.from({ length: 7 }).map((_, j) => {
-                  return (
-                    <div
-                      key={j}
-                      className='bg-gray-200 animate-pulse rounded border border-gray-200 m-[0.075rem] flex items-center justify-center hover:scale-105 transition-all'
-                      style={{ width: '16px', height: '16px' }}
-                    />
-                  )
-                })}
-              </div>
-            )
-          })}
-        </div>
-        <div className='flex justify-end mt-4'>
-          {Array.from({ length: 5 }).map((_, i) => (
-            <div key={i} className='flex items-center text-xs gap-x-1'>
-              <div
-                className='bg-gray-200 animate-pulse rounded border border-gray-200 m-[0.075rem] flex items-center justify-center hover:scale-105 transition-all'
-                style={{ width: '16px', height: '16px' }}
-              />
+    <div className='w-full overflow-x-scroll'>
+      <div className='flex flex-nowrap mx-auto p-2 w-fit'>
+        <div className='inline-flex flex-col w-fit'>
+          <span className='text-xs mb-1' style={{ height: '16px' }}>&nbsp;</span>
+          {Array.from({ length: 7 }).map((_, i) => (
+            <div
+              key={i}
+              className='flex items-center w-fit mr-1 text-xs'
+              style={{ height: '16px' }}
+            >
+              {i === 0 && 'Mon'}
+              {i === 2 && 'Wed'}
+              {i === 4 && 'Fri'}
+              {i === 6 && 'Sun'}
             </div>
           ))}
         </div>
+        {Array.from({ length: 53 }).map((_, weekIndex) => {
+          return (
+            <div key={weekIndex} className='inline-flex flex-col w-fit'>
+              <div className='mb-1' style={{ width: '16px', height: '16px' }}>
+                <span className='text-xs'>&nbsp;</span>
+              </div>
+              {Array.from({ length: 7 }).map((_, j) => {
+                return (
+                  <div
+                    key={j}
+                    className='bg-gray-200 animate-pulse outline outline-white'
+                    style={{ width: '16px', height: '16px' }}
+                  />
+                )
+              })}
+            </div>
+          )
+        })}
       </div>
+    </div>
+    <div className='flex justify-center mt-4'>
+      {Array.from({ length: 5 }).map((_, i) => (
+        <div key={i} className='flex items-center text-xs gap-x-1'>
+          <div
+            className='bg-gray-200 animate-pulse outline outline-white'
+            style={{ width: '25px', height: '25px' }}
+          />
+        </div>
+      ))}
     </div>
   </ConditionalCardWrapper>
 )
