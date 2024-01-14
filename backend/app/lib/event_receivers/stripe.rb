@@ -9,17 +9,15 @@ module EventReceivers
 
     def receive!
       return if !@stripe_event.livemode
-      if integration.nil?
-        if public_key
+      if integration.present?
+        if public_key.present?
           supplemental_events = StripeHelpers::SupplementalEvents::Evaluator.new(
             stripe_event: @stripe_event, 
             stripe_customer: stripe_customer, 
             public_key: public_key, 
             maybe_user_profile_id: @event_parser.maybe_user_profile&.id,
           ).format_supplemental_events_to_be_processed_if_necessary!
-          
-          [formatted_event_to_ingest].concat(supplemental_events)
-
+          events = [formatted_event_to_ingest].concat(supplemental_events)
           Ingestion::QueueManager.push_records_into_queue(Ingestion::QueueManager::Queues.EVENTS, events) if events.any?
           enqueue_sync_jobs_if_necessary!
           true
@@ -40,7 +38,7 @@ module EventReceivers
     end
 
     def workspace
-      @workspace ||= integration.workspace
+      @workspace ||= integration&.workspace
     end
 
     def public_key
