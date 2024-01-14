@@ -10,8 +10,8 @@ export default function HeatMapLegend({ numCellsInEachBucket, hoveredCellValue, 
           : `You have ${numCellsInEachBucket[i]} days where you made between ${formatMoney(bucketSize * (i - 1))} and ${formatMoney(bucketSize * i)} in revenue.`
         const matchesHoveredCellValue = hoveredCellValue === 0 && i === 0 || (hoveredCellValue > bucketSize * (i - 1) && hoveredCellValue <= bucketSize * i)
         return (
-          <Tooltipable content={tooltipMsg}>
-            <div key={i} className='flex items-center text-xs gap-x-1'>
+          <Tooltipable key={i} content={tooltipMsg}>
+            <div className='flex items-center text-xs gap-x-1'>
               {i === 0 && <span>$0</span>}
               <div
                 onMouseEnter={() => onHover([Math.max(bucketSize * (i - 1), 0), bucketSize * i])}

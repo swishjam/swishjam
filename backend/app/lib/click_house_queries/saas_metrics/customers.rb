@@ -33,7 +33,7 @@ module ClickHouseQueries
           WHERE
             swishjam_api_key IN #{formatted_in_clause(@public_keys)} AND
             occurred_at BETWEEN '#{formatted_time(@start_time)}' AND '#{formatted_time(@end_time)}' AND
-            name = 'stripe.customer.created'
+            name = '#{StripeHelpers::SupplementalEvents::NewSubscriber.EVENT_NAME}'
           GROUP BY group_by_date
           ORDER BY group_by_date ASC
         SQL

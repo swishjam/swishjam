@@ -12,7 +12,7 @@ module Api
           end
           timeseries = ClickHouseQueries::Events::TimeseriesByEventName.new(
             public_keys_for_requested_data_source,
-            event_name: StripeHelpers::SupplementalEvents::Types.NEW_FREE_TRIAL,
+            event_name: StripeHelpers::SupplementalEvents::NewFreeTrial.EVENT_NAME,
             start_time: start_timestamp,
             end_time: end_timestamp,
           ).get
@@ -20,7 +20,7 @@ module Api
           if params[:exclude_comparison].nil? || params[:exclude_comparison] != "true"
             comparison_timeseries = ClickHouseQueries::Events::TimeseriesByEventName.new(
               public_keys_for_requested_data_source,
-              event_name: StripeHelpers::SupplementalEvents::Types.NEW_FREE_TRIAL,
+              event_name: StripeHelpers::SupplementalEvents::NewFreeTrial.EVENT_NAME,
               start_time: comparison_start_timestamp,
               end_time: comparison_end_timestamp,
             ).get

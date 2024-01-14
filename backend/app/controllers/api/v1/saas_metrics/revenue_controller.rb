@@ -12,7 +12,7 @@ module Api
           end
           heatmap = ClickHouseQueries::Events::Sum::Timeseries.new(
             public_keys_for_requested_data_source,
-            event_name: StripeHelpers::SupplementalEvents::Types.CHARGE_SUCCEEDED,
+            event_name: StripeHelpers::SupplementalEvents::ChargeSucceeded.EVENT_NAME,
             property: :amount_in_cents,
             start_time: 1.year.ago.beginning_of_week,
             end_time: Time.current,
@@ -29,7 +29,7 @@ module Api
           end
           timeseries = ClickHouseQueries::Events::Sum::Timeseries.new(
             public_keys_for_requested_data_source,
-            event_name: StripeHelpers::SupplementalEvents::Types.CHARGE_SUCCEEDED,
+            event_name: StripeHelpers::SupplementalEvents::ChargeSucceeded.EVENT_NAME,
             property: :amount_in_cents,
             start_time: start_timestamp,
             end_time: end_timestamp,
@@ -38,7 +38,7 @@ module Api
           if params[:exclude_comparison].nil? || params[:exclude_comparison] != "true"
             comparison_timeseries = ClickHouseQueries::Events::Sum::Timeseries.new(
               public_keys_for_requested_data_source,
-              event_name: StripeHelpers::SupplementalEvents::Types.CHARGE_SUCCEEDED,
+              event_name: StripeHelpers::SupplementalEvents::ChargeSucceeded.EVENT_NAME,
               property: :amount_in_cents,
               start_time: comparison_start_timestamp,
               end_time: comparison_end_timestamp,

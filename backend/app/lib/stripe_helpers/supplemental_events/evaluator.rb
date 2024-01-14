@@ -9,106 +9,60 @@ module StripeHelpers
       end
 
       def format_supplemental_events_to_be_processed_if_necessary!
-        events = []
-        if @stripe_event.type == 'customer.subscription.updated' && is_churned_subscription_event?
-          events << Analytics::Event.formatted_for_ingestion(
-            ingested_at: Time.current,
-            uuid: "#{@stripe_event.id}-subscription-churned",
-            swishjam_api_key: @public_key,
-            name: StripeHelpers::SupplementalEvents::Types.SUBSCRIPTION_CHURNED,
-            occurred_at: Time.at(stripe_object.canceled_at),
-            properties: {
-              stripe_subscription_id: stripe_object.id,
-              stripe_customer_id: stripe_object.customer,
-              stripe_customer_email: @stripe_customer&.email,
-              mrr: StripeHelpers::MrrCalculator.calculate_for_stripe_subscription(stripe_object, include_canceled: true),
-              cancellation_comment: stripe_object.cancellation_details&.comment,
-              cancellation_feedback: stripe_object.cancellation_details&.feedback,
-              cancellation_reason: stripe_object.cancellation_details&.reason,
-              user_profile_id: @maybe_user_profile_id
-            },
-          )
-          # if @stripe_customer
-          #   all_subscriptions_for_customer = StripeHelpers::DataFetchers.get_all do 
-          #     ::Stripe::Subscription.list({ status: 'all', customer: @stripe_customer.id }, stripe_account: @stripe_event.account)
-          #   end
-          #   if all_subscriptions_for_customer.data.all?{ |subscription| subscription.status == 'canceled' || subscription.canceled_at.present? }
-          #     events << customer_churned_event
-          #   end
-          # else
-          #   # if there is no customer associated with the subscription, we consider this a customer churn
-          #   events << customer_churned_event
-          # end
-        elsif @stripe_event.type == 'customer.subscription.created' && stripe_object.status == 'trialing'
-          events << Analytics::Event.formatted_for_ingestion(
-            ingested_at: Time.current,
-            uuid: "#{@stripe_event['id']}-new-trial",
-            swishjam_api_key: @public_key,
-            name: StripeHelpers::SupplementalEvents::Types.NEW_FREE_TRIAL,
-            occurred_at: Time.at(@stripe_event.created),
-            properties: {
-              stripe_subscription_id: stripe_object.id,
-              stripe_customer_id: stripe_object.customer,
-              stripe_customer_email: @stripe_customer&.email,
-              potential_mrr: StripeHelpers::MrrCalculator.calculate_for_stripe_subscription(stripe_object, include_trialing: true),
-              user_profile_id: @maybe_user_profile_id
-            },
-          )
-        elsif @stripe_event.type == 'charge.succeeded'
-          # this way we can backfill all of the charges that happened before we started ingesting charges
-          # with this supplemental event, event though events are only available for 30 days
-          events << Analytics::Event.formatted_for_ingestion(
-            ingested_at: Time.current,
-            uuid: "#{stripe_object.id}-supplemental-charge",
-            swishjam_api_key: @public_key,
-            name: StripeHelpers::SupplementalEvents::Types.CHARGE_SUCCEEDED,
-            occurred_at: Time.at(@stripe_event.created),
-            properties: {
-              stripe_charge_id: stripe_object.id,
-              stripe_customer_id: stripe_object.customer,
-              stripe_customer_email: @stripe_customer&.email,
-              amount_in_cents: stripe_object.amount,
-              user_profile_id: @maybe_user_profile_id
-            },
-          )
-        end
+        events = []        
+        events << formatted_supplemental_event(StripeHelpers::SupplementalEvents::SubscriptionChurned) if is_churned_subscription_event?
+        events << formatted_supplemental_event(StripeHelpers::SupplementalEvents::NewFreeTrial) if is_new_free_trial_event?
+        events << formatted_supplemental_event(StripeHelpers::SupplementalEvents::NewActiveSubscription) if is_new_paid_subscription_event?
+        events << formatted_supplemental_event(StripeHelpers::SupplementalEvents::ChargeSucceeded) if @stripe_event.type == 'charge.succeeded'
+        events << formatted_supplemental_event(StripeHelpers::SupplementalEvents::NewSubscriber) if @stripe_event.type == 'customer.created'
         events
+      rescue => e
+        Sentry.capture_exception(e)
+        []
+      end
+
+      private
+
+      def formatted_supplemental_event(event_class)
+        event_class.new(
+          stripe_object,
+          user_profile_id: @maybe_user_profile_id,
+          stripe_customer: @stripe_customer,
+          public_key: @public_key,
+        ).as_swishjam_event
+      end
+
+      def is_new_paid_subscription_event?
+        return false unless ['customer.subscription.created', 'customer.subscription.updated'].include?(@stripe_event.type)
+        is_paid_subscription = stripe_object.items.data.any?{ |item| item.price.unit_amount.positive? }
+        is_paid_subscription && (stripe_object.status == 'active' || attribute_changed_to?('status', 'active'))
       end
 
       def is_churned_subscription_event?
-        just_became_canceled = @stripe_event.data.previous_attributes['status'] == 'active' && stripe_object.status == 'canceled'
-        just_canceled_at = @stripe_event.data.previous_attributes.keys.include?(:canceled_at) && @stripe_event.data.previous_attributes['canceled_at'].nil? && !stripe_object.canceled_at.nil?
+        return false if @stripe_event.type != 'customer.subscription.updated'
+        just_became_canceled = previous_attributes['status'] == 'active' && stripe_object.status == 'canceled'
+        just_canceled_at = previous_attributes.keys.include?(:canceled_at) && previous_attributes['canceled_at'].nil? && !stripe_object.canceled_at.nil?
         is_paid_subscription = stripe_object.items.data.any?{ |item| item.price.unit_amount.positive? }
         (just_became_canceled || just_canceled_at) && is_paid_subscription
+      end
+
+      def is_new_free_trial_event?
+        is_new_subscription_with_free_trial = @stripe_event.type == 'customer.subscription.created' && stripe_object.status == 'trialing' 
+        subscription_updated_to_free_trial = @stripe_event.type == 'customer.subscription.updated' && attribute_changed_to?('status', 'trialing')
+        is_new_subscription_with_free_trial || subscription_updated_to_free_trial
+      end
+
+      def attribute_changed_to?(attribute_name, value)
+        previous_attributes.keys.include?(attribute_name.to_sym) && previous_attributes[attribute_name.to_s] != value && stripe_object[attribute_name.to_s] == value
       end
 
       def stripe_object
         @stripe_event.data.object
       end
 
-      # def churn_event_properties(include_canceled_subscriptions_in_mrr: true)
-      #   {
-      #     stripe_subscription_id: stripe_object.id,
-      #     stripe_customer_id: @stripe_customer&.id,
-      #     stripe_customer_email: @stripe_customer&.email,
-      #     mrr: StripeHelpers::MrrCalculator.calculate_for_stripe_subscription(stripe_object, include_canceled: include_canceled_subscriptions_in_mrr),
-      #     cancellation_comment: stripe_object.cancellation_details&.comment,
-      #     cancellation_feedback: stripe_object.cancellation_details&.feedback,
-      #     cancellation_reason: stripe_object.cancellation_details&.reason,
-      #     user_profile_id: @maybe_user_profile_id
-      #   }
-      # end
-
-      # def customer_churned_event
-      #   Analytics::Event.formatted_for_ingestion(
-      #     ingested_at: Time.current,
-      #     uuid: "#{@stripe_event.id}-customer-churned",
-      #     swishjam_api_key: @public_key,
-      #     name: 'stripe.supplemental.customer.churned',
-      #     occurred_at: Time.at(stripe_object.canceled_at),
-      #     properties: churn_event_properties,
-      #   )
-      # end
+      def previous_attributes
+        @stripe_event.data.previous_attributes
+      end
     end
   end
 end

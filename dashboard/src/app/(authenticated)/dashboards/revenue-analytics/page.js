@@ -11,7 +11,7 @@ import LineChartWithValue from "@/components/Dashboards/Components/LineChartWith
 import Modal from "@/components/utils/Modal";
 import RevenueRetentionWidget from '@/components/Dashboards/Components/RevenueRetentionWidget';
 import { RxBarChart } from 'react-icons/rx'
-import { setStateFromTimeseriesResponse } from "@/lib/utils/timeseriesHelpers";
+import { dateFormatterForGrouping, formattedUTCMonthAndDay, setStateFromMultiDimensionalTimeseriesResponse, setStateFromTimeseriesResponse } from "@/lib/utils/timeseriesHelpers";
 import { SwishjamAPI } from "@/lib/api-client/swishjam-api";
 import useAuthData from "@/hooks/useAuthData";
 import { useState, useEffect } from "react";
@@ -62,7 +62,7 @@ export default function PageMetrics() {
   }
 
   const getChurnRateChartData = async timeframe => {
-    return await SwishjamAPI.SaasMetrics.ChurnRate.timeseries({ timeframe }).then(resp => setStateFromTimeseriesResponse(resp, setChurnRateChartData));
+    return await SwishjamAPI.SaasMetrics.ChurnRate.timeseries({ timeframe, excludeComparison: true }).then(resp => setStateFromMultiDimensionalTimeseriesResponse(resp, setChurnRateChartData));
   }
 
   const getChurnedMrrChartData = async timeframe => {
@@ -180,6 +180,11 @@ export default function PageMetrics() {
           yAxisFormatter={formatShrinkNumbers}
         />
         <LineChartWithValue
+          additionalTooltipDataFormatter={d => (
+            <>
+              <strong>{d.num_churned_subscriptions_in_period}</strong> of the <strong>{d.num_active_subscriptions_at_snapshot_date + d.num_new_subscriptions_in_period}</strong> subscriptions that were active on {formattedUTCMonthAndDay(d.snapshot_date)} churned between then and {formattedUTCMonthAndDay(d.date)}.
+            </>
+          )}
           DocumentationContent={
             <>
               <p className='mb-2'>
@@ -201,6 +206,7 @@ export default function PageMetrics() {
           title='Churn Rate'
           value={churnRateChartData?.value}
           valueFormatter={n => `${n.toFixed(2)}%`}
+          valueKey='churn_rate'
           yAxisFormatter={n => `${n.toFixed(2)}%`}
         />
       </div>
@@ -236,7 +242,7 @@ export default function PageMetrics() {
           previousValueDate={revenuePerCustomerChartData?.previousValueDate}
           showAxis={false}
           timeseries={revenuePerCustomerChartData?.timeseries}
-          title='Average MRR per Subscriber'
+          title='Average MRR / Subscriber'
           value={revenuePerCustomerChartData?.value}
           valueFormatter={formatMoney}
           yAxisFormatter={formatShrinkMoney}

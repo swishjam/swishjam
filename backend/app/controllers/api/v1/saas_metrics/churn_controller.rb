@@ -12,7 +12,7 @@ module Api
           end
           timeseries = ClickHouseQueries::Events::Sum::Timeseries.new(
             public_keys_for_requested_data_source,
-            event_name: StripeHelpers::SupplementalEvents::Types.SUBSCRIPTION_CHURNED,
+            event_name: StripeHelpers::SupplementalEvents::SubscriptionChurned.EVENT_NAME,
             property: 'mrr',
             start_time: start_timestamp,
             end_time: end_timestamp
@@ -21,7 +21,7 @@ module Api
           if params[:exclude_comparison].nil? || params[:exclude_comparison] != "true"
             comparison_timeseries = ClickHouseQueries::Events::Sum::Timeseries.new(
               public_keys_for_requested_data_source,
-              event_name: StripeHelpers::SupplementalEvents::Types.SUBSCRIPTION_CHURNED,
+              event_name: StripeHelpers::SupplementalEvents::SubscriptionChurned.EVENT_NAME,
               property: 'mrr',
               start_time: comparison_start_timestamp,
               end_time: comparison_end_timestamp

@@ -1,11 +1,9 @@
 module StripeHelpers
   module BackFillers
     class BillingDataSnapshots < Base
-      self.default_starting_from = 60.days.ago
-
-      def backfill_snapshots!
+      def backfill_snapshots!(starting_at: 1.year.ago)
         billing_data_snapshots_to_insert = []
-        current_date = starting_from.beginning_of_day
+        current_date = starting_at.beginning_of_day
         while current_date < Time.current
           billing_data_snapshots_to_insert << { 
             swishjam_api_key: public_key,
@@ -32,12 +30,12 @@ module StripeHelpers
       end
 
       def free_trial_subscriptions_at_point_in_time(time)
-        subscriptions_for_all_of_time.select{ |subscription| (subscription.trial_end || 0) > time.to_i && (subscription.trial_start || Float::INFINITY) <= time.to_i }
+        data_fetcher.subscriptions_for_all_of_time.select{ |subscription| (subscription.trial_end || 0) > time.to_i && (subscription.trial_start || Float::INFINITY) <= time.to_i }
       end
 
       def active_subscriptions_at_point_in_time(time)
         instance_variable_get(:"@active_subscriptions_at_point_in_time_#{time.to_i}") || begin
-          active_subscriptions = subscriptions_for_all_of_time.select{ |subscription| subscription_was_active_at_point_in_time?(subscription, time) }
+          active_subscriptions = data_fetcher.subscriptions_for_all_of_time.select{ |subscription| subscription_was_active_at_point_in_time?(subscription, time) }
           instance_variable_set(:"@active_subscriptions_at_point_in_time_#{time.to_i}", active_subscriptions)
         end
       end
@@ -70,7 +68,7 @@ module StripeHelpers
       def revenue_by_day
         @charges_by_day ||= begin 
           dict = Hash.new.tap do |hash|
-            charges_for_all_of_time.each do |charge|
+            data_fetcher.charges_for_all_of_time.each do |charge|
               next if charge.status != 'succeeded'
               date = Time.at(charge.created).beginning_of_day
               hash[date] ||= 0
@@ -79,20 +77,6 @@ module StripeHelpers
           end
           # [ [date, revenue], [date, revenue], ... ]
           dict.sort
-        end
-      end
-
-      # we need to get all of the charges in order to calculate lifetime revenue metrics
-      def charges_for_all_of_time
-        @charges_for_all_of_time ||= StripeHelpers::DataFetchers.get_all do
-          ::Stripe::Charge.list({ limit: 100 }, { stripe_account: stripe_account_id })
-        end
-      end
-
-      # we need to get all subscriptions because a subscription could have been created a year ago, but is still active today
-      def subscriptions_for_all_of_time
-        @subscriptions_for_all_of_time ||= StripeHelpers::DataFetchers.get_all do
-          ::Stripe::Subscription.list({ limit: 100, status: 'all' }, { stripe_account: stripe_account_id })
         end
       end
     end

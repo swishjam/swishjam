@@ -156,7 +156,7 @@ export default function Heatmap({ data, title = 'Revenue Heatmap' }) {
                       key={j}
                       backgroundColor={getColorForValue(d.value)}
                       date={d.date}
-                      isLargestValueInSet={d.value === largestValue}
+                      isLargestValueInSet={d.value > 0 && d.value === largestValue}
                       isHighlighted={
                         (hoveredLegendItemValueRange && hoveredLegendItemValueRange[0] === 0 && hoveredLegendItemValueRange[1] === 0 && d.value === 0) ||
                         (hoveredLegendItemValueRange && d.value > hoveredLegendItemValueRange[0] && d.value <= hoveredLegendItemValueRange[1])

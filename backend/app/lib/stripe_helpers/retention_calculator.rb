@@ -44,6 +44,7 @@ module StripeHelpers
       paid_invoices_for_all_of_time.each do |invoice|
         next if invoice.subscription.nil?
         time_of_subscription_start = invoice.subscription.trial_end.present? ? invoice.subscription.trial_end : invoice.subscription.start_date
+        # time_of_subscription_start = invoice.subscription.billing_cycle_anchor
         cohort_time_period = Time.at(time_of_subscription_start).utc.send(:"beginning_of_#{group_by}")
         # invoice_created_time_period = Time.at(invoice.created).send(:"beginning_of_#{group_by}")
         retention[cohort_time_period] ||= { num_subscriptions: 0, starting_mrr: 0, unique_subscriptions_for_cohort: Set.new, retention: {} }
@@ -51,21 +52,25 @@ module StripeHelpers
         retention[cohort_time_period][:unique_subscriptions_for_cohort].add(invoice.subscription.id)
         retention[cohort_time_period][:num_subscriptions] = retention[cohort_time_period][:unique_subscriptions_for_cohort].size
         # I think this is the best way to check if this is the first invoice for a subscription 
-        # sometimes there's a few seconds of delay between the subscription being created and the first invoice being created
+        # sometimes there's a delay between the subscription being created and the first invoice being created (have seen up to 9 minutes so far)
         # we use the first invoice to determine MRR because Stripe makes it hard to get data from a subscription at a point in time
-        invoice_is_first_for_subscription = (-1 * (invoice.subscription.start_date - invoice.created) < 1.minute) ||
-                                              (invoice.subscription.trial_end.present? && -1 * (invoice.subscription.trial_end - invoice.created) < 1.minute)
+        invoice_is_first_for_subscription = (-1 * (invoice.subscription.start_date - invoice.created) < 1.hour) ||
+                                              (invoice.subscription.trial_end.present? && -1 * (invoice.subscription.trial_end - invoice.created) < 1.hour)
         invoice.lines.data.each do |line| 
-          next if line.amount.zero?
+          next if line.amount.zero? || line.price.recurring.nil?
           mrr_for_line_item = StripeHelpers::MrrCalculator.mrr_for_subscription_item(
-            interval: line.plan.interval, 
+            interval: line.price.recurring.interval, 
             unit_amount: line.unit_amount_excluding_tax.to_i, 
             quantity: line.quantity, 
-            interval_count: line.plan.interval_count
+            interval_count: line.price.recurring.interval_count
           )
           retention[cohort_time_period][:starting_mrr] += mrr_for_line_item if invoice_is_first_for_subscription
           start_date_for_line_item = Time.at(line.period.start).utc
-          while start_date_for_line_item < Time.at(line.period.end).utc
+          # we never want to count MRR that is in the future but has already been retained
+          # ie: if a subscription is paid annually, it will have line items that are paid in the future
+          # if today is January 13th, and the paid invoice has a line item for January 18th, we will count that because it's within this month, 
+          # but we won't count the February 18th line item
+          while start_date_for_line_item < Time.at(line.period.end).utc && start_date_for_line_item < (Time.current.utc + 1.send(group_by)).send(:"beginning_of_#{group_by}")
             normalized_time_period_to_attribute_recognized_mrr_for = start_date_for_line_item.send(:"beginning_of_#{group_by}")
             retention[cohort_time_period][:retention][normalized_time_period_to_attribute_recognized_mrr_for] ||= 0
             retention[cohort_time_period][:retention][normalized_time_period_to_attribute_recognized_mrr_for] += mrr_for_line_item
