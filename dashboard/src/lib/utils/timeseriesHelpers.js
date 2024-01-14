@@ -72,7 +72,6 @@ const setStateFromMultiDimensionalTimeseriesResponse = (response, setter, onErro
     onError && onError(response.error);
     return;
   }
-  debugger;
   setter({
     // value: response.current_count,
     // previousValue: response.comparison_count,

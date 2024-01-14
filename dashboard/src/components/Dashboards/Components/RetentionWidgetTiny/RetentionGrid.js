@@ -3,10 +3,20 @@ import LoadingState from "./LoadingGrid";
 
 export default function RetentionGrid({ retentionCohorts }) {
   if (!retentionCohorts) return <LoadingState />
-  if (retentionCohorts.length === 0) {
+  if (Object.keys(retentionCohorts).length === 0) {
     return (
-      <div className='text-center p-10 text-sm text-gray-700'>
-        Retention data is only available for identified users, begin identifying users in order to get retention data.
+      <div className='text-sm text-gray-500 text-center p-4 group'>
+        <div className='mx-auto grid grid-cols-3 gap-1 w-fit'>
+          <div className='border-2 border-gray-300 rounded h-3 w-3 group-hover:border-swishjam duration-500 transition-all' />
+          <div className='border-2 border-gray-300 rounded h-3 w-3 group-hover:border-swishjam duration-500 transition-all' />
+          <div className='border-2 border-gray-300 rounded h-3 w-3' />
+          <div className='border-2 border-gray-300 rounded h-3 w-3 group-hover:border-swishjam duration-500 transition-all' />
+          <div className='border-2 border-gray-300 rounded h-3 w-3' />
+          <div className='h-3 w-3' />
+          <div className='border-2 border-gray-300 rounded h-3 w-3' />
+        </div>
+        <h3 className='mt-2 tracking-tight text-sm font-medium cursor-default'>No Retention Data</h3>
+        <p className='mt-2'>Upon identify users, retention data will appear here</p>
       </div>
     )
   }

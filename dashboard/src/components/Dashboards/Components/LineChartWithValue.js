@@ -1,6 +1,5 @@
 "use client"
 
-// import { LineChart, Tooltip, Line, ResponsiveContainer, XAxis, YAxis, CartesianGrid, AreaChart } from 'recharts';
 import { AreaChart, Area, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis, } from 'recharts';
 import { ArrowsPointingInIcon, ArrowsPointingOutIcon, ArrowTrendingDownIcon, ArrowTrendingUpIcon, CalendarIcon, EllipsisVerticalIcon } from "@heroicons/react/24/outline";
 import { BsCloudSlash } from "react-icons/bs"
@@ -144,6 +143,7 @@ export default function LineChartWithValue({
   includeCard = true,
   includeComparisonData = true,
   includeSettingsDropdown = true,
+  isExpandable = true,
   noDataMessage = (
     <div className="flex items-center justify-center">
       <BsCloudSlash size={24} className='text-gray-500 mr-2' />
@@ -178,11 +178,11 @@ export default function LineChartWithValue({
       {isEnlarged && (
         <div
           onClick={() => setIsEnlarged(false)}
-          className='fixed top-0 left-0 right-0 bottom-0 z-[9999] bg-black bg-opacity-50'
+          className='fixed top-0 left-0 right-0 bottom-0 z-[48] bg-black bg-opacity-50 cursor-pointer'
         />
       )}
       <ConditionalCardWrapper
-        className={`${className} group transition-all ${isEnlarged ? 'fixed top-10 left-10 right-10 bottom-10 z-[10000] bg-white shadow-lg' : ''}`}
+        className={`${className || ''} group transition-all ${isEnlarged ? 'fixed w-[90vw] top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-[49] bg-white shadow-lg' : ''}`}
         includeCard={includeCard}
         title={
           <div className='flex justify-between items-center'>
@@ -198,11 +198,13 @@ export default function LineChartWithValue({
               )}
             </div>
             <div className='flex justify-end flex-shrink gap-x-1'>
-              <button onClick={() => setIsEnlarged(!isEnlarged)} className='rounded hover:bg-gray-100 p-1'>
-                {isEnlarged
-                  ? <ArrowsPointingInIcon className='outline-0 ring-0 active:opacity-100 focus:opacity-100 group-hover:opacity-100 opacity-0 duration-300 transition h-4 w-4 text-gray-500 cursor-pointer hover:bg-gray-100 rounded-md' />
-                  : <ArrowsPointingOutIcon className='outline-0 ring-0 active:opacity-100 focus:opacity-100 group-hover:opacity-100 opacity-0 duration-300 transition h-4 w-4 text-gray-500 cursor-pointer hover:bg-gray-100 rounded-md' />}
-              </button>
+              {isExpandable && (
+                <button onClick={() => setIsEnlarged(!isEnlarged)} className='rounded hover:bg-gray-100 p-1'>
+                  {isEnlarged
+                    ? <ArrowsPointingInIcon className='outline-0 ring-0 h-4 w-4 text-gray-500 cursor-pointer' />
+                    : <ArrowsPointingOutIcon className='outline-0 ring-0 active:opacity-100 focus:opacity-100 group-hover:opacity-100 opacity-0 duration-300 transition h-4 w-4 text-gray-500 cursor-pointer' />}
+                </button>
+              )}
               {includeSettingsDropdown && !isEnlarged && (
                 <SettingsDropdown
                   showXAxis={showXAxis}
