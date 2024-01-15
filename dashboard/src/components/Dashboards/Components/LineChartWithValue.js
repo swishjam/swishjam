@@ -1,14 +1,14 @@
 "use client"
 
 import { AreaChart, Area, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis, } from 'recharts';
-import { ArrowTrendingDownIcon, ArrowTrendingUpIcon, CalendarIcon } from "@heroicons/react/24/outline";
 import { BsCloudSlash } from "react-icons/bs"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import ConditionalCardWrapper from './ConditionalCardWrapper';
 import { dateFormatterForGrouping } from '@/lib/utils/timeseriesHelpers';
-import { HoverCard, HoverCardTrigger, HoverCardContent } from "@/components/ui/hover-card";
 import { Skeleton } from "@/components/ui/skeleton"
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
+import ValueDisplay from './LineChart/ValueDisplay';
+import CustomTooltip from './LineChart/CustomTooltip';
 
 const LoadingState = ({ title, includeCard = true }) => (
   includeCard ? (
@@ -45,55 +45,6 @@ const LoadingState = ({ title, includeCard = true }) => (
     </>
   )
 )
-
-const CustomTooltip = ({
-  active,
-  additionalDataFormatter,
-  comparisonValueKey,
-  dateFormatter,
-  dateKey,
-  onDisplay = () => { },
-  payload,
-  valueKey,
-  valueFormatter,
-}) => {
-  useEffect(() => {
-    if (active) {
-      onDisplay(payload[0]?.payload)
-    }
-  }, [active, payload])
-
-  if (active && payload && payload.length) {
-    const data = payload[0].payload;
-
-    return (
-      <Card className="z-[50000] bg-white shadow-lg">
-        <CardContent className="py-2">
-          <div className="flex space-x-4 text-sm text-muted-foreground">
-            <div className="flex items-center">
-              <div className='rounded-full h-[10px] w-[10px] mr-1' style={{ border: '2px solid #7dd3fc', backgroundColor: '#F2FAFE' }} />
-              {dateFormatter(data[dateKey])}: {valueFormatter(data[valueKey])}
-            </div>
-          </div>
-          {data.comparisonValue >= 0 &&
-            <div className="flex space-x-4 text-sm text-muted-foreground">
-              <div className="flex items-center">
-                <div className='rounded-full h-[10px] w-[10px] mr-1' style={{ border: '2px dashed #878b90', backgroundColor: '#E2E8F0' }} />
-                {dateFormatter(data.comparisonDate)}: {valueFormatter(data[comparisonValueKey])}
-              </div>
-            </div>
-          }
-          {additionalDataFormatter && (
-            <div className='text-xs text-muted-foreground mt-2 pt-2 border-t border-gray-200'>
-              {additionalDataFormatter(data)}
-            </div>
-          )}
-        </CardContent>
-      </Card>
-    );
-  }
-  return null;
-}
 
 export default function LineChartWithValue({
   additionalTooltipDataFormatter,
@@ -137,10 +88,6 @@ export default function LineChartWithValue({
       comparisonValueDate: displayData.comparisonDate,
     })
   }, [setHeaderDisplayValues, valueKey, comparisonValueKey, dateKey])
-  // const [comparisonValue, setComparisonValue] = useState(timeseries[timeseries.length - 1]?.[comparisonValueKey]);
-  // const [comparisonValueDate, setComparisonValueDate] = useState(timeseries[timeseries.length - 1]?.comparisonDate);
-  // const [currentValue, setCurrentValue] = useState(timeseries[timeseries.length - 1]?.[valueKey]);
-  // const [currentValueDate, setCurrentValueDate] = useState(timeseries[timeseries.length - 1]?.[dateKey]);
   const [showXAxis, setShowXAxis] = useState(showAxis);
   const [showYAxis, setShowYAxis] = useState(showAxis);
 
@@ -168,49 +115,20 @@ export default function LineChartWithValue({
         ]}
         title={title}
       >
-        <div className="">
-          <div className="text-2xl font-bold cursor-default flex">
-            {typeof headerDisplayValues.currentValue !== 'undefined' ? valueFormatter(headerDisplayValues.currentValue) : ''}
-            {includeComparisonData && typeof headerDisplayValues.currentValue !== 'undefined' && typeof headerDisplayValues.comparisonValue !== 'undefined' ? (
-              <HoverCard>
-                <HoverCardTrigger className='block w-fit ml-2 pt-2'>
-                  <p className="text-xs text-muted-foreground cursor-default">
-                    {headerDisplayValues.currentValue < headerDisplayValues.comparisonValue ? <ArrowTrendingDownIcon className="h-4 w-4 inline-block text-red-500 mr-1" /> : <ArrowTrendingUpIcon className="h-4 w-4 inline-block text-green-500 mr-1" />}
-                    <span className='underline decoration-dotted'>{valueFormatter(Math.abs(headerDisplayValues.currentValue - headerDisplayValues.comparisonValue))}</span>
-                  </p>
-                </HoverCardTrigger>
-                <HoverCardContent align={'center'} sideOffset={0} className='flex items-center text-gray-500'>
-                  <CalendarIcon className="h-6 w-6 inline-block mr-2" />
-                  <span className='text-xs'>There were {valueFormatter(headerDisplayValues.comparisonValue)} {title} on {dateFormatter(headerDisplayValues.comparisonValueDate)}.</span>
-                </HoverCardContent>
-              </HoverCard>
-            ) : (() => {
-              debugger
-              return <></>
-            })()}
-          </div>
-          <div className=''>
-            <span className='text-xs font-light cursor-default block'>{headerDisplayValues.currentValueDate ? dateFormatter(headerDisplayValues.currentValueDate) : ''}</span>
-          </div>
-        </div>
+        <ValueDisplay
+          comparisonDate={headerDisplayValues.comparisonValueDate}
+          comparisonValue={headerDisplayValues.comparisonValue}
+          date={headerDisplayValues.currentValueDate}
+          dateFormatter={dateFormatter}
+          title={title}
+          value={headerDisplayValues.currentValue}
+          valueFormatter={valueFormatter}
+        />
         {timeseries.length > 0
           ? (
             <div
               className='flex align-center justify-center mt-6'
-              onMouseLeave={() => {
-                debugger;
-                updateHeaderDisplayValues(timeseries[timeseries.length - 1])
-                // setHeaderDisplayValues({
-                //   currentValue: timeseries[timeseries.length - 1]?.[valueKey],
-                //   comparisonValue: timeseries[timeseries.length - 1]?.[comparisonValueKey],
-                //   currentValueDate: timeseries[timeseries.length - 1]?.[dateKey],
-                //   comparisonValueDate: timeseries[timeseries.length - 1]?.comparisonDate,
-                // })
-                // setCurrentValue(timeseries[timeseries.length - 1]?.[valueKey])
-                // setComparisonValue(timeseries[timeseries.length - 1]?.[comparisonValueKey]);
-                // setCurrentValueDate(timeseries[timeseries.length - 1]?.[dateKey]);
-                // setComparisonValueDate(timeseries[timeseries.length - 1]?.comparisonDate);
-              }}
+              onMouseLeave={() => updateHeaderDisplayValues(timeseries[timeseries.length - 1])}
             >
               <ResponsiveContainer width="100%" aspect={3} >
                 <AreaChart data={timeseries} margin={{ top: 5, right: 0, left: 0, bottom: 0 }}>
@@ -252,19 +170,7 @@ export default function LineChartWithValue({
                           dateKey={dateKey}
                           valueFormatter={valueFormatter}
                           valueKey={valueKey}
-                          onDisplay={displayedData => {
-                            updateHeaderDisplayValues(displayedData)
-                            // setHeaderDisplayValues({
-                            //   currentValue: displayedData[valueKey],
-                            //   comparisonValue: displayedData[comparisonValueKey],
-                            //   currentValueDate: displayedData[dateKey],
-                            //   comparisonValueDate: displayedData.comparisonDate,
-                            // })
-                            // setCurrentValue(displayedData[valueKey])
-                            // setComparisonValue(displayedData[comparisonValueKey]);
-                            // setCurrentValueDate(displayedData[dateKey]);
-                            // setComparisonValueDate(displayedData.comparisonDate);
-                          }}
+                          onDisplay={updateHeaderDisplayValues}
                         />
                       }
                       allowEscapeViewBox={{ x: false, y: true }}

@@ -81,36 +81,39 @@ export default function ConditionalCardWrapper({
     </CardHeader>
   </>
 
-  const CardOrDiv = ({ children }) => {
-    if (includeCard) {
-      return (
+  if (includeCard) {
+    return (
+      <>
+        {isEnlarged && (
+          <div
+            onClick={() => setIsEnlarged(false)}
+            className='fixed top-0 left-0 right-0 bottom-0 z-[48] bg-black bg-opacity-50 cursor-pointer'
+          />
+        )}
         <Card {...props} className={`group ${props.className || ''} ${isEnlarged ? 'fixed w-[90vw] top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-[49] bg-white shadow-lg' : ''}`}>
-          {children}
+          {HeaderContent}
+          <CardContent>
+            {children}
+          </CardContent>
         </Card>
-      )
-    } else {
-      return (
+      </>
+    )
+  } else {
+    return (
+      <>
+        {isEnlarged && (
+          <div
+            onClick={() => setIsEnlarged(false)}
+            className='fixed top-0 left-0 right-0 bottom-0 z-[48] bg-black bg-opacity-50 cursor-pointer'
+          />
+        )}
         <div {...props} className={`group ${props.className || ''} ${isEnlarged ? 'fixed w-[90vw] top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-[49] bg-white shadow-lg' : ''}`}>
-          {children}
+          {HeaderContent}
+          <CardContent>
+            {children}
+          </CardContent>
         </div>
-      )
-    }
+      </>
+    )
   }
-
-  return (
-    <>
-      {isEnlarged && (
-        <div
-          onClick={() => setIsEnlarged(false)}
-          className='fixed top-0 left-0 right-0 bottom-0 z-[48] bg-black bg-opacity-50 cursor-pointer'
-        />
-      )}
-      <CardOrDiv>
-        {HeaderContent}
-        <CardContent>
-          {children}
-        </CardContent>
-      </CardOrDiv>
-    </>
-  )
 }
