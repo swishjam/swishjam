@@ -47,4 +47,50 @@ const dateFormatterForGrouping = grouping => {
   }
 }
 
-export { dateFormatterForGrouping }
+const setStateFromTimeseriesResponse = (response, setter, onError) => {
+  if (response.timeseries === undefined) {
+    onError && onError(response.error);
+    return;
+  }
+  setter({
+    value: response.current_count,
+    previousValue: response.comparison_count,
+    previousValueDate: response.comparison_end_time,
+    groupedBy: response.grouped_by,
+    timeseries: response.timeseries.map(
+      (timeseries, index) => ({
+        ...timeseries,
+        comparisonDate: response?.comparison_timeseries?.[index]?.date,
+        comparisonValue: response?.comparison_timeseries?.[index]?.value,
+      }),
+    ),
+  });
+}
+
+const setStateFromMultiDimensionalTimeseriesResponse = (response, setter, onError) => {
+  if (response.timeseries === undefined) {
+    onError && onError(response.error);
+    return;
+  }
+  setter({
+    // value: response.current_count,
+    // previousValue: response.comparison_count,
+    // previousValueDate: response.comparison_end_time,
+    groupedBy: response.grouped_by,
+    timeseries: response.timeseries.map(
+      (timeseries, index) => ({
+        ...timeseries,
+        comparison: response.comparison_timeseries?.[index] || {},
+      }),
+    ),
+  });
+}
+
+export {
+  formattedUTCMonth,
+  formattedUTCMonthAndDay,
+  formattedUTCMonthAndDayAndTime,
+  dateFormatterForGrouping,
+  setStateFromTimeseriesResponse,
+  setStateFromMultiDimensionalTimeseriesResponse
+}

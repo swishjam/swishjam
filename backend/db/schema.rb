@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2024_01_02_184409) do
+ActiveRecord::Schema.define(version: 2024_01_12_192831) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
@@ -228,6 +228,8 @@ ActiveRecord::Schema.define(version: 2024_01_02_184409) do
     t.string "access_token"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.uuid "connected_by_user_id"
+    t.index ["connected_by_user_id"], name: "index_slack_connections_on_connected_by_user_id"
     t.index ["workspace_id"], name: "index_slack_connections_on_workspace_id"
   end
 
@@ -331,6 +333,7 @@ ActiveRecord::Schema.define(version: 2024_01_02_184409) do
     t.datetime "updated_at", precision: 6, null: false
     t.boolean "combine_marketing_and_product_data_sources"
     t.boolean "should_enrich_user_profile_data"
+    t.boolean "revenue_analytics_enabled", default: true, null: false
     t.index ["workspace_id"], name: "index_workspace_settings_on_workspace_id"
   end
 
@@ -353,6 +356,7 @@ ActiveRecord::Schema.define(version: 2024_01_02_184409) do
   add_foreign_key "retention_cohort_activity_periods", "retention_cohorts"
   add_foreign_key "retention_cohort_activity_periods", "workspaces"
   add_foreign_key "retention_cohorts", "workspaces"
+  add_foreign_key "slack_connections", "users", column: "connected_by_user_id"
   add_foreign_key "workspace_invitations", "workspaces"
   add_foreign_key "workspace_members", "users"
   add_foreign_key "workspace_members", "workspaces"

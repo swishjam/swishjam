@@ -1,16 +1,13 @@
 import { useState } from 'react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { dateFormatterForGrouping } from "@/lib/utils/timeseriesHelpers";
-
-const weekFormatter = dateFormatterForGrouping('weeky');
 
 export default function RetentionCell({
   activityDate,
   cohortDate,
   cohortSize,
   numActiveUsers,
-  onActivityPeriodHover = () => { },
-  onActivityPeriodMouseOut = () => { },
+  // onActivityPeriodHover = () => { },
+  // onActivityPeriodMouseOut = () => { },
 }) {
   const [isHovered, setIsHovered] = useState(false);
   const OPACITY_BUFFER = 0;

@@ -3,7 +3,6 @@ import { CardTitle } from "@/components/ui/card";
 import ConditionalCardWrapper from './ConditionalCardWrapper';
 
 export default function RetentionWidgetTiny({ retentionCohorts, includeCard = true, className }) {
-
   return (
     <ConditionalCardWrapper
       className={className}

@@ -2,7 +2,7 @@ import { Fragment } from 'react'
 import { Transition, Dialog } from '@headlessui/react'
 import { XMarkIcon } from '@heroicons/react/24/outline'
 
-export default function Modal({ children, title, isOpen, onClose, closeOnBackdropClick = true, size = 'small' }) {
+export default function Modal({ children, title, isOpen, onClose, closeOnBackdropClick = true, size = 'small', closable = true }) {
   if (!['small', 'medium', 'large', 'x-large'].includes(size)) throw new Error('Modal size must be one of: small, medium, large');
   const dialogKlass = { small: 'sm:max-w-lg', medium: 'sm:max-w-xl', large: 'sm:max-w-2xl', 'x-large': 'sm:max-w-4xl' }[size];
   return (
@@ -10,7 +10,7 @@ export default function Modal({ children, title, isOpen, onClose, closeOnBackdro
       <Dialog
         as="div"
         className="relative z-50"
-        onClose={onClose}
+        onClose={closable ? onClose : () => { }}
         static={!closeOnBackdropClick}
       >
         <Transition.Child
@@ -42,22 +42,24 @@ export default function Modal({ children, title, isOpen, onClose, closeOnBackdro
                     <h1 className='text-md font-semibold text-gray-700'>{title}</h1>
                   </div>
                 )}
-                <div className="absolute right-0 top-0 hidden pr-4 pt-4 sm:block">
-                  <button
-                    type="button"
-                    className="rounded-md bg-white text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-none"
-                    onClick={onClose}
-                  >
-                    <span className="sr-only">Close</span>
-                    <XMarkIcon className="h-6 w-6" aria-hidden="true" />
-                  </button>
-                </div>
+                {closable && (
+                  <div className="absolute right-0 top-0 hidden pr-4 pt-4 sm:block">
+                    <button
+                      type="button"
+                      className="rounded-md bg-white text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-none"
+                      onClick={onClose}
+                    >
+                      <span className="sr-only">Close</span>
+                      <XMarkIcon className="h-6 w-6" aria-hidden="true" />
+                    </button>
+                  </div>
+                )}
                 {children}
               </Dialog.Panel>
             </Transition.Child>
           </div>
         </div>
       </Dialog>
-    </Transition.Root>
+    </Transition.Root >
   )
 }

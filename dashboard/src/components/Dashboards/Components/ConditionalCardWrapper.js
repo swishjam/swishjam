@@ -4,14 +4,14 @@ export default function ConditionalCardWrapper({ title, children, className, inc
   if (!includeCard) {
     return (
       <div className={className}>
-        {title && <CardTitle className="text-sm font-medium cursor-default pb-4">{title}</CardTitle>}
+        {title && <CardTitle className="text-sm font-medium cursor-default pb-2">{title}</CardTitle>}
         {children}
       </div>
     )
   } else {
     return (
       <Card className={className}>
-        <CardHeader className="space-y-0 pb-4">
+        <CardHeader className="space-y-0 pb-2">
           {title && <CardTitle className="text-sm font-medium cursor-default">{title}</CardTitle>}
         </CardHeader>
         <CardContent>

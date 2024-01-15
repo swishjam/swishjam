@@ -1,22 +1,25 @@
 module StripeHelpers
   class MrrCalculator
-    def self.calculate_for_swishjam_subscription_record(subscription)
-      mrr = 0
-      return mrr unless subscription.status == 'active' && subscription.canceled_at.nil?
-      subscription.customer_subscription_items.sum do |item| 
-        mrr += mrr_for_subscription_item(
+    def self.calculate_for_swishjam_subscription_record(subscription, include_canceled: false)
+      return 0 unless subscription.status == 'active' && subscription.canceled_at.nil? ||
+                          include_canceled && subscription.status == 'canceled' ||
+                          include_canceled && subscription.canceled_at.present?
+      subscription.customer_subscription_items.sum do |item|
+        mrr_for_subscription_item(
           interval: item.price_recurring_interval,
           unit_amount: item.price_unit_amount,
           quantity: item.quantity,
           interval_count: item.price_recurring_interval_count
         )
       end
-      mrr
     end
 
-    def self.calculate_for_stripe_subscription(subscription)
+    def self.calculate_for_stripe_subscription(subscription, include_canceled: false, include_trialing: false)
       mrr = 0
-      return mrr unless subscription.status == 'active' && subscription.canceled_at.nil?
+      return mrr unless subscription.status == 'active' && subscription.canceled_at.nil? || 
+                          include_canceled && subscription.status == 'canceled' || 
+                          include_trialing && subscription.status == 'trialing' ||
+                          include_canceled && subscription.canceled_at.present?
       subscription.items.each do |subscription_item|
         mrr += mrr_for_subscription_item(
           interval: subscription_item.price.recurring.interval,
@@ -28,7 +31,16 @@ module StripeHelpers
       mrr
     end
 
-    private
+    def self.calculate_for_stripe_subscription_items(subscription_items)
+      subscription_items.sum do |subscription_item|
+        mrr_for_subscription_item(
+          interval: subscription_item.price.recurring.interval,
+          unit_amount: subscription_item.price.unit_amount,
+          quantity: subscription_item.quantity,
+          interval_count: subscription_item.price.recurring.interval_count
+        )
+      end
+    end
 
     def self.mrr_for_subscription_item(interval:, unit_amount:, quantity:, interval_count:)
       case interval

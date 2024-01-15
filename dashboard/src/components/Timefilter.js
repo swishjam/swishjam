@@ -5,20 +5,20 @@ import { CalendarDaysIcon } from "@heroicons/react/24/outline";
 import { swishjam } from "@swishjam/react";
 
 const options = [
-  { name: 'this hour', value: 'hour' },
-  { name: 'today', value: 'today' },
+  // { name: 'this hour', value: 'hour' },
+  // { name: 'today', value: 'today' },
   { name: 'last 24 hours', value: '24_hours' },
-  { name: 'this week', value: 'this_week' },
-  { name: 'last seven days', value: 'seven_days' },
-  { name: 'this month', value: 'this_month' },
-  { name: 'last thirty days', value: 'thirty_days' },
-  { name: 'last sixty days', value: 'sixty_days' },
-  { name: 'last two months', value: 'two_months' },
-  { name: 'last ninety days', value: 'ninety_days' },
-  { name: 'last three months', value: 'three_months' },
-  { name: 'last six months', value: 'six_months' },
-  { name: 'this year', value: 'this_year' },
-  { name: 'last tweleve months', value: 'one_year' }
+  // { name: 'this week', value: 'this_week' },
+  { name: 'last 7 days', value: 'seven_days' },
+  // { name: 'this month', value: 'this_month' },
+  { name: 'last 30 days', value: 'thirty_days' },
+  // { name: 'last sixty days', value: 'sixty_days' },
+  // { name: 'last two months', value: 'two_months' },
+  // { name: 'last ninety days', value: 'ninety_days' },
+  { name: 'last 3 months', value: 'three_months' },
+  { name: 'last 6 months', value: 'six_months' },
+  // { name: 'this year', value: 'this_year' },
+  { name: 'last 12 months', value: 'one_year' }
 ];
 
 const getNameByValue = (value) => {
@@ -29,6 +29,9 @@ const getNameByValue = (value) => {
 }
 
 export default function Timefilter({ selection = 'this_month', onSelection }) {
+  if (!getNameByValue(selection)) {
+    throw new Error(`Invalid time filter value: ${selection}, must be one of ${options.map((opt) => opt.value).join(', ')}.`);
+  }
   return (
     <Popover>
       <PopoverTrigger asChild>
@@ -37,7 +40,7 @@ export default function Timefilter({ selection = 'this_month', onSelection }) {
           {getNameByValue(selection)}
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-96 grid grid-cols-2 gap-4" align={'end'} >
+      <PopoverContent className="w-fit gap-4" align={'end'} >
         {options.map((opt) => (
           <PopoverClose key={opt.value} asChild>
             <div

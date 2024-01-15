@@ -108,6 +108,14 @@ export default function PageMetrics() {
         </div>
 
         <div className="flex w-full items-center justify-end">
+          <Button
+            variant="ghost"
+            className={`duration-500 transition-all mr-4 hover:text-swishjam ${isRefreshing ? "cursor-not-allowed text-swishjam" : ""}`}
+            onClick={() => getAllData(timeframeFilter)}
+            disabled={isRefreshing}
+          >
+            <ArrowPathIcon className={`h-4 w-4 ${isRefreshing ? "animate-spin" : ""}`} />
+          </Button>
           <Timefilter
             selection={timeframeFilter}
             onSelection={date => {
@@ -115,20 +123,12 @@ export default function PageMetrics() {
               getAllData(date);
             }}
           />
-          <Button
-            variant="outline"
-            className={`ml-4 bg-white ${isRefreshing ? "cursor-not-allowed" : ""}`}
-            onClick={() => getAllData(timeframeFilter)}
-            disabled={isRefreshing}
-          >
-            <ArrowPathIcon className={`h-4 w-4 ${isRefreshing ? "animate-spin" : ""}`} />
-          </Button>
         </div>
       </div>
       <div className='pt-8 flex justify-between'>
         <h3 className='font-semibold text-sm text-slate-600'>User Breakdown</h3>
       </div>
-      <div className="grid grid-cols-6 gap-4 pt-8">
+      <div className="grid grid-cols-6 gap-2 pt-2">
         <div className="col-span-3">
           <ActiveUsersLineChartWithValue
             data={uniqueVisitorsChartData}

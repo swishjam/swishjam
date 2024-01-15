@@ -71,18 +71,18 @@ export default function RetentionGrid({ retentionCohorts, isExpandable }) {
                             activityDate={activityTimePeriod}
                             numActiveUsers={cohortData.activity_periods[activityTimePeriod].num_active_users}
                             cohortSize={cohortData.num_users_in_cohort}
-                            onActivityPeriodHover={({ numActiveUsers, cohortSize, activityDate, cohortDate }) => {
-                              setNumActiveUsersToDisplay(numActiveUsers);
-                              setNumUsersInCohortToDisplay(cohortSize);
-                              setActivityDateToDisplay(activityDate);
-                              setCohortDateToDisplay(cohortDate);
-                            }}
-                            onActivityPeriodMouseOut={() => {
-                              setNumActiveUsersToDisplay();
-                              setNumUsersInCohortToDisplay();
-                              setActivityDateToDisplay();
-                              setCohortDateToDisplay();
-                            }}
+                          // onActivityPeriodHover={({ numActiveUsers, cohortSize, activityDate, cohortDate }) => {
+                          //   setNumActiveUsersToDisplay(numActiveUsers);
+                          //   setNumUsersInCohortToDisplay(cohortSize);
+                          //   setActivityDateToDisplay(activityDate);
+                          //   setCohortDateToDisplay(cohortDate);
+                          // }}
+                          // onActivityPeriodMouseOut={() => {
+                          //   setNumActiveUsersToDisplay();
+                          //   setNumUsersInCohortToDisplay();
+                          //   setActivityDateToDisplay();
+                          //   setCohortDateToDisplay();
+                          // }}
                           />
                         </td>
                       )

@@ -176,6 +176,14 @@ export default function PageMetrics() {
         </div>
 
         <div className="flex w-full items-center justify-end">
+          <Button
+            variant="ghost"
+            className={`duration-500 transition-all mr-4 hover:text-swishjam ${isRefreshing ? "cursor-not-allowed text-swishjam" : ""}`}
+            onClick={() => getAllData(timeframeFilter)}
+            disabled={isRefreshing}
+          >
+            <ArrowPathIcon className={`h-4 w-4 ${isRefreshing ? "animate-spin" : ""}`} />
+          </Button>
           <Timefilter
             selection={timeframeFilter}
             onSelection={date => {
@@ -183,18 +191,10 @@ export default function PageMetrics() {
               getAllData(date);
             }}
           />
-          <Button
-            variant="outline"
-            className={`ml-4 bg-white ${isRefreshing ? "cursor-not-allowed" : ""}`}
-            onClick={() => getAllData(timeframeFilter)}
-            disabled={isRefreshing}
-          >
-            <ArrowPathIcon className={`h-4 w-4 ${isRefreshing ? "animate-spin" : ""}`} />
-          </Button>
         </div>
       </div>
-      <div className="grid grid-cols-4 gap-4 pt-8">
-        <div className="grid gap-4">
+      <div className="grid grid-cols-4 gap-2 pt-8">
+        <div className="grid gap-2">
           <ClickableValueCard
             title="Sessions"
             selected={currentSelectedChart == "Sessions"}
@@ -240,7 +240,7 @@ export default function PageMetrics() {
           />
         </div>
       </div>
-      <div className='grid grid-cols-8 gap-4 pt-2'>
+      <div className='grid grid-cols-8 gap-2 pt-2'>
         <BarChart
           title='Page Views'
           TableTitle='Top Pages'
@@ -252,7 +252,7 @@ export default function PageMetrics() {
           showTableInsteadOfLegend={true}
         />
       </div>
-      <div className='grid grid-cols-8 gap-4 pt-4'>
+      <div className='grid grid-cols-8 gap-2 pt-2'>
         <BarChart
           title='Referrers'
           TableTitle='Top Referrers'
@@ -264,7 +264,7 @@ export default function PageMetrics() {
           showTableInsteadOfLegend={true}
         />
       </div>
-      <div className='grid grid-cols-8 gap-4 pt-4'>
+      <div className='grid grid-cols-8 gap-2 pt-2'>
         <BarChart
           title='Devices'
           TableTitle='Top Devices'
@@ -276,7 +276,7 @@ export default function PageMetrics() {
           showTableInsteadOfLegend={true}
         />
       </div>
-      <div className='grid grid-cols-2 gap-4 pt-4'>
+      <div className='grid grid-cols-2 gap-2 pt-2'>
         <BarChart
           title='Browsers'
           TableTitle='Top Browsers'
@@ -288,7 +288,7 @@ export default function PageMetrics() {
           showTableInsteadOfLegend={true}
         />
       </div>
-      <div className='grid grid-cols-2 gap-4 pt-4'>
+      <div className='grid grid-cols-2 gap-2 pt-2'>
         <BarChart
           title='UTM Campaigns'
           TableTitle='Top UTM Campaigns'

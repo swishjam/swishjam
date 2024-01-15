@@ -13,6 +13,7 @@ import { useRef, useState } from 'react';
 
 export default function BarChartComponent({
   colors = DEFAULT_COLORS,
+  colorsByKey = {},
   data,
   groupedBy,
   height = 'h-96',
@@ -24,6 +25,7 @@ export default function BarChartComponent({
   showXAxis = true,
   showYAxis = true,
   showTableInsteadOfLegend = false,
+  stackOffset = 'none',
   title,
   tableTitle,
   valueFormatter = val => val,
@@ -64,7 +66,7 @@ export default function BarChartComponent({
   let colorsToChooseFrom = [...colors];
   const getColorForName = name => {
     if (!colorDict.current[name]) {
-      colorDict.current[name] = colorsToChooseFrom.shift();
+      colorDict.current[name] = colorsByKey[name] || colorsToChooseFrom.shift();
     }
     return colorDict.current[name];
   }
@@ -87,7 +89,7 @@ export default function BarChartComponent({
                     style={{ backgroundColor: color }}
                   />
                   <span className='transition-all text-sm text-gray-700'>
-                    {key}: {data[key]}
+                    {key}: {yAxisFormatter(data[key])}
                   </span>
                 </div>
               )
@@ -141,7 +143,7 @@ export default function BarChartComponent({
         : (
           <div className={`flex align-center justify-center my-6 ${height}`}>
             <ResponsiveContainer width="100%" height='100%'>
-              <BarChart data={data} margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>
+              <BarChart data={data} margin={{ top: 0, right: 0, left: 0, bottom: 0 }} stackOffset={stackOffset}>
                 {includeGridLines && <CartesianGrid strokeDasharray="4 4" vertical={false} opacity={0.75} />}
                 {includeXAxis && <XAxis dataKey={xAxisKey} tickFormatter={dateFormatter} angle={0} tick={{ fontSize: '12px' }} />}
                 {includeYAxis &&
@@ -184,7 +186,16 @@ export default function BarChartComponent({
                   allowEscapeViewBox={{ x: false, y: true }}
                   animationEasing='ease-in-out'
                 />
-                {uniqueKeys.map((key, i) => <Bar key={i} dataKey={key} stackId='a' fill={getColorForName(key)} />)}
+                {uniqueKeys.map((key, i, arr) => {
+                  return (
+                    <Bar
+                      key={i}
+                      dataKey={key}
+                      stackId='a'
+                      fill={getColorForName(key)}
+                    />
+                  )
+                })}
               </BarChart>
             </ResponsiveContainer>
 

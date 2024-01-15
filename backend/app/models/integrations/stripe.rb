@@ -1,7 +1,8 @@
 module Integrations
   class Stripe < Integration
     self.data_source = ApiKey::ReservedDataSources.STRIPE
-    after_create :run_data_sync_job
+    after_create { StripeDataJobs::BackfillHistoricalDataForWorkspace.perform_async(self.workspace_id) }
+    after_create { DataSyncJobs::Stripe.perform_async(self.id) }
 
     validate :config_has_account_id
 
@@ -12,10 +13,7 @@ module Integrations
     def account_id
       config['account_id']
     end
-    
-    def run_data_sync_job
-      DataSyncJobs::Stripe.perform_async(self.id)
-    end
+    alias stripe_account_id account_id
 
     private
 
