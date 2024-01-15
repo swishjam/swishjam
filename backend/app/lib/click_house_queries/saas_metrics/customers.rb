@@ -19,7 +19,7 @@ module ClickHouseQueries
             end_time: @end_time,
             group_by: @group_by,
             value_method: :num_unique_users,
-            date_method: :group_by_date
+            date_method: :group_by_date,
           )
         end
       end

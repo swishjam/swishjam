@@ -12,7 +12,7 @@ module StripeHelpers
             num_active_subscriptions: active_subscriptions_at_point_in_time(current_date).count,
             num_paid_subscriptions: active_subscriptions_at_point_in_time(current_date).count, # should we consider these the same...? why do we need both?
             num_free_trial_subscriptions: free_trial_subscriptions_at_point_in_time(current_date).count,
-            captured_at: current_date,
+            captured_at: current_date.end_of_day,
             mrr_in_cents: calculate_mrr_at_point_in_time(current_date),
             # num_canceled_subscriptions
           }
