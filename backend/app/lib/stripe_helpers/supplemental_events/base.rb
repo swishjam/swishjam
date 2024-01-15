@@ -21,7 +21,7 @@ module StripeHelpers
       def stripe_customer
         if stripe_record.is_a?(Stripe::Customer)
           stripe_record
-        elsif stripe_record.respond_to?(:customer)
+        elsif stripe_record.respond_to?(:customer) && stripe_record.customer.is_a?(Stripe::Customer)
           stripe_record.customer
         else
           @stripe_customer
