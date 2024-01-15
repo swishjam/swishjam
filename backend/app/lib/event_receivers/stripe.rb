@@ -10,11 +10,11 @@ module EventReceivers
     def receive!
       return false if !@stripe_event.livemode
       if integration.nil?
-        Sentry.capture_message("Received Stripe webhook from Stripe account #{@event_payload['account']}, but unable to find matching enabled Stripe integration record.")
+        Sentry.capture_message("Received Stripe webhook from Stripe account #{@event_payload['account']}, but unable to find matching enabled Stripe Integration record.")
         return false
       end
       if public_key.nil?
-        Sentry.capture_message("Received Stripe event from account #{@event_payload['account']}, but unable to find matching enabled Stripe integration record.")
+        Sentry.capture_message("Received Stripe event from account #{@event_payload['account']}, but unable to find Stripe (Swishjam) API key for workspace.")
         return false
       end
       supplemental_events = StripeHelpers::SupplementalEvents::Evaluator.new(
