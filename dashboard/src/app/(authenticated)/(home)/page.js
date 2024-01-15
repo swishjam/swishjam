@@ -139,10 +139,9 @@ export default function Home() {
         </div>
 
         <div className="w-full flex items-center justify-end">
-          <Timefilter selection={timeframeFilter} onSelection={setTimeframeFilter} />
           <Button
-            variant="outline"
-            className={`ml-4 bg-white ${isRefreshing ? "cursor-not-allowed" : ""}`}
+            variant="ghost"
+            className={`duration-500 transition-all mr-4 hover:text-swishjam ${isRefreshing ? "cursor-not-allowed text-swishjam" : ""}`}
             onClick={() => getAllData(timeframeFilter)}
             disabled={isRefreshing}
           >
@@ -150,6 +149,7 @@ export default function Home() {
               className={`h-4 w-4 ${isRefreshing ? "animate-spin" : ""}`}
             />
           </Button>
+          <Timefilter selection={timeframeFilter} onSelection={timeframe => { setTimeframeFilter(timeframe); getAllData(timeframe) }} />
         </div>
       </div>
 
@@ -163,7 +163,7 @@ export default function Home() {
           </h3>
         </Link>
       </div>
-      <div className="grid grid-cols-3 gap-4 pt-2">
+      <div className='grid grid-cols-3 gap-2 pt-2'>
         <ActiveUsersLineChartWithValue
           data={uniqueVisitorsProductChartData}
           selectedGrouping={uniqueVisitorsProductGrouping}
@@ -197,7 +197,7 @@ export default function Home() {
           </h3>
         </Link>
       </div>
-      <div className="grid grid-cols-3 gap-4 pt-2">
+      <div className='grid grid-cols-3 gap-2 pt-2'>
         <LineChartWithValue
           title="MRR"
           value={mrrChart?.value}
@@ -305,7 +305,7 @@ export default function Home() {
           </h3>
         </Link>
       </div>
-      <div className="grid grid-cols-3 gap-4 pt-2">
+      <div className='grid grid-cols-3 gap-2 pt-2'>
         <LineChartWithValue
           title="Sessions"
           value={sessionsMarketingChart?.value}
@@ -342,10 +342,8 @@ export default function Home() {
       {/*<div className='pt-8'>
         <RetentionWidget retentionCohorts={userRetentionData} />
       </div>*/}
-      <h3 className="pt-8 font-semibold text-sm text-slate-600">
-        New Users & Organizations
-      </h3>
-      <div className="grid grid-cols-2 gap-4 pt-8">
+      <h3 className='pt-8 font-semibold text-sm text-slate-600'>New Users & Organizations</h3>
+      <div className='grid grid-cols-2 gap-2 pt-2'>
         <ItemizedList
           fallbackAvatarGenerator={user => user?.initials?.slice(0, 2) || ""}
           items={newUsersData}
