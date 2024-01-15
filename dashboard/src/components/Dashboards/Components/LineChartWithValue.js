@@ -13,6 +13,8 @@ import { CheckCircleIcon } from '@heroicons/react/20/solid';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import ConditionalCardWrapper from './ConditionalCardWrapper';
 import { dateFormatterForGrouping } from '@/lib/utils/timeseriesHelpers';
+import useSheet from '@/hooks/useSheet';
+import { InfoIcon } from 'lucide-react';
 
 const LoadingState = ({ title, includeCard = true }) => (
   includeCard ? (
@@ -27,14 +29,14 @@ const LoadingState = ({ title, includeCard = true }) => (
     </Card>
   ) : (
     <>
-      <CardTitle className="text-sm font-medium cursor-default pb-4">{title}</CardTitle>
+      <CardTitle className="text-sm font-medium cursor-default pb-2">{title}</CardTitle>
       <Skeleton className="w-[100px] h-[30px] rounded-sm" />
       <Skeleton className="w-full h-20 rounded-sm mt-1" />
     </>
   )
 )
 
-const CustomTooltip = ({ active, payload, valueFormatter, dateFormatter, onDisplay = () => { } }) => {
+const CustomTooltip = ({ active, payload, valueKey, dateKey, comparisonValueKey, valueFormatter, dateFormatter, onDisplay = () => { } }) => {
   useEffect(() => {
     if (active) {
       onDisplay(payload[0]?.payload)
@@ -50,14 +52,14 @@ const CustomTooltip = ({ active, payload, valueFormatter, dateFormatter, onDispl
           <div className="flex space-x-4 text-sm text-muted-foreground">
             <div className="flex items-center">
               <CircleIcon className="mr-1 h-3 w-3 fill-swishjam text-swishjam" />
-              {valueFormatter(data.value)} - {dateFormatter(data.date)}
+              {valueFormatter(data[valueKey])} - {dateFormatter(data[dateKey])}
             </div>
           </div>
           {data.comparisonValue >= 0 &&
             <div className="flex space-x-4 text-sm text-muted-foreground">
               <div className="flex items-center">
                 <CircleIcon className="mr-1 h-3 w-3 fill-slate-200 text-slate-200" />
-                {valueFormatter(data.comparisonValue)} - {dateFormatter(data.comparisonDate)}
+                {valueFormatter(data[comparisonValueKey])} - {dateFormatter(data.comparisonDate)}
               </div>
             </div>
           }
@@ -119,6 +121,11 @@ const SettingsDropdown = ({ showXAxis, showYAxis, setShowXAxis, setShowYAxis, on
 }
 
 export default function LineChartWithValue({
+  className,
+  comparisonValueKey = 'comparisonValue',
+  dateKey = 'date',
+  DocumentationContent,
+  groupedBy,
   includeCard = true,
   includeComparisonData = true,
   includeSettingsDropdown = true,
@@ -128,35 +135,46 @@ export default function LineChartWithValue({
       <span>No data available</span>
     </div>
   ),
-  groupedBy,
   onSettingChange = () => { },
   showAxis = false,
   showTooltip = true,
   timeseries,
   title,
+  valueKey = 'value',
   valueFormatter = val => val,
   yAxisFormatter = val => val,
-  className,
 }) {
   if ([null, undefined].includes(timeseries)) return <LoadingState title={title} includeCard={includeCard} />;
 
-  const [comparisonValue, setComparisonValue] = useState(timeseries[timeseries.length - 1]?.comparisonValue);
+  const [comparisonValue, setComparisonValue] = useState(timeseries[timeseries.length - 1]?.[comparisonValueKey]);
   const [comparisonValueDate, setComparisonValueDate] = useState(timeseries[timeseries.length - 1]?.comparisonDate);
-  const [currentValue, setCurrentValue] = useState(timeseries[timeseries.length - 1]?.value);
-  const [currentValueDate, setCurrentValueDate] = useState(timeseries[timeseries.length - 1]?.date);
+  const [currentValue, setCurrentValue] = useState(timeseries[timeseries.length - 1]?.[valueKey]);
+  const [currentValueDate, setCurrentValueDate] = useState(timeseries[timeseries.length - 1]?.[dateKey]);
   const [showXAxis, setShowXAxis] = useState(showAxis);
   const [showYAxis, setShowYAxis] = useState(showAxis);
 
   const dateFormatter = dateFormatterForGrouping(groupedBy)
+
+  const { openSheetWithContent } = useSheet();
 
   return (
     <ConditionalCardWrapper
       className={`${className} group`}
       includeCard={includeCard}
       title={
-        <div className='grid grid-cols-2'>
-          {title}
-          <div className='flex justify-end'>
+        <div className='flex justify-between items-center'>
+          <div className='flex items-center gap-x-1'>
+            {title}
+            {DocumentationContent && (
+              <a
+                onClick={() => openSheetWithContent({ title, content: DocumentationContent })}
+                className='cursor-pointer text-gray-500 hover:text-gray-700 transition-all rounded-full hover:bg-gray-100 p-1'
+              >
+                <InfoIcon className='h-3 w-3' />
+              </a>
+            )}
+          </div>
+          <div className='flex justify-end flex-shrink'>
             {includeSettingsDropdown && (
               <SettingsDropdown
                 showXAxis={showXAxis}
@@ -196,9 +214,9 @@ export default function LineChartWithValue({
         ? (
           <div
             onMouseLeave={() => {
-              setCurrentValue(timeseries[timeseries.length - 1]?.value)
-              setComparisonValue(timeseries[timeseries.length - 1]?.comparisonValue);
-              setCurrentValueDate(timeseries[timeseries.length - 1]?.date);
+              setCurrentValue(timeseries[timeseries.length - 1]?.[valueKey])
+              setComparisonValue(timeseries[timeseries.length - 1]?.[comparisonValueKey]);
+              setCurrentValueDate(timeseries[timeseries.length - 1]?.[dateKey]);
               setComparisonValueDate(timeseries[timeseries.length - 1]?.comparisonDate);
             }}
             className='flex align-center justify-center mt-6'
@@ -206,7 +224,7 @@ export default function LineChartWithValue({
             <ResponsiveContainer width="100%" aspect={3} >
               <AreaChart data={timeseries} margin={{ top: 5, right: 0, left: 0, bottom: 0 }}>
                 <XAxis
-                  dataKey="date"
+                  dataKey={dateKey}
                   hide={!showXAxis}
                   tickFormatter={dateFormatter}
                   tick={{ fontSize: 12, fill: "#9CA3AF" }}
@@ -221,7 +239,7 @@ export default function LineChartWithValue({
                 {showYAxis &&
                   <YAxis
                     width={40}
-                    dataKey="value"
+                    dataKey={valueKey}
                     allowDecimals={false}
                     axisLine={false}
                     tickLine={false}
@@ -238,12 +256,15 @@ export default function LineChartWithValue({
                     wrapperStyle={{ outline: "none" }}
                     content={
                       <CustomTooltip
+                        valueKey={valueKey}
+                        dateKey={dateKey}
+                        comparisonValueKey={comparisonValueKey}
                         valueFormatter={valueFormatter}
                         dateFormatter={dateFormatter}
                         onDisplay={payload => {
-                          setCurrentValue(payload.value)
-                          setComparisonValue(payload.comparisonValue);
-                          setCurrentValueDate(payload.date);
+                          setCurrentValue(payload[valueKey])
+                          setComparisonValue(payload[comparisonValueKey]);
+                          setCurrentValueDate(payload[dateKey]);
                           setComparisonValueDate(payload.comparisonDate);
                         }}
                       />
@@ -255,7 +276,7 @@ export default function LineChartWithValue({
                 {includeComparisonData && (
                   <Area
                     type="monotone"
-                    dataKey='comparisonValue'
+                    dataKey={comparisonValueKey}
                     stroke="#878b90"
                     dot={{ r: 0 }}
                     activeDot={{ r: 2 }}
@@ -267,7 +288,7 @@ export default function LineChartWithValue({
                 )}
                 <Area
                   type="monotone"
-                  dataKey='value'
+                  dataKey={valueKey}
                   stroke="#7dd3fc"
                   dot={{ r: 0 }}
                   activeDot={{ r: 2 }}

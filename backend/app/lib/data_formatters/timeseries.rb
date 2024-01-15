@@ -22,10 +22,10 @@ module DataFormatters
       @filled_in_data = []
       most_recent_value = nil
       while current_time <= end_time
-        matching_result = data.find{ |result| result.send(@date_method).to_datetime == current_time.to_datetime }
+        matching_result = data.find{ |result| evaluate_on_record(result, @date_method)&.to_datetime == current_time.to_datetime }
         if matching_result.present?
-          @filled_in_data <<  { date: current_time, value: matching_result.send(@value_method) }
-          most_recent_value = matching_result.send(@value_method)
+          @filled_in_data <<  { date: current_time, value: evaluate_on_record(matching_result, @value_method) }
+          most_recent_value = evaluate_on_record(matching_result, @value_method)
         elsif @use_previous_value_for_missing_data
           @filled_in_data << { date: current_time, value: most_recent_value || 0 }
         else
@@ -44,6 +44,12 @@ module DataFormatters
 
     def summed_value
       @summed_value ||= filled_in_data.collect{ |h| h[:value] }.sum
+    end
+
+    private
+
+    def evaluate_on_record(record, method_or_key)
+      record.is_a?(Hash) ? record.with_indifferent_access[method_or_key] : record.send(method_or_key)
     end
   end
 end

@@ -1,12 +1,13 @@
 'use client'
 
-import dynamic from 'next/dynamic';
 import AuthenticatedView from "@/components/Auth/AuthenticatedView";
 import CommandBarProvider from '@/providers/CommandBarProvider';
+import SheetProvider from '@/providers/SheetProvider';
+import dynamic from 'next/dynamic';
 import HotKeyProvider from '@/providers/HotKeyProvider';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import { Toaster } from 'sonner'
-import { IntercomProvider } from 'react-use-intercom';
+// import { IntercomProvider } from 'react-use-intercom';
 
 export default function layout({ children }) {
   const LoadingView = getLoadingView(children);
@@ -15,9 +16,11 @@ export default function layout({ children }) {
       {/* <IntercomProvider appId="p7d72soi" autoBoot={true}> */}
       <CommandBarProvider>
         <HotKeyProvider>
-          <AuthenticatedView LoadingView={LoadingView}>
-            {children}
-          </AuthenticatedView>
+          <SheetProvider>
+            <AuthenticatedView LoadingView={LoadingView}>
+              {children}
+            </AuthenticatedView>
+          </SheetProvider>
         </HotKeyProvider>
       </CommandBarProvider>
       {/* </IntercomProvider> */}

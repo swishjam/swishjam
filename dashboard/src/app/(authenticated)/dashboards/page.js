@@ -35,9 +35,6 @@ const ImageCard = ({title, description, img}) => {
   )
 }
 
-export function ButtonLink() {
-  return
-}
 export default function Dashboards() {
   const router = useRouter();
   const [dashboards, setDashboards] = useState();
