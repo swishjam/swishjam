@@ -141,14 +141,12 @@ export default function Home() {
         <div className="w-full flex items-center justify-end">
           <Timefilter selection={timeframeFilter} onSelection={setTimeframeFilter} />
           <Button
-            variant="outline"
-            className={`ml-4 bg-white ${isRefreshing ? "cursor-not-allowed" : ""}`}
+            variant="ghost"
+            className={`duration-500 transition-all mr-4 hover:text-swishjam ${isRefreshing ? "cursor-not-allowed text-swishjam" : ""}`}
             onClick={() => getAllData(timeframeFilter)}
             disabled={isRefreshing}
           >
-            <ArrowPathIcon
-              className={`h-4 w-4 ${isRefreshing ? "animate-spin" : ""}`}
-            />
+            <ArrowPathIcon className={`h-4 w-4 ${isRefreshing ? "animate-spin" : ""}`} />
           </Button>
         </div>
       </div>

@@ -97,7 +97,7 @@ export default function PageMetrics() {
 
   return (
     <main className="mx-auto mb-8 max-w-7xl px-4 sm:px-6 lg:px-8">
-      <div className="mt-8 flex grid grid-cols-2 items-center">
+      <div className="mt-8 grid grid-cols-2 items-center">
         <div>
           <Link href="/dashboards" className="mb-0 text-xs font-medium text-gray-400 flex hover:text-swishjam transition duration-300 hover:underline">
             <RxBarChart size={16} className="mr-1" />Dashboards
@@ -124,9 +124,6 @@ export default function PageMetrics() {
             }}
           />
         </div>
-      </div>
-      <div className='pt-8 flex justify-between'>
-        <h3 className='font-semibold text-sm text-slate-600'>User Breakdown</h3>
       </div>
       <div className="grid grid-cols-6 gap-2 pt-2">
         <div className="col-span-3">

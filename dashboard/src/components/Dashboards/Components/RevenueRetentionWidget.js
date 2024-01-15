@@ -1,12 +1,9 @@
 import ConditionalCardWrapper from './ConditionalCardWrapper';
-import { CardTitle } from "@/components/ui/card";
-import { InfoIcon } from 'lucide-react';
 import LineChart from './RevenueRetentionWidget/LineChart';
 import RetentionGrid from "./RevenueRetentionWidget/RetentionGrid";
 import { Squares2X2Icon, ChartBarIcon } from '@heroicons/react/24/outline';
 import { Switch } from '@headlessui/react'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
-import useSheet from '@/hooks/useSheet';
 import { useState } from 'react'
 
 function classNames(...classes) {
@@ -30,8 +27,7 @@ const DocumentationContent = () => (
   </>
 )
 
-export default function RevenueRetentionWidget({ title = 'Revenue Retention', retentionCohorts, includeInAppDocs = true, isExpandable = true, includeCard = true }) {
-  const { openSheetWithContent } = useSheet();
+export default function RevenueRetentionWidget({ title = 'Revenue Retention', retentionCohorts, isExpandable = true, includeCard = true }) {
   const [chartType, setChartType] = useState('grid');
 
   const toggleChartType = () => chartType === 'grid' ? setChartType('chart') : setChartType('grid');
@@ -39,70 +35,60 @@ export default function RevenueRetentionWidget({ title = 'Revenue Retention', re
 
   return (
     <ConditionalCardWrapper
-      includeCard={includeCard}
-      title={
-        <div className='flex items-center justify-between space-y-0'>
-          <CardTitle className="text-sm font-medium cursor-default flex items-center gap-x-1">
-            {title}
-            {includeInAppDocs && (
-              <a
-                onClick={() => openSheetWithContent({ title, content: DocumentationContent })}
-                className='cursor-pointer text-gray-500 hover:text-gray-700 transition-all rounded-full hover:bg-gray-100 p-1'
-              >
-                <InfoIcon className='h-3 w-3' />
-              </a>
-            )}
-          </CardTitle>
-          <TooltipProvider>
-            <Tooltip delayDuration={300} className='cursor-default'>
-              <TooltipTrigger>
-                <div className="flex items-center space-x-2">
-                  <Switch
-                    as='div'
-                    checked={chartType === 'grid'}
-                    onChange={toggleChartType}
-                    disabled={hasNoRetentionData}
+      AdditionalHeaderActions={[
+        <TooltipProvider>
+          <Tooltip delayDuration={300} className='cursor-default'>
+            <TooltipTrigger>
+              <div className="flex items-center space-x-2 mle
+              -1">
+                <Switch
+                  as='div'
+                  checked={chartType === 'grid'}
+                  onChange={toggleChartType}
+                  disabled={hasNoRetentionData}
+                  className={classNames(
+                    chartType === 'grid' && !hasNoRetentionData ? 'bg-swishjam' : 'bg-gray-200',
+                    'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out'
+                  )}
+                >
+                  <span className="sr-only">Use setting</span>
+                  <span
                     className={classNames(
-                      chartType === 'grid' && !hasNoRetentionData ? 'bg-swishjam' : 'bg-gray-200',
-                      'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out'
+                      chartType === 'grid' ? 'translate-x-5' : 'translate-x-0',
+                      'pointer-events-none relative inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out'
                     )}
                   >
-                    <span className="sr-only">Use setting</span>
                     <span
                       className={classNames(
-                        chartType === 'grid' ? 'translate-x-5' : 'translate-x-0',
-                        'pointer-events-none relative inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out'
+                        chartType === 'grid' ? 'opacity-0 duration-100 ease-out' : 'opacity-100 duration-200 ease-in',
+                        'absolute inset-0 flex h-full w-full items-center justify-center transition-opacity'
                       )}
+                      aria-hidden="true"
                     >
-                      <span
-                        className={classNames(
-                          chartType === 'grid' ? 'opacity-0 duration-100 ease-out' : 'opacity-100 duration-200 ease-in',
-                          'absolute inset-0 flex h-full w-full items-center justify-center transition-opacity'
-                        )}
-                        aria-hidden="true"
-                      >
-                        <ChartBarIcon className="h-3 w-3 text-gray-600" />
-                      </span>
-                      <span
-                        className={classNames(
-                          chartType === 'grid' ? 'opacity-100 duration-200 ease-in' : 'opacity-0 duration-100 ease-out',
-                          'absolute inset-0 flex h-full w-full items-center justify-center transition-opacity'
-                        )}
-                        aria-hidden="true"
-                      >
-                        <Squares2X2Icon className='h-3 w-3 text-swishjam' />
-                      </span>
+                      <ChartBarIcon className="h-3 w-3 text-gray-600" />
                     </span>
-                  </Switch>
-                </div>
-              </TooltipTrigger>
-              <TooltipContent className='text-xs text-gray-700'>
-                Toggle between grid and line chart retention data visualizations.
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-        </div>
-      }
+                    <span
+                      className={classNames(
+                        chartType === 'grid' ? 'opacity-100 duration-200 ease-in' : 'opacity-0 duration-100 ease-out',
+                        'absolute inset-0 flex h-full w-full items-center justify-center transition-opacity'
+                      )}
+                      aria-hidden="true"
+                    >
+                      <Squares2X2Icon className='h-3 w-3 text-swishjam' />
+                    </span>
+                  </span>
+                </Switch>
+              </div>
+            </TooltipTrigger>
+            <TooltipContent className='text-xs text-gray-700'>
+              Toggle between grid and line chart retention data visualizations.
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      ]}
+      includeCard={includeCard}
+      DocumentationContent={DocumentationContent}
+      title={title}
     >
       {hasNoRetentionData ? (
         <div className='text-sm text-gray-500 text-center p-8 group'>

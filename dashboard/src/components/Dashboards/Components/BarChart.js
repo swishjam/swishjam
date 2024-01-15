@@ -103,40 +103,34 @@ export default function BarChartComponent({
 
   return (
     <ConditionalCardWrapper
-      className={`${className} group`}
+      className={className}
       includeCard={includeCard}
-      title={
-        <div className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <h2 className="text-sm font-medium cursor-default">{title}</h2>
-          {includeSettingsDropdown && (
-            <SettingsDropdown
-              options={[
-                { name: 'Include Y-Axis', key: 'include-y-axis', isActive: includeYAxis },
-                { name: 'Include X-Axis', key: 'include-x-axis', isActive: includeXAxis },
-                { name: 'Include Table/Legend', key: 'include-legend-or-table', isActive: includeLegendOrTable },
-                { name: 'Include Grid Lines', key: 'include-grid-lines', isActive: includeGridLines },
-                { name: 'Use Table Instead of Legend', key: 'table-instead-of-legend', isActive: useTableInsteadOfLegend },
-              ]}
-              onSettingChange={key => {
-                switch (key) {
-                  case 'include-y-axis':
-                    return setIncludeYAxis(!includeYAxis)
-                  case 'include-x-axis':
-                    return setIncludeXAxis(!includeXAxis)
-                  case 'include-legend-or-table':
-                    return setIncludeLegendOrTableOrTable(!includeLegendOrTable)
-                  case 'include-grid-lines':
-                    return setIncludeGridLines(!includeGridLines)
-                  case 'table-instead-of-legend':
-                    return setUseTableInsteadOfLegend(!useTableInsteadOfLegend)
-                  default:
-                    throw new Error(`Unrecognized setting change received: ${key}`)
-                }
-              }}
-            />
-          )}
-        </div>
+      onSettingChange={({ attribute, valueChangedTo }) => {
+        switch (attribute) {
+          case 'include-y-axis':
+            return setIncludeYAxis(valueChangedTo)
+          case 'include-x-axis':
+            return setIncludeXAxis(valueChangedTo)
+          case 'include-legend-or-table':
+            return setIncludeLegendOrTableOrTable(valueChangedTo)
+          case 'include-grid-lines':
+            return setIncludeGridLines(valueChangedTo)
+          case 'table-instead-of-legend':
+            return setUseTableInsteadOfLegend(valueChangedTo)
+          default:
+            throw new Error(`Unrecognized setting change received: ${key}`)
+        }
+      }}
+      settings={
+        [
+          { label: 'Include Y-Axis', attribute: 'include-y-axis', enabled: includeYAxis },
+          { label: 'Include X-Axis', attribute: 'include-x-axis', enabled: includeXAxis },
+          { label: 'Include Table/Legend', attribute: 'include-legend-or-table', enabled: includeLegendOrTable },
+          { label: 'Include Grid Lines', attribute: 'include-grid-lines', enabled: includeGridLines },
+          { label: 'Use Table Instead of Legend', attribute: 'table-instead-of-legend', enabled: useTableInsteadOfLegend },
+        ]
       }
+      title={title}
     >
       {data.length === 0
         ? <EmptyState msg={noDataMessage} />

@@ -33,12 +33,10 @@ export default function LineChartRenderingEngine({ configuration, timeframe }) {
       includeSettingsDropdown={includeSettingsDropdown}
       includeComparisonData={includeComparison}
       includeCard={false}
-      previousValue={timeseriesData?.previousValue}
-      previousValueDate={timeseriesData?.previousValueDate}
+      isExpandable={false}
       showAxis={!hideAxis}
       timeseries={timeseriesData?.timeseries}
       title={title}
-      value={timeseriesData?.value}
       valueFormatter={value => {
         try {
           if (configuration.value_formatter === 'currency') {

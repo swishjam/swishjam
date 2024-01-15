@@ -51,7 +51,7 @@ export default function RenderingEngine({
         const allowOverflow = ['UserRetention', 'BarChart'].includes(configuration.type);
         return (
           // All RenderingEngineDashboardComponents re-fetch its data each time editable switches and we use the prop below, disabling until we solve it.
-          <Card key={i} className={`p-4 ${false ? 'cursor-grab' : ''} ${allowOverflow ? '' : 'overflow-hidden'}`}>
+          <Card key={i} className={`${false ? 'cursor-grab' : ''} ${allowOverflow ? '' : 'overflow-hidden'}`}>
             <ContextMenuableComponent
               isTriggerable={true}
               onEdit={() => onDashboardComponentEdit({ id: configuration.i, configuration })}
