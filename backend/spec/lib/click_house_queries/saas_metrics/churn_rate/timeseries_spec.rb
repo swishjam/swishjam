@@ -24,17 +24,17 @@ RSpec.describe ClickHouseQueries::SaasMetrics::ChurnRate::Timeseries do
 
       results = described_class.new(my_api_key).get
       todays_churn_period = results.find{ |r| r['churn_period_end_date'].to_datetime.to_s == current_time.to_datetime.to_s }
-      expect(todays_churn_period['num_churned_customers_in_period']).to eq(4)
+      expect(todays_churn_period['num_churned_subscriptions_in_period']).to eq(4)
       expect(todays_churn_period['num_customers_with_paid_subscriptions_at_snapshot_date']).to eq(110)
       expect(todays_churn_period['churn_rate']).to eq((4.0 / 110 * 100).round(2))
 
       yesterdays_churn_period = results.find{ |r| r['churn_period_end_date'].to_datetime.to_s == (current_time - 1.day).to_datetime.to_s }
-      expect(yesterdays_churn_period['num_churned_customers_in_period']).to eq(3)
+      expect(yesterdays_churn_period['num_churned_subscriptions_in_period']).to eq(3)
       expect(yesterdays_churn_period['num_customers_with_paid_subscriptions_at_snapshot_date']).to eq(100)
       expect(yesterdays_churn_period['churn_rate']).to eq((3.0 / 100 * 100).round(2))
 
       two_days_ago_churn_period = results.find{ |r| r['churn_period_end_date'].to_datetime.to_s == (current_time - 2.days).to_datetime.to_s }
-      expect(two_days_ago_churn_period['num_churned_customers_in_period']).to eq(2)
+      expect(two_days_ago_churn_period['num_churned_subscriptions_in_period']).to eq(2)
       expect(two_days_ago_churn_period['num_customers_with_paid_subscriptions_at_snapshot_date']).to eq(90)
       expect(two_days_ago_churn_period['churn_rate']).to eq((2.0 / 90 * 100).round(2))
     end

@@ -11,29 +11,9 @@ import SettingsDropdown from './SettingsDropdown';
 import { Skeleton } from "@/components/ui/skeleton"
 import { useRef, useState } from 'react';
 
-const CustomShape = ({ fill, x, y, width, height, index, count }) => {
-  // const radius = index === count - 1 ? 5 : 0; // round the corners only for the top bar
-  const radius = 5;
-  if (height < 0) {
-    y = y + height;
-    height = -height;
-  }
-  return (
-    <rect
-      x={x}
-      y={y}
-      width={width}
-      height={height}
-      rx={radius}
-      ry={radius}
-      fill={fill}
-    />
-  );
-};
-
 export default function BarChartComponent({
   colors = DEFAULT_COLORS,
-  colorsByKey,
+  colorsByKey = {},
   data,
   groupedBy,
   height = 'h-96',
@@ -89,10 +69,6 @@ export default function BarChartComponent({
       colorDict.current[name] = colorsByKey[name] || colorsToChooseFrom.shift();
     }
     return colorDict.current[name];
-  }
-
-  const shouldRoundCorners = bar => {
-    return true;
   }
 
   const CustomTooltip = ({ active, payload }) => {
@@ -211,14 +187,12 @@ export default function BarChartComponent({
                   animationEasing='ease-in-out'
                 />
                 {uniqueKeys.map((key, i, arr) => {
-                  shouldRoundCorners({ key, i, arr })
                   return (
                     <Bar
                       key={i}
                       dataKey={key}
                       stackId='a'
                       fill={getColorForName(key)}
-                      shape={<CustomShape />}
                     />
                   )
                 })}

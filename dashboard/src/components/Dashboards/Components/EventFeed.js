@@ -7,17 +7,19 @@ import { useState } from "react"
 
 import {
   BanIcon,
+  FormInputIcon,
   GlobeIcon,
   MailIcon,
   MailWarningIcon,
   MailCheckIcon,
   MailOpenIcon,
+  MessageSquareIcon,
   MousePointerClickIcon,
   PiggyBankIcon,
   ReceiptIcon,
-  ZapIcon,
   PanelTopIcon,
-  MessageSquareIcon,
+  PointerIcon,
+  ZapIcon,
 } from "lucide-react";
 
 import CalComLogo from '@public/logos/calcom.png'
@@ -35,6 +37,8 @@ function classNames(...classes) {
 const EVENT_ICON_DICT = {
   'new_session': <PanelTopIcon className='h-4 w-4 text-swishjam' />,
   'page_view': <GlobeIcon className='h-4 w-4 text-swishjam' />,
+  'click': <PointerIcon className='h-4 w-4 text-swishjam' />,
+  'form_submit': <FormInputIcon className='h-4 w-4 text-swishjam' />,
   'intercom': <MessageSquareIcon className='h-4 w-4 text-gray-400' />,
   'resend.email.sent': <MailIcon className="h-4 w-4 text-gray-400" />,
   'resend.email.bounced': <MailWarningIcon className="h-4 w-4 text-red-400" />,

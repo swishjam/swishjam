@@ -63,18 +63,16 @@ export default function Dashboards() {
             img={'/product-analytics.png'} 
           />
         </Link>
-        <Link href="/dashboards/saas-analytics">
+        <Link href="/dashboards/revenue-analytics">
           <ImageCard
-            title={'SaaS Analytics'}
+            title={'Revenue Analytics'}
             description={'MRR, ARR, Churn, new subscriptions, and more'}
             img={'/product-analytics.png'}
           />
         </Link>
-               {/* <Link href="/dashboards/saas-metrics" className={'opacity-50'}>
-        </Link> */}
       </div>
 
-      <div className='grid grid-cols-2 mt-8 flex items-center'>
+      <div className='grid grid-cols-2 mt-8 items-center'>
         <div>
           <h1 className="text-lg font-medium text-gray-700 mb-0">Custom Dashboards</h1>
         </div>

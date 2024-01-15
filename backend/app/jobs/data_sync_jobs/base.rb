@@ -28,7 +28,7 @@ module DataSyncJobs
         started_at: Time.current
       )
       begin
-        run!(integration, sync.previous_data_sync)
+        run!(integration)
         sync.completed!
     rescue => e
         Rails.logger.error "#{self.class.to_s} sync failed for workspace #{integration.workspace.id} with error: #{e.message}"

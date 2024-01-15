@@ -8,7 +8,8 @@ module Oauth
       workspace = validate_token_and_return_workspace
       configuration = get_oauth_response_data
       create_or_update_swishjam_integration(workspace, configuration)
-      redirect_to "#{ENV['FRONTEND_URL'] || 'https://app.swishjam.com'}/integrations?success=true"
+      redirect_path = JSON.parse(params[:state])['redirectPath'] || '/integrations?success=true'
+      redirect_to "#{ENV['FRONTEND_URL'] || 'https://app.swishjam.com'}#{redirect_path}"
     end
 
     private

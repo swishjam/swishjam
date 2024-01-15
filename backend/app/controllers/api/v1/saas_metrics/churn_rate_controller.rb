@@ -22,7 +22,7 @@ module Api
                 num_days_in_churn_period: (params[:num_days_in_churn_period] || 30).to_i,
               ).get
             end
-            render json: render_timeseries_json(timeseries, comparison_timeseries), status: :ok
+            render json: render_multi_dimensional_timeseries_json(timeseries, comparison_timeseries), status: :ok
           else
             render json: {
               timeseries: [],

@@ -8,7 +8,7 @@ module StripeHelpers
 
     def subscriptions
       @stripe_subscriptions ||= StripeHelpers::DataFetchers.get_all do
-        ::Stripe::Subscription.list({ status: 'all', expand: ['data.customer', 'data.items.data.price'] }, stripe_account: @stripe_account_id)
+        ::Stripe::Subscription.list({ status: 'all', expand: ['data.customer'] }, stripe_account: @stripe_account_id)
       end
     end
 

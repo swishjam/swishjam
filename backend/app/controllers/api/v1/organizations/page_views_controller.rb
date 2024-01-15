@@ -6,7 +6,7 @@ module Api
           params[:data_source] ||= 'web'
           pages = ClickHouseQueries::Organizations::PageViews::MostVisited::List.new(
             public_keys_for_requested_data_source,
-            organization_profile_id: @organization.id,
+            organization_unique_identifier: @organization.organization_unique_identifier,
             start_time: start_timestamp,
             end_time: end_timestamp
           ).get

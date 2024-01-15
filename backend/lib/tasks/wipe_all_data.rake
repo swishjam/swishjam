@@ -17,16 +17,19 @@ namespace :db do
     end
 
     puts "Wiping all data...".colorize(:yellow)
-    Workspace.destroy_all
-    User.destroy_all
-    DataSync.destroy_all
-    IngestionBatch.destroy_all
-    AuthSession.destroy_all
+    ActiveRecord::Base.logger.silence do
+      Workspace.destroy_all
+      User.destroy_all
+      DataSync.destroy_all
+      IngestionBatch.destroy_all
+      AuthSession.destroy_all
 
-    Analytics::ClickHouseRecord.execute_sql('DELETE FROM swishjam_user_profiles WHERE workspace_id IS NOT NULL', format: nil)
-    Analytics::ClickHouseRecord.execute_sql('DELETE FROM events WHERE swishjam_api_key IS NOT NULL', format: nil)
-    Analytics::ClickHouseRecord.execute_sql('DELETE FROM swishjam_organization_profiles WHERE swishjam_api_key IS NOT NULL', format: nil)
-    Analytics::ClickHouseRecord.execute_sql('DELETE FROM user_identify_events WHERE swishjam_api_key IS NOT NULL', format: nil)
-    Analytics::ClickHouseRecord.execute_sql('DELETE FROM billing_data_snapshots WHERE swishjam_api_key IS NOT NULL', format: nil)
+      Analytics::ClickHouseRecord.execute_sql('DELETE FROM swishjam_user_profiles WHERE workspace_id IS NOT NULL', format: nil)
+      Analytics::ClickHouseRecord.execute_sql('DELETE FROM events WHERE swishjam_api_key IS NOT NULL', format: nil)
+      Analytics::ClickHouseRecord.execute_sql('DELETE FROM swishjam_organization_profiles WHERE swishjam_api_key IS NOT NULL', format: nil)
+      Analytics::ClickHouseRecord.execute_sql('DELETE FROM user_identify_events WHERE swishjam_api_key IS NOT NULL', format: nil)
+      Analytics::ClickHouseRecord.execute_sql('DELETE FROM billing_data_snapshots WHERE swishjam_api_key IS NOT NULL', format: nil)
+    end
+    puts "Done wiping all data.".colorize(:green)
   end
 end

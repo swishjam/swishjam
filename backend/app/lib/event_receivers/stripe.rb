@@ -8,29 +8,25 @@ module EventReceivers
     end
 
     def receive!
-      return if !@stripe_event.livemode
+      return false if !@stripe_event.livemode
       if integration.nil?
-        if public_key
-          supplemental_events = StripeHelpers::SupplementalEvents::Evaluator.new(
-            stripe_event: @stripe_event, 
-            stripe_customer: stripe_customer, 
-            public_key: public_key, 
-            maybe_user_profile_id: @event_parser.maybe_user_profile&.id,
-          ).format_supplemental_events_to_be_processed_if_necessary!
-          
-          [formatted_event_to_ingest].concat(supplemental_events)
-
-          Ingestion::QueueManager.push_records_into_queue(Ingestion::QueueManager::Queues.EVENTS, events) if events.any?
-          enqueue_sync_jobs_if_necessary!
-          true
-        else
-          Sentry.capture_message("Received Stripe event from account #{@event_payload['account']}, but unable to find matching enabled Stripe integration record.")
-          false
-        end
-      else
-        Sentry.capture_message("Received Stripe webhook from Stripe account #{@event_payload['account']}, but unable to find matching enabled Stripe integration record.")
-        false
+        Sentry.capture_message("Received Stripe webhook from Stripe account #{@event_payload['account']}, but unable to find matching enabled Stripe Integration record.")
+        return false
       end
+      if public_key.nil?
+        Sentry.capture_message("Received Stripe event from account #{@event_payload['account']}, but unable to find Stripe (Swishjam) API key for workspace.")
+        return false
+      end
+      supplemental_events = StripeHelpers::SupplementalEvents::Evaluator.new(
+        stripe_event: @stripe_event, 
+        stripe_customer: stripe_customer, 
+        public_key: public_key, 
+        maybe_user_profile_id: @event_parser.maybe_user_profile&.id,
+      ).format_supplemental_events_to_be_processed_if_necessary!
+      events = [formatted_event_to_ingest].concat(supplemental_events)
+      Ingestion::QueueManager.push_records_into_queue(Ingestion::QueueManager::Queues.EVENTS, events) if events.any?
+      enqueue_sync_jobs_if_necessary!
+      true
     end
 
     private
@@ -40,7 +36,7 @@ module EventReceivers
     end
 
     def workspace
-      @workspace ||= integration.workspace
+      @workspace ||= integration&.workspace
     end
 
     def public_key

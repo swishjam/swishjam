@@ -10,8 +10,9 @@ module ClickHouseQueries
           include ClickHouseQueries::Helpers
           include TimeseriesHelper
 
-          def initialize(public_keys, start_time: self.class.default_start_time, end_time: self.class.default_end_time || Time.current)
+          def initialize(public_keys, organization_unique_identifier: nil, start_time: self.class.default_start_time, end_time: self.class.default_end_time || Time.current)
             @public_keys = public_keys.is_a?(Array) ? public_keys : [public_keys]
+            @organization_unique_identifier = organization_unique_identifier
             @start_time, @end_time = rounded_timestamps(start_ts: start_time, end_ts: end_time, group_by: self.class.sql_date_trunc_unit)
           end
 
@@ -54,6 +55,7 @@ module ClickHouseQueries
               WHERE
                 events.swishjam_api_key IN #{formatted_in_clause(@public_keys)} AND
                 events.occurred_at BETWEEN '#{formatted_time(@start_time)}' AND '#{formatted_time(@end_time)}'
+                #{@organization_unique_identifier ? "AND JSONExtractString(JSONExtractString(properties, 'organization_attributes'), 'organization_identifier') = '#{@organization_unique_identifier}'" : ''}
               GROUP BY group_by_date, year
               ORDER BY group_by_date ASC
             SQL

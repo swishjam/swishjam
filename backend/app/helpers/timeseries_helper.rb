@@ -1,4 +1,16 @@
 module TimeseriesHelper
+  def render_multi_dimensional_timeseries_json(timeseries, comparison_timeseries = nil)
+    {
+      timeseries: timeseries.formatted_data,
+      comparison_timeseries: comparison_timeseries&.formatted_data,
+      start_time: start_timestamp,
+      end_time: end_timestamp,
+      comparison_start_time: comparison_start_timestamp,
+      comparison_end_time: comparison_end_timestamp,
+      grouped_by: timeseries.group_by,
+    }
+  end
+
   def render_timeseries_json(timeseries, comparison_timeseries = nil)
     {
       timeseries: timeseries.formatted_data,

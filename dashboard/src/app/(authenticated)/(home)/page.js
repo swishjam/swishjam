@@ -13,7 +13,7 @@ import ItemizedList from "@/components/Dashboards/Components/ItemizedList";
 import RetentionWidgetTiny from "@/components/Dashboards/Components/RetentionWidgetTiny";
 import { BsArrowRightShort } from "react-icons/bs";
 import { formatMoney, formatNumbers, formatShrinkNumbers, formatShrinkMoney } from "@/lib/utils/numberHelpers";
-import { setStateFromTimeseriesResponse } from "@/lib/utils/timeseriesHelpers";
+import { setStateFromTimeseriesResponse, setStateFromMultiDimensionalTimeseriesResponse, formattedUTCMonthAndDay } from "@/lib/utils/timeseriesHelpers";
 
 export default function Home() {
   const [isRefreshing, setIsRefreshing] = useState();
@@ -48,7 +48,7 @@ export default function Home() {
   };
 
   const getChurnRateData = async (timeframe) => {
-    return await SwishjamAPI.SaasMetrics.ChurnRate.timeseries({ timeframe }).then(resp => setStateFromTimeseriesResponse(resp, setChurnRateData));
+    return await SwishjamAPI.SaasMetrics.ChurnRate.timeseries({ timeframe, excludeComparison: true }).then(resp => setStateFromMultiDimensionalTimeseriesResponse(resp, setChurnRateData));
   };
 
   const getPageViewsTimeseriesData = async (timeframe) => {
@@ -133,7 +133,7 @@ export default function Home() {
   return (
     <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mb-8">
       {/* <InstallBanner hidden={isRefreshing || parseInt(sessionsMarketingChart?.value) > 0 || parseFloat(mrrChart?.value) > 0 || parseInt(activeSubsChart?.value) > 0} /> */}
-      <div className="grid grid-cols-2 mt-8 flex items-center">
+      <div className="grid grid-cols-2 mt-8 items-center">
         <div>
           <h1 className="text-lg font-medium text-gray-700 mb-0">Dashboard</h1>
         </div>
@@ -185,16 +185,13 @@ export default function Home() {
           valueFormatter={formatNumbers}
           yAxisFormatter={formatShrinkNumbers}
         />
-        <RetentionWidgetTiny
-          retentionCohorts={userRetentionData}
-          isExpandable={false}
-        />
+        <RetentionWidgetTiny retentionCohorts={userRetentionData} isExpandable={false} />
       </div>
       <div className="pt-8 flex justify-between">
         <h3 className="font-semibold text-sm text-slate-600">
           Key Revenue Metrics
         </h3>
-        <Link href="/dashboards/revenue-analytics" className="group">
+        <Link href="#" className="group opacity-50">
           <h3 className="font-semibold text-sm text-slate-600 group-hover:text-swishjam transition-all duration-500">
             Deep Dive Report <BsArrowRightShort size={24} className="inline" />
           </h3>
@@ -248,16 +245,55 @@ export default function Home() {
           yAxisFormatter={formatShrinkNumbers}
         />
         <LineChartWithValue
-          title="Churn Rate"
-          value={churnRateData?.value}
-          // previousValue={0}
-          // previousValueDate={new Date()}
-          valueFormatter={percent => `${percent}%`}
-          // yAxisFormatter={formatShrinkMoney}
+          additionalTooltipDataFormatter={d => (
+            <>
+              <strong>{d.num_churned_subscriptions_in_period}</strong> of the <strong>{d.num_active_subscriptions_at_snapshot_date + d.num_new_subscriptions_in_period}</strong> subscriptions that were active on {formattedUTCMonthAndDay(d.snapshot_date)} churned between then and {formattedUTCMonthAndDay(d.date)}.
+            </>
+          )}
+          DocumentationContent={
+            <>
+              <p className='mb-2'>
+                <strong className='block'>Definition:</strong>Churn rate measures the percent of subscribers who have canceled their subscriptions during a rolling 30 day period.
+              </p>
+              <p className='mb-2'>
+                <strong className='block'>Example:</strong>If you had 100 paying subscribers on December 1st, and 10 of them canceled their subscriptions between then and December 30th, your churn rate for December 30th would be 10% (10/100 = 0.1).
+              </p>
+              <p className='mb-2'>
+                <strong className='block'>Formula:</strong> <span className='italic'># of churns over the last 30 days</span> / <span className='italic'># of Subscribers 30 days ago</span>
+              </p>
+            </>
+          }
+          groupedBy={churnRateData?.groupedBy}
+          previousValue={churnRateData?.previousValue}
+          previousValueDate={churnRateData?.previousValueDate}
           showAxis={false}
           timeseries={churnRateData?.timeseries}
-        // className={"opacity-50"}
+          title='Churn Rate'
+          value={churnRateData?.value}
+          valueFormatter={n => `${n.toFixed(2)}%`}
+          valueKey='churn_rate'
+          yAxisFormatter={n => `${n.toFixed(2)}%`}
         />
+        {/* <LineChartWithValue
+          title="Churn Rate"
+          value={churnRateData?.value}
+          valueFormatter={percent => `${percent}%`}
+          showAxis={false}
+          timeseries={churnRateData?.timeseries}
+          noDataMessage={
+            <div className="text-center">
+              <BsCloudSlash size={24} className="text-gray-500 m-auto" />
+              No data available,{" "}
+              <Link
+                className="underline text-blue-700 cursor-pointer"
+                href="/data-sources"
+              >
+                connect your Stripe account
+              </Link>{" "}
+              to get started.
+            </div>
+          }
+        /> */}
       </div>
       <div className="pt-8 flex justify-between">
         <h3 className="font-semibold text-sm text-slate-600">

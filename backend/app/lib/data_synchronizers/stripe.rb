@@ -31,6 +31,7 @@ module DataSynchronizers
     end
 
     def create_revenue_retention_periods!
+      return if !@workspace.settings.revenue_analytics_enabled
       StripeHelpers::RetentionCalculator.new(
         workspace_id: @workspace.id,
         stripe_account_id: @stripe_account_id,

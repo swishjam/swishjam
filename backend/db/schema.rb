@@ -10,11 +10,20 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2023_12_22_165842) do
+ActiveRecord::Schema.define(version: 2024_01_12_192831) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
   enable_extension "plpgsql"
+
+  create_table "analytics_organization_members", force: :cascade do |t|
+    t.uuid "analytics_organization_profile_id", null: false
+    t.uuid "analytics_user_profile_id", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["analytics_organization_profile_id"], name: "index_organization_profiles_users_on_org_unique_identifier"
+    t.index ["analytics_user_profile_id"], name: "index_organization_profiles_users_on_user_unique_identifier"
+  end
 
   create_table "analytics_organization_profiles", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.uuid "workspace_id", null: false
@@ -24,17 +33,9 @@ ActiveRecord::Schema.define(version: 2023_12_22_165842) do
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.integer "lifetime_value_in_cents", default: 0, null: false
+    t.string "domain"
     t.index ["organization_unique_identifier"], name: "index_analytics_organization_profiles_unique_identifier"
     t.index ["workspace_id"], name: "index_analytics_organization_profiles_on_workspace_id"
-  end
-
-  create_table "analytics_organization_profiles_users", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
-    t.uuid "analytics_organization_profile_id", null: false
-    t.uuid "analytics_user_profile_id", null: false
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
-    t.index ["analytics_organization_profile_id"], name: "index_analytics_organization_profiles_users_organizations"
-    t.index ["analytics_user_profile_id"], name: "index_analytics_organization_profiles_users_users"
   end
 
   create_table "analytics_user_profiles", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -330,6 +331,7 @@ ActiveRecord::Schema.define(version: 2023_12_22_165842) do
     t.datetime "updated_at", precision: 6, null: false
     t.boolean "combine_marketing_and_product_data_sources"
     t.boolean "should_enrich_user_profile_data"
+    t.boolean "revenue_analytics_enabled", default: true, null: false
     t.index ["workspace_id"], name: "index_workspace_settings_on_workspace_id"
   end
 
@@ -344,8 +346,6 @@ ActiveRecord::Schema.define(version: 2023_12_22_165842) do
   end
 
   add_foreign_key "analytics_organization_profiles", "workspaces"
-  add_foreign_key "analytics_organization_profiles_users", "analytics_organization_profiles"
-  add_foreign_key "analytics_organization_profiles_users", "analytics_user_profiles"
   add_foreign_key "analytics_user_profiles", "workspaces"
   add_foreign_key "api_keys", "workspaces"
   add_foreign_key "auth_sessions", "users"

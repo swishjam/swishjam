@@ -11,19 +11,20 @@ export default function RetentionCell({
   isPending,
 }) {
   const [isHovered, setIsHovered] = useState(false);
-  const OPACITY_BUFFER = -0.15; // leaves room for > 100% retention
-  const opacity = startingMrrForCohort === 0 ? 1 : Math.max((mrrGeneratedForPeriod / startingMrrForCohort), 0.25) + OPACITY_BUFFER + (isHovered ? 0.1 : 0);
+  const percentRetained = startingMrrForCohort > 0 ? mrrGeneratedForPeriod / startingMrrForCohort : 0;
+  const OPACITY_BUFFER = -0.25; // leaves room for > 100% retention
+  const opacity = startingMrrForCohort === 0 ? 1 : Math.max((percentRetained), 0.25) + OPACITY_BUFFER + (isHovered ? 0.1 : 0);
 
   return (
     <TooltipProvider>
       <Tooltip delayDuration={300} className='cursor-default'>
         <TooltipTrigger>
           <div
-            className='relative w-20 h-8 mr-1 flex items-center justify-center p-1 text-gray-900 hover:text-black transition-all cursor-default'
+            className={`${startingMrrForCohort > 0 && percentRetained < 0.5 ? 'outline outline-gray-100' : ''} relative w-20 h-8 mr-1 flex items-center justify-center p-1 text-gray-900 hover:text-black transition-all cursor-default`}
             onMouseOver={() => setIsHovered(true)}
             onMouseOut={() => setIsHovered(false)}
           >
-            <span className='text-xs z-10'>{startingMrrForCohort > 0 ? `${(mrrGeneratedForPeriod / startingMrrForCohort * 100).toFixed(2)}%` : 'N/A'}</span>
+            <span className='text-xs z-10'>{startingMrrForCohort > 0 ? `${(percentRetained * 100).toFixed(2)}%` : 'N/A'}</span>
             {isPending && startingMrrForCohort > 0 && (
               <div
                 className='absolute top-0 right-0 left-0 bottom-0 z-0'
@@ -40,7 +41,7 @@ export default function RetentionCell({
             />
           </div>
           <TooltipContent className='text-xs text-gray-700'>
-            <span className='block'>Of the {formatMoney(startingMrrForCohort)} in MRR for the subscriptions that were created in {LONG_MONTHS[new Date(cohortDate).getUTCMonth()]}, {formatMoney(mrrGeneratedForPeriod)} {isPending ? 'has been collected so far' : `remained by the end of ${LONG_MONTHS[new Date(retentionDate).getUTCMonth()]}`}.</span>
+            <span className='block'>Of the {formatMoney(startingMrrForCohort)} in MRR for the subscriptions that were started in {LONG_MONTHS[new Date(cohortDate).getUTCMonth()]}, {formatMoney(mrrGeneratedForPeriod)} {isPending ? 'has been retained so far' : `was retained by the end of ${LONG_MONTHS[new Date(retentionDate).getUTCMonth()]}`}.</span>
             {isPending && <span className='block mt-2'>*This is the current month, therefore recurring revenue is still being collected and this is not the final amount.</span>}
           </TooltipContent>
         </TooltipTrigger>
