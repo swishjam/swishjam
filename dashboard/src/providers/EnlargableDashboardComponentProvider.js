@@ -2,9 +2,10 @@
 
 import { ArrowsPointingInIcon } from '@heroicons/react/24/outline';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import { useRef, useState } from 'react';
 import EnlargableDashboardComponentContext from '@/contexts/EnlargableDashboardComponentContext';
 import { InfoIcon } from 'lucide-react';
+import SettingsDropdown from '@/components/Dashboards/Components/SettingsDropdown';
+import { useEffect, useRef, useState } from 'react';
 import useSheet from '@/hooks/useSheet';
 
 const EnlargableDashboardComponentProvider = ({ children }) => {
@@ -16,6 +17,10 @@ const EnlargableDashboardComponentProvider = ({ children }) => {
   const enlargedComponentRef = useRef();
   const backdropRef = useRef();
   const placeholderElRef = useRef();
+
+  const updateComponent = (newComponent) => {
+    setComponentToEnlarge(newComponent);
+  }
 
   const enlargeComponent = content => {
     if (!content) throw new Error('You must pass a component to enlargeComponent()');
@@ -70,7 +75,7 @@ const EnlargableDashboardComponentProvider = ({ children }) => {
   }
 
   return (
-    <EnlargableDashboardComponentContext.Provider value={{ enlargeComponent }}>
+    <EnlargableDashboardComponentContext.Provider value={{ enlargeComponent, updateComponent }}>
       <div
         onClick={collapseComponent}
         className={`transition-opacity duration-700 ${componentIsEnlarged ? 'fixed top-0 left-0 right-0 bottom-0 z-[48] bg-black cursor-pointer opacity-50' : 'opacity-0'}`}
@@ -107,7 +112,7 @@ const EnlargableDashboardComponentProvider = ({ children }) => {
                   <ArrowsPointingInIcon className='outline-0 ring-0 h-5 w-5 text-gray-500 cursor-pointer' />
                 </button>
                 {componentToEnlarge?.AdditionalHeaderActions}
-                {/* {componentToEnlarge?.settings && <SettingsDropdown options={componentToEnlarge?.settings} />} */}
+                {componentToEnlarge?.settings && <SettingsDropdown options={componentToEnlarge?.settings} />}
               </div>
             </div>
           </CardTitle>

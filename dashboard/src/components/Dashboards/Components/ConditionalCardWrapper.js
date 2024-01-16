@@ -4,7 +4,7 @@ import { InfoIcon } from "lucide-react"
 import SettingsDropdown from "./SettingsDropdown"
 import { useEnlargableDashboardComponent } from "@/hooks/useEnlargableDashboardComponent"
 import useSheet from "@/hooks/useSheet"
-import { useRef } from "react"
+import { useEffect, useRef } from "react"
 
 export default function ConditionalCardWrapper({
   AdditionalHeaderActions = [],
@@ -19,9 +19,12 @@ export default function ConditionalCardWrapper({
   ...props
 }) {
   const { openSheetWithContent } = useSheet();
-  const { enlargeComponent } = useEnlargableDashboardComponent();
-
+  const { enlargeComponent, updateComponent } = useEnlargableDashboardComponent();
   const containerEl = useRef();
+
+  useEffect(() => {
+    updateComponent({ title, DocumentationContent, AdditionalHeaderActions, settings, onSettingChange, children, el: containerEl.current })
+  }, [children])
 
   const HeaderContent = <>
     <CardHeader className="space-y-0 pb-2">
