@@ -21,15 +21,17 @@ module StripeHelpers
       end
 
       if @stripe_customer
-        swishjam_event_data['customer_email'] = @stripe_customer.email if @stripe_customer.email
         swishjam_event_data['customer_id'] = @stripe_customer.id
-        @stripe_customer.metadata.each do |key, value|
-          swishjam_event_data["customer_metadata_#{key}"] = value
+        swishjam_event_data['customer_email'] = @stripe_customer.email if @stripe_customer.respond_to?(:email) && @stripe_customer.email
+        if @stripe_customer.respond_to?(:metadata)
+          @stripe_customer.metadata.each do |key, value|
+            swishjam_event_data["customer_metadata_#{key}"] = value
+          end
         end
 
         if maybe_user_profile
           swishjam_event_data[Analytics::Event::ReservedPropertyNames.USER_PROFILE_ID] = maybe_user_profile.id
-        else
+        elsif @stripe_customer.respond_to?(:email) && !@stripe_customer.email.blank?
           new_user_profile = AnalyticsUserProfile.create!(
             workspace: @workspace,
             email: @stripe_customer.email,
