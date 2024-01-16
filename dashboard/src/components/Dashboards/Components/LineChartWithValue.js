@@ -152,9 +152,9 @@ export default function LineChartWithValue({
                   {showTooltip && (
                     <Tooltip
                       allowEscapeViewBox={{ x: false, y: true }}
-                      animationBegin={200}
-                      animationDuration={400}
-                      animationEasing='ease-in-out'
+                      // animationBegin={200}
+                      // animationDuration={400}
+                      // animationEasing='ease-in-out'
                       content={
                         <CustomTooltip
                           additionalDataFormatter={additionalTooltipDataFormatter}
@@ -166,7 +166,8 @@ export default function LineChartWithValue({
                           onDisplay={updateHeaderDisplayValues}
                         />
                       }
-                      wrapperStyle={{ outline: "none" }}
+                      isAnimationActive={false}
+                      wrapperStyle={{ outline: "none", zIndex: 1000 }}
                     />
                   )}
                   {showComparisonData && (

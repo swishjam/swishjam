@@ -154,12 +154,12 @@ export default function BarChartComponent({
                   />
                 )}
                 <Tooltip
-                  animationBegin={200}
-                  animationDuration={400}
-                  wrapperStyle={{ outline: "none" }}
+                  // animationBegin={200}
+                  // animationDuration={400}
+                  // animationEasing='ease-in-out'
                   content={<CustomTooltip />}
                   allowEscapeViewBox={{ x: false, y: true }}
-                  animationEasing='ease-in-out'
+                  wrapperStyle={{ outline: "none", zIndex: 1000 }}
                 />
                 {uniqueKeys.map((key, i, arr) => {
                   return (
