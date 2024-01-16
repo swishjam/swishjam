@@ -189,7 +189,7 @@ export default function Home() {
         <h3 className="font-semibold text-sm text-slate-600">
           Key Revenue Metrics
         </h3>
-        <Link href="/dashboards/revenue-analytics" className="group opacity-50">
+        <Link href="/dashboards/revenue-analytics" className="group">
           <h3 className="font-semibold text-sm text-slate-600 group-hover:text-swishjam transition-all duration-500">
             View Revenue Analytics <BsArrowRightShort size={24} className="inline" />
           </h3>
