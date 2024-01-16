@@ -84,6 +84,14 @@ module.exports = {
           from: { height: "var(--radix-accordion-content-height)" },
           to: { height: 0 },
         },
+        'slide-up': {
+          from: { transform: 'translate(-50%, 100vh)' },
+          to: { transform: 'translate(-50%, -50%)' },
+        },
+        'slide-down': {
+          from: { transform: 'translate(-50%, -50%)' },
+          to: { transform: 'translate(-50%, 100vh)' },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",

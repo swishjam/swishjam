@@ -7,7 +7,6 @@ import ConditionalCardWrapper from './ConditionalCardWrapper';
 import { COLORS as DEFAULT_COLORS } from '@/lib/utils/colorHelpers';
 import { dateFormatterForGrouping } from '@/lib/utils/timeseriesHelpers';
 import EmptyState from '@/components/EmptyState';
-import SettingsDropdown from './SettingsDropdown';
 import { Skeleton } from "@/components/ui/skeleton"
 import { useRef, useState } from 'react';
 
@@ -45,7 +44,7 @@ export default function BarChartComponent({
   const [includeXAxis, setIncludeXAxis] = useState(showXAxis);
   const [includeYAxis, setIncludeYAxis] = useState(showYAxis);
   const [includeGridLines, setIncludeGridLines] = useState(showGridLines);
-  const [includeLegendOrTable, setIncludeLegendOrTableOrTable] = useState(showLegend);
+  const [includeLegendOrTable, setIncludeLegendOrTable] = useState(showLegend);
   const [useTableInsteadOfLegend, setUseTableInsteadOfLegend] = useState(showTableInsteadOfLegend);
 
   const dateFormatter = dateFormatterForGrouping(groupedBy)
@@ -103,40 +102,16 @@ export default function BarChartComponent({
 
   return (
     <ConditionalCardWrapper
-      className={`${className} group`}
+      className={className}
       includeCard={includeCard}
-      title={
-        <div className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <h2 className="text-sm font-medium cursor-default">{title}</h2>
-          {includeSettingsDropdown && (
-            <SettingsDropdown
-              options={[
-                { name: 'Include Y-Axis', key: 'include-y-axis', isActive: includeYAxis },
-                { name: 'Include X-Axis', key: 'include-x-axis', isActive: includeXAxis },
-                { name: 'Include Table/Legend', key: 'include-legend-or-table', isActive: includeLegendOrTable },
-                { name: 'Include Grid Lines', key: 'include-grid-lines', isActive: includeGridLines },
-                { name: 'Use Table Instead of Legend', key: 'table-instead-of-legend', isActive: useTableInsteadOfLegend },
-              ]}
-              onSettingChange={key => {
-                switch (key) {
-                  case 'include-y-axis':
-                    return setIncludeYAxis(!includeYAxis)
-                  case 'include-x-axis':
-                    return setIncludeXAxis(!includeXAxis)
-                  case 'include-legend-or-table':
-                    return setIncludeLegendOrTableOrTable(!includeLegendOrTable)
-                  case 'include-grid-lines':
-                    return setIncludeGridLines(!includeGridLines)
-                  case 'table-instead-of-legend':
-                    return setUseTableInsteadOfLegend(!useTableInsteadOfLegend)
-                  default:
-                    throw new Error(`Unrecognized setting change received: ${key}`)
-                }
-              }}
-            />
-          )}
-        </div>
-      }
+      settings={[
+        { onChange: setIncludeYAxis, label: 'Include Y-Axis', enabled: includeYAxis },
+        { onChange: setIncludeXAxis, label: 'Include X-Axis', enabled: includeXAxis },
+        { onChange: setIncludeLegendOrTable, label: 'Include Table/Legend', enabled: includeLegendOrTable },
+        { onChange: setIncludeGridLines, label: 'Include Grid Lines', enabled: includeGridLines },
+        { onChange: setUseTableInsteadOfLegend, label: 'Use Table Instead of Legend', enabled: useTableInsteadOfLegend },
+      ]}
+      title={title}
     >
       {data.length === 0
         ? <EmptyState msg={noDataMessage} />
@@ -179,12 +154,12 @@ export default function BarChartComponent({
                   />
                 )}
                 <Tooltip
-                  animationBegin={200}
-                  animationDuration={400}
-                  wrapperStyle={{ outline: "none" }}
+                  // animationBegin={200}
+                  // animationDuration={400}
+                  // animationEasing='ease-in-out'
                   content={<CustomTooltip />}
                   allowEscapeViewBox={{ x: false, y: true }}
-                  animationEasing='ease-in-out'
+                  wrapperStyle={{ outline: "none", zIndex: 1000 }}
                 />
                 {uniqueKeys.map((key, i, arr) => {
                   return (

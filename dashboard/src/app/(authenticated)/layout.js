@@ -2,10 +2,11 @@
 
 import AuthenticatedView from "@/components/Auth/AuthenticatedView";
 import CommandBarProvider from '@/providers/CommandBarProvider';
-import SheetProvider from '@/providers/SheetProvider';
 import dynamic from 'next/dynamic';
+import EnlargableDashboardComponentProvider from "@/providers/EnlargableDashboardComponentProvider";
 import HotKeyProvider from '@/providers/HotKeyProvider';
 import LoadingSpinner from '@/components/LoadingSpinner';
+import SheetProvider from '@/providers/SheetProvider';
 import { Toaster } from 'sonner'
 // import { IntercomProvider } from 'react-use-intercom';
 
@@ -17,9 +18,11 @@ export default function layout({ children }) {
       <CommandBarProvider>
         <HotKeyProvider>
           <SheetProvider>
-            <AuthenticatedView LoadingView={LoadingView}>
-              {children}
-            </AuthenticatedView>
+            <EnlargableDashboardComponentProvider>
+              <AuthenticatedView LoadingView={LoadingView}>
+                {children}
+              </AuthenticatedView>
+            </EnlargableDashboardComponentProvider>
           </SheetProvider>
         </HotKeyProvider>
       </CommandBarProvider>

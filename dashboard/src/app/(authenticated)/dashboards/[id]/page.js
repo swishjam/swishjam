@@ -44,14 +44,6 @@ const ConfigureDashboardComponentModal = ({ componentType, eventOptions, onSave,
 
 const LoadingState = () => (
   <main className="mx-auto max-w-7xl px-4 mt-8 sm:px-6 lg:px-8 mb-8">
-    <div className='grid grid-cols-2 mt-8 flex items-center'>
-      <div>
-        <Skeleton className='h-12 w-40' />
-      </div>
-      <div className='flex items-center justify-end'>
-        <Skeleton className='h-12 w-40' />
-      </div>
-    </div>
     <Skeleton className='h-96 mt-8' />
   </main>
 )
