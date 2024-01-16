@@ -26,7 +26,7 @@ module Api
               comparison_start_time: comparison_timeseries_getter.start_time,
               comparison_end_time: comparison_timeseries_getter.end_time,
               grouped_by: timeseries_getter.group_by,
-              }, status: :ok
+            }, status: :ok
           else
             render json: { timeseries: [], error: 'No Stripe API key found for this workspace' }, status: :unprocessable_entity
           end

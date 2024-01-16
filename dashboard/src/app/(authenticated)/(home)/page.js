@@ -145,9 +145,7 @@ export default function Home() {
             onClick={() => getAllData(timeframeFilter)}
             disabled={isRefreshing}
           >
-            <ArrowPathIcon
-              className={`h-4 w-4 ${isRefreshing ? "animate-spin" : ""}`}
-            />
+            <ArrowPathIcon className={`h-4 w-4 ${isRefreshing ? "animate-spin" : ""}`} />
           </Button>
           <Timefilter selection={timeframeFilter} onSelection={timeframe => { setTimeframeFilter(timeframe); getAllData(timeframe) }} />
         </div>
@@ -299,7 +297,7 @@ export default function Home() {
         <h3 className="font-semibold text-sm text-slate-600">
           Key Marketing Metrics
         </h3>
-        <Link href="/dashboards/marketing-analytics" className="group">
+        <Link href="/dashboards/web-analytics" className="group">
           <h3 className="font-semibold text-sm text-slate-600 group-hover:text-swishjam transition-all duration-500">
             Deep Dive Report <BsArrowRightShort size={24} className="inline" />
           </h3>
