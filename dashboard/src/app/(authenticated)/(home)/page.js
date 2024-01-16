@@ -157,7 +157,7 @@ export default function Home() {
         </h3>
         <Link href="/dashboards/product-analytics" className="group">
           <h3 className="font-semibold text-sm text-slate-600 group-hover:text-swishjam transition-all duration-500">
-            Deep Dive Report <BsArrowRightShort size={24} className="inline" />
+            View Product Analytics <BsArrowRightShort size={24} className="inline" />
           </h3>
         </Link>
       </div>
@@ -189,9 +189,9 @@ export default function Home() {
         <h3 className="font-semibold text-sm text-slate-600">
           Key Revenue Metrics
         </h3>
-        <Link href="#" className="group opacity-50">
+        <Link href="/dashboards/revenue-analytics" className="group opacity-50">
           <h3 className="font-semibold text-sm text-slate-600 group-hover:text-swishjam transition-all duration-500">
-            Deep Dive Report <BsArrowRightShort size={24} className="inline" />
+            View Revenue Analytics <BsArrowRightShort size={24} className="inline" />
           </h3>
         </Link>
       </div>
@@ -272,26 +272,6 @@ export default function Home() {
           valueKey='churn_rate'
           yAxisFormatter={n => `${n.toFixed(2)}%`}
         />
-        {/* <LineChartWithValue
-          title="Churn Rate"
-          value={churnRateData?.value}
-          valueFormatter={percent => `${percent}%`}
-          showAxis={false}
-          timeseries={churnRateData?.timeseries}
-          noDataMessage={
-            <div className="text-center">
-              <BsCloudSlash size={24} className="text-gray-500 m-auto" />
-              No data available,{" "}
-              <Link
-                className="underline text-blue-700 cursor-pointer"
-                href="/data-sources"
-              >
-                connect your Stripe account
-              </Link>{" "}
-              to get started.
-            </div>
-          }
-        /> */}
       </div>
       <div className="pt-8 flex justify-between">
         <h3 className="font-semibold text-sm text-slate-600">
@@ -299,7 +279,7 @@ export default function Home() {
         </h3>
         <Link href="/dashboards/web-analytics" className="group">
           <h3 className="font-semibold text-sm text-slate-600 group-hover:text-swishjam transition-all duration-500">
-            Deep Dive Report <BsArrowRightShort size={24} className="inline" />
+            View Web Analytics <BsArrowRightShort size={24} className="inline" />
           </h3>
         </Link>
       </div>
