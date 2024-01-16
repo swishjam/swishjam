@@ -45,7 +45,7 @@ module StripeHelpers
     end
 
     def maybe_user_profile
-      return if @stripe_customer.nil? || @stripe_customer.email.blank?
+      return if @stripe_customer.nil? || !@stripe_customer.respond_to?(:email) || @stripe_customer.email.blank?
       @maybe_user_profile ||= @workspace.analytics_user_profiles.find_by_case_insensitive_email(@stripe_customer.email)
     end
 
