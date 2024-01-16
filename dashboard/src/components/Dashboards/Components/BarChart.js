@@ -7,7 +7,6 @@ import ConditionalCardWrapper from './ConditionalCardWrapper';
 import { COLORS as DEFAULT_COLORS } from '@/lib/utils/colorHelpers';
 import { dateFormatterForGrouping } from '@/lib/utils/timeseriesHelpers';
 import EmptyState from '@/components/EmptyState';
-import SettingsDropdown from './SettingsDropdown';
 import { Skeleton } from "@/components/ui/skeleton"
 import { useRef, useState } from 'react';
 
@@ -45,7 +44,7 @@ export default function BarChartComponent({
   const [includeXAxis, setIncludeXAxis] = useState(showXAxis);
   const [includeYAxis, setIncludeYAxis] = useState(showYAxis);
   const [includeGridLines, setIncludeGridLines] = useState(showGridLines);
-  const [includeLegendOrTable, setIncludeLegendOrTableOrTable] = useState(showLegend);
+  const [includeLegendOrTable, setIncludeLegendOrTable] = useState(showLegend);
   const [useTableInsteadOfLegend, setUseTableInsteadOfLegend] = useState(showTableInsteadOfLegend);
 
   const dateFormatter = dateFormatterForGrouping(groupedBy)
@@ -105,31 +104,13 @@ export default function BarChartComponent({
     <ConditionalCardWrapper
       className={className}
       includeCard={includeCard}
-      onSettingChange={({ attribute, valueChangedTo }) => {
-        switch (attribute) {
-          case 'include-y-axis':
-            return setIncludeYAxis(valueChangedTo)
-          case 'include-x-axis':
-            return setIncludeXAxis(valueChangedTo)
-          case 'include-legend-or-table':
-            return setIncludeLegendOrTableOrTable(valueChangedTo)
-          case 'include-grid-lines':
-            return setIncludeGridLines(valueChangedTo)
-          case 'table-instead-of-legend':
-            return setUseTableInsteadOfLegend(valueChangedTo)
-          default:
-            throw new Error(`Unrecognized setting change received: ${key}`)
-        }
-      }}
-      settings={
-        [
-          { label: 'Include Y-Axis', attribute: 'include-y-axis', enabled: includeYAxis },
-          { label: 'Include X-Axis', attribute: 'include-x-axis', enabled: includeXAxis },
-          { label: 'Include Table/Legend', attribute: 'include-legend-or-table', enabled: includeLegendOrTable },
-          { label: 'Include Grid Lines', attribute: 'include-grid-lines', enabled: includeGridLines },
-          { label: 'Use Table Instead of Legend', attribute: 'table-instead-of-legend', enabled: useTableInsteadOfLegend },
-        ]
-      }
+      settings={[
+        { onChange: setIncludeYAxis, label: 'Include Y-Axis', enabled: includeYAxis },
+        { onChange: setIncludeXAxis, label: 'Include X-Axis', enabled: includeXAxis },
+        { onChange: setIncludeLegendOrTable, label: 'Include Table/Legend', enabled: includeLegendOrTable },
+        { onChange: setIncludeGridLines, label: 'Include Grid Lines', enabled: includeGridLines },
+        { onChange: setUseTableInsteadOfLegend, label: 'Use Table Instead of Legend', enabled: useTableInsteadOfLegend },
+      ]}
       title={title}
     >
       {data.length === 0

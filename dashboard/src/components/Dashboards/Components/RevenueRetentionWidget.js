@@ -39,8 +39,7 @@ export default function RevenueRetentionWidget({ title = 'Revenue Retention', re
         <TooltipProvider>
           <Tooltip delayDuration={300} className='cursor-default'>
             <TooltipTrigger>
-              <div className="flex items-center space-x-2 mle
-              -1">
+              <div className="flex items-center space-x-2 ml-1">
                 <Switch
                   as='div'
                   checked={chartType === 'grid'}

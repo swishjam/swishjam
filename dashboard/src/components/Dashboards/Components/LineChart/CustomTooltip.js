@@ -5,6 +5,7 @@ export default function CustomTooltip({
   active,
   additionalDataFormatter,
   comparisonValueKey,
+  coordinate,
   dateFormatter,
   dateKey,
   onDisplay = () => { },
@@ -12,7 +13,6 @@ export default function CustomTooltip({
   valueKey,
   valueFormatter,
 }) {
-  console.log('payload', payload)
   useEffect(() => {
     if (active) {
       onDisplay(payload[0]?.payload)

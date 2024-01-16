@@ -4,9 +4,9 @@ import { AreaChart, Area, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YA
 import { BsCloudSlash } from "react-icons/bs"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import ConditionalCardWrapper from './ConditionalCardWrapper';
+import { useCallback, useState } from 'react';
 import { dateFormatterForGrouping } from '@/lib/utils/timeseriesHelpers';
 import { Skeleton } from "@/components/ui/skeleton"
-import { useCallback, useState } from 'react';
 import ValueDisplay from './LineChart/ValueDisplay';
 import CustomTooltip from './LineChart/CustomTooltip';
 
@@ -56,7 +56,7 @@ export default function LineChartWithValue({
   includeCard = true,
   includeComparisonData = true,
   includeSettingsDropdown = true,
-  isExpandable = true,
+  isEnlargable = true,
   noDataMessage = (
     <div className="flex items-center justify-center">
       <BsCloudSlash size={24} className='text-gray-500 mr-2' />
@@ -79,6 +79,8 @@ export default function LineChartWithValue({
     currentValueDate: timeseries[timeseries.length - 1]?.[dateKey],
     comparisonValueDate: timeseries[timeseries.length - 1]?.comparisonDate,
   });
+  const [showXAxis, setShowXAxis] = useState(showAxis);
+  const [showYAxis, setShowYAxis] = useState(showAxis);
 
   const updateHeaderDisplayValues = useCallback(displayData => {
     setHeaderDisplayValues({
@@ -88,12 +90,8 @@ export default function LineChartWithValue({
       comparisonValueDate: displayData.comparisonDate,
     })
   }, [setHeaderDisplayValues, valueKey, comparisonValueKey, dateKey])
-  const [showXAxis, setShowXAxis] = useState(showAxis);
-  const [showYAxis, setShowYAxis] = useState(showAxis);
 
   const dateFormatter = dateFormatterForGrouping(groupedBy)
-
-  debugger;
 
   return (
     <>
@@ -101,17 +99,10 @@ export default function LineChartWithValue({
         className={className}
         DocumentationContent={DocumentationContent}
         includeCard={includeCard}
-        isExpandable={isExpandable}
-        onSettingChange={({ attribute, valueChangedTo }) => {
-          if (attribute === 'show-x-axis') {
-            setShowXAxis(valueChangedTo)
-          } else if (attribute === 'show-y-axis') {
-            setShowYAxis(valueChangedTo)
-          }
-        }}
+        isEnlargable={isEnlargable}
         settings={[
-          { attribute: 'show-x-axis', enabled: showXAxis, label: 'Show X-Axis' },
-          { attribute: 'show-y-axis', enabled: showYAxis, label: 'Show Y-Axis' }
+          { onChange: setShowXAxis, enabled: showXAxis, label: 'Show X-Axis' },
+          { onChange: setShowYAxis, enabled: showYAxis, label: 'Show Y-Axis' }
         ]}
         title={title}
       >
@@ -159,9 +150,10 @@ export default function LineChartWithValue({
                   {showYAxis && <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" strokeWidth={1} />}
                   {showTooltip && (
                     <Tooltip
+                      allowEscapeViewBox={{ x: false, y: true }}
                       animationBegin={200}
                       animationDuration={400}
-                      wrapperStyle={{ outline: "none" }}
+                      animationEasing='ease-in-out'
                       content={
                         <CustomTooltip
                           additionalDataFormatter={additionalTooltipDataFormatter}
@@ -173,8 +165,7 @@ export default function LineChartWithValue({
                           onDisplay={updateHeaderDisplayValues}
                         />
                       }
-                      allowEscapeViewBox={{ x: false, y: true }}
-                      animationEasing='ease-in-out'
+                      wrapperStyle={{ outline: "none" }}
                     />
                   )}
                   {includeComparisonData && (
