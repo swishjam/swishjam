@@ -13,7 +13,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { LuClipboardPaste, LuPlus } from "react-icons/lu";
 
 
-const ImageCard = ({title, description, img}) => {
+const ImageCard = ({ title, description, img }) => {
 
   return (
     <Card className={`group hover:ring-2 offset-2 ring-swishjam duration-500 transition cursor-pointer overflow-hidden`}>
@@ -29,7 +29,7 @@ const ImageCard = ({title, description, img}) => {
         <div className="p-6">
           <h3 className="text-sm font-medium cursor-pointer">{title}</h3>
           <p className="text-sm mt-2 cursor-pointer truncate">{description}</p>
-        </div> 
+        </div>
       </CardContent>
     </Card>
   )
@@ -49,25 +49,25 @@ export default function Dashboards() {
         <h1 className="text-lg font-medium text-gray-700 mb-0">Dashboards</h1>
       </div>
       <div className='grid grid-cols-3 gap-2 mt-8'>
-        <Link href="/dashboards/marketing-analytics">
-          <ImageCard 
-            title={'Web Analytics'}
-            description={'Site traffic, sessions, referrers, and much more'}
-            img={'/visitor-trends.png'} 
+        <Link href="/dashboards/web-analytics">
+          <ImageCard
+            title='Web Analytics'
+            description='Site traffic, sessions, referrers, and much more'
+            img='/visitor-trends.png'
           />
         </Link>
         <Link href="/dashboards/product-analytics">
-          <ImageCard 
-            title={'Product Analytics'}
-            description={'Active users, retention, feature breakdowns, and more'}
-            img={'/product-analytics.png'} 
+          <ImageCard
+            title='Product Analytics'
+            description='Active users, retention, feature breakdowns, and more'
+            img='/product-analytics.png'
           />
         </Link>
         <Link href="/dashboards/revenue-analytics">
           <ImageCard
-            title={'Revenue Analytics'}
-            description={'MRR, ARR, Churn, new subscriptions, and more'}
-            img={'/product-analytics.png'}
+            title='Revenue Analytics'
+            description='MRR, ARR, Churn, new subscriptions, and more'
+            img='/revenue-analytics.png'
           />
         </Link>
       </div>
@@ -135,7 +135,7 @@ export default function Dashboards() {
                       </td>
                       <td className="whitespace-nowrap px-3 py-3.5 text-sm">
                         <div className="font-semibold text-swishjam hover:text-swishjam-dark cursor-pointer">
-                          <LuClipboardPaste size={16} className="float-right"/>
+                          <LuClipboardPaste size={16} className="float-right" />
                         </div>
                       </td>
                     </tr>

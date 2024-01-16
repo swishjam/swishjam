@@ -122,7 +122,7 @@ export default function Connections() {
             <div className=''>
               <ul role="list" className="grid grid-cols-1 mt-6 border-t border-gray-200">
                 <ExistingConnectionButton
-                  key='marketing-analytics'
+                  key='web-analytics'
                   img={SwishjamLogo}
                   connection={{ id: 'swishjam-marketing', name: 'Marketing Site Analytics' }}
                   canEdit={false}
