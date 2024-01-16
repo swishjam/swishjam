@@ -61,6 +61,7 @@ module StripeHelpers
       end
 
       def previous_attributes
+        return {} if !@stripe_event.data.respond_to?(:previous_attributes) || @stripe_event.data.previous_attributes.nil?
         @stripe_event.data.previous_attributes
       end
     end

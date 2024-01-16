@@ -14,12 +14,13 @@ module StripeHelpers
       end
     end
 
-    def self.calculate_for_stripe_subscription(subscription, include_canceled: false, include_trialing: false)
+    def self.calculate_for_stripe_subscription(subscription, include_canceled: false, include_trialing: false, include_any_status: false)
       mrr = 0
       return mrr unless subscription.status == 'active' && subscription.canceled_at.nil? || 
                           include_canceled && subscription.status == 'canceled' || 
                           include_trialing && subscription.status == 'trialing' ||
-                          include_canceled && subscription.canceled_at.present?
+                          include_canceled && subscription.canceled_at.present? ||
+                          include_any_status
       subscription.items.each do |subscription_item|
         mrr += mrr_for_subscription_item(
           interval: subscription_item.price.recurring.interval,

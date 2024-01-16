@@ -1,10 +1,11 @@
 module StripeHelpers
   module EventAttributeParsers
     class SubscriptionCreated < Base
+      self.attributes_to_capture = %i[status]
       self.methods_to_capture = %i[amount display_amount mrr products]
 
       def amount
-        StripeHelpers::MrrCalculator.calculate_for_stripe_subscription(@stripe_event.data.object)
+        StripeHelpers::MrrCalculator.calculate_for_stripe_subscription(@stripe_event.data.object, include_any_status: true)
       end
       
       def display_amount
