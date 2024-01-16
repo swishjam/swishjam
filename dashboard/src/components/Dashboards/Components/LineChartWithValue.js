@@ -81,6 +81,7 @@ export default function LineChartWithValue({
   });
   const [showXAxis, setShowXAxis] = useState(showAxis);
   const [showYAxis, setShowYAxis] = useState(showAxis);
+  const [showComparisonData, setShowComparisonData] = useState(includeComparisonData);
 
   const updateHeaderDisplayValues = useCallback(displayData => {
     setHeaderDisplayValues({
@@ -102,7 +103,8 @@ export default function LineChartWithValue({
         isEnlargable={isEnlargable}
         settings={[
           { onChange: setShowXAxis, enabled: showXAxis, label: 'Show X-Axis' },
-          { onChange: setShowYAxis, enabled: showYAxis, label: 'Show Y-Axis' }
+          { onChange: setShowYAxis, enabled: showYAxis, label: 'Show Y-Axis' },
+          { onChange: setShowComparisonData, enabled: showComparisonData, label: 'Include Comparison Data' },
         ]}
         title={title}
       >
@@ -124,28 +126,27 @@ export default function LineChartWithValue({
               <ResponsiveContainer width="100%" aspect={3} >
                 <AreaChart data={timeseries} margin={{ top: 5, right: 0, left: 0, bottom: 0 }}>
                   <XAxis
+                    axisLine={false}
                     dataKey={dateKey}
                     hide={!showXAxis}
+                    height={20}
+                    includeHidden
+                    interval='preserveStartEnd'
+                    minTickGap={10}
+                    padding={{ left: 0, right: 0 }}
                     tickFormatter={dateFormatter}
                     tick={{ fontSize: 12, fill: "#9CA3AF" }}
-                    includeHidden
-                    minTickGap={10}
-                    interval='preserveStartEnd'
-                    axisLine={false}
                     tickLine={{ stroke: "#e2e8f0", strokeWidth: 1 }}
-                    padding={{ left: 0, right: 0 }}
-                    height={20}
                   />
                   <YAxis
-                    width={40}
-                    dataKey={valueKey}
                     allowDecimals={false}
                     axisLine={false}
-                    tickLine={false}
                     hide={!showYAxis}
-                    tickFormatter={yAxisFormatter}
-                    tick={{ fontSize: 12, fill: "#9CA3AF" }}
                     padding={{ top: 0, bottom: 0, left: 0, right: 20 }}
+                    tick={{ fontSize: 12, fill: "#9CA3AF" }}
+                    tickFormatter={yAxisFormatter}
+                    tickLine={false}
+                    width={40}
                   />
                   {showYAxis && <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" strokeWidth={1} />}
                   {showTooltip && (
@@ -168,7 +169,7 @@ export default function LineChartWithValue({
                       wrapperStyle={{ outline: "none" }}
                     />
                   )}
-                  {includeComparisonData && (
+                  {showComparisonData && (
                     <Area
                       type="monotone"
                       dataKey={comparisonValueKey}
