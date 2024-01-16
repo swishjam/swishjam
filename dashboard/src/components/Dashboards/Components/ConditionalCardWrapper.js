@@ -4,7 +4,7 @@ import { InfoIcon } from "lucide-react"
 import SettingsDropdown from "./SettingsDropdown"
 import { useEnlargableDashboardComponent } from "@/hooks/useEnlargableDashboardComponent"
 import useSheet from "@/hooks/useSheet"
-import { useEffect, useRef } from "react"
+import { useEffect, useRef, useState } from "react"
 
 export default function ConditionalCardWrapper({
   AdditionalHeaderActions = [],
@@ -19,11 +19,14 @@ export default function ConditionalCardWrapper({
   ...props
 }) {
   const { openSheetWithContent } = useSheet();
-  const { enlargeComponent, updateComponent } = useEnlargableDashboardComponent();
+  const { enlargeComponent, updateComponent, componentDetailsToEnlarge } = useEnlargableDashboardComponent();
   const containerEl = useRef();
 
   useEffect(() => {
-    updateComponent({ title, DocumentationContent, AdditionalHeaderActions, settings, onSettingChange, children, el: containerEl.current })
+    const enlargedComponentIsThisComponent = componentDetailsToEnlarge && componentDetailsToEnlarge.el === containerEl.current;
+    if (enlargedComponentIsThisComponent) {
+      updateComponent({ title, DocumentationContent, AdditionalHeaderActions, settings, onSettingChange, children, el: containerEl.current })
+    }
   }, [children])
 
   const HeaderContent = <>
