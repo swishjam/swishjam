@@ -2,16 +2,17 @@
 
 import { ArrowsPointingInIcon } from '@heroicons/react/24/outline';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import { useRef, useState } from 'react';
 import EnlargableDashboardComponentContext from '@/contexts/EnlargableDashboardComponentContext';
 import { InfoIcon } from 'lucide-react';
+import SettingsDropdown from '@/components/Dashboards/Components/SettingsDropdown';
+import { useRef, useState } from 'react';
 import useSheet from '@/hooks/useSheet';
 
 const EnlargableDashboardComponentProvider = ({ children }) => {
   const { openSheetWithContent } = useSheet();
 
   const [componentIsEnlarged, setComponentIsEnlarged] = useState(false);
-  const [componentToEnlarge, setComponentToEnlarge] = useState(null);
+  const [componentDetailsToEnlarge, setComponentDetailsToEnlarge] = useState(null);
 
   const enlargedComponentRef = useRef();
   const backdropRef = useRef();
@@ -20,7 +21,7 @@ const EnlargableDashboardComponentProvider = ({ children }) => {
   const enlargeComponent = content => {
     if (!content) throw new Error('You must pass a component to enlargeComponent()');
     setComponentIsEnlarged(true);
-    setComponentToEnlarge(content);
+    setComponentDetailsToEnlarge(content);
     const { width, height, top, left } = content.el.getBoundingClientRect();
     const scrollY = window.scrollY || window.pageYOffset || document.documentElement.scrollTop;
     const scrollX = window.scrollX || window.pageXOffset || document.documentElement.scrollLeft;
@@ -48,7 +49,7 @@ const EnlargableDashboardComponentProvider = ({ children }) => {
   }
 
   const collapseComponent = () => {
-    const { width, height, top, left } = componentToEnlarge.el.getBoundingClientRect();
+    const { width, height, top, left } = componentDetailsToEnlarge.el.getBoundingClientRect();
 
     enlargedComponentRef.current.style.width = `${width}px`;
     enlargedComponentRef.current.style.height = `${height}px`;
@@ -64,13 +65,18 @@ const EnlargableDashboardComponentProvider = ({ children }) => {
         placeholderElRef.current.style.top = null;
         placeholderElRef.current.style.left = null;
         setComponentIsEnlarged(false);
-        setComponentToEnlarge(null);
+        setComponentDetailsToEnlarge(null);
       }, 800)
     }, 700)
   }
 
   return (
-    <EnlargableDashboardComponentContext.Provider value={{ enlargeComponent }}>
+    <EnlargableDashboardComponentContext.Provider value={{
+      componentIsEnlarged,
+      componentDetailsToEnlarge,
+      enlargeComponent,
+      updateComponent: setComponentDetailsToEnlarge
+    }}>
       <div
         onClick={collapseComponent}
         className={`transition-opacity duration-700 ${componentIsEnlarged ? 'fixed top-0 left-0 right-0 bottom-0 z-[48] bg-black cursor-pointer opacity-50' : 'opacity-0'}`}
@@ -89,10 +95,10 @@ const EnlargableDashboardComponentProvider = ({ children }) => {
           <CardTitle className="text-sm font-medium cursor-default">
             <div className='flex justify-between items-center'>
               <div className='flex items-center gap-x-1'>
-                {componentToEnlarge?.title}
-                {componentToEnlarge?.DocumentationContent && (
+                {componentDetailsToEnlarge?.title}
+                {componentDetailsToEnlarge?.DocumentationContent && (
                   <a
-                    onClick={() => openSheetWithContent({ title: componentToEnlarge?.title, content: componentToEnlarge?.DocumentationContent })}
+                    onClick={() => openSheetWithContent({ title: componentDetailsToEnlarge?.title, content: componentDetailsToEnlarge?.DocumentationContent })}
                     className='cursor-pointer text-gray-500 hover:text-gray-700 transition-all rounded-full hover:bg-gray-100 p-1'
                   >
                     <InfoIcon className='h-3 w-3' />
@@ -106,14 +112,14 @@ const EnlargableDashboardComponentProvider = ({ children }) => {
                 >
                   <ArrowsPointingInIcon className='outline-0 ring-0 h-5 w-5 text-gray-500 cursor-pointer' />
                 </button>
-                {componentToEnlarge?.AdditionalHeaderActions}
-                {/* {componentToEnlarge?.settings && <SettingsDropdown options={componentToEnlarge?.settings} />} */}
+                {componentDetailsToEnlarge?.AdditionalHeaderActions}
+                {componentDetailsToEnlarge?.settings && <SettingsDropdown options={componentDetailsToEnlarge?.settings} />}
               </div>
             </div>
           </CardTitle>
         </CardHeader>
         <CardContent>
-          {componentToEnlarge?.children}
+          {componentDetailsToEnlarge?.children}
         </CardContent>
       </Card>
       {children}
