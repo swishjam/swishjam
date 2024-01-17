@@ -10,6 +10,10 @@ module EventTriggers
 
     def event_meets_all_conditions?(conditional_statements)
       conditional_statements.all? do |statement|
+        raise InvalidConditionalStatement, "`property` is not defined for conditional statement: #{statement}" if statement['property'].blank?
+        raise InvalidConditionalStatement, "`condition` is not defined for conditional statement: #{statement}" if statement['condition'].blank?
+        raise InvalidConditionalStatement, "`property_value` is not defined for conditional statement: #{statement}" if statement['property_value'].blank?
+        
         value_for_conditional_statements_specified_property = event.properties[statement['property']]&.to_s&.downcase&.strip
         conditional_statements_specified_property_value = statement['property_value'].to_s.downcase.strip
         case statement['condition']

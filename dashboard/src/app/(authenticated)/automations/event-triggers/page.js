@@ -105,7 +105,7 @@ export default function () {
                         <Tooltipable
                           content={
                             trigger.conditional_statements.map((statement, i) => (
-                              <span className='block text-gray-700 text-xs'>{i + 1}. If {statement.property} {statement.condition.replace(/_/g, ' ')} {statement.property_value}</span>
+                              <span className='block text-gray-700 text-xs'>{i + 1}. If {statement.property} {statement.condition.replace(/_/g, ' ')} "{statement.property_value}"</span>
                             ))
                           }
                         >
