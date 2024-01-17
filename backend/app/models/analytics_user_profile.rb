@@ -2,6 +2,8 @@ class AnalyticsUserProfile < Transactional
   belongs_to :workspace
   has_one :user_profile_enrichment_data, class_name: UserProfileEnrichmentData.to_s, dependent: :destroy
   alias_attribute :enrichment_data, :user_profile_enrichment_data
+
+  has_many :analytics_user_profile_devices
   has_many :analytics_organization_members, dependent: :destroy
   has_many :analytics_organization_profiles, through: :analytics_organization_members
   alias_attribute :organizations, :analytics_organization_profiles
@@ -49,6 +51,18 @@ class AnalyticsUserProfile < Transactional
 
   def enqueue_replication_to_clickhouse
     Ingestion::QueueManager.push_records_into_queue(Ingestion::QueueManager::Queues.CLICKHOUSE_USER_PROFILES, formatted_for_clickhouse_replication)
+  end
+
+  def merge_into!(new_user_profile)
+    return false if new_user_profile == self
+    return false if new_user_profile.workspace_id != workspace_id
+    return false if new_user_profile.user_unique_identifier == user_unique_identifier
+    new_properties = self.properties.merge(new_user_profile.properties)
+    new_properties.delete('user_unique_identifier')
+    new_user_profile.update!(properties: new_properties)
+    self.merged_into_analytics_user_profile_id = new_user_profile.id
+    self.save!
+    Ingestion::QueueManager.push_records_into_queue(Ingestion::QueueManager::Queues.CLICKHOUSE_USER_PROFILE_MERGES, { workspace_id: self.workspace_id, old_user_profile_id: self.id, new_user_profile_id: new_user_profile.id })
   end
 
   private

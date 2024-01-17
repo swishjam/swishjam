@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2024_01_12_192831) do
+ActiveRecord::Schema.define(version: 2024_01_17_021936) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
@@ -38,6 +38,30 @@ ActiveRecord::Schema.define(version: 2024_01_12_192831) do
     t.index ["workspace_id"], name: "index_analytics_organization_profiles_on_workspace_id"
   end
 
+  create_table "analytics_user_profile_device_historical_owners", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "workspace_id", null: false
+    t.uuid "analytics_user_profile_device_id", null: false
+    t.uuid "analytics_user_profile_id", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["analytics_user_profile_device_id"], name: "idx_device_historical_owners_on_user_profile_device_id"
+    t.index ["analytics_user_profile_id"], name: "idx_device_historical_owners_on_user_profile_id"
+    t.index ["workspace_id"], name: "idx_device_historical_owners_on_workspace_id"
+  end
+
+  create_table "analytics_user_profile_devices", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "workspace_id", null: false
+    t.uuid "analytics_user_profile_id", null: false
+    t.string "device_fingerprint"
+    t.string "swishjam_cookie_value"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["analytics_user_profile_id"], name: "idx_user_profile_devices_on_user_profile_id"
+    t.index ["device_fingerprint"], name: "index_analytics_user_profile_devices_on_device_fingerprint"
+    t.index ["swishjam_cookie_value"], name: "index_analytics_user_profile_devices_on_swishjam_cookie_value"
+    t.index ["workspace_id"], name: "index_analytics_user_profile_devices_on_workspace_id"
+  end
+
   create_table "analytics_user_profiles", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.uuid "workspace_id", null: false
     t.string "user_unique_identifier"
@@ -54,6 +78,8 @@ ActiveRecord::Schema.define(version: 2024_01_12_192831) do
     t.text "initial_landing_page_url"
     t.string "initial_referrer_url"
     t.datetime "first_seen_at_in_web_app"
+    t.uuid "merged_into_analytics_user_profile_id"
+    t.index ["merged_into_analytics_user_profile_id"], name: "idx_user_profiles_on_merged_into_user_profile_id"
     t.index ["user_unique_identifier"], name: "index_analytics_user_profiles_on_user_unique_identifier"
     t.index ["workspace_id"], name: "index_analytics_user_profiles_on_workspace_id"
   end
@@ -228,6 +254,8 @@ ActiveRecord::Schema.define(version: 2024_01_12_192831) do
     t.string "access_token"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.uuid "connected_by_user_id"
+    t.index ["connected_by_user_id"], name: "index_slack_connections_on_connected_by_user_id"
     t.index ["workspace_id"], name: "index_slack_connections_on_workspace_id"
   end
 
@@ -346,6 +374,11 @@ ActiveRecord::Schema.define(version: 2024_01_12_192831) do
   end
 
   add_foreign_key "analytics_organization_profiles", "workspaces"
+  add_foreign_key "analytics_user_profile_device_historical_owners", "analytics_user_profile_devices"
+  add_foreign_key "analytics_user_profile_device_historical_owners", "analytics_user_profiles"
+  add_foreign_key "analytics_user_profile_device_historical_owners", "workspaces"
+  add_foreign_key "analytics_user_profile_devices", "analytics_user_profiles"
+  add_foreign_key "analytics_user_profile_devices", "workspaces"
   add_foreign_key "analytics_user_profiles", "workspaces"
   add_foreign_key "api_keys", "workspaces"
   add_foreign_key "auth_sessions", "users"
@@ -354,6 +387,7 @@ ActiveRecord::Schema.define(version: 2024_01_12_192831) do
   add_foreign_key "retention_cohort_activity_periods", "retention_cohorts"
   add_foreign_key "retention_cohort_activity_periods", "workspaces"
   add_foreign_key "retention_cohorts", "workspaces"
+  add_foreign_key "slack_connections", "users", column: "connected_by_user_id"
   add_foreign_key "workspace_invitations", "workspaces"
   add_foreign_key "workspace_members", "users"
   add_foreign_key "workspace_members", "workspaces"
