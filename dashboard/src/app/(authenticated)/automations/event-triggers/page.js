@@ -9,9 +9,10 @@ import { LuGitCommit } from "react-icons/lu";
 import { SiSlack } from "react-icons/si";
 import { SwishjamAPI } from "@/lib/api-client/swishjam-api";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger, Tooltipable } from '@/components/ui/tooltip'
 import { toast } from "sonner";
 import { useState, useEffect } from "react";
+import { SplitIcon } from 'lucide-react';
 
 export default function () {
   const [triggers, setTriggers] = useState();
@@ -76,10 +77,6 @@ export default function () {
         >
           Add Event Trigger
         </Link>
-        {/* {triggers === undefined
-          ? <Skeleton className='w-24 h-8' />
-          : hasSlackConnection && <AddTriggerModal onNewTrigger={newTrigger => setTriggers([...triggers, newTrigger])} />
-        } */}
       </div>
       {triggers === undefined ? (
         <div>
@@ -102,8 +99,21 @@ export default function () {
                       <LuGitCommit className="w-4 h-4" />
                       {trigger.steps[0].type == 'EventTriggerSteps::Slack' && <SiSlack className="w-4 h-4" />}
                       <h2 className="min-w-0 text-sm font-semibold leading-6 text-gray-600">
-                        <span className="truncate capitalize">#{trigger.steps[0].config.channel_name}</span>
+                        <span className="truncate">#{trigger.steps[0].config.channel_name}</span>
                       </h2>
+                      {trigger.conditional_statements?.length > 0 && (
+                        <Tooltipable
+                          content={
+                            trigger.conditional_statements.map((statement, i) => (
+                              <span className='block text-gray-700 text-xs'>{i + 1}. If {statement.property} {statement.condition.replace(/_/g, ' ')} {statement.property_value}</span>
+                            ))
+                          }
+                        >
+                          <span className="inline-flex items-center gap-x-1.5 rounded-md bg-gray-100 px-1.5 py-0.5 text-xs font-medium text-gray-600 cursor-default">
+                            {trigger.conditional_statements.length} <SplitIcon className='h-4 w-4 inline-block' />
+                          </span>
+                        </Tooltipable>
+                      )}
                     </div>
                   </div>
                   <TooltipProvider>

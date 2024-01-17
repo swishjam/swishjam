@@ -2,16 +2,7 @@
 
 import { useEffect, useState, useRef } from 'react';
 import SwishjamAPI from '@/lib/api-client/swishjam-api';
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { LuPlus, LuTrash } from "react-icons/lu";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog"
 import {
   Select,
   SelectContent,
@@ -31,6 +22,7 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { useFieldArray, useForm } from "react-hook-form"
+import Link from 'next/link';
 import LoadingSpinner from '@components/LoadingSpinner';
 import { toast } from 'sonner'
 import SlackMessagePreview from '@components/Slack/SlackMessagePreview';
@@ -38,6 +30,7 @@ import MessageBodyMarkdownRenderer from '@components/Slack/MessageBodyMarkdownRe
 import { swishjam } from '@swishjam/react';
 import { useRouter } from 'next/navigation';
 import { Tooltipable } from '@/components/ui/tooltip';
+import { ArrowLeftIcon, InfoIcon } from 'lucide-react';
 
 export default function NewEventTrigger({ onNewTrigger }) {
   const dialogRef = useRef();
@@ -160,6 +153,13 @@ export default function NewEventTrigger({ onNewTrigger }) {
     <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mb-8">
       <div className="grid grid-cols-2 mt-8 items-center">
         <div>
+          <Link
+            className='text-xs text-gray-500 hover:text-gray-600 transition-all hover:underline flex items-center mb-2'
+            href="/automations/event-triggers"
+          >
+            <ArrowLeftIcon className='inline mr-1' size={12} />
+            Back to all Event Triggers
+          </Link>
           <h1 className="text-lg font-medium text-gray-700 mb-0">New Event Trigger</h1>
         </div>
       </div>
@@ -179,7 +179,12 @@ export default function NewEventTrigger({ onNewTrigger }) {
                 name="event_name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Trigger Event</FormLabel>
+                    <FormLabel className='flex items-center'>
+                      Trigger Event
+                      <Tooltipable content="The event which should set off this Event Trigger (pending your trigger conditions are also met).">
+                        <InfoIcon className='inline ml-1 text-gray-500' size={16} />
+                      </Tooltipable>
+                    </FormLabel>
                     <Select
                       onValueChange={(e) => { setSelectedEventAndGetPropertiesAndAutofillMessageContentIfNecessary(e); field.onChange(e) }}
                       defaultValue={field.value}
@@ -203,8 +208,11 @@ export default function NewEventTrigger({ onNewTrigger }) {
               />
 
               <div className='mt-4'>
-                <FormLabel>
+                <FormLabel className='flex items-center'>
                   Trigger Conditions
+                  <Tooltipable content="Trigger conditions allow you to specify a set of conditions based on the event properties that must be met in order for this trigger to fire. If the conditions are not met for the event, the trigger will not fire.">
+                    <InfoIcon className='inline ml-1 text-gray-500' size={16} />
+                  </Tooltipable>
                 </FormLabel>
 
                 {conditionalStatementsFieldArray.fields.length == 0 && (
@@ -352,7 +360,18 @@ export default function NewEventTrigger({ onNewTrigger }) {
                 name="body"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Body</FormLabel>
+                    <FormLabel className='flex items-center'>
+                      Body
+                      <Tooltipable
+                        content={
+                          <>
+                            Within the body of the Slack message you can use markdown syntax, as well as reference event properties by wrapping the property in {"{}"} (ie: if you want to include the `url` property in the body of the message, you can reference it as <span className='bg-gray-200 italic text-emerald-400 px-1 py-0.5 rounded-md'>{'{url}'}</span>).
+                          </>
+                        }
+                      >
+                        <InfoIcon className='inline ml-1 text-gray-500' size={16} />
+                      </Tooltipable>
+                    </FormLabel>
                     <FormControl>
                       <Textarea
                         {...form.register("body")}

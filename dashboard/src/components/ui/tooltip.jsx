@@ -32,7 +32,7 @@ const Tooltipable = ({ children, content, delay = 200, direction = "top" }) => (
   <TooltipProvider>
     <Tooltip delayDuration={delay}>
       <TooltipTrigger asChild>{children}</TooltipTrigger>
-      <TooltipContent side={direction}>
+      <TooltipContent side={direction} className='max-w-[500px]'>
         <span className='text-xs text-gray-700'>{content}</span>
       </TooltipContent>
     </Tooltip>

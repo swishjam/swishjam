@@ -16,6 +16,9 @@ module EventTriggers
         when 'equals'
           return false if value_for_conditional_statements_specified_property.blank?
           value_for_conditional_statements_specified_property == conditional_statements_specified_property_value
+        when 'does_not_equal'
+          return false if value_for_conditional_statements_specified_property.blank?
+          value_for_conditional_statements_specified_property != conditional_statements_specified_property_value
         when 'contains'
           return false if value_for_conditional_statements_specified_property.blank?
           value_for_conditional_statements_specified_property.include?(conditional_statements_specified_property_value)
