@@ -1,6 +1,5 @@
 'use client';
 
-import AddTriggerModal from "@/components/Automations/EventTriggers/AddTriggerModal";
 import { Cog6ToothIcon, CursorArrowRaysIcon, PauseCircleIcon, PlayCircleIcon, TrashIcon } from '@heroicons/react/24/outline'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import EmptyState from '../EmptyState';
@@ -9,10 +8,11 @@ import Logo from '@components/Logo'
 import { LuGitCommit } from "react-icons/lu";
 import { SiSlack } from "react-icons/si";
 import { SwishjamAPI } from "@/lib/api-client/swishjam-api";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
+import { Skeleton } from "@/components/ui/skeleton";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger, Tooltipable } from '@/components/ui/tooltip'
 import { toast } from "sonner";
 import { useState, useEffect } from "react";
-import { Skeleton } from "@/components/ui/skeleton";
+import { SplitIcon } from 'lucide-react';
 
 export default function () {
   const [triggers, setTriggers] = useState();
@@ -71,10 +71,12 @@ export default function () {
     <div>
       <div className="flex items-center justify-between">
         <h2 className="text-md font-medium text-gray-700 mb-0">Event Triggers</h2>
-        {triggers === undefined
-          ? <Skeleton className='w-24 h-8' />
-          : hasSlackConnection && <AddTriggerModal onNewTrigger={newTrigger => setTriggers([...triggers, newTrigger])} />
-        }
+        <Link
+          className='duration-300 transition-all ml-2 flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white focus:outline-none focus:ring-2 bg-swishjam hover:bg-swishjam-dark'
+          href='/automations/event-triggers/new'
+        >
+          Add Event Trigger
+        </Link>
       </div>
       {triggers === undefined ? (
         <div>
@@ -97,8 +99,21 @@ export default function () {
                       <LuGitCommit className="w-4 h-4" />
                       {trigger.steps[0].type == 'EventTriggerSteps::Slack' && <SiSlack className="w-4 h-4" />}
                       <h2 className="min-w-0 text-sm font-semibold leading-6 text-gray-600">
-                        <span className="truncate capitalize">#{trigger.steps[0].config.channel_name}</span>
+                        <span className="truncate">#{trigger.steps[0].config.channel_name}</span>
                       </h2>
+                      {trigger.conditional_statements?.length > 0 && (
+                        <Tooltipable
+                          content={
+                            trigger.conditional_statements.map((statement, i) => (
+                              <span className='block text-gray-700 text-xs'>{i + 1}. If {statement.property} {statement.condition.replace(/_/g, ' ')} "{statement.property_value}"</span>
+                            ))
+                          }
+                        >
+                          <span className="inline-flex items-center gap-x-1.5 rounded-md bg-gray-100 px-1.5 py-0.5 text-xs font-medium text-gray-600 cursor-default">
+                            {trigger.conditional_statements.length} <SplitIcon className='h-4 w-4 inline-block' />
+                          </span>
+                        </Tooltipable>
+                      )}
                     </div>
                   </div>
                   <TooltipProvider>

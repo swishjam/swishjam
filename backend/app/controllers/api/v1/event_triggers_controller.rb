@@ -9,13 +9,14 @@ module Api
         trigger_steps = (params[:event_trigger_steps] || []).map do |step| 
           { 
             type: step[:type], 
-            config: JSON.parse((step[:config] || {}).to_json)
+            config: JSON.parse((step[:config] || {}).to_json),
           }
         end
 
         trigger = current_workspace.event_triggers.new(
           enabled: true,
           event_name: params[:event_name], 
+          conditional_statements: (params[:conditional_statements] || []).as_json,
           event_trigger_steps_attributes: trigger_steps,
         )
         if trigger.save
@@ -38,19 +39,19 @@ module Api
         end
       end
 
-      def test_trigger
-        if params[:test_event].blank?
-          render json: { error: 'Test event payload is required' }, status: :unprocessable_entity
-          return
-        end
-        trigger = current_workspace.event_triggers.find_by(id: params[:id])
-        if trigger.present?
-          trigger.trigger!(params[:test_event], as_test: true)
-          render json: { trigger: EventTriggerSerializer.new(trigger) }, status: :ok
-        else
-          render json: { error: 'Trigger not found' }, status: :not_found
-        end
-      end
+      # def test_trigger
+      #   if params[:test_event].blank?
+      #     render json: { error: 'Test event payload is required' }, status: :unprocessable_entity
+      #     return
+      #   end
+      #   trigger = current_workspace.event_triggers.find_by(id: params[:id])
+      #   if trigger.present?
+      #     trigger.trigger!(params[:test_event], as_test: true)
+      #     render json: { trigger: EventTriggerSerializer.new(trigger) }, status: :ok
+      #   else
+      #     render json: { error: 'Trigger not found' }, status: :not_found
+      #   end
+      # end
 
       def enable
         trigger = current_workspace.event_triggers.find_by(id: params[:id])

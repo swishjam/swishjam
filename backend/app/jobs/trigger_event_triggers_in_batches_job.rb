@@ -10,7 +10,7 @@ class TriggerEventTriggersInBatchesJob
 
   def trigger!(json)
     trigger = EventTrigger.find(json['trigger_id'])
-    trigger.trigger!(json['event'])
+    trigger.trigger_if_conditions_are_met!(json['event'])
   rescue => e
     Sentry.capture_exception(e)
     Rails.logger.error "Failed to trigger the EventTrigger for #{json}: #{e.message}"
