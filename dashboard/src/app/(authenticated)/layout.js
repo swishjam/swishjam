@@ -7,11 +7,22 @@ import EnlargableDashboardComponentProvider from "@/providers/EnlargableDashboar
 import HotKeyProvider from '@/providers/HotKeyProvider';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import SheetProvider from '@/providers/SheetProvider';
-import { Toaster } from 'sonner'
+import { Toaster, toast } from 'sonner'
+import { useSearchParams } from "next/navigation";
+import { useEffect } from "react";
 // import { IntercomProvider } from 'react-use-intercom';
 
 export default function layout({ children }) {
   const LoadingView = getLoadingView(children);
+
+  const searchParams = useSearchParams();
+  useEffect(() => {
+    const successMessage = searchParams.get('success');
+    if (successMessage) {
+      toast.success(successMessage);
+    }
+  }, [searchParams])
+
   return (
     <>
       {/* <IntercomProvider appId="p7d72soi" autoBoot={true}> */}

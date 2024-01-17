@@ -7,12 +7,15 @@ class EventTrigger < Transactional
   scope :enabled, -> { where(enabled: true) }
   scope :disabled, -> { where(enabled: false) }
 
-  validates :event_name, presence: true
+  attribute :conditional_statements, :jsonb, default: []
 
-  def trigger!(event, as_test: false)
-    if triggered_event_triggers.find_by("event_json->>'uuid' = ?", event['uuid']).present?
+  validates :event_name, presence: true
+  validate :has_valid_conditional_statements
+
+  def trigger_if_conditions_are_met!(event, as_test: false)
+    if triggered_event_triggers.find_by(event_uuid: event['uuid']).present?
       Sentry.capture_message("Duplicate EventTrigger prevented. EventTrigger #{id} already triggered for event #{event['uuid']} (#{event['name']} event for #{workspace.name} workspace).")
-    else
+    elsif EventTriggers::ConditionalStatementsEvaluator.new(event).event_meets_all_conditions?(conditional_statements)
       event_trigger_steps.each{ |step| step.trigger!(event) }
       return if as_test
       seconds_since_occurred_at = event['occurred_at'] ? Time.current - Time.parse(event['occurred_at']) : -1
@@ -24,7 +27,26 @@ class EventTrigger < Transactional
         workspace: workspace, 
         seconds_from_occurred_at_to_triggered: seconds_since_occurred_at,
         event_json: event,
+        event_uuid: event['uuid'],
       )
+    else
+      Sentry.capture_message("Event Trigger conditions not met. Event properties: #{event['properties']}. Conditions: #{conditional_statements}.")
+    end
+  end
+
+  private
+
+  def event_meets_conditions?(event_json)
+
+  end
+
+  def has_valid_conditional_statements
+    conditional_statements.each do |statement|
+      if statement['property'].blank? || statement['condition'].blank? || statement['property_value'].blank?
+        errors.add(:conditional_statements, 'must have a property, condition, and property_value.')
+      elsif !['equals', 'contains', 'does_not_contain', 'ends_with', 'does_not_end_with'].include?(statement['condition'])
+        errors.add(:base, "#{statement['condition']} is not a valid condition, valid conditions are: `equals`, `contains`, `does_not_contain`, `ends_with`, `does_not_end_with`.")
+      end
     end
   end
 end

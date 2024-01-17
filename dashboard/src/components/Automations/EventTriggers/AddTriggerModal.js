@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from 'react';
 import SwishjamAPI from '@/lib/api-client/swishjam-api';
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { LuPlus } from "react-icons/lu";
+import { LuPlus, LuTrash } from "react-icons/lu";
 import {
   Dialog,
   DialogContent,
@@ -28,7 +28,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form"
-import { useForm } from "react-hook-form"
+import { useFieldArray, useForm } from "react-hook-form"
 import LoadingSpinner from '@components/LoadingSpinner';
 import { toast } from 'sonner'
 import SlackMessagePreview from '@components/Slack/SlackMessagePreview';
@@ -37,11 +37,8 @@ import { swishjam } from '@swishjam/react';
 
 export default function AddTriggerModal({ onNewTrigger }) {
   const dialogRef = useRef();
-  const form = useForm({
-    defaultValues: {
-      header: '✨ Event Name'
-    }
-  });
+  const form = useForm({ defaultValues: { header: '✨ Event Name' } });
+  const conditionsFieldArray = useFieldArray({ control: form.control, name: "conditionalStatements" });
   const [loading, setLoading] = useState(false);
   const [slackChannels, setSlackChannels] = useState();
   const [uniqueEvents, setUniqueEvents] = useState();
@@ -186,6 +183,126 @@ export default function AddTriggerModal({ onNewTrigger }) {
                     </FormItem>
                   )}
                 />
+
+                <div className='mt-4'>
+                  <FormLabel>Trigger Conditions</FormLabel>
+
+                  {conditionsFieldArray.fields.length == 0 && (
+                    <div
+                      onClick={() => conditionsFieldArray.append({ type: 'web' })}
+                      className='px-6 py-6 border-2 border-gray-200 border-dashed mt-2 rounded-md text-center text-gray-400 text-sm cursor-pointer duration-500 transition-all hover:border-swishjam hover:text-swishjam'
+                    >
+                      <LuPlus size="24" className='mx-auto mb-4' />
+                      Add Trigger Condition
+                    </div>
+                  )}
+                  {conditionsFieldArray.fields.length > 0 &&
+                    <ul className='grid gap-y-2 mt-2'>
+                      {conditionsFieldArray.fields.map((field, index) =>
+                        <li key={index} className='w-full flex items-center gap-x-2'>
+                          <span className='text-xs'>If</span>
+                          <FormField
+                            key={field.id}
+                            control={field.control}
+                            name={`conditionalStatements.${index}.property`}
+                            render={({ field }) => (
+                              <FormItem>
+                                <Select
+                                  className='flex-grow'
+                                  disabled={propertyOptionsForSelectedEvent === undefined}
+                                  key={field.id}
+                                  onValueChange={field.onChange}
+                                  value={field.value}
+                                >
+                                  <FormControl>
+                                    <SelectTrigger>
+                                      <SelectValue placeholder="Event Property" />
+                                    </SelectTrigger>
+                                  </FormControl>
+                                  <SelectContent>
+                                    {propertyOptionsForSelectedEvent?.map(propertyName => (
+                                      <SelectItem className="cursor-pointer hover:bg-gray-100" value={propertyName}>
+                                        {propertyName}
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <FormField
+                            key={field.id}
+                            control={field.control}
+                            name={`conditionalStatements.${index}.condition`}
+                            render={({ field }) => (
+                              <FormItem>
+                                <Select
+                                  className='flex-grow'
+                                  disabled={propertyOptionsForSelectedEvent === undefined}
+                                  key={field.id}
+                                  onValueChange={field.onChange}
+                                  value={field.value}
+                                >
+                                  <FormControl>
+                                    <SelectTrigger>
+                                      <SelectValue placeholder="Condition" />
+                                    </SelectTrigger>
+                                  </FormControl>
+                                  <SelectContent>
+                                    {['equals', 'contains', 'does not contain', 'ends with', 'does not end with'].map(propertyName => (
+                                      <SelectItem className="cursor-pointer hover:bg-gray-100" value={propertyName}>
+                                        {propertyName}
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <FormField
+                            control={form.control}
+                            name={`conditionalStatements.${index}.propertyValue`}
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormControl>
+                                  <Input
+                                    type="text"
+                                    placeholder="Your property value"
+                                    {...form.register(`conditionalStatements.${index}.propertyValue`)}
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <Button
+                            onClick={() => conditionsFieldArray.remove(index)}
+                            type='button'
+                            variant="ghost"
+                            className='flex-none ml-2 duration-500 hover:text-rose-600'
+                          >
+                            <LuTrash size={14} />
+                          </Button>
+                        </li>
+                      )}
+                      <li key="add-more-button">
+                        <Button
+                          onClick={() => {
+                            const otherType = conditionsFieldArray.fields[0].type == 'web' ? 'product' : 'web'
+                            conditionsFieldArray.append({ type: otherType })
+                          }}
+                          type='button'
+                          variant="outline"
+                          className={`!mt-2 w-full ${conditionsFieldArray.fields.length >= 2 ? 'cursor-disabled' : ''}`}
+                          disabled={conditionsFieldArray.fields.length >= 2}
+                        >
+                          Add Condition
+                        </Button>
+                      </li>
+                    </ul>}
+                </div>
 
                 <FormField
                   control={form.control}

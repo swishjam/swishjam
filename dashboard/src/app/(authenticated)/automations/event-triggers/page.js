@@ -1,6 +1,5 @@
 'use client';
 
-import AddTriggerModal from "@/components/Automations/EventTriggers/AddTriggerModal";
 import { Cog6ToothIcon, CursorArrowRaysIcon, PauseCircleIcon, PlayCircleIcon, TrashIcon } from '@heroicons/react/24/outline'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import EmptyState from '../EmptyState';
@@ -9,10 +8,10 @@ import Logo from '@components/Logo'
 import { LuGitCommit } from "react-icons/lu";
 import { SiSlack } from "react-icons/si";
 import { SwishjamAPI } from "@/lib/api-client/swishjam-api";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { toast } from "sonner";
 import { useState, useEffect } from "react";
-import { Skeleton } from "@/components/ui/skeleton";
 
 export default function () {
   const [triggers, setTriggers] = useState();
@@ -71,10 +70,16 @@ export default function () {
     <div>
       <div className="flex items-center justify-between">
         <h2 className="text-md font-medium text-gray-700 mb-0">Event Triggers</h2>
-        {triggers === undefined
+        <Link
+          className='duration-300 transition-all ml-2 flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white focus:outline-none focus:ring-2 bg-swishjam hover:bg-swishjam-dark'
+          href='/automations/event-triggers/new'
+        >
+          Add Event Trigger
+        </Link>
+        {/* {triggers === undefined
           ? <Skeleton className='w-24 h-8' />
           : hasSlackConnection && <AddTriggerModal onNewTrigger={newTrigger => setTriggers([...triggers, newTrigger])} />
-        }
+        } */}
       </div>
       {triggers === undefined ? (
         <div>

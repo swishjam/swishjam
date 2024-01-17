@@ -1,6 +1,6 @@
 module EventTriggerSteps
   class Slack < EventTriggerStep
-    after_create :send_notification_to_slack
+    # after_create :send_notification_to_slack
 
     def channel_id
       config['channel_id']
