@@ -38,6 +38,15 @@ ActiveRecord::Schema.define(version: 2024_01_17_021936) do
     t.index ["workspace_id"], name: "index_analytics_organization_profiles_on_workspace_id"
   end
 
+  create_table "analytics_organization_profiles_users", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "analytics_organization_profile_id", null: false
+    t.uuid "analytics_user_profile_id", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["analytics_organization_profile_id"], name: "index_analytics_organization_profiles_users_organizations"
+    t.index ["analytics_user_profile_id"], name: "index_analytics_organization_profiles_users_users"
+  end
+
   create_table "analytics_user_profile_device_historical_owners", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.uuid "workspace_id", null: false
     t.uuid "analytics_user_profile_device_id", null: false
@@ -374,6 +383,8 @@ ActiveRecord::Schema.define(version: 2024_01_17_021936) do
   end
 
   add_foreign_key "analytics_organization_profiles", "workspaces"
+  add_foreign_key "analytics_organization_profiles_users", "analytics_organization_profiles"
+  add_foreign_key "analytics_organization_profiles_users", "analytics_user_profiles"
   add_foreign_key "analytics_user_profile_device_historical_owners", "analytics_user_profile_devices"
   add_foreign_key "analytics_user_profile_device_historical_owners", "analytics_user_profiles"
   add_foreign_key "analytics_user_profile_device_historical_owners", "workspaces"
