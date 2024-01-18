@@ -18,7 +18,6 @@ module StripeHelpers
               # num_canceled_subscriptions
             }
           rescue => e
-            byebug
             Sentry.capture_message("Failed to backfill billing data snapshot for #{current_date} (#{e.message})")
           end
           current_date += 1.day

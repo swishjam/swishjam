@@ -109,8 +109,6 @@ module StripeHelpers
           @total_num_paid_subscriptions += 1
           customer_ids_with_paid_subscriptions.add(subscription.customer.id)
         end
-      rescue => e
-        byebug
       end
       @total_num_customers_with_paid_subscriptions = customer_ids_with_paid_subscriptions.size
     end

@@ -12,7 +12,6 @@ module StripeHelpers
         begin
           mrr = StripeHelpers::MrrCalculator.calculate_for_stripe_subscription(stripe_record, include_canceled: true, include_trialing: true)
         rescue => e
-          byebug
           Sentry.capture_message("Failed to calculate MRR for subscription #{stripe_record.id} (#{e.message})")
         end
         {

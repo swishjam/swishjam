@@ -23,7 +23,6 @@ module StripeDataJobs
         BACKFILLERS.each do |backfiller| 
           backfiller.new(workspace, data_fetcher: data_fetcher).enqueue_for_ingestion!
         rescue => e
-          byebug
           Sentry.capture_message("Stripe backfiller #{backfiller.to_s} failed for workspace #{workspace.name} (#{workspace.id}), error: #{e.message}")
         end
         if workspace.settings.revenue_analytics_enabled
