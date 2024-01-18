@@ -180,13 +180,13 @@ export default function PageMetrics() {
           DocumentationContent={
             <>
               <p className='mb-2'>
-                <strong className='block'>Definition:</strong>Churn rate measures the percent of subscribers who have canceled their subscriptions during a rolling 30 day period.
+                <strong className='block'>Definition:</strong>Churn rate measures the percent of subscriptions who have canceled their subscriptions during a rolling 30 day period. It is a common measurement for SaaS companies to understand how many customers they are losing.
               </p>
               <p className='mb-2'>
-                <strong className='block'>Example:</strong>If you had 100 paying subscribers on December 1st, and 10 of them canceled their subscriptions between then and December 30th, your churn rate for December 30th would be 10% (10/100 = 0.1).
+                <strong className='block'>Example:</strong>If you had 100 paid subscriptions on December 1st, you added 20 more subscriptions between December 1st and December 30th, and 12 subscriptions were canceled between then and December 30th, your churn rate for December 30th would be 10% (12/(100 + 20) = 0.1).
               </p>
               <p className='mb-2'>
-                <strong className='block'>Formula:</strong> <span className='italic'># of churns over the last 30 days</span> / <span className='italic'># of Subscribers 30 days ago</span>
+                <strong className='block'>Formula:</strong> <span className='italic'># of churns over the last 30 days</span> / (<span className='italic'># of active subscriptions 30 days ago</span> + <span className='italic'># of new subscriptions over the last 30 days </span>)
               </p>
             </>
           }

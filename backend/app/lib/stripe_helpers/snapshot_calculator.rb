@@ -8,13 +8,13 @@ module StripeHelpers
 
     def subscriptions
       @stripe_subscriptions ||= StripeHelpers::DataFetchers.get_all do
-        ::Stripe::Subscription.list({ status: 'all', expand: ['data.customer'] }, stripe_account: @stripe_account_id)
+        ::Stripe::Subscription.list({ limit: 100, status: 'all', expand: ['data.customer'] }, stripe_account: @stripe_account_id)
       end
     end
 
     def charges
       @stripe_charges ||= StripeHelpers::DataFetchers.get_all do
-        ::Stripe::Charge.list({ expand: ['data.customer'] }, stripe_account: @stripe_account_id)
+        ::Stripe::Charge.list({ limit: 100, expand: ['data.customer'] }, stripe_account: @stripe_account_id)
       end
     end
 

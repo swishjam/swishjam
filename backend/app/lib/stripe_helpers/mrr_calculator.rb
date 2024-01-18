@@ -16,18 +16,22 @@ module StripeHelpers
 
     def self.calculate_for_stripe_subscription(subscription, include_canceled: false, include_trialing: false, include_any_status: false)
       mrr = 0
-      return mrr unless subscription.status == 'active' && subscription.canceled_at.nil? || 
-                          include_canceled && subscription.status == 'canceled' || 
-                          include_trialing && subscription.status == 'trialing' ||
-                          include_canceled && subscription.canceled_at.present? ||
-                          include_any_status
-      subscription.items.each do |subscription_item|
-        mrr += mrr_for_subscription_item(
-          interval: subscription_item.price.recurring.interval,
-          unit_amount: subscription_item.price.unit_amount,
-          quantity: subscription_item.quantity,
-          interval_count: subscription_item.price.recurring.interval_count
-        )
+      begin
+        return mrr unless subscription.status == 'active' && subscription.canceled_at.nil? || 
+                            include_canceled && subscription.status == 'canceled' || 
+                            include_trialing && subscription.status == 'trialing' ||
+                            include_canceled && subscription.canceled_at.present? ||
+                            include_any_status
+        subscription.items.each do |subscription_item|
+          mrr += mrr_for_subscription_item(
+            interval: subscription_item.price.recurring.interval,
+            unit_amount: subscription_item.price.unit_amount,
+            quantity: subscription_item.quantity,
+            interval_count: subscription_item.price.recurring.interval_count
+          )
+        end
+      rescue => e
+        Sentry.capture_message("Failed to calculate MRR for subscription #{subscription.id}, returning 0 in the meantime. (#{e.message})")
       end
       mrr
     end
