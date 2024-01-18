@@ -39,7 +39,7 @@ module StripeHelpers
       def as_swishjam_event
         props = properties
         props[:stripe_customer_id] = stripe_customer.id if stripe_customer
-        props[:stripe_customer_email] = stripe_customer.email if stripe_customer
+        props[:stripe_customer_email] = stripe_customer.email if stripe_customer && stripe_customer.respond_to?(:email)
         props[:stripe_object_id] = stripe_record.id
         props[:user_profile_id] = user_profile_id if user_profile_id
         Analytics::Event.formatted_for_ingestion(

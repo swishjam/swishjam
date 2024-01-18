@@ -8,9 +8,15 @@ module StripeHelpers
       end
 
       def properties
+        mrr = nil
+        begin
+          mrr = StripeHelpers::MrrCalculator.calculate_for_stripe_subscription(stripe_record, include_canceled: true)
+        rescue => e
+          Sentry.capture_message("Failed to calculate MRR for subscription #{stripe_record.id} (#{e.message})")
+        end
         {
           stripe_subscription_id: stripe_record.id,
-          mrr: StripeHelpers::MrrCalculator.calculate_for_stripe_subscription(stripe_record, include_canceled: true),
+          mrr: mrr,
           cancellation_comment: stripe_record.cancellation_details&.comment,
           cancellation_feedback: stripe_record.cancellation_details&.feedback,
           cancellation_reason: stripe_record.cancellation_details&.reason,
