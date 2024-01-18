@@ -17,9 +17,6 @@ module StripeHelpers
               mrr_in_cents: calculate_mrr_at_point_in_time(current_date),
               # num_canceled_subscriptions
             }
-            if current_date.year == Time.current.year
-              byebug
-            end
           rescue => e
             byebug
             Sentry.capture_message("Failed to backfill billing data snapshot for #{current_date} (#{e.message})")

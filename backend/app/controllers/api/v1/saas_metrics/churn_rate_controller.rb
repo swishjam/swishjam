@@ -7,22 +7,30 @@ module Api
         def timeseries
           api_key = current_workspace.api_keys.for_data_source(ApiKey::ReservedDataSources.STRIPE)&.public_key
           if api_key
-            timeseries = ClickHouseQueries::SaasMetrics::ChurnRate::Timeseries.new(
+            churn_rate_calculator = ChurnRateCalculator.new(
               api_key,
               start_time: start_timestamp,
               end_time: end_timestamp,
               num_days_in_churn_period: (params[:num_days_in_churn_period] || 30).to_i,
-            ).get
+            )
             comparison_timeseries = nil
             if params[:exclude_comparison].nil? || params[:exclude_comparison] != "true"
-              comparison_timeseries = ClickHouseQueries::SaasMetrics::ChurnRate::Timeseries.new(
+              comparison_calculator = ChurnRateCalculator.new(
                 api_key,
                 start_time: comparison_start_timestamp,
                 end_time: comparison_end_timestamp,
                 num_days_in_churn_period: (params[:num_days_in_churn_period] || 30).to_i,
-              ).get
+              )
             end
-            render json: render_multi_dimensional_timeseries_json(timeseries, comparison_timeseries), status: :ok
+            render json: {
+              timeseries: churn_rate_calculator.timeseries,
+              comparison_timeseries: comparison_calculator&.timeseries,
+              start_time: churn_rate_calculator.churn_period_start_time,
+              end_time: churn_rate_calculator.churn_period_end_time,
+              comparison_start_time: comparison_calculator&.churn_period_start_time,
+              comparison_end_time: comparison_calculator&.churn_period_end_time,
+              grouped_by: churn_rate_calculator.group_by,
+            }, status: :ok
           else
             render json: {
               timeseries: [],
