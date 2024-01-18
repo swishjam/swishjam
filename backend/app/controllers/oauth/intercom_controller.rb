@@ -2,7 +2,7 @@ module Oauth
   class IntercomController < ApplicationController
     def callback
       if params[:error] || !params[:code] || !params[:state]
-        redirect_to "#{ENV['FRONTEND_URL'] || 'https://app.swishjam.com'}/data-sources?success=false&message=#{params[:error]}"
+        redirect_to "#{ENV['FRONTEND_URL'] || 'https://app.swishjam.com'}/data-integrations=false&message=#{params[:error]}"
         return
       end
       workspace = validate_token_and_return_workspace
@@ -24,9 +24,9 @@ module Oauth
             app_name: account_details.dig('app', 'name'),
           }
         )
-        redirect_to "#{ENV['FRONTEND_URL'] || 'https://app.swishjam.com'}/data-sources?success=true&newSource=Intercom"
+        redirect_to "#{ENV['FRONTEND_URL'] || 'https://app.swishjam.com'}/integrations?success=true&newSource=Intercom"
       else
-        redirect_to "#{ENV['FRONTEND_URL'] || 'https://app.swishjam.com'}/data-sources?success=false&message=#{auth_data['error'] || 'Unable to connect to Intercom.'}"
+        redirect_to "#{ENV['FRONTEND_URL'] || 'https://app.swishjam.com'}/integrations?success=false&message=#{auth_data['error'] || 'Unable to connect to Intercom.'}"
       end
     end
 

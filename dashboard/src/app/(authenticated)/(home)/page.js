@@ -207,7 +207,7 @@ export default function Home() {
               No data available,{" "}
               <Link
                 className="underline text-blue-700 cursor-pointer"
-                href="/data-sources"
+                href="/integrations"
               >
                 connect your Stripe account
               </Link>{" "}
@@ -229,7 +229,7 @@ export default function Home() {
               No data available,{" "}
               <Link
                 className="underline text-blue-700 cursor-pointer"
-                href="/data-sources"
+                href="/integrations"
               >
                 connect your Stripe account
               </Link>{" "}
