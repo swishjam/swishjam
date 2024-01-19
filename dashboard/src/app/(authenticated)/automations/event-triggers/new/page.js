@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState } from 'react';
 import SwishjamAPI from '@/lib/api-client/swishjam-api';
 import { LuPlus, LuTrash } from "react-icons/lu";
 import {
@@ -31,9 +31,10 @@ import { swishjam } from '@swishjam/react';
 import { useRouter } from 'next/navigation';
 import { Tooltipable } from '@/components/ui/tooltip';
 import { ArrowLeftIcon, InfoIcon } from 'lucide-react';
+import TestTriggerModal from '@/components/EventTriggers/TestTriggerModal';
+import { PaperAirplaneIcon } from '@heroicons/react/24/outline';
 
-export default function NewEventTrigger({ onNewTrigger }) {
-  const dialogRef = useRef();
+export default function NewEventTrigger() {
   const form = useForm({ defaultValues: { header: '✨ Event Name' } });
   const conditionalStatementsFieldArray = useFieldArray({ control: form.control, name: "conditionalStatements" });
   const router = useRouter();
@@ -42,12 +43,12 @@ export default function NewEventTrigger({ onNewTrigger }) {
   const [slackChannels, setSlackChannels] = useState();
   const [uniqueEvents, setUniqueEvents] = useState();
   const [propertyOptionsForSelectedEvent, setPropertyOptionsForSelectedEvent] = useState();
+  const [testTriggerModalIsOpen, setTestTriggerModalIsOpen] = useState(false);
 
   const setSelectedEventAndGetPropertiesAndAutofillMessageContentIfNecessary = async eventName => {
     form.setValue('header', '✨ ' + eventName + ' ✨')
     conditionalStatementsFieldArray.fields.forEach((field, index) => {
       // only remove conditional statements that are non-empty
-      debugger;
       if (field.property || field.condition || field.property_value) {
         conditionalStatementsFieldArray.remove(index)
       }
@@ -151,6 +152,19 @@ export default function NewEventTrigger({ onNewTrigger }) {
 
   return (
     <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mb-8">
+      {testTriggerModalIsOpen && (
+        <TestTriggerModal
+          conditionalStatements={form.watch('conditionalStatements')}
+          eventName={form.watch('event_name')}
+          isOpen={testTriggerModalIsOpen}
+          onClose={() => setTestTriggerModalIsOpen(false)}
+          propertyOptions={propertyOptionsForSelectedEvent}
+          slackMessageHeader={form.watch('header')}
+          slackMessageBody={form.watch('body')}
+          slackChannelName={slackChannels.find(channel => channel.id === form.watch('slack_channel'))?.name}
+          slackChannelId={form.watch('slack_channel')}
+        />
+      )}
       <div className="grid grid-cols-2 mt-8 items-center">
         <div>
           <Link
@@ -406,13 +420,38 @@ export default function NewEventTrigger({ onNewTrigger }) {
                 )}
               />
 
-              <Button
-                className={`!mt-6 w-full flex items-center justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white focus:outline-none focus:ring-2 ${loading ? 'bg-swishjam-dark' : 'bg-swishjam'} hover:bg-swishjam-dark`}
-                type="submit"
-                disabled={loading}
-              >
-                {loading ? <LoadingSpinner color="white" /> : 'Create Trigger'}
-              </Button>
+              <div className='flex gap-x-2'>
+                {!form.watch('event_name') || !form.watch('slack_channel') || (!form.watch('header') && !form.watch('body'))
+                  ? (
+                    <Tooltipable content="You must select an event, a slack channel, and provide either a header or a body value for your slack message before you can test your trigger.">
+                      <button
+                        type="button"
+                        className={`!mt-6 w-full flex items-center justify-center py-2 px-4 border border-gray-200 rounded-md shadow-sm text-sm font-medium text-gray-700 focus:outline-none focus:ring-2 bg-gray-200 cursor-not-allowed`}
+                        disabled={true}
+                      >
+                        <PaperAirplaneIcon className='w-4 h-4 inline mr-2' />
+                        Test Your Trigger
+                      </button>
+                    </Tooltipable>
+                  ) : (
+                    <button
+                      type="button"
+                      className={`!mt-6 w-full flex items-center justify-center py-2 px-4 border border-gray-200 rounded-md shadow-sm text-sm font-medium text-gray-700 focus:outline-none focus:ring-2 bg-white hover:bg-gray-200`}
+                      disabled={loading}
+                      onClick={() => setTestTriggerModalIsOpen(true)}
+                    >
+                      <PaperAirplaneIcon className='w-4 h-4 inline mr-2' />
+                      Test Your Trigger
+                    </button>
+                  )}
+                <Button
+                  className={`!mt-6 w-full flex items-center justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white focus:outline-none focus:ring-2 ${loading ? 'bg-swishjam-dark' : 'bg-swishjam'} hover:bg-swishjam-dark`}
+                  type="submit"
+                  disabled={loading}
+                >
+                  {loading ? <LoadingSpinner color="white" /> : 'Create Trigger'}
+                </Button>
+              </div>
             </form>
           </Form>
         </div>

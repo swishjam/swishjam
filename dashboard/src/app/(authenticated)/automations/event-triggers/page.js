@@ -1,7 +1,7 @@
 'use client';
 
-import { Cog6ToothIcon, CursorArrowRaysIcon, PauseCircleIcon, PlayCircleIcon, TrashIcon } from '@heroicons/react/24/outline'
-import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { Cog6ToothIcon, CursorArrowRaysIcon, PauseCircleIcon, PlayCircleIcon, TrashIcon, PencilSquareIcon } from '@heroicons/react/24/outline'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import EmptyState from '../EmptyState';
 import Link from "next/link";
 import Logo from '@components/Logo'
@@ -148,8 +148,12 @@ export default function () {
                       <Cog6ToothIcon className="h-5 w-5 hover:text-swishjam cursor-pointer duration-300 transition-all" aria-hidden="true" />
                     </DropdownMenuTrigger>
                     <DropdownMenuContent className="w-36" align={'end'}>
-                      <DropdownMenuLabel>Edit trigger</DropdownMenuLabel>
-                      <DropdownMenuSeparator />
+                      <Link href={`/automations/event-triggers/${trigger.id}/edit`}>
+                        <DropdownMenuItem className='cursor-pointer'>
+                          <PencilSquareIcon className='h-4 w-4 inline-block mr-2' />
+                          Edit
+                        </DropdownMenuItem>
+                      </Link>
                       <DropdownMenuGroup>
                         {trigger.enabled ?
                           <DropdownMenuItem onClick={() => pauseTrigger(trigger.id)} className="cursor-pointer">
