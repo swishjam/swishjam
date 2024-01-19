@@ -50,6 +50,7 @@ class EventTrigger < Transactional
   end
 
   def send_new_trigger_notification_to_slack_if_necessary
+    return if !enabled
     slack_trigger_step = event_trigger_steps.find_by(type: EventTriggerSteps::Slack.to_s)
     return if slack_trigger_step.nil?
     access_token = workspace.slack_connection.access_token

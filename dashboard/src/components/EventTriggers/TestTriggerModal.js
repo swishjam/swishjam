@@ -5,6 +5,7 @@ import SlackMessagePreview from "../Slack/SlackMessagePreview";
 import Markdown from 'react-markdown'
 import SwishjamAPI from "@/lib/api-client/swishjam-api";
 import LoadingSpinner from "../LoadingSpinner";
+import { AlertOctagonIcon, CheckCircle2Icon } from "lucide-react";
 
 export default function TestTriggerModal({
   isOpen,
@@ -34,7 +35,6 @@ export default function TestTriggerModal({
   const [json, setJson] = useState(exampleJSON);
   const [isSendingTest, setIsSendingTest] = useState(false);
   const [resultMessage, setResultMessage] = useState(null);
-  console.log({ slackMessageBody, slackMessageHeader, slackChannelName, slackChannelId, conditionalStatements, eventName })
 
   const jsonKeys = Object.keys(json);
   const stringifiedJsonWithLineBreaks = jsonKeys.reduce((acc, key, index) => {
@@ -81,9 +81,19 @@ export default function TestTriggerModal({
     if (error) {
       setResultMessage(<span className='text-red-700'>{error}</span>);
     } else if (didTrigger) {
-      setResultMessage(<span className='text-green-700'>✅ Test message was sent to #{slackChannelName}.</span>);
+      setResultMessage(
+        <span className='text-green-700 flex items-center justify-center'>
+          <CheckCircle2Icon className='h-4 w-4 inline mr-1 text-green-700' />
+          Test message was sent to #{slackChannelName}.
+        </span>
+      );
     } else {
-      setResultMessage(<span className='text-red-700'>❌ Your trigger conditions were not met, therefore the Slack Message was not sent.</span>);
+      setResultMessage(
+        <span className='text-red-700 flex items-center justify-center'>
+          <AlertOctagonIcon className='h-4 w-4 inline mr-1 text-red-700' />
+          Your trigger conditions were not met, therefore the Slack Message was not sent.
+        </span>
+      );
     }
   }
 
