@@ -6,6 +6,7 @@ import Markdown from 'react-markdown'
 import SwishjamAPI from "@/lib/api-client/swishjam-api";
 import LoadingSpinner from "../LoadingSpinner";
 import { AlertOctagonIcon, CheckCircle2Icon } from "lucide-react";
+import { swishjam } from "@swishjam/react";
 
 export default function TestTriggerModal({
   isOpen,
@@ -76,6 +77,14 @@ export default function TestTriggerModal({
           channel_name: slackChannelName,
         }
       }]
+    })
+    swishjam.event('event_trigger_tested', {
+      event_name: eventName,
+      slack_channel_name: slackChannelName,
+      slack_message_header: slackMessageHeader,
+      slack_message_body: slackMessageBody,
+      did_trigger: didTrigger,
+      error,
     })
     setIsSendingTest(false);
     if (error) {

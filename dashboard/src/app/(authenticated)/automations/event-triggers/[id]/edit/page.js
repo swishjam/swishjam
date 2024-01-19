@@ -143,7 +143,7 @@ export default function EditTriggerPage({ params }) {
         description: error,
       })
     } else {
-      swishjam.event('event_trigger_created', {
+      swishjam.event('event_trigger_updated', {
         event_name: selectedEventName,
         slack_channel: config.channel_name,
         trigger_id: trigger.id,
