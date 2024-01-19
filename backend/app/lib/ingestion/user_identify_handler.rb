@@ -49,6 +49,12 @@ module Ingestion
       parsed_event.properties.except('userIdentifier', 'email', 'user_attributes', 'device_fingerprint', 'device_identifier')
     end
 
+    # TODO: think about how we want to handle when a device changes ownership
+    # for example if a device is associated to a non-anonymous user, and has a handful of events associated to that user
+    # then the device "changes ownership" to a new user by a new identify event on that device
+    # should we associate historical events to the new user, or leave them associated to the old user
+    # and just consider future events on that device to be associated to the new user?
+    # it feels like the latter is the right answer, but we should think about it more
     def handle_existing_device!(existing_device)
       user_profile_who_previously_owned_device = existing_device.analytics_user_profile
       # TODO: we have to handle / merge historical owners here also...
