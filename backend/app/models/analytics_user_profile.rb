@@ -1,4 +1,6 @@
 class AnalyticsUserProfile < Transactional
+  class InvalidMergeError < StandardError; end;
+
   belongs_to :workspace
   has_one :user_profile_enrichment_data, class_name: UserProfileEnrichmentData.to_s, dependent: :destroy
   alias_attribute :enrichment_data, :user_profile_enrichment_data
@@ -55,14 +57,17 @@ class AnalyticsUserProfile < Transactional
 
   def merge_into!(new_user_profile)
     return false if new_user_profile == self
-    return false if new_user_profile.workspace_id != workspace_id
     return false if new_user_profile.user_unique_identifier == user_unique_identifier
-    new_properties = self.properties.merge(new_user_profile.properties)
-    new_properties.delete('user_unique_identifier')
-    new_user_profile.update!(properties: new_properties)
+    return InvalidMergeError, "ATTEMPTED TO MERGE A USER PROFILE TO A USER PROFILE THAT BELONGS TO A DIFFERENT WORKSPACE? NEW PROFILE: #{new_user_profile.id}, PROFILE TO BE MERGED: #{self.id}" if new_user_profile.workspace_id != workspace_id
+    byebug
+    new_metadata = self.metadata.merge(new_user_profile.metadata)
+    # new_metadata.delete('user_unique_identifier')
+    byebug
+    new_user_profile.update!(metadata: new_metadata)
     self.merged_into_analytics_user_profile_id = new_user_profile.id
     self.save!
-    Ingestion::QueueManager.push_records_into_queue(Ingestion::QueueManager::Queues.CLICKHOUSE_USER_PROFILE_MERGES, { workspace_id: self.workspace_id, old_user_profile_id: self.id, new_user_profile_id: new_user_profile.id })
+    new_user_profile
+    # Ingestion::QueueManager.push_records_into_queue(Ingestion::QueueManager::Queues.CLICKHOUSE_USER_PROFILE_MERGES, { workspace_id: self.workspace_id, old_user_profile_id: self.id, new_user_profile_id: new_user_profile.id })
   end
 
   private

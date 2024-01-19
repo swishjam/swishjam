@@ -41,15 +41,22 @@ module Analytics
       by_name(ReservedNames.PAGE_VIEW)
     end
 
-    def self.formatted_for_ingestion(uuid:, swishjam_api_key:, name:, occurred_at:, ingested_at: Time.current, properties: {})
-      raise InvalidEventFormat, "Provided keys: uuid: #{uuid}, swishjam_api_key: #{swishjam_api_key}, name: #{name}, occurred_at: #{occurred_at}, properties: #{properties}" if swishjam_api_key.blank? || name.blank? || occurred_at.blank?
+    def self.formatted_for_ingestion(uuid:, swishjam_api_key:, name:, user_profile_id:, properties: {}, user_properties: {}, occurred_at:, ingested_at: Time.current)
+      required_keys = { uuid: uuid, swishjam_api_key: swishjam_api_key, name: name, user_profile_id: user_profile_id, occurred_at: occurred_at, ingested_at: ingested_at, properties: properties }
+      missing_keys = required_keys.select{ |key, value| value.blank? || value.nil? }
+      if missing_keys.any?
+        raise InvalidEventFormat, "Missing required keys: #{missing_keys.keys.join(', ')}"
+      end
       {
         uuid: uuid,
         swishjam_api_key: swishjam_api_key,
         name: name,
-        occurred_at: occurred_at,
-        ingested_at: ingested_at,
+        user_profile_id: user_profile_id,
         properties: properties.to_json,
+        user_properties: user_properties.to_json,
+        # TODO: make sure this is handling things correctly
+        occurred_at: Time.parse(occurred_at.to_s).in_time_zone('UTC'), 
+        ingested_at: ingested_at,
       }
     end
 
@@ -62,8 +69,10 @@ module Analytics
       
       properties['organization_attributes'] ||= {}
       properties['organization_attributes'] = (properties['organization_attributes'] || {}).is_a?(String) ? JSON.parse(properties['organization_attributes']) : properties['organization_attributes']
-      if event_json['uuid'].blank? || event_json['swishjam_api_key'].blank? || event_json['name'].blank? || (event_json['occurred_at'].blank? && event_json['timestamp'].blank?)
-        raise InvalidEventFormat, "Event JSON must contain `uuid`, `swishjam_api_key`, `name`, and (`occurred_at` or `timestamp`). Provided keys: #{event_json.keys.map{ |k| "#{k}: #{event_json[k]}" }.join(', ')}."
+      required_keys = ['uuid', 'swishjam_api_key', 'name', 'timestamp']
+      missing_keys = required_keys.select{ |key| event_json[key].blank? }
+      if missing_keys.any?
+        raise InvalidEventFormat, "Missing required keys: #{missing_keys.join(', ')}."
       end
       OpenStruct.new(
         uuid: event_json['uuid'],

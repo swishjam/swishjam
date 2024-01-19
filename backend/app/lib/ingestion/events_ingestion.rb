@@ -21,10 +21,11 @@ module Ingestion
       raw_events = Ingestion::QueueManager.pop_all_records_from_queue(Ingestion::QueueManager::Queues.EVENTS)
       begin
         formatted_events = raw_events.map do |event_json|
-          event = Analytics::Event.parsed_from_ingestion_queue(event_json)
+          # event = Analytics::Event.parsed_from_ingestion_queue(event_json)
+          event = Ingestion::ParsedEventFromIngestion.new(event_json)
           case event.name
           when 'identify'
-            event_json = Ingestion::UserIdentifyHandler.new(event_json).handle_identify_and_return_new_event_json!
+            event_json = Ingestion::UserIdentifyHandler.new(event).handle_identify_and_return_new_event_json!
             # handle_identify_event(event_json)
           end
         end
