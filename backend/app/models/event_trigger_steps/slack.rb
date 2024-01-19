@@ -1,6 +1,6 @@
 module EventTriggerSteps
   class Slack < EventTriggerStep
-    after_create :send_notification_to_slack
+    # after_create :send_notification_to_slack
 
     def channel_id
       config['channel_id']
@@ -18,34 +18,36 @@ module EventTriggerSteps
       config['message_body']
     end
 
-    def trigger!(event)
+    def trigger!(event, as_test: false)
       access_token = event_trigger.workspace.slack_connection.access_token
       slack_client = ::Slack::Client.new(access_token)
 
       parsed_message_body = message_body.gsub(/\{([^}]+)\}/) do |match|
         JSON.parse(event['properties'] || '{}')[$1] || match
       end
-
-      slack_client.post_message_to_channel(
-        channel: channel_id, 
-        blocks: [
-          {
-            type: 'header',
-            text: {
-              type: 'plain_text',
-              text: message_header,
-              emoji: true
-            }
-          }, 
-          {
-            type: 'section',
-            text: {
-              type: 'mrkdwn',
-              text: parsed_message_body
-            }
-          }
-        ]
-      )
+      if as_test
+        parsed_message_body = "_This is a test message and was not actually triggered by a real event :test_tube:. #{parsed_message_body}_\n"
+      end
+      # slack_client.post_message_to_channel(
+      #   channel: channel_id, 
+      #   blocks: [
+      #     {
+      #       type: 'header',
+      #       text: {
+      #         type: 'plain_text',
+      #         text: message_header,
+      #         emoji: true
+      #       }
+      #     }, 
+      #     {
+      #       type: 'section',
+      #       text: {
+      #         type: 'mrkdwn',
+      #         text: parsed_message_body
+      #       }
+      #     }
+      #   ]
+      # )
     end
 
     private

@@ -3,7 +3,7 @@ class EventTriggerStep < Transactional
 
   attribute :config, :jsonb, default: {}
 
-  def trigger!(event)
+  def trigger!(event, as_test: false)
     raise "Subclass #{self.class.to_s} must define `trigger!`."
   end
 end

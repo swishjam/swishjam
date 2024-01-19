@@ -21,7 +21,7 @@ const sidebarNavItems = [
 
 export default function AutomationsLayout({ children }) {
   const path = usePathname();
-  if (path === '/automations/event-triggers/new') {
+  if (path === '/automations/event-triggers/new' || path.endsWith('/edit')) {
     return children
   }
   return (

@@ -16,8 +16,8 @@ class EventTrigger < Transactional
     if triggered_event_triggers.find_by(event_uuid: event['uuid']).present?
       Sentry.capture_message("Duplicate EventTrigger prevented. EventTrigger #{id} already triggered for event #{event['uuid']} (#{event['name']} event for #{workspace.name} workspace).")
     elsif EventTriggers::ConditionalStatementsEvaluator.new(event).event_meets_all_conditions?(conditional_statements)
-      event_trigger_steps.each{ |step| step.trigger!(event) }
-      return if as_test
+      event_trigger_steps.each{ |step| step.trigger!(event, as_test: as_test) }
+      return true if as_test
       seconds_since_occurred_at = event['occurred_at'] ? Time.current - Time.parse(event['occurred_at']) : -1
       if seconds_since_occurred_at > (ENV['EVENT_TRIGGER_LAG_WARNING_THRESHOLD'] || 60 * 5).to_i
         Sentry.capture_message("EventTrigger #{id} took #{seconds_since_occurred_at} seconds to reach trigger logic.")
@@ -31,6 +31,7 @@ class EventTrigger < Transactional
       )
     else
       Sentry.capture_message("Event Trigger conditions not met. Event properties: #{event['properties']}. Conditions: #{conditional_statements}.")
+      false
     end
   end
 
