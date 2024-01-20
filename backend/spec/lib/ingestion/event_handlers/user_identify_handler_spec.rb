@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe Ingestion::UserIdentifyHandler do
+describe Ingestion::EventHandlers::UserIdentifyHandler do
   def identify_event_json(swishjam_api_key:, timestamp: 10.minutes.ago, properties: {})
     {
       'uuid' => 'evt-123',

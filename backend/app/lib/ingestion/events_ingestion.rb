@@ -10,45 +10,36 @@ module Ingestion
 
     def self.ingest!
       if ENV['HAULT_ALL_INGESTION_JOBS'] || ENV['HAULT_EVENTS_INGESTION']
-        Sentry.capture_message("Haulting `EventsIngestion`` early because either `HAULT_ALL_INGESTION_JOBS` or `HAULT_EVENTS_INGESTION` ENV is set to true. Ingestion will pick back up when these ENVs are unset.")
+        Sentry.capture_message("Haulting `EventsIngestion` early because either `HAULT_ALL_INGESTION_JOBS` or `HAULT_EVENTS_INGESTION` ENV is set to true. Ingestion will pick back up when these ENVs are unset.")
         return
       end
       new.ingest!
     end
 
     def ingest!
-      # formatted_events = parse_events_from_queue_and_push_identify_events_into_queues!
       raw_events = Ingestion::QueueManager.pop_all_records_from_queue(Ingestion::QueueManager::Queues.EVENTS)
       begin
         formatted_events = raw_events.map do |event_json|
-          # event = Analytics::Event.parsed_from_ingestion_queue(event_json)
           event = Ingestion::ParsedEventFromIngestion.new(event_json)
           case event.name
           when 'identify'
-            event_json = Ingestion::UserIdentifyHandler.new(event).handle_identify_and_return_new_event_json!
-            # handle_identify_event(event_json)
+            event_json = Ingestion::EventHandlers::UserIdentifyHandler.new(event).handle_identify_and_return_new_event_json!
+          else
+            event_json = Ingestion::EventHandlers::BasicEventHandler.new(event).handle_and_return_new_event_json!
           end
         end
 
         Analytics::Event.insert_all!(formatted_events) if formatted_events.any?
-        
-        @ingestion_batch.num_records = formatted_events.count
-        @ingestion_batch.completed_at = Time.current
-        @ingestion_batch.num_seconds_to_complete = @ingestion_batch.completed_at - @ingestion_batch.started_at
-        @ingestion_batch.save!
       rescue => e
         Ingestion::QueueManager.push_records_into_queue(Ingestion::QueueManager::Queues.EVENTS_DEAD_LETTER_QUEUE, formatted_events)
-        
-        @ingestion_batch.completed_at = Time.current
-        @ingestion_batch.num_seconds_to_complete = @ingestion_batch.completed_at - @ingestion_batch.started_at
         @ingestion_batch.error_message = e.message
-        @ingestion_batch.save!
-
-        Rails.logger.error "Failed to ingest from analytics queue: #{e.inspect}"
         Sentry.capture_exception(e)
       end
-
       EventTriggers::Evaluator.evaluate_ingested_events(formatted_events)
+      
+      @ingestion_batch.completed_at = Time.current
+      @ingestion_batch.num_seconds_to_complete = @ingestion_batch.completed_at - @ingestion_batch.started_at
+      @ingestion_batch.save!
       @ingestion_batch
     end
 

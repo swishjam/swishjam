@@ -86,12 +86,13 @@ module Ingestion
       value
     end
 
-    def set_user_properties(new_user_properties)
-      event_json['user_properties'] = user_properties.merge(new_user_properties)
-    end
-
-    def set_user_profile_id(user_profile_id)
-      event_json['user_profile_id'] = user_profile_id
+    def set_user_profile(user_profile)
+      return if user_profile.nil?
+      event_json['user_profile_id'] = user_profile.id
+      event_json['user_properties'] = user_profile.metadata.merge({
+        email: user_profile.email,
+        unique_identifier: user_profile.user_unique_identifier,
+      })
     end
 
     private
