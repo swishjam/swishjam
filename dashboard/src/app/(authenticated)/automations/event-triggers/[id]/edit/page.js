@@ -168,11 +168,11 @@ export default function EditTriggerPage({ params }) {
             <h1 className="text-lg font-medium text-gray-700 mb-0">Edit Event Trigger</h1>
           </div>
         </div>
-        <div className="grid grid-cols-5 gap-8 mt-8">
-          <div className='col-span-2'>
+        <div className="grid grid-cols-2 gap-8 mt-8">
+          <div>
             <Skeleton className='h-32 w-full' />
           </div>
-          <div className='col-span-3'>
+          <div>
             <Skeleton className='h-14 w-full' />
             <Skeleton className='h-32 w-full mt-4' />
             <Skeleton className='h-14 w-full mt-4' />
@@ -211,15 +211,15 @@ export default function EditTriggerPage({ params }) {
           <h1 className="text-lg font-medium text-gray-700 mb-0">Edit Event Trigger</h1>
         </div>
       </div>
-      <div className="grid grid-cols-5 gap-8 mt-8">
-        <div className='col-span-2'>
+      <div className="grid grid-cols-2 gap-8 mt-8">
+        <div>
           <h2 className='text-sm italic'>Slack Preview</h2>
           <SlackMessagePreview
             header={slackMessageHeader}
             body={<MessageBodyMarkdownRenderer body={slackMessageBody} availableEventOptions={propertyOptionsForSelectedEvent} />}
           />
         </div>
-        <div className='col-span-3'>
+        <div>
           <Form {...form}>
             <form onSubmit={onSubmit} className="space-y-4 px-4">
               <FormItem>

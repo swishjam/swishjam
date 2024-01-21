@@ -177,15 +177,15 @@ export default function NewEventTrigger() {
           <h1 className="text-lg font-medium text-gray-700 mb-0">New Event Trigger</h1>
         </div>
       </div>
-      <div className="grid grid-cols-5 gap-8 mt-8">
-        <div className='col-span-2'>
+      <div className="grid grid-cols-2 gap-8 mt-8">
+        <div>
           <h2 className='text-sm italic'>Slack Preview</h2>
           <SlackMessagePreview
             header={form.watch('header')}
             body={<MessageBodyMarkdownRenderer body={form.watch('body')} availableEventOptions={propertyOptionsForSelectedEvent} />}
           />
         </div>
-        <div className='col-span-3'>
+        <div>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 px-4">
               <FormField
