@@ -37,28 +37,55 @@ module ClickHouseQueries
                 DATE_TRUNC('year', events.occurred_at) AS year,
                 CAST(COUNT(DISTINCT
                   IF(
-                    identify.swishjam_user_id IS NOT NULL AND identify.swishjam_user_id != '', 
-                    identify.swishjam_user_id, 
-                    JSONExtractString(events.properties, '#{Analytics::Event::ReservedPropertyNames.DEVICE_IDENTIFIER}')
+                    empty(user_profiles.merged_into_swishjam_user_id),
+                    user_profiles.merged_into_swishjam_user_id, 
+                    user_profiles.swishjam_user_id
                   )
                 ) AS int) AS num_unique_users
               FROM events
               LEFT JOIN (
-                SELECT
-                  device_identifier,
-                  MAX(occurred_at) AS max_occurred_at,
-                  argMax(swishjam_user_id, occurred_at) AS swishjam_user_id
-                FROM user_identify_events AS uie
+                SELECT 
+                  swishjam_user_id, 
+                  argMax(merged_into_swishjam_user_id, updated_at) AS merged_into_swishjam_user_id
+                FROM swishjam_user_profiles
                 WHERE swishjam_api_key IN #{formatted_in_clause(@public_keys)}
-                GROUP BY device_identifier
-              ) AS identify ON identify.device_identifier = JSONExtractString(events.properties, '#{Analytics::Event::ReservedPropertyNames.DEVICE_IDENTIFIER}')
+                GROUP BY swishjam_user_id
+              ) AS user_profiles ON user_profiles.swishjam_user_id = events.user_profile_id
               WHERE
                 events.swishjam_api_key IN #{formatted_in_clause(@public_keys)} AND
                 events.occurred_at BETWEEN '#{formatted_time(@start_time)}' AND '#{formatted_time(@end_time)}'
-                #{@organization_unique_identifier ? "AND JSONExtractString(JSONExtractString(properties, 'organization_attributes'), 'organization_identifier') = '#{@organization_unique_identifier}'" : ''}
               GROUP BY group_by_date, year
               ORDER BY group_by_date ASC
             SQL
+            # {@organization_unique_identifier ? "AND JSONExtractString(JSONExtractString(properties, 'organization_attributes'), 'organization_identifier') = '#{@organization_unique_identifier}'" : ''}
+            # <<~SQL
+            #   SELECT 
+            #     DATE_TRUNC('#{self.class.sql_date_trunc_unit}', events.occurred_at) AS group_by_date,
+            #     DATE_TRUNC('year', events.occurred_at) AS year,
+            #     CAST(COUNT(DISTINCT
+            #       IF(
+            #         identify.swishjam_user_id IS NOT NULL AND identify.swishjam_user_id != '', 
+            #         identify.swishjam_user_id, 
+            #         JSONExtractString(events.properties, '#{Analytics::Event::ReservedPropertyNames.DEVICE_IDENTIFIER}')
+            #       )
+            #     ) AS int) AS num_unique_users
+            #   FROM events
+            #   LEFT JOIN (
+            #     SELECT
+            #       device_identifier,
+            #       MAX(occurred_at) AS max_occurred_at,
+            #       argMax(swishjam_user_id, occurred_at) AS swishjam_user_id
+            #     FROM user_identify_events AS uie
+            #     WHERE swishjam_api_key IN #{formatted_in_clause(@public_keys)}
+            #     GROUP BY device_identifier
+            #   ) AS identify ON identify.device_identifier = JSONExtractString(events.properties, '#{Analytics::Event::ReservedPropertyNames.DEVICE_IDENTIFIER}')
+            #   WHERE
+            #     events.swishjam_api_key IN #{formatted_in_clause(@public_keys)} AND
+            #     events.occurred_at BETWEEN '#{formatted_time(@start_time)}' AND '#{formatted_time(@end_time)}'
+            #     #{@organization_unique_identifier ? "AND JSONExtractString(JSONExtractString(properties, 'organization_attributes'), 'organization_identifier') = '#{@organization_unique_identifier}'" : ''}
+            #   GROUP BY group_by_date, year
+            #   ORDER BY group_by_date ASC
+            # SQL
           end
 
           private

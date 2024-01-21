@@ -52,11 +52,11 @@ module Ingestion
     end
 
     def device_identifier
-      event_json['properties']['device_identifier']
+      properties['device_identifier']
     end
 
     def device_fingerprint
-      event_json['properties']['device_fingerprint']
+      properties['device_fingerprint']
     end
 
     def sanitized_properties
@@ -67,7 +67,7 @@ module Ingestion
       if event_json['properties'].is_a?(String)
         JSON.parse(event_json['properties']).with_indifferent_access
       else
-        event_json['properties'].with_indifferent_access
+        (event_json['properties'] || {}).with_indifferent_access
       end
     end
 
@@ -79,10 +79,18 @@ module Ingestion
       end
     end
 
-    def timestamp
-      Time.at(event_json['timestamp']).in_time_zone('UTC')
+    def occurred_at
+      @occurred_at ||= begin
+        ts = event_json['occurred_at'].to_i
+        if ts.to_s.length == 10
+          Time.at(ts).in_time_zone('UTC')
+        elsif ts.to_s.length == 13
+          Time.at(ts.to_f / 1000).in_time_zone('UTC')
+        else
+          raise InvalidEventFormatError, "Event's `occurred_at` value was not in a valid format, it should be a Float or Integer of 10 or 13 characters, provided occurred_at: #{event_json['occurred_at']}"
+        end
+      end
     end
-    alias occurred_at timestamp
 
     def property!(key)
       value = properties[key]
@@ -102,7 +110,7 @@ module Ingestion
     private
 
     def validate!
-      required_keys = %w[uuid swishjam_api_key name timestamp properties]
+      required_keys = %w[uuid swishjam_api_key name occurred_at properties]
       missing_keys = required_keys.select{ |key| event_json[key].blank? }
       if missing_keys.any?
         raise InvalidEventFormatError, "ParsedEventFromIngestion was initialized with missing required keys: #{missing_keys.join(', ')}."

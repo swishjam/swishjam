@@ -9,13 +9,13 @@ module Api
         end
         payload = JSON.parse(request.body.read || '{}')
         events = payload.map do |e|
-          Analytics::Event.formatted_for_ingestion(
-            uuid: e['uuid'], 
-            swishjam_api_key: api_key, 
-            name: e['event'] || e['event_name'] || e['name'], 
-            occurred_at: Time.at(e['timestamp'] / 1_000),
-            properties: e['attributes'] || e.except('uuid', 'event', 'event_name', 'name', 'timestamp', 'source'),
-          )
+          {
+            uuid: e['uuid'],
+            swishjam_api_key: api_key,
+            name: e['event'] || e['name'],
+            occurred_at: e['timestamp'],
+            properties: e['attributes'] || e['properties'] || e.except('uuid', 'event', 'event_name', 'name', 'timestamp', 'source'),
+          }
         end
         Ingestion::QueueManager.push_records_into_queue(Ingestion::QueueManager::Queues.EVENTS, events)
         render json: { message: 'ok' }, status: :ok

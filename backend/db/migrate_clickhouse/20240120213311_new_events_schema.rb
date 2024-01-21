@@ -8,11 +8,12 @@ class NewEventsSchema < ActiveRecord::Migration[6.1]
         `user_profile_id` UUID,
         `properties` String,
         `user_properties` String,
-        `ingested_at` DateTime64 DEFAULT now(),
-        `occurred_at` DateTime64,
+        `ingested_at` DateTime64(3, 'UTC') DEFAULT now(),
+        `occurred_at` DateTime64(3, 'UTC'),
       )
       ENGINE = ReplacingMergeTree(occurred_at)
       ORDER BY (swishjam_api_key, name, occurred_at, uuid)
+      PRIMARY KEY (swishjam_api_key, name, occurred_at)
     SQL
     # PRIMARY KEY (swishjam_api_key, name, occurred_at)
 
@@ -36,5 +37,23 @@ class NewEventsSchema < ActiveRecord::Migration[6.1]
 
     execute('DROP TABLE events')
     execute('RENAME TABLE new_events TO events')
+  end
+
+  def down
+    # raise ActiveRecord::IrreversibleMigration
+    execute('DROP TABLE events')
+    # old schema? 
+    execute <<~SQL
+      CREATE TABLE events (
+        `uuid` String,
+        `swishjam_api_key` LowCardinality(String),
+        `name` LowCardinality(String),
+        `ingested_at` DateTime DEFAULT now(),
+        `occurred_at` DateTime,
+        `properties` String,
+      )
+      ENGINE = MergeTree()
+      ORDER BY (swishjam_api_key, name, occurred_at)
+    SQL
   end
 end

@@ -18,8 +18,10 @@ module Ingestion
 
     def ingest!
       raw_events = Ingestion::QueueManager.pop_all_records_from_queue(Ingestion::QueueManager::Queues.EVENTS)
+      byebug
       begin
-        formatted_events = raw_events.map do |event_json|
+        formatted_events = [] 
+        raw_events.map do |event_json|
           event = Ingestion::ParsedEventFromIngestion.new(event_json)
           case event.name
           when 'identify'
@@ -27,17 +29,24 @@ module Ingestion
           else
             Ingestion::EventHandlers::BasicEventHandler.new(event).handle_and_return_new_event_json!
           end
-          event.formatted_for_ingestion
+          formatted_events << event.formatted_for_ingestion
+        rescue => e
+          byebug
+          Sentry.capture_message("Error parsing event into ingestino format during events ingestion, continuing with the rest of the events in the queue: #{e.message}", level: 'error')
         end
 
-        Analytics::Event.insert_all!(formatted_events) if formatted_events.any?
+        if formatted_events.any?
+          byebug
+          Analytics::Event.insert_all!(formatted_events) 
+          EventTriggers::Evaluator.evaluate_ingested_events(formatted_events)
+        end
       rescue => e
+        byebug
         Ingestion::QueueManager.push_records_into_queue(Ingestion::QueueManager::Queues.EVENTS_DEAD_LETTER_QUEUE, formatted_events)
         @ingestion_batch.error_message = e.message
         Sentry.capture_exception(e)
       end
-      EventTriggers::Evaluator.evaluate_ingested_events(formatted_events)
-      
+      @ingestion_batch.num_records = raw_events.count
       @ingestion_batch.completed_at = Time.current
       @ingestion_batch.num_seconds_to_complete = @ingestion_batch.completed_at - @ingestion_batch.started_at
       @ingestion_batch.save!

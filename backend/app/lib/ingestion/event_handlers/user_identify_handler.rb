@@ -2,7 +2,8 @@ module Ingestion
   module EventHandlers
     class UserIdentifyHandler < Base
       class InvalidIdentifyEvent < StandardError; end;
-      def handle_identify_and_update_event!
+
+      def handle_identify_and_return_new_event_json!
         validate_provided_payload!
         device = workspace.analytics_user_profile_devices.find_by(swishjam_cookie_value: parsed_event.device_identifier)
         if device.present?
@@ -21,16 +22,13 @@ module Ingestion
         raise InvalidIdentifyEvent, "Provided event properties did not include a `userIdentifier` key, provided properties: #{parsed_event.properties}" if provided_unique_user_identifier.blank?
       end
 
-      # def provided_unique_user_identifier
-      #   parsed_event.properties['userIdentifier'] || parsed_event.properties['user_id']
-      # end
-
       def provided_email
         parsed_event.properties['email']
       end
 
       def provided_user_properties
-        parsed_event.properties.except('userIdentifier', 'email', 'user_attributes', 'device_fingerprint', 'device_identifier')
+        properties_to_ignore = %w[userIdentifier email user_attributes device_fingerprint device_identifier url sdk_version session_identifier page_view_identifier organization_attributes]
+        parsed_event.properties.except(*properties_to_ignore)
       end
 
       def handle_existing_device!(existing_device)
