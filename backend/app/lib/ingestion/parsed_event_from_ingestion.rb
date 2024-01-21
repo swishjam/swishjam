@@ -9,13 +9,13 @@ module Ingestion
       validate!
     end
 
-    def for_ingestion
+    def formatted_for_ingestion
       {
         uuid: uuid,
         swishjam_api_key: swishjam_api_key,
         name: name,
         user_profile_id: user_profile_id,
-        properties: properties.to_json,
+        properties: sanitized_properties.to_json,
         user_properties: user_properties.to_json,
         occurred_at: occurred_at,
         ingested_at: Time.current,
@@ -59,11 +59,15 @@ module Ingestion
       event_json['properties']['device_fingerprint']
     end
 
+    def sanitized_properties
+      properties.except('device_fingerprint', 'device_identifier', 'user_attributes', 'user', 'userId', 'user_id', 'userIdentifier')
+    end
+
     def properties
       if event_json['properties'].is_a?(String)
-        JSON.parse(event_json['properties']).with_indifferent_access.except('device_fingerprint', 'device_identifier', 'user_attributes')
+        JSON.parse(event_json['properties']).with_indifferent_access
       else
-        event_json['properties'].with_indifferent_access.except('device_fingerprint', 'device_identifier', 'user_attributes')
+        event_json['properties'].with_indifferent_access
       end
     end
 

@@ -13,11 +13,16 @@ module Ingestion
           if provided_unique_user_identifier.present?
             existing_user = workspace.analytics_user_profiles.find_by(user_unique_identifier: provided_unique_user_identifier)
             if existing_user.present?
+              if parsed_event.properties['user'].present?
+                existing_user.email = parsed_event.properties.dig('user', 'email') if parsed_event.properties.dig('user', 'email').present?
+                existing_user.metadata = existing_user.metadata.merge(parsed_event.properties['user'].except('id', 'email'))
+                existing_user.save! if existing_user.changed?
+              end
               existing_user
             else
               workspace.analytics_user_profiles.create!(
                 user_unique_identifier: provided_unique_user_identifier,
-                email: parsed_event.properties['user']&.email,
+                email: parsed_event.properties.dig('user', 'email'),
                 metadata: metadata_for_new_user_profile,
               )
             end

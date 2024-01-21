@@ -20,6 +20,25 @@ describe Ingestion::EventHandlers::BasicEventHandler do
   end
 
   describe '#handle_and_return_new_event_json!' do
+    it 'returns an the event_json without any user profile if the event payload does not provide a user_id or device_identifier' do
+      event = Ingestion::EventHandlers::BasicEventHandler.new(
+        parsed_event(
+          swishjam_api_key: @public_key,
+          properties: { a_property: 'a_value', device_identifier: nil, device_fingerprint: nil }
+        )
+      ).handle_and_return_new_event_json!
+
+      expect(@workspace.analytics_user_profiles.count).to be(0)
+      expect(@workspace.analytics_user_profile_devices.count).to be(0)
+
+      expect(event.uuid).to eq('evt-123')
+      expect(event.swishjam_api_key).to eq(@public_key)
+      expect(event.name).to eq('some_random_event')
+      expect(event.user_profile_id).to be(nil)
+      expect(event.sanitized_properties['a_property']).to eq('a_value')
+      expect(event.sanitized_properties.keys.count).to be(1)
+    end
+
     it 'creates a new device if the provided device_identifier does not exist and a new anonymous user profile if there is no user identifier provided' do
       expect(@workspace.analytics_user_profiles.count).to be(0)
       expect(@workspace.analytics_user_profile_devices.count).to be(0)
@@ -46,8 +65,8 @@ describe Ingestion::EventHandlers::BasicEventHandler do
       expect(event.swishjam_api_key).to eq(@public_key)
       expect(event.name).to eq('some_random_event')
       expect(event.user_profile_id).to eq(@workspace.analytics_user_profiles.first.id)
-      expect(event.properties['a_property']).to eq('a_value')
-      expect(event.properties.keys.count).to be(1)
+      expect(event.sanitized_properties['a_property']).to eq('a_value')
+      expect(event.sanitized_properties.keys.count).to be(1)
     end
 
     it 'uses the existing device\'s owner as the user associated to the event if the provided device_identifier already has a device' do
@@ -74,7 +93,11 @@ describe Ingestion::EventHandlers::BasicEventHandler do
           swishjam_api_key: @public_key,
           properties: { 
             a_property: 'a_value',
-            device_identifier: existing_device.swishjam_cookie_value
+            device_identifier: existing_device.swishjam_cookie_value,
+            user: {
+              birthday: '01/01/1990',
+              susbcription_plan: 'Gold'
+            }
           }
         )
       ).handle_and_return_new_event_json!
@@ -101,16 +124,202 @@ describe Ingestion::EventHandlers::BasicEventHandler do
       expect(event.user_properties['birthday']).to eq('11/07/1992')
       expect(event.user_properties['email']).to eq('jenny@swishjam.com')
       expect(event.user_properties['unique_identifier']).to eq('xyz')
-      expect(event.properties['a_property']).to eq('a_value')
-      expect(event.properties.keys.count).to be(1)
+      expect(event.sanitized_properties['a_property']).to eq('a_value')
+      expect(event.sanitized_properties.keys.count).to be(1)
     end
 
     it 'associate an existing user profile if the event payload provides a user_id and we already have a user profile for it' do
-      # TODO
+      existing_user = FactoryBot.create(:analytics_user_profile,
+        workspace: @workspace,
+        user_unique_identifier: 'xyz',
+        email: 'jenny@swishjam.com',
+        metadata: {
+          first_name: 'Jenny',
+          last_name: 'Rosen',
+          birthday: '11/07/1992'
+        }
+      )
+
+      event = Ingestion::EventHandlers::BasicEventHandler.new(
+        parsed_event(
+          swishjam_api_key: @public_key,
+          properties: {
+            a_property: 'a_value',
+            user_id: existing_user.user_unique_identifier,
+            user: {
+              a_new_property: 'a_new_value',
+              last_name: 'Overwritten',
+            }
+          }
+        )
+      ).handle_and_return_new_event_json!
+
+      expect(@workspace.analytics_user_profiles.count).to be(1)
+      expect(@workspace.analytics_user_profile_devices.count).to be(0)
+
+      expect(@workspace.analytics_user_profiles.first.user_unique_identifier).to eq('xyz')
+      expect(@workspace.analytics_user_profiles.first.email).to eq('jenny@swishjam.com')
+      expect(@workspace.analytics_user_profiles.first.metadata['first_name']).to eq('Jenny')
+      expect(@workspace.analytics_user_profiles.first.metadata['last_name']).to eq('Overwritten')
+      expect(@workspace.analytics_user_profiles.first.metadata['birthday']).to eq('11/07/1992')
+      expect(@workspace.analytics_user_profiles.first.metadata['a_new_property']).to eq('a_new_value')
+
+      expect(event.uuid).to eq('evt-123')
+      expect(event.swishjam_api_key).to eq(@public_key)
+      expect(event.name).to eq('some_random_event')
+      expect(event.user_profile_id).to eq(existing_user.id)
+      expect(event.user_properties['first_name']).to eq('Jenny')
+      expect(event.user_properties['last_name']).to eq('Overwritten')
+      expect(event.user_properties['birthday']).to eq('11/07/1992')
+      expect(event.user_properties['email']).to eq('jenny@swishjam.com')
+      expect(event.user_properties['unique_identifier']).to eq('xyz')
+      expect(event.user_properties['a_new_property']).to eq('a_new_value')
+      expect(event.sanitized_properties['a_property']).to eq('a_value')
+      expect(event.sanitized_properties.keys.count).to be(1)
+    end
+
+    it 'associates an existing user profile if the event payload provides a userId property and we already have a user profile for it' do
+      existing_user = FactoryBot.create(:analytics_user_profile,
+        workspace: @workspace,
+        user_unique_identifier: 'xyz',
+        email: 'jenny@swishjam.com',
+        metadata: {
+          first_name: 'Jenny',
+          last_name: 'Rosen',
+          birthday: '11/07/1992'
+        }
+      )
+
+      event = Ingestion::EventHandlers::BasicEventHandler.new(
+        parsed_event(
+          swishjam_api_key: @public_key,
+          properties: {
+            a_property: 'a_value',
+            userId: existing_user.user_unique_identifier,
+            user: {
+              a_new_property: 'a_new_value',
+              last_name: 'Overwritten',
+            }
+          }
+        )
+      ).handle_and_return_new_event_json!
+
+      expect(@workspace.analytics_user_profiles.count).to be(1)
+      expect(@workspace.analytics_user_profile_devices.count).to be(0)
+
+      expect(@workspace.analytics_user_profiles.first.user_unique_identifier).to eq('xyz')
+      expect(@workspace.analytics_user_profiles.first.email).to eq('jenny@swishjam.com')
+      expect(@workspace.analytics_user_profiles.first.metadata['first_name']).to eq('Jenny')
+      expect(@workspace.analytics_user_profiles.first.metadata['last_name']).to eq('Overwritten')
+      expect(@workspace.analytics_user_profiles.first.metadata['birthday']).to eq('11/07/1992')
+      expect(@workspace.analytics_user_profiles.first.metadata['a_new_property']).to eq('a_new_value')
+
+      expect(event.uuid).to eq('evt-123')
+      expect(event.swishjam_api_key).to eq(@public_key)
+      expect(event.name).to eq('some_random_event')
+      expect(event.user_profile_id).to eq(existing_user.id)
+      expect(event.user_properties['first_name']).to eq('Jenny')
+      expect(event.user_properties['last_name']).to eq('Overwritten')
+      expect(event.user_properties['birthday']).to eq('11/07/1992')
+      expect(event.user_properties['email']).to eq('jenny@swishjam.com')
+      expect(event.user_properties['unique_identifier']).to eq('xyz')
+      expect(event.user_properties['a_new_property']).to eq('a_new_value')
+      expect(event.sanitized_properties['a_property']).to eq('a_value')
+      expect(event.sanitized_properties.keys.count).to be(1)
+    end
+
+    it 'associates an existing user profile if the event payload provides a user.id property and we already have a user profile for it' do
+      existing_user = FactoryBot.create(:analytics_user_profile,
+        workspace: @workspace,
+        user_unique_identifier: 'xyz',
+        email: 'jenny@swishjam.com',
+        metadata: {
+          first_name: 'Jenny',
+          last_name: 'Rosen',
+          birthday: '11/07/1992'
+        }
+      )
+
+      event = Ingestion::EventHandlers::BasicEventHandler.new(
+        parsed_event(
+          swishjam_api_key: @public_key,
+          properties: {
+            a_property: 'a_value',
+            user: {
+              id: existing_user.user_unique_identifier,
+              a_new_property: 'a_new_value',
+              last_name: 'Overwritten',
+            }
+          }
+        )
+      ).handle_and_return_new_event_json!
+
+      expect(@workspace.analytics_user_profiles.count).to be(1)
+      expect(@workspace.analytics_user_profile_devices.count).to be(0)
+
+      expect(@workspace.analytics_user_profiles.first.user_unique_identifier).to eq('xyz')
+      expect(@workspace.analytics_user_profiles.first.email).to eq('jenny@swishjam.com')
+      expect(@workspace.analytics_user_profiles.first.metadata['first_name']).to eq('Jenny')
+      expect(@workspace.analytics_user_profiles.first.metadata['last_name']).to eq('Overwritten')
+      expect(@workspace.analytics_user_profiles.first.metadata['birthday']).to eq('11/07/1992')
+      expect(@workspace.analytics_user_profiles.first.metadata['a_new_property']).to eq('a_new_value')
+
+      expect(event.uuid).to eq('evt-123')
+      expect(event.swishjam_api_key).to eq(@public_key)
+      expect(event.name).to eq('some_random_event')
+      expect(event.user_profile_id).to eq(existing_user.id)
+      expect(event.user_properties['first_name']).to eq('Jenny')
+      expect(event.user_properties['last_name']).to eq('Overwritten')
+      expect(event.user_properties['birthday']).to eq('11/07/1992')
+      expect(event.user_properties['email']).to eq('jenny@swishjam.com')
+      expect(event.user_properties['unique_identifier']).to eq('xyz')
+      expect(event.user_properties['a_new_property']).to eq('a_new_value')
+      expect(event.sanitized_properties['a_property']).to eq('a_value')
+      expect(event.sanitized_properties.keys.count).to be(1)
     end
 
     it 'creates a new user profile if the event payload provides a user_id and we do not already have a user profile for it' do
-      # TODO
+      other_user = FactoryBot.create(:analytics_user_profile,
+        workspace: @workspace,
+        user_unique_identifier: 'a-different-user-id',
+        email: 'jenny@swishjam.com',
+        metadata: {
+          first_name: 'Jenny',
+          last_name: 'Rosen',
+          birthday: '11/07/1992'
+        }
+      )
+
+      event = Ingestion::EventHandlers::BasicEventHandler.new(
+        parsed_event(
+          swishjam_api_key: @public_key,
+          properties: {
+            a_property: 'a_value',
+            userId: 'a-new-user-id',
+            user: {
+              email: 'new-user@swishjam.com',
+              first_name: 'Johnny',
+            }
+          }
+        )
+      ).handle_and_return_new_event_json!
+
+      expect(@workspace.analytics_user_profiles.count).to be(2)
+      expect(@workspace.analytics_user_profile_devices.count).to be(0)
+
+      new_user = @workspace.analytics_user_profiles.find_by(user_unique_identifier: 'a-new-user-id')
+      expect(@workspace.analytics_user_profiles.first.email).to eq('new-user@swishjam.com')
+      expect(@workspace.analytics_user_profiles.first.metadata['first_name']).to eq('Johnny')
+
+      expect(event.uuid).to eq('evt-123')
+      expect(event.swishjam_api_key).to eq(@public_key)
+      expect(event.name).to eq('some_random_event')
+      expect(event.user_profile_id).to eq(new_user.id)
+      expect(event.user_properties['first_name']).to eq('Johnny')
+      expect(event.user_properties['email']).to eq('new-user@swishjam.com')
+      expect(event.user_properties['unique_identifier']).to eq('a-new-user-id')
+      expect(event.sanitized_properties['a_property']).to eq('a_value')
+      expect(event.sanitized_properties.keys.count).to be(1)
     end
   end
 end

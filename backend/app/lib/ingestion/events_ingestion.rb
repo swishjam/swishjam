@@ -23,10 +23,11 @@ module Ingestion
           event = Ingestion::ParsedEventFromIngestion.new(event_json)
           case event.name
           when 'identify'
-            event_json = Ingestion::EventHandlers::UserIdentifyHandler.new(event).handle_identify_and_return_new_event_json!
+            Ingestion::EventHandlers::UserIdentifyHandler.new(event).handle_identify_and_return_new_event_json!
           else
-            event_json = Ingestion::EventHandlers::BasicEventHandler.new(event).handle_and_return_new_event_json!
+            Ingestion::EventHandlers::BasicEventHandler.new(event).handle_and_return_new_event_json!
           end
+          event.formatted_for_ingestion
         end
 
         Analytics::Event.insert_all!(formatted_events) if formatted_events.any?

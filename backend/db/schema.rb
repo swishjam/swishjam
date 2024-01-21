@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2024_01_17_021936) do
+ActiveRecord::Schema.define(version: 2024_01_17_181559) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
@@ -36,15 +36,6 @@ ActiveRecord::Schema.define(version: 2024_01_17_021936) do
     t.string "domain"
     t.index ["organization_unique_identifier"], name: "index_analytics_organization_profiles_unique_identifier"
     t.index ["workspace_id"], name: "index_analytics_organization_profiles_on_workspace_id"
-  end
-
-  create_table "analytics_organization_profiles_users", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
-    t.uuid "analytics_organization_profile_id", null: false
-    t.uuid "analytics_user_profile_id", null: false
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
-    t.index ["analytics_organization_profile_id"], name: "index_analytics_organization_profiles_users_organizations"
-    t.index ["analytics_user_profile_id"], name: "index_analytics_organization_profiles_users_users"
   end
 
   create_table "analytics_user_profile_device_historical_owners", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -199,6 +190,7 @@ ActiveRecord::Schema.define(version: 2024_01_17_021936) do
     t.string "event_name"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.jsonb "conditional_statements", default: []
     t.index ["workspace_id"], name: "index_event_triggers_on_workspace_id"
   end
 
@@ -275,6 +267,7 @@ ActiveRecord::Schema.define(version: 2024_01_17_021936) do
     t.float "seconds_from_occurred_at_to_triggered"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.string "event_uuid"
     t.index ["event_trigger_id"], name: "index_triggered_event_triggers_on_event_trigger_id"
     t.index ["workspace_id"], name: "index_triggered_event_triggers_on_workspace_id"
   end
@@ -383,8 +376,6 @@ ActiveRecord::Schema.define(version: 2024_01_17_021936) do
   end
 
   add_foreign_key "analytics_organization_profiles", "workspaces"
-  add_foreign_key "analytics_organization_profiles_users", "analytics_organization_profiles"
-  add_foreign_key "analytics_organization_profiles_users", "analytics_user_profiles"
   add_foreign_key "analytics_user_profile_device_historical_owners", "analytics_user_profile_devices"
   add_foreign_key "analytics_user_profile_device_historical_owners", "analytics_user_profiles"
   add_foreign_key "analytics_user_profile_device_historical_owners", "workspaces"
