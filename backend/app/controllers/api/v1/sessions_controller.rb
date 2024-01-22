@@ -10,16 +10,21 @@ module Api
       def timeseries
         params[:data_source] ||= ApiKey::ReservedDataSources.MARKETING
 
-        timeseries = ClickHouseQueries::Sessions::Timeseries.new(
+        timeseries = ClickHouseQueries::Events::Timeseries.new(
           public_keys_for_requested_data_source,
+          event: Analytics::Event::ReservedNames.PAGE_VIEW,
+          distinct_count_property: Analytics::Event::ReservedPropertyNames.SESSION_IDENTIFIER,
           start_time: start_timestamp,
-          end_time: end_timestamp
-        ).timeseries
-        comparison_timeseries = ClickHouseQueries::Sessions::Timeseries.new(
+          end_time: end_timestamp,
+        ).get
+
+        comparison_timeseries = ClickHouseQueries::Events::Timeseries.new(
           public_keys_for_requested_data_source,
+          event: Analytics::Event::ReservedNames.PAGE_VIEW,
+          distinct_count_property: Analytics::Event::ReservedPropertyNames.SESSION_IDENTIFIER,
           start_time: comparison_start_timestamp,
-          end_time: comparison_end_timestamp
-        ).timeseries
+          end_time: comparison_end_timestamp,
+        ).get
 
         render json: {
           timeseries: timeseries.formatted_data,

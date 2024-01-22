@@ -20,7 +20,11 @@ module Ingestion
       merged_metadata = previous_profile.metadata.merge(new_profile.metadata)
       # Merge the persistent metadata into the merged metadata
       new_metadata = merged_metadata.merge(persistent_metadata)
-      new_profile.update!(metadata: new_metadata)
+      new_profile.update!(
+        metadata: new_metadata,
+        last_seen_at_in_web_app: [previous_profile.last_seen_at_in_web_app, new_profile.last_seen_at_in_web_app].compact.max,
+        first_seen_at_in_web_app: [previous_profile.first_seen_at_in_web_app, new_profile.first_seen_at_in_web_app].compact.min,
+      )
       previous_profile.update!(merged_into_analytics_user_profile_id: new_profile.id)
       new_profile
     end

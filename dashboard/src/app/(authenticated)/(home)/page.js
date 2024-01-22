@@ -201,19 +201,6 @@ export default function Home() {
           value={mrrChart?.value}
           previousValue={mrrChart?.previousValue}
           previousValueDate={mrrChart?.previousValueDate}
-          noDataMessage={
-            <div className="text-center">
-              <BsCloudSlash size={24} className="text-gray-500 m-auto" />
-              No data available,{" "}
-              <Link
-                className="underline text-blue-700 cursor-pointer"
-                href="/data-sources"
-              >
-                connect your Stripe account
-              </Link>{" "}
-              to get started.
-            </div>
-          }
           valueFormatter={formatMoney}
           yAxisFormatter={formatShrinkMoney}
           showAxis={false}
@@ -226,12 +213,12 @@ export default function Home() {
           noDataMessage={
             <div className="text-center">
               <BsCloudSlash size={24} className="text-gray-500 m-auto" />
-              No data available,{" "}
+              <span className='block'>No data available</span>
               <Link
                 className="underline text-blue-700 cursor-pointer"
                 href="/data-sources"
               >
-                connect your Stripe account
+                Connect your Stripe account
               </Link>{" "}
               to get started.
             </div>

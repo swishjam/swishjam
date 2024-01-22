@@ -11,6 +11,9 @@ class AnalyticsUserProfile < Transactional
 
   validates :user_unique_identifier, uniqueness: { scope: :workspace_id }, if: -> { user_unique_identifier.present? }
 
+  scope :anonymous, -> { where(user_unique_identifier: nil, email: nil) }
+  scope :identified, -> { where.not(user_unique_identifier: nil).or(where.not(email: nil)) }
+
   # after_create :try_to_set_gravatar_url
   before_create :try_to_set_gravatar_url
   after_create :enrich_profile!
@@ -25,6 +28,8 @@ class AnalyticsUserProfile < Transactional
     user_unique_identifier.blank?
   end
   alias is_anonymous? anonymous?
+  alias anonymous anonymous?
+  alias is_anonymous anonymous?
 
   def full_name
     return nil if first_name.blank? || last_name.blank?
@@ -75,6 +80,7 @@ class AnalyticsUserProfile < Transactional
       created_by_data_source: created_by_data_source,
       metadata: (metadata || {}).to_json,
       first_seen_at_in_web_app: first_seen_at_in_web_app,
+      last_seen_at_in_web_app: last_seen_at_in_web_app,
       created_at: created_at,
       updated_at: updated_at,
       last_updated_from_transactional_db_at: Time.current,

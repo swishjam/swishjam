@@ -38,17 +38,6 @@ ActiveRecord::Schema.define(version: 2024_01_17_021936) do
     t.index ["workspace_id"], name: "index_analytics_organization_profiles_on_workspace_id"
   end
 
-  create_table "analytics_user_profile_device_historical_owners", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
-    t.uuid "workspace_id", null: false
-    t.uuid "analytics_user_profile_device_id", null: false
-    t.uuid "analytics_user_profile_id", null: false
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
-    t.index ["analytics_user_profile_device_id"], name: "idx_device_historical_owners_on_user_profile_device_id"
-    t.index ["analytics_user_profile_id"], name: "idx_device_historical_owners_on_user_profile_id"
-    t.index ["workspace_id"], name: "idx_device_historical_owners_on_workspace_id"
-  end
-
   create_table "analytics_user_profile_devices", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.uuid "workspace_id", null: false
     t.uuid "analytics_user_profile_id", null: false
@@ -79,6 +68,7 @@ ActiveRecord::Schema.define(version: 2024_01_17_021936) do
     t.string "initial_referrer_url"
     t.datetime "first_seen_at_in_web_app"
     t.uuid "merged_into_analytics_user_profile_id"
+    t.datetime "last_seen_at_in_web_app"
     t.index ["merged_into_analytics_user_profile_id"], name: "idx_user_profiles_on_merged_into_user_profile_id"
     t.index ["user_unique_identifier"], name: "index_analytics_user_profiles_on_user_unique_identifier"
     t.index ["workspace_id"], name: "index_analytics_user_profiles_on_workspace_id"
@@ -372,9 +362,6 @@ ActiveRecord::Schema.define(version: 2024_01_17_021936) do
   end
 
   add_foreign_key "analytics_organization_profiles", "workspaces"
-  add_foreign_key "analytics_user_profile_device_historical_owners", "analytics_user_profile_devices"
-  add_foreign_key "analytics_user_profile_device_historical_owners", "analytics_user_profiles"
-  add_foreign_key "analytics_user_profile_device_historical_owners", "workspaces"
   add_foreign_key "analytics_user_profile_devices", "analytics_user_profiles"
   add_foreign_key "analytics_user_profile_devices", "workspaces"
   add_foreign_key "analytics_user_profiles", "workspaces"
