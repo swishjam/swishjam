@@ -5,7 +5,7 @@ class NewEventsSchema < ActiveRecord::Migration[6.1]
         `uuid` String,
         `swishjam_api_key` LowCardinality(String),
         `name` LowCardinality(String),
-        `user_profile_id` UUID,
+        `user_profile_id` String,
         `properties` String,
         `user_properties` String,
         `ingested_at` DateTime64(3, 'UTC') DEFAULT now(),
@@ -15,7 +15,6 @@ class NewEventsSchema < ActiveRecord::Migration[6.1]
       ORDER BY (swishjam_api_key, name, occurred_at, uuid)
       PRIMARY KEY (swishjam_api_key, name, occurred_at)
     SQL
-    # PRIMARY KEY (swishjam_api_key, name, occurred_at)
 
     # TODO: figure out migration strategy :/
     # execute <<~SQL

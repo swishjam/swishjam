@@ -18,7 +18,6 @@ module Ingestion
 
     def ingest!
       raw_events = Ingestion::QueueManager.pop_all_records_from_queue(Ingestion::QueueManager::Queues.EVENTS)
-      byebug
       begin
         formatted_events = [] 
         raw_events.map do |event_json|
@@ -36,7 +35,6 @@ module Ingestion
         end
 
         if formatted_events.any?
-          byebug
           Analytics::Event.insert_all!(formatted_events) 
           EventTriggers::Evaluator.evaluate_ingested_events(formatted_events)
         end
