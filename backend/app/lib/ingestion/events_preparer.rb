@@ -16,29 +16,43 @@ module Ingestion
       new.prepare_events!
     end
 
+    def self.format_for_events_to_prepare_queue(uuid:, swishjam_api_key:, name:, occurred_at:, properties:)
+      {
+        uuid: uuid,
+        swishjam_api_key: swishjam_api_key,
+        name: name,
+        occurred_at: occurred_at,
+        properties: properties,
+      }
+    end
+
     def prepare_events!
       raw_events = Ingestion::QueueManager.pop_all_records_from_queue(Ingestion::QueueManager::Queues.EVENTS_TO_PREPARE)
       begin
-        formatted_events = [] 
+        formatted_events = []
+        failed_events = []
         raw_events.map do |event_json|
           event = Ingestion::ParsedEventFromIngestion.new(event_json)
-          case event.name
-          when 'identify'
+          if event.name == 'identify'
             Ingestion::EventPreparers::UserIdentifyHandler.new(event).handle_identify_and_return_new_event_json!
-          # when 'organization'
-          #   Ingestion::EventPreparers::OrganizationHandler.new(event).handle_organization_and_return_new_event_json!
+          elsif event.name.starts_with?('stripe.')
+            Ingestion::EventPreparers::StripeEventHandler.new(event).handle_and_return_new_event_json!
           else
             Ingestion::EventPreparers::BasicEventHandler.new(event).handle_and_return_new_event_json!
           end
           formatted_events << event.formatted_for_ingestion
         rescue => e
           byebug
+          failed_events << event_json
           Sentry.capture_message("Error parsing event into ingestino format during events ingestion, continuing with the rest of the events in the queue: #{e.message}", level: 'error')
         end
 
         if formatted_events.any?
           Ingestion::QueueManager.push_records_into_queue(Ingestion::QueueManager::Queues.PREPARED_EVENTS, formatted_events)
           EventTriggers::Evaluator.evaluate_ingested_events(formatted_events)
+        end
+        if failed_events.any?
+          Ingestion::QueueManager.push_records_into_queue(Ingestion::QueueManager::Queues.EVENTS_TO_PREPARE_DLQ, failed_events)
         end
       rescue => e
         byebug

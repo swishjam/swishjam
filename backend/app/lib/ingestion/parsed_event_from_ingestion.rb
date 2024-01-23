@@ -98,6 +98,10 @@ module Ingestion
       value
     end
 
+    def override_properties!(new_properties)
+      event_json['properties'] = new_properties.as_json
+    end
+
     def set_user_profile(user_profile)
       return if user_profile.nil?
       event_json['user_profile_id'] = user_profile.id
