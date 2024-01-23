@@ -22,7 +22,7 @@ module EventReceivers
         stripe_customer: stripe_customer, 
         public_key: public_key, 
         maybe_user_profile_id: @event_parser.maybe_user_profile&.id,
-      ).format_supplemental_events_to_be_processed_if_necessary!
+      ).parsed_events_for_any_matching_supplemental_events
       events = [formatted_event_to_ingest].concat(supplemental_events)
       Ingestion::QueueManager.push_records_into_queue(Ingestion::QueueManager::Queues.EVENTS, events) if events.any?
       enqueue_sync_jobs_if_necessary!

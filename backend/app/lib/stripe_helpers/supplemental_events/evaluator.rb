@@ -8,7 +8,7 @@ module StripeHelpers
         @maybe_user_profile_id = maybe_user_profile_id
       end
 
-      def format_supplemental_events_to_be_processed_if_necessary!
+      def parsed_events_for_any_matching_supplemental_events
         events = []        
         events << formatted_supplemental_event(StripeHelpers::SupplementalEvents::SubscriptionChurned) if is_churned_subscription_event?
         events << formatted_supplemental_event(StripeHelpers::SupplementalEvents::NewFreeTrial) if is_new_free_trial_event?
@@ -29,7 +29,7 @@ module StripeHelpers
           user_profile_id: @maybe_user_profile_id,
           stripe_customer: @stripe_customer,
           public_key: @public_key,
-        ).as_swishjam_event
+        ).as_parsed_event
       end
 
       def is_new_paid_subscription_event?

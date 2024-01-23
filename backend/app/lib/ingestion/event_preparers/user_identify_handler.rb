@@ -3,7 +3,7 @@ module Ingestion
     class UserIdentifyHandler < Base
       class InvalidIdentifyEvent < StandardError; end;
 
-      def handle_identify_and_return_new_event_json!
+      def handle_identify_and_return_updated_parsed_event!
         validate_provided_payload!
         device = workspace.analytics_user_profile_devices.find_by(swishjam_cookie_value: parsed_event.device_identifier)
         if device.present?
@@ -59,6 +59,7 @@ module Ingestion
             metadata: provided_user_properties,
             last_seen_at_in_web_app: Time.current,
             first_seen_at_in_web_app: Time.current,
+            created_by_data_source: data_source,
           )
           if existing_device.owner.is_anonymous?
             Ingestion::ProfileMerger.new(previous_profile: existing_device.owner, new_profile: new_user_profile).merge!
@@ -90,6 +91,7 @@ module Ingestion
             metadata: provided_user_properties,
             last_seen_at_in_web_app: Time.current,
             first_seen_at_in_web_app: Time.current,
+            created_by_data_source: data_source,
           )
         else
           user_profile.update!(

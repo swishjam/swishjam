@@ -81,13 +81,14 @@ module Ingestion
 
     def occurred_at
       @occurred_at ||= begin
-        ts = event_json['occurred_at'].to_i
-        if ts.to_s.length == 10
+        is_valid_format = (event_json['occurred_at'].is_a?(Float) || event_json['occurred_at'].is_a?(Integer)) && 
+                            (event_json['occurred_at'].to_i.to_s.length === 10 || event_json['occurred_at'].to_i.to_s.length === 13)
+        if is_valid_format
+          ts = event_json['occurred_at'].to_f
+          ts_in_seconds = ts.to_i.to_s.length === 10 ? ts : ts / 1000.0
           Time.at(ts).in_time_zone('UTC')
-        elsif ts.to_s.length == 13
-          Time.at(ts.to_f / 1000).in_time_zone('UTC')
         else
-          raise InvalidEventFormatError, "Event's `occurred_at` value was not in a valid format, it should be a Float or Integer of 10 or 13 characters, provided occurred_at: #{event_json['occurred_at']}"
+          raise InvalidEventFormatError, "Event's `occurred_at` value was not in a valid format, it should be a Float or Integer of 10 or 13 characters. Provided `occurred_at`: #{event_json['occurred_at']}"
         end
       end
     end

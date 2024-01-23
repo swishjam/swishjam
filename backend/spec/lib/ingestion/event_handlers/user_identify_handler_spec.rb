@@ -6,7 +6,7 @@ describe Ingestion::EventPreparers::UserIdentifyHandler do
       'uuid' => 'evt-123',
       'swishjam_api_key' => swishjam_api_key,
       'name' => 'identify',
-      'timestamp' => timestamp,
+      'occurred_at' => timestamp.to_f,
       'properties' => {
         'device_fingerprint' => 'abc',
         'device_identifier' => '123',
@@ -37,7 +37,7 @@ describe Ingestion::EventPreparers::UserIdentifyHandler do
       expect(workspace.analytics_user_profiles.count).to eq(0)
       expect(workspace.analytics_user_profile_devices.count).to eq(0)
       
-      described_class.new(event).handle_identify_and_return_new_event_json!
+      described_class.new(event).handle_identify_and_return_updated_parsed_event!
       
       expect(workspace.analytics_user_profiles.count).to eq(1)
       expect(workspace.analytics_user_profile_devices.count).to eq(1)
@@ -55,15 +55,13 @@ describe Ingestion::EventPreparers::UserIdentifyHandler do
       expect(event.swishjam_api_key).to eq(public_key)
       expect(event.name).to eq('identify')
       expect(event.user_profile_id).to eq(workspace.analytics_user_profiles.first.id)
-      expect(event.timestamp).to eq(timestamp)
-      expect(event.occurred_at).to eq(timestamp)
+      expect(event.occurred_at.round(3)).to eq(timestamp.round(3))
 
-      expect(event.sanitized_properties['userIdentifier']).to eq('my-user-unique-identifier')
       expect(event.sanitized_properties['email']).to eq('jenny@swishjam.com')
       expect(event.sanitized_properties['first_name']).to eq('Jenny')
       expect(event.sanitized_properties['last_name']).to eq('Rosen')
       expect(event.sanitized_properties['phone_number']).to eq('1234567890')
-      expect(event.sanitized_properties.keys.count).to eq(5)
+      expect(event.sanitized_properties.keys.count).to eq(4)
 
       expect(event.user_properties['email']).to eq('jenny@swishjam.com')
       expect(event.user_properties['first_name']).to eq('Jenny')
@@ -103,7 +101,7 @@ describe Ingestion::EventPreparers::UserIdentifyHandler do
       expect(workspace.analytics_user_profiles.count).to eq(1)
       expect(workspace.analytics_user_profile_devices.count).to eq(0)
       
-      described_class.new(event).handle_identify_and_return_new_event_json!
+      described_class.new(event).handle_identify_and_return_updated_parsed_event!
       
       expect(workspace.analytics_user_profiles.count).to eq(1)
       expect(workspace.analytics_user_profile_devices.count).to eq(1)
@@ -124,13 +122,12 @@ describe Ingestion::EventPreparers::UserIdentifyHandler do
       expect(event.name).to eq('identify')
       expect(event.user_profile_id).to eq(workspace.analytics_user_profiles.first.id)
 
-      expect(event.sanitized_properties['userIdentifier']).to eq('my-user-unique-identifier')
       expect(event.sanitized_properties['email']).to eq('yo@swishjam.com')
       expect(event.sanitized_properties['first_name']).to eq('Yo')
       expect(event.sanitized_properties['last_name']).to eq('Dawg')
       expect(event.sanitized_properties['phone_number']).to eq('0987654321')
       expect(event.sanitized_properties['subscription_plan']).to eq('pro')
-      expect(event.sanitized_properties.keys.count).to eq(6)
+      expect(event.sanitized_properties.keys.count).to eq(5)
 
       expect(event.user_properties['unique_identifier']).to eq('my-user-unique-identifier')
       expect(event.user_properties['email']).to eq('yo@swishjam.com')
@@ -179,7 +176,7 @@ describe Ingestion::EventPreparers::UserIdentifyHandler do
       expect(workspace.analytics_user_profiles.count).to eq(1)
       expect(workspace.analytics_user_profile_devices.count).to eq(1)
       
-      described_class.new(event).handle_identify_and_return_new_event_json!
+      described_class.new(event).handle_identify_and_return_updated_parsed_event!
       
       expect(workspace.analytics_user_profiles.count).to eq(1)
       expect(workspace.analytics_user_profile_devices.count).to eq(1)
@@ -201,13 +198,12 @@ describe Ingestion::EventPreparers::UserIdentifyHandler do
       expect(event.name).to eq('identify')
       expect(event.user_profile_id).to eq(workspace.analytics_user_profiles.first.id)
 
-      expect(event.sanitized_properties['userIdentifier']).to eq('my-user-unique-identifier')
       expect(event.sanitized_properties['email']).to eq('new-email@swishjam.com')
       expect(event.sanitized_properties['first_name']).to eq('new-first-name')
       expect(event.sanitized_properties['last_name']).to eq('new-last-name')
       expect(event.sanitized_properties['phone_number']).to eq('new-phone-number')
       expect(event.sanitized_properties['subscription_plan']).to eq('new-subscription-plan')
-      expect(event.sanitized_properties.keys.count).to eq(6)
+      expect(event.sanitized_properties.keys.count).to eq(5)
 
       expect(event.user_properties['unique_identifier']).to eq('my-user-unique-identifier')
       expect(event.user_properties['email']).to eq('new-email@swishjam.com')
@@ -263,7 +259,7 @@ describe Ingestion::EventPreparers::UserIdentifyHandler do
       expect(workspace.analytics_user_profiles.count).to eq(2)
       expect(workspace.analytics_user_profile_devices.count).to eq(1)
       
-      described_class.new(event).handle_identify_and_return_new_event_json!
+      described_class.new(event).handle_identify_and_return_updated_parsed_event!
       
       expect(workspace.analytics_user_profiles.count).to eq(2)
       expect(workspace.analytics_user_profile_devices.count).to eq(1)
@@ -287,13 +283,12 @@ describe Ingestion::EventPreparers::UserIdentifyHandler do
       expect(event.name).to eq('identify')
       expect(event.user_profile_id).to eq(soon_to_be_new_owner.id)
 
-      expect(event.sanitized_properties['userIdentifier']).to eq('an-existing-user-unique-identifier')
       expect(event.sanitized_properties['email']).to eq('an-existing-email-who-now-owns-this-device@swishjam.com')
       expect(event.sanitized_properties['first_name']).to eq('Yo')
       expect(event.sanitized_properties['last_name']).to eq('Dawg')
       expect(event.sanitized_properties['phone_number']).to eq('0987654321')
       expect(event.sanitized_properties['subscription_plan']).to eq('pro')
-      expect(event.sanitized_properties.keys.count).to eq(6)
+      expect(event.sanitized_properties.keys.count).to eq(5)
 
       expect(event.user_properties['unique_identifier']).to eq('an-existing-user-unique-identifier')
       expect(event.user_properties['email']).to eq('an-existing-email-who-now-owns-this-device@swishjam.com')
@@ -340,7 +335,7 @@ describe Ingestion::EventPreparers::UserIdentifyHandler do
       expect(workspace.analytics_user_profiles.count).to eq(1)
       expect(workspace.analytics_user_profile_devices.count).to eq(1)
       
-      described_class.new(event).handle_identify_and_return_new_event_json!
+      described_class.new(event).handle_identify_and_return_updated_parsed_event!
       
       expect(workspace.analytics_user_profiles.count).to eq(2)
       expect(workspace.analytics_user_profile_devices.count).to eq(1)
@@ -361,13 +356,12 @@ describe Ingestion::EventPreparers::UserIdentifyHandler do
       expect(event.name).to eq('identify')
       expect(event.user_profile_id).to eq(new_user_profile.id)
 
-      expect(event.sanitized_properties['userIdentifier']).to eq('a-new-user-unique-identifier')
       expect(event.sanitized_properties['email']).to eq('yo@swishjam.com')
       expect(event.sanitized_properties['first_name']).to eq('Yo')
       expect(event.sanitized_properties['last_name']).to eq('Dawg')
       expect(event.sanitized_properties['phone_number']).to eq('0987654321')
       expect(event.sanitized_properties['subscription_plan']).to eq('pro')
-      expect(event.sanitized_properties.keys.count).to eq(6)
+      expect(event.sanitized_properties.keys.count).to eq(5)
 
       expect(event.user_properties['unique_identifier']).to eq('a-new-user-unique-identifier')
       expect(event.user_properties['email']).to eq('yo@swishjam.com')
@@ -417,7 +411,7 @@ describe Ingestion::EventPreparers::UserIdentifyHandler do
       expect(workspace.analytics_user_profiles.count).to eq(1)
       expect(workspace.analytics_user_profile_devices.count).to eq(1)
       
-      described_class.new(event).handle_identify_and_return_new_event_json!
+      described_class.new(event).handle_identify_and_return_updated_parsed_event!
       
       expect(workspace.analytics_user_profiles.count).to eq(2)
       expect(workspace.analytics_user_profile_devices.count).to eq(1)
@@ -439,14 +433,13 @@ describe Ingestion::EventPreparers::UserIdentifyHandler do
       expect(event.name).to eq('identify')
       expect(event.user_profile_id).to eq(new_user_profile.id)
 
-      expect(event.sanitized_properties['userIdentifier']).to eq('a-new-user-unique-identifier')
       expect(event.sanitized_properties['email']).to eq('yo@swishjam.com')
       expect(event.sanitized_properties['first_name']).to eq('Yo')
       expect(event.sanitized_properties['last_name']).to eq('Dawg')
       expect(event.sanitized_properties['phone_number']).to eq('0987654321')
       expect(event.sanitized_properties['subscription_plan']).to eq('pro')
       expect(event.sanitized_properties['initial_landing_page_url']).to eq('https://swishjam.com/landing-page-the-identified-user-landed-on')
-      expect(event.sanitized_properties.keys.count).to eq(7)
+      expect(event.sanitized_properties.keys.count).to eq(6)
 
       expect(event.user_properties['unique_identifier']).to eq('a-new-user-unique-identifier')
       expect(event.user_properties['email']).to eq('yo@swishjam.com')

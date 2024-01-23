@@ -9,6 +9,8 @@ class AnalyticsUserProfile < Transactional
   alias_attribute :organizations, :analytics_organization_profiles
   has_many :customer_subscriptions, as: :parent_profile, dependent: :destroy
 
+  attribute :metadata, :jsonb, default: {}
+
   validates :user_unique_identifier, uniqueness: { scope: :workspace_id }, if: -> { user_unique_identifier.present? }
 
   scope :anonymous, -> { where(user_unique_identifier: nil, email: nil) }

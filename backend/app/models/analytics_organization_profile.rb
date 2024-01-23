@@ -4,6 +4,8 @@ class AnalyticsOrganizationProfile < Transactional
   has_many :analytics_user_profiles, through: :analytics_organization_members
   alias_attribute :users, :analytics_user_profiles
 
+  attribute :metadata, :jsonb, default: {}
+
   after_create :enqueue_replication_to_clickhouse
   after_update :enqueue_replication_to_clickhouse
 

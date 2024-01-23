@@ -1,7 +1,7 @@
 module Ingestion
   module EventPreparers
     class BasicEventHandler < Base
-      def handle_and_return_new_event_json!
+      def handle_and_return_updated_parsed_event!
         parsed_event.set_user_profile(user_profile_for_event)
         parsed_event.set_organization_profile(organization_for_event) if organization_for_event.present?
         parsed_event
@@ -70,6 +70,7 @@ module Ingestion
             metadata: metadata_for_new_user_profile,
             last_seen_at_in_web_app: Time.current,
             first_seen_at_in_web_app: Time.current,
+            created_by_data_source: data_source,
           )
         end
       end
@@ -84,6 +85,7 @@ module Ingestion
             first_seen_at_in_web_app: Time.current, 
             last_seen_at_in_web_app: Time.current,
             metadata: metadata_for_new_user_profile,
+            created_by_data_source: data_source,
           )
           workspace.analytics_user_profile_devices.create!(
             swishjam_cookie_value: parsed_event.device_identifier, 

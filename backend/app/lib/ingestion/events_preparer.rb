@@ -29,48 +29,53 @@ module Ingestion
     def prepare_events!
       raw_events = Ingestion::QueueManager.pop_all_records_from_queue(Ingestion::QueueManager::Queues.EVENTS_TO_PREPARE)
       begin
-        formatted_events = []
+        prepared_events = []
         failed_events = []
         raw_events.map do |event_json|
           event = Ingestion::ParsedEventFromIngestion.new(event_json)
+          # technically one event can produce many more events (ie: stripe supplemental events)
+          prepared_events_for_event = []
           if event.name == 'identify'
-            Ingestion::EventPreparers::UserIdentifyHandler.new(event).handle_identify_and_return_new_event_json!
+            parsed_event = Ingestion::EventPreparers::UserIdentifyHandler.new(event).handle_identify_and_return_updated_parsed_event!
+            prepared_events_for_event << parsed_event.formatted_for_ingestion
           elsif event.name.starts_with?('stripe.')
-            Ingestion::EventPreparers::StripeEventHandler.new(event).handle_and_return_new_event_json!
+            stripe_events = Ingestion::EventPreparers::StripeEventHandler.new(event).handle_and_return_parsed_events!
+            prepared_events_for_event = stripe_events.map{ |parsed_event| parsed_event.formatted_for_ingestion }
           else
-            Ingestion::EventPreparers::BasicEventHandler.new(event).handle_and_return_new_event_json!
+            parsed_event << Ingestion::EventPreparers::BasicEventHandler.new(event).handle_and_return_updated_parsed_event!
+            prepared_events_for_event << parsed_event.formatted_for_ingestion
           end
-          formatted_events << event.formatted_for_ingestion
+          prepared_events.concat(prepared_events_for_event)
         rescue => e
           byebug
           failed_events << event_json
-          Sentry.capture_message("Error parsing event into ingestino format during events ingestion, continuing with the rest of the events in the queue: #{e.message}", level: 'error')
+          Sentry.capture_message("Error preparing event into ingestion format during events ingestion, continuing with the rest of the events in the queue and pushing this one to the DLQ.\nevent: #{event_json}\n error: #{e.message}", level: 'error')
         end
 
-        if formatted_events.any?
-          Ingestion::QueueManager.push_records_into_queue(Ingestion::QueueManager::Queues.PREPARED_EVENTS, formatted_events)
-          EventTriggers::Evaluator.evaluate_ingested_events(formatted_events)
+        if prepared_events.any?
+          Ingestion::QueueManager.push_records_into_queue(Ingestion::QueueManager::Queues.PREPARED_EVENTS, prepared_events)
+          EventTriggers::Evaluator.evaluate_ingested_events(prepared_events)
         end
         if failed_events.any?
           Ingestion::QueueManager.push_records_into_queue(Ingestion::QueueManager::Queues.EVENTS_TO_PREPARE_DLQ, failed_events)
         end
       rescue => e
         byebug
-        Ingestion::QueueManager.push_records_into_queue(Ingestion::QueueManager::Queues.EVENTS_DEAD_LETTER_QUEUE, formatted_events)
-        @ingestion_batch.error_message = e.message
+        Ingestion::QueueManager.push_records_into_queue(Ingestion::QueueManager::Queues.EVENTS_TO_PREPARE_DLQ, raw_events)
+        ingestion_batch.error_message = e.message
         Sentry.capture_exception(e)
       end
-      @ingestion_batch.num_records = raw_events.count
-      @ingestion_batch.completed_at = Time.current
-      @ingestion_batch.num_seconds_to_complete = @ingestion_batch.completed_at - @ingestion_batch.started_at
-      @ingestion_batch.save!
-      @ingestion_batch
+      ingestion_batch.num_records = raw_events.count
+      ingestion_batch.completed_at = Time.current
+      ingestion_batch.num_seconds_to_complete = ingestion_batch.completed_at - ingestion_batch.started_at
+      ingestion_batch.save!
+      ingestion_batch
     end
 
     private
 
     # def parse_events_from_queue_and_push_identify_events_into_queues!
-    #   @formatted_events_to_ingest ||= begin
+    #   @prepared_events_to_ingest ||= begin
     #     identify_events = []
     #     organization_events = []
     #     user_profiles_from_events = []
