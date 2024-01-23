@@ -1,7 +1,7 @@
 'use client';
 
 import { Cog6ToothIcon, CursorArrowRaysIcon, PauseCircleIcon, PlayCircleIcon, TrashIcon, PencilSquareIcon } from '@heroicons/react/24/outline'
-import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import EmptyState from '../EmptyState';
 import Link from "next/link";
 import Logo from '@components/Logo'
@@ -107,7 +107,7 @@ export default function () {
                         <Tooltipable
                           content={
                             trigger.conditional_statements.map((statement, i) => (
-                              <span className='block text-gray-700 text-xs'>{i + 1}. If {statement.property} {statement.condition.replace(/_/g, ' ')} "{statement.property_value}"</span>
+                              <span className='block text-gray-700 text-xs'>{i + 1}. If {statement.property} {statement.condition.replace(/_/g, ' ')} {statement.condition === 'is_defined' ? '' : `"${statement.property_value}"`}</span>
                             ))
                           }
                         >

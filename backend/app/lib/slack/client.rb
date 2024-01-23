@@ -23,10 +23,14 @@ module Slack
 
     def post_message_to_channel(channel:, text: nil, blocks: nil)
       raise BadRequestError, "`post_message_to_channel` must contain either `text` or `blocks` argument." if text.blank? && blocks.blank?
-      payload = { channel: channel }
-      payload[:text] = text if text.present?
-      payload[:blocks] = blocks.to_json if blocks.present?
-      response = post('chat.postMessage', payload)
+      if !Rails.env.production? && ENV['ENABLE_SLACK_NOTIFICATIONS_IN_DEV'] != 'true'
+        Rails.logger.info("\nWould have sent Slack message to channel #{channel} with text: #{text} and blocks: #{blocks}\n")
+      else
+        payload = { channel: channel }
+        payload[:text] = text if text.present?
+        payload[:blocks] = blocks.to_json if blocks.present?
+        response = post('chat.postMessage', payload)
+      end
     end
 
     private

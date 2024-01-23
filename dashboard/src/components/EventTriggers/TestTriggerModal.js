@@ -133,7 +133,7 @@ export default function TestTriggerModal({
           <SlackMessagePreview header={slackMessageHeader} body={<Markdown>{interpolatedSlackBody}</Markdown>} className='mt-2' />
           <div className='mt-2'>
             {resultMessage && (
-              <div className='text-md text-gray-700 mb-2 text-center'>
+              <div className='text-sm text-gray-700 mb-2 text-center'>
                 {resultMessage}
               </div>
             )}

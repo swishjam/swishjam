@@ -1,17 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react';
-import SwishjamAPI from '@/lib/api-client/swishjam-api';
-import { LuPlus, LuTrash } from "react-icons/lu";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
-import { Textarea } from "@/components/ui/textarea"
-import { Input } from '@/components/ui/input';
+import { ArrowLeftIcon, InfoIcon } from 'lucide-react';
 import { Button } from "@/components/ui/button"
 import {
   Form,
@@ -21,18 +10,24 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form"
-import { useFieldArray, useForm } from "react-hook-form"
+import { Input } from '@/components/ui/input';
 import Link from 'next/link';
 import LoadingSpinner from '@components/LoadingSpinner';
-import { toast } from 'sonner'
-import SlackMessagePreview from '@components/Slack/SlackMessagePreview';
+import { LuPlus, LuTrash } from "react-icons/lu";
 import MessageBodyMarkdownRenderer from '@components/Slack/MessageBodyMarkdownRenderer';
-import { swishjam } from '@swishjam/react';
-import { useRouter } from 'next/navigation';
-import { Tooltipable } from '@/components/ui/tooltip';
-import { ArrowLeftIcon, InfoIcon } from 'lucide-react';
-import TestTriggerModal from '@/components/EventTriggers/TestTriggerModal';
 import { PaperAirplaneIcon } from '@heroicons/react/24/outline';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Skeleton } from '@/components/ui/skeleton';
+import SlackMessagePreview from '@components/Slack/SlackMessagePreview';
+import { swishjam } from '@swishjam/react';
+import SwishjamAPI from '@/lib/api-client/swishjam-api';
+import { toast } from 'sonner'
+import { Textarea } from "@/components/ui/textarea"
+import { Tooltipable } from '@/components/ui/tooltip';
+import TestTriggerModal from '@/components/EventTriggers/TestTriggerModal';
+import { useEffect, useState } from 'react';
+import { useFieldArray, useForm } from "react-hook-form"
+import { useRouter } from 'next/navigation';
 
 export default function NewEventTrigger() {
   const form = useForm({ defaultValues: { header: '✨ Event Name' } });
@@ -150,6 +145,14 @@ export default function NewEventTrigger() {
     });
   }, [])
 
+  const FormInputOrLoadingState = ({ children, className }) => {
+    if (uniqueEvents === undefined || slackChannels === undefined) {
+      return <Skeleton className={`h-10 w-full ${className || ''}`} />
+    } else {
+      return children;
+    }
+  }
+
   return (
     <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mb-8">
       {testTriggerModalIsOpen && (
@@ -199,23 +202,25 @@ export default function NewEventTrigger() {
                         <InfoIcon className='inline ml-1 text-gray-500' size={16} />
                       </Tooltipable>
                     </FormLabel>
-                    <Select
-                      onValueChange={(e) => { setSelectedEventAndGetPropertiesAndAutofillMessageContentIfNecessary(e); field.onChange(e) }}
-                      defaultValue={field.value}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select your event" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {uniqueEvents?.map(event => (
-                          <SelectItem key={event.name} className="cursor-pointer hover:bg-gray-100" value={event.name}>
-                            {event.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    <FormInputOrLoadingState>
+                      <Select
+                        onValueChange={(e) => { setSelectedEventAndGetPropertiesAndAutofillMessageContentIfNecessary(e); field.onChange(e) }}
+                        defaultValue={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select your event" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {uniqueEvents?.map(event => (
+                            <SelectItem key={event.name} className="cursor-pointer hover:bg-gray-100" value={event.name}>
+                              {event.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </FormInputOrLoadingState>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -229,125 +234,129 @@ export default function NewEventTrigger() {
                   </Tooltipable>
                 </FormLabel>
 
-                {conditionalStatementsFieldArray.fields.length == 0 && (
-                  <div
-                    onClick={() => conditionalStatementsFieldArray.append()}
-                    className='bg-white px-6 py-6 border-2 border-gray-200 border-dashed mt-2 rounded-md text-center text-gray-400 text-sm cursor-pointer duration-500 transition-all hover:border-swishjam hover:text-swishjam'
-                  >
-                    <LuPlus size="24" className='mx-auto mb-4' />
-                    Add Trigger Condition
-                  </div>
-                )}
-                {conditionalStatementsFieldArray.fields.length > 0 && (
-                  <ul className='grid gap-y-2 mt-2'>
-                    {conditionalStatementsFieldArray.fields.map((field, index) => {
-                      return (
-                        <li key={index} className='w-full flex items-center gap-x-2'>
-                          <span className='text-sm'>
-                            {conditionalStatementsFieldArray.fields.length > 1 && index > 0 ? 'And if' : 'If'}
-                          </span>
-                          <FormField
-                            control={field.control}
-                            name={`conditionalStatements.${index}.property`}
-                            render={({ field }) => (
-                              <FormItem>
-                                <Select
-                                  className='flex-grow'
-                                  disabled={propertyOptionsForSelectedEvent === undefined}
-                                  onValueChange={field.onChange}
-                                  value={field.value}
-                                >
-                                  <FormControl>
-                                    <SelectTrigger>
-                                      <SelectValue placeholder={<span className='text-gray-500 italic'>Event Property</span>} />
-                                    </SelectTrigger>
-                                  </FormControl>
-                                  <SelectContent>
-                                    <SelectItem value='_header' disabled>
-                                      Event Property
-                                    </SelectItem>
-                                    {propertyOptionsForSelectedEvent?.map(propertyName => (
-                                      <SelectItem className="cursor-pointer hover:bg-gray-100" value={propertyName} key={propertyName}>
-                                        {propertyName}
-                                      </SelectItem>
-                                    ))}
-                                  </SelectContent>
-                                </Select>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                          <FormField
-                            control={field.control}
-                            name={`conditionalStatements.${index}.condition`}
-                            render={({ field }) => (
-                              <FormItem>
-                                <Select
-                                  className='flex-grow'
-                                  disabled={propertyOptionsForSelectedEvent === undefined}
-                                  onValueChange={field.onChange}
-                                  value={field.value}
-                                >
-                                  <FormControl>
-                                    <SelectTrigger>
-                                      <SelectValue placeholder={<span className='text-gray-500 italic mr-2'>Condition</span>} />
-                                    </SelectTrigger>
-                                  </FormControl>
-                                  <SelectContent>
-                                    <SelectItem value='_header' disabled>
-                                      Condition
-                                    </SelectItem>
-                                    {['equals', 'contains', 'does not contain', 'ends with', 'does not end with'].sort().map(condition => (
-                                      <SelectItem className="cursor-pointer hover:bg-gray-100" value={condition.replace(/\s/g, '_')} key={condition}>
-                                        {condition}
-                                      </SelectItem>
-                                    ))}
-                                  </SelectContent>
-                                </Select>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                          <FormField
-                            control={form.control}
-                            name={`conditionalStatements.${index}.property_value`}
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormControl>
-                                  <Input
-                                    type="text"
-                                    placeholder="Your property value"
+                <FormInputOrLoadingState className='h-24 mt-2'>
+                  {conditionalStatementsFieldArray.fields.length == 0 && (
+                    <div
+                      onClick={() => conditionalStatementsFieldArray.append()}
+                      className='bg-white px-6 py-6 border-2 border-gray-200 border-dashed mt-2 rounded-md text-center text-gray-400 text-sm cursor-pointer duration-500 transition-all hover:border-swishjam hover:text-swishjam'
+                    >
+                      <LuPlus size="24" className='mx-auto mb-4' />
+                      Add Trigger Condition
+                    </div>
+                  )}
+                  {conditionalStatementsFieldArray.fields.length > 0 && (
+                    <ul className='grid gap-y-2 mt-2'>
+                      {conditionalStatementsFieldArray.fields.map((field, index) => {
+                        return (
+                          <li key={index} className='w-full flex items-center gap-x-2'>
+                            <span className='text-sm'>
+                              {conditionalStatementsFieldArray.fields.length > 1 && index > 0 ? 'And if' : 'If'}
+                            </span>
+                            <FormField
+                              control={field.control}
+                              name={`conditionalStatements.${index}.property`}
+                              render={({ field }) => (
+                                <FormItem>
+                                  <Select
+                                    className='flex-grow'
                                     disabled={propertyOptionsForSelectedEvent === undefined}
-                                    {...form.register(`conditionalStatements.${index}.property_value`)}
-                                  />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
+                                    onValueChange={field.onChange}
+                                    value={field.value}
+                                  >
+                                    <FormControl>
+                                      <SelectTrigger>
+                                        <SelectValue placeholder={<span className='text-gray-500 italic'>Event Property</span>} />
+                                      </SelectTrigger>
+                                    </FormControl>
+                                    <SelectContent>
+                                      <SelectItem value='_header' disabled>
+                                        Event Property
+                                      </SelectItem>
+                                      {propertyOptionsForSelectedEvent?.map(propertyName => (
+                                        <SelectItem className="cursor-pointer hover:bg-gray-100" value={propertyName} key={propertyName}>
+                                          {propertyName}
+                                        </SelectItem>
+                                      ))}
+                                    </SelectContent>
+                                  </Select>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                            <FormField
+                              control={field.control}
+                              name={`conditionalStatements.${index}.condition`}
+                              render={({ field }) => (
+                                <FormItem>
+                                  <Select
+                                    className='flex-grow'
+                                    disabled={propertyOptionsForSelectedEvent === undefined}
+                                    onValueChange={field.onChange}
+                                    value={field.value}
+                                  >
+                                    <FormControl>
+                                      <SelectTrigger>
+                                        <SelectValue placeholder={<span className='text-gray-500 italic mr-2'>Condition</span>} />
+                                      </SelectTrigger>
+                                    </FormControl>
+                                    <SelectContent>
+                                      <SelectItem value='_header' disabled>
+                                        Condition
+                                      </SelectItem>
+                                      {['equals', 'contains', 'does not contain', 'ends with', 'does not end with', 'is defined'].sort().map(condition => (
+                                        <SelectItem className="cursor-pointer hover:bg-gray-100" value={condition.replace(/\s/g, '_')} key={condition}>
+                                          {condition}
+                                        </SelectItem>
+                                      ))}
+                                    </SelectContent>
+                                  </Select>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                            {form.watch(`conditionalStatements.${index}.condition`) !== 'is_defined' && (
+                              <FormField
+                                control={form.control}
+                                name={`conditionalStatements.${index}.property_value`}
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormControl>
+                                      <Input
+                                        type="text"
+                                        placeholder="Your property value"
+                                        disabled={propertyOptionsForSelectedEvent === undefined}
+                                        {...form.register(`conditionalStatements.${index}.property_value`)}
+                                      />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
                             )}
-                          />
-                          <Button
-                            onClick={() => conditionalStatementsFieldArray.remove(index)}
-                            type='button'
-                            variant="ghost"
-                            className='flex-none ml-2 duration-500 hover:text-rose-600'
-                          >
-                            <LuTrash size={14} />
-                          </Button>
-                        </li>
-                      )
-                    })}
-                    <li key="add-more-button">
-                      <Button
-                        onClick={() => conditionalStatementsFieldArray.append()}
-                        type='button'
-                        variant="outline"
-                        className='!mt-2 w-full'
-                      >
-                        Add Condition
-                      </Button>
-                    </li>
-                  </ul>
-                )}
+                            <Button
+                              onClick={() => conditionalStatementsFieldArray.remove(index)}
+                              type='button'
+                              variant="ghost"
+                              className='flex-none ml-2 duration-500 hover:text-rose-600'
+                            >
+                              <LuTrash size={14} />
+                            </Button>
+                          </li>
+                        )
+                      })}
+                      <li key="add-more-button">
+                        <Button
+                          onClick={() => conditionalStatementsFieldArray.append()}
+                          type='button'
+                          variant="outline"
+                          className='!mt-2 w-full'
+                        >
+                          Add Condition
+                        </Button>
+                      </li>
+                    </ul>
+                  )}
+                </FormInputOrLoadingState>
               </div>
 
               <FormField
@@ -357,12 +366,14 @@ export default function NewEventTrigger() {
                   <FormItem>
                     <FormLabel>Header</FormLabel>
                     <FormControl>
-                      <Input
-                        type="search"
-                        placeholder="✨ Event Name"
-                        autoComplete="off"
-                        {...form.register("header")}
-                      />
+                      <FormInputOrLoadingState>
+                        <Input
+                          type="search"
+                          placeholder="✨ Event Name"
+                          autoComplete="off"
+                          {...form.register("header")}
+                        />
+                      </FormInputOrLoadingState>
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -387,9 +398,9 @@ export default function NewEventTrigger() {
                       </Tooltipable>
                     </FormLabel>
                     <FormControl>
-                      <Textarea
-                        {...form.register("body")}
-                      />
+                      <FormInputOrLoadingState>
+                        <Textarea {...form.register("body")} />
+                      </FormInputOrLoadingState>
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -402,19 +413,18 @@ export default function NewEventTrigger() {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Slack Channel</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select your slack channel" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {slackChannels && slackChannels.map(c => <SelectItem key={c.id} className="cursor-pointer hover:bg-gray-100" value={c.id}>#{c.name}</SelectItem>)}
-                      </SelectContent>
-                    </Select>
+                    <FormInputOrLoadingState>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select your slack channel" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {slackChannels && slackChannels.map(c => <SelectItem key={c.id} className="cursor-pointer hover:bg-gray-100" value={c.id}>#{c.name}</SelectItem>)}
+                        </SelectContent>
+                      </Select>
+                    </FormInputOrLoadingState>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -437,7 +447,7 @@ export default function NewEventTrigger() {
                     <button
                       type="button"
                       className={`!mt-6 w-full flex items-center justify-center py-2 px-4 border border-gray-200 rounded-md shadow-sm text-sm font-medium text-gray-700 focus:outline-none focus:ring-2 bg-white hover:bg-gray-200`}
-                      disabled={loading}
+                      disabled={loading || uniqueEvents === undefined || slackChannels === undefined}
                       onClick={() => setTestTriggerModalIsOpen(true)}
                     >
                       <PaperAirplaneIcon className='w-4 h-4 inline mr-2' />
@@ -447,7 +457,7 @@ export default function NewEventTrigger() {
                 <Button
                   className={`!mt-6 w-full flex items-center justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white focus:outline-none focus:ring-2 ${loading ? 'bg-swishjam-dark' : 'bg-swishjam'} hover:bg-swishjam-dark`}
                   type="submit"
-                  disabled={loading}
+                  disabled={loading || uniqueEvents === undefined || slackChannels === undefined}
                 >
                   {loading ? <LoadingSpinner color="white" /> : 'Create Trigger'}
                 </Button>
