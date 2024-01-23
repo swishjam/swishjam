@@ -34,7 +34,7 @@ export default function ProfileInformationSideBar({ userData, hasStripeIntegrati
             {/* {userData.poweruser ? <PowerUserBadge className="absolute top-5 right-5" size={8} /> : ''}
             {userData.churnwarning ? <ChurnWarningUserBadge className="absolute top-5 right-5" size={8} /> : ''} */}
             <CardTitle className='text-2xl'>
-              {userData.full_name || userData.email || userData.user_unique_identifier}
+              {userData.full_name || userData.email || userData.user_unique_identifier || (<>Anonymous User <span className='italic'>{userData.id.slice(0, 6)}</span></>)}
             </CardTitle>
             {userData.full_name && (
               <CardDescription className='text-base text-gray-500'>

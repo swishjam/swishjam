@@ -26,7 +26,7 @@ RSpec.describe Ingestion::UserIdentifiesIngestion do
       expect(AnalyticsUserProfile.count).to be(0)
       expect(Analytics::SwishjamUserProfile.count).to be(0)
       expect(Analytics::UserIdentifyEvent.count).to be(0)
-      expect(Ingestion::QueueManager).to receive(:push_records_into_queue).exactly(2).times.with(Ingestion::QueueManager::Queues.CLICKHOUSE_USER_PROFILES, anything)
+      expect(Ingestion::QueueManager).to receive(:push_records_into_queue).exactly(2).times.with(Ingestion::QueueManager::Queues.CLICK_HOUSE_USER_PROFILES, anything)
       
       Ingestion::UserIdentifiesIngestion.ingest!
 
@@ -89,7 +89,7 @@ RSpec.describe Ingestion::UserIdentifiesIngestion do
       expect(IngestionBatch.count).to be(0)
       expect(AnalyticsUserProfile.count).to be(1)
       expect(Analytics::UserIdentifyEvent.count).to be(1)
-      expect(Ingestion::QueueManager).to receive(:push_records_into_queue).exactly(1).times.with(Ingestion::QueueManager::Queues.CLICKHOUSE_USER_PROFILES, anything)
+      expect(Ingestion::QueueManager).to receive(:push_records_into_queue).exactly(1).times.with(Ingestion::QueueManager::Queues.CLICK_HOUSE_USER_PROFILES, anything)
       
       Ingestion::UserIdentifiesIngestion.new.ingest!
 

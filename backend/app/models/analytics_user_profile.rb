@@ -60,7 +60,7 @@ class AnalyticsUserProfile < Transactional
   end
 
   def enqueue_replication_to_clickhouse
-    Ingestion::QueueManager.push_records_into_queue(Ingestion::QueueManager::Queues.CLICKHOUSE_USER_PROFILES, formatted_for_clickhouse_replication)
+    Ingestion::QueueManager.push_records_into_queue(Ingestion::QueueManager::Queues.CLICK_HOUSE_USER_PROFILES, formatted_for_clickhouse_replication)
   end
 
   private

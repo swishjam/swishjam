@@ -34,7 +34,7 @@ module ClickHouseQueries
 
       def list_users_sql
         <<~SQL
-          SELECT swishjam_user_id, email, metadata, created_at, first_seen_at_in_web_app
+          SELECT swishjam_user_id, email, metadata, #{select_clickhouse_timestamp_with_timezone('created_at')}, first_seen_at_in_web_app
           FROM (
             SELECT 
               swishjam_user_id,

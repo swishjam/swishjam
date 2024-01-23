@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-RSpec.describe Ingestion::UserProfilesFromEventsIngestion do
+RSpec.describe Ingestion::UserProfilesFromEventsPreparer do
   describe '#ingest!' do
     it 'creates a new user profile if one does not exist' do
       occurred_at = 10.minutes.ago

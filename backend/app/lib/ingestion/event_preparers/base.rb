@@ -1,5 +1,5 @@
 module Ingestion
-  module EventHandlers
+  module EventPreparers
     class Base
       attr_accessor :parsed_event
 

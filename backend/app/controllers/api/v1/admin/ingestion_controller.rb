@@ -12,7 +12,7 @@ module Api
           event_count = Ingestion::QueueManager.num_records_in_queue(Ingestion::QueueManager::Queues.EVENTS)
           user_identify_count = Ingestion::QueueManager.num_records_in_queue(Ingestion::QueueManager::Queues.IDENTIFY)
           organization_profile_count = Ingestion::QueueManager.num_records_in_queue(Ingestion::QueueManager::Queues.ORGANIZATION)
-          clickhouse_user_profile_count = Ingestion::QueueManager.num_records_in_queue(Ingestion::QueueManager::Queues.CLICKHOUSE_USER_PROFILES)
+          clickhouse_user_profile_count = Ingestion::QueueManager.num_records_in_queue(Ingestion::QueueManager::Queues.CLICK_HOUSE_USER_PROFILES)
           clickhouse_organization_profile_count = Ingestion::QueueManager.num_records_in_queue(Ingestion::QueueManager::Queues.CLICKHOUSE_ORGANIZATION_PROFILES)
           clickhouse_organization_member_count = Ingestion::QueueManager.num_records_in_queue(Ingestion::QueueManager::Queues.CLICKHOUSE_ORGANIZATION_MEMBERS)
           user_profiles_from_events_count = Ingestion::QueueManager.num_records_in_queue(Ingestion::QueueManager::Queues.USER_PROFILES_FROM_EVENTS)

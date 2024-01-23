@@ -1,5 +1,5 @@
 module Ingestion
-  module EventHandlers
+  module EventPreparers
     class UserIdentifyHandler < Base
       class InvalidIdentifyEvent < StandardError; end;
 

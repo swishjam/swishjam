@@ -74,9 +74,7 @@ const UserProfile = ({ params }) => {
                 url: '/users'
               },
               {
-                title: userData
-                  ? userData.full_name || userData.email || userData.user_unique_identifier ? `Un-named User: ${userData?.user_unique_identifier}` : `Anonymous User ${userData?.swishjam_user_id.slice(0, 4)}`
-                  : <Skeleton className='h-8 w-12' />,
+                title: userData.full_name || userData.email || (userData.user_unique_identifier ? `Un-named User: ${userData.user_unique_identifier}` : `Anonymous User ${userData.id.slice(0, 6)}`),
                 url: null
               }
             ]}
@@ -84,7 +82,7 @@ const UserProfile = ({ params }) => {
           <Button
             variant="ghost"
             className={`duration-500 transition-all mr-4 hover:text-swishjam ${isRefreshing ? "cursor-not-allowed text-swishjam" : ""}`}
-            onClick={() => getAllData()}
+            onClick={getAllData}
             disabled={isRefreshing}
           >
             <ArrowPathIcon className={`h-4 w-4 ${isRefreshing ? "animate-spin" : ""}`} />

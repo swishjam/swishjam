@@ -135,7 +135,7 @@ export default function PageMetrics() {
               const d = new Date(date);
               const formattedDate = d.toLocaleDateString('en-us', { weekday: "short", year: "numeric", month: "short", day: "numeric" }).replace(`, ${d.getFullYear()}`, '')
               const formattedTime = d.toLocaleTimeString('en-us', { hour: 'numeric', minute: '2-digit' })
-              return `${formattedDate} ${formattedTime}`
+              return <span className='text-xs font-normal'>{formattedDate} {formattedTime}</span>
             }}
             title='New Users'
             viewMoreUrl='/users'

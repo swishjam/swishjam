@@ -92,7 +92,7 @@ const UsersTableBody = ({ currentPageNum, selectedFilters, onUsersFetched = () =
                   <div className="ml-4">
                     {user.full_name
                       ? <span className="font-medium text-gray-900">{user.full_name}</span>
-                      : <span className='text-gray-700 italic'>Name Unknown</span>}
+                      : <span className='text-gray-700 italic'>{!user.unique_identifier && !user.email ? `Anonymous User ${user.swishjam_user_id.slice(0, 4)}` : 'Name Unknown'}</span>}
                   </div>
                 </div>
               </td>

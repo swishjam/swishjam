@@ -2,21 +2,21 @@ module Ingestion
   class QueueManager
     class Queues
       QUEUE_NAMES = %i[
-        EVENTS EVENTS_DEAD_LETTER_QUEUE
-        IDENTIFY IDENTIFY_DEAD_LETTER_QUEUE
-        ORGANIZATION ORGANIZATIONS_DEAD_LETTER_QUEUE
-        USER_PROFILES_FROM_EVENTS USER_PROFILES_FROM_EVENTS_DEAD_LETTER_QUEUE
-        CLICKHOUSE_USER_PROFILES CLICKHOUSE_USER_PROFILES_DEAD_LETTER_QUEUE
-        CLICKHOUSE_ORGANIZATION_PROFILES CLICKHOUSE_ORGANIZATION_PROFILES_DEAD_LETTER_QUEUE
-        CLICKHOUSE_ORGANIZATION_MEMBERS CLICKHOUSE_ORGANIZATION_MEMBERS_DEAD_LETTER_QUEUE
+        EVENTS_TO_PREPARE
+        PREPARED_EVENTS 
+        CLICK_HOUSE_USER_PROFILES
+        CLICK_HOUSE_ORGANIZATION_PROFILES
+        CLICK_HOUSE_ORGANIZATION_MEMBERS
       ]
+      
       class << self
         def all
-          QUEUE_NAMES.map{ |q| send(q) }
+          QUEUE_NAMES.map{ |q| [send(q), send("#{q}_DLQ")] }.flatten
         end
 
         QUEUE_NAMES.each do |method|
           define_method(method.to_s.upcase) { "#{method.to_s.downcase}_ingestion_queue" }
+          define_method("#{method.to_s.upcase}_DLQ") { "#{method.to_s.downcase}_ingestion_dead_letter_queue" }
         end
       end
     end

@@ -10,7 +10,7 @@ class CaptureAnalyticDataJob
   queue_as :default
 
   def perform(api_key, event_payload, requesting_ip_address)
-    raise "CaptureAnalyticDataJob is deprecated, events should be sent to Ingestion::EventsIngestion instead."
+    raise "CaptureAnalyticDataJob is deprecated, events should be sent to Ingestion::EventsPreparer instead."
     start = Time.now
     return if !valid_api_key_provided?(api_key)
 

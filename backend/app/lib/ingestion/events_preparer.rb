@@ -1,32 +1,34 @@
 module Ingestion
-  class EventsIngestion
+  class EventsPreparer
     attr_accessor :ingestion_batch
 
     EVENT_NAMES_TO_IGNORE = %w[sdk_error].freeze
     
     def initialize
-      @ingestion_batch = IngestionBatch.new(started_at: Time.current, event_type: 'events')
+      @ingestion_batch = IngestionBatch.new(started_at: Time.current, event_type: 'event_preparer')
     end
 
-    def self.ingest!
-      if ENV['HAULT_ALL_INGESTION_JOBS'] || ENV['HAULT_EVENTS_INGESTION']
-        Sentry.capture_message("Haulting `EventsIngestion` early because either `HAULT_ALL_INGESTION_JOBS` or `HAULT_EVENTS_INGESTION` ENV is set to true. Ingestion will pick back up when these ENVs are unset.")
+    def self.prepare_events!
+      if ENV['HAULT_ALL_INGESTION_JOBS'] || ENV['HAULT_PREPARED_EVENTS_INGESTION']
+        Sentry.capture_message("Haulting `EventsPreparer` early because either `HAULT_ALL_INGESTION_JOBS` or `HAULT_PREPARED_EVENTS_INGESTION` ENV is set to true. Ingestion will pick back up when these ENVs are unset.")
         return
       end
-      new.ingest!
+      new.prepare_events!
     end
 
-    def ingest!
-      raw_events = Ingestion::QueueManager.pop_all_records_from_queue(Ingestion::QueueManager::Queues.EVENTS)
+    def prepare_events!
+      raw_events = Ingestion::QueueManager.pop_all_records_from_queue(Ingestion::QueueManager::Queues.EVENTS_TO_PREPARE)
       begin
         formatted_events = [] 
         raw_events.map do |event_json|
           event = Ingestion::ParsedEventFromIngestion.new(event_json)
           case event.name
           when 'identify'
-            Ingestion::EventHandlers::UserIdentifyHandler.new(event).handle_identify_and_return_new_event_json!
+            Ingestion::EventPreparers::UserIdentifyHandler.new(event).handle_identify_and_return_new_event_json!
+          # when 'organization'
+          #   Ingestion::EventPreparers::OrganizationHandler.new(event).handle_organization_and_return_new_event_json!
           else
-            Ingestion::EventHandlers::BasicEventHandler.new(event).handle_and_return_new_event_json!
+            Ingestion::EventPreparers::BasicEventHandler.new(event).handle_and_return_new_event_json!
           end
           formatted_events << event.formatted_for_ingestion
         rescue => e
@@ -35,7 +37,7 @@ module Ingestion
         end
 
         if formatted_events.any?
-          Analytics::Event.insert_all!(formatted_events) 
+          Ingestion::QueueManager.push_records_into_queue(Ingestion::QueueManager::Queues.PREPARED_EVENTS, formatted_events)
           EventTriggers::Evaluator.evaluate_ingested_events(formatted_events)
         end
       rescue => e

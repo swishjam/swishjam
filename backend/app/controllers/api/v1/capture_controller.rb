@@ -17,7 +17,7 @@ module Api
             properties: e['attributes'] || e['properties'] || e.except('uuid', 'event', 'event_name', 'name', 'timestamp', 'source'),
           }
         end
-        Ingestion::QueueManager.push_records_into_queue(Ingestion::QueueManager::Queues.EVENTS, events)
+        Ingestion::QueueManager.push_records_into_queue(Ingestion::QueueManager::Queues.EVENTS_TO_PREPARE, events)
         render json: { message: 'ok' }, status: :ok
       rescue => e
         Rails.logger.error "Error capturing analytic event: #{e.message}"

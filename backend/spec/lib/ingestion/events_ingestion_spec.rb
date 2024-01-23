@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-RSpec.describe Ingestion::EventsIngestion do
+RSpec.describe Ingestion::EventsPreparer do
   def fill_queue_with(events)
     allow(Ingestion::QueueManager).to receive(:pop_all_records_from_queue).with(Ingestion::QueueManager::Queues.EVENTS).and_return(events.map{ |e| JSON.parse(e.to_json) })
     allow(Ingestion::QueueManager).to receive(:read_all_records_from_queue).with(Ingestion::QueueManager::Queues.EVENTS).and_return(events.map{ |e| JSON.parse(e.to_json) })
@@ -14,7 +14,7 @@ RSpec.describe Ingestion::EventsIngestion do
       expect(IngestionBatch.count).to be(0)
       expect(Analytics::Event.count).to be(0)
       
-      ingestion_batch = Ingestion::EventsIngestion.ingest!
+      ingestion_batch = Ingestion::EventsPreparer.ingest!
 
       expect(ingestion_batch.error_message).to be(nil)
 
@@ -57,7 +57,7 @@ RSpec.describe Ingestion::EventsIngestion do
         [{ 'uuid' => '789', 'swishjam_api_key' => 'stub', 'name' => 'organization', 'occurred_at' => occurred_at.iso8601(3), 'properties' => { 'organization_unique_identifier' => 'unique!', 'email' => 'Google' }}]
       ).exactly(1).times
       
-      ingestion_batch = Ingestion::EventsIngestion.ingest!
+      ingestion_batch = Ingestion::EventsPreparer.ingest!
 
       events = Analytics::Event.all
       expect(events.count).to be(4)
@@ -101,7 +101,7 @@ RSpec.describe Ingestion::EventsIngestion do
         ]
       ).exactly(1).times
 
-      ingestion_batch = Ingestion::EventsIngestion.ingest!
+      ingestion_batch = Ingestion::EventsPreparer.ingest!
     end
   end
 end

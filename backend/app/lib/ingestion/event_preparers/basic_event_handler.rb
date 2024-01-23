@@ -1,12 +1,46 @@
 module Ingestion
-  module EventHandlers
+  module EventPreparers
     class BasicEventHandler < Base
       def handle_and_return_new_event_json!
         parsed_event.set_user_profile(user_profile_for_event)
+        parsed_event.set_organization_profile(organization_for_event) if organization_for_event.present?
         parsed_event
       end
 
       private
+
+      def organization_for_event
+        @organization_for_event ||= begin
+          if parsed_event.properties.dig('organization_attributes', 'organization_identifier').present?
+            organization_identifier = parsed_event.properties.dig('organization_attributes', 'organization_identifier')
+            org = workspace.analytics_organization_profiles.find_by(organization_identifier: organization_identifier)
+            if org.present?
+              org.name = parsed_event.properties.dig('organization_attributes', 'name') if parsed_event.properties.dig('organization_attributes', 'name').present?
+              org.metadata = org.metadata.merge(parsed_event.properties.dig('organization_attributes', 'metadata')) if parsed_event.properties.dig('organization_attributes', 'metadata').present?
+              org.domain = parsed_event.properties.dig('organization_attributes', 'domain') if parsed_event.properties.dig('organization_attributes', 'domain').present?
+              if org.domain.nil?
+                domain_from_user_email = user_profile_for_event&.email&.split('@')&.last
+                org.domain = domain_from_user_email
+              end
+              org.save! if org.changed?
+            else
+              org = workspace.analytics_organization_profiles.create!(
+                organization_identifier: organization_identifier,
+                name: parsed_event.properties.dig('organization_attributes', 'name'),
+                metadata: parsed_event.properties.dig('organization_attributes', 'metadata'),
+                domain: parsed_event.properties.dig('organization_attributes', 'domain') || user_profile_for_event&.email&.split('@')&.last,
+              )
+            end
+            if user_profile_for_event.present?
+              org_member = org.analytics_organization_members.find_by(analytics_user_profile_id: user_profile_for_event.id)
+              if org_member.nil?
+                org.analytics_organization_members.create!(analytics_user_profile_id: user_profile_for_event.id)
+              end
+            end
+            org
+          end
+        end
+      end
 
       def user_profile_for_event
         @user_profile_for_event ||= begin

@@ -107,6 +107,10 @@ module Ingestion
       })
     end
 
+    def set_organization_profile(organization_profile)
+      event_json['organization_profile_id'] = organization_profile.id
+    end
+
     private
 
     def validate!

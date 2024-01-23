@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe Ingestion::EventHandlers::BasicEventHandler do
+describe Ingestion::EventPreparers::BasicEventHandler do
   def parsed_event(swishjam_api_key:, name: 'some_random_event', timestamp: 10.minutes.ago, properties: {})
     Ingestion::ParsedEventFromIngestion.new({
       'uuid' => 'evt-123',
@@ -21,7 +21,7 @@ describe Ingestion::EventHandlers::BasicEventHandler do
 
   describe '#handle_and_return_new_event_json!' do
     it 'returns an the event_json without any user profile if the event payload does not provide a user_id or device_identifier' do
-      event = Ingestion::EventHandlers::BasicEventHandler.new(
+      event = Ingestion::EventPreparers::BasicEventHandler.new(
         parsed_event(
           swishjam_api_key: @public_key,
           properties: { a_property: 'a_value', device_identifier: nil, device_fingerprint: nil }
@@ -43,7 +43,7 @@ describe Ingestion::EventHandlers::BasicEventHandler do
       expect(@workspace.analytics_user_profiles.count).to be(0)
       expect(@workspace.analytics_user_profile_devices.count).to be(0)
       
-      event = Ingestion::EventHandlers::BasicEventHandler.new(
+      event = Ingestion::EventPreparers::BasicEventHandler.new(
         parsed_event(
           swishjam_api_key: @public_key,
           properties: { a_property: 'a_value' }
@@ -88,7 +88,7 @@ describe Ingestion::EventHandlers::BasicEventHandler do
         device_fingerprint: 'abc',
       )
       
-      event = Ingestion::EventHandlers::BasicEventHandler.new(
+      event = Ingestion::EventPreparers::BasicEventHandler.new(
         parsed_event(
           swishjam_api_key: @public_key,
           properties: { 
@@ -140,7 +140,7 @@ describe Ingestion::EventHandlers::BasicEventHandler do
         }
       )
 
-      event = Ingestion::EventHandlers::BasicEventHandler.new(
+      event = Ingestion::EventPreparers::BasicEventHandler.new(
         parsed_event(
           swishjam_api_key: @public_key,
           properties: {
@@ -190,7 +190,7 @@ describe Ingestion::EventHandlers::BasicEventHandler do
         }
       )
 
-      event = Ingestion::EventHandlers::BasicEventHandler.new(
+      event = Ingestion::EventPreparers::BasicEventHandler.new(
         parsed_event(
           swishjam_api_key: @public_key,
           properties: {
@@ -240,7 +240,7 @@ describe Ingestion::EventHandlers::BasicEventHandler do
         }
       )
 
-      event = Ingestion::EventHandlers::BasicEventHandler.new(
+      event = Ingestion::EventPreparers::BasicEventHandler.new(
         parsed_event(
           swishjam_api_key: @public_key,
           properties: {
@@ -290,7 +290,7 @@ describe Ingestion::EventHandlers::BasicEventHandler do
         }
       )
 
-      event = Ingestion::EventHandlers::BasicEventHandler.new(
+      event = Ingestion::EventPreparers::BasicEventHandler.new(
         parsed_event(
           swishjam_api_key: @public_key,
           properties: {
