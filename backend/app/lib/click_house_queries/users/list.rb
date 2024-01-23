@@ -34,11 +34,18 @@ module ClickHouseQueries
 
       def list_users_sql
         <<~SQL
-          SELECT swishjam_user_id, email, metadata, #{select_clickhouse_timestamp_with_timezone('created_at')}, first_seen_at_in_web_app
+          SELECT 
+            swishjam_user_id, 
+            email, 
+            metadata, 
+            gravatar_url,
+            #{select_clickhouse_timestamp_with_timezone('created_at')}, 
+            first_seen_at_in_web_app
           FROM (
             SELECT 
               swishjam_user_id,
               argMax(merged_into_swishjam_user_id, updated_at) AS merged_into_swishjam_user_id,
+              argMax(gravatar_url, updated_at) AS gravatar_url,
               argMax(email, updated_at) AS email,
               argMax(metadata, updated_at) AS metadata,
               argMax(created_at, updated_at) AS created_at,

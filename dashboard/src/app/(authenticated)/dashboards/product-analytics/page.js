@@ -123,7 +123,9 @@ export default function PageMetrics() {
         </div>
         <div className="col-span-3">
           <ItemizedList
-            fallbackAvatarGenerator={user => user.initials?.slice(0, 2)}
+            fallbackAvatarGenerator={user => {
+              return (user.full_name || user.email || user.user_unique_identifier)?.slice(0, 2)
+            }}
             items={newUsersItemizedListData}
             titleFormatter={user => (
               user.full_name || user.email || user.user_unique_identifier || <>Anonymous User <span className='italic'>{user.swishjam_user_id.slice(0, 4)}</span></>
