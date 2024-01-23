@@ -115,7 +115,7 @@ export default function EditTriggerPage({ params }) {
     if (!selectedSlackChannelId) errMessage += 'Please select a Slack channel. '
     if (!slackMessageHeader || !slackMessageBody) errMessage += 'Please enter a message header or body. '
     conditionalStatements.forEach((statement, index) => {
-      if (!statement.property || !statement.condition || !statement.property_value) {
+      if (!statement.property || !statement.condition || (!statement.property_value && statement.condition !== 'is_defined')) {
         errMessage += `Please fill in all fields for condition #${index + 1}. `
       }
     })
@@ -337,7 +337,7 @@ export default function EditTriggerPage({ params }) {
                                 <SelectItem value='_header' disabled>
                                   Condition
                                 </SelectItem>
-                                {['equals', 'contains', 'does not contain', 'ends with', 'does not end with'].sort().map(condition => (
+                                {['equals', 'contains', 'does not contain', 'ends with', 'does not end with', 'is defined'].sort().map(condition => (
                                   <SelectItem className="cursor-pointer hover:bg-gray-100" value={condition.replace(/\s/g, '_')} key={condition}>
                                     {condition}
                                   </SelectItem>
@@ -346,27 +346,29 @@ export default function EditTriggerPage({ params }) {
                             </Select>
                             <FormMessage />
                           </FormItem>
-                          <FormItem>
-                            <FormControl>
-                              <Input
-                                type="text"
-                                placeholder="Your property value"
-                                disabled={propertyOptionsForSelectedEvent === undefined}
-                                onChange={e => {
-                                  setConditionalStatements(
-                                    conditionalStatements.map((statement, i) => {
-                                      if (i === index) {
-                                        statement.property_value = e.target.value
-                                      }
-                                      return statement;
-                                    })
-                                  )
-                                }}
-                                value={conditionalStatement.property_value}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
+                          {conditionalStatement.condition !== 'is_defined' && (
+                            <FormItem>
+                              <FormControl>
+                                <Input
+                                  type="text"
+                                  placeholder="Your property value"
+                                  disabled={propertyOptionsForSelectedEvent === undefined}
+                                  onChange={e => {
+                                    setConditionalStatements(
+                                      conditionalStatements.map((statement, i) => {
+                                        if (i === index) {
+                                          statement.property_value = e.target.value
+                                        }
+                                        return statement;
+                                      })
+                                    )
+                                  }}
+                                  value={conditionalStatement.property_value}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
                           <Button
                             onClick={() => setConditionalStatements(conditionalStatements.filter((statement, i) => i !== index))}
                             type='button'

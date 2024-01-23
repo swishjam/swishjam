@@ -41,9 +41,9 @@ class EventTrigger < Transactional
 
   def has_valid_conditional_statements
     conditional_statements.each do |statement|
-      if statement['property'].blank? || statement['condition'].blank? || statement['property_value'].blank?
+      if statement['property'].blank? || statement['condition'].blank? || (statement['property_value'].blank? && statement['condition'] != 'is_defined')
         errors.add(:conditional_statements, 'must have a property, condition, and property_value.')
-      elsif !['equals', 'does_not_equal', 'contains', 'does_not_contain', 'ends_with', 'does_not_end_with'].include?(statement['condition'])
+      elsif !['equals', 'does_not_equal', 'contains', 'does_not_contain', 'ends_with', 'does_not_end_with', 'is_defined'].include?(statement['condition'])
         errors.add(:base, "#{statement['condition']} is not a valid condition, valid conditions are: `equals`, `contains`, `does_not_contain`, `ends_with`, `does_not_end_with`.")
       end
     end
