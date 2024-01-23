@@ -278,7 +278,7 @@ describe Ingestion::EventPreparers::BasicEventHandler do
       expect(event.sanitized_properties.keys.count).to be(1)
     end
 
-    it 'creates a new user profile if the event payload provides a user_id and we do not already have a user profile for it' do
+    it 'creates a new user profile if the event payload provides a userId and we do not already have a user profile for it' do
       other_user = FactoryBot.create(:analytics_user_profile,
         workspace: @workspace,
         user_unique_identifier: 'a-different-user-id',
@@ -308,8 +308,8 @@ describe Ingestion::EventPreparers::BasicEventHandler do
       expect(@workspace.analytics_user_profile_devices.count).to be(0)
 
       new_user = @workspace.analytics_user_profiles.find_by(user_unique_identifier: 'a-new-user-id')
-      expect(@workspace.analytics_user_profiles.first.email).to eq('new-user@swishjam.com')
-      expect(@workspace.analytics_user_profiles.first.metadata['first_name']).to eq('Johnny')
+      expect(new_user.email).to eq('new-user@swishjam.com')
+      expect(new_user.metadata['first_name']).to eq('Johnny')
 
       expect(event.uuid).to eq('evt-123')
       expect(event.swishjam_api_key).to eq(@public_key)

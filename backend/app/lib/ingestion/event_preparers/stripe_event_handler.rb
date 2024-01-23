@@ -16,8 +16,7 @@ module Ingestion
       private
 
       def event_properties_for_event_type
-        klass = EVENT_ATTRIBUTE_PARSERS_BY_EVENT_TYPE_DICT[stripe_event.type] || StripeHelpers::EventAttributeParsers::Base
-        klass.new(stripe_event).event_properties
+        (EVENT_ATTRIBUTE_PARSERS_BY_EVENT_TYPE_DICT[stripe_event.type] || StripeHelpers::EventAttributeParsers::Base).new(stripe_event).event_properties
       end
 
       def user_profile_for_event
