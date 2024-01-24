@@ -37,7 +37,7 @@ describe Ingestion::EventPreparers::UserIdentifyHandler do
       expect(workspace.analytics_user_profiles.count).to eq(0)
       expect(workspace.analytics_user_profile_devices.count).to eq(0)
       
-      described_class.new(event).handle_identify_and_return_prepared_event!
+      described_class.new(event).handle_and_return_prepared_events!
       
       expect(workspace.analytics_user_profiles.count).to eq(1)
       expect(workspace.analytics_user_profile_devices.count).to eq(1)
@@ -101,7 +101,7 @@ describe Ingestion::EventPreparers::UserIdentifyHandler do
       expect(workspace.analytics_user_profiles.count).to eq(1)
       expect(workspace.analytics_user_profile_devices.count).to eq(0)
       
-      described_class.new(event).handle_identify_and_return_prepared_event!
+      described_class.new(event).handle_and_return_prepared_events!
       
       expect(workspace.analytics_user_profiles.count).to eq(1)
       expect(workspace.analytics_user_profile_devices.count).to eq(1)
@@ -176,7 +176,7 @@ describe Ingestion::EventPreparers::UserIdentifyHandler do
       expect(workspace.analytics_user_profiles.count).to eq(1)
       expect(workspace.analytics_user_profile_devices.count).to eq(1)
       
-      described_class.new(event).handle_identify_and_return_prepared_event!
+      described_class.new(event).handle_and_return_prepared_events!
       
       expect(workspace.analytics_user_profiles.count).to eq(1)
       expect(workspace.analytics_user_profile_devices.count).to eq(1)
@@ -259,7 +259,7 @@ describe Ingestion::EventPreparers::UserIdentifyHandler do
       expect(workspace.analytics_user_profiles.count).to eq(2)
       expect(workspace.analytics_user_profile_devices.count).to eq(1)
       
-      described_class.new(event).handle_identify_and_return_prepared_event!
+      described_class.new(event).handle_and_return_prepared_events!
       
       expect(workspace.analytics_user_profiles.count).to eq(2)
       expect(workspace.analytics_user_profile_devices.count).to eq(1)
@@ -335,7 +335,7 @@ describe Ingestion::EventPreparers::UserIdentifyHandler do
       expect(workspace.analytics_user_profiles.count).to eq(1)
       expect(workspace.analytics_user_profile_devices.count).to eq(1)
       
-      described_class.new(event).handle_identify_and_return_prepared_event!
+      described_class.new(event).handle_and_return_prepared_events!
       
       expect(workspace.analytics_user_profiles.count).to eq(2)
       expect(workspace.analytics_user_profile_devices.count).to eq(1)
@@ -411,7 +411,7 @@ describe Ingestion::EventPreparers::UserIdentifyHandler do
       expect(workspace.analytics_user_profiles.count).to eq(1)
       expect(workspace.analytics_user_profile_devices.count).to eq(1)
       
-      described_class.new(event).handle_identify_and_return_prepared_event!
+      described_class.new(event).handle_and_return_prepared_events!
       
       expect(workspace.analytics_user_profiles.count).to eq(2)
       expect(workspace.analytics_user_profile_devices.count).to eq(1)

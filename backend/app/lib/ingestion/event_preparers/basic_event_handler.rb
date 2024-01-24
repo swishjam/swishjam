@@ -1,7 +1,7 @@
 module Ingestion
   module EventPreparers
     class BasicEventHandler < Base
-      def handle_and_return_prepared_event!
+      def handle_and_return_prepared_events!
         parsed_event.set_user_profile(user_profile_for_event)
         parsed_event.set_organization_profile(organization_for_event) if organization_for_event.present?
         parsed_event

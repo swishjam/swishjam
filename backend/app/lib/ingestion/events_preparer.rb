@@ -21,41 +21,40 @@ module Ingestion
 
     def prepare_events!
       begin
-        prepared_events = []
+        prepared_events_formatted_for_ingestion = []
         failed_events = []
         raw_events_to_prepare.each do |event_json|
           event = Ingestion::ParsedEventFromIngestion.new(event_json)
-          # technically one event can produce many more events (ie: stripe supplemental events)
-          prepared_events_for_event = []
-          if event.name == 'identify'
-            prepared_events_for_event << prepare_identify_event_and_return_ingestion_json(event)
-          elsif event.name.starts_with?('stripe.')
-            prepared_events_for_event = prepare_stripe_event_and_return_ingestion_jsons(event) 
-          elsif event.name.starts_with?('resend.')
-            prepared_events_for_event << prepare_resend_event_and_return_ingestion_json(event)
-          elsif event.name === 'sdk_error'
+          if event.name == 'sdk_error'
             Sentry.capture_message("SDK Error: #{event.properties.dig('error', 'message')}", level: 'error')
-          else
-            prepared_events_for_event << prepare_basic_event_and_return_ingestion_json(event)
+            next
           end
-          prepared_events.concat(prepared_events_for_event)
+          event_preparer_klass = event_preparer_klass_for_event(event.name)
+          prepared_event = event_preparer_klass.new(event).handle_and_return_prepared_events!
+          prepared_events = prepared_event.is_a?(Array) ? prepared_event : [prepared_event]
+          prepared_events.each do |prepared_event|
+            event_trigger_evaluator.enqueue_event_trigger_jobs_that_match_event(prepared_event)
+          end
+          prepared_events_formatted_for_ingestion += prepared_events.map(&:formatted_for_ingestion)
         rescue => e
           byebug
           failed_events << event_json
           Sentry.capture_message("Error preparing event into ingestion format during events ingestion, continuing with the rest of the events in the queue and pushing this one to the DLQ.\nevent: #{event_json}\n error: #{e.message}", level: 'error')
         end
 
-        Ingestion::QueueManager.push_records_into_queue(Ingestion::QueueManager::Queues.PREPARED_EVENTS, prepared_events)
+        Ingestion::QueueManager.push_records_into_queue(Ingestion::QueueManager::Queues.PREPARED_EVENTS, prepared_events_formatted_for_ingestion)
         Ingestion::QueueManager.push_records_into_queue(Ingestion::QueueManager::Queues.EVENTS_TO_PREPARE_DLQ, failed_events)
+        ingestion_batch.num_successful_records = prepared_events.count
+        ingestion_batch.num_failed_records = failed_events.count
       rescue => e
         byebug
         Ingestion::QueueManager.push_records_into_queue(Ingestion::QueueManager::Queues.EVENTS_TO_PREPARE_DLQ, raw_events_to_prepare)
         ingestion_batch.error_message = e.message
+        ingestion_batch.num_failed_records = raw_events_to_prepare.count
+        ingestion_batch.num_successful_records = 0
         Sentry.capture_exception(e)
       end
       ingestion_batch.num_records = raw_events_to_prepare.count
-      ingestion_batch.num_successful_records = prepared_events.count
-      ingestion_batch.num_failed_records = failed_events.count
       ingestion_batch.completed_at = Time.current
       ingestion_batch.num_seconds_to_complete = ingestion_batch.completed_at - ingestion_batch.started_at
       ingestion_batch.save!
@@ -64,30 +63,18 @@ module Ingestion
 
     private
 
-    def prepare_identify_event_and_return_ingestion_json(parsed_event)
-      prepared_event = Ingestion::EventPreparers::UserIdentifyHandler.new(parsed_event).handle_identify_and_return_prepared_event!
-      event_trigger_evaluator.enqueue_event_trigger_jobs_that_match_event(prepared_event)
-      prepared_event.formatted_for_ingestion
-    end
-
-    def prepare_basic_event_and_return_ingestion_json(parsed_event)
-      prepared_event = Ingestion::EventPreparers::BasicEventHandler.new(parsed_event).handle_and_return_prepared_event!
-      event_trigger_evaluator.enqueue_event_trigger_jobs_that_match_event(prepared_event)
-      prepared_event.formatted_for_ingestion
-    end
-
-    def prepare_stripe_event_and_return_ingestion_jsons(parsed_event)
-      stripe_events = Ingestion::EventPreparers::StripeEventHandler.new(parsed_event).handle_and_return_prepared_events!
-      stripe_events.each do |prepared_event|
-        event_trigger_evaluator.enqueue_event_trigger_jobs_that_match_event(prepared_event)
+    def event_preparer_klass_for_event(event_name)
+      if event.name == 'identify'
+        Ingestion::EventPreparers::UserIdentifyHandler
+      elsif event.name.starts_with?('stripe.')
+        Ingestion::EventPreparers::StripeEventHandler
+      elsif event.name.starts_with?('resend.')
+        Ingestion::EventPreparers::ResendEventHandler
+      elsif event.name.starts_with('intercom.')
+        Ingestion::EventPreparers::IntercomEventHandler
+      else
+        Ingestion::EventPreparers::BasicEventHandler
       end
-      stripe_events.map{ |prepared_event| prepared_event.formatted_for_ingestion }
-    end
-
-    def prepare_resend_event_and_return_ingestion_json(parsed_event)
-      prepared_event = Ingestion::EventPreparers::ResendEventHandler.new(parsed_event).handle_and_return_prepared_event!
-      event_trigger_evaluator.enqueue_event_trigger_jobs_that_match_event(prepared_event)
-      prepared_event.formatted_for_ingestion
     end
   end
 end

@@ -3,7 +3,7 @@ module Ingestion
     class UserIdentifyHandler < Base
       class InvalidIdentifyEvent < StandardError; end;
 
-      def handle_identify_and_return_prepared_event!
+      def handle_and_return_prepared_events!
         validate_provided_payload!
         device = workspace.analytics_user_profile_devices.find_by(swishjam_cookie_value: parsed_event.device_identifier)
         if device.present?
