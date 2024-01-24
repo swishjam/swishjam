@@ -30,8 +30,9 @@ module Ingestion
           if event.name == 'identify'
             prepared_events_for_event << prepare_identify_event_and_return_ingestion_json(event)
           elsif event.name.starts_with?('stripe.')
-            # always returns an array, can overwrite prepared_events_for_event
             prepared_events_for_event = prepare_stripe_event_and_return_ingestion_jsons(event) 
+          elsif event.name.starts_with?('resend.')
+            prepared_events_for_event << prepare_resend_event_and_return_ingestion_json(event)
           elsif event.name === 'sdk_error'
             Sentry.capture_message("SDK Error: #{event.properties.dig('error', 'message')}", level: 'error')
           else
@@ -81,6 +82,12 @@ module Ingestion
         event_trigger_evaluator.enqueue_event_trigger_jobs_that_match_event(prepared_event)
       end
       stripe_events.map{ |prepared_event| prepared_event.formatted_for_ingestion }
+    end
+
+    def prepare_resend_event_and_return_ingestion_json(parsed_event)
+      prepared_event = Ingestion::EventPreparers::ResendEventHandler.new(parsed_event).handle_and_return_prepared_event!
+      event_trigger_evaluator.enqueue_event_trigger_jobs_that_match_event(prepared_event)
+      prepared_event.formatted_for_ingestion
     end
   end
 end

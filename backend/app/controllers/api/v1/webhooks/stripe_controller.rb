@@ -14,7 +14,7 @@ module Api
               occurred_at: e.created,
               properties: e.as_json,
             )
-            Ingestion::QueueManager.push_records_into_queue(Ingestion::QueueManager::Queues.EVENTS_TO_PREPARE, event_to_prepare)
+            Ingestion::PrepareEventsAndEnqueueIntoClickHouseWriterJob.perform_async([event_to_prepare])
           end
           render json: {}, status: :ok
         end
