@@ -5,20 +5,24 @@ module StripeHelpers
         billing_data_snapshots_to_insert = []
         current_date = starting_at.beginning_of_day
         while current_date < Time.current
-          billing_data_snapshots_to_insert << { 
-            swishjam_api_key: public_key,
-            total_revenue_in_cents: calculate_total_revenue_generated_at_point_in_time(current_date),
-            num_customers_with_paid_subscriptions: calculate_num_customers_with_paid_subscriptions_at_point_in_time(current_date),
-            num_active_subscriptions: active_subscriptions_at_point_in_time(current_date).count,
-            num_paid_subscriptions: active_subscriptions_at_point_in_time(current_date).count, # should we consider these the same...? why do we need both?
-            num_free_trial_subscriptions: free_trial_subscriptions_at_point_in_time(current_date).count,
-            captured_at: current_date.end_of_day,
-            mrr_in_cents: calculate_mrr_at_point_in_time(current_date),
-            # num_canceled_subscriptions
-          }
+          begin
+            billing_data_snapshots_to_insert << { 
+              swishjam_api_key: public_key,
+              total_revenue_in_cents: calculate_total_revenue_generated_at_point_in_time(current_date),
+              num_customers_with_paid_subscriptions: calculate_num_customers_with_paid_subscriptions_at_point_in_time(current_date),
+              num_active_subscriptions: active_subscriptions_at_point_in_time(current_date).count,
+              num_paid_subscriptions: active_subscriptions_at_point_in_time(current_date).count, # should we consider these the same...? why do we need both?
+              num_free_trial_subscriptions: free_trial_subscriptions_at_point_in_time(current_date).count,
+              captured_at: current_date.end_of_day,
+              mrr_in_cents: calculate_mrr_at_point_in_time(current_date),
+              # num_canceled_subscriptions
+            }
+          rescue => e
+            Sentry.capture_message("Failed to backfill billing data snapshot for #{current_date} (#{e.message})")
+          end
           current_date += 1.day
         end
-        Analytics::BillingDataSnapshot.insert_all!(billing_data_snapshots_to_insert)
+        Analytics::BillingDataSnapshot.insert_all!(billing_data_snapshots_to_insert) if billing_data_snapshots_to_insert.any?
       end
 
       private
@@ -59,6 +63,9 @@ module StripeHelpers
           was_not_trialing && 
           did_not_end_before_point_in_time && 
           is_paid
+      rescue => e
+        Sentry.capture_message("Failed to determine if subscription #{subscription.id} was active at #{time} (#{e.message})")
+        false
       end
 
       def calculate_total_revenue_generated_at_point_in_time(time)

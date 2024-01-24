@@ -200,9 +200,12 @@ Rails.application.routes.draw do
         end
       end
 
-      resources :event_triggers, only: [:destroy, :index, :create] do
-        member do
+      resources :event_triggers do
+        collection do
           post :test_trigger
+        end
+        member do
+          # post :test_trigger
           patch :enable
           patch :disable
         end

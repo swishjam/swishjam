@@ -1,5 +1,5 @@
 class EventTriggerSerializer < ActiveModel::Serializer
-  attributes :id, :event_name, :enabled, :created_at, :updated_at, :steps, :trigger_count_last_7_days
+  attributes :id, :event_name, :conditional_statements, :enabled, :created_at, :updated_at, :steps, :trigger_count_last_7_days
 
   def steps
     object.event_trigger_steps.map do |step|

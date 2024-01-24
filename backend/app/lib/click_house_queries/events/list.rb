@@ -23,6 +23,7 @@ module ClickHouseQueries
 
       def sql
         <<~SQL
+<<<<<<< HEAD
           SELECT
             e.uuid,
             #{select_clause}
@@ -89,6 +90,21 @@ module ClickHouseQueries
         return 'e.occurred_at DESC' unless @event && @property
         'count DESC'
       end
+=======
+          SELECT 
+            uuid,
+            MAX(occurred_at) AS occurred_at,
+            argMax(name, e.occurred_at) AS name, 
+            argMax(properties, e.occurred_at) AS properties
+          FROM events AS e
+          WHERE 
+            e.swishjam_api_key IN #{formatted_in_clause(@public_keys)} AND
+            e.occurred_at BETWEEN '#{formatted_time(@start_time)}' AND '#{formatted_time(@end_time)}' AND
+            e.name IN #{formatted_in_clause(@event_names)}
+          GROUP BY uuid
+        SQL
+      end
+>>>>>>> main
     end
   end
 end

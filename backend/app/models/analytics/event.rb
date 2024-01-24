@@ -61,6 +61,7 @@ module Analytics
     end
 
     def self.parsed_from_ingestion_queue(event_json_or_string)
+      return event_json_or_string if event_json_or_string.is_a?(OpenStruct)
       event_json = (event_json_or_string.is_a?(String) ? JSON.parse(event_json_or_string) : event_json_or_string).with_indifferent_access
       properties = (event_json['properties'] || {}).is_a?(String) ? JSON.parse(event_json['properties']) : event_json['properties']
 

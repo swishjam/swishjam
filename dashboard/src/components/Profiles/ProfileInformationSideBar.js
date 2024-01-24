@@ -116,7 +116,7 @@ export default function ProfileInformationSideBar({ userData, hasStripeIntegrati
                         direction="right"
                         content={
                           <div className='px-4 py-2 text-sm text-gray-500'>
-                            Payment data is not enabled. <a href='/data-sources' target='_blank' className='text-blue-400 hover:underline'>Connect your Stripe account</a> to begin importing your payments data to Swishjam.
+                            Payment data is not enabled. <a href='/integrations' target='_blank' className='text-blue-400 hover:underline'>Connect your Stripe account</a> to begin importing your payments data to Swishjam.
                           </div>
                         }
                       >

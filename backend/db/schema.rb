@@ -247,6 +247,8 @@ ActiveRecord::Schema.define(version: 2024_01_24_194628) do
     t.string "access_token"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.uuid "connected_by_user_id"
+    t.index ["connected_by_user_id"], name: "index_slack_connections_on_connected_by_user_id"
     t.index ["workspace_id"], name: "index_slack_connections_on_workspace_id"
   end
 
@@ -376,6 +378,7 @@ ActiveRecord::Schema.define(version: 2024_01_24_194628) do
   add_foreign_key "retention_cohort_activity_periods", "retention_cohorts"
   add_foreign_key "retention_cohort_activity_periods", "workspaces"
   add_foreign_key "retention_cohorts", "workspaces"
+  add_foreign_key "slack_connections", "users", column: "connected_by_user_id"
   add_foreign_key "workspace_invitations", "workspaces"
   add_foreign_key "workspace_members", "users"
   add_foreign_key "workspace_members", "workspaces"

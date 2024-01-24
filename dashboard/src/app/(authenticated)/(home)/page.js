@@ -216,7 +216,7 @@ export default function Home() {
               <span className='block'>No data available</span>
               <Link
                 className="underline text-blue-700 cursor-pointer"
-                href="/data-sources"
+                href="/integrations"
               >
                 Connect your Stripe account
               </Link>{" "}

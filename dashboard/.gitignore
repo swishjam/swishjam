@@ -15,3 +15,6 @@ database/credentials.json
 
 # Sentry Auth Token
 .sentryclirc
+
+# Sentry Config File
+.sentryclirc

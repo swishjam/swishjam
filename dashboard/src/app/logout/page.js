@@ -6,8 +6,6 @@ import { logUserOut } from "@/lib/auth";
 import LoadingSpinner from "@/components/LoadingSpinner";
 import { useSearchParams } from "next/navigation";
 
-
-
 export default function Logout() {
   const searchParams = useSearchParams();
   const return_url = searchParams.get('return_url');

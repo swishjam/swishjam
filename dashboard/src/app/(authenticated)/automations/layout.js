@@ -2,8 +2,9 @@
 
 import { VerticalTabs } from '@components/VerticalTabs'
 import Divider from '@/components/Divider';
-import { LuWorkflow, LuSparkles } from "react-icons/lu";
+import { LuWorkflow } from "react-icons/lu";
 import { TbReport } from "react-icons/tb";
+import { usePathname } from 'next/navigation';
 
 const sidebarNavItems = [
   {
@@ -19,9 +20,13 @@ const sidebarNavItems = [
 ]
 
 export default function AutomationsLayout({ children }) {
+  const path = usePathname();
+  if (path === '/automations/event-triggers/new' || path.endsWith('/edit')) {
+    return children
+  }
   return (
     <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mb-8">
-      <div className='grid grid-cols-2 my-8 flex items-center'>
+      <div className='grid grid-cols-2 my-8 items-center'>
         <div>
           <h1 className="text-lg font-medium text-gray-700 mb-0">Automations</h1>
         </div>

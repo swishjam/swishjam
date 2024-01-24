@@ -20,7 +20,11 @@ module StripeDataJobs
         raise InvalidBackfillError, "Workspace #{workspace_id} does not have their Stripe account connected." if integration.nil?
         raise InvalidBackfillError, "Workspace #{workspace_id} Stripe Integration is disabled." if integration.disabled?
         data_fetcher = StripeHelpers::BackFillers::DataFetcher.new(integration.account_id)
-        BACKFILLERS.each{ |backfiller| backfiller.new(workspace, data_fetcher: data_fetcher).enqueue_for_ingestion! }
+        BACKFILLERS.each do |backfiller| 
+          backfiller.new(workspace, data_fetcher: data_fetcher).enqueue_for_ingestion!
+        rescue => e
+          Sentry.capture_message("Stripe backfiller #{backfiller.to_s} failed for workspace #{workspace.name} (#{workspace.id}), error: #{e.message}")
+        end
         if workspace.settings.revenue_analytics_enabled
           StripeHelpers::BackFillers::BillingDataSnapshots.new(workspace, data_fetcher: data_fetcher).backfill_snapshots!
         end
