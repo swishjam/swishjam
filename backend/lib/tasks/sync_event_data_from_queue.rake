@@ -4,11 +4,6 @@ namespace :tasks do
     ActiveRecord::Base.logger.silence do
       start = Time.current
 
-      puts "Beginning to prepare events enqueued to be prepared...".colorize(:yellow)
-      preparer_batch = Ingestion::EventsPreparer.prepare_events!
-      puts "Completed events preparation.... #{preparer_batch.failed? ? "FAILED: #{preparer_batch.error_message}".colorize(:red) : "successful! #{preparer_batch.num_records} records prepared in #{preparer_batch.num_seconds_to_complete} seconds.".colorize(:green)}"
-
-
       puts "Starting to sync from all queues...".colorize(:yellow)
       batches = [
         Ingestion::ClickHouseWriters::PreparedEvents,

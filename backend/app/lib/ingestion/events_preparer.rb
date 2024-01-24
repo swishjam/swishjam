@@ -1,21 +1,8 @@
 module Ingestion
   class EventsPreparer
     attr_accessor :ingestion_batch
-
     EVENT_NAMES_TO_IGNORE = %w[sdk_error].freeze
     
-    def initialize
-      @ingestion_batch = IngestionBatch.new(started_at: Time.current, event_type: 'event_preparer')
-    end
-
-    def self.prepare_events!
-      if ENV['HAULT_ALL_INGESTION_JOBS'] || ENV['HAULT_PREPARED_EVENTS_INGESTION']
-        Sentry.capture_message("Haulting `EventsPreparer` early because either `HAULT_ALL_INGESTION_JOBS` or `HAULT_PREPARED_EVENTS_INGESTION` ENV is set to true. Ingestion will pick back up when these ENVs are unset.")
-        return
-      end
-      new.prepare_events!
-    end
-
     def self.format_for_events_to_prepare_queue(uuid:, swishjam_api_key:, name:, occurred_at:, properties:)
       {
         uuid: uuid,
@@ -26,28 +13,37 @@ module Ingestion
       }
     end
 
+    def initialize(raw_events_to_prepare)
+      @ingestion_batch = IngestionBatch.new(started_at: Time.current, event_type: 'event_preparer')
+      @raw_events_to_prepare = raw_events_to_prepare
+    end
+
     def prepare_events!
-      raw_events = Ingestion::QueueManager.pop_all_records_from_queue(Ingestion::QueueManager::Queues.EVENTS_TO_PREPARE)
       begin
         prepared_events = []
         failed_events = []
-        raw_events.map do |event_json|
+        @raw_events_to_prepare.each do |event_json|
           event = Ingestion::ParsedEventFromIngestion.new(event_json)
+
           # technically one event can produce many more events (ie: stripe supplemental events)
           prepared_events_for_event = []
           if event.name == 'identify'
             parsed_event = Ingestion::EventPreparers::UserIdentifyHandler.new(event).handle_identify_and_return_updated_parsed_event!
             prepared_events_for_event << parsed_event.formatted_for_ingestion
+
           elsif event.name.starts_with?('stripe.')
             stripe_events = Ingestion::EventPreparers::StripeEventHandler.new(event).handle_and_return_parsed_events!
             prepared_events_for_event = stripe_events.map{ |parsed_event| parsed_event.formatted_for_ingestion }
+
+          elsif event.name === 'sdk_error'
+            Sentry.capture_message("SDK Error: #{event.properties.dig('error', 'message')}", level: 'error')
+            
           else
-            parsed_event << Ingestion::EventPreparers::BasicEventHandler.new(event).handle_and_return_updated_parsed_event!
+            parsed_event = Ingestion::EventPreparers::BasicEventHandler.new(event).handle_and_return_updated_parsed_event!
             prepared_events_for_event << parsed_event.formatted_for_ingestion
           end
           prepared_events.concat(prepared_events_for_event)
         rescue => e
-          byebug
           failed_events << event_json
           Sentry.capture_message("Error preparing event into ingestion format during events ingestion, continuing with the rest of the events in the queue and pushing this one to the DLQ.\nevent: #{event_json}\n error: #{e.message}", level: 'error')
         end
@@ -60,12 +56,11 @@ module Ingestion
           Ingestion::QueueManager.push_records_into_queue(Ingestion::QueueManager::Queues.EVENTS_TO_PREPARE_DLQ, failed_events)
         end
       rescue => e
-        byebug
-        Ingestion::QueueManager.push_records_into_queue(Ingestion::QueueManager::Queues.EVENTS_TO_PREPARE_DLQ, raw_events)
+        Ingestion::QueueManager.push_records_into_queue(Ingestion::QueueManager::Queues.EVENTS_TO_PREPARE_DLQ, @raw_events_to_prepare)
         ingestion_batch.error_message = e.message
         Sentry.capture_exception(e)
       end
-      ingestion_batch.num_records = raw_events.count
+      ingestion_batch.num_records = @raw_events_to_prepare.count
       ingestion_batch.completed_at = Time.current
       ingestion_batch.num_seconds_to_complete = ingestion_batch.completed_at - ingestion_batch.started_at
       ingestion_batch.save!

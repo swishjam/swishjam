@@ -1,0 +1,10 @@
+module Ingestion
+  class PrepareEventsAndEnqueueIntoClickHouseWriterJob
+    include Sidekiq::Worker
+    queue_as :format_events_queue
+
+    def perform(raw_events)
+      Ingestion::EventsPreparer.new(raw_events).prepare_events!
+    end
+  end
+end
