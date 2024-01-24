@@ -85,10 +85,10 @@ export default function LineChartWithValue({
 
   const updateHeaderDisplayValues = useCallback(displayData => {
     setHeaderDisplayValues({
-      currentValue: displayData[valueKey],
-      comparisonValue: displayData[comparisonValueKey],
-      currentValueDate: displayData[dateKey],
-      comparisonValueDate: displayData.comparisonDate,
+      currentValue: displayData?.[valueKey],
+      comparisonValue: displayData?.[comparisonValueKey],
+      currentValueDate: displayData?.[dateKey],
+      comparisonValueDate: displayData?.comparisonDate,
     })
   }, [setHeaderDisplayValues, valueKey, comparisonValueKey, dateKey])
 
