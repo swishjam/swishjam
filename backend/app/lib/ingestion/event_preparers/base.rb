@@ -7,8 +7,8 @@ module Ingestion
         @parsed_event = parsed_event
       end
 
-      def handle_and_return_updated_parsed_event!
-        raise NotImplementedError, "You must implement the handle_and_return_updated_parsed_event! method in #{self.class.name}"
+      def handle_and_return_prepared_event!
+        raise NotImplementedError, "You must implement the handle_and_return_prepared_event! method in #{self.class.name}"
       end
 
       def workspace

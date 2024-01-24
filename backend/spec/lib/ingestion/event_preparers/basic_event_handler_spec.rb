@@ -19,14 +19,14 @@ describe Ingestion::EventPreparers::BasicEventHandler do
     @public_key = @workspace.api_keys.for_data_source!('product').public_key
   end
 
-  describe '#handle_and_return_updated_parsed_event!' do
+  describe '#handle_and_return_prepared_event!' do
     it 'returns an the event_json without any user profile if the event payload does not provide a user_id or device_identifier' do
       event = Ingestion::EventPreparers::BasicEventHandler.new(
         parsed_event(
           swishjam_api_key: @public_key,
           properties: { a_property: 'a_value', device_identifier: nil, device_fingerprint: nil }
         )
-      ).handle_and_return_updated_parsed_event!
+      ).handle_and_return_prepared_event!
 
       expect(@workspace.analytics_user_profiles.count).to be(0)
       expect(@workspace.analytics_user_profile_devices.count).to be(0)
@@ -48,7 +48,7 @@ describe Ingestion::EventPreparers::BasicEventHandler do
           swishjam_api_key: @public_key,
           properties: { a_property: 'a_value' }
         )
-      ).handle_and_return_updated_parsed_event!
+      ).handle_and_return_prepared_event!
 
       expect(@workspace.analytics_user_profiles.count).to be(1)
       expect(@workspace.analytics_user_profile_devices.count).to be(1)
@@ -100,7 +100,7 @@ describe Ingestion::EventPreparers::BasicEventHandler do
             }
           }
         )
-      ).handle_and_return_updated_parsed_event!
+      ).handle_and_return_prepared_event!
 
       expect(@workspace.analytics_user_profiles.count).to be(1)
       expect(@workspace.analytics_user_profile_devices.count).to be(1)
@@ -152,7 +152,7 @@ describe Ingestion::EventPreparers::BasicEventHandler do
             }
           }
         )
-      ).handle_and_return_updated_parsed_event!
+      ).handle_and_return_prepared_event!
 
       expect(@workspace.analytics_user_profiles.count).to be(1)
       expect(@workspace.analytics_user_profile_devices.count).to be(0)
@@ -202,7 +202,7 @@ describe Ingestion::EventPreparers::BasicEventHandler do
             }
           }
         )
-      ).handle_and_return_updated_parsed_event!
+      ).handle_and_return_prepared_event!
 
       expect(@workspace.analytics_user_profiles.count).to be(1)
       expect(@workspace.analytics_user_profile_devices.count).to be(0)
@@ -252,7 +252,7 @@ describe Ingestion::EventPreparers::BasicEventHandler do
             }
           }
         )
-      ).handle_and_return_updated_parsed_event!
+      ).handle_and_return_prepared_event!
 
       expect(@workspace.analytics_user_profiles.count).to be(1)
       expect(@workspace.analytics_user_profile_devices.count).to be(0)
@@ -302,7 +302,7 @@ describe Ingestion::EventPreparers::BasicEventHandler do
             }
           }
         )
-      ).handle_and_return_updated_parsed_event!
+      ).handle_and_return_prepared_event!
 
       expect(@workspace.analytics_user_profiles.count).to be(2)
       expect(@workspace.analytics_user_profile_devices.count).to be(0)

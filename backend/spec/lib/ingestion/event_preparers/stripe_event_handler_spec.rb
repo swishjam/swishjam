@@ -17,7 +17,7 @@ describe Ingestion::EventPreparers::StripeEventHandler do
     @public_key = @workspace.api_keys.for_data_source!('stripe').public_key
   end
 
-  describe '#handle_and_return_parsed_events!' do
+  describe '#handle_and_return_prepared_events!' do
     it 'associates the event with an existing user if one matches the email address of the Stripe Customer' do
       user_profile = FactoryBot.create(:analytics_user_profile, 
         workspace: @workspace, 
@@ -38,7 +38,7 @@ describe Ingestion::EventPreparers::StripeEventHandler do
 
       prepared_events = Ingestion::EventPreparers::StripeEventHandler.new(
         parsed_event(swishjam_api_key: @public_key, name: "stripe.#{stripe_event.type}", properties: stripe_event.as_json)
-      ).handle_and_return_parsed_events!
+      ).handle_and_return_prepared_events!
 
       expect(@workspace.analytics_user_profiles.count).to be(1)
 
@@ -80,7 +80,7 @@ describe Ingestion::EventPreparers::StripeEventHandler do
 
       prepared_events = Ingestion::EventPreparers::StripeEventHandler.new(
         parsed_event(swishjam_api_key: @public_key, name: "stripe.#{stripe_event.type}", properties: stripe_event.as_json)
-      ).handle_and_return_parsed_events!
+      ).handle_and_return_prepared_events!
 
       # THIS IS FLAKY? SOMETIMES IT FAILS CAUSE IT RETURNS 1 FOR SOME REASON??
       expect(@workspace.reload.analytics_user_profiles.count).to be(2)
@@ -114,7 +114,7 @@ describe Ingestion::EventPreparers::StripeEventHandler do
 
       prepared_events = Ingestion::EventPreparers::StripeEventHandler.new(
         parsed_event(swishjam_api_key: @public_key, name: "stripe.#{stripe_event.type}", properties: stripe_event.as_json)
-      ).handle_and_return_parsed_events!
+      ).handle_and_return_prepared_events!
 
       expect(@workspace.reload.analytics_user_profiles.count).to be(0)
 
@@ -145,7 +145,7 @@ describe Ingestion::EventPreparers::StripeEventHandler do
 
       prepared_events = Ingestion::EventPreparers::StripeEventHandler.new(
         parsed_event(swishjam_api_key: @public_key, name: "stripe.#{stripe_event.type}", properties: stripe_event.as_json)
-      ).handle_and_return_parsed_events!
+      ).handle_and_return_prepared_events!
 
       expect(prepared_events.count).to eq(2)
       expect(prepared_events.first.name).to eq('stripe.charge.succeeded')

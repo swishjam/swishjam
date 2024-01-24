@@ -1,6 +1,6 @@
 module Ingestion
   class EventsPreparer
-    attr_accessor :ingestion_batch
+    attr_accessor :ingestion_batch, :raw_events_to_prepare, :event_trigger_evaluator
     EVENT_NAMES_TO_IGNORE = %w[sdk_error].freeze
     
     def self.format_for_events_to_prepare_queue(uuid:, swishjam_api_key:, name:, occurred_at:, properties:)
@@ -14,53 +14,47 @@ module Ingestion
     end
 
     def initialize(raw_events_to_prepare)
-      @ingestion_batch = IngestionBatch.new(started_at: Time.current, event_type: 'event_preparer')
+      @ingestion_batch = IngestionBatch.create!(started_at: Time.current, event_type: 'event_preparer')
       @raw_events_to_prepare = raw_events_to_prepare
+      @event_trigger_evaluator = EventTriggers::Evaluator.new
     end
 
     def prepare_events!
       begin
         prepared_events = []
         failed_events = []
-        @raw_events_to_prepare.each do |event_json|
+        raw_events_to_prepare.each do |event_json|
           event = Ingestion::ParsedEventFromIngestion.new(event_json)
-
           # technically one event can produce many more events (ie: stripe supplemental events)
           prepared_events_for_event = []
           if event.name == 'identify'
-            parsed_event = Ingestion::EventPreparers::UserIdentifyHandler.new(event).handle_identify_and_return_updated_parsed_event!
-            prepared_events_for_event << parsed_event.formatted_for_ingestion
-
+            prepared_events_for_event << prepare_identify_event_and_return_ingestion_json(event)
           elsif event.name.starts_with?('stripe.')
-            stripe_events = Ingestion::EventPreparers::StripeEventHandler.new(event).handle_and_return_parsed_events!
-            prepared_events_for_event = stripe_events.map{ |parsed_event| parsed_event.formatted_for_ingestion }
-
+            # always returns an array, can overwrite prepared_events_for_event
+            prepared_events_for_event = prepare_stripe_event_and_return_ingestion_jsons(event) 
           elsif event.name === 'sdk_error'
             Sentry.capture_message("SDK Error: #{event.properties.dig('error', 'message')}", level: 'error')
-            
           else
-            parsed_event = Ingestion::EventPreparers::BasicEventHandler.new(event).handle_and_return_updated_parsed_event!
-            prepared_events_for_event << parsed_event.formatted_for_ingestion
+            prepared_events_for_event << prepare_basic_event_and_return_ingestion_json(event)
           end
           prepared_events.concat(prepared_events_for_event)
         rescue => e
+          byebug
           failed_events << event_json
           Sentry.capture_message("Error preparing event into ingestion format during events ingestion, continuing with the rest of the events in the queue and pushing this one to the DLQ.\nevent: #{event_json}\n error: #{e.message}", level: 'error')
         end
 
-        if prepared_events.any?
-          Ingestion::QueueManager.push_records_into_queue(Ingestion::QueueManager::Queues.PREPARED_EVENTS, prepared_events)
-          EventTriggers::Evaluator.evaluate_ingested_events(prepared_events)
-        end
-        if failed_events.any?
-          Ingestion::QueueManager.push_records_into_queue(Ingestion::QueueManager::Queues.EVENTS_TO_PREPARE_DLQ, failed_events)
-        end
+        Ingestion::QueueManager.push_records_into_queue(Ingestion::QueueManager::Queues.PREPARED_EVENTS, prepared_events)
+        Ingestion::QueueManager.push_records_into_queue(Ingestion::QueueManager::Queues.EVENTS_TO_PREPARE_DLQ, failed_events)
       rescue => e
-        Ingestion::QueueManager.push_records_into_queue(Ingestion::QueueManager::Queues.EVENTS_TO_PREPARE_DLQ, @raw_events_to_prepare)
+        byebug
+        Ingestion::QueueManager.push_records_into_queue(Ingestion::QueueManager::Queues.EVENTS_TO_PREPARE_DLQ, raw_events_to_prepare)
         ingestion_batch.error_message = e.message
         Sentry.capture_exception(e)
       end
-      ingestion_batch.num_records = @raw_events_to_prepare.count
+      ingestion_batch.num_records = raw_events_to_prepare.count
+      ingestion_batch.num_successful_records = prepared_events.count
+      ingestion_batch.num_failed_records = failed_events.count
       ingestion_batch.completed_at = Time.current
       ingestion_batch.num_seconds_to_complete = ingestion_batch.completed_at - ingestion_batch.started_at
       ingestion_batch.save!
@@ -69,56 +63,24 @@ module Ingestion
 
     private
 
-    # def parse_events_from_queue_and_push_identify_events_into_queues!
-    #   @prepared_events_to_ingest ||= begin
-    #     identify_events = []
-    #     organization_events = []
-    #     user_profiles_from_events = []
-    #     events = Ingestion::QueueManager.pop_all_records_from_queue(Ingestion::QueueManager::Queues.EVENTS)
-    #     events.each do |event_json|
-    #       event = Analytics::Event.parsed_from_ingestion_queue(event_json)
-    #       case event.name
-    #       when 'identify'
-    #         identify_events << event_json
-    #       when 'organization'
-    #         organization_events << event_json
-    #       when 'sdk_error'
-    #         begin
-    #           Sentry.capture_message("SDK Error: #{JSON.parse(event_json['properties'] || '{}').dig('error', 'message')}", level: 'error')
-    #         rescue => e
-    #           Sentry.capture_exception(e)
-    #         end
-    #       end
+    def prepare_identify_event_and_return_ingestion_json(parsed_event)
+      prepared_event = Ingestion::EventPreparers::UserIdentifyHandler.new(parsed_event).handle_identify_and_return_prepared_event!
+      event_trigger_evaluator.enqueue_event_trigger_jobs_that_match_event(prepared_event)
+      prepared_event.formatted_for_ingestion
+    end
 
-    #       # if an event has user info, we want to create a user profile from it
-    #       # this is different than identify events because those only come from our browser JS
-    #       # this scenario is how to create user profiles from server-side events
-    #       if event.properties.user_id.present? || event.properties.userId || event.properties.user.present?
-    #         # re-define the property here for our clickhouse queries (ie: /lib/clickhouse_queries/users/events/list.rb)
-    #         event.properties.user_unique_identifier = event.properties.user_id || event.properties.userId || event.properties.user.id
-    #         user_profiles_from_events << {
-    #           uuid: event.uuid,
-    #           swishjam_api_key: event.swishjam_api_key,
-    #           name: 'user_profile_from_event',
-    #           occurred_at: event.occurred_at,
-    #           properties: (event.properties.user || { id: event.properties.user_id || event.properties.userId }).to_h.to_json
-    #         }
+    def prepare_basic_event_and_return_ingestion_json(parsed_event)
+      prepared_event = Ingestion::EventPreparers::BasicEventHandler.new(parsed_event).handle_and_return_prepared_event!
+      event_trigger_evaluator.enqueue_event_trigger_jobs_that_match_event(prepared_event)
+      prepared_event.formatted_for_ingestion
+    end
 
-    #         properties = event.properties.to_h.as_json
-    #         properties.delete('user')
-    #         properties.delete('user_id')
-    #         properties.delete('userId')
-    #         event_json['properties'] = properties.to_json
-    #       end
-    #     rescue => e
-    #       Sentry.capture_exception(e)
-    #     end
-    #     Ingestion::QueueManager.push_records_into_queue(Ingestion::QueueManager::Queues.IDENTIFY, identify_events) if identify_events.count > 0
-    #     Ingestion::QueueManager.push_records_into_queue(Ingestion::QueueManager::Queues.ORGANIZATION, organization_events) if organization_events.count > 0
-    #     Ingestion::QueueManager.push_records_into_queue(Ingestion::QueueManager::Queues.USER_PROFILES_FROM_EVENTS, user_profiles_from_events) if user_profiles_from_events.count > 0
-    #     filtered_events = events.reject { |e| EVENT_NAMES_TO_IGNORE.include?(e['name']) }
-    #     filtered_events
-    #   end
-    # end
+    def prepare_stripe_event_and_return_ingestion_jsons(parsed_event)
+      stripe_events = Ingestion::EventPreparers::StripeEventHandler.new(parsed_event).handle_and_return_prepared_events!
+      stripe_events.each do |prepared_event|
+        event_trigger_evaluator.enqueue_event_trigger_jobs_that_match_event(prepared_event)
+      end
+      stripe_events.map{ |prepared_event| prepared_event.formatted_for_ingestion }
+    end
   end
 end

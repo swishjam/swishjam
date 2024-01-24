@@ -26,8 +26,8 @@ module Ingestion
       event_json.merge(properties: properties, user_properties: user_properties)
     end
 
-    def to_json
-      as_json.to_json
+    def to_json(*options)
+      as_json.to_json(*options)
     end
 
     def [](key)

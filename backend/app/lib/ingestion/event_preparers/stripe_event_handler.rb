@@ -7,7 +7,7 @@ module Ingestion
         'subscription.created' => StripeHelpers::EventAttributeParsers::SubscriptionCreated,
       }
 
-      def handle_and_return_parsed_events!
+      def handle_and_return_prepared_events!
         parsed_event.set_user_profile(user_profile_for_event) if user_profile_for_event.present?
         parsed_event.override_properties!(event_properties_for_event_type)
         [parsed_event].concat(supplemental_events_to_be_processed)

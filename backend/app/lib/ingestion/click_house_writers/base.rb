@@ -27,10 +27,12 @@ module Ingestion
         formatted_records = Ingestion::QueueManager.pop_all_records_from_queue(Ingestion::QueueManager::Queues.send(self.class.QUEUE_NAME))
         begin
           self.class.analytics_model.insert_all!(formatted_records) if formatted_records.any?
+          ingestion_batch.num_successful_records = formatted_records.count
         rescue => e
           byebug
           Ingestion::QueueManager.push_records_into_queue(Ingestion::QueueManager::Queues.send("#{self.class.QUEUE_NAME}_DLQ"), formatted_records)
           ingestion_batch.error_message = e.message
+          ingestion_batch.num_failed_records = formatted_records.count
           Sentry.capture_exception(e)
         end
         ingestion_batch.num_records = formatted_records.count

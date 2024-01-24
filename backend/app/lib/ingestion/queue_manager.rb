@@ -38,6 +38,7 @@ module Ingestion
 
     def self.push_records_into_queue(queue, records)
       records = records.is_a?(Array) ? records : [records]
+      return if records.empty?
       stringified_records = records.map{ |r| r.to_json }
       redis do |conn|
         conn.lpush(queue, stringified_records)

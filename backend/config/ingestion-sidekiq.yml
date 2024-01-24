@@ -8,4 +8,4 @@
   :schedule:
     clickhouse_writer_queue:
       cron: "*/1 * * * *" # every minute
-      class: IngestJobs::ClickhouseWriter
+      class: Ingestion::WriteToClickHouseFromIngestionQueuesJob

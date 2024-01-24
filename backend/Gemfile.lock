@@ -80,8 +80,8 @@ GEM
     byebug (11.1.3)
     case_transform (0.2)
       activesupport
-    clickhouse-activerecord (0.6.1)
-      activerecord (>= 5.2, < 7)
+    clickhouse-activerecord (0.5.15)
+      activerecord (>= 5.2)
       bundler (>= 1.13.4)
     colorize (1.1.0)
     concurrent-ruby (1.2.3)
@@ -337,7 +337,7 @@ DEPENDENCIES
   binding_of_caller
   bootsnap (>= 1.4.4)
   byebug
-  clickhouse-activerecord
+  clickhouse-activerecord (= 0.5.15)
   colorize
   connection_pool
   database_cleaner
