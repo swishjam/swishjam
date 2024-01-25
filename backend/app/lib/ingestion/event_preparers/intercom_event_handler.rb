@@ -25,7 +25,7 @@ module Ingestion
           return if email.blank?
           user_profile = @workspace.analytics_user_profiles.find_by(email: email)
           if user_profile.nil?
-            user_profile = @workspace.analytics_user_profiles.new(email: email)
+            user_profile = @workspace.analytics_user_profiles.new(email: email, created_by_data_source: ApiKey::ReservedDataSources.INTERCOM)
           end
           user_profile.metadata['intercom_name'] = parsed_event.payload.dig('data', 'item', 'source', 'author', 'name')
           user_profile.metadata['intercom_id'] = parsed_event.payload.dig('data', 'item', 'source', 'author', 'id')

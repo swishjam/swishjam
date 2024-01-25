@@ -72,6 +72,10 @@ module Ingestion
         Ingestion::EventPreparers::ResendEventHandler
       elsif event.name.starts_with('intercom.')
         Ingestion::EventPreparers::IntercomEventHandler
+      elsif event.name.starts_with?('github.')
+        Ingestion::EventPreparers::GithubEventHandler
+      elsif event.name.starts_with?('cal.')
+        Ingestion::EventPreparers::CalComEventHandler
       else
         Ingestion::EventPreparers::BasicEventHandler
       end
