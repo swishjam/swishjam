@@ -3,8 +3,7 @@ module Ingestion
     class BasicEventHandler < Base
       def handle_and_return_prepared_events!
         parsed_event.set_user_profile(user_profile_for_event) if user_profile_for_event.present?
-        # TODO: figure out how we want to structure organization attribution
-        # parsed_event.set_organization_profile(organization_for_event) if organization_for_event.present?
+        parsed_event.set_organization_profile(organization_for_event) if organization_for_event.present?
         parsed_event
       end
 
@@ -12,24 +11,20 @@ module Ingestion
 
       def organization_for_event
         @organization_for_event ||= begin
-          if parsed_event.properties.dig('organization_attributes', 'organization_identifier').present?
-            organization_identifier = parsed_event.properties.dig('organization_attributes', 'organization_identifier')
+          provided_org_attributes = parsed_event.properties['organization_attributes'] || {}
+          organization_identifier = provided_org_attributes['organization_identifier']
+          if organization_identifier.present?
             org = workspace.analytics_organization_profiles.find_by(organization_identifier: organization_identifier)
             if org.present?
-              org.name = parsed_event.properties.dig('organization_attributes', 'name') if parsed_event.properties.dig('organization_attributes', 'name').present?
-              org.metadata = org.metadata.merge(parsed_event.properties.dig('organization_attributes', 'metadata')) if parsed_event.properties.dig('organization_attributes', 'metadata').present?
-              org.domain = parsed_event.properties.dig('organization_attributes', 'domain') if parsed_event.properties.dig('organization_attributes', 'domain').present?
-              if org.domain.nil?
-                domain_from_user_email = user_profile_for_event&.email&.split('@')&.last
-                org.domain = domain_from_user_email
-              end
-              org.save! if org.changed?
+              org.name = provided_org_attributes['name'] if provided_org_attributes['name'].present?
+              org.metadata = org.metadata.merge(provided_org_attributes['metadata']) if provided_org_attributes['metadata'].present?
+              org.domain = provided_org_attributes['domain'] if provided_org_attributes['domain'].present?
             else
-              org = workspace.analytics_organization_profiles.create!(
+              org = workspace.analytics_organization_profiles.new(
                 organization_identifier: organization_identifier,
-                name: parsed_event.properties.dig('organization_attributes', 'name'),
-                metadata: parsed_event.properties.dig('organization_attributes', 'metadata'),
-                domain: parsed_event.properties.dig('organization_attributes', 'domain') || user_profile_for_event&.email&.split('@')&.last,
+                name: provided_org_attributes['name'],
+                metadata: provided_org_attributes['metadata'],
+                domain: provided_org_attributes['domain'],
               )
             end
             if user_profile_for_event.present?
@@ -38,6 +33,11 @@ module Ingestion
                 org.analytics_organization_members.create!(analytics_user_profile_id: user_profile_for_event.id)
               end
             end
+            if org.domain.nil? && user_profile_for_event&.email.present? && !GenericEmailDetector.is_generic_email?(user_profile_for_event.email)
+              domain_from_user_email = user_profile_for_event.email.split('@').last
+              org.domain = domain_from_user_email
+            end
+            org.save! if org.changed?
             org
           end
         end

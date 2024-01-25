@@ -15,6 +15,7 @@ module Ingestion
         swishjam_api_key: swishjam_api_key,
         name: name,
         user_profile_id: user_profile_id,
+        organization_profile_id: organization_profile_id,
         properties: sanitized_properties.to_json,
         user_properties: user_properties.to_json,
         occurred_at: occurred_at,
@@ -51,6 +52,10 @@ module Ingestion
       event_json['user_profile_id']
     end
 
+    def organization_profile_id
+      event_json['organization_profile_id']
+    end
+
     def device_identifier
       properties['device_identifier']
     end
@@ -60,7 +65,8 @@ module Ingestion
     end
 
     def sanitized_properties
-      properties.except('device_fingerprint', 'device_identifier', 'user_attributes', 'user', 'userId', 'user_id', 'userIdentifier')
+      # all of attributes that are sent in the properties payload, but we don't want to store in the properties column
+      properties.except('device_fingerprint', 'device_identifier', 'user_attributes', 'organization_attributes', 'user', 'userId', 'user_id', 'userIdentifier')
     end
 
     def properties
