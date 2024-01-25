@@ -42,9 +42,10 @@ module Ingestion
           Sentry.capture_message("Error preparing event into ingestion format during events ingestion, continuing with the rest of the events in the queue and pushing this one to the DLQ.\nevent: #{event_json}\n error: #{e.message}", level: 'error')
         end
 
+        byebug
         Ingestion::QueueManager.push_records_into_queue(Ingestion::QueueManager::Queues.PREPARED_EVENTS, prepared_events_formatted_for_ingestion)
         Ingestion::QueueManager.push_records_into_queue(Ingestion::QueueManager::Queues.EVENTS_TO_PREPARE_DLQ, failed_events)
-        ingestion_batch.num_successful_records = prepared_events.count
+        ingestion_batch.num_successful_records = prepared_events_formatted_for_ingestion.count
         ingestion_batch.num_failed_records = failed_events.count
       rescue => e
         byebug
@@ -64,17 +65,17 @@ module Ingestion
     private
 
     def event_preparer_klass_for_event(event_name)
-      if event.name == 'identify'
+      if event_name == 'identify'
         Ingestion::EventPreparers::UserIdentifyHandler
-      elsif event.name.starts_with?('stripe.')
+      elsif event_name.starts_with?('stripe.')
         Ingestion::EventPreparers::StripeEventHandler
-      elsif event.name.starts_with?('resend.')
+      elsif event_name.starts_with?('resend.')
         Ingestion::EventPreparers::ResendEventHandler
-      elsif event.name.starts_with('intercom.')
+      elsif event_name.starts_with?('intercom.')
         Ingestion::EventPreparers::IntercomEventHandler
-      elsif event.name.starts_with?('github.')
+      elsif event_name.starts_with?('github.')
         Ingestion::EventPreparers::GithubEventHandler
-      elsif event.name.starts_with?('cal.')
+      elsif event_name.starts_with?('cal.')
         Ingestion::EventPreparers::CalComEventHandler
       else
         Ingestion::EventPreparers::BasicEventHandler

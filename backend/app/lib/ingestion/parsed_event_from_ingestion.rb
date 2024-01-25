@@ -86,7 +86,7 @@ module Ingestion
         if is_valid_format
           ts = event_json['occurred_at'].to_f
           ts_in_seconds = ts.to_i.to_s.length === 10 ? ts : ts / 1000.0
-          Time.at(ts).in_time_zone('UTC')
+          Time.at(ts_in_seconds).in_time_zone('UTC')
         else
           raise InvalidEventFormatError, "Event's `occurred_at` value was not in a valid format, it should be a Float or Integer of 10 or 13 characters. Provided `occurred_at`: #{event_json['occurred_at']}"
         end
