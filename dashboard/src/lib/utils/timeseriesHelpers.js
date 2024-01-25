@@ -72,18 +72,16 @@ const setStateFromMultiDimensionalTimeseriesResponse = (response, setter, onErro
     onError && onError(response.error);
     return;
   }
-  setter({
-    // value: response.current_count,
-    // previousValue: response.comparison_count,
-    // previousValueDate: response.comparison_end_time,
-    groupedBy: response.grouped_by,
-    timeseries: response.timeseries.map(
-      (timeseries, index) => ({
-        ...timeseries,
-        comparison: response.comparison_timeseries?.[index] || {},
-      }),
-    ),
-  });
+  const timeseries = response.timeseries.map((dataPoint, index) => {
+    const comparisonData = response.comparison_timeseries?.[index];
+    if (comparisonData) {
+      Object.keys(comparisonData).forEach(key => {
+        dataPoint[`comparison_${key}`] = comparisonData[key];
+      })
+    }
+    return dataPoint;
+  })
+  setter({ timeseries, groupedBy: response.grouped_by });
 }
 
 export {

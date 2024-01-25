@@ -24,7 +24,16 @@ module DataFormatters
       while current_time <= end_time
         matching_result = data.find{ |result| evaluate_on_record(result, @date_method)&.to_datetime == current_time.to_datetime }
         if matching_result.present?
-          @filled_in_data <<  { date: current_time }.merge(evaluate_on_record(matching_result, @value_methods))
+          d = { date: current_time }.merge(evaluate_on_record(matching_result, @value_methods))
+          @value_methods.each do |value_method|
+            next if d[value_method].present?
+            if @use_previous_value_for_missing_data && most_recent_values.present?
+              d[value_method] = most_recent_values[value_method] || 0
+            else
+              d[value_method] = 0
+            end
+          end
+          @filled_in_data << d
           most_recent_values = evaluate_on_record(matching_result, @value_methods)
         elsif @use_previous_value_for_missing_data
           d = { date: current_time }

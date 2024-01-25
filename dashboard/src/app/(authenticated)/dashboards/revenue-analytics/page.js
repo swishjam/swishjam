@@ -11,7 +11,7 @@ import LineChartWithValue from "@/components/Dashboards/Components/LineChartWith
 import Modal from "@/components/utils/Modal";
 import RevenueRetentionWidget from '@/components/Dashboards/Components/RevenueRetentionWidget';
 import { RxBarChart } from 'react-icons/rx'
-import { dateFormatterForGrouping, formattedUTCMonthAndDay, setStateFromMultiDimensionalTimeseriesResponse, setStateFromTimeseriesResponse } from "@/lib/utils/timeseriesHelpers";
+import { formattedUTCMonthAndDay, setStateFromMultiDimensionalTimeseriesResponse, setStateFromTimeseriesResponse } from "@/lib/utils/timeseriesHelpers";
 import { SwishjamAPI } from "@/lib/api-client/swishjam-api";
 import useAuthData from "@/hooks/useAuthData";
 import { useState, useEffect } from "react";
@@ -50,7 +50,7 @@ export default function PageMetrics() {
   }
 
   const getRevenuePerCustomerData = async timeframe => {
-    return await SwishjamAPI.SaasMetrics.Revenue.perCustomerTimeseries({ timeframe }).then(resp => setStateFromTimeseriesResponse(resp, setRevenuePerCustomerChartData))
+    return await SwishjamAPI.SaasMetrics.Revenue.perCustomerTimeseries({ timeframe }).then(resp => setStateFromMultiDimensionalTimeseriesResponse(resp, setRevenuePerCustomerChartData));
   }
 
   const getCustomersChartData = async timeframe => {
@@ -210,6 +210,13 @@ export default function PageMetrics() {
 
       <div className='grid grid-cols-4 gap-2 pt-2'>
         <LineChartWithValue
+          additionalTooltipDataFormatter={d => (
+            <>
+              There was <strong>{d.num_customers_with_paid_subscriptions_at_time_of_snapshot} paying subscriber{d.num_customers_with_paid_subscriptions_at_time_of_snapshot === 1 ? '' : 's'}</strong>, and <strong>{formatMoney(d.mrr_at_time_of_snapshot)} in MRR</strong>.
+            </>
+          )}
+          comparisonDateKey="comparison_date"
+          comparisonValueKey="comparison_mrr_per_customer"
           DocumentationContent={
             <>
               <p className='mb-2'>
@@ -230,6 +237,7 @@ export default function PageMetrics() {
           showAxis={false}
           timeseries={revenuePerCustomerChartData?.timeseries}
           title='Average MRR / Subscriber'
+          valueKey='mrr_per_customer'
           valueFormatter={formatMoney}
           yAxisFormatter={formatShrinkMoney}
         />

@@ -49,6 +49,7 @@ const LoadingState = ({ title, includeCard = true }) => (
 export default function LineChartWithValue({
   additionalTooltipDataFormatter,
   className,
+  comparisonDateKey = 'comparisonDate',
   comparisonValueKey = 'comparisonValue',
   dateKey = 'date',
   DocumentationContent,
@@ -77,7 +78,7 @@ export default function LineChartWithValue({
     currentValue: timeseries[timeseries.length - 1]?.[valueKey],
     comparisonValue: timeseries[timeseries.length - 1]?.[comparisonValueKey],
     currentValueDate: timeseries[timeseries.length - 1]?.[dateKey],
-    comparisonValueDate: timeseries[timeseries.length - 1]?.comparisonDate,
+    comparisonValueDate: timeseries[timeseries.length - 1]?.[comparisonDateKey],
   });
   const [showXAxis, setShowXAxis] = useState(showAxis);
   const [showYAxis, setShowYAxis] = useState(showAxis);
@@ -88,9 +89,9 @@ export default function LineChartWithValue({
       currentValue: displayData?.[valueKey],
       comparisonValue: displayData?.[comparisonValueKey],
       currentValueDate: displayData?.[dateKey],
-      comparisonValueDate: displayData?.comparisonDate,
+      comparisonValueDate: displayData?.[comparisonDateKey],
     })
-  }, [setHeaderDisplayValues, valueKey, comparisonValueKey, dateKey])
+  }, [setHeaderDisplayValues, valueKey, comparisonValueKey, dateKey, comparisonDateKey])
 
   const dateFormatter = dateFormatterForGrouping(groupedBy)
 
@@ -158,6 +159,7 @@ export default function LineChartWithValue({
                       content={
                         <CustomTooltip
                           additionalDataFormatter={additionalTooltipDataFormatter}
+                          comparisonDateKey={comparisonDateKey}
                           comparisonValueKey={comparisonValueKey}
                           dateFormatter={dateFormatter}
                           dateKey={dateKey}
