@@ -62,7 +62,7 @@ module ClickHouseQueries
         elsif @distinct_count_property.nil? || @distinct_count_property == 'uuid'
           'e.uuid'
         else
-          "JSONExtractString(e.properties, '#{@distinct_count_property}')" : 'e.uuid'
+          "JSONExtractString(e.properties, '#{@distinct_count_property}')"
         end
       end
 

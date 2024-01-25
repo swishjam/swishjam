@@ -41,7 +41,7 @@ module ClickHouseQueries
       def select_clause
         if @event && @property
           <<~SQL
-            argMax(JSONExtractString(properties, '#{@property}'), e.ingested_at) AS #{@property},
+            JSONExtractString(properties, '#{@property}') AS #{@property},
             CAST(COUNT(DISTINCT uuid) AS INT) AS count
           SQL
         else
