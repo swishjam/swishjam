@@ -30,13 +30,14 @@ module ClickHouseQueries
       def sql
         <<~SQL
           SELECT
-            CAST(COUNT(DISTINCT #{distinct_count_field}) AS int) AS count,
+            CAST(COUNT(DISTINCT #{property_select_clause}) AS int) AS count,
             DATE_TRUNC('#{@group_by}', occurred_at) AS group_by_date
           FROM events AS e
           #{join_statements}
           WHERE
             e.swishjam_api_key IN #{formatted_in_clause(@public_keys)} AND
-            e.occurred_at BETWEEN '#{formatted_time(@start_time)}' AND '#{formatted_time(@end_time)}'
+            e.occurred_at BETWEEN '#{formatted_time(@start_time)}' AND '#{formatted_time(@end_time)}' AND
+            notEmpty(#{property_select_clause})
             #{@event == self.class.ANY_EVENT ? "" : " AND e.name = '#{@event}'"}
             #{user_profile_id_where_clause}
           GROUP BY group_by_date
@@ -48,7 +49,7 @@ module ClickHouseQueries
         'any'
       end
 
-      def distinct_count_field
+      def property_select_clause
         if @distinct_count_property == 'users'
           <<~SQL
             IF(
@@ -58,7 +59,7 @@ module ClickHouseQueries
             )
           SQL
         else
-          @distinct_count_property && @distinct_count_property != 'uuid' ? "JSONExtractString(properties, '#{@distinct_count_property}')" : 'uuid'
+          @distinct_count_property && @distinct_count_property != 'uuid' ? "JSONExtractString(e.properties, '#{@distinct_count_property}')" : 'e.uuid'
         end
       end
 

@@ -158,7 +158,7 @@ module Api
           params[:data_source] ||= 'all'
           event_name = URI.decode_uri_component(params[:event_name])
           property = URI.decode_uri_component(params[:name])
-          bar_chart_results = ClickHouseQueries::Events::Properties::StackedBarChart.new(
+          bar_chart_results = ClickHouseQueries::Events::StackedBarChart.new(
             public_keys_for_requested_data_source,
             event: event_name,
             property: property,

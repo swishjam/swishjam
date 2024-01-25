@@ -157,6 +157,7 @@ export default function BarChartComponent({
                   // animationBegin={200}
                   // animationDuration={400}
                   // animationEasing='ease-in-out'
+                  isAnimationActive={false}
                   content={<CustomTooltip />}
                   allowEscapeViewBox={{ x: false, y: true }}
                   wrapperStyle={{ outline: "none", zIndex: 1000 }}
