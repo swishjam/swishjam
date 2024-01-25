@@ -2,12 +2,12 @@ module Ingestion
   module EventPreparers
     class GithubEventHandler < Base
       PROPERTY_PARSER_DICT = {
-        'pull_request'=> ::Github::EventPayloadParsers::PullRequest
-        'push'=> ::Github::EventPayloadParsers::Push
-        'star'=> ::Github::EventPayloadParsers::Star
-        'issues'=> ::Github::EventPayloadParsers::Issue
-        'issue_comment'=> ::Github::EventPayloadParsers::IssueComment
-        'deployment'=> ::Github::EventPayloadParsers::Deployment
+        'pull_request'=> ::Github::EventPayloadParsers::PullRequest,
+        'push'=> ::Github::EventPayloadParsers::Push,
+        'star'=> ::Github::EventPayloadParsers::Star,
+        'issues'=> ::Github::EventPayloadParsers::Issue,
+        'issue_comment'=> ::Github::EventPayloadParsers::IssueComment,
+        'deployment'=> ::Github::EventPayloadParsers::Deployment,
       }
 
       def handle_and_return_prepared_events!

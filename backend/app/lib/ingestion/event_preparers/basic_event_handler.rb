@@ -3,7 +3,8 @@ module Ingestion
     class BasicEventHandler < Base
       def handle_and_return_prepared_events!
         parsed_event.set_user_profile(user_profile_for_event) if user_profile_for_event.present?
-        parsed_event.set_organization_profile(organization_for_event) if organization_for_event.present?
+        # TODO: figure out how we want to structure organization attribution
+        # parsed_event.set_organization_profile(organization_for_event) if organization_for_event.present?
         parsed_event
       end
 

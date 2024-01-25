@@ -16,7 +16,7 @@ module EventTriggerSteps
       config['message_body']
     end
 
-    def trigger!(prepared_event)
+    def trigger!(prepared_event, as_test: false)
       access_token = event_trigger.workspace.slack_connection.access_token
       slack_client = ::Slack::Client.new(access_token)
 

@@ -42,13 +42,12 @@ module Ingestion
           Sentry.capture_message("Error preparing event into ingestion format during events ingestion, continuing with the rest of the events in the queue and pushing this one to the DLQ.\nevent: #{event_json}\n error: #{e.message}", level: 'error')
         end
 
-        byebug
         Ingestion::QueueManager.push_records_into_queue(Ingestion::QueueManager::Queues.PREPARED_EVENTS, prepared_events_formatted_for_ingestion)
         Ingestion::QueueManager.push_records_into_queue(Ingestion::QueueManager::Queues.EVENTS_TO_PREPARE_DLQ, failed_events)
         ingestion_batch.num_successful_records = prepared_events_formatted_for_ingestion.count
         ingestion_batch.num_failed_records = failed_events.count
       rescue => e
-        byebug
+        # byebug
         Ingestion::QueueManager.push_records_into_queue(Ingestion::QueueManager::Queues.EVENTS_TO_PREPARE_DLQ, raw_events_to_prepare)
         ingestion_batch.error_message = e.message
         ingestion_batch.num_failed_records = raw_events_to_prepare.count
