@@ -29,6 +29,14 @@ import { useEffect, useState } from 'react';
 import { useFieldArray, useForm } from "react-hook-form"
 import { useRouter } from 'next/navigation';
 
+const FormInputOrLoadingState = ({ children, className, isLoading }) => {
+  if (isLoading) {
+    return <Skeleton className={`h-10 w-full ${className || ''}`} />
+  } else {
+    return children;
+  }
+}
+
 export default function NewEventTrigger() {
   const form = useForm({ defaultValues: { header: '✨ Event Name' } });
   const conditionalStatementsFieldArray = useFieldArray({ control: form.control, name: "conditionalStatements" });
@@ -145,14 +153,6 @@ export default function NewEventTrigger() {
     });
   }, [])
 
-  const FormInputOrLoadingState = ({ children, className }) => {
-    if (uniqueEvents === undefined || slackChannels === undefined) {
-      return <Skeleton className={`h-10 w-full ${className || ''}`} />
-    } else {
-      return children;
-    }
-  }
-
   return (
     <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mb-8">
       {testTriggerModalIsOpen && (
@@ -202,7 +202,7 @@ export default function NewEventTrigger() {
                         <InfoIcon className='inline ml-1 text-gray-500' size={16} />
                       </Tooltipable>
                     </FormLabel>
-                    <FormInputOrLoadingState>
+                    <FormInputOrLoadingState isLoading={uniqueEvents === undefined || slackChannels === undefined}>
                       <Select
                         onValueChange={(e) => { setSelectedEventAndGetPropertiesAndAutofillMessageContentIfNecessary(e); field.onChange(e) }}
                         defaultValue={field.value}
@@ -234,7 +234,7 @@ export default function NewEventTrigger() {
                   </Tooltipable>
                 </FormLabel>
 
-                <FormInputOrLoadingState className='h-24 mt-2'>
+                <FormInputOrLoadingState className='h-24 mt-2' isLoading={uniqueEvents === undefined || slackChannels === undefined}>
                   {conditionalStatementsFieldArray.fields.length == 0 && (
                     <div
                       onClick={() => conditionalStatementsFieldArray.append()}
@@ -366,7 +366,7 @@ export default function NewEventTrigger() {
                   <FormItem>
                     <FormLabel>Header</FormLabel>
                     <FormControl>
-                      <FormInputOrLoadingState>
+                      <FormInputOrLoadingState isLoading={uniqueEvents === undefined || slackChannels === undefined}>
                         <Input
                           type="search"
                           placeholder="✨ Event Name"
@@ -398,7 +398,7 @@ export default function NewEventTrigger() {
                       </Tooltipable>
                     </FormLabel>
                     <FormControl>
-                      <FormInputOrLoadingState>
+                      <FormInputOrLoadingState isLoading={uniqueEvents === undefined || slackChannels === undefined}>
                         <Textarea {...form.register("body")} />
                       </FormInputOrLoadingState>
                     </FormControl>
@@ -413,7 +413,7 @@ export default function NewEventTrigger() {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Slack Channel</FormLabel>
-                    <FormInputOrLoadingState>
+                    <FormInputOrLoadingState isLoading={uniqueEvents === undefined || slackChannels === undefined}>
                       <Select onValueChange={field.onChange} defaultValue={field.value}>
                         <FormControl>
                           <SelectTrigger>
