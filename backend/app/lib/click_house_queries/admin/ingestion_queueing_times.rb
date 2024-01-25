@@ -1,6 +1,6 @@
 module ClickHouseQueries
-  module Events
-    class Diagnostics
+  module Admin
+    class IngestionQueueingTimes
       include ClickHouseQueries::Helpers
 
       def initialize(start_time: 1.day.ago, end_time: Time.current, group_by: :minute)
@@ -11,16 +11,6 @@ module ClickHouseQueries
 
       def timeseries
         @data ||= Analytics::Event.find_by_sql(sql.squish!)
-
-        # not using DataFormatters, too slow for larger timeframes?
-        # @data = DataFormatters::Timeseries.new(
-        #   events, 
-        #   start_time: @start_time, 
-        #   end_time: @end_time, 
-        #   group_by: @group_by, 
-        #   value_method: :average_ingestion_time, 
-        #   date_method: :timeperiod
-        # )
       end
 
       def sql

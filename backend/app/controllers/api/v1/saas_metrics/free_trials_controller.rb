@@ -10,17 +10,17 @@ module Api
             render json: { timeseries: [], error: 'Stripe is not configured for this account' }, status: :not_found
             return
           end
-          timeseries = ClickHouseQueries::Events::TimeseriesByEventName.new(
+          timeseries = ClickHouseQueries::Events::Timeseries.new(
             public_keys_for_requested_data_source,
-            event_name: StripeHelpers::SupplementalEvents::NewFreeTrial.EVENT_NAME,
+            event: StripeHelpers::SupplementalEvents::NewFreeTrial.EVENT_NAME,
             start_time: start_timestamp,
             end_time: end_timestamp,
           ).get
           comparison_timeseries = nil
           if params[:exclude_comparison].nil? || params[:exclude_comparison] != "true"
-            comparison_timeseries = ClickHouseQueries::Events::TimeseriesByEventName.new(
+            comparison_timeseries = ClickHouseQueries::Events::Timeseries.new(
               public_keys_for_requested_data_source,
-              event_name: StripeHelpers::SupplementalEvents::NewFreeTrial.EVENT_NAME,
+              event: StripeHelpers::SupplementalEvents::NewFreeTrial.EVENT_NAME,
               start_time: comparison_start_timestamp,
               end_time: comparison_end_timestamp,
             ).get

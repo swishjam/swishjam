@@ -3,7 +3,7 @@ module Api
     module Admin
       class IngestionController < BaseController
         def queueing
-          diagnostics = ClickHouseQueries::Events::Diagnostics.new(start_time: 7.day.ago, end_time: Time.current, group_by: :minute).timeseries
+          diagnostics = ClickHouseQueries::Admin::IngestionQueueingTimes.new(start_time: 7.day.ago, end_time: Time.current, group_by: :minute).timeseries
           formatted_timeseries = diagnostics.map{ |e| { date: e.timeperiod, value: e.average_ingestion_time }}
           render json: formatted_timeseries, status: :ok
         end
@@ -28,7 +28,7 @@ module Api
         end
 
         def event_counts
-          render json: ClickHouseQueries::Events::GlobalCountTimeseries.get.formatted_data, status: :ok
+          render json: ClickHouseQueries::Admin::GlobalEventCountTimeseries.get.formatted_data, status: :ok
         end
 
         def ingestion_batches

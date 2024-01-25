@@ -1,6 +1,6 @@
 module ClickHouseQueries
-  module Events
-    class GlobalCountTimeseries
+  module Admin
+    class GlobalEventCountTimeseries
       extend ClickHouseQueries::Helpers
 
       def self.get(start_time: 7.days.ago, end_time: Time.current)

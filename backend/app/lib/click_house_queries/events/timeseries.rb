@@ -45,6 +45,7 @@ module ClickHouseQueries
         SQL
       end
 
+      # helpful for when you just want the distinct count of a property across any kind of event (ie: session counts)
       def self.ANY_EVENT
         'any'
       end
@@ -58,8 +59,10 @@ module ClickHouseQueries
               user_profiles.merged_into_swishjam_user_id
             )
           SQL
+        elsif @distinct_count_property.nil? || @distinct_count_property == 'uuid'
+          'e.uuid'
         else
-          @distinct_count_property && @distinct_count_property != 'uuid' ? "JSONExtractString(e.properties, '#{@distinct_count_property}')" : 'e.uuid'
+          "JSONExtractString(e.properties, '#{@distinct_count_property}')" : 'e.uuid'
         end
       end
 

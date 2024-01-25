@@ -6,11 +6,11 @@ module ClickHouseQueries
       # - a list of all the values and how many times it occured for a specified event and property
       include ClickHouseQueries::Helpers
 
-      def initialize(public_keys, start_time:, end_time:, workspace_id: nil, event: nil, property: nil, user_profile_id: nil, limit: 10)
+      def initialize(public_keys, start_time:, end_time:, workspace_id: nil, event: nil, events: nil, property: nil, user_profile_id: nil, limit: 10)
         @public_keys = public_keys.is_a?(Array) ? public_keys : [public_keys]
         @start_time = start_time
         @end_time = end_time
-        @event = event
+        @event = event || events
         @workspace_id = workspace_id
         @property = property
         @user_profile_id = user_profile_id
@@ -32,20 +32,24 @@ module ClickHouseQueries
             e.swishjam_api_key IN #{formatted_in_clause(@public_keys)} AND
             e.occurred_at BETWEEN '#{formatted_time(@start_time)}' AND '#{formatted_time(@end_time)}'
             #{user_profile_id_where_clause} #{event_where_clause}
-          GROUP BY e.uuid #{group_by_clause}
+          GROUP BY e.uuid#{group_by_clause}
           ORDER BY #{order_by_clause}
-          LIMIT #{@limit}
+          #{@limit.nil? ? '' : "LIMIT #{@limit}"}
         SQL
       end
 
       def select_clause
         if @event && @property
           <<~SQL
-            JSONExtractString(properties, '#{@property}') AS #{@property},
+            argMax(JSONExtractString(properties, '#{@property}'), e.ingested_at) AS #{@property},
             CAST(COUNT(DISTINCT uuid) AS INT) AS count
           SQL
         else
-          "e.name, e.occurred_at, e.properties"
+          <<~SQL
+            argMax(e.name, e.ingested_at) AS name, 
+            argMax(e.occurred_at, e.ingested_at) AS occurred_at, 
+            argMax(e.properties, e.ingested_at) AS properties
+          SQL
         end
       end
 
@@ -77,16 +81,20 @@ module ClickHouseQueries
 
       def event_where_clause
         return '' unless @event
-        " AND e.name = '#{@event}'"
+        if @event.is_a?(Array)
+          " AND e.name IN #{formatted_in_clause(@event)}"
+        else
+          " AND e.name = '#{@event}'"
+        end
       end
 
       def group_by_clause
-        return ", #{@property}" if @event && @property
-        ", e.uuid, e.occurred_at, e.name, e.properties"
+        return '' unless @event && @property
+        ", #{@property}"
       end
 
       def order_by_clause
-        return 'e.occurred_at DESC' unless @event && @property
+        return 'occurred_at DESC' unless @event && @property
         'count DESC'
       end
     end
