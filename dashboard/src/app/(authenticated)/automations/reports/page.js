@@ -1,12 +1,13 @@
 'use client';
 
-import AddReportModal from "@/components/Automations/Reports/AddReportModal";
+//import AddReportModal from "@/components/Automations/Reports/AddReportModal";
+import { Button } from '@/components/ui/button';
 import { Cog6ToothIcon } from '@heroicons/react/24/outline'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import EmptyState from '../EmptyState';
 import { HiOutlineMail } from "react-icons/hi";
 import Link from "next/link";
-import { LuClock } from "react-icons/lu";
+import { LuPlus, LuClock } from "react-icons/lu";
 import { PauseCircleIcon, PlayCircleIcon, TrashIcon } from '@heroicons/react/24/outline'
 import { SiSlack } from "react-icons/si";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -75,7 +76,17 @@ export default function ReportsPage() {
     <div>
       <div className="flex items-center justify-between">
         <h2 className="text-md font-medium text-gray-700 mb-0">Reports</h2>
-        {hasSlackConnection && <AddReportModal open={open} setOpen={setOpen} onNewReport={newReport => setReports([...reports, newReport])} />}
+        {/* {hasSlackConnection && <AddReportModal open={open} setOpen={setOpen} onNewReport={newReport => setReports([...reports, newReport])} />} */}
+        {hasSlackConnection && 
+          <Link href="/automations/reports/new">
+            <Button
+              className={`duration-300 transition-all ml-2 flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white focus:outline-none focus:ring-2 bg-swishjam hover:bg-swishjam-dark`}
+            >
+              <LuPlus className="h-4 w-4 mt-0.5 mr-2" />
+              Add Report
+            </Button>
+          </Link> 
+        }
       </div>
       {reports === undefined ? (
         <div>

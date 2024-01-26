@@ -31,9 +31,8 @@ export default function AutomationsLayout({ children }) {
           <h1 className="text-lg font-medium text-gray-700 mb-0">Automations</h1>
         </div>
       </div>
-      <Divider />
       <div className="flex flex-col space-y-8 lg:flex-row lg:space-x-12 lg:space-y-0 mt-8">
-        <aside className="lg:w-1/5">
+        <aside className="lg:w-1/6">
           <VerticalTabs items={sidebarNavItems} />
         </aside>
         <div className="flex-1">{children}</div>

@@ -1,12 +1,13 @@
 import FakeReactionButton from './FakeReactionButton';
-import Image from 'next/image'
-import SwishjamLogo from '@public/logos/swishjam.png'
+import Logo from '@/components/Logo'
 
 export default function SlackMessagePreview({ header, body, className }) {
   return (
     <div className={`border border-gray-200 bg-white rounded-md p-4 flex gap-x-4 ${className}`}>
       <div className='flex-shrink-0'>
-        <Image src={SwishjamLogo} className='h-12 w-20' />
+        <div className='border rounded-sm h-12 w-12 p-2'>
+          <Logo className="h-8 mx-auto text-center ml-1" />
+        </div> 
       </div>
       <div className='flex-grow'>
         <div className='flex items-end'>
@@ -21,7 +22,7 @@ export default function SlackMessagePreview({ header, body, className }) {
           </span>
         </div>
         <div>
-          <h2 className='text-md font-medium break-word'>{header}</h2>
+          <h2 className='text-md font-medium break-word mt-1'>{header}</h2>
           <div className='mt-1 text-sm break-word'>
             {body}
           </div>

@@ -1,6 +1,5 @@
 'use client'
 
-import { ArrowLeftIcon, InfoIcon } from 'lucide-react';
 import { Button } from "@/components/ui/button"
 import {
   Form,
@@ -13,9 +12,7 @@ import {
 import { Input } from '@/components/ui/input';
 import Link from 'next/link';
 import LoadingSpinner from '@components/LoadingSpinner';
-import { LuPlus, LuTrash } from "react-icons/lu";
 import MessageBodyMarkdownRenderer from '@components/Slack/MessageBodyMarkdownRenderer';
-import { PaperAirplaneIcon } from '@heroicons/react/24/outline';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Skeleton } from '@/components/ui/skeleton';
 import SlackMessagePreview from '@components/Slack/SlackMessagePreview';
@@ -28,6 +25,9 @@ import TestTriggerModal from '@/components/EventTriggers/TestTriggerModal';
 import { useEffect, useState } from 'react';
 import { useFieldArray, useForm } from "react-hook-form"
 import { useRouter } from 'next/navigation';
+import { ArrowLeftIcon, InfoIcon } from 'lucide-react';
+import { LuPlus, LuTrash } from "react-icons/lu";
+import { PaperAirplaneIcon } from '@heroicons/react/24/outline';
 
 const FormInputOrLoadingState = ({ children, className, isLoading }) => {
   if (isLoading) {

@@ -36,7 +36,7 @@ import { swishjam } from '@swishjam/react';
 
 export default function AddReportModal({ onNewReport, open, setOpen }) {
   const dialogRef = useRef();
-  const form = useForm({ defaultValues: { name: '', cadence: 'daily', sending_mechanism: 'slack', slack_channel: '', messageSections: [{ type: 'web' }, { type: 'product' }] } });
+  const form = useForm({ defaultValues: { name: '', cadence: 'daily', sending_mechanism: 'slack', slack_channel: '', messageSections: [{ type: 'web' }, { type: 'product' }, { type: 'revenue' }] } });
   const fieldArray = useFieldArray({
     control: form.control,
     name: "messageSections",
@@ -95,12 +95,17 @@ export default function AddReportModal({ onNewReport, open, setOpen }) {
   }, [])
 
   const renderMarkdown = () => {
-    const slackMessageHeader = '📅 10/2/2023 \n\n'
-    const reportWebSection = '📣 **Marketing Site:** \n\n↔️ Sessions: 500\n\n📉 Unique Visitors: 340\n\n📈 Page Views: 456\n\n ';
-    const reportProductSection = '**🧑‍💻 Product Usage:**\n\n↔️ Daily Active Users: 500\n\n📉 Sessions: 340\n\n📈 New Users: 456\n\n';
-    const reportMarkdown = '📅 10/2/2023 \n\n📣 **Marketing Site:** \n\n↔️ Sessions: 500\n\n📉 Unique Visitors: 340\n\n📈 Page Views: 456\n\n **🧑‍💻 Product Usage:**\n\n↔️ Daily Active Users: 500\n\n📉 Sessions: 340\n\n📈 New Users: 456\n\n'
-    let msg = slackMessageHeader;
-    //slackMessageHeader
+    const slackMessageHeaderDaily = '📅 10/09/2023 \n\n'
+    const slackMessageHeaderWeekly = '📅 10/09/2023 — 📅 10/16/2023\n\n'
+    const reportWebSection = '📣 **Web Analytics:** \n\n↔️ Sessions: 500\n\n📉 Unique Visitors: 340\n\n📈 Page Views: 456\n\n';
+    const reportProductSection = '**🧑‍💻 Product Analytics:**\n\n↔️ Daily Active Users: 500\n\n📉 Sessions: 340\n\n📈 New Users: 456\n\n';
+    const reportRevenueSection = '**🧑‍💻 Revenue Analytics:**\n\n↔️ MRR: $1,500\n\n📉 Active Subscriptions: 56\n\n📈 Churn: $456\n\n';
+    let msg = ''
+    if(form.getValues('cadence') == 'daily') {
+      msg += slackMessageHeaderDaily;
+    } else { 
+      msg += slackMessageHeaderWeekly;
+    }
 
     form.getValues('messageSections').map((sec) => {
       if (sec.type == 'web') {
@@ -108,6 +113,9 @@ export default function AddReportModal({ onNewReport, open, setOpen }) {
       }
       if (sec.type == 'product') {
         msg += reportProductSection
+      }
+      if (sec.type == 'revenue') {
+        msg += reportRevenueSection
       }
     })
     setMkdPreview(msg)
@@ -137,7 +145,7 @@ export default function AddReportModal({ onNewReport, open, setOpen }) {
             <h2>Report Preview</h2>
             <ScrollArea className="max-h-96 overflow-y-scroll border border-gray-200 rounded-md">
               <SlackMessagePreview
-                header={'Daily Update'}
+                header={form.getValues('cadence') == 'daily' ? 'Daily Update':'Weekly Update'}
                 body={<MessageBodyMarkdownRenderer body={mkdPreview} />}
                 className={'mt-2 border-0'}
               />
@@ -170,7 +178,7 @@ export default function AddReportModal({ onNewReport, open, setOpen }) {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Frequency</FormLabel>
-                      <Select onValueChange={field.onChange} disabled>
+                      <Select onValueChange={field.onChange}>
                         <FormControl>
                           <SelectTrigger>
                             <SelectValue placeholder="Daily" />
@@ -178,8 +186,8 @@ export default function AddReportModal({ onNewReport, open, setOpen }) {
                         </FormControl>
                         <SelectContent>
                           <SelectItem className="cursor-pointer" value="daily">Daily</SelectItem>
-                          <SelectItem value="weekly" disabled>Monthly</SelectItem>
-                          <SelectItem value="monthly" disabled>Yearly</SelectItem>
+                          <SelectItem className="cursor-pointer"  value="weekly">Weekly</SelectItem>
+                          <SelectItem value="monthly" disabled>Monthly</SelectItem>
                         </SelectContent>
                       </Select>
                       <FormMessage />
@@ -264,6 +272,7 @@ export default function AddReportModal({ onNewReport, open, setOpen }) {
                                     <SelectContent>
                                       <SelectItem className="cursor-pointer hover:bg-gray-100" value="web">Web Analytics</SelectItem>
                                       <SelectItem className="cursor-pointer hover:bg-gray-100" value="product">Product Analytics</SelectItem>
+                                      <SelectItem className="cursor-pointer hover:bg-gray-100" value="revenue">Revenue Analytics</SelectItem>
                                     </SelectContent>
                                   </Select>
                                   <FormMessage />
@@ -289,8 +298,8 @@ export default function AddReportModal({ onNewReport, open, setOpen }) {
                           }}
                           type='button'
                           variant="outline"
-                          className={`!mt-2 w-full ${fieldArray.fields.length >= 2 ? 'cursor-disabled' : ''}`}
-                          disabled={fieldArray.fields.length >= 2}
+                          className={`!mt-2 w-full ${fieldArray.fields.length >= 3 ? 'cursor-disabled' : ''}`}
+                          disabled={fieldArray.fields.length >= 3}
                         >
                           Add Section
                         </Button>
