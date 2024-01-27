@@ -72,8 +72,8 @@ export default function ReportsPage() {
   }, []);
 
   return (
-    <div>
-       <div className="grid grid-cols-2 items-center">
+    <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mb-8">
+       <div className="grid grid-cols-2 mt-8 items-center">
         <div>
           <Link
             className='text-xs text-gray-500 hover:text-gray-600 transition-all hover:underline flex items-center mb-2'
@@ -90,7 +90,6 @@ export default function ReportsPage() {
         onNewReport={() => console.log('New report')}  
         className="mt-8"      
       /> 
-    </div>
-      
+    </main>   
   )
 }
