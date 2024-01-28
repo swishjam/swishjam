@@ -21,18 +21,21 @@ import {
 } from "@/components/ui/form"
 import { useForm, useFieldArray } from "react-hook-form"
 import { toast } from 'sonner'
-import LoadingSpinner from '@components/LoadingSpinner';
-import SlackMessagePreview from '@/components/Slack/SlackMessagePreview';
-import MessageBodyMarkdownRenderer from '@/components/Slack/MessageBodyMarkdownRenderer';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { swishjam } from '@swishjam/react';
+import LoadingSpinner from '@components/LoadingSpinner'
+import SlackMessagePreview from '@/components/Slack/SlackMessagePreview'
+import MessageBodyMarkdownRenderer from '@/components/Slack/MessageBodyMarkdownRenderer'
+import { ScrollArea } from '@/components/ui/scroll-area'
+import { swishjam } from '@swishjam/react'
+import { useRouter } from 'next/navigation'
 
 export default function AddEditReport({ 
   mode,
   addSave,
-  defaultReportValues = {name: '', cadence: 'daily', sending_mechanism: 'slack', slack_channel: '', messageSections: [{ type: 'web' }, { type: 'product' }, { type: 'revenue' }]}
+  defaultReportValues = {name: '', cadence: 'daily', sending_mechanism: 'slack', slack_channel: '', messageSections: [{ type: 'web' }, { type: 'product' }, { type: 'revenue' }]},
   className,
 }) {
+  
+  const router = useRouter();
   const form = useForm({ defaultValues: defaultReportValues });
   const fieldArray = useFieldArray({
     control: form.control,
@@ -43,10 +46,6 @@ export default function AddEditReport({
   const [ slackChannels, setSlackChannels ] = useState();
   const [ mkdPreview, setMkdPreview ] = useState()
 
-  const resetForm = () => {
-    form.reset();
-  }
-
   async function onSubmit(values) {
     setLoading(true)
     if (!values.name || !values.slack_channel || values.messageSections.length == 0) {
@@ -54,21 +53,20 @@ export default function AddEditReport({
       setLoading(false);
       return;
     }
-    
-    const { report, error } = await addSave(values) 
-    
-    
-
-    // If Edit mode
-
+    const { report, error } = await addSave(values); 
     setLoading(false);
     if (error) {
       toast.error(error)
     } else {
-      swishjam.event(`${} report_created`, { report_id: report.id, report_name: report.name })
-      toast.success(`${values.name} created successfully..`)
+      swishjam.event(`${mode == 'add' ? 'report_created':'report_edited'}`, { report_id: report.id, report_name: report.name })
+      toast.success(`${values.name} ${mode == 'add' ? 'Created Report. Redirecting to all Reports':'Edited successfully'} `)
       form.reset();
-      onNewReport(report)
+   
+      if(mode == 'add') {
+        setTimeout(() => {
+          router.push('/automations/reports')
+        }, 1500);
+      }
     }
   }
 
@@ -114,7 +112,7 @@ export default function AddEditReport({
     setMkdPreview(msg)
   }
 
-  form.watch((data, { name, type }) => renderMarkdown())
+  form.watch((data, { name, type }) => renderMarkdown());
 
   return (
     <div className={`grid grid-cols-2 gap-8 ${className}`}>
