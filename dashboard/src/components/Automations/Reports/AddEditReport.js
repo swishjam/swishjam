@@ -27,16 +27,21 @@ import MessageBodyMarkdownRenderer from '@/components/Slack/MessageBodyMarkdownR
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { swishjam } from '@swishjam/react';
 
-export default function AddEditReport({ onNewReport, className }) {
-  const form = useForm({ defaultValues: { name: '', cadence: 'daily', sending_mechanism: 'slack', slack_channel: '', messageSections: [{ type: 'web' }, { type: 'product' }, { type: 'revenue' }] } });
+export default function AddEditReport({ 
+  mode,
+  addSave,
+  defaultReportValues = {name: '', cadence: 'daily', sending_mechanism: 'slack', slack_channel: '', messageSections: [{ type: 'web' }, { type: 'product' }, { type: 'revenue' }]}
+  className,
+}) {
+  const form = useForm({ defaultValues: defaultReportValues });
   const fieldArray = useFieldArray({
     control: form.control,
     name: "messageSections",
   });
 
-  const [loading, setLoading] = useState(false);
-  const [slackChannels, setSlackChannels] = useState();
-  const [mkdPreview, setMkdPreview] = useState()
+  const [ loading, setLoading ] = useState(false);
+  const [ slackChannels, setSlackChannels ] = useState();
+  const [ mkdPreview, setMkdPreview ] = useState()
 
   const resetForm = () => {
     form.reset();
@@ -49,21 +54,18 @@ export default function AddEditReport({ onNewReport, className }) {
       setLoading(false);
       return;
     }
-    const { report, error } = await SwishjamAPI.Reports.create({
-      name: values.name,
-      cadence: values.cadence,
-      sending_mechanism: values.sending_mechanism,
-      config: {
-        sections: values.messageSections,
-        slack_channel_id: values.slack_channel
-      }
-    })
+    
+    const { report, error } = await addSave(values) 
+    
+    
+
+    // If Edit mode
 
     setLoading(false);
     if (error) {
       toast.error(error)
     } else {
-      swishjam.event('report_created', { report_id: report.id, report_name: report.name })
+      swishjam.event(`${} report_created`, { report_id: report.id, report_name: report.name })
       toast.success(`${values.name} created successfully..`)
       form.reset();
       onNewReport(report)
@@ -285,7 +287,7 @@ export default function AddEditReport({ onNewReport, className }) {
               type="submit"
               disabled={loading || form.getValues('messageSections').length == 0}
             >
-              {loading ? <LoadingSpinner color="white" /> : 'Create Report'}
+              {loading ? <LoadingSpinner color="white" /> : `${mode=='add' ? 'Create':'Save'} Report`}
             </Button>
           </form>
         </Form>

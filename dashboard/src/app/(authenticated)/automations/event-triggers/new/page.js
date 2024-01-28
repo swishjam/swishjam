@@ -182,7 +182,6 @@ export default function NewEventTrigger() {
       </div>
       <div className="grid grid-cols-2 gap-8 mt-8">
         <div>
-          <h2 className='text-sm italic'>Slack Preview</h2>
           <SlackMessagePreview
             header={form.watch('header')}
             body={<MessageBodyMarkdownRenderer body={form.watch('body')} availableEventOptions={propertyOptionsForSelectedEvent} />}
@@ -190,7 +189,7 @@ export default function NewEventTrigger() {
         </div>
         <div>
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 px-4">
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
               <FormField
                 control={form.control}
                 name="event_name"

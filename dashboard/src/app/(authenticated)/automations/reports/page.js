@@ -76,7 +76,6 @@ export default function ReportsPage() {
     <div>
       <div className="flex items-center justify-between">
         <h2 className="text-md font-medium text-gray-700 mb-0">Reports</h2>
-        {/* {hasSlackConnection && <AddReportModal open={open} setOpen={setOpen} onNewReport={newReport => setReports([...reports, newReport])} />} */}
         {hasSlackConnection && 
           <Link href="/automations/reports/new">
             <Button
