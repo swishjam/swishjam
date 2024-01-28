@@ -1,19 +1,18 @@
 'use client';
 
-//import AddReportModal from "@/components/Automations/Reports/AddReportModal";
-import { Button } from '@/components/ui/button';
-import { Cog6ToothIcon } from '@heroicons/react/24/outline'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { Button } from '@/components/ui/button';
 import EmptyState from '../EmptyState';
-import { HiOutlineMail } from "react-icons/hi";
 import Link from "next/link";
-import { LuPlus, LuClock } from "react-icons/lu";
-import { PauseCircleIcon, PlayCircleIcon, TrashIcon } from '@heroicons/react/24/outline'
-import { SiSlack } from "react-icons/si";
 import { Skeleton } from "@/components/ui/skeleton";
 import { SwishjamAPI } from "@/lib/api-client/swishjam-api";
 import { toast } from "sonner";
 import { useState, useEffect } from "react";
+                      
+import { LuPlus, LuClock, LuPause, LuPlay, LuPencil, LuTrash } from "react-icons/lu";
+import { HiOutlineMail } from "react-icons/hi";
+import { Cog6ToothIcon } from '@heroicons/react/24/outline'
+import { SiSlack } from "react-icons/si";
 
 export default function ReportsPage() {
   const [reports, setReports] = useState();
@@ -137,20 +136,27 @@ export default function ReportsPage() {
                     <DropdownMenuContent className="w-36" align={'end'}>
                       <DropdownMenuLabel>Edit Report</DropdownMenuLabel>
                       <DropdownMenuSeparator />
+                      <Link href={`/automations/reports/${report.id}/edit`}>
+                        <DropdownMenuItem className='cursor-pointer'>
+                          <LuPencil className='h-4 w-4 inline-block mr-2' />
+                          Edit
+                        </DropdownMenuItem>
+                      </Link>                    
+
                       <DropdownMenuGroup>
                         {report.enabled ? (
                           <DropdownMenuItem onClick={() => pauseReport(report.id)} className="cursor-pointer">
-                            <PauseCircleIcon className='h-4 w-4 inline-block mr-2' />
+                            <LuPause className='h-4 w-4 inline-block mr-2' />
                             Pause
                           </DropdownMenuItem>
                         ) : (
                           <DropdownMenuItem onClick={() => resumeReport(report.id)} className="cursor-pointer">
-                            <PlayCircleIcon className='h-4 w-4 inline-block mr-2' />
+                            <LuPlay className='h-4 w-4 inline-block mr-2' />
                             Resume
                           </DropdownMenuItem>
                         )}
                         <DropdownMenuItem className="!text-red-400 cursor-pointer" onClick={() => deleteReport(report.id)}>
-                          <TrashIcon className='h-4 w-4 inline-block mr-2' />
+                          <LuTrash className='h-4 w-4 inline-block mr-2' />
                           Delete
                         </DropdownMenuItem>
                       </DropdownMenuGroup>
