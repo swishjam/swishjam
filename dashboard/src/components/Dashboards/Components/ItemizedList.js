@@ -79,7 +79,7 @@ export default function ItemizedList({
                           }
                         </p>
                       </div>
-                      <div className="ml-auto text-sm font-medium">{rightItemKeyFormatter(item[rightItemKey])}</div>
+                      <div className="ml-auto text-sm font-medium">{rightItemKeyFormatter(item[rightItemKey] || item)}</div>
                     </Link>
                   ))
                 )

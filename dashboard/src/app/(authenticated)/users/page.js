@@ -4,12 +4,12 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Card, CardContent } from "@/components/ui/card"
 import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 import Link from "next/link";
-import LoadingView from './LoadingView';
 import Pagination from "@/components/Pagination/Pagination";
 import { SwishjamAPI } from "@/lib/api-client/swishjam-api";
 import useCommandBar from "@/hooks/useCommandBar";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import UserProfilesCollection from "@/lib/collections/user-profiles";
 import FilterableDropdownItem from "@/components/utils/FilterDropdown";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -29,13 +29,14 @@ const FILTERABLE_USER_ATTRIBUTES = [
 
 const UsersTableBody = ({ currentPageNum, selectedFilters, onUsersFetched = () => { } }) => {
   const router = useRouter();
-  const [usersData, setUsersData] = useState();
+  const [userModels, setUserModels] = useState();
 
   const getUsers = async ({ page, where }) => {
-    setUsersData()
+    setUserModels()
     await SwishjamAPI.Users.list({ page, where }).then(({ users, total_pages }) => {
-      setUsersData(users);
-      onUsersFetched({ users, total_pages });
+      const userModels = new UserProfilesCollection(users).models();
+      setUserModels(userModels);
+      onUsersFetched({ users: userModels, total_pages });
     });
   }
 
@@ -44,7 +45,7 @@ const UsersTableBody = ({ currentPageNum, selectedFilters, onUsersFetched = () =
   }, [selectedFilters, currentPageNum])
 
   return (
-    usersData === undefined ? (
+    userModels === undefined ? (
       <tbody className="divide-y divide-gray-200 bg-white">
         {[...Array(10)].map((_, i) => (
           <tr key={i}>
@@ -61,7 +62,7 @@ const UsersTableBody = ({ currentPageNum, selectedFilters, onUsersFetched = () =
         ))}
       </tbody>
     ) : (
-      usersData.length === 0 ? (
+      userModels.length === 0 ? (
         <tbody className="divide-y divide-gray-200 bg-white">
           <tr>
             <td className='px-4 pt-8 pb-6 text-center' colSpan={3}>
@@ -75,31 +76,31 @@ const UsersTableBody = ({ currentPageNum, selectedFilters, onUsersFetched = () =
         </tbody>
       ) : (
         <tbody className="divide-y divide-gray-200 bg-white">
-          {usersData.map((user, idx) => (
+          {userModels.map((user, idx) => (
             <tr
               key={idx}
               className="group hover:bg-gray-50 duration-300 transition cursor-pointer"
-              onClick={() => router.push(`/users/${user.swishjam_user_id}`)}
+              onClick={() => router.push(`/users/${user.id()}`)}
             >
               <td className="whitespace-nowrap py-3 pl-4 pr-3 text-sm sm:pl-6 lg:pl-8">
                 <div className="flex items-center">
                   <div className="flex-shrink-0">
                     <Avatar className="border border-slate-200">
-                      <AvatarImage src={user.gravatar_url} />
-                      <AvatarFallback>{user.full_name ? user.full_name.split(' ').map(n => n[0].toUpperCase()).join('') : ''}</AvatarFallback>
+                      <AvatarImage src={user.gravatarUrl()} />
+                      <AvatarFallback>{user.initials()}</AvatarFallback>
                     </Avatar>
                   </div>
                   <div className="ml-4">
-                    {user.full_name
-                      ? <span className="font-medium text-gray-900">{user.full_name}</span>
-                      : <span className='text-gray-700 italic'>{!user.unique_identifier && !user.email ? `Anonymous User ${user.swishjam_user_id.slice(0, 4)}` : 'Name Unknown'}</span>}
+                    {user.fullName()
+                      ? <span className="font-medium text-gray-900">{user.fullName()}</span>
+                      : <span className='text-gray-700 italic'>{!user.uniqueIdentifier() && !user.email() ? `Anonymous User ${user.id().slice(0, 4)}` : 'Name Unknown'}</span>}
                   </div>
                 </div>
               </td>
-              <td className="whitespace-nowrap px-3 py-3 text-sm text-gray-500">{user.email}</td>
+              <td className="whitespace-nowrap px-3 py-3 text-sm text-gray-500">{user.email()}</td>
               <td className="relative whitespace-nowrap py-3 pl-3 pr-4 text-right text-sm font-medium sm:pr-6 lg:pr-8">
-                <Link href={`/users/${user.swishjam_user_id}`} className="text-swishjam hover:text-swishjam-dark duration-300 transition">
-                  View<span className="sr-only">, {user.full_name}</span>
+                <Link href={`/users/${user.id()}`} className="text-swishjam hover:text-swishjam-dark duration-300 transition">
+                  View<span className="sr-only">, {user.fullName() || user.email()}</span>
                 </Link>
               </td>
             </tr>
@@ -152,7 +153,7 @@ export default function Users() {
 
   return (
     <main className="mx-auto max-w-7xl px-4 mt-8 sm:px-6 lg:px-8 mb-8">
-      <div className='grid grid-cols-2 mt-8 flex items-center'>
+      <div className='grid grid-cols-2 mt-8 items-center'>
         <div>
           <h1 className="text-lg font-medium text-gray-700 mb-0">Users</h1>
         </div>

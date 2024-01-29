@@ -14,6 +14,7 @@ import RetentionWidgetTiny from "@/components/Dashboards/Components/RetentionWid
 import { BsArrowRightShort } from "react-icons/bs";
 import { formatMoney, formatNumbers, formatShrinkNumbers, formatShrinkMoney } from "@/lib/utils/numberHelpers";
 import { setStateFromTimeseriesResponse, setStateFromMultiDimensionalTimeseriesResponse, formattedUTCMonthAndDay } from "@/lib/utils/timeseriesHelpers";
+import UserProfilesCollection from "@/lib/collections/user-profiles";
 
 export default function Home() {
   const [isRefreshing, setIsRefreshing] = useState();
@@ -38,7 +39,7 @@ export default function Home() {
 
   // Other
   const [newOrganizationsData, setNewOrganizationsData] = useState();
-  const [newUsersData, setNewUsersData] = useState();
+  const [newUsersModels, setNewUsersModels] = useState();
 
   const getBillingData = async (timeframe) => {
     return await SwishjamAPI.BillingData.timeseries({ timeframe }).then(({ mrr, active_subscriptions }) => {
@@ -86,7 +87,9 @@ export default function Home() {
   };
 
   const getUsersData = async () => {
-    return await SwishjamAPI.Users.list({ limit: 5 }).then(({ users }) => setNewUsersData(users));
+    return await SwishjamAPI.Users.list({ limit: 5 }).then(({ users }) => (
+      setNewUsersModels(new UserProfilesCollection(users).models())
+    ));
   };
 
   const getOrganizationsData = async () => {
@@ -109,7 +112,7 @@ export default function Home() {
     setChurnRateData();
 
     // Users & Orgs
-    setNewUsersData();
+    setNewUsersModels();
     setNewOrganizationsData();
     await Promise.all([
       getPageViewsTimeseriesData(timeframe),
@@ -304,18 +307,15 @@ export default function Home() {
           yAxisFormatter={formatShrinkNumbers}
         />
       </div>
-      {/*<div className='pt-8'>
-        <RetentionWidget retentionCohorts={userRetentionData} />
-      </div>*/}
       <h3 className='pt-8 font-semibold text-sm text-slate-600'>New Users & Organizations</h3>
       <div className='grid grid-cols-2 gap-2 pt-2'>
         <ItemizedList
-          fallbackAvatarGenerator={user => user?.initials?.slice(0, 2) || ""}
-          items={newUsersData}
-          titleFormatter={user => user.full_name || user.email || user.user_unique_identifier}
-          subTitleFormatter={user => (user.full_name ? user.email : null)}
-          linkFormatter={user => `/users/${user.swishjam_user_id}`}
-          rightItemKey="created_at"
+          fallbackAvatarGenerator={user => user.initials() || (user.uniqueIdentifier() || user.id()).slice(0, 2)}
+          items={newUsersModels}
+          titleFormatter={user => user.fullName() || user.email() || user.uniqueIdentifier() || `Anonymous User ${user.id().slice(0, 6)}`}
+          subTitleFormatter={user => (user.fullName() ? user.email() : null)}
+          linkFormatter={user => `/users/${user.id()}`}
+          rightItemKey="_createdAt"
           rightItemKeyFormatter={date => {
             return new Date(date)
               .toLocaleDateString("en-us", {
