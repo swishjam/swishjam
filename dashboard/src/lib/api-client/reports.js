@@ -13,6 +13,19 @@ export class Reports extends Base {
       config: config
     });
   }
+  
+  static async update(id, { name, cadence, sending_mechanism, config}) {
+    return await this._patch(`/api/v1/reports/${id}`, {
+      name: name,
+      cadence: cadence,
+      sending_mechanism: sending_mechanism,
+      config: config
+    });
+  }
+
+  static async retrieve(id) {
+    return await this._get(`/api/v1/reports/${id}`);
+  }
 
   static async delete(id) {
     return await this._delete(`/api/v1/reports/${id}`);

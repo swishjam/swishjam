@@ -5,6 +5,15 @@ module Api
         render json: current_workspace.reports, status: :ok
       end
 
+      def show
+        report = current_workspace.reports.find_by(id: params[:id])
+        if report.present?
+          render json: { report: ReportSerializer.new(report) }, status: :ok
+        else
+          render json: { error: 'Report not found' }, status: :not_found
+        end
+      end
+
       def create
         report = current_workspace.reports.new(
           enabled: true,
@@ -17,6 +26,22 @@ module Api
           render json: { report: report }, status: :ok
         else
           render json: { error: report.errors.full_messages.join(' ') }, status: :unprocessable_entity
+        end
+      end
+
+      def update
+        report = current_workspace.reports.find_by(id: params[:id])
+        if report.present?
+          report.update(
+            enabled: true,
+            name: params[:name], 
+            cadence: params[:cadence], 
+            sending_mechanism: params[:sending_mechanism],  
+            config: JSON.parse(params[:config].to_json),
+          )
+          render json: { report: report }, status: :ok
+        else
+          render json: { error: 'Report not found' }, status: :not_found
         end
       end
 

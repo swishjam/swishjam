@@ -29,17 +29,25 @@ import { swishjam } from '@swishjam/react'
 import { useRouter } from 'next/navigation'
 
 export default function AddEditReport({ 
-  mode,
   addSave,
-  defaultReportValues = {name: '', cadence: 'daily', sending_mechanism: 'slack', slack_channel: '', messageSections: [{ type: 'web' }, { type: 'product' }, { type: 'revenue' }]},
+  reportId,
+  defaultReportValues = {
+    name: '',
+    cadence: 'daily',
+    sending_mechanism: 'slack',
+    config: {
+      slack_channel_id: '',
+      sections: []
+    }
+  },
   className,
 }) {
   
   const router = useRouter();
   const form = useForm({ defaultValues: defaultReportValues });
   const fieldArray = useFieldArray({
-    control: form.control,
-    name: "messageSections",
+     control: form.control,
+     name: "config.sections",
   });
 
   const [ loading, setLoading ] = useState(false);
@@ -48,7 +56,7 @@ export default function AddEditReport({
 
   async function onSubmit(values) {
     setLoading(true)
-    if (!values.name || !values.slack_channel || values.messageSections.length == 0) {
+    if (!values.name || !values.config.slack_channel_id || values.config.sections.length == 0) {
       toast.error('All fields are required')
       setLoading(false);
       return;
@@ -58,11 +66,10 @@ export default function AddEditReport({
     if (error) {
       toast.error(error)
     } else {
-      swishjam.event(`${mode == 'add' ? 'report_created':'report_edited'}`, { report_id: report.id, report_name: report.name })
-      toast.success(`${values.name} ${mode == 'add' ? 'Created Report. Redirecting to all Reports':'Edited successfully'} `)
-      form.reset();
-   
-      if(mode == 'add') {
+      swishjam.event(`${reportId ? 'report_edited':'report_created'}`, { report_id: report.id, report_name: report.name })
+      toast.success(`${values.name} ${reportId ? 'edited successfully':'report created. Redirecting to all Reports'} `)
+      if(!reportId) {
+        form.reset();
         setTimeout(() => {
           router.push('/automations/reports')
         }, 1500);
@@ -98,7 +105,7 @@ export default function AddEditReport({
       msg += slackMessageHeaderWeekly;
     }
 
-    form.getValues('messageSections').map((sec) => {
+    form.getValues('config.sections').map((sec) => {
       if (sec.type == 'web') {
         msg += reportWebSection
       }
@@ -152,7 +159,7 @@ export default function AddEditReport({
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Frequency</FormLabel>
-                  <Select onValueChange={field.onChange}>
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
                     <FormControl>
                       <SelectTrigger>
                         <SelectValue placeholder="Daily" />
@@ -174,7 +181,7 @@ export default function AddEditReport({
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Delivery Method</FormLabel>
-                  <Select onValueChange={field.onChange} disabled>
+                  <Select onValueChange={field.onChange} disabled defaultValue={field.value}>
                     <FormControl>
                       <SelectTrigger>
                         <SelectValue placeholder="Slack" />
@@ -191,7 +198,7 @@ export default function AddEditReport({
             />
             <FormField
               control={form.control}
-              name="slack_channel"
+              name="config.slack_channel_id"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Slack Channel</FormLabel>
@@ -217,7 +224,6 @@ export default function AddEditReport({
 
             <div className='mt-4'>
               <FormLabel>Report Sections</FormLabel>
-
               {fieldArray.fields.length == 0 &&
                 <div
                   onClick={() => fieldArray.append({ type: 'web' })}
@@ -234,7 +240,7 @@ export default function AddEditReport({
                         <FormField
                           key={field.id}
                           control={field.control}
-                          name={`messageSections.${index}.type`}
+                          name={`config.sections.${index}.type`}
                           render={({ field }) => (
                             <FormItem>
                               <Select value={field.value} key={field.id} onValueChange={field.onChange}>
@@ -283,9 +289,9 @@ export default function AddEditReport({
             <Button
               className={`!mt-6 w-full flex items-center justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white focus:outline-none focus:ring-2 ${loading ? 'bg-swishjam-dark' : 'bg-swishjam'} hover:bg-swishjam-dark`}
               type="submit"
-              disabled={loading || form.getValues('messageSections').length == 0}
+              disabled={loading || form.getValues('config.sections').length == 0}
             >
-              {loading ? <LoadingSpinner color="white" /> : `${mode=='add' ? 'Create':'Save'} Report`}
+              {loading ? <LoadingSpinner color="white" /> : `${reportId ? 'Save':'Create'} Report`}
             </Button>
           </form>
         </Form>

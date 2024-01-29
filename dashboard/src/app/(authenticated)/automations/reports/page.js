@@ -9,7 +9,11 @@ import { SwishjamAPI } from "@/lib/api-client/swishjam-api";
 import { toast } from "sonner";
 import { useState, useEffect } from "react";
                       
-import { LuPlus, LuClock, LuPause, LuPlay, LuPencil, LuTrash } from "react-icons/lu";
+import {
+  LuPlus, LuClock, LuPause,
+  LuPlay, LuPencil, LuTrash,
+  LuSettings, LuCalendarDays,
+} from "react-icons/lu";
 import { HiOutlineMail } from "react-icons/hi";
 import { Cog6ToothIcon } from '@heroicons/react/24/outline'
 import { SiSlack } from "react-icons/si";
@@ -22,7 +26,7 @@ export default function ReportsPage() {
   const pauseReport = async (reportId) => {
     SwishjamAPI.Reports.disable(reportId).then(({ report, error }) => {
       if (error) {
-        toast("Uh oh! Something went wrong.", {
+        toast.error("Uh oh! Something went wrong.", {
           description: "Contact founders@swishjam.com for help",
         })
       } else {
@@ -35,7 +39,7 @@ export default function ReportsPage() {
   const resumeReport = async (reportId) => {
     SwishjamAPI.Reports.enable(reportId).then(({ report, error }) => {
       if (error) {
-        toast("Uh oh! Something went wrong.", {
+        toast.error("Uh oh! Something went wrong.", {
           description: error,
         })
       } else {
@@ -109,7 +113,7 @@ export default function ReportsPage() {
                   </div>
                   {report.enabled &&
                     <div className="inline-flex items-center gap-x-1.5 px-1.5 capitalize">
-                      <LuClock className="w-4 h-4" />
+                      {report.cadence == 'daily' ? <LuClock className="w-5 h-5" />:<LuCalendarDays className="w-5 h-5" />}
                       {report.cadence}
                     </div>
                   }
@@ -131,7 +135,9 @@ export default function ReportsPage() {
 
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Cog6ToothIcon className="h-5 w-5 hover:text-swishjam cursor-pointer duration-300 transition-all" aria-hidden="true" />
+                      <div>
+                        <LuSettings className='h-5 w-5 hover:text-swishjam cursor-pointer duration-300 transition-all' />
+                      </div> 
                     </DropdownMenuTrigger>
                     <DropdownMenuContent className="w-36" align={'end'}>
                       <DropdownMenuLabel>Edit Report</DropdownMenuLabel>

@@ -3,25 +3,13 @@
 import AddEditReport from "@/components/Automations/Reports/AddEditReport";
 import Link from "next/link";
 import { SwishjamAPI } from "@/lib/api-client/swishjam-api";
-//import { useState } from "react";
-//import { Skeleton } from "@/components/ui/skeleton";
-//import { toast } from "sonner";
-
 // Icons
 import { LuArrowLeft } from "react-icons/lu";
 
 export default function NewReportsPage() {
 
   const createReport = async (values) => {
-    return await SwishjamAPI.Reports.create({
-      name: values.name,
-      cadence: values.cadence,
-      sending_mechanism: values.sending_mechanism,
-      config: {
-        sections: values.messageSections,
-        slack_channel_id: values.slack_channel
-      }
-    })
+    return await SwishjamAPI.Reports.create(values)
   }
 
   return (
@@ -38,9 +26,7 @@ export default function NewReportsPage() {
           <h2 className="text-md font-medium text-gray-700 mb-0">Add New Report</h2>
         </div>
       </div> 
-      {/*hasSlackConnection && <AddReportModal open={open} setOpen={setOpen} onNewReport={newReport => setReports([...reports, newReport])} />*/}
       <AddEditReport
-        mode={'add'}
         addSave={createReport}  
         className="mt-8"      
       /> 
