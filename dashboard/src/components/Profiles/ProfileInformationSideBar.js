@@ -85,13 +85,13 @@ export default function ProfileInformationSideBar({ userData, hasStripeIntegrati
               <>
                 <EnrichedDataItem
                   title='Initial Referrer'
-                  enrichmentData={{ initial_referrer: userData?.immutable_metadata?.initial_referrer }}
+                  enrichmentData={{ initial_referrer: userData.metadata.initial_referrer }}
                   enrichmentKey='initial_referrer'
                   formatter={referrer => referrer === '' ? 'Direct' : referrer}
                 />
                 <EnrichedDataItem
                   title='Initial Landing Page'
-                  enrichmentData={{ initial_url: userData?.immutable_metadata?.initial_url }}
+                  enrichmentData={{ initial_url: userData.metadata.initial_landing_page_url }}
                   enrichmentKey='initial_url'
                   formatter={url => (
                     <Tooltipable content={url}>
@@ -348,9 +348,9 @@ export default function ProfileInformationSideBar({ userData, hasStripeIntegrati
                   <dd className="text-sm leading-6 text-gray-700 text-right">
                     {userData.metadata
                       ? (
-                        Object.keys(userData.metadata).map(key => (
-                          <span className='block'>{key}: {userData.metadata[key]}</span>
-                        ))
+                        Object.keys(userData.metadata)
+                          .filter(key => !['firstName', 'first_name', 'lastName', 'last_name', 'initial_landing_page_url', 'initial_referrer'].includes(key))
+                          .map(key => <span className='block'>{key}: {userData.metadata[key]}</span>)
                       )
                       : 'No attributes provided.'}
                   </dd>

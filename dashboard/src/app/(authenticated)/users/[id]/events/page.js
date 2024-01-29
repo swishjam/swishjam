@@ -37,8 +37,9 @@ export default function UserEventFeed({ params }) {
             },
             {
               title: !userData ? <Skeleton className='h-8 w-12' /> : userData.full_name || userData.email || (userData.user_unique_identifier ? `Un-named User: ${userData.user_unique_identifier}` : `Anonymous User ${userData.id.slice(0, 6)}`),
-              url: null
-            }
+              url: `/users/${userId}`
+            },
+            { title: 'Event Feed' }
           ]}
         />
         <Button

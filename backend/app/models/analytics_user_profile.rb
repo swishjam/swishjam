@@ -34,8 +34,19 @@ class AnalyticsUserProfile < Transactional
   alias is_anonymous anonymous?
 
   def full_name
-    return nil if first_name.blank? || last_name.blank?
-    "#{first_name} #{last_name}"
+    if first_name.blank? || last_name.blank?
+      metadata['name'] || metadata['fullName'] || metadata['full_name']
+    else
+      "#{first_name} #{last_name}"
+    end
+  end
+
+  def first_name
+    metadata['firstName'] || metadata['first_name']
+  end
+
+  def last_name
+    metadata['lastName'] || metadata['last_name']
   end
 
   def initials

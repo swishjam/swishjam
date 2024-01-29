@@ -12,6 +12,7 @@ module ClickHouseQueries
         @start_time, @end_time = rounded_timestamps(start_ts: start_time, end_ts: end_time, group_by: @group_by)
         @user_profile_id = user_profile_id
         @distinct_count_property = distinct_count_property
+        validate!
       end
 
       def get
@@ -30,13 +31,11 @@ module ClickHouseQueries
       def sql
         <<~SQL
           SELECT
-            CAST(COUNT(DISTINCT #{property_select_clause}) AS int) AS count,
+            CAST(COUNT(DISTINCT distinct_count_field) AS int) AS count,
             DATE_TRUNC('#{@group_by}', occurred_at) AS group_by_date
-          FROM events AS e
+          FROM (#{from_clause}) AS e
           #{join_statements}
           WHERE
-            e.swishjam_api_key IN #{formatted_in_clause(@public_keys)} AND
-            e.occurred_at BETWEEN '#{formatted_time(@start_time)}' AND '#{formatted_time(@end_time)}' AND
             notEmpty(#{property_select_clause})
             #{@event == self.class.ANY_EVENT ? "" : " AND e.name = '#{@event}'"}
             #{user_profile_id_where_clause}
@@ -59,15 +58,30 @@ module ClickHouseQueries
               user_profiles.merged_into_swishjam_user_id
             )
           SQL
-        elsif @distinct_count_property.nil? || @distinct_count_property == 'uuid'
-          'e.uuid'
         else
-          "JSONExtractString(e.properties, '#{@distinct_count_property}')"
+          'e.distinct_count_field'
         end
       end
 
+      def from_clause
+        should_sort_by_uuid = @distinct_count_property.nil? || @distinct_count_property == 'uuid' || @distinct_count_property == 'users'
+        <<~SQL
+          SELECT 
+            #{should_sort_by_uuid ? 'e.uuid' : "JSONExtractString(e.properties, '#{@distinct_count_property}')"} AS distinct_count_field,
+            argMax(e.name, ingested_at) AS name, 
+            argMax(e.properties, ingested_at) AS properties, 
+            argMax(e.user_profile_id, ingested_at) AS user_profile_id,
+            argMax(e.occurred_at, ingested_at) AS occurred_at
+          FROM events AS e
+          WHERE 
+            e.swishjam_api_key IN #{formatted_in_clause(@public_keys)} AND
+            e.occurred_at BETWEEN '#{formatted_time(@start_time)}' AND '#{formatted_time(@end_time)}'
+          GROUP BY distinct_count_field
+        SQL
+      end
+
       def join_statements
-        return '' unless should_join_user_profiles
+        return '' unless @distinct_count_property == 'users' || @user_profile_id.present?
         <<~SQL
           LEFT JOIN (
             SELECT 
@@ -93,8 +107,10 @@ module ClickHouseQueries
         sql
       end
 
-      def should_join_user_profiles
-        @distinct_count_property == 'users' || @user_profile_id.present?
+      def validate!
+        if @user_profile_id.present? && @workspace_id.nil?
+          raise ArgumentError, '`workspace_id` is required when `user_profile_id` is provided.'
+        end
       end
     end
   end

@@ -1,9 +1,9 @@
 require 'spec_helper'
 
-RSpec.describe StripeHelpers::MetricsCalculator do
+RSpec.describe StripeHelpers::SnapshotCalculator do
   before do
     setup_test_data
-    @metrics_calculator = StripeHelpers::MetricsCalculator.new('STUBBED_STRIPE_ACCOUNT_ID')
+    @metrics_calculator = StripeHelpers::SnapshotCalculator.new('STUBBED_STRIPE_ACCOUNT_ID')
   end
 
   describe '#mrr' do
