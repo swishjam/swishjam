@@ -3,12 +3,6 @@ module Api
     module Webhooks
       class GithubController < BaseController
         def receive
-          EventReceivers::Github.new(
-            event_type: request.headers['X-GitHub-Event'], 
-            event_uuid: request.headers['X-GitHub-Delivery'],
-            payload: params
-          ).receive!
-
           installation_id = params.dig('installation', 'id')
           integration = Integrations::Github.find_by_config_attribute('installation_id', installation_id.to_s)
           if integration.nil?

@@ -3,8 +3,6 @@ module Api
     module Webhooks
       class IntercomController < BaseController
         def receive
-          EventReceivers::Intercom.new(request.body.read).receive!
-          
           integration = Integrations::Intercom.find_by_app_id(params[:app_id])
           if integration.nil?
             Sentry.capture_message("Received Intercom event from app #{params[:app_id]}, but unable to find matching enabled Intercom integration record.", level: 'error')
