@@ -1,29 +1,56 @@
 'use client'
 
+import { ArrowPathIcon } from "@heroicons/react/24/outline";
 import Breadcrumbs from "@/components/Breadcrumbs";
+import { Button } from "@/components/ui/button";
 import EventFeed from "@/components/Dashboards/Components/EventFeed";
+import { Skeleton } from "@/components/ui/skeleton";
 import SwishjamAPI from "@/lib/api-client/swishjam-api";
 import { useEffect, useState } from "react";
 
 export default function UserEventFeed({ params }) {
   const { id: userId } = params;
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const [recentEvents, setRecentEvents] = useState();
   const [userData, setUserData] = useState();
 
+  const getEvents = async () => {
+    setIsRefreshing(true);
+    setRecentEvents();
+    await SwishjamAPI.Users.Events.list(userId, { limit: 100 }).then(setRecentEvents);
+    setIsRefreshing(false);
+  }
+
   useEffect(() => {
     SwishjamAPI.Users.retrieve(userId).then(setUserData);
-    SwishjamAPI.Users.Events.list(userId, { limit: 100 }).then(setRecentEvents);
+    getEvents();
   }, [])
-
-  const breadcrumbPaths = [
-    { title: 'Users', url: '/users' },
-    { title: userData?.full_name || userData?.email || `Un-named User: ${userData?.user_unique_identifier}`, url: `/users/${userId}` },
-    { title: 'Event Feed' }
-  ]
 
   return (
     <main className="mx-auto max-w-7xl px-4 mt-8 sm:px-6 lg:px-8 mb-8">
-      <Breadcrumbs paths={breadcrumbPaths} />
+      <div className='flex justify-between items-center'>
+        <Breadcrumbs
+          paths={[
+            {
+              title: 'Users',
+              url: '/users'
+            },
+            {
+              title: !userData ? <Skeleton className='h-8 w-12' /> : userData.full_name || userData.email || (userData.user_unique_identifier ? `Un-named User: ${userData.user_unique_identifier}` : `Anonymous User ${userData.id.slice(0, 6)}`),
+              url: `/users/${userId}`
+            },
+            { title: 'Event Feed' }
+          ]}
+        />
+        <Button
+          variant="ghost"
+          className={`duration-500 transition-all mr-4 hover:text-swishjam ${isRefreshing ? "cursor-not-allowed text-swishjam" : ""}`}
+          onClick={getEvents}
+          disabled={isRefreshing}
+        >
+          <ArrowPathIcon className={`h-4 w-4 ${isRefreshing ? "animate-spin" : ""}`} />
+        </Button>
+      </div>
       <div className='mt-8'>
         <EventFeed
           events={recentEvents}
@@ -42,7 +69,7 @@ export default function UserEventFeed({ params }) {
             }
           }}
           rightItemKey="occurred_at"
-          rightItemKeyFormatter={date => new Date(date).toLocaleTimeString('en-us', { hour: 'numeric', minute: "2-digit" })}
+          rightItemKeyFormatter={date => new Date(date).toLocaleTimeString('en-us', { hour: 'numeric', minute: "2-digit", second: "2-digit" })}
           title="Event Feed"
         />
       </div>

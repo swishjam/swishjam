@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { formattedUTCMonthAndDay } from '@/lib/utils/timeseriesHelpers';
 
 export default function RetentionCell({
   activityDate,
@@ -30,7 +31,7 @@ export default function RetentionCell({
             </div>
           </div>
           <TooltipContent className='text-xs text-gray-700'>
-            {numActiveUsers} of the {cohortSize} users that registered the week of {cohortDate} were active within the week of {activityDate}.
+            {numActiveUsers} of the {cohortSize} users in the week of {formattedUTCMonthAndDay(cohortDate)} cohort were active within the week of {formattedUTCMonthAndDay(activityDate)}.
           </TooltipContent>
         </TooltipTrigger>
       </Tooltip>

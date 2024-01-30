@@ -4,11 +4,11 @@ import { AreaChart, Area, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YA
 import { BsCloudSlash } from "react-icons/bs"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import ConditionalCardWrapper from './ConditionalCardWrapper';
-import { useCallback, useState } from 'react';
+import CustomTooltip from './LineChart/CustomTooltip';
 import { dateFormatterForGrouping } from '@/lib/utils/timeseriesHelpers';
 import { Skeleton } from "@/components/ui/skeleton"
+import { useCallback, useState, useEffect } from 'react';
 import ValueDisplay from './LineChart/ValueDisplay';
-import CustomTooltip from './LineChart/CustomTooltip';
 
 const LoadingState = ({ title, includeCard = true }) => (
   includeCard ? (
@@ -59,9 +59,9 @@ export default function LineChartWithValue({
   includeSettingsDropdown = true,
   isEnlargable = true,
   noDataMessage = (
-    <div className="flex items-center justify-center">
-      <BsCloudSlash size={24} className='text-gray-500 mr-2' />
-      <span>No data available</span>
+    <div className="text-center">
+      <BsCloudSlash size={24} className='text-gray-500 mx-auto' />
+      <span className='block'>No data available</span>
     </div>
   ),
   showAxis = false,
@@ -94,6 +94,10 @@ export default function LineChartWithValue({
   }, [setHeaderDisplayValues, valueKey, comparisonValueKey, dateKey, comparisonDateKey])
 
   const dateFormatter = dateFormatterForGrouping(groupedBy)
+
+  useEffect(() => {
+    updateHeaderDisplayValues(timeseries[timeseries.length - 1])
+  }, [timeseries, valueKey, comparisonValueKey, dateKey, groupedBy])
 
   return (
     <>

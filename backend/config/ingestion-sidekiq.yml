@@ -1,0 +1,11 @@
+---
+:concurrency: <%= ENV.fetch('INGESTION_SIDEKIQ_CONCURRENCY', 5) %>
+:queues:
+  - event_triggers_queue
+  - click_house_writer_queue
+  - format_events_queue
+:scheduler:
+  :schedule:
+    clickhouse_writer_queue:
+      cron: "*/1 * * * *" # every minute
+      class: Ingestion::WriteToClickHouseFromIngestionQueuesJob

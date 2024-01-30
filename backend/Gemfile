@@ -14,7 +14,7 @@ gem 'net-http'
 
 gem 'active_model_serializers'
 gem 'bcrypt'
-gem 'clickhouse-activerecord'
+gem 'clickhouse-activerecord', '0.5.15'
 gem 'colorize'
 gem 'connection_pool'
 gem 'dotenv'

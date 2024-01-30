@@ -1,5 +1,5 @@
 module ReportHandlers
-  class Slack 
+  class Slack
     def initialize(report)
       @report = report
     end

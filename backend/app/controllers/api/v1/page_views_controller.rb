@@ -17,12 +17,16 @@ module Api
 
       def bar_chart
         params[:data_source] ||= ApiKey::ReservedDataSources.MARKETING
-        chart_data = ClickHouseQueries::PageViews::StackedBarChart.new(
+        chart_data = ClickHouseQueries::Events::StackedBarChart.new(
           public_keys_for_requested_data_source,
-          max_ranking_to_not_be_considered_other: params[:max_ranking_to_not_be_considered_other] || 10,
+          event: Analytics::Event::ReservedNames.PAGE_VIEW,
+          property: Analytics::Event::ReservedPropertyNames.URL,
           start_time: start_timestamp,
-          end_time: end_timestamp
-        ).data
+          end_time: end_timestamp,
+          select_function_formatter: 'path',
+          property_alias: 'url_path',
+          max_ranking_to_not_be_considered_other: params[:max_ranking_to_not_be_considered_other] || 10
+        ).get
         render json: {
           data: chart_data.filled_in_data,
           start_time: chart_data.start_time,
@@ -34,16 +38,21 @@ module Api
       def timeseries
         params[:data_source] ||= ApiKey::ReservedDataSources.MARKETING
 
-        timeseries = ClickHouseQueries::PageViews::Timeseries.new(
+        timeseries = ClickHouseQueries::Events::Timeseries.new(
           public_keys_for_requested_data_source,
+          event: Analytics::Event::ReservedNames.PAGE_VIEW,
+          distinct_count_property: Analytics::Event::ReservedPropertyNames.PAGE_VIEW_IDENTIFIER,
           start_time: start_timestamp,
-          end_time: end_timestamp
-        ).timeseries
-        comparison_timeseries = ClickHouseQueries::PageViews::Timeseries.new(
+          end_time: end_timestamp,
+        ).get
+
+        comparison_timeseries = ClickHouseQueries::Events::Timeseries.new(
           public_keys_for_requested_data_source,
+          event: Analytics::Event::ReservedNames.PAGE_VIEW,
+          distinct_count_property: Analytics::Event::ReservedPropertyNames.PAGE_VIEW_IDENTIFIER,
           start_time: comparison_start_timestamp,
           end_time: comparison_end_timestamp
-        ).timeseries
+        ).get
 
         render json: render_timeseries_json(timeseries, comparison_timeseries), status: :ok
       end
