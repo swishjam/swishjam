@@ -24,7 +24,6 @@ class ApiKey < Transactional
   # validate :one_enabled_key_per_data_source, on: [:create, :update]
   before_validation { self.enabled = true if self.enabled.nil? }
   before_validation { self.data_source = self.data_source&.downcase }
-  # I don't think this is ever called because of the insert_all in generate_default_keys_for
   before_validation :generate_keys, on: :create 
 
   scope :enabled, -> { where(enabled: true) }

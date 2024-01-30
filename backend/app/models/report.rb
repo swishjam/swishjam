@@ -12,6 +12,7 @@ class Report < Transactional
   scope :disabled, -> { where(enabled: false) }
   scope :daily_cadence, -> { where(cadence: 'daily') }
   scope :weekly_cadence, -> { where(cadence: 'weekly') }
+  scope :monthly_cadence, -> { where(cadence: 'monthly') }
 
   after_create :send_notice_to_slack_channel
 

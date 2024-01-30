@@ -14,7 +14,7 @@ export default function NewReportsPage() {
 
   return (
     <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mb-8">
-       <div className="grid grid-cols-2 mt-8 items-center">
+      <div className="grid grid-cols-2 mt-8 items-center">
         <div>
           <Link
             className='text-xs text-gray-500 hover:text-gray-600 transition-all hover:underline flex items-center mb-2'
@@ -25,11 +25,8 @@ export default function NewReportsPage() {
           </Link>
           <h2 className="text-md font-medium text-gray-700 mb-0">Add New Report</h2>
         </div>
-      </div> 
-      <AddEditReport
-        addSave={createReport}  
-        className="mt-8"      
-      /> 
-    </main>   
+      </div>
+      <AddEditReport onSave={createReport} className="mt-8" />
+    </main>
   )
 }
