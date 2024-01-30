@@ -35,7 +35,12 @@ module Api
           'daily' => ClickHouseQueries::Users::Active::Timeseries::Daily,
           'weekly' => ClickHouseQueries::Users::Active::Timeseries::Weekly,
           'monthly' => ClickHouseQueries::Users::Active::Timeseries::Monthly
-        }[params[:type]].new(public_keys_for_requested_data_source, start_time: start_timestamp, end_time: end_timestamp).timeseries
+        }[params[:type]].new(
+          public_keys_for_requested_data_source,
+          workspace_id: current_workspace.id, 
+          start_time: start_timestamp, 
+          end_time: end_timestamp
+        ).timeseries
 
         comparison_active_users = nil
         if params[:include_comparison]
@@ -43,7 +48,12 @@ module Api
             'daily' => ClickHouseQueries::Users::Active::Timeseries::Daily,
             'weekly' => ClickHouseQueries::Users::Active::Timeseries::Weekly,
             'monthly' => ClickHouseQueries::Users::Active::Timeseries::Monthly
-          }[params[:type]].new(public_keys_for_requested_data_source, start_time: comparison_start_timestamp, end_time: comparison_end_timestamp).timeseries
+          }[params[:type]].new(
+            public_keys_for_requested_data_source,
+            workspace_id: current_workspace.id, 
+            start_time: comparison_start_timestamp, 
+            end_time: comparison_end_timestamp
+          ).timeseries
         end
         render json: { 
           current_value: active_users.current_value, 

@@ -6,7 +6,7 @@ module StripeDataJobs
     queue_as :default
 
     def perform(stripe_subscription_id, stripe_account_id)
-      raise NotImplementedError, "This job is deprecated."
+      raise NotImplementedError, "This job is deprecated. "
       integration = Integrations::Stripe.find_by_account_id(stripe_account_id)
       raise FailedSyncError, "Unable to find `Integrations::Stripe` with Stripe Account ID #{stripe_account_id}, skipping `SyncCustomerSubscriptionFromStripeJob`" if !integration
       raise FailedSyncError, "Integration with Stripe Account ID #{stripe_account_id} is not enabled, skipping `SyncCustomerSubscriptionFromStripeJob`" if !integration.enabled?

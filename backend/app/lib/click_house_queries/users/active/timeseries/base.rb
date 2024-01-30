@@ -10,8 +10,9 @@ module ClickHouseQueries
           include ClickHouseQueries::Helpers
           include TimeseriesHelper
 
-          def initialize(public_keys, start_time: self.class.default_start_time, end_time: self.class.default_end_time || Time.current)
+          def initialize(public_keys, workspace_id:, start_time: self.class.default_start_time, end_time: self.class.default_end_time || Time.current)
             @public_keys = public_keys.is_a?(Array) ? public_keys : [public_keys]
+            @workspace_id = workspace_id
             @start_time, @end_time = rounded_timestamps(start_ts: start_time, end_ts: end_time, group_by: self.class.sql_date_trunc_unit)
           end
 
@@ -47,7 +48,7 @@ module ClickHouseQueries
                   swishjam_user_id, 
                   argMax(merged_into_swishjam_user_id, updated_at) AS merged_into_swishjam_user_id
                 FROM swishjam_user_profiles
-                WHERE swishjam_api_key IN #{formatted_in_clause(@public_keys)}
+                WHERE workspace_id = '#{@workspace_id}'
                 GROUP BY swishjam_user_id
               ) AS user_profiles ON user_profiles.swishjam_user_id = events.user_profile_id
               WHERE
