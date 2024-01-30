@@ -109,8 +109,8 @@ module ReportHandlers
         [
           slack_mkdwn(":bank: *Revenue Analytics:*"),
           results_section("New Subscriptions", revenue_analytics_calculator.num_new_subscriptions_for_period, revenue_analytics_calculator.num_new_subscriptions_for_previous_period),
-          results_section("New MRR", revenue_analytics_calculator.new_mrr_for_period, revenue_analytics_calculator.new_mrr_for_previous_period),
-          results_section("Churned MRR", revenue_analytics_calculator.churned_mrr_for_period, revenue_analytics_calculator.churned_mrr_for_previous_period),
+          results_section("New MRR", revenue_analytics_calculator.new_mrr_for_period, revenue_analytics_calculator.new_mrr_for_previous_period, formatter: -> (mrr) { ActionController::Base.helpers.number_to_currency(mrr / 100) }),
+          results_section("Churned MRR", revenue_analytics_calculator.churned_mrr_for_period, revenue_analytics_calculator.churned_mrr_for_previous_period, formatter: -> (mrr) { ActionController::Base.helpers.number_to_currency(mrr / 100) }),
         ]
       end
     end
@@ -126,8 +126,8 @@ module ReportHandlers
       end
     end
 
-    def results_section(title, current_period_result, previous_period_result)
-      slack_mkdwn("#{emoji_for_comparison(current_period_result, previous_period_result)} *#{title}:* #{current_period_result} (#{formatted_percent_diff(current_period_result, previous_period_result)} vs #{comparison_display_date})")
+    def results_section(title, current_period_result, previous_period_result, formatter: -> (val) { val })
+      slack_mkdwn("#{emoji_for_comparison(current_period_result, previous_period_result)} *#{title}:* #{formatter.call(current_period_result)} (#{formatted_percent_diff(current_period_result, previous_period_result)} vs #{comparison_display_date})")
     end
 
     def emoji_for_comparison(new_value, old_value)
