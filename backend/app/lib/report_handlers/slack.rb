@@ -1,7 +1,16 @@
 module ReportHandlers
   class Slack 
-    def initialize(report)
+    attr_reader :current_period_start_date, :current_period_end_date, :previous_period_start_date, :previous_period_end_date
+
+    def initialize(report, num_periods: 1, period_interval: :day)
       @report = report
+      if %i[day week month].exclude?(period_interval.to_sym)
+        raise ArgumentError, "Invalid period interval: #{period_interval}, must be one of: `day`, `week`, or `month`."
+      end
+      @current_period_start_date = Time.current.beginning_of_day - num_periods.send(period_interval)
+      @current_period_end_date = Time.current.beginning_of_day
+      @previous_period_start_date = current_period_start_date - num_periods.send(period_interval)
+      @previous_period_end_date = current_period_start_date
     end
 
     def send_report
@@ -17,17 +26,18 @@ module ReportHandlers
         workspace: @report.workspace, 
         payload: {
           slack_channel_id: @report.slack_channel_id,
-          yesterday_marketing_sessions: yesterday_marketing_sessions,
-          two_days_ago_marketing_sessions: two_days_ago_marketing_sessions,
-          yesterday_marketing_page_views: yesterday_marketing_page_views,
-          two_days_ago_marketing_page_views: two_days_ago_marketing_page_views,
-          two_days_ago_marketing_unique_users: two_days_ago_marketing_unique_users,
-          yesterday_marketing_unique_users: yesterday_marketing_unique_users,
-          two_days_ago_daily_active_users: two_days_ago_daily_active_users,
-          yesterday_daily_active_users: yesterday_daily_active_users,
-          yesterday_sessions: yesterday_sessions,
-          two_days_ago_sessions: two_days_ago_sessions,
-          yesterday_new_users: yesterday_new_users,
+          marketing_sessions_for_period: marketing_sessions_for_period,
+          marketing_sessions_for_previous_period: marketing_sessions_for_previous_period,
+          marketing_page_views_for_period: marketing_page_views_for_period,
+          marketing_page_views_for_previous_period: marketing_page_views_for_previous_period,
+          marketing_unique_users_for_period: marketing_unique_users_for_period,
+          marketing_unique_users_for_previous_period: marketing_unique_users_for_previous_period,
+          daily_active_users_for_period: daily_active_users_for_period,
+          daily_active_users_for_previous_period: daily_active_users_for_previous_period,
+          sessions_for_period: sessions_for_period,
+          sessions_for_previous_period: sessions_for_previous_period,
+          new_users_for_period: new_users_for_period,
+          new_users_for_previous_period: new_users_for_previous_period,
         }
       )
     end
@@ -53,67 +63,67 @@ module ReportHandlers
     end
 
     def marketing_key
-      @marketing_key||= @report.workspace.api_keys.for_data_source!(ApiKey::ReservedDataSources.MARKETING).public_key
+      @marketing_key ||= @report.workspace.api_keys.for_data_source!(ApiKey::ReservedDataSources.MARKETING).public_key
     end
 
-    def yesterday_marketing_sessions
-      @yesterday_marketing_sessions||= fetch_count(ClickHouseQueries::Sessions::Count, marketing_key, Time.current.yesterday)
+    def marketing_sessions_for_period
+      @marketing_sessions_for_period ||= count_for_this_period(ClickHouseQueries::Sessions::Count, marketing_key)
     end
 
-    def two_days_ago_marketing_sessions
-      @two_days_ago_marketing_sessions||= fetch_count(ClickHouseQueries::Sessions::Count, marketing_key, 2.days.ago)
+    def marketing_sessions_for_previous_period
+      @marketing_sessions_for_previous_period ||= count_for_previous_period(ClickHouseQueries::Sessions::Count, marketing_key)
     end
 
-    def yesterday_marketing_page_views
-      @yesterday_marketing_page_views||= fetch_count(ClickHouseQueries::PageViews::Count, marketing_key, Time.current.yesterday)
+    def marketing_page_views_for_period
+      @marketing_page_views_for_period ||= count_for_this_period(ClickHouseQueries::PageViews::Count, marketing_key)
     end
 
-    def two_days_ago_marketing_page_views
-      @two_days_ago_marketing_page_views||= fetch_count(ClickHouseQueries::PageViews::Count, marketing_key, 2.days.ago)
+    def marketing_page_views_for_previous_period
+      @marketing_page_views_for_previous_period ||= count_for_previous_period(ClickHouseQueries::PageViews::Count, marketing_key)
     end
 
-    def two_days_ago_marketing_unique_users
-      @two_days_ago_marketing_unique_users||= fetch_count(ClickHouseQueries::Users::Active::Count, marketing_key, 2.days.ago)
+    def marketing_unique_users_for_previous_period
+      @marketing_unique_users_for_previous_period ||= count_for_previous_period(ClickHouseQueries::Users::Active::Count, marketing_key)
     end
 
-    def yesterday_marketing_unique_users
-      @yesterday_marketing_unique_users||= fetch_count(ClickHouseQueries::Users::Active::Count, marketing_key, Time.current.yesterday)
+    def marketing_unique_users_for_period
+      @marketing_unique_users_for_period ||= count_for_this_period(ClickHouseQueries::Users::Active::Count, marketing_key)
     end
 
     def product_key
-      @product_key||= @report.workspace.api_keys.for_data_source!(ApiKey::ReservedDataSources.PRODUCT).public_key
+      @product_key ||= @report.workspace.api_keys.for_data_source!(ApiKey::ReservedDataSources.PRODUCT).public_key
     end
 
-    def yesterday_daily_active_users
-      @yesterday_daily_active_users||= fetch_count(ClickHouseQueries::Users::Active::Count, product_key, Time.current.yesterday)
+    def daily_active_users_for_period
+      @daily_active_users_for_period ||= count_for_this_period(ClickHouseQueries::Users::Active::Count, product_key)
     end
     
-    def two_days_ago_daily_active_users
-      @two_days_ago_daily_active_users||= fetch_count(ClickHouseQueries::Users::Active::Count, product_key, 2.days.ago)
+    def daily_active_users_for_previous_period
+      @daily_active_users_for_previous_period ||= count_for_previous_period(ClickHouseQueries::Users::Active::Count, product_key)
     end
 
-    def yesterday_sessions
-      @yesterday_sessions||= fetch_count(ClickHouseQueries::Sessions::Count, product_key, Time.current.yesterday)
+    def sessions_for_period
+      @sessions_for_period ||= count_for_this_period(ClickHouseQueries::Sessions::Count, product_key)
     end
 
-    def two_days_ago_sessions
-      @two_days_ago_sessions||= fetch_count(ClickHouseQueries::Sessions::Count, product_key, 2.days.ago)
+    def sessions_for_previous_period
+      @sessions_for_previous_period ||= count_for_previous_period(ClickHouseQueries::Sessions::Count, product_key)
     end
 
-    def yesterday_new_users
-      @yesterday_new_users||= fetch_count(ClickHouseQueries::Users::New::Count, product_key, Time.current.yesterday)
+    def new_users_for_period
+      @new_users_for_period ||= count_for_this_period(ClickHouseQueries::Users::New::Count, product_key)
     end
 
-    def two_days_ago_new_users
-      @two_days_ago_new_users||= fetch_count(ClickHouseQueries::Users::New::Count, product_key, 2.days.ago)
+    def new_users_for_previous_period
+      @new_users_for_previous_period ||= count_for_previous_period(ClickHouseQueries::Users::New::Count, product_key)
     end
 
-    def fetch_count(query_class, key, time)
-      query_class.new(
-        key,
-        start_time: time.beginning_of_day,
-        end_time: time.end_of_day
-      ).count
+    def count_for_this_period(query_class, key)
+      query_class.new(key, start_time: current_period_start_date, end_time: current_period_end_date).count
+    end
+
+    def count_for_previous_period(query_class, key)
+      query_class.new(key, start_time: previous_period_start_date, end_time: previous_period_end_date).count
     end
 
     def block_kit_content_for_section(section_type)
@@ -121,23 +131,23 @@ module ReportHandlers
       if section_type == 'web'
         [
           slack_mkdwn(":mega: *Marketing Site:*"),
-          slack_mkdwn("#{emoji_for_comparison(yesterday_marketing_sessions, two_days_ago_marketing_sessions)} *Sessions:* #{yesterday_marketing_sessions} (#{formatted_percent_diff(yesterday_marketing_sessions, two_days_ago_marketing_sessions)} vs #{comparison_day})"),
-          slack_mkdwn("#{emoji_for_comparison(yesterday_marketing_unique_users, two_days_ago_marketing_unique_users)} *Unique Visitors:* #{yesterday_marketing_unique_users} (#{formatted_percent_diff(yesterday_marketing_unique_users, two_days_ago_marketing_unique_users)} vs #{comparison_day})"),
-          slack_mkdwn("#{emoji_for_comparison(yesterday_marketing_page_views, two_days_ago_marketing_page_views)} *Page Views:* #{yesterday_marketing_page_views} (#{formatted_percent_diff(yesterday_marketing_page_views, two_days_ago_marketing_page_views)} vs #{comparison_day})"),
+          slack_mkdwn("#{emoji_for_comparison(marketing_sessions_for_period, marketing_sessions_for_previous_period)} *Sessions:* #{marketing_sessions_for_period} (#{formatted_percent_diff(marketing_sessions_for_period, marketing_sessions_for_previous_period)} vs #{comparison_day})"),
+          slack_mkdwn("#{emoji_for_comparison(marketing_unique_users_for_period, marketing_unique_users_for_previous_period)} *Unique Visitors:* #{marketing_unique_users_for_period} (#{formatted_percent_diff(marketing_unique_users_for_period, marketing_unique_users_for_previous_period)} vs #{comparison_day})"),
+          slack_mkdwn("#{emoji_for_comparison(marketing_page_views_for_period, marketing_page_views_for_previous_period)} *Page Views:* #{marketing_page_views_for_period} (#{formatted_percent_diff(marketing_page_views_for_period, marketing_page_views_for_previous_period)} vs #{comparison_day})"),
         ]
       elsif section_type == 'product'
         [
           slack_mkdwn(":technologist: *Product Usage:*"),
-          slack_mkdwn("#{emoji_for_comparison(yesterday_daily_active_users, two_days_ago_daily_active_users)} *Active Users:* #{yesterday_daily_active_users} (#{formatted_percent_diff(yesterday_daily_active_users, two_days_ago_daily_active_users)} vs #{comparison_day})"),
-          slack_mkdwn("#{emoji_for_comparison(yesterday_sessions, two_days_ago_sessions)} *Sessions:* #{yesterday_sessions} (#{formatted_percent_diff(yesterday_sessions, two_days_ago_sessions)} vs #{comparison_day})"),
-          slack_mkdwn("#{emoji_for_comparison(yesterday_new_users, two_days_ago_new_users)} *New Users:* #{yesterday_new_users} (#{formatted_percent_diff(yesterday_new_users, two_days_ago_new_users)} vs #{comparison_day})"),
+          slack_mkdwn("#{emoji_for_comparison(daily_active_users_for_period, daily_active_users_for_previous_period)} *Active Users:* #{daily_active_users_for_period} (#{formatted_percent_diff(daily_active_users_for_period, daily_active_users_for_previous_period)} vs #{comparison_day})"),
+          slack_mkdwn("#{emoji_for_comparison(sessions_for_period, sessions_for_previous_period)} *Sessions:* #{sessions_for_period} (#{formatted_percent_diff(sessions_for_period, sessions_for_previous_period)} vs #{comparison_day})"),
+          slack_mkdwn("#{emoji_for_comparison(new_users_for_period, new_users_for_previous_period)} *New Users:* #{new_users_for_period} (#{formatted_percent_diff(new_users_for_period, new_users_for_previous_period)} vs #{comparison_day})"),
         ]
       elsif section_type == 'revenue'
         [
           slack_mkdwn(":technologist: *Product Usage:*"),
-          slack_mkdwn("#{emoji_for_comparison(yesterday_daily_active_users, two_days_ago_daily_active_users)} *Active Users:* #{yesterday_daily_active_users} (#{formatted_percent_diff(yesterday_daily_active_users, two_days_ago_daily_active_users)} vs #{comparison_day})"),
-          slack_mkdwn("#{emoji_for_comparison(yesterday_sessions, two_days_ago_sessions)} *Sessions:* #{yesterday_sessions} (#{formatted_percent_diff(yesterday_sessions, two_days_ago_sessions)} vs #{comparison_day})"),
-          slack_mkdwn("#{emoji_for_comparison(yesterday_new_users, two_days_ago_new_users)} *New Users:* #{yesterday_new_users} (#{formatted_percent_diff(yesterday_new_users, two_days_ago_new_users)} vs #{comparison_day})"),
+          slack_mkdwn("#{emoji_for_comparison(daily_active_users_for_period, daily_active_users_for_previous_period)} *Active Users:* #{daily_active_users_for_period} (#{formatted_percent_diff(daily_active_users_for_period, daily_active_users_for_previous_period)} vs #{comparison_day})"),
+          slack_mkdwn("#{emoji_for_comparison(sessions_for_period, sessions_for_previous_period)} *Sessions:* #{sessions_for_period} (#{formatted_percent_diff(sessions_for_period, sessions_for_previous_period)} vs #{comparison_day})"),
+          slack_mkdwn("#{emoji_for_comparison(new_users_for_period, new_users_for_previous_period)} *New Users:* #{new_users_for_period} (#{formatted_percent_diff(new_users_for_period, new_users_for_previous_period)} vs #{comparison_day})"),
         ]
       end
     end
