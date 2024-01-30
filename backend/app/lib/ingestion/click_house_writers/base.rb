@@ -30,7 +30,6 @@ module Ingestion
           ingestion_batch.num_successful_records = formatted_records.count
           ingestion_batch.num_failed_records = 0
         rescue => e
-          byebug
           Ingestion::QueueManager.push_records_into_queue(Ingestion::QueueManager::Queues.send("#{self.class.QUEUE_NAME}_DLQ"), formatted_records)
           ingestion_batch.error_message = e.message
           ingestion_batch.num_failed_records = formatted_records.count

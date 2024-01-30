@@ -76,7 +76,7 @@ module Api
       end
 
       def unique_attributes
-        columns = JSON.parse((params[:columns] || %w[metadata current_subscription_plan_name monthly_recurring_revenue_in_cents lifetime_value_in_cents enrichment_company_industry enrichment_company_size enrichment_company_name enrichment_company_website enrichment_job_title enrichment_company_location_metro]).to_s)
+        columns = JSON.parse((params[:columns] || %w[metadata]).to_s)
         results = columns.map do |column|
           {
             column: column,

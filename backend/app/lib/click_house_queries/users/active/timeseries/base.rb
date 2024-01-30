@@ -10,9 +10,8 @@ module ClickHouseQueries
           include ClickHouseQueries::Helpers
           include TimeseriesHelper
 
-          def initialize(public_keys, organization_unique_identifier: nil, start_time: self.class.default_start_time, end_time: self.class.default_end_time || Time.current)
+          def initialize(public_keys, start_time: self.class.default_start_time, end_time: self.class.default_end_time || Time.current)
             @public_keys = public_keys.is_a?(Array) ? public_keys : [public_keys]
-            @organization_unique_identifier = organization_unique_identifier
             @start_time, @end_time = rounded_timestamps(start_ts: start_time, end_ts: end_time, group_by: self.class.sql_date_trunc_unit)
           end
 
@@ -57,35 +56,6 @@ module ClickHouseQueries
               GROUP BY group_by_date, year
               ORDER BY group_by_date ASC
             SQL
-            # {@organization_unique_identifier ? "AND JSONExtractString(JSONExtractString(properties, 'organization_attributes'), 'organization_identifier') = '#{@organization_unique_identifier}'" : ''}
-            # <<~SQL
-            #   SELECT 
-            #     DATE_TRUNC('#{self.class.sql_date_trunc_unit}', events.occurred_at) AS group_by_date,
-            #     DATE_TRUNC('year', events.occurred_at) AS year,
-            #     CAST(COUNT(DISTINCT
-            #       IF(
-            #         identify.swishjam_user_id IS NOT NULL AND identify.swishjam_user_id != '', 
-            #         identify.swishjam_user_id, 
-            #         JSONExtractString(events.properties, '#{Analytics::Event::ReservedPropertyNames.DEVICE_IDENTIFIER}')
-            #       )
-            #     ) AS int) AS num_unique_users
-            #   FROM events
-            #   LEFT JOIN (
-            #     SELECT
-            #       device_identifier,
-            #       MAX(occurred_at) AS max_occurred_at,
-            #       argMax(swishjam_user_id, occurred_at) AS swishjam_user_id
-            #     FROM user_identify_events AS uie
-            #     WHERE swishjam_api_key IN #{formatted_in_clause(@public_keys)}
-            #     GROUP BY device_identifier
-            #   ) AS identify ON identify.device_identifier = JSONExtractString(events.properties, '#{Analytics::Event::ReservedPropertyNames.DEVICE_IDENTIFIER}')
-            #   WHERE
-            #     events.swishjam_api_key IN #{formatted_in_clause(@public_keys)} AND
-            #     events.occurred_at BETWEEN '#{formatted_time(@start_time)}' AND '#{formatted_time(@end_time)}'
-            #     #{@organization_unique_identifier ? "AND JSONExtractString(JSONExtractString(properties, 'organization_attributes'), 'organization_identifier') = '#{@organization_unique_identifier}'" : ''}
-            #   GROUP BY group_by_date, year
-            #   ORDER BY group_by_date ASC
-            # SQL
           end
 
           private

@@ -84,8 +84,9 @@ module ClickHouseQueries
       end
 
       def event_where_clause
-        return '1 = 1' unless @event
-        if @event.is_a?(Array)
+        if @event.nil?
+          '1 = 1'
+        elsif @event.is_a?(Array)
           "e.name IN #{formatted_in_clause(@event)}"
         else
           "e.name = '#{@event}'"
