@@ -27,7 +27,7 @@ module ClickHouseQueries
         def sql
           <<~SQL
             SELECT
-              CAST(COUNT(*) AS int) AS count,
+              CAST(COUNT(DISTINCT uuid) AS int) AS count,
               DATE_TRUNC('#{@group_by}', occurred_at) AS group_by_date
             FROM events
             WHERE

@@ -218,7 +218,7 @@ Rails.application.routes.draw do
         end
       end
 
-      resources :reports, only: [:destroy, :index, :create] do
+      resources :reports do
         member do
           patch :enable
           patch :disable

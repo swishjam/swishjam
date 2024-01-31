@@ -17,7 +17,7 @@ module ClickHouseQueries
 
         def sql
           <<~SQL
-            SELECT CAST(COUNT(*) AS int) AS count
+            SELECT CAST(COUNT(DISTINCT uuid) AS int) AS count
             FROM events
             WHERE
               swishjam_api_key IN #{formatted_in_clause(@public_keys)} AND

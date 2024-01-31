@@ -22,8 +22,8 @@ export default function SlackMessagePreview({ header, body, className }) {
           </span>
         </div>
         <div>
-          <h2 className='text-md font-medium break-word mt-1'>{header}</h2>
-          <div className='mt-1 text-sm break-word'>
+          <h2 className='text-md font-medium break-word mt-1 capitalize'>{header}</h2>
+          <div className='mt-2 text-sm break-word'>
             {body}
           </div>
         </div>

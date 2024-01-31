@@ -7,9 +7,10 @@ import RemoveWorkspaceMemberModal from '@/components/TeamManagement/RemoveWorksp
 import { Menu, Transition } from '@headlessui/react';
 import { SwishjamAPI } from "@/lib/api-client/swishjam-api";
 import { useAuthData } from '@/hooks/useAuthData'
-import { UserPlusIcon, ClipboardDocumentIcon, EllipsisVerticalIcon, TrashIcon } from '@heroicons/react/24/outline';
 import { useState, useEffect, Fragment } from 'react';
 import Tabs from '@/components/Settings/Tabs';
+
+import { LuTrash, LuMoreVertical, LuPlus, LuClipboardCheck  } from 'react-icons/lu'
 
 const classNames = (...classes) => classes.filter(Boolean).join(' ')
 
@@ -57,13 +58,14 @@ export default function Team() {
               onClick={() => setInviteModalIsOpen(true)}
               className="flex items-center rounded-md bg-swishjam px-2.5 py-2 text-sm font-semibold text-white shadow-sm hover:bg-swishjam-dark focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-swishjam transition duration-300"
             >
-              <UserPlusIcon className='h-4 w-4 inline-block mr-1' />
-              Invite teammate
+              <LuPlus className='h-4 w-4 inline-block mr-1' />
+              New Teammate
             </button>
           </div>
         </div>
 
-        <table className="min-w-full divide-y divide-gray-300 mt-8">
+        <div className='mt-8 border border-zinc-200 shadow-sm rounded-md overflow-hidden'>
+        <table className="min-w-full divide-y divide-gray-300">
           <thead>
             <tr>
               <th scope="col" className="py-3.5 px-3 text-left text-sm font-semibold text-gray-900">
@@ -124,6 +126,7 @@ export default function Team() {
             }
           </tbody>
         </table>
+        </div>
       </main>
     </>
   )
@@ -137,7 +140,7 @@ const UserDropdown = ({ status, inviteToken, onRemoveUserClick }) => {
       <div>
         <Menu.Button className="flex items-center rounded-full bg-gray-100 text-gray-400 hover:text-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-gray-100">
           <span className="sr-only">Open options</span>
-          <EllipsisVerticalIcon className="h-5 w-5" aria-hidden="true" />
+          <LuMoreVertical className="h-5 w-5" aria-hidden="true" />
         </Menu.Button>
       </div>
 
@@ -172,7 +175,7 @@ const UserDropdown = ({ status, inviteToken, onRemoveUserClick }) => {
                         }}
                       >
                         <span className='block w-full'>
-                          <ClipboardDocumentIcon className='h-4 w-4 inline-block mr-2' />
+                          <LuClipboardCheck className='h-4 w-4 inline-block mr-2' />
                           {copyText ? <span className='text-green-700'>{copyText}</span> : <>Copy Invite Link</>}
                         </span>
                       </CopyToClipboard>
@@ -186,7 +189,7 @@ const UserDropdown = ({ status, inviteToken, onRemoveUserClick }) => {
                         }}
                         className='text-gray-700 block px-4 py-2 text-sm cursor-pointer hover:bg-red-100 hover:text-red-700'
                       >
-                        <TrashIcon className='h-4 w-4 inline-block mr-2' /> Remove user
+                        <LuTrash className='h-4 w-4 inline-block mr-2' /> Remove user
                       </div>
                     </>
                   )
