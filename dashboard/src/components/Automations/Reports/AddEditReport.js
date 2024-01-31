@@ -110,14 +110,18 @@ export default function AddEditReport({
   const renderMarkdown = () => {
     const slackMessageHeaderDaily = '📅 10/09/2023 \n\n'
     const slackMessageHeaderWeekly = '📅 10/09/2023 — 📅 10/16/2023\n\n'
+    const slackMessageHeaderMonthly = '📅 10/01/2023 — 📅 10/31/2023\n\n'
     const reportWebSection = '📣 **Web Analytics:** \n\n↔️ Sessions: 500\n\n📉 Unique Visitors: 340\n\n📈 Page Views: 456\n\n';
     const reportProductSection = '**🧑‍💻 Product Analytics:**\n\n↔️ Daily Active Users: 500\n\n📉 Sessions: 340\n\n📈 New Users: 456\n\n';
     const reportRevenueSection = '**🧑‍💻 Revenue Analytics:**\n\n↔️ MRR: $1,500\n\n📉 Active Subscriptions: 56\n\n📈 Churn: $456\n\n';
     let msg = ''
-    if (form.getValues('cadence') == 'daily') {
+    let currentCadence = form.getValues('cadence') 
+    if (currentCadence == 'daily') {
       msg += slackMessageHeaderDaily;
-    } else {
+    } else if (currentCadence == 'weekly') {
       msg += slackMessageHeaderWeekly;
+    } else {
+      msg += slackMessageHeaderMonthly;
     }
 
     form.getValues('config.sections').map((sec) => {
@@ -142,7 +146,7 @@ export default function AddEditReport({
         <FormInputOrLoadingState isLoading={isAwaitingRenderData} className='h-72'>
           <ScrollArea className="max-h-96 overflow-y-scroll border border-gray-200 rounded-md bg-white">
             <SlackMessagePreview
-              header={form.getValues('cadence') == 'daily' ? 'Daily Update' : 'Weekly Update'}
+              header={form.getValues('cadence')+' Update'}
               body={<MessageBodyMarkdownRenderer body={mkdPreview} />}
               className={'border-0'}
             />

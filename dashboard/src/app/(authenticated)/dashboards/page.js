@@ -1,7 +1,7 @@
 'use client'
 
 import Link from "next/link";
-import { ChartPieIcon } from "@heroicons/react/24/outline";
+import { Button } from '@/components/ui/button';
 import { Skeleton } from "@/components/ui/skeleton";
 import SwishjamAPI from "@/lib/api-client/swishjam-api";
 import { useRouter } from "next/navigation";
@@ -10,6 +10,7 @@ import { Card, CardContent } from "@/components/ui/card"
 //import { Button } from "@/components/ui/button"
 
 //import { BsArrowRightShort } from 'react-icons/bs'
+import { ChartPieIcon } from "@heroicons/react/24/outline";
 import { LuClipboardPaste, LuPlus } from "react-icons/lu";
 
 
@@ -77,13 +78,14 @@ export default function Dashboards() {
           <h1 className="text-lg font-medium text-gray-700 mb-0">Custom Dashboards</h1>
         </div>
         <div className="w-full flex items-center justify-end">
-          <Link
-            href='dashboards/new'
-            className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-swishjam hover:bg-swishjam-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-swishjam"
-          >
-            <LuPlus className='inline mr-2 h-4 w-4' />
-            New Dashboard
-          </Link>
+          <Link href="/dashboards/new">
+            <Button
+              className={`duration-300 transition-all ml-2 flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white focus:outline-none focus:ring-2 bg-swishjam hover:bg-swishjam-dark`}
+            >
+              <LuPlus className="h-4 w-4 mt-0.5 mr-2" />
+              New Dashboard 
+            </Button>
+          </Link> 
         </div>
       </div>
 

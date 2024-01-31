@@ -15,7 +15,6 @@ import {
   LuSettings, LuCalendarDays,
 } from "react-icons/lu";
 import { HiOutlineMail } from "react-icons/hi";
-import { Cog6ToothIcon } from '@heroicons/react/24/outline'
 import { SiSlack } from "react-icons/si";
 
 export default function ReportsPage() {
@@ -85,7 +84,7 @@ export default function ReportsPage() {
               className={`duration-300 transition-all ml-2 flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white focus:outline-none focus:ring-2 bg-swishjam hover:bg-swishjam-dark`}
             >
               <LuPlus className="h-4 w-4 mt-0.5 mr-2" />
-              Add Report
+              New Report
             </Button>
           </Link> 
         }
@@ -101,7 +100,7 @@ export default function ReportsPage() {
           <div>
             <ul role="list" className="w-full space-y-2 mt-8">
               {reports.sort((a, b) => new Date(a.created_at) - new Date(b.created_at)).map(report => (
-                <li key={report.id} className="bg-white relative flex items-center space-x-4 px-4 py-2 border border-gray-300 rounded">
+                <li key={report.id} className="bg-white relative flex items-center space-x-4 px-4 py-2 border border-zinc-00 rounded-md shadow-sm">
                   <div className="min-w-0 flex-auto">
                     <div className="flex items-center gap-x-3">
                       {report.sending_mechanism == 'slack' && <SiSlack className="w-4 h-4" />}
@@ -139,16 +138,13 @@ export default function ReportsPage() {
                         <LuSettings className='h-5 w-5 hover:text-swishjam cursor-pointer duration-300 transition-all' />
                       </div> 
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent className="w-36" align={'end'}>
-                      <DropdownMenuLabel>Edit Report</DropdownMenuLabel>
-                      <DropdownMenuSeparator />
+                    <DropdownMenuContent className="w-36 border-zinc-200 shadow-sm border-sm" align={'end'}>
                       <Link href={`/automations/reports/${report.id}/edit`}>
                         <DropdownMenuItem className='cursor-pointer'>
                           <LuPencil className='h-4 w-4 inline-block mr-2' />
                           Edit
                         </DropdownMenuItem>
                       </Link>                    
-
                       <DropdownMenuGroup>
                         {report.enabled ? (
                           <DropdownMenuItem onClick={() => pauseReport(report.id)} className="cursor-pointer">
