@@ -1,39 +1,32 @@
 'use client';
 import { usePathname } from 'next/navigation'
-import {
-  CircleStackIcon,
-  ChevronLeftIcon,
-  ChevronRightIcon,
-  Cog6ToothIcon,
-  HomeIcon,
-  MagnifyingGlassIcon,
-  UserGroupIcon,
-  UserIcon,
-} from '@heroicons/react/24/outline'
 import SidebarMobile from './MobileNav';
 import ProfileFlyout from './ProfileFlyout';
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Logo from '@components/Logo'
-import { Bars3Icon } from '@heroicons/react/24/outline'
-import { RxBarChart } from 'react-icons/rx'
-// import { LuFlaskConical } from "react-icons/lu";
-import { PiMagicWand } from "react-icons/pi";
-
-
 import useCommandBar from '@/hooks/useCommandBar';
 import { SwishjamMemory } from '@/lib/swishjam-memory';
 import { Tooltipable } from '../ui/tooltip';
 
+// import { LuFlaskConical } from "react-icons/lu";
+import {
+  LuHome, LuBarChart, LuUser, 
+  LuHotel, LuDatabase, LuCircuitBoard,
+  LuSettings, LuMoreVertical, LuSearch,
+  LuChevronLeft, LuChevronRight
+} from 'react-icons/lu'
+import { PiMagicWand } from "react-icons/pi";
+
 const appNav = [
-  { name: 'Home', href: '/', icon: HomeIcon },
-  { name: 'Dashboards', href: '/dashboards', icon: RxBarChart },
+  { name: 'Home', href: '/', icon: LuHome },
+  { name: 'Dashboards', href: '/dashboards', icon: LuBarChart },
   // { name: 'Analyze', href: '/events', icon: LuFlaskConical }, // HIDING FROM NAV FOR NOW
-  { name: 'Automations', href: '/automations/event-triggers', icon: PiMagicWand }, // HIDING FROM NAV FOR NOW
-  { name: 'Users', href: '/users', icon: UserIcon },
-  { name: 'Organizations', href: '/organizations', icon: UserGroupIcon },
-  { name: 'Integrations', href: '/integrations', icon: CircleStackIcon },
-  { name: 'Settings', href: '/settings', icon: Cog6ToothIcon },
+  { name: 'Automations', href: '/automations/event-triggers', icon: PiMagicWand },
+  { name: 'Users', href: '/users', icon: LuUser },
+  { name: 'Organizations', href: '/organizations', icon: LuHotel },
+  { name: 'Integrations', href: '/integrations', icon: LuCircuitBoard },
+  { name: 'Settings', href: '/settings', icon: LuSettings },
 ]
 
 const classNames = (...classes) => classes.filter(Boolean).join(' ')
@@ -112,9 +105,9 @@ export default function Sidebar({ onCollapse, onExpand, email }) {
                       <TooltipableNavItem isCollapsed={isCollapsed} tooltipText='Command Bar'>
                         <a
                           onClick={() => setCommandBarIsOpen(true)}
-                          className={`flex cursor-pointer text-gray-700 hover:text-swishjam hover:bg-gray-50 group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold duration-500 transition ${isCollapsed ? 'py-2 px-1 justify-center' : 'p-2'}`}
+                          className={`flex cursor-pointer text-gray-700 hover:bg-accent group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold duration-300 transition ${isCollapsed ? 'py-2 px-1 justify-center' : 'p-2'}`}
                         >
-                          <MagnifyingGlassIcon className='inline text-gray-400 group-hover:text-swishjam duration-500 transition h-6 w-6 shrink-0' />
+                          <LuSearch className='inline text-gray-400 duration-300 transition h-6 w-6 shrink-0' />
                           {isCollapsed ? '' : 'Search'}
                         </a>
                       </TooltipableNavItem>
@@ -134,7 +127,7 @@ export default function Sidebar({ onCollapse, onExpand, email }) {
         <div className="sticky top-0 z-40 flex items-center gap-x-6 bg-white px-4 py-4 shadow-sm sm:px-6 lg:hidden">
           <button type="button" className="-m-2.5 p-2.5 text-gray-700 lg:hidden" onClick={() => setSidebarOpen(true)}>
             <span className="sr-only">Open sidebar</span>
-            <Bars3Icon className="h-6 w-6" aria-hidden="true" />
+            <LuMoreVertical className="h-6 w-6" aria-hidden="true" />
           </button>
         </div>
       </div>
@@ -146,7 +139,7 @@ export default function Sidebar({ onCollapse, onExpand, email }) {
           SwishjamMemory.set('isNavCollapsed', !isCollapsed);
         }}
       >
-        {isCollapsed ? <ChevronRightIcon className="h-4 w-4 hover:scale-110" /> : <ChevronLeftIcon className="h-4 w-4 hover:scale-110" />}
+        {isCollapsed ? <LuChevronRight className="h-4 w-4 hover:scale-110" /> : <LuChevronLeft className="h-4 w-4 hover:scale-110" />}
       </div>
     </>
   );

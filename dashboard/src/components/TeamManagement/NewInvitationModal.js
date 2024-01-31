@@ -1,11 +1,15 @@
-import { CheckCircleIcon, ClipboardDocumentIcon, EnvelopeIcon } from '@heroicons/react/24/outline';
+import { useState } from 'react';
 import CopyToClipboard from 'react-copy-to-clipboard';
 import LoadingSpinner from '@/components/LoadingSpinner'
 import Modal from '@/components/utils/Modal';
 import SwishjamAPI from '@/lib/api-client/swishjam-api';
 import { useAuthData } from '@/hooks/useAuthData';
-import { useState } from 'react';
 import { swishjam } from '@swishjam/react';
+import { 
+  LuCopy, LuMailPlus,
+  LuMailCheck, LuPlus,
+  LuCheck
+} from 'react-icons/lu';
 
 export default function NewInvitationModal({ isOpen, onClose, onInviteSent }) {
   const [email, setEmail] = useState('');
@@ -55,7 +59,7 @@ export default function NewInvitationModal({ isOpen, onClose, onInviteSent }) {
         ? (
           <>
             <div className='text-center'>
-              <CheckCircleIcon className='h-12 w-12 text-green-500 mx-auto mb-2' />
+              <LuMailCheck className='h-12 w-12 text-green-500 mx-auto mb-2' />
               <h2 className='text-md font-medium text-gray-900 mb-4'>{successMessage}</h2>
               <div className='grid grid-cols-2 justify-center gap-x-4'>
                 <CopyToClipboard
@@ -66,8 +70,8 @@ export default function NewInvitationModal({ isOpen, onClose, onInviteSent }) {
                   }}
                 >
                   <button className={`mt-4 flex items-center justify-center py-2 px-4 border border-gray-200 rounded-md shadow-sm text-sm font-medium text-gray-700 focus:outline-none focus:ring-2 bg-white hover:bg-gray-100 focus:ring-offset-2 focus:ring-gray-100`}>
-                    <ClipboardDocumentIcon className='h-4 w-4 inline-block mr-1' />
-                    {copySuccessMessage || 'Copy invitation link'}
+                    {copySuccessMessage ? <LuCheck className='h-4 w-4 inline-block mr-2' />:<LuCopy className='h-4 w-4 inline-block mr-2' />}
+                    {copySuccessMessage || 'Copy Invite Link'}
                   </button>
                 </CopyToClipboard>
                 <button
@@ -78,7 +82,9 @@ export default function NewInvitationModal({ isOpen, onClose, onInviteSent }) {
                     setSuccessMessage();
                   }}
                 >
-                  Invite another teammate
+                  
+                  <LuPlus className='h-4 w-4 inline-block mr-2' />
+                  Invite Another Teammate
                 </button>
               </div>
             </div>
@@ -101,7 +107,7 @@ export default function NewInvitationModal({ isOpen, onClose, onInviteSent }) {
                   <div className="h-6"><LoadingSpinner size={6} color='white' /></div>
                   : (
                     <>
-                      <EnvelopeIcon className='h-4 w-4 inline-block mr-1' />
+                      <LuMailPlus className='h-4 w-4 inline-block mr-2' />
                       Send Invite
                     </>
                   )

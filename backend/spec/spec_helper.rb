@@ -10,9 +10,11 @@ require 'factory_bot_rails'
 require 'database_cleaner'
 require 'helpers/utils'
 require 'helpers/stripe_mocks'
+require 'sidekiq/testing'
 
 RSpec.configure do |config|
   config.include FactoryBot::Syntax::Methods
+  Sidekiq::Testing.fake!
 
   def _flush_clickhouse_data!
     ActiveRecord::Base.logger.silence do

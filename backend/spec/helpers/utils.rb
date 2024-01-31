@@ -6,6 +6,22 @@ def setup_test_data( stub_data: { stripe: { customer_email: 'fake@example.com', 
   )
 end
 
+def insert_events_into_click_house!(opts = {}) 
+  if !block_given?
+    raise "Must provide a block of events to insert"
+  end
+  events = yield.map do |event|
+    event[:swishjam_api_key] ||= opts[:public_key]
+    event[:uuid] ||= SecureRandom.uuid
+    event[:occurred_at] ||= opts[:occurred_at] || Time.current
+    event[:ingested_at] ||= opts[:ingested_at] || Time.current
+    event[:name] ||= opts[:name]
+    event[:properties] = (event[:properties] || {}).to_json
+    event
+  end
+  Analytics::Event.insert_all!(events)
+end
+
 def stub_external_apis(stripe_customer_email: 'fake@example.com', stripe_customer_name: 'Fake Name')
   stub_geocoder
   stub_stripe_subscription_list_call(customer_email: stripe_customer_email, customer_name: stripe_customer_name)
