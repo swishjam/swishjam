@@ -14,7 +14,7 @@ class AnalyticsUserProfile < Transactional
       end
     end
   end
-  
+
   belongs_to :workspace
   has_one :user_profile_enrichment_data, class_name: UserProfileEnrichmentData.to_s, dependent: :destroy
   alias_attribute :enrichment_data, :user_profile_enrichment_data
@@ -73,10 +73,11 @@ class AnalyticsUserProfile < Transactional
   end
 
   def enrich_profile!(override_sampling: false)
-    return false if override_sampling == false && rand() >= (ENV['USER_ENRICHMENT_SAMPLING_RATE'] || 1.0).to_f
-    ProfileEnrichers::User.new(self).try_to_enrich_profile_if_necessary!
-  rescue => e
-    Sentry.capture_exception(e)
+    return false
+  #   return false if override_sampling == false && rand() >= (ENV['USER_ENRICHMENT_SAMPLING_RATE'] || 1.0).to_f
+  #   ProfileEnrichers::User.new(self).try_to_enrich_profile_if_necessary!
+  # rescue => e
+  #   Sentry.capture_exception(e)
   end
 
   def try_to_set_gravatar_url

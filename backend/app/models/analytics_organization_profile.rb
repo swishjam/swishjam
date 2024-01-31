@@ -10,7 +10,7 @@ class AnalyticsOrganizationProfile < Transactional
   after_update :enqueue_replication_to_clickhouse
 
   def initials
-    return if !name.present?
+    return if name.blank?
     name.split(' ').map{ |word| word[0] }.join('').upcase
   end
 
@@ -21,14 +21,11 @@ class AnalyticsOrganizationProfile < Transactional
   def formatted_for_clickhouse_replication
     {
       workspace_id: workspace_id,
-      swishjam_api_key: workspace.api_keys.for_data_source!(ApiKey::ReservedDataSources.PRODUCT).public_key,
       swishjam_organization_id: id,
       organization_unique_identifier: organization_unique_identifier,
       name: name,
-      metadata: metadata,
-      lifetime_value_in_cents: 0,
-      monthly_recurring_revenue_in_cents: 0,
-      current_subscription_plan_name: nil,
+      domain: domain,
+      metadata: metadata.to_json,
       last_updated_from_transactional_db_at: Time.current,
       created_at: created_at,
       updated_at: updated_at,
