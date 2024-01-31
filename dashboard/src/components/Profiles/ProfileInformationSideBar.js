@@ -58,7 +58,7 @@ export default function ProfileInformationSideBar({ userData, hasStripeIntegrati
               <div className="px-4 py-2 col-span-1 grid grid-cols-2 sm:px-0">
                 <dt className="text-sm font-medium leading-6 text-gray-900">First Identified</dt>
                 <dd className="text-sm leading-6 text-gray-700 text-right">
-                  {dateFormatter(userData.created_at)}
+                  {dateFormatter(userData.first_seen_at_in_web_app || userData.created_at)}
                 </dd>
               </div>
               {/* <div className="px-4 py-2 col-span-1 grid grid-cols-2 sm:px-0">
@@ -85,7 +85,7 @@ export default function ProfileInformationSideBar({ userData, hasStripeIntegrati
               <>
                 <EnrichedDataItem
                   title='Initial Referrer'
-                  enrichmentData={{ initial_referrer: userData.metadata.initial_referrer }}
+                  enrichmentData={{ initial_referrer: userData.metadata.initial_referrer_url }}
                   enrichmentKey='initial_referrer'
                   formatter={referrer => referrer === '' ? 'Direct' : referrer}
                 />
@@ -349,7 +349,7 @@ export default function ProfileInformationSideBar({ userData, hasStripeIntegrati
                     {userData.metadata
                       ? (
                         Object.keys(userData.metadata)
-                          .filter(key => !['firstName', 'first_name', 'lastName', 'last_name', 'initial_landing_page_url', 'initial_referrer'].includes(key))
+                          .filter(key => !['firstName', 'first_name', 'lastName', 'last_name', 'initial_landing_page_url', 'initial_referrer_url'].includes(key))
                           .map(key => <span className='block'>{key}: {userData.metadata[key]}</span>)
                       )
                       : 'No attributes provided.'}

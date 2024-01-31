@@ -17,7 +17,6 @@ class NewEventsSchema < ActiveRecord::Migration[6.1]
       PRIMARY KEY (swishjam_api_key, name, occurred_at)
     SQL
 
-    # TODO: figure out migration strategy :/
     execute <<~SQL
       INSERT INTO new_events (uuid, swishjam_api_key, name, user_profile_id, properties, user_properties, ingested_at, occurred_at)
       SELECT 

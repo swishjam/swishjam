@@ -123,32 +123,32 @@ export default function Users() {
 
   useEffect(() => {
     SwishjamAPI.Config.retrieve().then(({ settings }) => setHasProfileEnrichmentEnabled(settings.should_enrich_user_profile_data))
-    SwishjamAPI.Users.uniqueAttributeValues({ attributes: FILTERABLE_USER_ATTRIBUTES }).then(filterableAttributeValues => {
-      const options = [];
-      const metadataOptions = {};
-      filterableAttributeValues.forEach(({ column, values }) => {
-        if (column === 'metadata') {
-          values.forEach(({ metadata_key, metadata_value, num_users }) => {
-            metadataOptions[metadata_key] = metadataOptions[metadata_key] || [];
-            metadataOptions[metadata_key].push({ value: metadata_value, label: metadata_value, numUsers: num_users });
-          })
-        } else {
-          options.push({
-            label: column.replace('enrichment_', '').split('_').map(w => w[0].toUpperCase() + w.slice(1)).join(' '),
-            value: column,
-            options: values.map(({ attr_value, num_users }) => ({ value: attr_value, label: attr_value, numUsers: num_users }))
-          })
-        }
-      })
-      Object.keys(metadataOptions).forEach(metadataKey => {
-        options.push({
-          label: metadataKey.split('_').map(w => w[0].toUpperCase() + w.slice(1)).join(' '),
-          value: `metadata.${metadataKey}`,
-          options: metadataOptions[metadataKey]
-        })
-      })
-      setFilterOptions(options);
-    })
+    // SwishjamAPI.Users.uniqueAttributeValues({ attributes: FILTERABLE_USER_ATTRIBUTES }).then(filterableAttributeValues => {
+    //   const options = [];
+    //   const metadataOptions = {};
+    //   filterableAttributeValues.forEach(({ column, values }) => {
+    //     if (column === 'metadata') {
+    //       values.forEach(({ metadata_key, metadata_value, num_users }) => {
+    //         metadataOptions[metadata_key] = metadataOptions[metadata_key] || [];
+    //         metadataOptions[metadata_key].push({ value: metadata_value, label: metadata_value, numUsers: num_users });
+    //       })
+    //     } else {
+    //       options.push({
+    //         label: column.replace('enrichment_', '').split('_').map(w => w[0].toUpperCase() + w.slice(1)).join(' '),
+    //         value: column,
+    //         options: values.map(({ attr_value, num_users }) => ({ value: attr_value, label: attr_value, numUsers: num_users }))
+    //       })
+    //     }
+    //   })
+    //   Object.keys(metadataOptions).forEach(metadataKey => {
+    //     options.push({
+    //       label: metadataKey.split('_').map(w => w[0].toUpperCase() + w.slice(1)).join(' '),
+    //       value: `metadata.${metadataKey}`,
+    //       options: metadataOptions[metadataKey]
+    //     })
+    //   })
+    //   setFilterOptions(options);
+    // })
   }, [])
 
   return (
@@ -178,7 +178,7 @@ export default function Users() {
                       </th>
                       <th scope="col" className="flex justify-end py-3.5 pl-3 pr-4 sm:pr-6 lg:pr-8">
                         <div className='flex items-center'>
-                          <FilterableDropdownItem
+                          {/* <FilterableDropdownItem
                             hasProfileEnrichmentEnabled={hasProfileEnrichmentEnabled}
                             sections={filterOptions}
                             selectedOptions={selectedFilters}
@@ -201,7 +201,7 @@ export default function Users() {
                                 })
                               }
                             }}
-                          />
+                          /> */}
                           <button
                             className='border-none bg-white flex-shrink-0 cursor-pointer rounded-md p-2 hover:bg-gray-100'
                             onClick={() => setCommandBarIsOpen(true)}

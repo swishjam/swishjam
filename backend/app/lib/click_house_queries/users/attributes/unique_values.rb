@@ -5,6 +5,7 @@ module ClickHouseQueries
         include ClickHouseQueries::Helpers
 
         def initialize(workspace_id, column:)
+          raise NotImplementedError, "Deprecated for now."
           @workspace_id = workspace_id.is_a?(Workspace) ? workspace_id.id : workspace_id
           @column = column
         end

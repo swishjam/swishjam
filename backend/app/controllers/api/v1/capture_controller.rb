@@ -40,7 +40,6 @@ module Api
           return
         end
 
-        # Ingestion::QueueManager.push_records_into_queue(Ingestion::QueueManager::Queues.EVENTS_TO_PREPARE, events)
         Ingestion::PrepareEventsAndEnqueueIntoClickHouseWriterJob.perform_async(events)
         render json: { message: 'ok' }, status: :ok
       rescue => e

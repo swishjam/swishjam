@@ -9,6 +9,7 @@ class CleanUserProfilesTable < ActiveRecord::Migration[6.1]
         `email` Nullable(String),
         `gravatar_url` Nullable(String),
         `metadata` String,
+        `created_by_data_source` LowCardinality(String),
         `first_seen_at_in_web_app` Nullable(DateTime),
         `last_seen_at_in_web_app` Nullable(DateTime),
         `last_updated_from_transactional_db_at` Nullable(DateTime),
@@ -18,47 +19,6 @@ class CleanUserProfilesTable < ActiveRecord::Migration[6.1]
       ENGINE = ReplacingMergeTree(updated_at)
       ORDER BY (workspace_id, swishjam_user_id)
       PRIMARY KEY (workspace_id, swishjam_user_id)
-    SQL
-
-    execute <<~SQL
-      INSERT INTO new_swishjam_user_profiles (
-        workspace_id,
-        swishjam_user_id,
-        merged_into_swishjam_user_id,
-        user_unique_identifier,
-        email,
-        gravatar_url,
-        metadata,
-        first_seen_at_in_web_app,
-        last_seen_at_in_web_app,
-        last_updated_from_transactional_db_at,
-        created_at,
-        updated_at
-      )
-      SELECT 
-        workspace_id,
-        swishjam_user_id,
-        merged_into_swishjam_user_id,
-        user_unique_identifier,
-        email,
-        gravatar_url,
-        concat(
-          '{',
-          if(notEmpty(first_name), concat('"first_name":"', first_name, '",'), ''),
-          if(
-            notEmpty(last_name), 
-            concat('"last_name":"', last_name, if(JSONLength(metadata) > 0, '",', '"')), 
-            ''
-          ),
-          substring(metadata, 2, length(metadata) - 2),
-          '}'
-        ) AS metadata,
-        first_seen_at_in_web_app,
-        last_seen_at_in_web_app,
-        last_updated_from_transactional_db_at,
-        created_at,
-        updated_at
-      FROM swishjam_user_profiles
     SQL
 
     execute('RENAME TABLE swishjam_user_profiles TO old_swishjam_user_profiles')

@@ -73,16 +73,16 @@ class AnalyticsUserProfile < Transactional
   end
 
   def enqueue_replication_to_clickhouse
+    byebug
     Ingestion::QueueManager.push_records_into_queue(Ingestion::QueueManager::Queues.CLICK_HOUSE_USER_PROFILES, formatted_for_clickhouse_replication)
   end
-
+  
   private
 
   def formatted_for_clickhouse_replication
     {
       workspace_id: workspace_id,
       swishjam_user_id: id,
-      swishjam_api_key: workspace.api_keys.for_data_source!(ApiKey::ReservedDataSources.PRODUCT).public_key,
       user_unique_identifier: user_unique_identifier,
       email: email,
       merged_into_swishjam_user_id: merged_into_analytics_user_profile_id,

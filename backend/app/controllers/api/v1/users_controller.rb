@@ -86,6 +86,7 @@ module Api
       end
 
       def unique_attributes
+        raise NotImplementedError, 'Endpoint deprecated.'
         columns = JSON.parse((params[:columns] || %w[metadata]).to_s)
         results = columns.map do |column|
           {

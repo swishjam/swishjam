@@ -1,6 +1,7 @@
 module Ingestion
   class QueueManager
     class Queues
+      # EVENTS_TO_PREPARE is only used for its DLQ when we fail to prepare any or all events during Ingestion::EventsPreparer#prepare_events!
       QUEUE_NAMES = %i[
         EVENTS_TO_PREPARE
         PREPARED_EVENTS 
