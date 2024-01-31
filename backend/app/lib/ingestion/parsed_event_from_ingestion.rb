@@ -18,13 +18,14 @@ module Ingestion
         organization_profile_id: organization_profile_id,
         properties: sanitized_properties.to_json,
         user_properties: user_properties.to_json,
+        organization_properties: organization_properties.to_json,
         occurred_at: occurred_at,
         ingested_at: Time.current,
       }
     end
 
     def as_json
-      event_json.merge(properties: properties, user_properties: user_properties)
+      event_json.merge(properties: properties, user_properties: user_properties, organization_properties: organization_properties)
     end
 
     def to_json(*options)
@@ -65,8 +66,11 @@ module Ingestion
     end
 
     def sanitized_properties
-      # all of attributes that are sent in the properties payload, but we don't want to store in the properties column
-      properties.except('device_fingerprint', 'device_identifier', 'user_attributes', 'organization_attributes', 'user', 'userId', 'user_id', 'userIdentifier')
+      # all of attributes that are sent in the event's properties payload, but we don't want to store in the properties column
+      properties.except(
+        'device_fingerprint', 'device_identifier', 'user_attributes', 'organization_attributes', 'user', 'userId', 'user_id', 'userIdentifier',
+        'organization', 'organizationId', 'organization_id', 'organizationIdentifier', 'organization_identifier', 'orgId', 'org_id', 'orgIdentifier', 'org_identifier',
+      )
     end
 
     def properties
@@ -82,6 +86,14 @@ module Ingestion
         JSON.parse(event_json['user_properties'] || '{}').with_indifferent_access
       else
         (event_json['user_properties'] || {}).with_indifferent_access
+      end
+    end
+
+    def organization_properties
+      if event_json['organization_properties'].is_a?(String)
+        JSON.parse(event_json['organization_properties'] || '{}').with_indifferent_access
+      else
+        (event_json['organization_properties'] || {}).with_indifferent_access
       end
     end
 
@@ -112,14 +124,19 @@ module Ingestion
     def set_user_profile(user_profile)
       return if user_profile.nil?
       event_json['user_profile_id'] = user_profile.id
-      event_json['user_properties'] = user_profile.metadata.merge({
+      event_json['user_properties'] = user_profile.metadata.merge(
         email: user_profile.email,
         unique_identifier: user_profile.user_unique_identifier,
-      })
+      )
     end
 
     def set_organization_profile(organization_profile)
       event_json['organization_profile_id'] = organization_profile.id
+      event_json['organization_properties'] = organization_profile.metadata.merge(
+        name: organization_profile.name,
+        domain: organization_profile.domain,
+        unique_identifier: organization_profile.organization_unique_identifier,
+      )
     end
 
     private

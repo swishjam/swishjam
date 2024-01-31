@@ -20,7 +20,7 @@ describe Ingestion::EventPreparers::BasicEventHandler do
   end
 
   describe '#handle_and_return_prepared_events!' do
-    it 'returns an the event_json without any user profile if the event payload does not provide a user_id or device_identifier' do
+    it 'returns a prepared event without any user profile if the event payload does not provide a user_id or device_identifier' do
       event = Ingestion::EventPreparers::BasicEventHandler.new(
         parsed_event(
           swishjam_api_key: @public_key,
@@ -320,6 +320,258 @@ describe Ingestion::EventPreparers::BasicEventHandler do
       expect(event.user_properties['unique_identifier']).to eq('a-new-user-id')
       expect(event.sanitized_properties['a_property']).to eq('a_value')
       expect(event.sanitized_properties.keys.count).to be(1)
+    end
+
+    it 'creates a new organization profile if the event payload contains organization_attributes in the payload and we dont have an organization for the provided organization_identifier' do
+      event = Ingestion::EventPreparers::BasicEventHandler.new(
+        parsed_event(
+          swishjam_api_key: @public_key,
+          properties: {
+            a_property: 'a_value',
+            organization_attributes: {
+              organization_identifier: 'a-new-organization-id',
+              name: 'Swishjam',
+              metadata: {
+                num_employees: 2
+              }
+            }
+          }
+        )
+      ).handle_and_return_prepared_events!
+
+      expect(@workspace.analytics_organization_profiles.count).to be(1)
+
+      new_org = @workspace.analytics_organization_profiles.first
+      expect(new_org.organization_unique_identifier).to eq('a-new-organization-id')
+      expect(new_org.name).to eq('Swishjam')
+      expect(new_org.metadata['num_employees']).to eq(2)
+
+      expect(event.uuid).to eq('evt-123')
+      expect(event.swishjam_api_key).to eq(@public_key)
+      expect(event.name).to eq('some_random_event')
+      expect(event.organization_profile_id).to eq(new_org.id)
+      
+      expect(event.sanitized_properties['a_property']).to eq('a_value')
+      expect(event.sanitized_properties.keys.count).to be(1)
+
+      expect(event.organization_properties['name']).to eq('Swishjam')
+      expect(event.organization_properties['num_employees']).to eq(2)
+      expect(event.organization_properties['unique_identifier']).to eq('a-new-organization-id')
+      expect(event.organization_properties['domain']).to be(nil)
+      expect(event.organization_properties.keys.count).to be(4)
+    end
+
+    it 'updates an existing organization profile if the event payload contains organization_attributes in the payload and we already have an organization for the provided organization_identifier' do
+      existing_org = FactoryBot.create(:analytics_organization_profile, 
+        organization_unique_identifier: 'existing-org-id', 
+        workspace: @workspace,
+        name: 'Overwrite me!',
+        domain: 'old-domain.com',
+        metadata: {
+          a_pre_existing_property_that_should_not_be_overwritten: 'a_value'
+        }
+      )
+
+      event = Ingestion::EventPreparers::BasicEventHandler.new(
+        parsed_event(
+          swishjam_api_key: @public_key,
+          properties: {
+            a_property: 'a_value',
+            organization_attributes: {
+              organization_identifier: existing_org.organization_unique_identifier,
+              name: 'A new name!',
+              metadata: {
+                domain: 'swishjam.com',
+                a_new_property: 'woohoo!'
+              }
+            }
+          }
+        )
+      ).handle_and_return_prepared_events!
+
+      expect(@workspace.analytics_organization_profiles.count).to be(1)
+
+      existing_org.reload
+      expect(existing_org.organization_unique_identifier).to eq('existing-org-id')
+      expect(existing_org.name).to eq('A new name!')
+      expect(existing_org.domain).to eq('swishjam.com')
+      expect(existing_org.metadata['a_new_property']).to eq('woohoo!')
+      expect(existing_org.metadata['a_pre_existing_property_that_should_not_be_overwritten']).to eq('a_value')
+      expect(existing_org.metadata.keys.count).to be(2)
+
+      expect(event.uuid).to eq('evt-123')
+      expect(event.swishjam_api_key).to eq(@public_key)
+      expect(event.name).to eq('some_random_event')
+      expect(event.organization_profile_id).to eq(existing_org.id)
+      
+      expect(event.sanitized_properties['a_property']).to eq('a_value')
+      expect(event.sanitized_properties.keys.count).to be(1)
+      
+      expect(event.organization_properties['a_pre_existing_property_that_should_not_be_overwritten']).to eq('a_value')
+      expect(event.organization_properties['a_new_property']).to eq('woohoo!')
+      expect(event.organization_properties['unique_identifier']).to eq('existing-org-id')
+      expect(event.organization_properties['name']).to eq('A new name!')
+      expect(event.organization_properties['domain']).to eq('swishjam.com')
+      expect(event.organization_properties.keys.count).to be(5)
+    end
+
+    %i[org_id organization_id orgIdentifier organizationIdentifier organization_identifier].each do |root_event_payload_org_identifier_key|
+      it "accepts `#{root_event_payload_org_identifier_key}` in the root of the event payload as the organization_unique_identifier and reads the organization properties from the `organization` key" do
+        event = Ingestion::EventPreparers::BasicEventHandler.new(
+          parsed_event(
+            swishjam_api_key: @public_key,
+            properties: {
+              a_property: 'a_value',
+              root_event_payload_org_identifier_key => 'a-new-organization-id',
+              organization: {
+                name: 'Swishjam',
+                num_employees: 2
+              }
+            }
+          )
+        ).handle_and_return_prepared_events!
+
+        expect(@workspace.analytics_organization_profiles.count).to be(1)
+        
+        new_org = @workspace.analytics_organization_profiles.first
+        expect(new_org.organization_unique_identifier).to eq('a-new-organization-id')
+        expect(new_org.name).to eq('Swishjam')
+        expect(new_org.metadata['num_employees']).to eq(2)
+        expect(new_org.metadata.keys.count).to be(1)
+
+        expect(event.uuid).to eq('evt-123')
+        expect(event.swishjam_api_key).to eq(@public_key)
+        expect(event.name).to eq('some_random_event')
+        expect(event.organization_profile_id).to eq(new_org.id)
+        
+        expect(event.sanitized_properties['a_property']).to eq('a_value')
+        expect(event.sanitized_properties.keys.count).to be(1)
+
+        expect(event.organization_properties['num_employees']).to eq(2)
+        expect(event.organization_properties['unique_identifier']).to eq('a-new-organization-id')
+        expect(event.organization_properties['name']).to eq('Swishjam')
+        expect(event.organization_properties['domain']).to be(nil)
+        expect(event.organization_properties.keys.count).to be(4)
+      end
+    end
+    
+    %i[organization_identifier id org_id organization_id orgIdentifier organizationIdentifier organization_identifier].each do |nested_org_payload_org_identifier_key|
+      %i[organization_attributes organization].each do |nested_org_payload_key|
+        it "accepts `#{nested_org_payload_org_identifier_key}` in the #{nested_org_payload_key} hash event payload as the organization_unique_identifier and reads the organization properties from it" do
+          event = Ingestion::EventPreparers::BasicEventHandler.new(
+            parsed_event(
+              swishjam_api_key: @public_key,
+              properties: {
+                a_property: 'a_value',
+                nested_org_payload_key => {
+                  nested_org_payload_org_identifier_key => 'a-new-organization-id',
+                  name: 'Swishjam',
+                  num_employees: 2,
+                }
+              }
+            )
+          ).handle_and_return_prepared_events!
+
+          expect(@workspace.analytics_organization_profiles.count).to be(1)
+          
+          new_org = @workspace.analytics_organization_profiles.first
+          expect(new_org.organization_unique_identifier).to eq('a-new-organization-id')
+          expect(new_org.name).to eq('Swishjam')
+          expect(new_org.metadata['num_employees']).to eq(2)
+          expect(new_org.metadata.keys.count).to be(1)
+
+          expect(event.uuid).to eq('evt-123')
+          expect(event.swishjam_api_key).to eq(@public_key)
+          expect(event.name).to eq('some_random_event')
+          expect(event.organization_profile_id).to eq(new_org.id)
+          
+          expect(event.sanitized_properties['a_property']).to eq('a_value')
+          expect(event.sanitized_properties.keys.count).to be(1)
+
+          expect(event.organization_properties['num_employees']).to eq(2)
+          expect(event.organization_properties['unique_identifier']).to eq('a-new-organization-id')
+          expect(event.organization_properties['name']).to eq('Swishjam')
+          expect(event.organization_properties['domain']).to be(nil)
+          expect(event.organization_properties.keys.count).to be(4)
+        end
+      end
+    end
+
+    it 'derives the domain from the user email if the event payload does not provide a domain for the organization and the user has a non-generic email' do
+      existing_user = FactoryBot.create(:analytics_user_profile, 
+        workspace: @workspace,
+        user_unique_identifier: 'xyz',
+        email: 'jenny@swishjam.com',
+        metadata: {
+          birthday: '11/07/1992'
+        }
+      )
+
+      event = Ingestion::EventPreparers::BasicEventHandler.new(
+        parsed_event(
+          swishjam_api_key: @public_key,
+          properties: {
+            a_property: 'a_value',
+            user_id: existing_user.user_unique_identifier,
+            organization_attributes: {
+              organization_identifier: 'a-new-organization-id',
+              name: 'Swishjam',
+              metadata: {
+                num_employees: 2
+              }
+            }
+          }
+        )
+      ).handle_and_return_prepared_events!
+
+      expect(@workspace.analytics_organization_profiles.count).to be(1)
+      expect(@workspace.analytics_user_profiles.count).to be(1)
+      
+      new_org = @workspace.analytics_organization_profiles.first
+      expect(new_org.organization_unique_identifier).to eq('a-new-organization-id')
+      expect(new_org.name).to eq('Swishjam')
+      expect(new_org.domain).to eq('swishjam.com')
+      expect(new_org.metadata['num_employees']).to eq(2)
+      expect(new_org.metadata.keys.count).to be(1)
+
+      expect(event.uuid).to eq('evt-123')
+      expect(event.swishjam_api_key).to eq(@public_key)
+      expect(event.name).to eq('some_random_event')
+      expect(event.organization_profile_id).to eq(new_org.id)
+      expect(event.user_profile_id).to eq(existing_user.id)
+      
+      expect(event.sanitized_properties['a_property']).to eq('a_value')
+      expect(event.sanitized_properties.keys.count).to be(1)
+
+      expect(event.organization_properties['num_employees']).to eq(2)
+      expect(event.organization_properties['unique_identifier']).to eq('a-new-organization-id')
+      expect(event.organization_properties['name']).to eq('Swishjam')
+      expect(event.organization_properties['domain']).to eq('swishjam.com')
+      expect(event.organization_properties.keys.count).to be(4)
+
+      expect(event.user_properties['email']).to eq(existing_user.email)
+      expect(event.user_properties['unique_identifier']).to eq(existing_user.user_unique_identifier)
+      expect(event.user_properties['birthday']).to eq('11/07/1992')
+      expect(event.user_properties.keys.count).to be(3)
+    end
+
+    it 'sets the events organization_profile_id to nil and the organization_properties to an empty hash if the event payload does not provide any organization details' do
+      event = Ingestion::EventPreparers::BasicEventHandler.new(
+        parsed_event(
+          swishjam_api_key: @public_key,
+          properties: {
+            a_property: 'a_value',
+          }
+        )
+      ).handle_and_return_prepared_events!
+
+      expect(@workspace.analytics_organization_profiles.count).to be(0)
+
+      expect(event.uuid).to eq('evt-123')
+      expect(event.swishjam_api_key).to eq(@public_key)
+      expect(event.name).to eq('some_random_event')
+      expect(event.organization_profile_id).to be(nil)
+      expect(event.organization_properties).to eq({})
     end
   end
 end

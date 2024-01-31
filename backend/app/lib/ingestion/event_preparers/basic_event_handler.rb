@@ -11,33 +11,42 @@ module Ingestion
 
       def organization_for_event
         @organization_for_event ||= begin
-          provided_org_attributes = parsed_event.properties['organization_attributes'] || {}
-          organization_identifier = provided_org_attributes['organization_identifier']
+          provided_org_attributes = parsed_event.properties['organization_attributes'] || parsed_event.properties['organization'] || {}
+          organization_identifier = parsed_event.properties['org_id'] || 
+                                      parsed_event.properties['organization_id'] || 
+                                      parsed_event.properties['orgIdentifier'] ||
+                                      parsed_event.properties['organizationIdentifier'] ||
+                                      parsed_event.properties['organization_identifier'] || 
+                                      provided_org_attributes['organization_identifier'] || 
+                                      provided_org_attributes['id'] ||
+                                      provided_org_attributes['org_id'] ||
+                                      provided_org_attributes['organization_id'] ||
+                                      provided_org_attributes['orgIdentifier'] ||
+                                      provided_org_attributes['organizationIdentifier'] ||
+                                      provided_org_attributes['organization_identifier']
           if organization_identifier.present?
-            org = workspace.analytics_organization_profiles.find_by(organization_identifier: organization_identifier)
+            org = workspace.analytics_organization_profiles.find_by(organization_unique_identifier: organization_identifier)
+            sanitized_provided_org_metadata = (provided_org_attributes['metadata'] || provided_org_attributes || {}).except('id', 'organization_identifier', 'name', 'domain', 'org_id', 'organization_id', 'orgIdentifier', 'organizationIdentifier', 'organization_identifier')
             if org.present?
               org.name = provided_org_attributes['name'] if provided_org_attributes['name'].present?
-              org.metadata = org.metadata.merge(provided_org_attributes['metadata']) if provided_org_attributes['metadata'].present?
-              org.domain = provided_org_attributes['domain'] if provided_org_attributes['domain'].present?
+              org.metadata = org.metadata.merge(sanitized_provided_org_metadata) if sanitized_provided_org_metadata.present?
+              org.domain = provided_org_attributes['domain'] || provided_org_attributes.dig('metadata', 'domain') if provided_org_attributes['domain'].present? || provided_org_attributes.dig('metadata', 'domain').present?
             else
               org = workspace.analytics_organization_profiles.new(
-                organization_identifier: organization_identifier,
+                organization_unique_identifier: organization_identifier,
                 name: provided_org_attributes['name'],
-                metadata: provided_org_attributes['metadata'],
-                domain: provided_org_attributes['domain'],
+                metadata: sanitized_provided_org_metadata,
+                domain: provided_org_attributes['domain'] || provided_org_attributes.dig('metadata', 'domain'),
               )
-            end
-            if user_profile_for_event.present?
-              org_member = org.analytics_organization_members.find_by(analytics_user_profile_id: user_profile_for_event.id)
-              if org_member.nil?
-                org.analytics_organization_members.create!(analytics_user_profile_id: user_profile_for_event.id)
-              end
             end
             if org.domain.nil? && user_profile_for_event&.email.present? && !GenericEmailDetector.is_generic_email?(user_profile_for_event.email)
               domain_from_user_email = user_profile_for_event.email.split('@').last
               org.domain = domain_from_user_email
             end
             org.save! if org.changed?
+            if user_profile_for_event.present? && !org.analytics_organization_members.exists?(analytics_user_profile_id: user_profile_for_event.id)
+              org.analytics_organization_members.create!(analytics_user_profile_id: user_profile_for_event.id)
+            end
             org
           end
         end
@@ -54,16 +63,16 @@ module Ingestion
       end
 
       def handle_user_profile_handling_from_explicit_user_identifier!
-        existing_user = workspace.analytics_user_profiles.find_by(user_unique_identifier: provided_unique_user_identifier)
-        if existing_user.present?
+        user_profile = workspace.analytics_user_profiles.find_by(user_unique_identifier: provided_unique_user_identifier)
+        if user_profile.present?
           if parsed_event.properties['user'].present?
-            existing_user.email = parsed_event.properties.dig('user', 'email') if parsed_event.properties.dig('user', 'email').present?
-            existing_user.metadata = existing_user.metadata.merge(parsed_event.properties['user'].except('id', 'email'))
+            user_profile.email = parsed_event.properties.dig('user', 'email') if parsed_event.properties.dig('user', 'email').present?
+            user_profile.metadata = user_profile.metadata.merge(parsed_event.properties['user'].except('id', 'email'))
           end
-          existing_user.last_seen_at_in_web_app = Time.current
-          existing_user.first_seen_at_in_web_app ||= Time.current
-          existing_user.save! if existing_user.changed?
-          existing_user
+          user_profile.last_seen_at_in_web_app = Time.current
+          user_profile.first_seen_at_in_web_app ||= Time.current
+          user_profile.save! if user_profile.changed?
+          user_profile
         else
           workspace.analytics_user_profiles.create!(
             user_unique_identifier: provided_unique_user_identifier,

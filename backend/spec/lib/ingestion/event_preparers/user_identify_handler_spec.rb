@@ -112,6 +112,7 @@ describe Ingestion::EventPreparers::UserIdentifyHandler do
       expect(workspace.analytics_user_profiles.first.metadata['last_name']).to eq('Dawg')
       expect(workspace.analytics_user_profiles.first.metadata['phone_number']).to eq('0987654321')
       expect(workspace.analytics_user_profiles.first.metadata['subscription_plan']).to eq('pro')
+      expect(workspace.analytics_user_profiles.first.metadata['some_pre_existing_key_that_doesnt_get_overwritten']).to eq('foo!')
 
       expect(workspace.analytics_user_profile_devices.first.device_fingerprint).to eq('abc')
       expect(workspace.analytics_user_profile_devices.first.swishjam_cookie_value).to eq('123')
@@ -135,7 +136,8 @@ describe Ingestion::EventPreparers::UserIdentifyHandler do
       expect(event.user_properties['last_name']).to eq('Dawg')
       expect(event.user_properties['phone_number']).to eq('0987654321')
       expect(event.user_properties['subscription_plan']).to eq('pro')
-      expect(event.user_properties.keys.count).to eq(6)
+      expect(event.user_properties['some_pre_existing_key_that_doesnt_get_overwritten']).to eq('foo!')
+      expect(event.user_properties.keys.count).to eq(7)
     end
 
     it 'only updates the user profile if its an existing device that already belongs to the provided unique user identifier' do
@@ -451,6 +453,153 @@ describe Ingestion::EventPreparers::UserIdentifyHandler do
       expect(event.user_properties.keys.count).to eq(7)
 
       expect(previous_owner.reload.merged_into_analytics_user_profile_id).to eq(new_user_profile.id)
+    end
+
+    it 'maintains the `initial_landing_page_url` and `initial_referrer_url` metadata properties if they are already set on the anonymous user profile when merging profiles' do
+      workspace = FactoryBot.create(:workspace)
+      public_key = workspace.api_keys.for_data_source!('product').public_key
+      timestamp = 10.minutes.ago
+      previous_owner = FactoryBot.create(:analytics_user_profile, 
+        workspace: workspace,
+        user_unique_identifier: nil, 
+        email: nil,
+        metadata: {
+          initial_landing_page_url: 'https://swishjam.com/landing-page-the-anonymous-user-landed-on',
+          initial_referrer_url: 'https://swishjam.com/referrer-url-the-anonymous-user-came-from',
+        }
+      )
+
+      existing_device = FactoryBot.create(:analytics_user_profile_device,
+        workspace: workspace,
+        analytics_user_profile: previous_owner,
+        swishjam_cookie_value: 'abc',
+        device_fingerprint: '123',
+      )
+
+      event_json = identify_event_json(
+        swishjam_api_key: public_key, 
+        timestamp: timestamp, 
+        properties: {
+          device_identifier: existing_device.swishjam_cookie_value,
+          userIdentifier: 'a-new-user-unique-identifier',
+          email: 'new-user@gmail.com',
+          first_name: 'New',
+          last_name: 'User',
+          phone_number: '0987654321',
+          subscription_plan: 'pro',
+          initial_landing_page_url: 'https://swishjam.com/landing-page-the-identified-user-landed-on',
+          initial_referrer_url: 'https://swishjam.com/referrer-url-the-identified-user-came-from',
+        }
+      )
+
+      event = Ingestion::ParsedEventFromIngestion.new(event_json)
+
+      expect(workspace.analytics_user_profiles.count).to eq(1)
+      expect(workspace.analytics_user_profile_devices.count).to eq(1)
+
+      described_class.new(event).handle_and_return_prepared_events!
+
+      expect(workspace.analytics_user_profiles.count).to eq(2)
+      expect(workspace.analytics_user_profile_devices.count).to eq(1)
+
+      new_user_profile = workspace.analytics_user_profiles.find_by(user_unique_identifier: 'a-new-user-unique-identifier')
+      expect(new_user_profile.email).to eq('new-user@gmail.com')
+      expect(new_user_profile.metadata['first_name']).to eq('New')
+      expect(new_user_profile.metadata['last_name']).to eq('User')
+      expect(new_user_profile.metadata['phone_number']).to eq('0987654321')
+      expect(new_user_profile.metadata['subscription_plan']).to eq('pro')
+      expect(new_user_profile.metadata[AnalyticsUserProfile::ReservedMetadataProperties.INITIAL_LANDING_PAGE_URL]).to eq('https://swishjam.com/landing-page-the-anonymous-user-landed-on')
+      expect(new_user_profile.metadata[AnalyticsUserProfile::ReservedMetadataProperties.INITIAL_REFERRER_URL]).to eq('https://swishjam.com/referrer-url-the-anonymous-user-came-from')
+      expect(new_user_profile.metadata.keys.count).to eq(6)
+
+      expect(event.uuid).to eq('evt-123')
+      expect(event.swishjam_api_key).to eq(public_key)
+      expect(event.name).to eq('identify')
+      expect(event.user_profile_id).to eq(new_user_profile.id)
+      expect(event.occurred_at.round(3)).to eq(timestamp.round(3))
+      expect(event.sanitized_properties['email']).to eq('new-user@gmail.com')
+      expect(event.sanitized_properties['first_name']).to eq('New')
+      expect(event.sanitized_properties['last_name']).to eq('User')
+      expect(event.sanitized_properties['phone_number']).to eq('0987654321')
+      expect(event.sanitized_properties['subscription_plan']).to eq('pro')
+      expect(event.sanitized_properties[AnalyticsUserProfile::ReservedMetadataProperties.INITIAL_LANDING_PAGE_URL]).to eq('https://swishjam.com/landing-page-the-identified-user-landed-on')
+      expect(event.sanitized_properties[AnalyticsUserProfile::ReservedMetadataProperties.INITIAL_REFERRER_URL]).to eq('https://swishjam.com/referrer-url-the-identified-user-came-from')
+      expect(event.sanitized_properties.keys.count).to eq(7)
+
+      expect(event.user_properties['unique_identifier']).to eq('a-new-user-unique-identifier')
+      expect(event.user_properties['email']).to eq('new-user@gmail.com')
+      expect(event.user_properties['first_name']).to eq('New')
+      expect(event.user_properties['last_name']).to eq('User')
+      expect(event.user_properties['phone_number']).to eq('0987654321')
+      expect(event.user_properties['subscription_plan']).to eq('pro')
+      expect(event.user_properties[AnalyticsUserProfile::ReservedMetadataProperties.INITIAL_LANDING_PAGE_URL]).to eq('https://swishjam.com/landing-page-the-anonymous-user-landed-on')
+      expect(event.user_properties[AnalyticsUserProfile::ReservedMetadataProperties.INITIAL_REFERRER_URL]).to eq('https://swishjam.com/referrer-url-the-anonymous-user-came-from')
+      expect(event.user_properties.keys.count).to eq(8)
+
+      existing_device.reload
+      expect(existing_device.device_fingerprint).to eq('123')
+      expect(existing_device.swishjam_cookie_value).to eq('abc')
+      expect(existing_device.analytics_user_profile_id).to eq(new_user_profile.id)
+
+      expect(previous_owner.reload.merged_into_analytics_user_profile_id).to eq(new_user_profile.id)
+    end
+
+    it 'only creates or updates the user profile if there is no device_identifier present in the event payload' do
+      workspace = FactoryBot.create(:workspace)
+      public_key = workspace.api_keys.for_data_source!('product').public_key
+      timestamp = 10.minutes.ago
+      event_json = identify_event_json(
+        swishjam_api_key: public_key, 
+        timestamp: timestamp, 
+        properties: {
+          device_identifier: nil,
+          userIdentifier: 'a-new-user-unique-identifier',
+          email: 'yo@swishjam.com',
+          first_name: 'Yo',
+          last_name: 'Dawg',
+          phone_number: '0987654321',
+          subscription_plan: 'pro',
+          initial_landing_page_url: 'https://swishjam.com/landing-page-the-identified-user-landed-on',
+        }
+      )
+      event = Ingestion::ParsedEventFromIngestion.new(event_json)
+
+      expect(workspace.analytics_user_profiles.count).to eq(0)
+      expect(workspace.analytics_user_profile_devices.count).to eq(0)
+      
+      described_class.new(event).handle_and_return_prepared_events!
+      
+      expect(workspace.analytics_user_profiles.count).to eq(1)
+      expect(workspace.analytics_user_profile_devices.count).to eq(0)
+
+      expect(workspace.analytics_user_profiles.first.user_unique_identifier).to eq('a-new-user-unique-identifier')
+      expect(workspace.analytics_user_profiles.first.email).to eq('yo@swishjam.com')
+      expect(workspace.analytics_user_profiles.first.metadata['first_name']).to eq('Yo')
+      expect(workspace.analytics_user_profiles.first.metadata['last_name']).to eq('Dawg')
+      expect(workspace.analytics_user_profiles.first.metadata['phone_number']).to eq('0987654321')
+      expect(workspace.analytics_user_profiles.first.metadata['subscription_plan']).to eq('pro')
+      expect(workspace.analytics_user_profiles.first.metadata[AnalyticsUserProfile::ReservedMetadataProperties.INITIAL_LANDING_PAGE_URL]).to eq('https://swishjam.com/landing-page-the-identified-user-landed-on')
+
+      expect(event.uuid).to eq('evt-123')
+      expect(event.swishjam_api_key).to eq(public_key)
+      expect(event.name).to eq('identify')
+      expect(event.user_profile_id).to eq(workspace.analytics_user_profiles.first.id)
+      expect(event.sanitized_properties['email']).to eq('yo@swishjam.com')
+      expect(event.sanitized_properties['first_name']).to eq('Yo')
+      expect(event.sanitized_properties['last_name']).to eq('Dawg')
+      expect(event.sanitized_properties['phone_number']).to eq('0987654321')
+      expect(event.sanitized_properties['subscription_plan']).to eq('pro')
+      expect(event.sanitized_properties[AnalyticsUserProfile::ReservedMetadataProperties.INITIAL_LANDING_PAGE_URL]).to eq('https://swishjam.com/landing-page-the-identified-user-landed-on')
+      expect(event.sanitized_properties.keys.count).to eq(6)
+
+      expect(event.user_properties['unique_identifier']).to eq('a-new-user-unique-identifier')
+      expect(event.user_properties['email']).to eq('yo@swishjam.com')
+      expect(event.user_properties['first_name']).to eq('Yo')
+      expect(event.user_properties['last_name']).to eq('Dawg')
+      expect(event.user_properties['phone_number']).to eq('0987654321')
+      expect(event.user_properties['subscription_plan']).to eq('pro')
+      expect(event.user_properties[AnalyticsUserProfile::ReservedMetadataProperties.INITIAL_LANDING_PAGE_URL]).to eq('https://swishjam.com/landing-page-the-identified-user-landed-on')
+      expect(event.user_properties.keys.count).to eq(7)
     end
   end
 end

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ClickhouseActiverecord::Schema.define(version: 2024_01_29_215404) do
+ClickhouseActiverecord::Schema.define(version: 2024_01_31_201022) do
 
   # TABLE: billing_data_snapshots
   # SQL: CREATE TABLE swishjam_analytics_test.billing_data_snapshots ( `swishjam_api_key` LowCardinality(String), `mrr_in_cents` UInt32, `total_revenue_in_cents` UInt32, `num_active_subscriptions` UInt32, `num_free_trial_subscriptions` UInt32, `num_canceled_subscriptions` UInt32, `captured_at` DateTime, `num_paid_subscriptions` Nullable(Int32), `num_customers_with_paid_subscriptions` UInt32 DEFAULT 0 ) ENGINE = MergeTree PRIMARY KEY (swishjam_api_key, captured_at) ORDER BY (swishjam_api_key, captured_at) SETTINGS index_granularity = 8192
@@ -32,7 +32,7 @@ ClickhouseActiverecord::Schema.define(version: 2024_01_29_215404) do
 #   Unknown type 'Enum8('user' = 1, 'organization' = 2)' for column 'swishjam_owner_type'
 
   # TABLE: events
-  # SQL: CREATE TABLE swishjam_analytics_test.events ( `uuid` String, `swishjam_api_key` LowCardinality(String), `name` LowCardinality(String), `user_profile_id` Nullable(String), `organization_profile_id` Nullable(String), `properties` String, `user_properties` String, `ingested_at` DateTime64(3, 'UTC') DEFAULT now(), `occurred_at` DateTime64(3, 'UTC') ) ENGINE = ReplacingMergeTree(ingested_at) PRIMARY KEY (swishjam_api_key, name, occurred_at) ORDER BY (swishjam_api_key, name, occurred_at, uuid) SETTINGS index_granularity = 8192
+  # SQL: CREATE TABLE swishjam_analytics_test.events ( `uuid` String, `swishjam_api_key` LowCardinality(String), `name` LowCardinality(String), `user_profile_id` Nullable(String), `organization_profile_id` Nullable(String), `properties` String, `user_properties` String, `ingested_at` DateTime64(3, 'UTC') DEFAULT now(), `occurred_at` DateTime64(3, 'UTC'), `organization_properties` String ) ENGINE = ReplacingMergeTree(ingested_at) PRIMARY KEY (swishjam_api_key, name, occurred_at) ORDER BY (swishjam_api_key, name, occurred_at, uuid) SETTINGS index_granularity = 8192
   create_table "events", id: false, options: "ReplacingMergeTree(ingested_at) PRIMARY KEY (swishjam_api_key, name, occurred_at) ORDER BY (swishjam_api_key, name, occurred_at, uuid) SETTINGS index_granularity = 8192", force: :cascade do |t|
     t.string "uuid", null: false
     t.string "swishjam_api_key", null: false
@@ -43,6 +43,7 @@ ClickhouseActiverecord::Schema.define(version: 2024_01_29_215404) do
     t.string "user_properties", null: false
     t.datetime "ingested_at", default: -> { "now()" }, null: false
     t.datetime "occurred_at", null: false
+    t.string "organization_properties", null: false
   end
 
   # TABLE: old_swishjam_user_profiles
