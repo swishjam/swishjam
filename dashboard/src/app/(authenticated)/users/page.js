@@ -10,30 +10,16 @@ import useCommandBar from "@/hooks/useCommandBar";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import UserProfilesCollection from "@/lib/collections/user-profiles";
-import FilterableDropdownItem from "@/components/utils/FilterDropdown";
+// import FilterableDropdownItem from "@/components/utils/FilterDropdown";
 import { Skeleton } from "@/components/ui/skeleton";
 
-const FILTERABLE_USER_ATTRIBUTES = [
-  'metadata',
-  'enrichment_job_title',
-  'enrichment_company_name',
-  'enrichment_company_size',
-  'enrichment_company_industry',
-  'enrichment_company_location_metro',
-  'current_subscription_plan_name',
-  'monthly_recurring_revenue_in_cents',
-  'lifetime_value_in_cents',
-  'initial_referrer_url',
-  'initial_landing_page_url',
-]
-
-const UsersTableBody = ({ currentPageNum, selectedFilters, onUsersFetched = () => { } }) => {
+const UsersTableBody = ({ currentPageNum, onUsersFetched = () => { } }) => {
   const router = useRouter();
   const [userModels, setUserModels] = useState();
 
-  const getUsers = async ({ page, where }) => {
+  const getUsers = async ({ page }) => {
     setUserModels()
-    await SwishjamAPI.Users.list({ page, where }).then(({ users, total_pages }) => {
+    await SwishjamAPI.Users.list({ page }).then(({ users, total_pages }) => {
       const userModels = new UserProfilesCollection(users).models();
       setUserModels(userModels);
       onUsersFetched({ users: userModels, total_pages });
@@ -41,8 +27,8 @@ const UsersTableBody = ({ currentPageNum, selectedFilters, onUsersFetched = () =
   }
 
   useEffect(() => {
-    getUsers({ page: currentPageNum, where: selectedFilters })
-  }, [selectedFilters, currentPageNum])
+    getUsers({ page: currentPageNum })
+  }, [currentPageNum])
 
   return (
     userModels === undefined ? (
@@ -67,10 +53,9 @@ const UsersTableBody = ({ currentPageNum, selectedFilters, onUsersFetched = () =
           <tr>
             <td className='px-4 pt-8 pb-6 text-center' colSpan={3}>
               <h2 className='text-xl font-medium text-gray-700'>No users found</h2>
-              {Object.keys(selectedFilters).length > 0 && Object.keys(selectedFilters).map(section => selectedFilters[section].length > 0).includes(true)
-                ? <p className='text-gray-500'>Try changing your applied filters</p>
-                : <p className='text-gray-500'>Begin <Link className='underline cursor-pointer hover:text-gray-700' href='https://docs.swishjam.com/react/identify' target='_blank'>identifying users</Link> within your app to begin seeing your users here.</p>
-              }
+              <p className='text-gray-500'>
+                No users found, <Link href='https://docs.swishjam.com' target='_blank'>integrate the Swishjam SDK</Link> into your web app to start tracking users.
+              </p>
             </td>
           </tr>
         </tbody>
@@ -116,40 +101,40 @@ export default function Users() {
 
   const [currentPageNum, setCurrentPageNum] = useState(1);
   const [hasNoUsers, setHasNoUsers] = useState(false);
-  const [hasProfileEnrichmentEnabled, setHasProfileEnrichmentEnabled] = useState();
+  // const [hasProfileEnrichmentEnabled, setHasProfileEnrichmentEnabled] = useState();
   const [lastPageNum, setLastPageNum] = useState();
   const [selectedFilters, setSelectedFilters] = useState({}); // { section: [value, value] }
-  const [filterOptions, setFilterOptions] = useState();
+  // const [filterOptions, setFilterOptions] = useState();
 
-  useEffect(() => {
-    SwishjamAPI.Config.retrieve().then(({ settings }) => setHasProfileEnrichmentEnabled(settings.should_enrich_user_profile_data))
-    // SwishjamAPI.Users.uniqueAttributeValues({ attributes: FILTERABLE_USER_ATTRIBUTES }).then(filterableAttributeValues => {
-    //   const options = [];
-    //   const metadataOptions = {};
-    //   filterableAttributeValues.forEach(({ column, values }) => {
-    //     if (column === 'metadata') {
-    //       values.forEach(({ metadata_key, metadata_value, num_users }) => {
-    //         metadataOptions[metadata_key] = metadataOptions[metadata_key] || [];
-    //         metadataOptions[metadata_key].push({ value: metadata_value, label: metadata_value, numUsers: num_users });
-    //       })
-    //     } else {
-    //       options.push({
-    //         label: column.replace('enrichment_', '').split('_').map(w => w[0].toUpperCase() + w.slice(1)).join(' '),
-    //         value: column,
-    //         options: values.map(({ attr_value, num_users }) => ({ value: attr_value, label: attr_value, numUsers: num_users }))
-    //       })
-    //     }
-    //   })
-    //   Object.keys(metadataOptions).forEach(metadataKey => {
-    //     options.push({
-    //       label: metadataKey.split('_').map(w => w[0].toUpperCase() + w.slice(1)).join(' '),
-    //       value: `metadata.${metadataKey}`,
-    //       options: metadataOptions[metadataKey]
-    //     })
-    //   })
-    //   setFilterOptions(options);
-    // })
-  }, [])
+  // useEffect(() => {
+  //   SwishjamAPI.Config.retrieve().then(({ settings }) => setHasProfileEnrichmentEnabled(settings.should_enrich_user_profile_data))
+  //   SwishjamAPI.Users.uniqueAttributeValues({ attributes: FILTERABLE_USER_ATTRIBUTES }).then(filterableAttributeValues => {
+  //     const options = [];
+  //     const metadataOptions = {};
+  //     filterableAttributeValues.forEach(({ column, values }) => {
+  //       if (column === 'metadata') {
+  //         values.forEach(({ metadata_key, metadata_value, num_users }) => {
+  //           metadataOptions[metadata_key] = metadataOptions[metadata_key] || [];
+  //           metadataOptions[metadata_key].push({ value: metadata_value, label: metadata_value, numUsers: num_users });
+  //         })
+  //       } else {
+  //         options.push({
+  //           label: column.replace('enrichment_', '').split('_').map(w => w[0].toUpperCase() + w.slice(1)).join(' '),
+  //           value: column,
+  //           options: values.map(({ attr_value, num_users }) => ({ value: attr_value, label: attr_value, numUsers: num_users }))
+  //         })
+  //       }
+  //     })
+  //     Object.keys(metadataOptions).forEach(metadataKey => {
+  //       options.push({
+  //         label: metadataKey.split('_').map(w => w[0].toUpperCase() + w.slice(1)).join(' '),
+  //         value: `metadata.${metadataKey}`,
+  //         options: metadataOptions[metadataKey]
+  //       })
+  //     })
+  //     setFilterOptions(options);
+  //   })
+  // }, [])
 
   return (
     <main className="mx-auto max-w-7xl px-4 mt-8 sm:px-6 lg:px-8 mb-8">
@@ -218,7 +203,6 @@ export default function Users() {
                       setHasNoUsers(users.length === 0)
                       setLastPageNum(total_pages)
                     }}
-                    selectedFilters={selectedFilters}
                   />
                 </table>
                 {!hasNoUsers && (
