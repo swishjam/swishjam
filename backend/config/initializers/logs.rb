@@ -1,0 +1,1 @@
+Rails.logger.info "Booting app in #{Rails.env} (has staging ENV flag? #{ENV['IS_STAGING'] ? 'YES' : 'NO'}) environment..."
