@@ -422,7 +422,7 @@ describe Ingestion::EventPreparers::UserIdentifyHandler do
       expect(new_user_profile.metadata['last_name']).to eq('Dawg')
       expect(new_user_profile.metadata['phone_number']).to eq('0987654321')
       expect(new_user_profile.metadata['subscription_plan']).to eq('pro')
-      expect(new_user_profile.metadata['initial_landing_page_url']).to eq('https://swishjam.com/landing-page-the-anonymous-user-landed-on')
+      expect(new_user_profile.metadata[AnalyticsUserProfile::ReservedMetadataProperties.INITIAL_LANDING_PAGE_URL]).to eq('https://swishjam.com/landing-page-the-anonymous-user-landed-on')
 
       expect(workspace.analytics_user_profile_devices.first.device_fingerprint).to eq('123')
       expect(workspace.analytics_user_profile_devices.first.swishjam_cookie_value).to eq('abc')
@@ -438,7 +438,7 @@ describe Ingestion::EventPreparers::UserIdentifyHandler do
       expect(event.sanitized_properties['last_name']).to eq('Dawg')
       expect(event.sanitized_properties['phone_number']).to eq('0987654321')
       expect(event.sanitized_properties['subscription_plan']).to eq('pro')
-      expect(event.sanitized_properties['initial_landing_page_url']).to eq('https://swishjam.com/landing-page-the-identified-user-landed-on')
+      expect(event.sanitized_properties[AnalyticsUserProfile::ReservedMetadataProperties.INITIAL_LANDING_PAGE_URL]).to eq('https://swishjam.com/landing-page-the-identified-user-landed-on')
       expect(event.sanitized_properties.keys.count).to eq(6)
 
       expect(event.user_properties['unique_identifier']).to eq('a-new-user-unique-identifier')
@@ -447,7 +447,7 @@ describe Ingestion::EventPreparers::UserIdentifyHandler do
       expect(event.user_properties['last_name']).to eq('Dawg')
       expect(event.user_properties['phone_number']).to eq('0987654321')
       expect(event.user_properties['subscription_plan']).to eq('pro')
-      expect(event.user_properties['initial_landing_page_url']).to eq('https://swishjam.com/landing-page-the-anonymous-user-landed-on')
+      expect(event.user_properties[AnalyticsUserProfile::ReservedMetadataProperties.INITIAL_LANDING_PAGE_URL]).to eq('https://swishjam.com/landing-page-the-anonymous-user-landed-on')
       expect(event.user_properties.keys.count).to eq(7)
 
       expect(previous_owner.reload.merged_into_analytics_user_profile_id).to eq(new_user_profile.id)

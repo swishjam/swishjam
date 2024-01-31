@@ -2,8 +2,11 @@ module Ingestion
   class ProfileMerger
     class InvalidMergeError < StandardError; end;
     attr_accessor :previous_profile, :new_profile
-    # make sure these are string values, because a profile's .metadata is always JSON string keys
-    METADATA_THAT_PERSISTS_FROM_PREVIOUS_PROFILE = %w[initial_landing_page_url initial_referrer_url]
+
+    METADATA_THAT_PERSISTS_FROM_PREVIOUS_PROFILE = [
+      AnalyticsUserProfile::ReservedMetadataProperties.INITIAL_LANDING_PAGE_URL, 
+      AnalyticsUserProfile::ReservedMetadataProperties.INITIAL_REFERRER_URL,
+    ]
 
     def initialize(previous_profile:, new_profile:)
       @previous_profile = previous_profile

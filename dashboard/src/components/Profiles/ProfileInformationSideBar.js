@@ -91,8 +91,8 @@ export default function ProfileInformationSideBar({ userData, hasStripeIntegrati
                 />
                 <EnrichedDataItem
                   title='Initial Landing Page'
-                  enrichmentData={{ initial_url: userData.metadata.initial_landing_page_url }}
-                  enrichmentKey='initial_url'
+                  enrichmentData={{ initial_landing_page_url: userData.metadata.initial_landing_page_url }}
+                  enrichmentKey='initial_landing_page_url'
                   formatter={url => (
                     <Tooltipable content={url}>
                       <a

@@ -1,4 +1,20 @@
 class AnalyticsUserProfile < Transactional
+  class ReservedMetadataProperties
+    class << self
+      PROPERTY_NAMES = %i[INITIAL_LANDING_PAGE_URL INITIAL_REFERRER_URL]
+      
+      def all
+        PROPERTY_NAMES
+      end
+
+      PROPERTY_NAMES.each do |property_name|
+        define_method(property_name) do
+          property_name.to_s.downcase
+        end
+      end
+    end
+  end
+  
   belongs_to :workspace
   has_one :user_profile_enrichment_data, class_name: UserProfileEnrichmentData.to_s, dependent: :destroy
   alias_attribute :enrichment_data, :user_profile_enrichment_data
@@ -73,7 +89,6 @@ class AnalyticsUserProfile < Transactional
   end
 
   def enqueue_replication_to_clickhouse
-    byebug
     Ingestion::QueueManager.push_records_into_queue(Ingestion::QueueManager::Queues.CLICK_HOUSE_USER_PROFILES, formatted_for_clickhouse_replication)
   end
   
