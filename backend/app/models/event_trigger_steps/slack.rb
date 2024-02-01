@@ -24,7 +24,7 @@ module EventTriggerSteps
         JSON.parse(event['properties'] || '{}')[$1] || match
       end
       if as_test
-        parsed_message_body = "_:test_tube: This is a test message and was not actually triggered by a real event:_\n\n #{parsed_message_body}"
+        parsed_message_body = "#{parsed_message_body} \n\n _:test_tube: This is a test message and was not actually triggered by a real event:_"
       end
       slack_client.post_message_to_channel(
         channel: channel_id, 

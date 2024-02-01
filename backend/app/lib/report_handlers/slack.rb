@@ -15,7 +15,12 @@ module ReportHandlers
 
     def send_report
       slack_client = ::Slack::Client.new(@report.workspace.slack_connection.access_token)
-      slack_client.post_message_to_channel(channel: @report.slack_channel_id, blocks: slack_block_content)
+      slack_client.post_message_to_channel(
+        channel: @report.slack_channel_id, 
+        unfurl_links: false,
+        unfurl_media: false,
+        blocks: slack_block_content
+      )
 
       triggered_report_payload = {}
       if @report.config['sections'].map { |section| section['type'] }.include?('web')

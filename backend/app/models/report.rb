@@ -30,6 +30,8 @@ class Report < Transactional
     slack_client = ::Slack::Client.new(access_token)
     slack_client.post_message_to_channel(
       channel: slack_channel_id,
+      unfurl_links: false,
+      unfurl_media: false,
       blocks: [
         {
           "type": "section",
