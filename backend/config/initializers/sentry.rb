@@ -12,4 +12,8 @@ Sentry.init do |config|
   config.profiles_sample_rate = (ENV['SENTRY_PROFILE_SAMPLE_RATE'] || 0.2).to_f
 
   config.release = SWISHJAM_VERSION
+
+  if ENV['IS_STAGING']
+    config.environment = 'staging'
+  end
 end
