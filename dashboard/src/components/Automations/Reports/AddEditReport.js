@@ -124,7 +124,7 @@ export default function AddEditReport({
       msg += slackMessageHeaderMonthly;
     }
 
-    form.getValues('config.sections').map((sec) => {
+    (form.getValues('config.sections') || []).map((sec) => {
       if (sec.type == 'web') {
         msg += reportWebSection
       }
