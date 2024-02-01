@@ -115,7 +115,7 @@ export default function AddEditReport({
     const reportProductSection = '**🧑‍💻 Product Analytics:**\n\n↔️ Daily Active Users: 500\n\n📉 Sessions: 340\n\n📈 New Users: 456\n\n';
     const reportRevenueSection = '**🧑‍💻 Revenue Analytics:**\n\n↔️ MRR: $1,500\n\n📉 Active Subscriptions: 56\n\n📈 Churn: $456\n\n';
     let msg = ''
-    let currentCadence = form.getValues('cadence') 
+    let currentCadence = form.getValues('cadence')
     if (currentCadence == 'daily') {
       msg += slackMessageHeaderDaily;
     } else if (currentCadence == 'weekly') {
@@ -146,7 +146,7 @@ export default function AddEditReport({
         <FormInputOrLoadingState isLoading={isAwaitingRenderData} className='h-72'>
           <ScrollArea className="max-h-96 overflow-y-scroll border border-gray-200 rounded-md bg-white">
             <SlackMessagePreview
-              header={form.getValues('cadence')+' Update'}
+              header={form.getValues('cadence') + ' Update'}
               body={<MessageBodyMarkdownRenderer body={mkdPreview} />}
               className={'border-0'}
             />
@@ -331,7 +331,7 @@ export default function AddEditReport({
             <Button
               className={`!mt-6 w-full flex items-center justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white focus:outline-none focus:ring-2 ${loading ? 'bg-swishjam-dark' : 'bg-swishjam'} hover:bg-swishjam-dark`}
               type="submit"
-              disabled={loading || form.getValues('config.sections').length == 0}
+              disabled={loading || (form.getValues('config.sections') || []).length == 0}
             >
               {loading ? <LoadingSpinner color="white" /> : `${reportId ? 'Save' : 'Create'} Report`}
             </Button>
