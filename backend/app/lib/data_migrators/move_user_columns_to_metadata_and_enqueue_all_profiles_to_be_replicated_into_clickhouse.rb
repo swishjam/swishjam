@@ -1,6 +1,6 @@
-namespace :data_migrations do
-  namespace :temporary do
-    task move_user_name_columns_to_metadata_and_enqueue_into_clickhouse: :environment do
+module DataMigrators
+  class MoveUserColumnsToMetadataAndEnqueueAllProfilesToBeReplicatedIntoClickhouse
+    def self.run!
       ActiveRecord::Base.logger.silence do
         start = Time.current
         users_to_update = AnalyticsUserProfile.where.not(first_name: nil)

@@ -1,5 +1,7 @@
 class CleanUserProfilesTable < ActiveRecord::Migration[6.1]
   def up
+    # AFTER RUNNING THIS MIGRATION, `swishjam_user_profiles` WILL BE EMPTY
+    # RUN THE `MoveUserColumnsToMetadataAndEnqueueIntoClickhouse` DATA MIGRATOR TO POPULATE `swishjam_user_profiles` WITH THE DATA FROM Postgres with the correct fields / metadata
     execute <<~SQL
       CREATE TABLE new_swishjam_user_profiles (
         `workspace_id` LowCardinality(String),
