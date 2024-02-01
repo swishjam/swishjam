@@ -1,13 +1,19 @@
 "on":
-  pull_request:
+  push:
     branches:
     - main
-    types:
-    - opened
-    - synchronize
     paths:
     - '**'
     - '!.github/workflows/porter_**'
+  # pull_request:
+  #   branches:
+  #   - main
+  #   types:
+  #   - opened
+  #   - synchronize
+  #   paths:
+  #   - '**'
+  #   - '!.github/workflows/porter_**'
     
 name: Deploy to Preview Environment
 jobs:
