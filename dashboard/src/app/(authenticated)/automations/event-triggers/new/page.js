@@ -186,6 +186,23 @@ export default function NewEventTrigger() {
             header={form.watch('header')}
             body={<MessageBodyMarkdownRenderer body={form.watch('body')} availableEventOptions={propertyOptionsForSelectedEvent} />}
           />
+          <h2 className="text-sm font-medium text-gray-700 mb-2 mt-4">Slack Formatting Reference</h2>
+          <div className="border border-zinc-200 shadow-sm bg-white rounded-md p-4">
+            
+          <p className="text-sm font-medium">Links</p>
+          <p className="text-sm mt-1">
+            Format:
+            <span className="ml-1 text-sm px-1.5 py-0.5 border border-zinc-200 bg-accent rounded-sm">{"<{your link}|Displayed text>"}</span>
+          </p>
+          <p className="text-sm py-1.5">
+            Example:
+            <span className="ml-1 text-sm px-1.5 py-0.5 border border-zinc-200 bg-accent rounded-sm">{"<https://swishjam.com/integrations|Integrations>"}</span>
+          </p>
+          <p className="text-sm">
+            Result: 
+            <a className="ml-1 underline hover:text-blue-400" href="https://swishjam.com/integrations">Integrations</a> 
+          </p>
+          </div> 
         </div>
         <div>
           <Form {...form}>
@@ -240,7 +257,7 @@ export default function NewEventTrigger() {
                       className='bg-white px-6 py-6 border-2 border-gray-200 border-dashed mt-2 rounded-md text-center text-gray-400 text-sm cursor-pointer duration-500 transition-all hover:border-swishjam hover:text-swishjam'
                     >
                       <LuPlus size="24" className='mx-auto mb-4' />
-                      Add Trigger Condition
+                      New Trigger Condition
                     </div>
                   )}
                   {conditionalStatementsFieldArray.fields.length > 0 && (
