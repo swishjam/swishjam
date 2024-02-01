@@ -4,7 +4,7 @@
     - main
     paths:
     - '**'
-    - '!.github/workflows/porter_**'
+    # - '!.github/workflows/porter_**'
   # pull_request:
   #   branches:
   #   - main
