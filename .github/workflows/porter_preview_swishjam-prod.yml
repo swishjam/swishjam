@@ -9,7 +9,6 @@ name: Deploy to Preview Environment
 jobs:
   porter-deploy:
     runs-on: ubuntu-latest
-    if: ${{ startsWith(github.head_ref, 'staging') }}
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
