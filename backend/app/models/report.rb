@@ -6,7 +6,7 @@ class Report < Transactional
   validates :cadence, presence: true, inclusion: { in: %w(daily weekly monthly) }
   validates :sending_mechanism, presence: true, inclusion: { in: %w(slack email sms) }
   validates :config, presence: true
-  validate :slack_channel_id_is_present_if_slack
+  validate :has_valid_config_values
 
   scope :enabled, -> { where(enabled: true) }
   scope :disabled, -> { where(enabled: false) }
@@ -44,9 +44,11 @@ class Report < Transactional
     )
   end
 
-  def slack_channel_id_is_present_if_slack
+  def has_valid_config_values
     if sending_mechanism == 'slack' && config && slack_channel_id.blank?
       errors.add(:config, '`slack_channel_id` is required')
+    elsif sending_mechanism == 'slack' && config && (config['sections'] || []).any?{ |s| !['web', 'product', 'revenue'].include?(s['type']) }
+      errors.add(:config, 'Invalid `sections` config, must be one of: "web", "product", or "revenue".')
     end
   end
 end

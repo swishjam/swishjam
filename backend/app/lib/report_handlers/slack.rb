@@ -113,10 +113,13 @@ module ReportHandlers
       elsif section_type == 'revenue'
         [
           slack_mkdwn(":bank: *Revenue Analytics:*"),
+          # results_section("New MRR", revenue_analytics_calculator.new_mrr_for_period, revenue_analytics_calculator.new_mrr_for_previous_period, formatter: -> (mrr) { ActionController::Base.helpers.number_to_currency(mrr / 100) }),
+          results_section("Current MRR", revenue_analytics_calculator.current_mrr, revenue_analytics_calculator.mrr_for_previous_period, formatter: -> (mrr) { ActionController::Base.helpers.number_to_currency(mrr / 100) }),
           results_section("New Subscriptions", revenue_analytics_calculator.num_new_subscriptions_for_period, revenue_analytics_calculator.num_new_subscriptions_for_previous_period),
-          results_section("New MRR", revenue_analytics_calculator.new_mrr_for_period, revenue_analytics_calculator.new_mrr_for_previous_period, formatter: -> (mrr) { ActionController::Base.helpers.number_to_currency(mrr / 100) }),
           results_section("Churned MRR", revenue_analytics_calculator.churned_mrr_for_period, revenue_analytics_calculator.churned_mrr_for_previous_period, formatter: -> (mrr) { ActionController::Base.helpers.number_to_currency(mrr / 100) }),
         ]
+      else
+        Sentry.capture_message("Invalid section type when sending report, ignoring... #{section_type}")
       end
     end
 

@@ -7,6 +7,39 @@ describe ReportHandlers::MetricsCalculators::RevenueAnalytics do
     @public_key = @api_key.public_key
   end
 
+  describe '#current_mrr' do
+    it 'returns the MRR closest to the end of the current period' do
+      current_period_end_date = 1.day.ago
+      current_period_start_date = current_period_end_date - 1.week
+      previous_period_end_date = current_period_start_date
+      previous_period_start_date = previous_period_end_date - 1.week
+      Analytics::BillingDataSnapshot.insert_all!([
+        # current period closest MRR:
+        { swishjam_api_key: @public_key, mrr_in_cents: 1_000, captured_at: current_period_end_date },
+        # older than ^ but still in the current period, so it's not the closest mrr:
+        { swishjam_api_key: @public_key, mrr_in_cents: 1_000_000_000, captured_at: current_period_end_date - 1.minute },
+        # greater than current period end date:
+        { swishjam_api_key: @public_key, mrr_in_cents: 1_000_000_000, captured_at: current_period_end_date + 1.minute },
+        # previous period closest MRR:
+        { swishjam_api_key: @public_key, mrr_in_cents: 500, captured_at: previous_period_end_date },
+        # older than ^ but still in the previous period, so it's not the closest mrr:
+        { swishjam_api_key: @public_key, mrr_in_cents: 500_000_000, captured_at: previous_period_end_date - 1.minute },
+        # greater than the previous period end date:
+        { swishjam_api_key: @public_key, mrr_in_cents: 500_000_000, captured_at: previous_period_end_date + 1.minute },
+      ])
+
+      calculator = described_class.new(
+        @public_key,
+        current_period_start_date: current_period_start_date,
+        current_period_end_date: current_period_end_date,
+        previous_period_start_date: previous_period_start_date,
+        previous_period_end_date: previous_period_end_date
+      )
+      expect(calculator.current_mrr).to eq(1_000)
+      expect(calculator.mrr_for_previous_period).to eq(500)
+    end
+  end
+
   describe '#new_mrr_for_period' do
     it 'calculates the amount of new MRR for this and the previous period' do
       insert_events_into_click_house!(public_key: @public_key, name: StripeHelpers::SupplementalEvents::NewActiveSubscription.EVENT_NAME) do
