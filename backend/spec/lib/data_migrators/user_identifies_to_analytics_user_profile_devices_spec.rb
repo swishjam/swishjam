@@ -25,7 +25,13 @@ describe DataMigrators::UserIdentifiesToAnalyticsUserProfileDevices do
         { uuid: SecureRandom.uuid, swishjam_api_key: workspace_2.api_keys.first.public_key, swishjam_user_id: user_4.id, device_identifier: 'device3', occurred_at: one_day_ago, ingested_at: one_day_ago },
       ])
 
-      DataMigrators::UserIdentifiesToAnalyticsUserProfileDevices.run!
+      og_user_identify_events = Analytics::ClickHouseRecord.execute_sql('SELECT * FROM user_identify_events ORDER BY occurred_at')
+
+      described_class.run!
+
+      user_identify_events_TEMP_records = Analytics::ClickHouseRecord.execute_sql('SELECT * FROM migrated_user_identify_events_TEMP ORDER BY occurred_at')
+      expect(user_identify_events_TEMP_records).to eq(og_user_identify_events)
+      expect(Analytics::UserIdentifyEvent.count).to eq(0)
 
       expect(AnalyticsUserProfileDevice.count).to eq(3)
       
@@ -43,6 +49,11 @@ describe DataMigrators::UserIdentifiesToAnalyticsUserProfileDevices do
       expect(device_3.analytics_user_profile_id).to eq(user_4.id)
       expect(device_3.workspace_id).to eq(workspace_2.id)
       expect(device_3.created_at).to be_within(1.second).of(one_day_ago)
+
+      # if we run it again, it should not insert any new records
+      described_class.run!
+
+      expect(AnalyticsUserProfileDevice.count).to eq(3)
     end
   end
 end

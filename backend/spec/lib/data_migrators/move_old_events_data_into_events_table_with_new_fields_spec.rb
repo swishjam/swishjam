@@ -82,7 +82,7 @@ describe DataMigrators::MoveOldEventsDataIntoEventsTableWithNewFields do
       expect(event_1.user_profile_id).to eq('user-1')
       expect(event_1.organization_profile_id).to eq('org-1')
       expect(JSON.parse(event_1.properties)['device_identifier']).to eq('device-123')
-      # this would get stripped during ingestion, but can't remove it in the query
+      # this would get stripped during ingestion, but don't believe we can remove JSON keys during the migration query
       expect(JSON.parse(event_1.properties)['organization_attributes']['organization_identifier']).to eq('org-1')
       expect(JSON.parse(event_1.user_properties)['unique_identifier']).to eq('unique-user-123')
       expect(JSON.parse(event_1.user_properties)['email']).to eq('jenny@swishjam.com')

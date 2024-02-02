@@ -20,10 +20,20 @@ module DataMigrators
           FROM user_identify_events AS uie
           GROUP BY swishjam_cookie_value
         SQL
+        
         devices_to_insert = Analytics::ClickHouseRecord.execute_sql(sql)
+        if devices_to_insert.empty?
+          puts "No `user_identify_events` records to migrate!".colorize(:green)
+          return
+        end
+        
+        puts "Inserting every `user_identify_events` record into temporary `migrated_user_identify_events_TEMP` and flushing all data from the table...".colorize(:yellow)
+        Analytics::ClickHouseRecord.execute_sql("INSERT INTO migrated_user_identify_events_TEMP SELECT * FROM user_identify_events", format: nil)
+        Analytics::ClickHouseRecord.execute_sql('TRUNCATE TABLE user_identify_events', format: nil)
+        
         puts "Inserting #{devices_to_insert.count} `analytics_user_profile_devices` into Postgres...".colorize(:yellow)
-
         AnalyticsUserProfileDevice.insert_all!(devices_to_insert)
+
         puts "Success!".colorize(:green)
         puts "Took #{Time.current - start} seconds".colorize(:grey)
       end

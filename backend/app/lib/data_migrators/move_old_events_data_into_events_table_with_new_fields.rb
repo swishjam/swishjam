@@ -1,12 +1,6 @@
 module DataMigrators
   class MoveOldEventsDataIntoEventsTableWithNewFields
     def self.run!
-      # IF (
-      #   empty(JSONExtractString(JSONExtractString(e.properties, 'organization_attributes'), 'organization_identifier')),
-      #   NULL,
-      #   JSONExtractString(JSONExtractString(e.properties, 'organization_attributes'), 'organization_identifier')
-      # ) AS organization_profile_id,
-
       sql = <<~SQL
         INSERT INTO events (
           uuid, 

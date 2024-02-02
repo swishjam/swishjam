@@ -1,7 +1,6 @@
 module DataMigrators
   class MigrateOldOrganizationProfilesIntoNewTable
     def self.run!
-      # TODO!
       execute <<~SQL
         INSERT INTO swishjam_organization_profiles (
           workspace_id,
@@ -26,6 +25,9 @@ module DataMigrators
           updated_at
         FROM old_swishjam_organization_profiles
       SQL
+      puts "Migrating old organization profiles into new orgazniations table...".colorize(:yellow)
+      Analytics::ClickHouseRecord.execute_sql(sql, format: nil)
+      puts "Success!".colorize(:green)
     end
   end
 end
