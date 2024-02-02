@@ -35,7 +35,7 @@ module ReportHandlers
 
       def mrr_closest_to_date_without_going_over(date)
         snapshot = nil
-        mrr_snapshots_for_end_of_previous_period_to_end_of_current_period.sort_by { |snap| snap['captured_at'] }.each do |mrr_snapshot|
+        mrr_snapshots_for_end_of_previous_period_to_end_of_current_period.each do |mrr_snapshot|
           break if mrr_snapshot['captured_at'].to_datetime > date.to_datetime
           snapshot = mrr_snapshot
         end
@@ -49,7 +49,7 @@ module ReportHandlers
           # a buffer just in case there isn't a snapshot for that exact time
           start_time: previous_period_end_date - 2.days, 
           end_time: current_period_end_date
-        ).get
+        ).get.sort_by { |snap| snap['captured_at'] }
       end
     end
   end
