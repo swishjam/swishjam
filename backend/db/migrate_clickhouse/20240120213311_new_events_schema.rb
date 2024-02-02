@@ -9,6 +9,7 @@ class NewEventsSchema < ActiveRecord::Migration[6.1]
         `organization_profile_id` Nullable(String),
         `properties` String,
         `user_properties` String,
+        `organization_properties` String,
         `ingested_at` DateTime64(3, 'UTC') DEFAULT now(),
         `occurred_at` DateTime64(3, 'UTC'),
       )

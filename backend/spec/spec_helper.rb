@@ -19,12 +19,14 @@ RSpec.configure do |config|
   def _flush_clickhouse_data!
     ActiveRecord::Base.logger.silence do
       Analytics::ClickHouseRecord.connection.tables.excluding('schema_migrations', 'ar_internal_metadata').each do |table|
-        if ['revenue_monthly_retention_periods', 'swishjam_user_profiles'].include?(table)
+        if ['revenue_monthly_retention_periods', 'swishjam_user_profiles', 'swishjam_organization_profiles'].include?(table)
           Analytics::ClickHouseRecord.execute_sql("DELETE FROM #{table} WHERE workspace_id IS NOT NULL", format: nil)
         else
           Analytics::ClickHouseRecord.execute_sql("DELETE FROM #{table} WHERE swishjam_api_key IS NOT NULL", format: nil)
         end
         Analytics::ClickHouseRecord.execute_sql("OPTIMIZE TABLE #{table} FINAL", format: nil)
+      rescue => e
+        byebug
       end
     end
   end

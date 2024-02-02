@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe DataMigrators::MoveUserColumnsToMetadataAndEnqueueIntoClickhouse do
+describe DataMigrators::MoveUserColumnsToMetadataAndEnqueueAllProfilesToBeReplicatedIntoClickhouse do
   describe '#run!' do
     it 'updates the metadata of all users in Postgres with their first_name, last_name, initial_landing_page_url, and initial_referrer_url and enqueues them into ClickHouse' do
       workspace = FactoryBot.create(:workspace)
