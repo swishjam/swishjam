@@ -30,6 +30,7 @@ module ClickHouseQueries
           WHERE
             swishjam_api_key IN #{formatted_in_clause(@public_keys)} AND
             captured_at BETWEEN '#{formatted_time(@start_time)}' AND '#{formatted_time(@end_time)}'
+          ORDER BY captured_at
         SQL
       end
     end

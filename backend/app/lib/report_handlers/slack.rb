@@ -135,7 +135,11 @@ module ReportHandlers
     end
 
     def results_section(title, current_period_result, previous_period_result, formatter: -> (val) { val })
-      slack_mkdwn("#{emoji_for_comparison(current_period_result, previous_period_result)} *#{title}:* #{formatter.call(current_period_result)} (#{formatted_percent_diff(current_period_result, previous_period_result)} vs #{comparison_display_date})")
+      if previous_period_result.nil?
+        slack_mkdwn("#{emoji_for_comparison(current_period_result, current_period_result)} *#{title}:* #{formatter.call(current_period_result)}")
+      else
+        slack_mkdwn("#{emoji_for_comparison(current_period_result, previous_period_result)} *#{title}:* #{formatter.call(current_period_result)} (#{formatted_percent_diff(current_period_result, previous_period_result)} vs #{comparison_display_date})")
+      end
     end
 
     def emoji_for_comparison(new_value, old_value)

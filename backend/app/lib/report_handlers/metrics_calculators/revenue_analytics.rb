@@ -35,11 +35,11 @@ module ReportHandlers
 
       def mrr_closest_to_date_without_going_over(date)
         snapshot = nil
-        mrr_snapshots_for_end_of_previous_period_to_end_of_current_period.each do |mrr_snapshot|
+        mrr_snapshots_for_end_of_previous_period_to_end_of_current_period.sort_by { |snap| snap['captured_at'] }.each do |mrr_snapshot|
           break if mrr_snapshot['captured_at'].to_datetime > date.to_datetime
           snapshot = mrr_snapshot
         end
-        snapshot['mrr_in_cents']
+        (snapshot || {})['mrr_in_cents']
       end
 
       def mrr_snapshots_for_end_of_previous_period_to_end_of_current_period
