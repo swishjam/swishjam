@@ -14,7 +14,7 @@ module Api
               occurred_at: e.created,
               properties: e.as_json,
             )
-            Ingestion::PrepareEventsAndEnqueueIntoClickHouseWriterJob.perform_async([event_to_prepare])
+            IngestionJobs::PrepareEventsAndEnqueueIntoClickHouseWriter.perform_async([event_to_prepare])
           end
           render json: {}, status: :ok
         end

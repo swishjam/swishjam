@@ -1,17 +1,7 @@
 require 'sidekiq/web'
+require 'sidekiq/api'
 
 Rails.application.routes.draw do
-  Sidekiq::Web.use Rack::Auth::Basic do |username, password|
-    # Protect against timing attacks:
-    # - See https://codahale.com/a-lesson-in-timing-attacks/
-    # - See https://thisdata.com/blog/timing-attacks-against-string-comparison/
-    # - Use & (do not use &&) so that it doesn't short circuit.
-    # - Use digests to stop length information leaking (see also ActiveSupport::SecurityUtils.variable_size_secure_compare)
-    ActiveSupport::SecurityUtils.secure_compare(::Digest::SHA256.hexdigest(username), ::Digest::SHA256.hexdigest(ENV["SIDEKIQ_USERNAME"])) &
-      ActiveSupport::SecurityUtils.secure_compare(::Digest::SHA256.hexdigest(password), ::Digest::SHA256.hexdigest(ENV["SIDEKIQ_PASSWORD"]))
-  end if Rails.env.production?
-  mount Sidekiq::Web => '/sidekiq'
-
   post '/auth/register' => 'users#create'
   post '/auth/login' => 'sessions#create'
   post '/auth/logout' => 'sessions#destroy'
@@ -279,4 +269,25 @@ Rails.application.routes.draw do
       end
     end
   end
+
+  ####################
+  ## SIDEKIQ ROUTES ##
+  ####################
+  Sidekiq::Web.use Rack::Auth::Basic do |username, password|
+    ActiveSupport::SecurityUtils.secure_compare(::Digest::SHA256.hexdigest(password), ::Digest::SHA256.hexdigest(ENV["SIDEKIQ_PASSWORD"]))
+  end if Rails.env.production?
+  mount Sidekiq::Web => '/sidekiq'
+  match "queues/status" => proc {
+    [
+      200, 
+      {"Content-Type" => "text/plain"}, 
+      [
+        Hash.new.tap do |h|
+          Sidekiq::Queue.all.each do |q|
+            h[q.name] = { size: q.size, latency: q.latency }
+          end
+        end.to_json
+      ]
+    ] 
+  }, via: :get
 end

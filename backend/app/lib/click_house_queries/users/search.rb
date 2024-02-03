@@ -3,7 +3,7 @@ module ClickHouseQueries
     class Search
       include ClickHouseQueries::Helpers
 
-      def initialize(workspace_id, query:, limit: 10, columns: ['swishjam_user_id', 'email', 'full_name', 'gravatar_url', 'created_at'])
+      def initialize(workspace_id, query:, limit: 10, columns: ['swishjam_user_id', 'email', 'created_at'])
         @workspace_id = workspace_id.is_a?(Workspace) ? workspace_id.id : workspace_id
         @query = query.downcase
         @limit = limit

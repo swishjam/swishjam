@@ -1,5 +1,5 @@
-module Ingestion
-  class PrepareEventsAndEnqueueIntoClickHouseWriterJob
+module IngestionJobs
+  class PrepareEventsAndEnqueueIntoClickHouseWriter
     include Sidekiq::Worker
     queue_as :format_events_queue
 

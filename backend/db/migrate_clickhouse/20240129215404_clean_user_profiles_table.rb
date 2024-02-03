@@ -9,7 +9,6 @@ class CleanUserProfilesTable < ActiveRecord::Migration[6.1]
         `merged_into_swishjam_user_id` Nullable(String),
         `user_unique_identifier` Nullable(String),
         `email` Nullable(String),
-        `gravatar_url` Nullable(String),
         `metadata` String,
         `created_by_data_source` LowCardinality(String),
         `first_seen_at_in_web_app` Nullable(DateTime),

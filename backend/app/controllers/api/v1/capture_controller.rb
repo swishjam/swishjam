@@ -40,7 +40,7 @@ module Api
           return
         end
 
-        Ingestion::PrepareEventsAndEnqueueIntoClickHouseWriterJob.perform_async(events)
+        IngestionJobs::PrepareEventsAndEnqueueIntoClickHouseWriter.perform_async(events)
         render json: { message: 'ok' }, status: :ok
       rescue => e
         Sentry.capture_exception(e)
@@ -79,7 +79,7 @@ module Api
           )
         end
         # Ingestion::QueueManager.push_records_into_queue(Ingestion::QueueManager::Queues.EVENTS, events)
-        Ingestion::PrepareEventsAndEnqueueIntoClickHouseWriterJob.perform_async(events)
+        IngestionJobs::PrepareEventsAndEnqueueIntoClickHouseWriter.perform_async(events)
         render json: { message: 'ok' }, status: :ok
       rescue => e
         Sentry.capture_exception(e)

@@ -13,19 +13,23 @@ module DataMigrators
             jsonb_set(
               jsonb_set(
                 jsonb_set(
-                  metadata, 
-                  '{first_name}', to_jsonb(first_name::text)
+                  jsonb_set(
+                    metadata, 
+                    '{first_name}', to_jsonb(first_name::text)
+                  ),
+                  '{last_name}', to_jsonb(last_name::text)
                 ),
-                '{last_name}', to_jsonb(last_name::text)
+                '{initial_landing_page_url}', to_jsonb(#{AnalyticsUserProfile::ReservedMetadataProperties.INITIAL_LANDING_PAGE_URL}::text)
               ),
-              '{initial_landing_page_url}', to_jsonb(#{AnalyticsUserProfile::ReservedMetadataProperties.INITIAL_LANDING_PAGE_URL}::text)
+              '{initial_referrer_url}', to_jsonb(#{AnalyticsUserProfile::ReservedMetadataProperties.INITIAL_REFERRER_URL}::text)
             ),
-            '{initial_referrer_url}', to_jsonb(#{AnalyticsUserProfile::ReservedMetadataProperties.INITIAL_REFERRER_URL}::text)
+            '{gravatar_url}', to_jsonb(#{AnalyticsUserProfile::ReservedMetadataProperties.GRAVATAR_URL}::text)
           ), 
           first_name = NULL, 
           last_name = NULL,
           initial_landing_page_url = NULL,
-          initial_referrer_url = NULL
+          initial_referrer_url = NULL,
+          gravatar_url = NULL
         SQL
         users_to_update.update_all(update_sql)
 

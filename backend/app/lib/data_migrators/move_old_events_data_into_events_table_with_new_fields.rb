@@ -25,9 +25,17 @@ module DataMigrators
               NULL,
               user_profiles.swishjam_user_id
             ),
-            JSONExtractString(e.properties, 'user_profile_id')
+            IF (
+              empty(JSONExtractString(e.properties, 'user_profile_id')),
+              NULL,
+              JSONExtractString(e.properties, 'user_profile_id')
+            )
           ) AS user_profile_id,
-          organization_profiles.swishjam_organization_id AS organization_profile_id,
+          IF( 
+            empty(organization_profiles.swishjam_organization_id),
+            NULL,
+            organization_profiles.swishjam_organization_id
+          ) AS organization_profile_id,
           e.properties AS properties,
           IF(
             empty(user_profiles.swishjam_user_id),

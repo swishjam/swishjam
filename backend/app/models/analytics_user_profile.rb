@@ -1,7 +1,7 @@
 class AnalyticsUserProfile < Transactional
   class ReservedMetadataProperties
     class << self
-      PROPERTY_NAMES = %i[INITIAL_LANDING_PAGE_URL INITIAL_REFERRER_URL]
+      PROPERTY_NAMES = %i[INITIAL_LANDING_PAGE_URL INITIAL_REFERRER_URL GRAVATAR_URL]
       
       def all
         PROPERTY_NAMES
@@ -32,11 +32,16 @@ class AnalyticsUserProfile < Transactional
   scope :anonymous, -> { where(user_unique_identifier: nil, email: nil) }
   scope :identified, -> { where.not(user_unique_identifier: nil).or(where.not(email: nil)) }
 
-  # after_create :try_to_set_gravatar_url
   before_create :try_to_set_gravatar_url
   after_create :enrich_profile!
   after_create :enqueue_replication_to_clickhouse
   after_update :enqueue_replication_to_clickhouse
+
+  ReservedMetadataProperties.all.each do |property_name|
+    define_method(property_name.to_s.downcase) do
+      metadata[property_name.to_s.downcase]
+    end
+  end
 
   def self.find_by_case_insensitive_email(email)
     where("lower(email) = ?", email.downcase).first
@@ -85,8 +90,7 @@ class AnalyticsUserProfile < Transactional
     url = "https://www.gravatar.com/avatar/#{Digest::MD5.hexdigest(email.downcase)}?d=404"
     response = HTTParty.get(url)
     return unless response.code == 200
-    self.gravatar_url = url
-    # update_column :gravatar_url, url
+    self.metadata.merge!(gravatar_url: url)
   end
 
   def enqueue_replication_to_clickhouse
@@ -102,7 +106,6 @@ class AnalyticsUserProfile < Transactional
       user_unique_identifier: user_unique_identifier,
       email: email,
       merged_into_swishjam_user_id: merged_into_analytics_user_profile_id,
-      gravatar_url: gravatar_url,
       created_by_data_source: created_by_data_source,
       metadata: (metadata || {}).to_json,
       first_seen_at_in_web_app: first_seen_at_in_web_app,

@@ -12,10 +12,6 @@ module Ingestion
       end
 
       def self.write_to_click_house!
-        if ENV['HAULT_ALL_INGESTION_JOBS'] || ENV["HAULT_#{self.QUEUE_NAME}_INGESTION"]
-          Sentry.capture_message("Haulting `#{self.to_s}` early because either `HAULT_ALL_INGESTION_JOBS` or `HAULT_#{self.QUEUE_NAME}_INGESTION` ENV is set to true. Ingestion will pick back up when these ENVs are unset.")
-          return
-        end
         new.write_to_click_house!
       end
 

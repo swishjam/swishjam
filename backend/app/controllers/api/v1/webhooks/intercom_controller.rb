@@ -25,7 +25,7 @@ module Api
             occurred_at: Time.at(params[:created_at]).to_datetime,
             properties: params.as_json,
           )
-          Ingestion::PrepareEventsAndEnqueueIntoClickHouseWriterJob.perform_async([formatted_event])
+          IngestionJobs::PrepareEventsAndEnqueueIntoClickHouseWriter.perform_async([formatted_event])
           render json: {}, status: :ok
         end
       end

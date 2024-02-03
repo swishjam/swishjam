@@ -26,7 +26,7 @@ module Api
             occurred_at: Time.current, # there are timestamps in each event but they are not consistent, using current time for now
             properties: params.as_json,
           )
-          Ingestion::PrepareEventsAndEnqueueIntoClickHouseWriterJob.perform_async([event_to_prepare])
+          IngestionJobs::PrepareEventsAndEnqueueIntoClickHouseWriter.perform_async([event_to_prepare])
         end
       end
     end

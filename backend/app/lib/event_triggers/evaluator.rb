@@ -7,7 +7,7 @@ module EventTriggers
     def enqueue_event_trigger_jobs_that_match_event(prepared_event)
       matching_triggers_json = matching_triggers_for_prepared_event(prepared_event)
       matching_triggers_json.each do |trigger_json|
-        Ingestion::TriggerEventTriggerJob.perform_async(trigger_json['trigger_id'], prepared_event.as_json)
+        IngestionJobs::TriggerEventTrigger.perform_async(trigger_json['trigger_id'], prepared_event.as_json)
       end
     end
 

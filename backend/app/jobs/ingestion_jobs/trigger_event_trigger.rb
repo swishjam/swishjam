@@ -1,5 +1,5 @@
-module Ingestion
-  class TriggerEventTriggerJob
+module IngestionJobs
+  class TriggerEventTrigger
     include Sidekiq::Job
     queue_as :event_triggers_queue
 

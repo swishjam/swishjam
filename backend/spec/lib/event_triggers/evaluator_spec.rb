@@ -28,7 +28,7 @@ describe EventTriggers::Evaluator do
         occurred_at: Time.current,
         properties: { a_key: 'a value!' }
       )
-      expect(Ingestion::TriggerEventTriggerJob).to receive(:perform_async).with(event_trigger.id, prepared_event.as_json).exactly(1).times
+      expect(IngestionJobs::TriggerEventTrigger).to receive(:perform_async).with(event_trigger.id, prepared_event.as_json).exactly(1).times
       
       evaluator = EventTriggers::Evaluator.new
       evaluator.enqueue_event_trigger_jobs_that_match_event(prepared_event)
