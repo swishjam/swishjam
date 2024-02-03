@@ -11,11 +11,11 @@ class CleanUserProfilesTable < ActiveRecord::Migration[6.1]
         `email` Nullable(String),
         `metadata` String,
         `created_by_data_source` LowCardinality(String),
-        `first_seen_at_in_web_app` Nullable(DateTime),
-        `last_seen_at_in_web_app` Nullable(DateTime),
-        `last_updated_from_transactional_db_at` Nullable(DateTime),
-        `created_at` DateTime,
-        `updated_at` DateTime
+        `first_seen_at_in_web_app` Nullable(DateTime('UTC')),
+        `last_seen_at_in_web_app` Nullable(DateTime('UTC')),
+        `last_updated_from_transactional_db_at` Nullable(DateTime('UTC')),
+        `created_at` DateTime('UTC'),
+        `updated_at` DateTime('UTC')
       )
       ENGINE = ReplacingMergeTree(updated_at)
       ORDER BY (workspace_id, swishjam_user_id)

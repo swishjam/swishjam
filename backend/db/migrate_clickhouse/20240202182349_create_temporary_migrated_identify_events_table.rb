@@ -6,8 +6,8 @@ class CreateTemporaryMigratedIdentifyEventsTable < ActiveRecord::Migration[6.1]
         `swishjam_api_key` LowCardinality(String),
         `device_identifier` String,
         `swishjam_user_id` String,
-        `occurred_at` DateTime,
-        `ingested_at` DateTime
+        `occurred_at` DateTime('UTC'),
+        `ingested_at` DateTime('UTC')
       ) 
       ENGINE = MergeTree()
       PRIMARY KEY (swishjam_api_key, device_identifier)

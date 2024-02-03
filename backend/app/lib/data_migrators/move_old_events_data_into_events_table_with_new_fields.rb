@@ -69,7 +69,11 @@ module DataMigrators
           ) AS user_properties, 
           IF (
             empty(organization_profiles.swishjam_organization_id),
-            '{}',
+            IF (
+              empty(JSONExtractString(e.properties, 'organization_attributes')),
+              '{}',
+              JSONExtractString(e.properties, 'organization_attributes')
+            ),
             concat(
               '{ "unique_identifier": "',
               organization_profiles.organization_unique_identifier,
@@ -79,8 +83,8 @@ module DataMigrators
               '" }'
             )
           ) AS organization_properties,
-          e.ingested_at AS ingested_at, 
-          e.occurred_at AS occurred_at
+          toString(e.ingested_at) AS ingested_at,
+          toString(e.occurred_at) AS occurred_at
         FROM old_events AS e
         LEFT JOIN (
           SELECT

@@ -8,9 +8,9 @@ class CleanUpOrganizationProfiles < ActiveRecord::Migration[6.1]
         `name` Nullable(String),
         `domain` Nullable(String),
         `metadata` String,
-        `last_updated_from_transactional_db_at` DateTime,
-        `created_at` DateTime,
-        `updated_at` DateTime
+        `last_updated_from_transactional_db_at` DateTime('UTC'),
+        `created_at` DateTime('UTC'),
+        `updated_at` DateTime('UTC')
       )
       ENGINE = ReplacingMergeTree(updated_at)
       ORDER BY (workspace_id, swishjam_organization_id)

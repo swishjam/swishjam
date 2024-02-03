@@ -349,7 +349,7 @@ export default function ProfileInformationSideBar({ userData, hasStripeIntegrati
                     {userData.metadata
                       ? (
                         Object.keys(userData.metadata)
-                          .filter(key => !['firstName', 'first_name', 'lastName', 'last_name', 'initial_landing_page_url', 'initial_referrer_url'].includes(key))
+                          .filter(key => !['name', 'firstName', 'first_name', 'lastName', 'last_name', 'initial_landing_page_url', 'initial_referrer_url', 'gravatar_url'].includes(key))
                           .map(key => <span className='block'>{key}: {userData.metadata[key]}</span>)
                       )
                       : 'No attributes provided.'}

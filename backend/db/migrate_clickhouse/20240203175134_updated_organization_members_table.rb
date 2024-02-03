@@ -6,7 +6,7 @@ class UpdatedOrganizationMembersTable < ActiveRecord::Migration[6.1]
         `workspace_id` LowCardinality(String),
         `swishjam_organization_id` String,
         `swishjam_user_id` String,
-        `created_at` DateTime
+        `created_at` DateTime('UTC')
       ) 
       ENGINE = MergeTree()
       PRIMARY KEY (workspace_id, swishjam_organization_id)

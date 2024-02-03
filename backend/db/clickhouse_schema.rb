@@ -47,7 +47,7 @@ ClickhouseActiverecord::Schema.define(version: 2024_02_03_175134) do
   end
 
   # TABLE: migrated_user_identify_events_TEMP
-  # SQL: CREATE TABLE swishjam_analytics_dev.migrated_user_identify_events_TEMP ( `uuid` String, `swishjam_api_key` LowCardinality(String), `device_identifier` String, `swishjam_user_id` String, `occurred_at` DateTime, `ingested_at` DateTime ) ENGINE = MergeTree PRIMARY KEY (swishjam_api_key, device_identifier) ORDER BY (swishjam_api_key, device_identifier) SETTINGS index_granularity = 8192
+  # SQL: CREATE TABLE swishjam_analytics_dev.migrated_user_identify_events_TEMP ( `uuid` String, `swishjam_api_key` LowCardinality(String), `device_identifier` String, `swishjam_user_id` String, `occurred_at` DateTime('UTC'), `ingested_at` DateTime('UTC') ) ENGINE = MergeTree PRIMARY KEY (swishjam_api_key, device_identifier) ORDER BY (swishjam_api_key, device_identifier) SETTINGS index_granularity = 8192
   create_table "migrated_user_identify_events_TEMP", id: false, options: "MergeTree PRIMARY KEY (swishjam_api_key, device_identifier) ORDER BY (swishjam_api_key, device_identifier) SETTINGS index_granularity = 8192", force: :cascade do |t|
     t.string "uuid", null: false
     t.string "swishjam_api_key", null: false
@@ -163,7 +163,7 @@ ClickhouseActiverecord::Schema.define(version: 2024_02_03_175134) do
   end
 
   # TABLE: swishjam_organization_members
-  # SQL: CREATE TABLE swishjam_analytics_dev.swishjam_organization_members ( `workspace_id` LowCardinality(String), `swishjam_organization_id` String, `swishjam_user_id` String, `created_at` DateTime ) ENGINE = MergeTree PRIMARY KEY (workspace_id, swishjam_organization_id) ORDER BY (workspace_id, swishjam_organization_id) SETTINGS index_granularity = 8192
+  # SQL: CREATE TABLE swishjam_analytics_dev.swishjam_organization_members ( `workspace_id` LowCardinality(String), `swishjam_organization_id` String, `swishjam_user_id` String, `created_at` DateTime('UTC') ) ENGINE = MergeTree PRIMARY KEY (workspace_id, swishjam_organization_id) ORDER BY (workspace_id, swishjam_organization_id) SETTINGS index_granularity = 8192
   create_table "swishjam_organization_members", id: false, options: "MergeTree PRIMARY KEY (workspace_id, swishjam_organization_id) ORDER BY (workspace_id, swishjam_organization_id) SETTINGS index_granularity = 8192", force: :cascade do |t|
     t.string "workspace_id", null: false
     t.string "swishjam_organization_id", null: false
@@ -172,7 +172,7 @@ ClickhouseActiverecord::Schema.define(version: 2024_02_03_175134) do
   end
 
   # TABLE: swishjam_organization_profiles
-  # SQL: CREATE TABLE swishjam_analytics_dev.swishjam_organization_profiles ( `workspace_id` LowCardinality(String), `swishjam_organization_id` String, `organization_unique_identifier` Nullable(String), `name` Nullable(String), `domain` Nullable(String), `metadata` String, `last_updated_from_transactional_db_at` DateTime, `created_at` DateTime, `updated_at` DateTime ) ENGINE = ReplacingMergeTree(updated_at) PRIMARY KEY workspace_id ORDER BY (workspace_id, swishjam_organization_id) SETTINGS index_granularity = 8192
+  # SQL: CREATE TABLE swishjam_analytics_dev.swishjam_organization_profiles ( `workspace_id` LowCardinality(String), `swishjam_organization_id` String, `organization_unique_identifier` Nullable(String), `name` Nullable(String), `domain` Nullable(String), `metadata` String, `last_updated_from_transactional_db_at` DateTime('UTC'), `created_at` DateTime('UTC'), `updated_at` DateTime('UTC') ) ENGINE = ReplacingMergeTree(updated_at) PRIMARY KEY workspace_id ORDER BY (workspace_id, swishjam_organization_id) SETTINGS index_granularity = 8192
   create_table "swishjam_organization_profiles", id: false, options: "ReplacingMergeTree(updated_at) PRIMARY KEY workspace_id ORDER BY (workspace_id, swishjam_organization_id) SETTINGS index_granularity = 8192", force: :cascade do |t|
     t.string "workspace_id", null: false
     t.string "swishjam_organization_id", null: false
@@ -186,7 +186,7 @@ ClickhouseActiverecord::Schema.define(version: 2024_02_03_175134) do
   end
 
   # TABLE: swishjam_user_profiles
-  # SQL: CREATE TABLE swishjam_analytics_dev.swishjam_user_profiles ( `workspace_id` LowCardinality(String), `swishjam_user_id` String, `merged_into_swishjam_user_id` Nullable(String), `user_unique_identifier` Nullable(String), `email` Nullable(String), `metadata` String, `created_by_data_source` LowCardinality(String), `first_seen_at_in_web_app` Nullable(DateTime), `last_seen_at_in_web_app` Nullable(DateTime), `last_updated_from_transactional_db_at` Nullable(DateTime), `created_at` DateTime, `updated_at` DateTime ) ENGINE = ReplacingMergeTree(updated_at) PRIMARY KEY (workspace_id, swishjam_user_id) ORDER BY (workspace_id, swishjam_user_id) SETTINGS index_granularity = 8192
+  # SQL: CREATE TABLE swishjam_analytics_dev.swishjam_user_profiles ( `workspace_id` LowCardinality(String), `swishjam_user_id` String, `merged_into_swishjam_user_id` Nullable(String), `user_unique_identifier` Nullable(String), `email` Nullable(String), `metadata` String, `created_by_data_source` LowCardinality(String), `first_seen_at_in_web_app` Nullable(DateTime('UTC')), `last_seen_at_in_web_app` Nullable(DateTime('UTC')), `last_updated_from_transactional_db_at` Nullable(DateTime('UTC')), `created_at` DateTime('UTC'), `updated_at` DateTime('UTC') ) ENGINE = ReplacingMergeTree(updated_at) PRIMARY KEY (workspace_id, swishjam_user_id) ORDER BY (workspace_id, swishjam_user_id) SETTINGS index_granularity = 8192
   create_table "swishjam_user_profiles", id: false, options: "ReplacingMergeTree(updated_at) PRIMARY KEY (workspace_id, swishjam_user_id) ORDER BY (workspace_id, swishjam_user_id) SETTINGS index_granularity = 8192", force: :cascade do |t|
     t.string "workspace_id", null: false
     t.string "swishjam_user_id", null: false

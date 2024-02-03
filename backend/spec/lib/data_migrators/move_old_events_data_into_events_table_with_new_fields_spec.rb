@@ -7,7 +7,7 @@ describe DataMigrators::MoveOldEventsDataIntoEventsTableWithNewFields do
         INSERT INTO old_events 
           (uuid, swishjam_api_key, name, properties, occurred_at, ingested_at) 
         VALUES 
-          ('1', 'swish-xyz', 'my_event', '{ "device_identifier": "device-123", "organization_attributes": { "organization_identifier": "org-1" }}', now(), now()),
+          ('1', 'swish-xyz', 'my_event', '{ "device_identifier": "device-123", "organization_attributes": { "organization_identifier": "org-1" }}', '2024-02-03 20:22:56', now()),
           ('2', 'swish-xyz', 'my_event', '{ "device_identifier": "device-124" }', now(), now()),
           ('3', 'swish-xyz', 'my_event', '{ "device_identifier": "device-125" }', now(), now()),
           ('4', 'swish-xyz', 'my_event', '{ "device_identifier": "device-126" }', now(), now()),
@@ -74,23 +74,24 @@ describe DataMigrators::MoveOldEventsDataIntoEventsTableWithNewFields do
 
       described_class.run!
 
-      all_events = Analytics::Event.all
+      all_events = Analytics::ClickHouseRecord.execute_sql('SELECT * FROM events')
       expect(all_events.count).to eq(10)
-      event_1 = all_events.find_by(uuid: '1')
-      expect(event_1.swishjam_api_key).to eq('swish-xyz')
-      expect(event_1.name).to eq('my_event')
-      expect(event_1.user_profile_id).to eq('user-1')
-      expect(event_1.organization_profile_id).to eq('org-1')
-      expect(JSON.parse(event_1.properties)['device_identifier']).to eq('device-123')
+      event_1 = all_events.find{ |e| e['uuid'] == '1' }
+      expect(event_1['swishjam_api_key']).to eq('swish-xyz')
+      expect(event_1['name']).to eq('my_event')
+      expect(event_1['occurred_at']).to eq('2024-02-03 20:22:56.000')
+      expect(event_1['user_profile_id']).to eq('user-1')
+      expect(event_1['organization_profile_id']).to eq('org-1')
+      expect(JSON.parse(event_1['properties'])['device_identifier']).to eq('device-123')
       # this would get stripped during ingestion, but don't believe we can remove JSON keys during the migration query
-      expect(JSON.parse(event_1.properties)['organization_attributes']['organization_identifier']).to eq('org-1')
-      expect(JSON.parse(event_1.user_properties)['unique_identifier']).to eq('unique-user-123')
-      expect(JSON.parse(event_1.user_properties)['email']).to eq('jenny@swishjam.com')
-      expect(JSON.parse(event_1.user_properties)['first_name']).to eq('Jenny')
-      expect(JSON.parse(event_1.user_properties)['last_name']).to eq('Rosen')
-      expect(JSON.parse(event_1.user_properties)['birthday']).to eq('11/07/1992')
-      expect(JSON.parse(event_1.user_properties)['initial_landing_page_url']).to eq('https://www.example.com')
-      expect(JSON.parse(event_1.user_properties)['initial_referrer_url']).to eq('https://www.google.com')
+      expect(JSON.parse(event_1['properties'])['organization_attributes']['organization_identifier']).to eq('org-1')
+      expect(JSON.parse(event_1['user_properties'])['unique_identifier']).to eq('unique-user-123')
+      expect(JSON.parse(event_1['user_properties'])['email']).to eq('jenny@swishjam.com')
+      expect(JSON.parse(event_1['user_properties'])['first_name']).to eq('Jenny')
+      expect(JSON.parse(event_1['user_properties'])['last_name']).to eq('Rosen')
+      expect(JSON.parse(event_1['user_properties'])['birthday']).to eq('11/07/1992')
+      expect(JSON.parse(event_1['user_properties'])['initial_landing_page_url']).to eq('https://www.example.com')
+      expect(JSON.parse(event_1['user_properties'])['initial_referrer_url']).to eq('https://www.google.com')
     end
   end
 end
