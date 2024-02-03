@@ -63,7 +63,7 @@ module DataMigrators
               '"initial_referrer_url": "',
               user_profiles.initial_referrer_url,
               '",',
-              substring(user_profiles.metadata, 2, length(user_profiles.metadata) - 2),
+              replace(replace(user_profiles.metadata, '{', ''), '}', ''),
               '}'
             )
           ) AS user_properties, 
