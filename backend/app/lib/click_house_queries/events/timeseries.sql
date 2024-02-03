@@ -13,8 +13,8 @@ FROM
       events AS e
     WHERE
       e.swishjam_api_key IN (
-        'public--swishjam_prdct-99dc835bf4e3d737',
-        'public--swishjam_web-e67ede260964f3f0'
+        'public--swishjam_prdct-2a05c41db68e102f',
+        'public--swishjam_web-acefdd8f2d89efa1'
       )
       AND e.occurred_at BETWEEN '2024-01-04 00:00:00' AND '2024-02-03 23:59:59'
     GROUP BY
@@ -27,3 +27,16 @@ GROUP BY
   group_by_date
 ORDER BY
   group_by_date
+SELECT
+  JSONExtractString (e.properties, 'session_identifier') AS distinct_count_field,
+  argMax (e.name, ingested_at) AS name,
+FROM
+  events AS e
+WHERE
+  e.swishjam_api_key IN (
+    'public--swishjam_prdct-2a05c41db68e102f',
+    'public--swishjam_web-acefdd8f2d89efa1'
+  )
+  AND e.occurred_at BETWEEN '2024-01-04 00:00:00' AND '2024-02-03 23:59:59'
+GROUP BY
+  distinct_count_field

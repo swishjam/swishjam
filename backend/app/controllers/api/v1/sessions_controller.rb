@@ -12,7 +12,7 @@ module Api
 
         timeseries = ClickHouseQueries::Events::Timeseries.new(
           public_keys_for_requested_data_source,
-          event: Analytics::Event::ReservedNames.PAGE_VIEW,
+          event: Analytics::Event::ReservedNames.ANY_EVENT,
           distinct_count_property: Analytics::Event::ReservedPropertyNames.SESSION_IDENTIFIER,
           start_time: start_timestamp,
           end_time: end_timestamp,
@@ -20,7 +20,7 @@ module Api
 
         comparison_timeseries = ClickHouseQueries::Events::Timeseries.new(
           public_keys_for_requested_data_source,
-          event: Analytics::Event::ReservedNames.PAGE_VIEW,
+          event: Analytics::Event::ReservedNames.ANY_EVENT,
           distinct_count_property: Analytics::Event::ReservedPropertyNames.SESSION_IDENTIFIER,
           start_time: comparison_start_timestamp,
           end_time: comparison_end_timestamp,

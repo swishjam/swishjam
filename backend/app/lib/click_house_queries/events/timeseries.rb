@@ -37,7 +37,6 @@ module ClickHouseQueries
           #{join_statements}
           WHERE
             notEmpty(#{property_select_clause})
-            #{@event == self.class.ANY_EVENT ? "" : " AND e.name = '#{@event}'"}
             #{user_profile_id_where_clause}
           GROUP BY group_by_date
           ORDER BY group_by_date
@@ -76,6 +75,7 @@ module ClickHouseQueries
           WHERE 
             e.swishjam_api_key IN #{formatted_in_clause(@public_keys)} AND
             e.occurred_at BETWEEN '#{formatted_time(@start_time)}' AND '#{formatted_time(@end_time)}'
+            #{@event == self.class.ANY_EVENT ? "" : " AND e.name = '#{@event}'"}
           GROUP BY distinct_count_field
         SQL
       end

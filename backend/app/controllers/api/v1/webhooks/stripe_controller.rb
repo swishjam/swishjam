@@ -11,8 +11,8 @@ module Api
               uuid: stripe_event.id,
               swishjam_api_key: swishjam_api_key,
               name: "stripe.#{stripe_event.type}",
-              occurred_at: e.created,
-              properties: e.as_json,
+              occurred_at: stripe_event.created,
+              properties: stripe_event.as_json,
             )
             IngestionJobs::PrepareEventsAndEnqueueIntoClickHouseWriter.perform_async([event_to_prepare])
           end
