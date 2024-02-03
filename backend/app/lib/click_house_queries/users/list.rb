@@ -3,7 +3,7 @@ module ClickHouseQueries
     class List
       include ClickHouseQueries::Helpers
 
-      def initialize(workspace_id, where: {}, columns: ['email', 'full_name', 'created_at'], page: 1, limit: 25)
+      def initialize(workspace_id, where: {}, columns: ['email', 'metadata', 'created_at'], page: 1, limit: 25)
         @workspace_id = workspace_id.is_a?(Workspace) ? workspace_id.id : workspace_id
         @where = where
         @columns = columns
@@ -27,6 +27,7 @@ module ClickHouseQueries
           FROM swishjam_user_profiles
           WHERE 
             workspace_id = '#{@workspace_id}' AND
+            isNull(merged_into_swishjam_user_id) AND
             #{dynamic_where_clause}
         SQL
       end
@@ -34,13 +35,26 @@ module ClickHouseQueries
       def list_users_sql
         <<~SQL
           SELECT 
-            swishjam_user_id,
-            #{@columns.map{ |column| "argMax(#{column}, updated_at) AS #{column}" }.join(', ')}
-          FROM swishjam_user_profiles
+            swishjam_user_id, 
+            email, 
+            metadata, 
+            #{select_clickhouse_timestamp_with_timezone('created_at')}, 
+            first_seen_at_in_web_app
+          FROM (
+            SELECT 
+              swishjam_user_id,
+              argMax(merged_into_swishjam_user_id, updated_at) AS merged_into_swishjam_user_id,
+              argMax(email, updated_at) AS email,
+              argMax(metadata, updated_at) AS metadata,
+              argMax(created_at, updated_at) AS created_at,
+              argMax(first_seen_at_in_web_app, updated_at) AS first_seen_at_in_web_app
+            FROM swishjam_user_profiles
+            WHERE workspace_id = '#{@workspace_id}'
+            GROUP BY swishjam_user_id
+          )
           WHERE 
-            workspace_id = '#{@workspace_id}' AND
+            isNull(merged_into_swishjam_user_id) AND
             #{dynamic_where_clause}
-          GROUP BY swishjam_user_id
           ORDER BY created_at DESC
           LIMIT #{@limit} OFFSET #{(@page - 1) * @limit}
         SQL

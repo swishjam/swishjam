@@ -16,15 +16,15 @@ module EventTriggerSteps
       config['message_body']
     end
 
-    def trigger!(event, as_test: false)
+    def trigger!(prepared_event, as_test: false)
       access_token = event_trigger.workspace.slack_connection.access_token
       slack_client = ::Slack::Client.new(access_token)
 
-      parsed_message_body = message_body.gsub(/\{([^}]+)\}/) do |match|
-        JSON.parse(event['properties'] || '{}')[$1] || match
+      interpolated_message_body = message_body.gsub(/\{([^}]+)\}/) do |match|
+        prepared_event.properties[$1] || match
       end
       if as_test
-        parsed_message_body = "_:test_tube: This is a test message and was not actually triggered by a real event:_\n\n #{parsed_message_body}"
+        interpolated_message_body = "_:test_tube: This is a test message and was not actually triggered by a real event:_\n\n #{interpolated_message_body}"
       end
       slack_client.post_message_to_channel(
         channel: channel_id, 
@@ -41,7 +41,7 @@ module EventTriggerSteps
             type: 'section',
             text: {
               type: 'mrkdwn',
-              text: parsed_message_body
+              text: interpolated_message_body
             }
           }
         ]

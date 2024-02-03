@@ -1,9 +1,9 @@
 def setup_test_data( stub_data: { stripe: { customer_email: 'fake@example.com', customer_name: 'Fake Name' }})
-  @swishjam_organization = FactoryBot.create(:swishjam_organization)
-  stub_external_apis({ 
+  # @swishjam_organization = FactoryBot.create(:swishjam_organization)
+  stub_external_apis(
     stripe_customer_email: stub_data[:stripe][:customer_email], 
     stripe_customer_name: stub_data[:stripe][:customer_name],
-  })
+  )
 end
 
 def insert_events_into_click_house!(opts = {}) 

@@ -7,11 +7,12 @@ module StripeHelpers
           next if subscription.status == 'incomplete' || subscription.status == 'incomplete_expired'
           canceled_while_trialing = subscription.status == 'canceled' && subscription.trial_end.present? && subscription.trial_end > subscription.canceled_at
           next if canceled_while_trialing
-          events << StripeHelpers::SupplementalEvents::NewActiveSubscription.new(subscription, public_key: public_key).as_swishjam_event
+          parsed_event = StripeHelpers::SupplementalEvents::NewActiveSubscription.new(subscription, public_key: public_key).as_parsed_event
+          events << parsed_event.formatted_for_ingestion
         rescue => e
           Sentry.capture_message("Failed to enqueue supplemental new active subscription event for subscription #{subscription.id} (#{e.message})")
         end
-        Ingestion::QueueManager.push_records_into_queue(Ingestion::QueueManager::Queues.EVENTS, events) if events.any?
+        Ingestion::QueueManager.push_records_into_queue(Ingestion::QueueManager::Queues.PREPARED_EVENTS, events) if events.any?
         events.count
       end
     end

@@ -74,7 +74,15 @@ export default function PageMetrics() {
   const getDemographicsBarChartData = async timeframe => {
     return await Promise.all([
       SwishjamAPI.Sessions.Browsers.barChart({ timeframe, dataSource: 'marketing' }).then(({ data }) => setBrowsersBarChartData(data)),
-      SwishjamAPI.Sessions.DeviceTypes.barChart({ timeframe, dataSource: 'marketing' }).then(({ data }) => setDeviceTypesBarChartData(data))
+      SwishjamAPI.Sessions.DeviceTypes.barChart({ timeframe, dataSource: 'marketing' }).then(({ data }) => {
+        setDeviceTypesBarChartData(
+          data.map(deviceTypeData => ({
+            date: deviceTypeData.date,
+            Mobile: deviceTypeData.true || 0,
+            Desktop: deviceTypeData.false || 0,
+          }))
+        )
+      })
     ])
   };
 

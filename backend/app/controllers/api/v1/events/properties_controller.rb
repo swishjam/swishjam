@@ -158,14 +158,14 @@ module Api
           params[:data_source] ||= 'all'
           event_name = URI.decode_uri_component(params[:event_name])
           property = URI.decode_uri_component(params[:name])
-          bar_chart_results = ClickHouseQueries::Common::StackedBarChartByEventProperty.new(
+          bar_chart_results = ClickHouseQueries::Events::StackedBarChart.new(
             public_keys_for_requested_data_source,
-            event_name: event_name,
+            event: event_name,
             property: property,
-            max_ranking_to_not_be_considered_other: params[:max_ranking_to_not_be_considered_other] || 10,
             start_time: start_timestamp,
             end_time: end_timestamp,
-          ).data
+            max_ranking_to_not_be_considered_other: params[:max_ranking_to_not_be_considered_other] || 10,
+          ).get
 
           render json: {
             start_time: bar_chart_results.start_time,

@@ -4,25 +4,49 @@ module ClickHouseQueries
       class Total
         include ClickHouseQueries::Helpers
 
-        def initialize(public_keys, event_name:, start_time:, end_time:)
+        def initialize(public_keys, event:, start_time:, end_time:, distinct_count_property: 'uuid')
           @public_keys = public_keys.is_a?(Array) ? public_keys : [public_keys]
-          @event_name = event_name
+          @event = event
           @start_time = start_time
           @end_time = end_time
         end
 
         def get
-          Analytics::Event.find_by_sql(sql.squish!).first&.count || 0
+          @count ||= Analytics::ClickHouseRecord.execute_sql(sql.squish!).first['count']
         end
 
         def sql
           <<~SQL
-            SELECT CAST(COUNT(DISTINCT uuid) AS int) AS count
-            FROM events
+            SELECT CAST(COUNT(DISTINCT #{distint_property_select_clause}) AS INT) AS count
+            FROM events AS e
+            #{join_statements}
             WHERE
-              swishjam_api_key IN #{formatted_in_clause(@public_keys)} AND
-              occurred_at BETWEEN '#{formatted_time(@start_time)}' AND '#{formatted_time(@end_time)}' AND
-              name = '#{@event_name}'
+              e.swishjam_api_key IN #{formatted_in_clause(@public_keys)} AND
+              e.occurred_at BETWEEN '#{formatted_time(@start_time)}' AND '#{formatted_time(@end_time)}' AND
+              e.name = '#{@event}'
+          SQL
+        end
+
+        def distint_property_select_clause
+          if @distinct_count_property == 'users'
+            <<~SQL
+              IF(
+                isNull(user_profiles.merged_into_swishjam_user_id),
+                user_profiles.swishjam_user_id,
+                user_profiles.merged_into_swishjam_user_id
+              )
+            SQL
+          elsif @distinct_count_property.nil? || @distinct_count_property == 'uuid'
+            'e.uuid'
+          else
+            "JSONExtractString(e.properties, '#{@distinct_count_property}')"
+          end
+        end
+
+        def join_statements
+          return '' if @distinct_count_property != 'users'
+          <<~SQL
+            LEFT JOIN swishjam_user_profiles AS user_profiles ON user_profiles.swishjam_user_id = e.user_profile_id
           SQL
         end
       end

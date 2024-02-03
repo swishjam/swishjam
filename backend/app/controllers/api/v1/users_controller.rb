@@ -35,7 +35,12 @@ module Api
           'daily' => ClickHouseQueries::Users::Active::Timeseries::Daily,
           'weekly' => ClickHouseQueries::Users::Active::Timeseries::Weekly,
           'monthly' => ClickHouseQueries::Users::Active::Timeseries::Monthly
-        }[params[:type]].new(public_keys_for_requested_data_source, start_time: start_timestamp, end_time: end_timestamp).timeseries
+        }[params[:type]].new(
+          public_keys_for_requested_data_source,
+          workspace_id: current_workspace.id, 
+          start_time: start_timestamp, 
+          end_time: end_timestamp
+        ).timeseries
 
         comparison_active_users = nil
         if params[:include_comparison]
@@ -43,7 +48,12 @@ module Api
             'daily' => ClickHouseQueries::Users::Active::Timeseries::Daily,
             'weekly' => ClickHouseQueries::Users::Active::Timeseries::Weekly,
             'monthly' => ClickHouseQueries::Users::Active::Timeseries::Monthly
-          }[params[:type]].new(public_keys_for_requested_data_source, start_time: comparison_start_timestamp, end_time: comparison_end_timestamp).timeseries
+          }[params[:type]].new(
+            public_keys_for_requested_data_source,
+            workspace_id: current_workspace.id, 
+            start_time: comparison_start_timestamp, 
+            end_time: comparison_end_timestamp
+          ).timeseries
         end
         render json: { 
           current_value: active_users.current_value, 
@@ -60,47 +70,24 @@ module Api
       end
       
       def timeseries
-        group_by = derived_group_by(start_ts: start_timestamp, end_ts: end_timestamp)
+        timeseries = ClickHouseQueries::Users::New::Timeseries.new(
+          current_workspace.id, 
+          start_time: start_timestamp, 
+          end_time: end_timestamp
+        ).get
 
-        timeseries_data = current_workspace.analytics_user_profiles.where(created_at: start_timestamp..end_timestamp).send(:"group_by_#{group_by}", :created_at).count
-        formatted_timeseries_data = timeseries_data.keys.sort.map do |timestamp|
-          OpenStruct.new(date: timestamp, value: timeseries_data[timestamp])
-        end
-        current_timeseries = DataFormatters::Timeseries.new(
-          formatted_timeseries_data,
-          start_time: start_timestamp,
-          end_time: end_timestamp,
-          group_by: group_by,
-          value_method: :value,
-          date_method: :date,
-        ).formatted_data
-        
-        comparison_timeseries_data = current_workspace.analytics_user_profiles.where(created_at: comparison_start_timestamp..comparison_end_timestamp - 1.second).send(:"group_by_#{group_by}", :created_at).count
-        formatted_comparison_timeseries_data = comparison_timeseries_data.keys.sort.map do |timestamp|
-          OpenStruct.new(date: timestamp, value: comparison_timeseries_data[timestamp])
-        end
-        comparison_timeseries = DataFormatters::Timeseries.new(
-          formatted_comparison_timeseries_data,
+        comparison_timeseries = ClickHouseQueries::Users::New::Timeseries.new(
+          current_workspace.id,
           start_time: comparison_start_timestamp,
-          end_time: comparison_end_timestamp,
-          group_by: group_by,
-          value_method: :value,
-          date_method: :date,
-        ).formatted_data
+          end_time: comparison_end_timestamp
+        ).get
 
-        render json: {
-          timeseries: current_timeseries,
-          comparison_timeseries: comparison_timeseries,
-          start_time: start_timestamp,
-          end_time: end_timestamp,
-          comparison_start_time: comparison_start_timestamp,
-          comparison_end_time: comparison_end_timestamp,
-          grouped_by: group_by,
-        }, status: :ok
+        render json: render_timeseries_json(timeseries, comparison_timeseries), status: :ok
       end
 
       def unique_attributes
-        columns = JSON.parse((params[:columns] || %w[metadata current_subscription_plan_name monthly_recurring_revenue_in_cents lifetime_value_in_cents enrichment_company_industry enrichment_company_size enrichment_company_name enrichment_company_website enrichment_job_title enrichment_company_location_metro]).to_s)
+        raise NotImplementedError, 'Endpoint deprecated.'
+        columns = JSON.parse((params[:columns] || %w[metadata]).to_s)
         results = columns.map do |column|
           {
             column: column,

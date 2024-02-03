@@ -4,13 +4,23 @@ module Api
       class BrowsersController < BaseController
         def bar_chart
           params[:data_source] ||= ApiKey::ReservedDataSources.MARKETING
-          chart_data = ClickHouseQueries::Common::StackedBarChartByEventProperty.new(
+          # instrumentation doesn't send browser details on page view events, only new_session :/
+          # chart_data = ClickHouseQueries::Events::StackedBarChart.new(
+          #   public_keys_for_requested_data_source,
+          #   event: Analytics::Event::ReservedNames.PAGE_VIEW,
+          #   property: 'browser_name',
+          #   count_distinct_property: Analytics::Event::ReservedPropertyNames.SESSION_IDENTIFIER,
+          #   start_time: start_timestamp,
+          #   end_time: end_timestamp,
+          # )
+          chart_data = ClickHouseQueries::Events::StackedBarChart.new(
             public_keys_for_requested_data_source,
-            event_name: Analytics::Event::ReservedNames.NEW_SESSION,
+            event: Analytics::Event::ReservedNames.NEW_SESSION,
             property: 'browser_name',
+            count_distinct_property: Analytics::Event::ReservedPropertyNames.SESSION_IDENTIFIER,
             start_time: start_timestamp,
             end_time: end_timestamp,
-          ).data
+          ).get
           render json: {
             data: chart_data.filled_in_data,
             start_time: chart_data.start_time,

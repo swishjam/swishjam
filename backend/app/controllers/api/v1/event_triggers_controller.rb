@@ -96,14 +96,14 @@ module Api
             }
           end
         )
-        mock_event = { 
+        parsed_event = Ingestion::ParsedEventFromIngestion.new( 
           uuid: "mocked-#{SecureRandom.uuid}", 
           name: params[:event_name], 
           swishjam_api_key: 'mocked-api-key',
-          properties: params[:event_payload].to_json,
+          properties: params[:event_payload].as_json,
           occurred_at: Time.current,
-        }.as_json
-        did_trigger = trigger.trigger_if_conditions_are_met!(mock_event, as_test: true)
+        )
+        did_trigger = trigger.trigger_if_conditions_are_met!(parsed_event, as_test: true)
         trigger.destroy!
         render json: { did_trigger: did_trigger }, status: :ok
       end

@@ -3,18 +3,18 @@ module ClickHouseQueries
     module Attributes
       class List
         include ClickHouseQueries::Helpers
-        DEFAULT_ATTRIBUTES = %w[
-          current_subscription_plan_name
-          monthly_recurring_revenue_in_cents
-          lifetime_value_in_cents
-          enrichment_industry
-          enrichment_company_size
-          enrichment_company_name
-          enrichment_company_website
-          enrichment_job_title
-          enrichment_year_company_founded
-          enrichment_company_location_metro
-        ]
+        # DEFAULT_ATTRIBUTES = %w[
+        #   current_subscription_plan_name
+        #   monthly_recurring_revenue_in_cents
+        #   lifetime_value_in_cents
+        #   enrichment_industry
+        #   enrichment_company_size
+        #   enrichment_company_name
+        #   enrichment_company_website
+        #   enrichment_job_title
+        #   enrichment_year_company_founded
+        #   enrichment_company_location_metro
+        # ]
 
         def initialize(workspace_id, attributes: nil, start_time: 6.months.ago)
           @workspace_id = workspace_id

@@ -48,21 +48,19 @@ def mocked_stripe_charge(
   id: "fake_charge_#{SecureRandom.hex(4)}",
   amount: 100_00,
   status: 'succeeded',
+  customer: nil,
   customer_id: "fake_customer_#{SecureRandom.hex(4)}",
   customer_email: Faker::Internet.email,
   customer_name: Faker::Name.name,
   created: 1.minute.ago
 )
+  customer_obj = customer || (customer_id.present? && customer_email.blank? ? customer_id  : Stripe::Customer.construct_from(id: customer_id, email: customer_email, name: customer_name))
   Stripe::Charge.construct_from(
     id: id,
     amount: amount,
     status: status,
+    customer: customer_obj,
     created: created,
-    customer: Stripe::Customer.construct_from({
-      id: customer_id,
-      email: customer_email,
-      name: customer_name
-    }),
   )
 end
 
@@ -72,4 +70,17 @@ end
 
 def mocked_stripe_customer(id: "fake_customer_#{SecureRandom.hex(4)}", email: Faker::Internet.email, name: Faker::Name.name)
   Stripe::Customer.construct_from(id: id, email: email, name: name)
+end
+
+def mocked_stripe_event(type:, account:, object:, object_type: nil, created: Time.current)
+  object.object = object_type || object.class.to_s.split('::').last.underscore
+  Stripe::Event.construct_from(
+    id: "evt_#{SecureRandom.hex(8)}",
+    object: "event",
+    account: account,
+    created: created.to_i,
+    data: { object: object },
+    livemode: false,
+    type: type
+  )
 end
