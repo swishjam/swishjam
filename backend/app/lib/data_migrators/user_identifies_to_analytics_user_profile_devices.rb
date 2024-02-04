@@ -36,14 +36,16 @@ module DataMigrators
         
         num_devices = devices_to_insert.count
         puts "Inserting #{num_devices} `analytics_user_profile_devices` into Postgres...".colorize(:yellow)
+        num_failed = 0
         devices_to_insert.each_with_index do |device_data, i|
           AnalyticsUserProfileDevice.insert!(device_data)
           puts "#{i + 1}/#{num_devices} inserted (#{(i + 1.0) / num_devices}%)".colorize(:yellow)
         rescue => e
+          num_failed += 1
           puts "Error inserting device: #{device_data.inspect} for workspace #{workspace.id}: #{e.message}".colorize(:red)
         end
 
-        puts "Success!".colorize(:green)
+        puts "Inserted #{num_devices - num_failed}/#{num_devices} `analytics_user_profile_devices` successfully into Postgres.".colorize(:green)
         puts "Took #{Time.current - start} seconds".colorize(:grey)
       end
     end
