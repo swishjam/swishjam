@@ -3,6 +3,7 @@ module DataMigrators
     def self.run!
       ActiveRecord::Base.logger.silence do
         start = Time.current
+        #
         users_to_update = AnalyticsUserProfile.where("jsonb_typeof(metadata) = 'object' OR metadata IS NULL")
                             .where.not(first_name: nil)
                             .or(AnalyticsUserProfile.where.not(last_name: nil))
