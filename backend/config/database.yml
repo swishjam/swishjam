@@ -4,7 +4,7 @@ default: &default
   pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
   prepared_statements: false
 
-developmentZ:
+development:
   transactional:
     <<: *default
     database: swishjam_dev
@@ -28,7 +28,7 @@ test:
     username: default
     debug: true
 
-development:
+production:
   transactional:
     <<: *default
     url: <%= ENV['POSTGRES_DB_CONNECTION_POOLING_STRING'] %>
