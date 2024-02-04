@@ -5,7 +5,7 @@ module DataMigrators
         start = Time.current
 
         junk_workspace = Workspace.create!(name: 'Junk Workspace for events with missing workspace_id')
-        
+
         case_statement = ApiKey.all.pluck(:public_key, :workspace_id).to_h.map do |public_key, workspace_id|
           "WHEN '#{public_key}' THEN '#{workspace_id}'"
         end.join(' ')
@@ -16,7 +16,7 @@ module DataMigrators
             argMax(swishjam_user_id, uie.occurred_at) AS analytics_user_profile_id,
             CASE argMax(swishjam_api_key, uie.occurred_at)
               #{case_statement}
-              ELSE #{junk_workspace.id}
+              ELSE '#{junk_workspace.id}'
             END AS workspace_id,
             MAX(uie.occurred_at) AS created_at,
             MAX(uie.occurred_at) AS updated_at
