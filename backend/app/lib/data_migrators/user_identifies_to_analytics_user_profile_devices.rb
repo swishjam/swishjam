@@ -34,8 +34,14 @@ module DataMigrators
         Analytics::ClickHouseRecord.execute_sql("INSERT INTO migrated_user_identify_events_TEMP SELECT * FROM user_identify_events", format: nil)
         Analytics::ClickHouseRecord.execute_sql('TRUNCATE TABLE user_identify_events', format: nil)
         
-        puts "Inserting #{devices_to_insert.count} `analytics_user_profile_devices` into Postgres...".colorize(:yellow)
-        AnalyticsUserProfileDevice.insert_all!(devices_to_insert)
+        num_devices = devices_to_insert.count
+        puts "Inserting #{num_devices} `analytics_user_profile_devices` into Postgres...".colorize(:yellow)
+        devices_to_insert.each_with_index do |device_data, i|
+          AnalyticsUserProfileDevice.insert!(device_data)
+          puts "#{i + 1}/#{num_devices} inserted (#{(i + 1.0) / num_devices}%)".colorize(:yellow)
+        rescue => e
+          puts "Error inserting device: #{device_data.inspect} for workspace #{workspace.id}: #{e.message}".colorize(:red)
+        end
 
         puts "Success!".colorize(:green)
         puts "Took #{Time.current - start} seconds".colorize(:grey)
