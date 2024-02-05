@@ -11,12 +11,16 @@ def insert_events_into_click_house!(opts = {})
     raise "Must provide a block of events to insert"
   end
   events = yield.map do |event|
-    event[:swishjam_api_key] ||= opts[:public_key]
     event[:uuid] ||= SecureRandom.uuid
+    event[:swishjam_api_key] ||= opts[:public_key] || opts[:swishjam_api_key]
+    event[:name] ||= opts[:name] || opts[:event_name]
+    event[:properties] = (event[:properties] || {}).to_json
+    event[:user_properties] = (event[:user_properties] || {}).to_json
+    event[:organization_properties] = (event[:organization_properties] || {}).to_json
+    event[:user_profile_id] ||= opts[:user_profile_id]
+    event[:organization_profile_id] ||= opts[:organization_profile_id]
     event[:occurred_at] ||= opts[:occurred_at] || Time.current
     event[:ingested_at] ||= opts[:ingested_at] || Time.current
-    event[:name] ||= opts[:name]
-    event[:properties] = (event[:properties] || {}).to_json
     event
   end
   Analytics::Event.insert_all!(events)

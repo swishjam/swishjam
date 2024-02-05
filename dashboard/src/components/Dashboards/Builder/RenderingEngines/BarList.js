@@ -14,11 +14,11 @@ export default function BarListDashboardComponent({ configuration, timeframe }) 
       });
     } else if (configuration.calculation === 'users') {
       SwishjamAPI.Events.Users.list(event, { dataSource, limit: 10 }).then(data => {
-        const formattedData = data.map(({ id, email, full_name: _full_name, count }) => {
-          if (id) {
-            return { name: email, value: count, href: `/users/${id}` }
-          } else {
-            return { name: <span className='italic'>Anonymous User</span>, value: count }
+        const formattedData = data.map(({ user_profile_id, email, metadata, count }) => {
+          return {
+            name: email || <span className='italic'>Anonymous User {user_profile_id.slice(0, 6)}</span>,
+            value: count,
+            href: `/users/${user_profile_id}`
           }
         })
         setBarListData(formattedData);

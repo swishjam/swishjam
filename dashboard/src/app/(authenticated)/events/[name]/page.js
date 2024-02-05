@@ -39,13 +39,14 @@ export default function EventDetails({ params }) {
       })
 
       setTopUsers(
-        top_users.map(({ is_anonymous, id, email, full_name, device_identifier, count }) => {
-          if (is_anonymous) {
-            return { full_name: 'Anonymous User', count }
-          } else {
-            return { id, email, full_name, device_identifier, count }
-          }
-        })
+        top_users
+        // top_users.map(({ user_profile_id, email, metadata, count }) => {
+        // if (is_anonymous) {
+        //   return { full_name: 'Anonymous User', count }
+        // } else {
+        //   return { id, email, full_name, device_identifier, count }
+        // }
+        // })
       );
       setTopEventAttributes(
         top_attributes.map(({ attribute, count }) => ({ name: attribute, value: count }))
@@ -56,7 +57,7 @@ export default function EventDetails({ params }) {
 
   return (
     <main className="mx-auto max-w-7xl px-4 mt-8 sm:px-6 lg:px-8 mb-8">
-      <div className='grid grid-cols-2 mt-8 flex items-center'>
+      <div className='grid grid-cols-2 mt-8 items-center'>
         <div>
           <h1 className="text-lg font-medium text-gray-700 mb-0">{name}</h1>
         </div>

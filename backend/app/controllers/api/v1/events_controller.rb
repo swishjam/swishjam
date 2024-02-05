@@ -164,7 +164,7 @@ module Api
         ).timeseries
 
         top_attributes = ClickHouseQueries::Event::PropertyCounts.new(public_keys_for_requested_data_source, event_name: params[:name]).get
-        top_users = ClickHouseQueries::Event::TopUsers::List.new(public_keys_for_requested_data_source, event_name: params[:name]).get
+        top_users = ClickHouseQueries::Event::TopUsers::List.new(public_keys_for_requested_data_source, workspace_id: current_workspace.id, event_name: params[:name]).get
 
         render json: {
           timeseries: timeseries.formatted_data,
