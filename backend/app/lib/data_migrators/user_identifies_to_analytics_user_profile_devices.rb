@@ -35,14 +35,15 @@ module DataMigrators
         Analytics::ClickHouseRecord.execute_sql('TRUNCATE TABLE user_identify_events', format: nil)
         
         num_devices = devices_to_insert.count
-        puts "Inserting #{num_devices} `analytics_user_profile_devices` into Postgres...".colorize(:yellow)
         num_failed = 0
+        progress_bar = TTY::ProgressBar.new("Inserting #{num_devices} `analytics_user_profile_devices` into Postgres.. [:bar]", total: num_devices, bar_format: :block)
         devices_to_insert.each_with_index do |device_data, i|
           AnalyticsUserProfileDevice.insert!(device_data)
-          puts "#{i + 1}/#{num_devices} inserted (#{(i + 1.0) / num_devices}%)".colorize(:yellow)
+          progress_bar.advance(1)
         rescue => e
           num_failed += 1
           puts "Error inserting device: #{device_data.inspect} for workspace #{workspace.id}: #{e.message}".colorize(:red)
+          progress_bar.advance(1)
         end
 
         puts "Inserted #{num_devices - num_failed}/#{num_devices} `analytics_user_profile_devices` successfully into Postgres.".colorize(:green)
