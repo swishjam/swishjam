@@ -23,7 +23,7 @@ module ClickHouseQueries
               user_profiles.swishjam_user_id AS user_profile_id,
               user_profiles.email AS email,
               user_profiles.metadata AS metadata,
-              CAST(COUNT() AS INT) AS count
+              CAST(COUNT(DISTINCT e.uuid) AS INT) AS count
             FROM events AS e
             #{ClickHouseQueries::Common::JoinFinalizedUserProfilesToEvents.sql(@workspace_id, as: 'user_profiles')}
             WHERE

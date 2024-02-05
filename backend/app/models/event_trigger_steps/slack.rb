@@ -21,8 +21,16 @@ module EventTriggerSteps
       slack_client = ::Slack::Client.new(access_token)
 
       interpolated_message_body = message_body.gsub(/\{([^}]+)\}/) do |match|
-        prepared_event.properties[$1] || match
+        variable_name = $1.strip
+        resolved_variable_value = prepared_event.properties[variable_name]
+        if resolved_variable_value.nil? && variable_name == 'user_attributes'
+          resolved_variable_value = prepared_event.user_properties.to_s
+        elsif resolved_variable_value.nil? && variable_name == 'organization_attributes'
+          resolved_variable_value = prepared_event.organization_properties.to_s
+        end
+        resolved_variable_value || match
       end
+
       if as_test
         interpolated_message_body = "_:test_tube: This is a test message and was not actually triggered by a real event:_\n\n #{interpolated_message_body}"
       end

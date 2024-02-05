@@ -38,16 +38,7 @@ export default function EventDetails({ params }) {
         })),
       })
 
-      setTopUsers(
-        top_users
-        // top_users.map(({ user_profile_id, email, metadata, count }) => {
-        // if (is_anonymous) {
-        //   return { full_name: 'Anonymous User', count }
-        // } else {
-        //   return { id, email, full_name, device_identifier, count }
-        // }
-        // })
-      );
+      setTopUsers(top_users);
       setTopEventAttributes(
         top_attributes.map(({ attribute, count }) => ({ name: attribute, value: count }))
       );
@@ -81,10 +72,20 @@ export default function EventDetails({ params }) {
           title='Top Users'
           subTitle={<>By occurrences of <span className='italic'>{name}</span></>}
           items={topUsers}
-          leftItemHeaderKey='full_name'
+          titleFormatter={u => {
+            if (u.metadata) {
+              const metadata = JSON.parse(u.metadata);
+              const firstName = metadata.first_name || metadata.firstName;
+              if (firstName) {
+                const lastName = metadata.last_name || metadata.lastName;
+                return `${firstName} ${lastName}`;
+              }
+            }
+            return u.email || `Anonymous User ${u.user_profile_id.slice(0, 8)}`;
+          }}
           leftItemSubHeaderKey='email'
           rightItemKey='count'
-          linkFormatter={u => `/users/${u.id}`}
+          linkFormatter={u => `/users/${u.user_profile_id}`}
         />
       </div>
     </main>
