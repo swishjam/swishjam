@@ -2,7 +2,7 @@ module DataFormatters
   class Timeseries
     attr_reader :data, :start_time, :end_time, :group_by
     
-    def initialize(data, start_time:, end_time:, group_by:, value_method: :count, date_method: :occurred_at, use_previous_value_for_missing_data: false)
+    def initialize(data, start_time:, end_time:, group_by:, value_method: :count, date_method: :occurred_at, use_previous_value_for_missing_data: false, fill_in_missing_values: true)
       @data = data
       @start_time = start_time
       @end_time = end_time
@@ -10,6 +10,7 @@ module DataFormatters
       @value_method = value_method
       @date_method = date_method
       @use_previous_value_for_missing_data = use_previous_value_for_missing_data
+      @fill_in_missing_values = fill_in_missing_values
     end
 
     def raw_data
@@ -28,7 +29,7 @@ module DataFormatters
           most_recent_value = evaluate_on_record(matching_result, @value_method)
         elsif @use_previous_value_for_missing_data
           @filled_in_data << { date: current_time, value: most_recent_value || 0 }
-        else
+        elsif @fill_in_missing_values
           @filled_in_data << { date: current_time, value: 0 }
         end
         current_time += 1.send(group_by)
@@ -38,7 +39,7 @@ module DataFormatters
     alias formatted_data filled_in_data
 
     def current_value
-      @current_value ||= filled_in_data.last[:value]
+      @current_value ||= (filled_in_data.last || {})[:value]
     end
     alias most_recent_value current_value
 
