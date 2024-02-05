@@ -20,7 +20,11 @@ module ClickHouseQueries
               CAST(COUNT(DISTINCT
                 IF(
                   isNull(user_profiles.merged_into_swishjam_user_id),
-                  events.user_profile_id,
+                  IF(
+                    isNull(events.user_profile_id),
+                    JSONExtractString(events.properties, 'device_identifier'),
+                    events.user_profile_id
+                  ),
                   user_profiles.merged_into_swishjam_user_id
                 )
               ) AS int) AS num_unique_users
