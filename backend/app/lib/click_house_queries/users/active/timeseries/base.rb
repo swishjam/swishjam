@@ -37,7 +37,7 @@ module ClickHouseQueries
                 DATE_TRUNC('year', events.occurred_at) AS year,
                 CAST(COUNT(DISTINCT
                   IF(
-                    isNull(user_profiles.merged_into_swishjam_user_id),
+                    empty(user_profiles.merged_into_swishjam_user_id),
                     events.user_profile_id,
                     user_profiles.merged_into_swishjam_user_id
                   )
