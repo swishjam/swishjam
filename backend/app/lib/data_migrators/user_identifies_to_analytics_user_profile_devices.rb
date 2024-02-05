@@ -42,7 +42,7 @@ module DataMigrators
           progress_bar.advance(1)
         rescue => e
           num_failed += 1
-          puts "Error inserting device: #{device_data.inspect} for workspace #{workspace.id}: #{e.message}".colorize(:red)
+          puts "Error inserting device: #{device_data.inspect} for workspace #{device_data['workspace_id']}: #{e.message}".colorize(:red)
           progress_bar.advance(1)
         end
 
