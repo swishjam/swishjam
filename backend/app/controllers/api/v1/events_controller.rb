@@ -134,8 +134,8 @@ module Api
       def count
         params[:data_source] ||= 'all'
         event_name = URI.decode_uri_component(params[:name])
-        count = ClickHouseQueries::Events::Count::Total.new(public_keys_for_requested_data_source, event_name: event_name, start_time: start_timestamp, end_time: end_timestamp).get
-        comparison_count = ClickHouseQueries::Events::Count::Total.new(public_keys_for_requested_data_source, event_name: event_name, start_time: comparison_start_timestamp, end_time: comparison_end_timestamp).get
+        count = ClickHouseQueries::Events::Count::Total.new(public_keys_for_requested_data_source, event: event_name, start_time: start_timestamp, end_time: end_timestamp).get
+        comparison_count = ClickHouseQueries::Events::Count::Total.new(public_keys_for_requested_data_source, event: event_name, start_time: comparison_start_timestamp, end_time: comparison_end_timestamp).get
         render json: { 
           count: count, 
           comparison_count: comparison_count,

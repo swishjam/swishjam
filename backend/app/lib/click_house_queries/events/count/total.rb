@@ -17,7 +17,7 @@ module ClickHouseQueries
 
         def sql
           <<~SQL
-            SELECT CAST(COUNT(DISTINCT #{distint_property_select_clause}) AS INT) AS count
+            SELECT CAST(COUNT(DISTINCT #{distinct_property_select_clause}) AS INT) AS count
             FROM events AS e
             #{join_statements}
             WHERE
@@ -27,7 +27,7 @@ module ClickHouseQueries
           SQL
         end
 
-        def distint_property_select_clause
+        def distinct_property_select_clause
           if @distinct_count_property == 'users'
             <<~SQL
               IF(
@@ -45,6 +45,7 @@ module ClickHouseQueries
 
         def join_statements
           return '' if @distinct_count_property != 'users'
+          # TODO: I think we need to do de-duplication here, should use/create a Common subquery
           <<~SQL
             LEFT JOIN swishjam_user_profiles AS user_profiles ON user_profiles.swishjam_user_id = e.user_profile_id
           SQL
