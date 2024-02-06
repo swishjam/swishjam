@@ -4,9 +4,10 @@ class EventTriggerSummariesJob
 
   def perform
     Workspace.all.each do |workspace|
-      next if workspace.slack_connection.nil?
+      slack_connection = Integrations::Destinations::Slack.for_workspace(workspace)
+      next if slack_connection.nil?
       next if workspace.event_triggers.enabled.count == 0
-      slack_client = Slack::Client.new(workspace.slack_connection.access_token)
+      slack_client = Slack::Client.new(slack_connection.access_token)
       event_triggers_by_slack_channel_id = workspace.event_triggers.enabled.group_by { |event_trigger| event_trigger.event_trigger_steps.first.channel_id }
       event_triggers_by_slack_channel_id.each do |slack_channel_id, event_triggers|
         header = {

@@ -5,8 +5,8 @@ export class Integrations extends Base {
     return await this._post('/api/v1/integrations', { type, config, enabled });
   }
 
-  static async list() {
-    return await this._get('/api/v1/integrations')
+  static async list({ destinations = null } = {}) {
+    return await this._get('/api/v1/integrations', { destinations });
   }
 
   static async delete(id) {

@@ -1,26 +1,24 @@
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { ArrowTopRightOnSquareIcon, PlusIcon } from "@heroicons/react/24/outline";
-import CopiableSnippet from "./CopiableSnippet";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import Link from "next/link";
 import LoadingSpinner from "@/components/LoadingSpinner";
-import { RocketIcon } from "@radix-ui/react-icons"
+import { RocketIcon } from "@radix-ui/react-icons";
 import SwishjamAPI from "@/lib/api-client/swishjam-api";
-import { useState } from 'react'
-import useAuthData from "@/hooks/useAuthData";
+import { useState } from "react";
 
-export default function ResendConnectView({ onNewIntegration }) {
-  const { currentWorkspaceId } = useAuthData();
-
+export default function ResendDestination({ onNewIntegration }) {
   const [errorMessage, setErrorMessage] = useState();
   const [isLoading, setIsLoading] = useState(false);
-  const [signingSecret, setSigningSecret] = useState();
+  const [resendApiKey, setResendApiKey] = useState();
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
 
   const createIntegration = async e => {
     e.preventDefault();
     setIsLoading(true);
     setErrorMessage()
-    const { integration, error } = await SwishjamAPI.Integrations.create({ type: 'Integrations::Resend', enabled: true, config: { webhook_signing_secret: signingSecret } })
+    const { integration, error } = await SwishjamAPI.Integrations.create({ type: 'Integrations::Destinations::Resend', enabled: true, config: { api_key: resendApiKey } })
     setIsLoading(false);
     if (error) {
       setErrorMessage(error);
@@ -35,58 +33,51 @@ export default function ResendConnectView({ onNewIntegration }) {
       Navigate to the{' '}
       <Link
         className='underline text-blue-700 hover:text-blue-900 inline-flex items-center'
-        href='https://resend.com/webhooks'
+        href='https://resend.com/api-keys'
         target='_blank'
       >
-        Webhooks page <ArrowTopRightOnSquareIcon className='inline-block h-3 w-3 ml-1' />
+        API Keys page <ArrowTopRightOnSquareIcon className='inline-block h-3 w-3 ml-1' />
       </Link> in your Resend dashboard.
     </>,
     <div className='flex items-center'>
       Click the
       <span className='inline-flex items-center bg-white px-2 py-1 border border-black rounded text-black mx-1 cursor-default'>
         <PlusIcon className='h-4 w-4 mr-1 inline-block text-black' />
-        Add Webhook
+        Create API Key
       </span>
       button.
     </div>,
-    <>
-      Paste this URL into the endpoint field:{' '}
-      <CopiableSnippet value={`https://capture.swishjam.com/api/v1/webhooks/resend/${currentWorkspaceId}`} />
-    </>,
-    <>Select the Resend events you would like Swishjam to capture and click <span className='inline-flex items-center bg-white px-2 py-1 border border-black rounded text-black mx-1 cursor-default'>Add</span>.</>,
-    <>
-      Paste the <span className='italic'>Signing Secret</span> from the newly created webhook details page and submit this form!
-      <form onSubmit={createIntegration} className='flex items-center mt-4'>
-        <input
+    <>Input a name, select the <span className='bg-gray-200 rounded italic px-1 py-0.5'>Sending access</span> permission, and select the domains you would like to send emails from with Swishjam.</>,
+    <div className='w-full'>
+      Paste your new <span className='italic'>API Key</span> below and submit.
+      <form onSubmit={createIntegration} className='mt-4'>
+        <Input
           className='input'
-          onChange={e => setSigningSecret(e.target.value)}
-          placeholder='Resend Signing Secret'
+          onChange={e => setResendApiKey(e.target.value)}
+          placeholder='Resend API Key'
         />
-        <button
+        <Button
           type="submit"
-          className={`whitespace-nowrap ml-2 flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white focus:outline-none focus:ring-2 ${isLoading ? 'bg-gray-400' : 'bg-swishjam hover:bg-swishjam-dark'}`}
+          className={`whitespace-nowrap w-full mt-2 flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white focus:outline-none focus:ring-2 ${isLoading ? 'bg-gray-400' : 'bg-swishjam hover:bg-swishjam-dark'}`}
           disabled={isLoading}
         >
-          {isLoading ? <LoadingSpinner color='white' /> : <>Complete connection</>}
-        </button>
+          {isLoading ? <LoadingSpinner color='white' /> : <>Create destination</>}
+        </Button>
       </form>
       {errorMessage && <p className='text-red-600 text-center mt-2'>{errorMessage}</p>}
-    </>,
+    </div>,
   ]
 
   return (
     showSuccessMessage
       ? (
         <Alert>
-          <div className='flex items-center gap-x-4'>
-            <RocketIcon className="h-5 w-5" />
-            <div>
-              <AlertTitle>Connection added!</AlertTitle>
-              <AlertDescription>
-                Swishjam will now automatically capture your Resend email events.
-              </AlertDescription>
-            </div>
-          </div>
+          <AlertTitle className='flex items-center gap-x-1'>
+            <RocketIcon className="h-4 w-4 inline" /> Success
+          </AlertTitle>
+          <AlertDescription>
+            Your Resend destination has been created. You can now start sending emails in response to specified events in the <Link className='underline text-blue-600 hover:text-blue-700' href='/automations/event-triggers'>Event Triggers view</Link> of your Swishjam instance.
+          </AlertDescription>
         </Alert>
       ) : (
         <div className="flow-root">
@@ -104,11 +95,9 @@ export default function ResendConnectView({ onNewIntegration }) {
                         {i + 1}
                       </span>
                     </div>
-                    <div className="flex min-w-0 flex-1 justify-between space-x-4 pt-1.5">
-                      <div>
-                        <p className="text-sm text-gray-700">
-                          {step}
-                        </p>
+                    <div className="flex min-w-0 w-full flex-1 justify-between space-x-4 pt-1.5 text-sm text-gray-700">
+                      <div className="w-full">
+                        {step}
                       </div>
                     </div>
                   </div>

@@ -13,8 +13,9 @@ module Oauth
         redirect_to "#{ENV['FRONTEND_URL'] || 'https://app.swishjam.com'}/integrations/destinations?success=false&error=#{auth_data['error']}"
       else
         workspace_id = validate_token_and_return_workspace_id
-        SlackConnection.create!(workspace_id: workspace_id, access_token: auth_data['access_token'])
-        redirect_to "#{ENV['FRONTEND_URL'] || 'https://app.swishjam.com'}/integrations/destinations?success=true"
+        Integrations::Destinations::Slack.create!(workspace_id: workspace_id, enabled: true, config: { access_token: auth_data['access_token'] })
+        # SlackConnection.create!(workspace_id: workspace_id, access_token: auth_data['access_token'])
+        redirect_to "#{ENV['FRONTEND_URL'] || 'https://app.swishjam.com'}/integrations/destinations?success=true&integration=slack"
       end
     end
 

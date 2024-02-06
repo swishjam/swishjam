@@ -25,9 +25,9 @@ class Report < Transactional
   def send_notice_to_slack_channel
     return unless sending_mechanism == 'slack'
     return unless slack_channel_id.present?
-    return unless workspace.slack_connection.present?
-    access_token = workspace.slack_connection.access_token
-    slack_client = ::Slack::Client.new(access_token)
+    slack_connection = Integrations::Destinations::Slack.for_workspace(workspace)
+    return unless slack_connection.present?
+    slack_client = ::Slack::Client.new(slack_connection.access_token)
     slack_client.post_message_to_channel(
       channel: slack_channel_id,
       unfurl_links: false,
