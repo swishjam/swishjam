@@ -32,8 +32,9 @@ module EventTriggerSteps
       end
 
       if as_test
-        interpolated_message_body = "_:test_tube: This is a test message and was not actually triggered by a real event:_\n\n #{interpolated_message_body}"
+        interpolated_message_body = "#{parsed_message_body} \n\n _:test_tube: This is a test message and was not actually triggered by a real event_"
       end
+      interpolated_message_body = "#{parsed_message_body[0..2996]}..." if parsed_message_body.length > 3000
       slack_client.post_message_to_channel(
         channel: channel_id, 
         blocks: [

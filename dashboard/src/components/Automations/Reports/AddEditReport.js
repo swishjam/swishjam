@@ -81,9 +81,7 @@ export default function AddEditReport({
       toast.success(`${values.name} ${reportId ? 'edited successfully' : 'report created. Redirecting to all Reports'} `)
       if (!reportId) {
         form.reset();
-        setTimeout(() => {
-          router.push('/automations/reports')
-        }, 1500);
+        router.push('/automations/reports')
       }
     }
   }
@@ -108,23 +106,51 @@ export default function AddEditReport({
   }, [])
 
   const renderMarkdown = () => {
-    const slackMessageHeaderDaily = '📅 10/09/2023 \n\n'
-    const slackMessageHeaderWeekly = '📅 10/09/2023 — 📅 10/16/2023\n\n'
-    const slackMessageHeaderMonthly = '📅 10/01/2023 — 📅 10/31/2023\n\n'
-    const reportWebSection = '📣 **Web Analytics:** \n\n↔️ Sessions: 500\n\n📉 Unique Visitors: 340\n\n📈 Page Views: 456\n\n';
-    const reportProductSection = '**🧑‍💻 Product Analytics:**\n\n↔️ Daily Active Users: 500\n\n📉 Sessions: 340\n\n📈 New Users: 456\n\n';
-    const reportRevenueSection = '**🧑‍💻 Revenue Analytics:**\n\n↔️ MRR: $1,500\n\n📉 Active Subscriptions: 56\n\n📈 Churn: $456\n\n';
+    const currentCadence = form.getValues('cadence')
+    const comparisonText = currentCadence === 'daily' ? 'yesterday' : currentCadence === 'weekly' ? 'last week' : 'last month';
+    const reportWebSection = [
+      '📣 **Web Analytics:**',
+      `📈 Sessions: 500 (+11% from ${comparisonText})`,
+      `📉 Unique Visitors: 340 (-4% from ${comparisonText})`,
+      `📈 Page Views: 456 (+8% from ${comparisonText})`
+    ].join('\n\n');
+    const reportProductSection = [
+      '🧑‍💻 **Product Analytics:**',
+      `↔️ Active Users: 210 (No change from ${comparisonText})`,
+      `📉 Sessions: 340 (-6% from ${comparisonText})`,
+      `📈 New Users: 456 (+12% from ${comparisonText})`
+    ].join('\n\n');
+    const reportRevenueSection = [
+      '🏦 **Revenue Analytics:**',
+      `↔️ Current MRR: $1,500 (No change from ${comparisonText})`,
+      `📉 New Subscriptions: 56 (-4% from ${comparisonText})`,
+      `📈 Churn: $456 (+3% from ${comparisonText})`
+    ].join('\n\n');
     let msg = ''
-    let currentCadence = form.getValues('cadence') 
-    if (currentCadence == 'daily') {
-      msg += slackMessageHeaderDaily;
-    } else if (currentCadence == 'weekly') {
-      msg += slackMessageHeaderWeekly;
-    } else {
-      msg += slackMessageHeaderMonthly;
+    const today = new Date();
+    const oneDayAgo = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 1);
+    const oneWeekAgo = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 7);
+    const oneMonthAgo = new Date(today.getFullYear(), today.getMonth() - 1, today.getDate());
+
+    const formatDate = (date) => {
+      const day = String(date.getDate()).padStart(2, '0');
+      const month = String(date.getMonth() + 1).padStart(2, '0'); //January is 0!
+      const year = date.getFullYear();
+      return `${month}/${day}/${year}`;
     }
 
-    form.getValues('config.sections').map((sec) => {
+    if (currentCadence == 'daily') {
+      msg += `📅 ${formatDate(oneDayAgo)}\n\n`;
+    } else if (currentCadence == 'weekly') {
+      msg += `📅 ${formatDate(oneWeekAgo)} — 📅 ${formatDate(today)}\n\n`;
+    } else {
+      msg += `📅 ${formatDate(oneMonthAgo)} — 📅 ${formatDate(today)}\n\n`;
+    }
+
+    (form.getValues('config.sections') || []).map((sec, i) => {
+      if (i > 0) {
+        msg += '\n\n'
+      }
       if (sec.type == 'web') {
         msg += reportWebSection
       }
@@ -144,9 +170,9 @@ export default function AddEditReport({
     <div className={`grid grid-cols-2 gap-8 ${className}`}>
       <div className=''>
         <FormInputOrLoadingState isLoading={isAwaitingRenderData} className='h-72'>
-          <ScrollArea className="max-h-96 overflow-y-scroll border border-gray-200 rounded-md bg-white">
+          <ScrollArea className="overflow-y-scroll border border-gray-200 rounded-md bg-white">
             <SlackMessagePreview
-              header={form.getValues('cadence')+' Update'}
+              header={form.getValues('cadence') + ' Update'}
               body={<MessageBodyMarkdownRenderer body={mkdPreview} />}
               className={'border-0'}
             />
@@ -318,8 +344,8 @@ export default function AddEditReport({
                         }}
                         type='button'
                         variant="outline"
-                        className={`!mt-2 w-full ${fieldArray.fields.length >= 3 ? 'cursor-disabled' : ''}`}
-                        disabled={fieldArray.fields.length >= 3}
+                        className={`!mt-2 w-full ${fieldArray.fields.length >= (hasStripeIntegrationEnabled ? 3 : 2) ? 'cursor-disabled' : ''}`}
+                        disabled={fieldArray.fields.length >= (hasStripeIntegrationEnabled ? 3 : 2)}
                       >
                         Add Section
                       </Button>
@@ -331,7 +357,7 @@ export default function AddEditReport({
             <Button
               className={`!mt-6 w-full flex items-center justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white focus:outline-none focus:ring-2 ${loading ? 'bg-swishjam-dark' : 'bg-swishjam'} hover:bg-swishjam-dark`}
               type="submit"
-              disabled={loading || form.getValues('config.sections').length == 0}
+              disabled={loading || (form.getValues('config.sections') || []).length == 0}
             >
               {loading ? <LoadingSpinner color="white" /> : `${reportId ? 'Save' : 'Create'} Report`}
             </Button>

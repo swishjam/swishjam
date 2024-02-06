@@ -15,7 +15,12 @@ module ReportHandlers
 
     def send_report
       slack_client = ::Slack::Client.new(@report.workspace.slack_connection.access_token)
-      slack_client.post_message_to_channel(channel: @report.slack_channel_id, blocks: slack_block_content)
+      slack_client.post_message_to_channel(
+        channel: @report.slack_channel_id, 
+        unfurl_links: false,
+        unfurl_media: false,
+        blocks: slack_block_content
+      )
 
       triggered_report_payload = {}
       if @report.config['sections'].map { |section| section['type'] }.include?('web')
@@ -108,10 +113,13 @@ module ReportHandlers
       elsif section_type == 'revenue'
         [
           slack_mkdwn(":bank: *Revenue Analytics:*"),
+          # results_section("New MRR", revenue_analytics_calculator.new_mrr_for_period, revenue_analytics_calculator.new_mrr_for_previous_period, formatter: -> (mrr) { ActionController::Base.helpers.number_to_currency(mrr / 100) }),
+          results_section("Current MRR", revenue_analytics_calculator.current_mrr, revenue_analytics_calculator.mrr_for_previous_period, formatter: -> (mrr) { ActionController::Base.helpers.number_to_currency(mrr / 100) }),
           results_section("New Subscriptions", revenue_analytics_calculator.num_new_subscriptions_for_period, revenue_analytics_calculator.num_new_subscriptions_for_previous_period),
-          results_section("New MRR", revenue_analytics_calculator.new_mrr_for_period, revenue_analytics_calculator.new_mrr_for_previous_period, formatter: -> (mrr) { ActionController::Base.helpers.number_to_currency(mrr / 100) }),
           results_section("Churned MRR", revenue_analytics_calculator.churned_mrr_for_period, revenue_analytics_calculator.churned_mrr_for_previous_period, formatter: -> (mrr) { ActionController::Base.helpers.number_to_currency(mrr / 100) }),
         ]
+      else
+        Sentry.capture_message("Invalid section type when sending report, ignoring... #{section_type}")
       end
     end
 
@@ -127,10 +135,17 @@ module ReportHandlers
     end
 
     def results_section(title, current_period_result, previous_period_result, formatter: -> (val) { val })
-      slack_mkdwn("#{emoji_for_comparison(current_period_result, previous_period_result)} *#{title}:* #{formatter.call(current_period_result)} (#{formatted_percent_diff(current_period_result, previous_period_result)} vs #{comparison_display_date})")
+      if current_period_result.nil? && previous_period_result.nil?
+        slack_mkdwn("*#{title}:* _No data_")
+      elsif previous_period_result.nil?
+        slack_mkdwn("#{emoji_for_comparison(current_period_result, current_period_result)} *#{title}:* #{formatter.call(current_period_result)}")
+      else
+        slack_mkdwn("#{emoji_for_comparison(current_period_result, previous_period_result)} *#{title}:* #{formatter.call(current_period_result)} (#{formatted_percent_diff(current_period_result, previous_period_result)} vs #{comparison_display_date})")
+      end
     end
 
     def emoji_for_comparison(new_value, old_value)
+      return if new_value.nil? || old_value.nil?
       if new_value > old_value
         ':chart_with_upwards_trend:'
       elsif new_value < old_value

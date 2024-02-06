@@ -61,6 +61,7 @@ module ReportHandlers
         Hash.new.tap do |hash|
           self.class.instance_methods(false).each do |method_name|
             hash[method_name] = send(method_name)
+          rescue => e
           end
         end
       end
