@@ -41,3 +41,8 @@ production:
     password: <%= ENV['CLICKHOUSE_DB_PASSWORD'] %>
     ssl: true
     # debug: false
+
+
+porter app run swishjam-prod -- rake db:migrate
+
+porter app run swishjam-prod -- rake data_migrations:temporary:new_ingestion_data_migration
