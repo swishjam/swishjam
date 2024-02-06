@@ -14,7 +14,9 @@ module ReportHandlers
     end
 
     def send_report
-      slack_client = ::Slack::Client.new(@report.workspace.slack_connection.access_token)
+      slack_connection = Integrations::Destinations::Slack.for_workspace(@report.workspace)
+      raise "No Slack connection found for workspace when sending Slack report: #{@report.workspace.name} (#{@report.workspace_id})" if slack_connection.nil?
+      slack_client = ::Slack::Client.new(slack_connection.access_token)
       slack_client.post_message_to_channel(
         channel: @report.slack_channel_id, 
         unfurl_links: false,

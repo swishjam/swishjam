@@ -54,8 +54,9 @@ class EventTrigger < Transactional
     return if !enabled
     slack_trigger_step = event_trigger_steps.find_by(type: EventTriggerSteps::Slack.to_s)
     return if slack_trigger_step.nil?
-    access_token = workspace.slack_connection.access_token
-    slack_client = ::Slack::Client.new(access_token)
+    slack_connection = Integrations::Destinations::Slack.for_workspace(workspace)
+    return if slack_connection.nil?
+    slack_client = ::Slack::Client.new(slack_connection.access_token)
 
     slack_client.post_message_to_channel(
       channel: slack_trigger_step.channel_id, 
