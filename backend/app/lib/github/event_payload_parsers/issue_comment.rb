@@ -5,7 +5,7 @@ module Github
         @event_payload = event_payload
       end
 
-      def to_json
+      def as_json
         {
           repo: @event_payload.dig('repository', 'full_name'),
           issue_title: @event_payload.dig('issue', 'title'),

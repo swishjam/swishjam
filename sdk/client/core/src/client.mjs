@@ -104,6 +104,7 @@ export class Client {
       // important to set this first because new events will be created with this value
       CookieHelper.setCookie({ name: SWISHJAM_SESSION_IDENTIFIER_COOKIE_NAME, value: Util.generateUUID('s') });
 
+      // no longer necessary because these are derived from the event payload the first time seeing a user
       PersistentUserDataManager.setIfNull('initial_url', window.location.href);
       PersistentUserDataManager.setIfNull('initial_referrer', document.referrer);
 

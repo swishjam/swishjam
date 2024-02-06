@@ -19,6 +19,7 @@ module Api
 
           active_users_timeseries = active_users_klass.new(
             public_keys_for_requested_data_source, 
+            workspace_id: current_workspace.id,
             organization_unique_identifier: @organization.organization_unique_identifier,
             start_time: start_timestamp,
             end_time: end_timestamp

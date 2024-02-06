@@ -13,8 +13,23 @@ module StripeHelpers
         @stripe_event.data.object
       end
 
-      def to_json
-        Hash.new.tap do |h| 
+      def default_json_properties
+        json = {
+          event_id: @stripe_event.id,
+          event_type: @stripe_event.type,
+          object_type: stripe_object.object,
+          object_id: stripe_object.id,
+        }
+        if stripe_object.respond_to?(:amount)
+          json[:amount] = stripe_object.amount
+          json[:display_amount] = "$#{sprintf('%.2f', (stripe_object.amount / 100.0))}"
+        end
+        json
+      end
+
+      def event_properties
+        # Hash.new.tap do |h| 
+        default_json_properties.tap do |h|
           (self.class.attributes_to_capture || []).each do |attribute|
             attribute_chain = attribute.to_s.split('.')
             attribute_value = attribute_chain.inject(stripe_object) do |object, method|

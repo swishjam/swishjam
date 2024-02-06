@@ -74,10 +74,11 @@ class ChurnRateCalculator
         @swishjam_stripe_public_key,
         start_time: @snapshot_start_time,
         end_time: @churn_period_end_time,
-        event_names: [
+        events: [
           StripeHelpers::SupplementalEvents::SubscriptionChurned.EVENT_NAME,
           StripeHelpers::SupplementalEvents::NewActiveSubscription.EVENT_NAME,
         ],
+        limit: nil,
       ).get
     end
   end

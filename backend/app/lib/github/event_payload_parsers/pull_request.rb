@@ -5,7 +5,7 @@ module Github
         @event_payload = event_payload
       end
 
-      def to_json
+      def as_json
         {
           title: @event_payload.dig('pull_request', 'title'),
           number: @event_payload.dig('pull_request', 'number'),

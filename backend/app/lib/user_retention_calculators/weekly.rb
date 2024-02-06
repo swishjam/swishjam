@@ -2,9 +2,14 @@ module UserRetentionCalculators
  class Weekly
   FILL_IN_COHORT_PERIODS_WITH_ZERO_USERS = false
 
-  def self.get(public_keys, oldest_cohort_date: nil, events_to_be_considered_active: nil)
+  def self.get(public_keys:, workspace_id:, oldest_cohort_date: nil, events_to_be_considered_active: nil)
     oldest_cohort_date = (oldest_cohort_date || 4.weeks.ago).beginning_of_week
-    querier = ClickHouseQueries::Users::Retention::Weekly.new(public_keys, oldest_cohort_date: oldest_cohort_date, events_to_be_considered_active: events_to_be_considered_active)
+    querier = ClickHouseQueries::Users::Retention::Weekly.new(
+      public_keys: public_keys, 
+      workspace_id: workspace_id,
+      oldest_cohort_date: oldest_cohort_date, 
+      events_to_be_considered_active: events_to_be_considered_active
+    )
 
     # returns an array of hashes containing the cohort period, and the number of users in that cohort
     # if there are no users in a given cohort, it will not be included in the array

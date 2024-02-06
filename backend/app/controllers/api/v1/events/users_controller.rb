@@ -9,6 +9,7 @@ module Api
           end
           top_users = ClickHouseQueries::Event::TopUsers::List.new(
             public_keys_for_requested_data_source, 
+            workspace_id: current_workspace.id,
             event_name: params[:event_name],
             start_time: start_timestamp,
             end_time: end_timestamp,

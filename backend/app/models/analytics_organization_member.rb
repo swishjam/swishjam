@@ -12,7 +12,7 @@ class AnalyticsOrganizationMember < Transactional
   private
 
   def enqueue_replication_to_clickhouse
-    Ingestion::QueueManager.push_records_into_queue(Ingestion::QueueManager::Queues.CLICKHOUSE_ORGANIZATION_MEMBERS, {
+    Ingestion::QueueManager.push_records_into_queue(Ingestion::QueueManager::Queues.CLICK_HOUSE_ORGANIZATION_MEMBERS, {
       workspace_id: organization.workspace_id,
       swishjam_api_key: organization.workspace.api_keys.for_data_source!(ApiKey::ReservedDataSources.PRODUCT).public_key,
       swishjam_organization_id: analytics_organization_profile_id,

@@ -24,6 +24,11 @@ export default function AuthenticatedView({ children, LoadingView }) {
           email={email}
         />
         <main className={`${sideNavIsCollapsed ? "lg:pl-12" : "lg:pl-64"}`}>
+          {process.env.NEXT_PUBLIC_GLOBAL_BANNER_NOTIFICATION_MESSAGE && (
+            <div className="w-full text-sm bg-swishjam px-4 py-4 rounded-b-md text-white drop-shadow-md flex items-center justify-center">
+              {process.env.NEXT_PUBLIC_GLOBAL_BANNER_NOTIFICATION_MESSAGE}
+            </div>
+          )}
           {process.env.NEXT_PUBLIC_ENABLE_LOADING_STATES_BETWEEN_AUTH && (
             <div className="pr-4 sm:pr-6 lg:pr-8">
               {LoadingView ? (
@@ -47,6 +52,11 @@ export default function AuthenticatedView({ children, LoadingView }) {
           email={email}
         />
         <main className={`${sideNavIsCollapsed ? "lg:pl-12" : "lg:pl-64"} `}>
+          {process.env.NEXT_PUBLIC_GLOBAL_BANNER_NOTIFICATION_MESSAGE && (
+            <div className="w-full text-sm bg-swishjam px-4 py-4 rounded-b-md text-white drop-shadow-md flex items-center justify-center">
+              {process.env.NEXT_PUBLIC_GLOBAL_BANNER_NOTIFICATION_MESSAGE}
+            </div>
+          )}
           <div className="pr-4 sm:pr-6 lg:pr-8">{children}</div>
         </main>
       </>

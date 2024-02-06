@@ -15,6 +15,7 @@ export default function RetentionWidget({ title = 'User Retention', retentionCoh
   const [chartType, setChartType] = useState('grid');
 
   const toggleChartType = () => chartType === 'grid' ? setChartType('chart') : setChartType('grid');
+  const isFetching = retentionCohorts === undefined;
   const hasRetentionData = retentionCohorts ? Object.keys(retentionCohorts).length > 0 : false;
 
   return (
@@ -72,7 +73,7 @@ export default function RetentionWidget({ title = 'User Retention', retentionCoh
       includeCard={includeCard}
       title={title}
     >
-      {!hasRetentionData && (
+      {!isFetching && !hasRetentionData && (
         <div className='text-sm text-gray-500 text-center p-8 group'>
           <div className='my-8 mx-auto grid grid-cols-3 gap-2 w-20'>
             <div className='border-2 border-gray-300 rounded h-5 w-5 group-hover:border-swishjam duration-500 transition-all' />

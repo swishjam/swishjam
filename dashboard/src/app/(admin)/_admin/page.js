@@ -7,13 +7,16 @@ import SwishjamAPI from "@/lib/api-client/swishjam-api"
 import { useEffect, useState } from 'react'
 import { Skeleton } from '@/components/ui/skeleton';
 import { intelligentlyFormattedMs } from '@/lib/utils/timeHelpers';
+import { setStateFromTimeseriesResponse } from '@/lib/utils/timeseriesHelpers';
 
 export default function AdminPage() {
   const [dataSyncs, setDataSyncs] = useState();
   const [eventCountsTimeseries, setEventCountsTimeseries] = useState();
+  const [eventTriggerDelayTimeTimeseries, setEventTriggerDelayTimeTimeseries] = useState();
   const [ingestionBatches, setIngestionBatches] = useState();
   const [isRefreshing, setIsRefreshing] = useState(false)
   const [queueStats, setQueueStats] = useState();
+  const [queueingTimeTimeseries, setQueueingTimeTimeseries] = useState();
 
   const getData = async () => {
     setIsRefreshing(true);
@@ -21,11 +24,19 @@ export default function AdminPage() {
     setIngestionBatches();
     setQueueStats();
     setDataSyncs();
+    setQueueingTimeTimeseries();
+    setEventTriggerDelayTimeTimeseries();
     await Promise.all([
       SwishjamAPI.Admin.Ingestion.eventCounts().then(setEventCountsTimeseries),
       SwishjamAPI.Admin.Ingestion.queueStats().then(setQueueStats),
       SwishjamAPI.Admin.Ingestion.ingestionBatches().then(setIngestionBatches),
       SwishjamAPI.Admin.DataSyncs.list().then(setDataSyncs),
+      SwishjamAPI.Admin.Ingestion.queueing().then(d => setStateFromTimeseriesResponse(d, setQueueingTimeTimeseries)),
+      SwishjamAPI.Admin.EventTriggers.delayTimeTimeseries().then(response => {
+        setEventTriggerDelayTimeTimeseries(
+          Object.keys(response).map(date => ({ date: date, value: parseFloat(response[date] || 0) }))
+        );
+      }),
     ])
     setIsRefreshing(false);
   }
@@ -48,7 +59,7 @@ export default function AdminPage() {
         </Button>
       </div>
       <div className='grid gap-4 mb-4 grid-cols-4'>
-        {['event', 'user_identify', 'organization_profile', 'user_profiles_from_events'].map(queueName => (
+        {['prepared_events', 'clickhouse_user_profiles', 'clickhouse_organization_profiles', 'clickhouse_organization_members'].map(queueName => (
           <div className='rounded border border-gray-200 text-gray-700 flex items-center justify-center p-4 bg-white'>
             <div className='text-center'>
               <h4 className='text-md'>{queueName} queue</h4>
@@ -60,9 +71,9 @@ export default function AdminPage() {
           </div>
         ))}
       </div>
-      <div className='grid gap-4 mb-8 grid-cols-3'>
-        {['clickhouse_user_profile', 'clickhouse_organization_profile', 'clickhouse_organization_member'].map(queueName => (
-          <div className='rounded border border-gray-200 text-gray-700 flex items-center justify-center p-4 bg-white'>
+      <div className='grid gap-4 mb-4 grid-cols-4'>
+        {['prepared_events_dlq', 'clickhouse_user_profiles_dlq', 'clickhouse_organization_profiles_dlq', 'clickhouse_organization_members_dlq'].map(queueName => (
+          <div className='rounded border border-red-200 text-gray-700 flex items-center justify-center p-4 bg-white'>
             <div className='text-center'>
               <h4 className='text-md'>{queueName} queue</h4>
               {queueStats
@@ -81,6 +92,26 @@ export default function AdminPage() {
         showAxis={true}
         showYAxis={true}
       />
+      <div className='grid grid-cols-2 gap-2 mt-2'>
+        <LineChartWithValue
+          title='Queueing times (seconds from event occurred_at to ingested).'
+          timeseries={queueingTimeTimeseries?.timeseries}
+          groupedBy='minute'
+          showAxis={true}
+          showYAxis={true}
+          dateKey='timeperiod'
+          valueKey='average_seconds_to_ingest'
+        />
+        <LineChartWithValue
+          title='Event Trigger delay (seconds from event occurred_at to triggered).'
+          timeseries={eventTriggerDelayTimeTimeseries}
+          groupedBy='minute'
+          showAxis={true}
+          showYAxis={true}
+          dateKey='date'
+          valueKey='value'
+        />
+      </div>
       {ingestionBatches && (
         <>
           <h1 className='text-md font-semibold mt-2'>Ingestion batches</h1>

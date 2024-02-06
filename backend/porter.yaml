@@ -5,3 +5,6 @@ apps:
   web-worker:
     type: worker
     run: "bundle exec sidekiq"
+  ingestion-worker:
+    type: worker
+    run: "bundle exec sidekiq -C config/ingestion-sidekiq.yml"
