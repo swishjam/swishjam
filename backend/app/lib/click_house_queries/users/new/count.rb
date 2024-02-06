@@ -20,7 +20,7 @@ module ClickHouseQueries
             SELECT CAST(COUNT() AS INT) AS count
             FROM swishjam_user_profiles
             WHERE 
-              swishjam_api_key IN #{formatted_in_clause(@public_keys)} AND 
+              workspace_id = '#{@workspace_id}' AND
               created_at BETWEEN '#{formatted_time(@start_time)}' AND '#{formatted_time(@end_time)}'
           SQL
         end
