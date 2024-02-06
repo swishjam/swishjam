@@ -49,6 +49,7 @@ const LoadingState = ({ title, includeCard = true }) => (
 export default function LineChartWithValue({
   additionalTooltipDataFormatter,
   className,
+  connectNulls = false,
   comparisonDateKey = 'comparisonDate',
   comparisonValueKey = 'comparisonValue',
   dateKey = 'date',
@@ -179,6 +180,7 @@ export default function LineChartWithValue({
                   {showComparisonData && (
                     <Area
                       type="monotone"
+                      connectNulls={connectNulls}
                       dataKey={comparisonValueKey}
                       stroke="#878b90"
                       dot={{ r: 0 }}
@@ -191,6 +193,7 @@ export default function LineChartWithValue({
                   )}
                   <Area
                     type="monotone"
+                    connectNulls={connectNulls}
                     dataKey={valueKey}
                     stroke="#7dd3fc"
                     dot={{ r: 0 }}

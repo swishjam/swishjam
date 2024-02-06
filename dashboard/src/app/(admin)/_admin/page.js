@@ -106,10 +106,11 @@ export default function AdminPage() {
           title='Event Trigger delay (seconds from event occurred_at to triggered).'
           timeseries={eventTriggerDelayTimeTimeseries}
           groupedBy='minute'
-          showAxis={true}
-          showYAxis={true}
           dateKey='date'
           valueKey='value'
+          showAxis={true}
+          showYAxis={true}
+          connectNulls={true}
         />
       </div>
       {ingestionBatches && (
