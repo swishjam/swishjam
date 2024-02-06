@@ -45,7 +45,7 @@ module Analytics
         swishjam_api_key: swishjam_api_key,
         name: name,
         properties: properties.to_json,
-        occurred_at: Time.parse(occurred_at.to_s).in_time_zone('UTC'), 
+        occurred_at: occurred_at.to_f,
       }
     end
   end
