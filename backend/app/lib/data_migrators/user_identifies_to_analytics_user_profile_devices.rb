@@ -35,18 +35,20 @@ module DataMigrators
         Analytics::ClickHouseRecord.execute_sql('TRUNCATE TABLE user_identify_events', format: nil)
         
         num_devices = devices_to_insert.count
-        num_failed = 0
+        failures = {}
         progress_bar = TTY::ProgressBar.new("Inserting #{num_devices} `analytics_user_profile_devices` into Postgres.. [:bar]", total: num_devices, bar_format: :block)
         devices_to_insert.each_with_index do |device_data, i|
           AnalyticsUserProfileDevice.insert!(device_data)
           progress_bar.advance(1)
         rescue => e
-          num_failed += 1
+          failures[device_data['workspace_id']] = (failures[device_data['workspace_id']] || 0) + 1
           puts "Error inserting device: #{device_data.inspect} for workspace #{device_data['workspace_id']}: #{e.message}".colorize(:red)
           progress_bar.advance(1)
         end
 
-        puts "Inserted #{num_devices - num_failed}/#{num_devices} `analytics_user_profile_devices` successfully into Postgres.".colorize(:green)
+        num_failed = failures.values.sum
+        puts "Inserted #{num_devices - num_failed}/#{num_devices} (#{((num_devices - num_failed) / num_devices.to_f) * 100}%) `analytics_user_profile_devices` successfully into Postgres.".colorize(:green)
+        puts "Failures by workspace:\n#{failures.map{ |k, v| "#{k}: #{v} failures" }.join("\n")}".colorize(:red)
         puts "Took #{Time.current - start} seconds".colorize(:grey)
       end
     end
