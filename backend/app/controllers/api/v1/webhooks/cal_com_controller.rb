@@ -8,7 +8,7 @@ module Api
             return
           end
           
-          workspace = Workspace.find_by(params[:workspace_id])
+          workspace = Workspace.find_by(id: params[:workspace_id])
           if workspace.nil?
             Sentry.capture_message("Received Cal.com event from workspace #{params[:workspace_id]}, but unable to find matching workspace.")
             render json: { message: 'ok' }, status: :ok
