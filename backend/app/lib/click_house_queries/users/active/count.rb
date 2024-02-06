@@ -1,7 +1,7 @@
 module ClickHouseQueries
   module Users
     module Active
-      module Count
+      class Count
         include ClickHouseQueries::Helpers
 
         def initialize(public_keys, start_time:, end_time: Time.current)
