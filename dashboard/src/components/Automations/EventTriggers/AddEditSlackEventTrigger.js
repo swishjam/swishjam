@@ -102,6 +102,11 @@ export default function AddEditSlackEventTrigger({ onEventTriggerCreated }) {
       channel_id: values.slack_channel,
       channel_name: slackChannels.find(channel => channel.id === values.slack_channel)?.name,
     }
+    
+    // onEventTriggerCreated
+    
+    
+    
     const { trigger, error } = await SwishjamAPI.EventTriggers.create({
       eventName: values.event_name,
       conditionalStatements: values.conditionalStatements,
