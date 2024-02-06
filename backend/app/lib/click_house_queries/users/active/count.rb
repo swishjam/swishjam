@@ -10,7 +10,7 @@ module ClickHouseQueries
           @end_time = end_time
         end
 
-        def timeseries
+        def count
           Analytics::Event.find_by_sql(sql.squish!).first.num_unique_users
         end
 
