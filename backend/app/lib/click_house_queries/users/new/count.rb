@@ -4,8 +4,9 @@ module ClickHouseQueries
       class Count
         include ClickHouseQueries::Helpers
 
-        def initialize(public_keys, start_time:, end_time: Time.current)
+        def initialize(public_keys, workspace_id: nil, start_time:, end_time: Time.current)
           @public_keys = public_keys.is_a?(Array) ? public_keys : [public_keys]
+          @workspace_id = workspace_id
           @start_time = start_time 
           @end_time = end_time 
         end

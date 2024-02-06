@@ -41,6 +41,7 @@ module ReportHandlers
     def web_analytics_calculator
       @web_analytics_calculator ||= ReportHandlers::MetricsCalculators::WebAnalytics.new(
         @report.workspace.api_keys.for_data_source!(ApiKey::ReservedDataSources.MARKETING).public_key,
+        workspace_id: @report.workspace_id,
         current_period_start_date: current_period_start_date,
         current_period_end_date: current_period_end_date,
         previous_period_start_date: previous_period_start_date,
@@ -51,6 +52,7 @@ module ReportHandlers
     def product_analytics_calculator
       @product_analytics_calculator ||= ReportHandlers::MetricsCalculators::ProductAnalytics.new(
         @report.workspace.api_keys.for_data_source!(ApiKey::ReservedDataSources.PRODUCT).public_key,
+        workspace_id: @report.workspace_id,
         current_period_start_date: current_period_start_date,
         current_period_end_date: current_period_end_date,
         previous_period_start_date: previous_period_start_date,
