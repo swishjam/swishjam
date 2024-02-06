@@ -117,8 +117,8 @@ export default function AdminPage() {
           <h1 className='text-md font-semibold mt-2'>Ingestion batches</h1>
           <table className="min-w-full divide-y divide-gray-300">
             <thead>
-              <tr className='grid grid-cols-5'>
-                <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+              <tr className='grid grid-cols-6'>
+                <th scope="col" className="col-span-2 px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
                   Type
                 </th>
                 <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
@@ -139,9 +139,9 @@ export default function AdminPage() {
               {ingestionBatches.map(batch => (
                 <tr
                   key={batch.id}
-                  className="group hover:bg-gray-50 duration-300 transition grid grid-cols-5 items-center"
+                  className="group hover:bg-gray-50 duration-300 transition grid grid-cols-6 items-center"
                 >
-                  <td className="whitespace-nowrap px-3 py-3.5 text-sm">{batch.event_type}</td>
+                  <td className="whitespace-nowrap px-3 py-3.5 text-sm col-span-2">{batch.event_type}</td>
                   <td className="whitespace-nowrap px-3 py-3.5 text-sm">{batch.num_records}</td>
                   <td className="whitespace-nowrap px-3 py-3.5 text-sm">{new Date(batch.completed_at).toLocaleDateString('en-us', { weekday: "short", year: "numeric", month: "short", day: "numeric", hour: 'numeric', minute: 'numeric' })}</td>
                   <td className="whitespace-nowrap px-3 py-3.5 text-sm">{batch.num_seconds_to_complete ? intelligentlyFormattedMs(batch.num_seconds_to_complete * 1_000) : 'In progress?'}</td>
