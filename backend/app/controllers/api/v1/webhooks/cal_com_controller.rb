@@ -3,7 +3,7 @@ module Api
     module Webhooks
       class CalComController < BaseController
         def receive
-          if payload['triggerEvent'] == 'PING'
+          if params['triggerEvent'] == 'PING'
             render json: { message: 'ok' }, status: :ok
             return
           end
