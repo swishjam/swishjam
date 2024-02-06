@@ -50,7 +50,6 @@ module ClickHouseQueries
             e.swishjam_api_key IN #{formatted_in_clause(@public_keys)} AND
             e.occurred_at BETWEEN '#{formatted_time(@start_time)}' AND '#{formatted_time(@end_time)}'
           GROUP BY e.uuid
-          #{@limit.nil? ? '' : "LIMIT #{@limit}"}
         SQL
       end
 
