@@ -12,6 +12,7 @@ import { setStateFromTimeseriesResponse } from '@/lib/utils/timeseriesHelpers';
 export default function AdminPage() {
   const [dataSyncs, setDataSyncs] = useState();
   const [eventCountsTimeseries, setEventCountsTimeseries] = useState();
+  const [eventTriggerDelayTimeTimeseries, setEventTriggerDelayTimeTimeseries] = useState();
   const [ingestionBatches, setIngestionBatches] = useState();
   const [isRefreshing, setIsRefreshing] = useState(false)
   const [queueStats, setQueueStats] = useState();
@@ -24,12 +25,18 @@ export default function AdminPage() {
     setQueueStats();
     setDataSyncs();
     setQueueingTimeTimeseries();
+    setEventTriggerDelayTimeTimeseries();
     await Promise.all([
       SwishjamAPI.Admin.Ingestion.eventCounts().then(setEventCountsTimeseries),
       SwishjamAPI.Admin.Ingestion.queueStats().then(setQueueStats),
       SwishjamAPI.Admin.Ingestion.ingestionBatches().then(setIngestionBatches),
       SwishjamAPI.Admin.DataSyncs.list().then(setDataSyncs),
-      SwishjamAPI.Admin.Ingestion.queueing().then(d => setStateFromTimeseriesResponse(d, setQueueingTimeTimeseries))
+      SwishjamAPI.Admin.Ingestion.queueing().then(d => setStateFromTimeseriesResponse(d, setQueueingTimeTimeseries)),
+      SwishjamAPI.Admin.EventTriggers.delayTimeTimeseries().then(response => {
+        setEventTriggerDelayTimeTimeseries(
+          Object.keys(response).map(date => ({ date: date, value: parseFloat(response[date] || 0) }))
+        );
+      }),
     ])
     setIsRefreshing(false);
   }
@@ -78,22 +85,31 @@ export default function AdminPage() {
         ))}
       </div>
       <LineChartWithValue
-        title='Queueing times (seconds from event occurred_at to ingested).'
-        timeseries={queueingTimeTimeseries?.timeseries}
-        groupedBy='minute'
+        title='Global events ingested.'
+        value={eventCountsTimeseries && eventCountsTimeseries[eventCountsTimeseries.length - 1].value}
+        timeseries={eventCountsTimeseries}
+        groupedBy='hour'
         showAxis={true}
         showYAxis={true}
-        dateKey='timeperiod'
-        valueKey='average_seconds_to_ingest'
       />
-      <div className='mt-2'>
+      <div className='grid grid-cols-2 gap-2 mt-2'>
         <LineChartWithValue
-          title='Global events ingested.'
-          value={eventCountsTimeseries && eventCountsTimeseries[eventCountsTimeseries.length - 1].value}
-          timeseries={eventCountsTimeseries}
-          groupedBy='hour'
+          title='Queueing times (seconds from event occurred_at to ingested).'
+          timeseries={queueingTimeTimeseries?.timeseries}
+          groupedBy='minute'
           showAxis={true}
           showYAxis={true}
+          dateKey='timeperiod'
+          valueKey='average_seconds_to_ingest'
+        />
+        <LineChartWithValue
+          title='Event Trigger delay (seconds from event occurred_at to triggered).'
+          timeseries={eventTriggerDelayTimeTimeseries}
+          groupedBy='minute'
+          showAxis={true}
+          showYAxis={true}
+          dateKey='date'
+          valueKey='value'
         />
       </div>
       {ingestionBatches && (
