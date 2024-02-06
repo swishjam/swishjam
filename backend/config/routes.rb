@@ -85,7 +85,8 @@ Rails.application.routes.draw do
         collection do
           get :active
           get :timeseries
-          get :unique_attributes
+          get :unique_properties
+          get :unique_property_values
         end
         resources :events, only: [:index], controller: :'users/events'
         resources :organizations, only: [:index], controller: :'users/organizations'

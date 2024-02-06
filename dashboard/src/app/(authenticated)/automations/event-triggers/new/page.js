@@ -21,12 +21,12 @@ export default function NewEventTrigger() {
         description: error,
       })
     } else {
-      swishjam.event('event_trigger_created', {
-        event_name: values.event_name,
-        slack_channel: config.channel_name,
-        trigger_id: trigger.id,
-        message_header: config.message_header,
-      })
+      // swishjam.event('event_trigger_created', {
+      //   event_name: values.event_name,
+      //   slack_channel: config.channel_name,
+      //   trigger_id: trigger.id,
+      //   message_header: config.message_header,
+      // })
       router.push(`/automations/event-triggers?success=${"Your new event trigger was created successfully."}`);
     }
   }
@@ -51,7 +51,7 @@ export default function NewEventTrigger() {
         />
       )}
       {searchParams.get('type') == 'ResendEmail' && (
-        <ResendEmailView />
+        <ResendEmailView onSubmit={onSubmit} />
       )}
     </main>
   )

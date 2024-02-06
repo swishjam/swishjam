@@ -85,13 +85,19 @@ module Api
         render json: render_timeseries_json(timeseries, comparison_timeseries), status: :ok
       end
 
-      def unique_attributes
+      def unique_properties
+        limit = params[:limit] || 100
+        properties = ClickHouseQueries::Users::Properties::Unique.new(current_workspace.id, limit: limit).get
+        render json: properties, status: :ok
+      end
+
+      def unique_property_values
         raise NotImplementedError, 'Endpoint deprecated.'
-        columns = JSON.parse((params[:columns] || %w[metadata]).to_s)
-        results = columns.map do |column|
+        properties = JSON.parse((params[:properties] || %w[metadata]).to_s)
+        results = properties.map do |property|
           {
-            column: column,
-            values: ClickHouseQueries::Users::Attributes::UniqueValues.new(current_workspace, column: column).get
+            column: property,
+            values: ClickHouseQueries::Users::Attributes::UniqueValues.new(current_workspace, column: property).get
           }
         end
         render json: results, status: :ok
