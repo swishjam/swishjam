@@ -19,11 +19,11 @@ module Api
             return
           end
 
-          event_to_prepare = Analytics::Event.formatted_for_ingestion(
+          event_to_prepare = Analytics::Event.formatted_for_preparation(
             uuid: request.headers['X-GitHub-Delivery'],
             swishjam_api_key: public_key,
             name: ['github', request.headers['X-GitHub-Event'], params.dig('action')].compact.join('.'),
-            occurred_at: Time.current, # there are timestamps in each event but they are not consistent, using current time for now
+            occurred_at: Time.current.to_f, # there are timestamps in each event but they are not consistent, using current time for now
             properties: params.as_json,
           )
           IngestionJobs::PrepareEventsAndEnqueueIntoClickHouseWriter.perform_async([event_to_prepare])

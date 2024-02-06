@@ -29,11 +29,11 @@ module Api
             return
           end
 
-          event_to_prepare = Analytics::Event.formatted_for_ingestion(
+          event_to_prepare = Analytics::Event.formatted_for_preparation(
             uuid: params.dig('payload', 'uid') || SecureRandom.uuid,
             swishjam_api_key: public_key,
             name: "cal.#{params[:triggerEvent]}",
-            occurred_at: DateTime.parse(params[:createdAt]),
+            occurred_at: DateTime.parse(params[:createdAt]).to_f,
             properties: params.as_json,
           )
           IngestionJobs::PrepareEventsAndEnqueueIntoClickHouseWriter.perform_async([event_to_prepare])

@@ -23,7 +23,7 @@ module Api
             uuid: "#{params['type']}_#{uuid}",
             swishjam_api_key: swishjam_api_key,
             name: "resend.#{params['type']}",
-            occurred_at: DateTime.parse(params.dig('data', 'created_at')),
+            occurred_at: DateTime.parse(params.dig('data', 'created_at')).to_f,
             properties: params.as_json,
           )
           IngestionJobs::PrepareEventsAndEnqueueIntoClickHouseWriter.perform_async([event_to_prepare])

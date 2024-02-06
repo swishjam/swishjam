@@ -62,7 +62,7 @@ module DummyData
       private
 
       def new_mrr_movement_event(movement_type, date, public_key, is_negative: false)
-        Analytics::Event.formatted_for_ingestion(
+        Analytics::Event.formatted_for_preparation(
           uuid: SecureRandom.uuid,
           swishjam_api_key: public_key,
           name: Analytics::Event::ReservedNames.MRR_MOVEMENT,

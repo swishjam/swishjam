@@ -18,11 +18,11 @@ module Api
           end
 
           event_data = parser_klass.new(integration.workspace, @event_payload, public_key).to_json
-          formatted_event = Analytics::Event.formatted_for_ingestion(
+          formatted_event = Analytics::Event.formatted_for_preparation(
             uuid: params[:id],
             swishjam_api_key: public_key, 
             name: "intercom.#{params[:topic]}",
-            occurred_at: Time.at(params[:created_at]).to_datetime,
+            occurred_at: Time.at(params[:created_at]).to_datetime.to_f,
             properties: params.as_json,
           )
           IngestionJobs::PrepareEventsAndEnqueueIntoClickHouseWriter.perform_async([formatted_event])
