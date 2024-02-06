@@ -19,22 +19,13 @@ module EventTriggerSteps
     def trigger!(prepared_event, as_test: false)
       access_token = event_trigger.workspace.slack_connection.access_token
       slack_client = ::Slack::Client.new(access_token)
-
-      interpolated_message_body = message_body.gsub(/\{([^}]+)\}/) do |match|
-        variable_name = $1.strip
-        resolved_variable_value = prepared_event.properties[variable_name]
-        if resolved_variable_value.nil? && variable_name == 'user_attributes'
-          resolved_variable_value = prepared_event.user_properties.to_s
-        elsif resolved_variable_value.nil? && variable_name == 'organization_attributes'
-          resolved_variable_value = prepared_event.organization_properties.to_s
-        end
-        resolved_variable_value || match
-      end
+      interpolated_message_body = EventVariableInterpolator.interpolated_text(message_body, prepared_event)
 
       if as_test
         interpolated_message_body = "#{interpolated_message_body} \n\n _:test_tube: This is a test message and was not actually triggered by a real event_"
       end
       interpolated_message_body = "#{interpolated_message_body[0..2996]}..." if interpolated_message_body.length > 3000
+      
       slack_client.post_message_to_channel(
         channel: channel_id, 
         blocks: [
