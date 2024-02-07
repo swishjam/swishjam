@@ -5,7 +5,10 @@ class AddCreatedByUserToEventTriggers < ActiveRecord::Migration[6.1]
     create_table :triggered_event_trigger_steps, id: :uuid do |t|
       t.references :event_trigger_step, type: :uuid, null: false, foreign_key: true
       t.jsonb :triggered_payload
-      t.datetime :created_at, null: false
+      t.jsonb :triggered_event_json
+      t.string :error_message
+      t.datetime :started_at, null: false
+      t.datetime :completed_at
     end
   end
 end

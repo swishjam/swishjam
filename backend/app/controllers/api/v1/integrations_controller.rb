@@ -7,7 +7,7 @@ module Api
         if params[:destinations] == 'true'
           enabled_destinations = current_workspace.integrations.destinations.enabled
           disabled_destinations = current_workspace.integrations.destinations.disabled
-          available_destinations = Integration.DESTINATIONS_TYPES - enabled_destinations.collect(&:class) - disabled_destinations.collect(&:class)
+          available_destinations = Integration.DESTINATION_TYPES - enabled_destinations.collect(&:class) - disabled_destinations.collect(&:class)
           render json: {
             enabled_integrations: enabled_destinations.collect{ |destination| { name: destination.class.friendly_name, enabled: true, id: destination.id }},
             disabled_integrations: disabled_destinations.collect{ |destination| { name: destination.class.friendly_name, enabled: false, id: destination.id }},
@@ -20,7 +20,7 @@ module Api
           ]
           enabled_integrations = current_workspace.integrations.data_sources.enabled
           disabled_integrations = current_workspace.integrations.data_sources.disabled
-          available_integrations = Integration.DATA_SOURCES_TYPES - enabled_integrations.collect(&:class) - disabled_integrations.collect(&:class)
+          available_integrations = Integration.DATA_SOURCE_TYPES - enabled_integrations.collect(&:class) - disabled_integrations.collect(&:class)
           render json: { 
             enabled_integrations: enabled_integrations.collect{ |integration| { name: integration.class.friendly_name, enabled: true, id: integration.id }}.concat(default_integrations),
             disabled_integrations: disabled_integrations.collect{ |integration| { name: integration.class.friendly_name, enabled: false, id: integration.id }},

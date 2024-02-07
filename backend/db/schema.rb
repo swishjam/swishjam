@@ -255,7 +255,10 @@ ActiveRecord::Schema.define(version: 2024_02_07_000039) do
   create_table "triggered_event_trigger_steps", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.uuid "event_trigger_step_id", null: false
     t.jsonb "triggered_payload"
-    t.datetime "created_at", null: false
+    t.jsonb "triggered_event_json"
+    t.string "error_message"
+    t.datetime "started_at", null: false
+    t.datetime "completed_at"
     t.index ["event_trigger_step_id"], name: "index_triggered_event_trigger_steps_on_event_trigger_step_id"
   end
 
