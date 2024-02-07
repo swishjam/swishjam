@@ -5,8 +5,8 @@ class Integration < Transactional
   scope :disabled, -> { where(enabled: false) }
   scope :by_type, -> (type) { where(type: type.to_s) }
 
-  scope :data_sources, -> { where(type: self.DATA_SOURCES_TYPES.map(&:to_s)) }
-  scope :destinations, -> { where(type: self.DESTINATIONS_TYPES.map(&:to_s)) }
+  scope :data_sources, -> { where(type: self.DATA_SOURCE_TYPES.map(&:to_s)) }
+  scope :destinations, -> { where(type: self.DESTINATION_TYPES.map(&:to_s)) }
 
   attribute :enabled, :boolean, default: -> { true }
   attribute :config, :jsonb, default: -> { {} }
@@ -25,11 +25,11 @@ class Integration < Transactional
     [Integrations::Stripe, Integrations::Resend, Integrations::CalCom, Integrations::Intercom, Integrations::Github]
   end
 
-  def self.DATA_SOURCES_TYPES
+  def self.DATA_SOURCE_TYPES
     self.TYPES
   end
 
-  def self.DESTINATIONS_TYPES
+  def self.DESTINATION_TYPES
     [Integrations::Destinations::Resend, Integrations::Destinations::Slack]
   end
 
@@ -47,11 +47,11 @@ class Integration < Transactional
   end
 
   def is_data_source?
-    self.class.data_sources.include?(self.class)
+    self.class.DATA_SOURCE_TYPES.include?(self.class)
   end
 
   def is_destination?
-    self.class.destinations.include?(self.class)
+    self.class.DESTINATION_TYPES.include?(self.class)
   end
 
   def enabled?
