@@ -254,12 +254,14 @@ ActiveRecord::Schema.define(version: 2024_02_07_000039) do
 
   create_table "triggered_event_trigger_steps", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.uuid "event_trigger_step_id", null: false
+    t.uuid "triggered_event_trigger_id", null: false
     t.jsonb "triggered_payload"
     t.jsonb "triggered_event_json"
     t.string "error_message"
     t.datetime "started_at", null: false
     t.datetime "completed_at"
     t.index ["event_trigger_step_id"], name: "index_triggered_event_trigger_steps_on_event_trigger_step_id"
+    t.index ["triggered_event_trigger_id"], name: "idx_triggered_event_trigger_steps_on_triggered_event_trigger_id"
   end
 
   create_table "triggered_event_triggers", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -389,6 +391,7 @@ ActiveRecord::Schema.define(version: 2024_02_07_000039) do
   add_foreign_key "retention_cohort_activity_periods", "workspaces"
   add_foreign_key "retention_cohorts", "workspaces"
   add_foreign_key "triggered_event_trigger_steps", "event_trigger_steps"
+  add_foreign_key "triggered_event_trigger_steps", "triggered_event_triggers"
   add_foreign_key "workspace_invitations", "workspaces"
   add_foreign_key "workspace_members", "users"
   add_foreign_key "workspace_members", "workspaces"

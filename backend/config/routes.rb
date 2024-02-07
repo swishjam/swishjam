@@ -200,6 +200,7 @@ Rails.application.routes.draw do
           patch :enable
           patch :disable
         end
+        resources :triggered_event_triggers, only: [:index]
       end
 
       resources :slack_connections, only: [:index]

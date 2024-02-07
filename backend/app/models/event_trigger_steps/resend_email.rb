@@ -2,8 +2,12 @@ module EventTriggerSteps
   class ResendEmail < EventTriggerStep
     validate :config_has_required_fields
 
-    def trigger!(prepared_event, as_test: false)
-      EventTriggers::ResendEmailInvoker.new(self, prepared_event).invoke_or_schedule_email_delivery_if_necessary
+    def trigger!(prepared_event, triggered_event_trigger, as_test: false)
+      EventTriggers::ResendEmailInvoker.new(
+        trigger_step: self, 
+        triggered_event_trigger: triggered_event_trigger, 
+        prepared_event: prepared_event,
+      ).invoke_or_schedule_email_delivery_if_necessary
     end
 
     def trigger_from_scheduled_delivery!(pending_triggered_step)

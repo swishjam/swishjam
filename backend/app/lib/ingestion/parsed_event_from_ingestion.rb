@@ -20,7 +20,7 @@ module Ingestion
         user_properties: user_properties.to_json,
         organization_properties: organization_properties.to_json,
         occurred_at: occurred_at,
-        ingested_at: Time.current,
+        ingested_at: Time.current.in_time_zone('UTC'),
       }
     end
 

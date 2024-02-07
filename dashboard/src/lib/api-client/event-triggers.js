@@ -1,6 +1,9 @@
 import Base from "./base";
+import TriggeredEventTriggers from "./event-triggers/triggered-event-triggers";
 
 export class EventTriggers extends Base {
+  static TriggeredEventTriggers = TriggeredEventTriggers;
+
   static async list() {
     return await this._get('/api/v1/event_triggers')
   }

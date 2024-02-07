@@ -2,10 +2,14 @@ module EventTriggers
   class ResendEmailInvoker
     attr_reader :event_trigger_step, :prepared_event, :triggered_step_record
 
-    def initialize(resend_email_event_trigger_step, prepared_event, triggered_event_trigger_step: nil)
-      @event_trigger_step = resend_email_event_trigger_step
+    def initialize(trigger_step:, prepared_event:, triggered_event_trigger: nil, triggered_event_trigger_step: nil)
+      @event_trigger_step = trigger_step
       @prepared_event = prepared_event
+      if triggered_event_trigger.nil? && triggered_event_trigger_step.nil?
+        raise ArgumentError, "`triggered_event_trigger` or `triggered_event_trigger_step` must be provided"
+      end
       @triggered_step_record = triggered_event_trigger_step || event_trigger_step.triggered_event_trigger_steps.new(
+        triggered_event_trigger: triggered_event_trigger,
         triggered_event_json: prepared_event.as_json, 
         triggered_payload: { resend_request_body: request_body }
       )
