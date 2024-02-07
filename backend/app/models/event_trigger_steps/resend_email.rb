@@ -36,7 +36,7 @@ module EventTriggerSteps
         Sentry.capture_message("Resend API failed to send email. Not considering this a TriggeredEventTriggerStep. Response: #{resp.body}. Payload #{request_body}.")
         return false
       end
-      triggered_event_trigger_steps.create!(triggered_payload: request_body)
+      triggered_event_trigger_steps.create!(triggered_payload: { request: request_body, response: JSON.parse(resp.body) })
     end
 
     private
