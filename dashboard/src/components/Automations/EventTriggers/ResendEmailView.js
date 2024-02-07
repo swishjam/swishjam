@@ -7,6 +7,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form"
+import { Checkbox } from "@/components/ui/checkbox"
 import { Input } from '@/components/ui/input';
 import LoadingSpinner from '@components/LoadingSpinner';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -16,11 +17,9 @@ import { Textarea } from "@/components/ui/textarea"
 import { Tooltipable } from '@/components/ui/tooltip';
 import { useEffect, useState } from 'react';
 import { useFieldArray, useForm } from "react-hook-form"
-import { ChevronRightIcon, InfoIcon } from 'lucide-react';
-import { LuPlus, LuTrash } from "react-icons/lu";
+import { LuX, LuPlus, LuTrash, LuInfo } from "react-icons/lu";
 import useAuthData from "@/hooks/useAuthData";
 import EmailPreview from "@/components/Resend/EmailPreview";
-import { ScrollArea } from "../../ui/scroll-area";
 import InterpolatedMarkdown from "../../VariableParser/InterpolatedMarkdown";
 
 const FormInputOrLoadingState = ({ children, className, isLoading }) => {
@@ -207,7 +206,7 @@ export default function ResendEmailView({ onSubmit }) {
                   <FormLabel className='flex items-center'>
                     Trigger Event
                     <Tooltipable content="The event which should set off this Event Trigger (pending your trigger conditions are also met).">
-                      <InfoIcon className='inline ml-1 text-gray-500' size={16} />
+                      <div><LuInfo className='inline ml-1 text-gray-500' size={16} /></div>
                     </Tooltipable>
                   </FormLabel>
                   <FormInputOrLoadingState isLoading={uniqueEvents === undefined || userPropertyOptions === undefined}>
@@ -238,7 +237,7 @@ export default function ResendEmailView({ onSubmit }) {
               <FormLabel className='flex items-center'>
                 Trigger Conditions
                 <Tooltipable content="Trigger conditions allow you to specify a set of conditions based on the event properties that must be met in order for this trigger to fire. If the conditions are not met for the event, the trigger will not fire.">
-                  <InfoIcon className='inline ml-1 text-gray-500' size={16} />
+                  <div><LuInfo className='ml-1 text-gray-500' size={16} /></div>
                 </Tooltipable>
               </FormLabel>
 
@@ -372,7 +371,7 @@ export default function ResendEmailView({ onSubmit }) {
               name="to"
               render={({ field }) => (
                 <FormItem className="relative">
-                  <FormLabel>
+                  <FormLabel className="flex">
                     To
                     <Tooltipable
                       content={
@@ -382,7 +381,7 @@ export default function ResendEmailView({ onSubmit }) {
                         </>
                       }
                     >
-                      <InfoIcon className='inline ml-1 text-gray-500' size={16} />
+                      <div className=""><LuInfo className='ml-1 text-gray-500' size={16} /></div>
                     </Tooltipable>
                   </FormLabel>
                   <FormControl>
@@ -392,8 +391,15 @@ export default function ResendEmailView({ onSubmit }) {
                         placeholder="{user.email}"
                         {...form.register("to")}
                       />
-                      <div className="absolute top-8 right-2 flex gap-2 z-10">
-                        <div className="px-2 py-0.5 rounded border border-gray-200 text-xs hover:bg-accent">
+                      <div className="absolute top-6 right-2 flex gap-2 z-10">
+                        <div
+                          onClick={() => {
+                            if (!form.watch('bcc')) {
+                              setBccSectionsIsExpanded(true)//!ccSectionsIsExpanded)
+                            }
+                          }}
+                          className={`${bccSectionsIsExpanded && 'hidden'} cursor-pointer px-2 py-0.5 rounded border border-gray-200 text-xs hover:bg-accent`}
+                        >
                           BCC
                         </div>
                         <div
@@ -402,12 +408,11 @@ export default function ResendEmailView({ onSubmit }) {
                               setCcSectionsIsExpanded(true)//!ccSectionsIsExpanded)
                             }
                           }}
-                          className="px-2 py-0.5 rounded border border-gray-200 text-xs hover:bg-accent"
+                          className={`${ccSectionsIsExpanded && 'hidden'} cursor-pointer px-2 py-0.5 rounded border border-gray-200 text-xs hover:bg-accent`}
                         >
                           CC
                         </div>
                       </div>
-                      <div className="absolute top-8 right-2 px-2 py-0.5 rounded border border-gray-200 text-xs hover:bg-accent">CC</div>
                     </FormInputOrLoadingState>
                   </FormControl>
                   <FormMessage />
@@ -419,12 +424,8 @@ export default function ResendEmailView({ onSubmit }) {
               control={form.control}
               name="cc"
               render={({ field }) => (
-                <FormItem>
-                  <FormLabel
-                    className={`flex items-center pr-4 py-0.5 transition-all rounded w-fit ${form.watch('cc') ? '' : 'cursor-pointer hover:bg-gray-100'}`}
-                  >
-                    CC
-                  </FormLabel>
+                <FormItem className="relative">
+                  {(ccSectionsIsExpanded || form.watch('cc')) && <FormLabel className={`flex items-center pr-4 py-0.5`}>CC</FormLabel>}
                   <FormControl>
                     {(ccSectionsIsExpanded || form.watch('cc')) && (
                       <FormInputOrLoadingState isLoading={uniqueEvents === undefined || userPropertyOptions === undefined}>
@@ -433,6 +434,18 @@ export default function ResendEmailView({ onSubmit }) {
                           placeholder="somone-to-cc@example.com"
                           {...form.register("cc")}
                         />
+                        <div className="absolute top-6 right-2 flex gap-2 z-10">
+                          <div
+                            onClick={() => {
+                              if (!form.watch('cc')) {
+                                setCcSectionsIsExpanded(false)//!ccSectionsIsExpanded)
+                              }
+                            }}
+                            className={`${form.watch('cc') && 'hidden'} cursor-pointer px-2 py-1.5 text-xs hover:bg-accent rounded-md group transition-all duration-300`}
+                          >
+                            <LuX size={16} className="group-hover:text-gray-900 text-gray-200" />
+                          </div>
+                        </div>
                       </FormInputOrLoadingState>
                     )}
                   </FormControl>
@@ -445,18 +458,8 @@ export default function ResendEmailView({ onSubmit }) {
               control={form.control}
               name="bcc"
               render={({ field }) => (
-                <FormItem>
-                  <FormLabel
-                    className={`flex items-center pr-4 py-0.5 transition-all rounded w-fit ${form.watch('bcc') ? '' : 'cursor-pointer hover:bg-gray-100'}`}
-                    onClick={() => {
-                      if (!form.watch('bcc')) {
-                        setBccSectionsIsExpanded(!bccSectionsIsExpanded)
-                      }
-                    }}
-                  >
-                    <ChevronRightIcon className={`w-4 h-4 transition-all ${bccSectionsIsExpanded ? 'transform rotate-90' : ''}`} />
-                    BCC:
-                  </FormLabel>
+                <FormItem className="relative">
+                  {(bccSectionsIsExpanded || form.watch('bcc')) && <FormLabel className={`flex items-center pr-4 py-0.5`}>BCC</FormLabel>}
                   <FormControl>
                     {(bccSectionsIsExpanded || form.watch('bcc')) && (
                       <FormInputOrLoadingState isLoading={uniqueEvents === undefined || userPropertyOptions === undefined}>
@@ -465,6 +468,18 @@ export default function ResendEmailView({ onSubmit }) {
                           placeholder="someone-to-bcc@example.com"
                           {...form.register("bcc")}
                         />
+                        <div className="absolute top-6 right-2 flex gap-2 z-10">
+                          <div
+                            onClick={() => {
+                              if (!form.watch('bcc')) {
+                                setBccSectionsIsExpanded(false)//!ccSectionsIsExpanded)
+                              }
+                            }}
+                            className={`${form.watch('bcc') && 'hidden'} cursor-pointer px-2 py-1.5 text-xs hover:bg-accent rounded-md group transition-all duration-300`}
+                          >
+                            <LuX size={16} className="group-hover:text-gray-900 text-gray-200" />
+                          </div>
+                        </div>
                       </FormInputOrLoadingState>
                     )}
                   </FormControl>
@@ -478,7 +493,7 @@ export default function ResendEmailView({ onSubmit }) {
               name="from"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>From:</FormLabel>
+                  <FormLabel>From</FormLabel>
                   <FormControl>
                     <FormInputOrLoadingState isLoading={uniqueEvents === undefined || userPropertyOptions === undefined}>
                       <Input
@@ -530,7 +545,7 @@ export default function ResendEmailView({ onSubmit }) {
                         </>
                       }
                     >
-                      <InfoIcon className='inline ml-1 text-gray-500' size={16} />
+                      <div><LuInfo className='inline ml-1 text-gray-500' size={16} /></div>
                     </Tooltipable>
                   </FormLabel>
                   <FormControl>
@@ -548,20 +563,22 @@ export default function ResendEmailView({ onSubmit }) {
               name="send_once_per_user"
               render={({ field }) => (
                 <FormItem className='flex items-center gap-x-2'>
-                  <Tooltipable content="If checked, this email will not be sent on subsequent events for the same email address.">
-                    <InfoIcon className='inline text-gray-500 mr-1' size={16} />
-                  </Tooltipable>
-                  <FormLabel className='cursor-pointer'>
-                    Only ever send this email to a user once
-                  </FormLabel>
                   <FormControl>
-                    <Input
-                      type="checkbox"
-                      className='h-3 w-3 mt-0 cursor-pointer focus-visible:bg-swishjam focus:bg-swishjam checked:bg-swishjam checked:border-transparent checked:ring-0 hover:bg-swishjam'
-                      style={{ marginTop: 0 }}
-                      {...form.register("send_once_per_user")}
+                    <Checkbox
+                      className='data-[state=checked]:bg-swishjam data-[state=checked]:border-swishjam'
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
                     />
                   </FormControl>
+                  <FormLabel className="flex">
+                    Only ever send this email to a user once
+                    <Tooltipable
+                      className=""
+                      content="If checked, this email will not be sent on subsequent events for the same email address."
+                    >
+                      <div><LuInfo className=' text-gray-500 ml-1' size={16} /></div>
+                    </Tooltipable>
+                  </FormLabel>
                   <FormMessage />
                 </FormItem>
               )}
@@ -572,27 +589,27 @@ export default function ResendEmailView({ onSubmit }) {
               name="un_resolved_variable_safety_net"
               render={({ field }) => (
                 <FormItem className='flex items-center gap-x-2'>
-                  <Tooltipable
-                    content={
-                      <>
-                        <span className='font-bold'>Highly encouraged to remain enabled.</span> If checked, the email will not be sent if any of the variables used within
-                        it do not resolve (ie: if the body uses a variable such as {'{event.myVariable}'} but the triggered event does not have that property).
-                      </>
-                    }
-                  >
-                    <InfoIcon className='inline text-gray-500 mr-1' size={16} />
-                  </Tooltipable>
-                  <FormLabel className='cursor-pointer'>
-                    Unresolved Variable Safety Net
-                  </FormLabel>
                   <FormControl>
-                    <Input
-                      type="checkbox"
-                      className='h-3 w-3 mt-0 cursor-pointer focus-visible:bg-swishjam focus:bg-swishjam checked:bg-swishjam checked:border-transparent checked:ring-0 hover:bg-swishjam'
-                      style={{ marginTop: 0 }}
-                      {...form.register("un_resolved_variable_safety_net")}
+                    <Checkbox
+                      className='data-[state=checked]:bg-swishjam data-[state=checked]:border-swishjam'
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
                     />
                   </FormControl>
+                  <FormLabel className="flex">
+                    Unresolved Variable Safety Net
+                    <Tooltipable
+                      className=""
+                      content={
+                        <>
+                          <span className='font-bold'>Highly encouraged to remain enabled.</span> If checked, the email will not be sent if any of the variables used within
+                          it do not resolve (ie: if the body uses a variable such as {'{event.myVariable}'} but the triggered event does not have that property).
+                        </>
+                      }
+                    >
+                      <div><LuInfo className='text-gray-500 ml-1' size={16} /></div>
+                    </Tooltipable>
+                  </FormLabel>
                   <FormMessage />
                 </FormItem>
               )}
