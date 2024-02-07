@@ -637,6 +637,9 @@ describe EventTriggers::ResendEmailInvoker do
       expect(result.completed?).to be(true)
       expect(result.failed?).to be(false)
       expect(result.failed?).to be(false)
+      expect(result.triggered_payload['delayed_delivery_at']).to be(nil)
+      expect(result.triggered_payload['scheduled_delivery_for']).to be(nil)
+      expect(result.triggered_payload['was_scheduled']).to be(true)
     end
   end
 end
