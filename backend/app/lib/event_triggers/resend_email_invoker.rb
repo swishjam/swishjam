@@ -11,7 +11,7 @@ module EventTriggers
       )
     end
 
-    def invoke_or_schedule_email_delivery_if_necessary(deliver_email_immediately_event_if_config_specifies_delayed_delivery: false)
+    def invoke_or_schedule_email_delivery_if_necessary
       if event_trigger_step.config['send_once_per_user'] && has_already_triggered_for_user?
         Sentry.capture_message("Preventing multiple Resend triggers for user #{request_body[:to]} for event_trigger_step_id: #{event_trigger_step.id}.")
         return false
@@ -24,12 +24,22 @@ module EventTriggers
         return triggered_step_record
       end
 
-      if event_trigger_step.config['delay_delivery_by_minutes'].present? && !deliver_email_immediately_event_if_config_specifies_delayed_delivery
+      if event_trigger_step.config['delay_delivery_by_minutes'].present? && triggered_step_record.triggered_payload['delayed_delivery_at'].nil?
         triggered_step_record.triggered_payload['delayed_delivery_at'] = Time.current
         triggered_step_record.triggered_payload['scheduled_delivery_for'] = Time.current + event_trigger_step.config['delay_delivery_by_minutes'].to_i.minutes
         triggered_step_record.save!
         ScheduledEventTriggerStepJob.perform_in(event_trigger_step.config['delay_delivery_by_minutes'].to_i.minutes, triggered_step_record.id)
         return triggered_step_record
+      end
+
+      if triggered_step_record.triggered_payload['scheduled_delivery_for'].present? 
+        seconds_from_scheduled_delivery = (triggered_step_record.triggered_payload['scheduled_delivery_for'].to_time - Time.current).abs
+        if seconds_from_scheduled_delivery > (ENV['SCHEDULED_EVENT_TRIGGER_STEP_DELAY_THRESHOLD_SECONDS'] || (5 * 60)).to_i.seconds
+          Sentry.capture_message("ScheduledEventTriggerStepJob for Resend email was scheduled for #{triggered_step_record.triggered_payload['scheduled_delivery_for']} but is being triggered at #{Time.current}.")
+        end
+        triggered_step_record.triggered_payload.delete('scheduled_delivery_for')
+        triggered_step_record.triggered_payload.delete('delayed_delivery_at')
+        triggered_step_record.triggered_payload['was_scheduled'] = true
       end
 
       deliver_email!

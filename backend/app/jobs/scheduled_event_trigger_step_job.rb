@@ -9,6 +9,6 @@ class ScheduledEventTriggerStepJob
     event_trigger_step = triggered_event_trigger_step.event_trigger_step
     prepared_event_for_trigger_step = Ingestion::ParsedEventFromIngestion.new(triggered_event_trigger_step.triggered_event_json)
     invoker = EventTriggers::ResendEmailInvoker.new(event_trigger_step, prepared_event_for_trigger_step, triggered_event_trigger_step: triggered_event_trigger_step)
-    invoker.invoke_or_schedule_email_delivery_if_necessary(deliver_email_immediately_event_if_config_specifies_delayed_delivery: true)
+    invoker.invoke_or_schedule_email_delivery_if_necessary
   end
 end
