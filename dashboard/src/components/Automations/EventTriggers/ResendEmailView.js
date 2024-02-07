@@ -7,6 +7,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form"
+import { Checkbox } from "@/components/ui/checkbox"
 import { Input } from '@/components/ui/input';
 import LoadingSpinner from '@components/LoadingSpinner';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -16,11 +17,9 @@ import { Textarea } from "@/components/ui/textarea"
 import { Tooltipable } from '@/components/ui/tooltip';
 import { useEffect, useState } from 'react';
 import { useFieldArray, useForm } from "react-hook-form"
-import { ChevronRightIcon, InfoIcon } from 'lucide-react';
-import { LuPlus, LuTrash } from "react-icons/lu";
+import { LuX, LuPlus, LuTrash, LuInfo } from "react-icons/lu";
 import useAuthData from "@/hooks/useAuthData";
 import EmailPreview from "@/components/Resend/EmailPreview";
-import { ScrollArea } from "../../ui/scroll-area";
 import InterpolatedMarkdown from "../../VariableParser/InterpolatedMarkdown";
 
 const FormInputOrLoadingState = ({ children, className, isLoading }) => {
@@ -197,409 +196,427 @@ export default function ResendEmailView({ onSubmit }) {
         </FormInputOrLoadingState>
       </div>
       <div>
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(verifyAndSubmitForm)} className="space-y-4">
-              <FormField
-                control={form.control}
-                name="event_name"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className='flex items-center'>
-                      Trigger Event
-                      <Tooltipable content="The event which should set off this Event Trigger (pending your trigger conditions are also met).">
-                        <InfoIcon className='inline ml-1 text-gray-500' size={16} />
-                      </Tooltipable>
-                    </FormLabel>
-                    <FormInputOrLoadingState isLoading={uniqueEvents === undefined || userPropertyOptions === undefined}>
-                      <Select
-                        onValueChange={(e) => { setSelectedEventAndGetPropertiesAndAutofillMessageContentIfNecessary(e); field.onChange(e) }}
-                        defaultValue={field.value}
-                      >
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select your event" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {uniqueEvents?.map(event => (
-                            <SelectItem key={event.name} className="cursor-pointer hover:bg-gray-100" value={event.name}>
-                              {event.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </FormInputOrLoadingState>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <div className='mt-4'>
-                <FormLabel className='flex items-center'>
-                  Trigger Conditions
-                  <Tooltipable content="Trigger conditions allow you to specify a set of conditions based on the event properties that must be met in order for this trigger to fire. If the conditions are not met for the event, the trigger will not fire.">
-                    <InfoIcon className='inline ml-1 text-gray-500' size={16} />
-                  </Tooltipable>
-                </FormLabel>
-
-                <FormInputOrLoadingState className='h-24 mt-2' isLoading={uniqueEvents === undefined || userPropertyOptions === undefined}>
-                  {conditionalStatementsFieldArray.fields.length == 0 && (
-                    <div
-                      onClick={() => conditionalStatementsFieldArray.append()}
-                      className='bg-white px-6 py-6 border-2 border-gray-200 border-dashed mt-2 rounded-md text-center text-gray-400 text-sm cursor-pointer duration-500 transition-all hover:border-swishjam hover:text-swishjam'
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(verifyAndSubmitForm)} className="space-y-4">
+            <FormField
+              control={form.control}
+              name="event_name"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className='flex items-center'>
+                    Trigger Event
+                    <Tooltipable content="The event which should set off this Event Trigger (pending your trigger conditions are also met).">
+                      <div><LuInfo className='inline ml-1 text-gray-500' size={16} /></div>
+                    </Tooltipable>
+                  </FormLabel>
+                  <FormInputOrLoadingState isLoading={uniqueEvents === undefined || userPropertyOptions === undefined}>
+                    <Select
+                      onValueChange={(e) => { setSelectedEventAndGetPropertiesAndAutofillMessageContentIfNecessary(e); field.onChange(e) }}
+                      defaultValue={field.value}
                     >
-                      <LuPlus size="24" className='mx-auto mb-4' />
-                      New Trigger Condition
-                    </div>
-                  )}
-                  {conditionalStatementsFieldArray.fields.length > 0 && (
-                    <ul className='grid gap-y-2 mt-2'>
-                      {conditionalStatementsFieldArray.fields.map((field, index) => {
-                        return (
-                          <li key={index} className='w-full flex items-center gap-x-2'>
-                            <span className='text-sm'>
-                              {conditionalStatementsFieldArray.fields.length > 1 && index > 0 ? 'And if' : 'If'}
-                            </span>
-                            <FormField
-                              control={field.control}
-                              name={`conditionalStatements.${index}.property`}
-                              render={({ field }) => (
-                                <FormItem>
-                                  <Select
-                                    className='flex-grow'
-                                    disabled={propertyOptionsForSelectedEvent === undefined}
-                                    onValueChange={field.onChange}
-                                    value={field.value}
-                                  >
-                                    <FormControl>
-                                      <SelectTrigger>
-                                        <SelectValue placeholder={<span className='text-gray-500 italic'>Event Property</span>} />
-                                      </SelectTrigger>
-                                    </FormControl>
-                                    <SelectContent>
-                                      <SelectItem value='_subject' disabled>
-                                        Event Property
-                                      </SelectItem>
-                                      {propertyOptionsForSelectedEvent?.map(propertyName => (
-                                        <SelectItem className="cursor-pointer hover:bg-gray-100" value={propertyName} key={propertyName}>
-                                          {propertyName}
-                                        </SelectItem>
-                                      ))}
-                                    </SelectContent>
-                                  </Select>
-                                  <FormMessage />
-                                </FormItem>
-                              )}
-                            />
-                            <FormField
-                              control={field.control}
-                              name={`conditionalStatements.${index}.condition`}
-                              render={({ field }) => (
-                                <FormItem>
-                                  <Select
-                                    className='flex-grow'
-                                    disabled={propertyOptionsForSelectedEvent === undefined}
-                                    onValueChange={field.onChange}
-                                    value={field.value}
-                                  >
-                                    <FormControl>
-                                      <SelectTrigger>
-                                        <SelectValue placeholder={<span className='text-gray-500 italic mr-2'>Condition</span>} />
-                                      </SelectTrigger>
-                                    </FormControl>
-                                    <SelectContent>
-                                      <SelectItem value='_subject' disabled>
-                                        Condition
-                                      </SelectItem>
-                                      {['equals', 'contains', 'does not contain', 'ends with', 'does not end with', 'is defined'].sort().map(condition => (
-                                        <SelectItem className="cursor-pointer hover:bg-gray-100" value={condition.replace(/\s/g, '_')} key={condition}>
-                                          {condition}
-                                        </SelectItem>
-                                      ))}
-                                    </SelectContent>
-                                  </Select>
-                                  <FormMessage />
-                                </FormItem>
-                              )}
-                            />
-                            {form.watch(`conditionalStatements.${index}.condition`) !== 'is_defined' && (
-                              <FormField
-                                control={form.control}
-                                name={`conditionalStatements.${index}.property_value`}
-                                render={({ field }) => (
-                                  <FormItem>
-                                    <FormControl>
-                                      <Input
-                                        type="text"
-                                        placeholder="Your property value"
-                                        disabled={propertyOptionsForSelectedEvent === undefined}
-                                        {...form.register(`conditionalStatements.${index}.property_value`)}
-                                      />
-                                    </FormControl>
-                                    <FormMessage />
-                                  </FormItem>
-                                )}
-                              />
-                            )}
-                            <Button
-                              onClick={() => conditionalStatementsFieldArray.remove(index)}
-                              type='button'
-                              variant="ghost"
-                              className='flex-none ml-2 duration-500 hover:text-rose-600'
-                            >
-                              <LuTrash size={14} />
-                            </Button>
-                          </li>
-                        )
-                      })}
-                      <li key="add-more-button">
-                        <Button
-                          onClick={() => conditionalStatementsFieldArray.append()}
-                          type='button'
-                          variant="outline"
-                          className='!mt-2 w-full'
-                        >
-                          Add Condition
-                        </Button>
-                      </li>
-                    </ul>
-                  )}
-                </FormInputOrLoadingState>
-              </div>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select your event" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {uniqueEvents?.map(event => (
+                          <SelectItem key={event.name} className="cursor-pointer hover:bg-gray-100" value={event.name}>
+                            {event.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </FormInputOrLoadingState>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-              <FormField
-                control={form.control}
-                name="to"
-                render={({ field }) => (
-                  <FormItem className="relative">
-                    <FormLabel>
-                      To
-                      <Tooltipable
-                        content={
-                          <>
-                            Most often you will want to leave this as <span className='bg-gray-200 italic text-emerald-400 px-1 py-0.5 rounded-md'>{'{user.email}'}</span> variable,
-                            as that is the currently identified user, however you have the option to pass in a different event or user property here if you desire.
-                          </>
-                        }
+            <div className='mt-4'>
+              <FormLabel className='flex items-center'>
+                Trigger Conditions
+                <Tooltipable content="Trigger conditions allow you to specify a set of conditions based on the event properties that must be met in order for this trigger to fire. If the conditions are not met for the event, the trigger will not fire.">
+                  <div><LuInfo className='ml-1 text-gray-500' size={16} /></div>
+                </Tooltipable>
+              </FormLabel>
+
+              <FormInputOrLoadingState className='h-24 mt-2' isLoading={uniqueEvents === undefined || userPropertyOptions === undefined}>
+                {conditionalStatementsFieldArray.fields.length == 0 && (
+                  <div
+                    onClick={() => conditionalStatementsFieldArray.append()}
+                    className='bg-white px-6 py-6 border-2 border-gray-200 border-dashed mt-2 rounded-md text-center text-gray-400 text-sm cursor-pointer duration-500 transition-all hover:border-swishjam hover:text-swishjam'
+                  >
+                    <LuPlus size="24" className='mx-auto mb-4' />
+                    New Trigger Condition
+                  </div>
+                )}
+                {conditionalStatementsFieldArray.fields.length > 0 && (
+                  <ul className='grid gap-y-2 mt-2'>
+                    {conditionalStatementsFieldArray.fields.map((field, index) => {
+                      return (
+                        <li key={index} className='w-full flex items-center gap-x-2'>
+                          <span className='text-sm'>
+                            {conditionalStatementsFieldArray.fields.length > 1 && index > 0 ? 'And if' : 'If'}
+                          </span>
+                          <FormField
+                            control={field.control}
+                            name={`conditionalStatements.${index}.property`}
+                            render={({ field }) => (
+                              <FormItem>
+                                <Select
+                                  className='flex-grow'
+                                  disabled={propertyOptionsForSelectedEvent === undefined}
+                                  onValueChange={field.onChange}
+                                  value={field.value}
+                                >
+                                  <FormControl>
+                                    <SelectTrigger>
+                                      <SelectValue placeholder={<span className='text-gray-500 italic'>Event Property</span>} />
+                                    </SelectTrigger>
+                                  </FormControl>
+                                  <SelectContent>
+                                    <SelectItem value='_subject' disabled>
+                                      Event Property
+                                    </SelectItem>
+                                    {propertyOptionsForSelectedEvent?.map(propertyName => (
+                                      <SelectItem className="cursor-pointer hover:bg-gray-100" value={propertyName} key={propertyName}>
+                                        {propertyName}
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <FormField
+                            control={field.control}
+                            name={`conditionalStatements.${index}.condition`}
+                            render={({ field }) => (
+                              <FormItem>
+                                <Select
+                                  className='flex-grow'
+                                  disabled={propertyOptionsForSelectedEvent === undefined}
+                                  onValueChange={field.onChange}
+                                  value={field.value}
+                                >
+                                  <FormControl>
+                                    <SelectTrigger>
+                                      <SelectValue placeholder={<span className='text-gray-500 italic mr-2'>Condition</span>} />
+                                    </SelectTrigger>
+                                  </FormControl>
+                                  <SelectContent>
+                                    <SelectItem value='_subject' disabled>
+                                      Condition
+                                    </SelectItem>
+                                    {['equals', 'contains', 'does not contain', 'ends with', 'does not end with', 'is defined'].sort().map(condition => (
+                                      <SelectItem className="cursor-pointer hover:bg-gray-100" value={condition.replace(/\s/g, '_')} key={condition}>
+                                        {condition}
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          {form.watch(`conditionalStatements.${index}.condition`) !== 'is_defined' && (
+                            <FormField
+                              control={form.control}
+                              name={`conditionalStatements.${index}.property_value`}
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormControl>
+                                    <Input
+                                      type="text"
+                                      placeholder="Your property value"
+                                      disabled={propertyOptionsForSelectedEvent === undefined}
+                                      {...form.register(`conditionalStatements.${index}.property_value`)}
+                                    />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                          )}
+                          <Button
+                            onClick={() => conditionalStatementsFieldArray.remove(index)}
+                            type='button'
+                            variant="ghost"
+                            className='flex-none ml-2 duration-500 hover:text-rose-600'
+                          >
+                            <LuTrash size={14} />
+                          </Button>
+                        </li>
+                      )
+                    })}
+                    <li key="add-more-button">
+                      <Button
+                        onClick={() => conditionalStatementsFieldArray.append()}
+                        type='button'
+                        variant="outline"
+                        className='!mt-2 w-full'
                       >
-                        <InfoIcon className='inline ml-1 text-gray-500' size={16} />
-                      </Tooltipable>
-                    </FormLabel>
-                    <FormControl>
+                        Add Condition
+                      </Button>
+                    </li>
+                  </ul>
+                )}
+              </FormInputOrLoadingState>
+            </div>
+
+            <FormField
+              control={form.control}
+              name="to"
+              render={({ field }) => (
+                <FormItem className="relative">
+                  <FormLabel className="flex">
+                    To
+                    <Tooltipable
+                      content={
+                        <>
+                          Most often you will want to leave this as <span className='bg-gray-200 italic text-emerald-400 px-1 py-0.5 rounded-md'>{'{user.email}'}</span> variable,
+                          as that is the currently identified user, however you have the option to pass in a different event or user property here if you desire.
+                        </>
+                      }
+                    >
+                      <div className=""><LuInfo className='ml-1 text-gray-500' size={16} /></div>
+                    </Tooltipable>
+                  </FormLabel>
+                  <FormControl>
+                    <FormInputOrLoadingState isLoading={uniqueEvents === undefined || userPropertyOptions === undefined}>
+                      <Input
+                        type="text"
+                        placeholder="{user.email}"
+                        {...form.register("to")}
+                      />
+                      <div className="absolute top-6 right-2 flex gap-2 z-10">
+                        <div
+                          onClick={() => {
+                            if (!form.watch('bcc')) {
+                              setBccSectionsIsExpanded(true)//!ccSectionsIsExpanded)
+                            }
+                          }}
+                          className={`${bccSectionsIsExpanded && 'hidden'} cursor-pointer px-2 py-0.5 rounded border border-gray-200 text-xs hover:bg-accent`}
+                        >
+                          BCC
+                        </div>
+                        <div
+                          onClick={() => {
+                            if (!form.watch('cc')) {
+                              setCcSectionsIsExpanded(true)//!ccSectionsIsExpanded)
+                            }
+                          }}
+                          className={`${ccSectionsIsExpanded && 'hidden'} cursor-pointer px-2 py-0.5 rounded border border-gray-200 text-xs hover:bg-accent`}
+                        >
+                          CC
+                        </div>
+                      </div>
+                    </FormInputOrLoadingState>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="cc"
+              render={({ field }) => (
+                <FormItem className="relative">
+                  {(ccSectionsIsExpanded || form.watch('cc')) && <FormLabel className={`flex items-center pr-4 py-0.5`}>CC</FormLabel>}
+                  <FormControl>
+                    {(ccSectionsIsExpanded || form.watch('cc')) && (
                       <FormInputOrLoadingState isLoading={uniqueEvents === undefined || userPropertyOptions === undefined}>
                         <Input
                           type="text"
-                          placeholder="{user.email}"
-                          {...form.register("to")}
+                          placeholder="somone-to-cc@example.com"
+                          {...form.register("cc")}
                         />
-                        <div className="absolute top-8 right-2 flex gap-2 z-10">
-                          <div className="px-2 py-0.5 rounded border border-gray-200 text-xs hover:bg-accent">
-                          BCC
-                          </div> 
+                        <div className="absolute top-6 right-2 flex gap-2 z-10">
                           <div
                             onClick={() => {
                               if (!form.watch('cc')) {
-                                setCcSectionsIsExpanded(true)//!ccSectionsIsExpanded)
+                                setCcSectionsIsExpanded(false)//!ccSectionsIsExpanded)
                               }
-                            }} 
-                            className="px-2 py-0.5 rounded border border-gray-200 text-xs hover:bg-accent"
+                            }}
+                            className={`${form.watch('cc') && 'hidden'} cursor-pointer px-2 py-1.5 text-xs hover:bg-accent rounded-md group transition-all duration-300`}
                           >
-                            CC
-                          </div> 
-                        </div> 
-                        <div className="absolute top-8 right-2 px-2 py-0.5 rounded border border-gray-200 text-xs hover:bg-accent">CC</div> 
+                            <LuX size={16} className="group-hover:text-gray-900 text-gray-200" />
+                          </div>
+                        </div>
                       </FormInputOrLoadingState>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                    )}
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-              <FormField
-                control={form.control}
-                name="cc"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel
-                      className={`flex items-center pr-4 py-0.5 transition-all rounded w-fit ${form.watch('cc') ? '' : 'cursor-pointer hover:bg-gray-100'}`}
-                    >
-                      CC
-                    </FormLabel>
-                    <FormControl>
-                      {(ccSectionsIsExpanded || form.watch('cc')) && (
-                        <FormInputOrLoadingState isLoading={uniqueEvents === undefined || userPropertyOptions === undefined}>
-                          <Input
-                            type="text"
-                            placeholder="somone-to-cc@example.com"
-                            {...form.register("cc")}
-                          />
-                        </FormInputOrLoadingState>
-                      )}
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="bcc"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel
-                      className={`flex items-center pr-4 py-0.5 transition-all rounded w-fit ${form.watch('bcc') ? '' : 'cursor-pointer hover:bg-gray-100'}`}
-                      onClick={() => {
-                        if (!form.watch('bcc')) {
-                          setBccSectionsIsExpanded(!bccSectionsIsExpanded)
-                        }
-                      }}
-                    >
-                      <ChevronRightIcon className={`w-4 h-4 transition-all ${bccSectionsIsExpanded ? 'transform rotate-90' : ''}`} />
-                      BCC:
-                    </FormLabel>
-                    <FormControl>
-                      {(bccSectionsIsExpanded || form.watch('bcc')) && (
-                        <FormInputOrLoadingState isLoading={uniqueEvents === undefined || userPropertyOptions === undefined}>
-                          <Input
-                            type="text"
-                            placeholder="someone-to-bcc@example.com"
-                            {...form.register("bcc")}
-                          />
-                        </FormInputOrLoadingState>
-                      )}
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="from"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>From:</FormLabel>
-                    <FormControl>
+            <FormField
+              control={form.control}
+              name="bcc"
+              render={({ field }) => (
+                <FormItem className="relative">
+                  {(bccSectionsIsExpanded || form.watch('bcc')) && <FormLabel className={`flex items-center pr-4 py-0.5`}>BCC</FormLabel>}
+                  <FormControl>
+                    {(bccSectionsIsExpanded || form.watch('bcc')) && (
                       <FormInputOrLoadingState isLoading={uniqueEvents === undefined || userPropertyOptions === undefined}>
                         <Input
                           type="text"
-                          placeholder='from-email@example.com'
-                          {...form.register("from")}
+                          placeholder="someone-to-bcc@example.com"
+                          {...form.register("bcc")}
                         />
+                        <div className="absolute top-6 right-2 flex gap-2 z-10">
+                          <div
+                            onClick={() => {
+                              if (!form.watch('bcc')) {
+                                setBccSectionsIsExpanded(false)//!ccSectionsIsExpanded)
+                              }
+                            }}
+                            className={`${form.watch('bcc') && 'hidden'} cursor-pointer px-2 py-1.5 text-xs hover:bg-accent rounded-md group transition-all duration-300`}
+                          >
+                            <LuX size={16} className="group-hover:text-gray-900 text-gray-200" />
+                          </div>
+                        </div>
                       </FormInputOrLoadingState>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                    )}
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-              <FormField
-                control={form.control}
-                name="subject"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Subject Line</FormLabel>
-                    <FormControl>
-                      <FormInputOrLoadingState isLoading={uniqueEvents === undefined || userPropertyOptions === undefined}>
-                        <Input
-                          type="text"
-                          placeholder="Your subject line here"
-                          autoComplete="off"
-                          {...form.register("subject")}
-                        />
-                      </FormInputOrLoadingState>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="body"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className='flex items-center'>
-                      Email Body
-                      <Tooltipable
-                        content={
-                          <>
-                            Within the body of the email you can reference event properties and user properties by wrapping the property in {"{}"} (ie: if you want to
-                            include the <span className='italic'>url</span> property of the event in the body of the email,
-                            you can reference it as <span className='bg-gray-200 italic text-emerald-400 px-1 py-0.5 rounded-md'>{'{url}'}</span>).
-                          </>
-                        }
-                      >
-                        <InfoIcon className='inline ml-1 text-gray-500' size={16} />
-                      </Tooltipable>
-                    </FormLabel>
-                    <FormControl>
-                      <FormInputOrLoadingState isLoading={uniqueEvents === undefined || userPropertyOptions === undefined}>
-                        <Textarea {...form.register("body")} className='min-h-[140px]' />
-                      </FormInputOrLoadingState>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="send_once_per_user"
-                render={({ field }) => (
-                  <FormItem className='flex items-center gap-x-2'>
-                    <Tooltipable content="If checked, this email will not be sent on subsequent events for the same email address.">
-                      <InfoIcon className='inline text-gray-500 mr-1' size={16} />
-                    </Tooltipable>
-                    <FormLabel className='cursor-pointer'>
-                      Only ever send this email to a user once
-                    </FormLabel>
-                    <FormControl>
+            <FormField
+              control={form.control}
+              name="from"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>From</FormLabel>
+                  <FormControl>
+                    <FormInputOrLoadingState isLoading={uniqueEvents === undefined || userPropertyOptions === undefined}>
                       <Input
-                        type="checkbox"
-                        className='h-3 w-3 mt-0 cursor-pointer focus-visible:bg-swishjam focus:bg-swishjam checked:bg-swishjam checked:border-transparent checked:ring-0 hover:bg-swishjam'
-                        style={{ marginTop: 0 }}
-                        {...form.register("send_once_per_user")}
+                        type="text"
+                        placeholder='from-email@example.com'
+                        {...form.register("from")}
                       />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                    </FormInputOrLoadingState>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="subject"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Subject Line</FormLabel>
+                  <FormControl>
+                    <FormInputOrLoadingState isLoading={uniqueEvents === undefined || userPropertyOptions === undefined}>
+                      <Input
+                        type="text"
+                        placeholder="Your subject line here"
+                        autoComplete="off"
+                        {...form.register("subject")}
+                      />
+                    </FormInputOrLoadingState>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="body"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className='flex items-center'>
+                    Email Body
+                    <Tooltipable
+                      content={
+                        <>
+                          Within the body of the email you can reference event properties and user properties by wrapping the property in {"{}"} (ie: if you want to
+                          include the <span className='italic'>url</span> property of the event in the body of the email,
+                          you can reference it as <span className='bg-gray-200 italic text-emerald-400 px-1 py-0.5 rounded-md'>{'{url}'}</span>).
+                        </>
+                      }
+                    >
+                      <div><LuInfo className='inline ml-1 text-gray-500' size={16} /></div>
+                    </Tooltipable>
+                  </FormLabel>
+                  <FormControl>
+                    <FormInputOrLoadingState isLoading={uniqueEvents === undefined || userPropertyOptions === undefined}>
+                      <Textarea {...form.register("body")} className='min-h-[140px]' />
+                    </FormInputOrLoadingState>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="send_once_per_user"
+              render={({ field }) => (
+                <FormItem className='flex items-center gap-x-2'>
+                  <FormControl>
+                    <Checkbox
+                      className='data-[state=checked]:bg-swishjam data-[state=checked]:border-swishjam'
+                      checked={field.value}
+                      onCheckedChange={field.onChange} 
+                    />
+                  </FormControl>
+                  <FormLabel className="flex">
+                    Only ever send this email to a user once
+                    <Tooltipable
+                      className="" 
+                      content="If checked, this email will not be sent on subsequent events for the same email address."
+                    >
+                      <div><LuInfo className=' text-gray-500 ml-1' size={16} /></div>
+                    </Tooltipable>
+                  </FormLabel>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
               <FormField
                 control={form.control}
                 name="un_resolved_variable_safety_net"
                 render={({ field }) => (
                   <FormItem className='flex items-center gap-x-2'>
-                    <Tooltipable
-                      content={
-                        <>
-                          <span className='font-bold'>Highly encouraged to remain enabled.</span> If checked, the email will not be sent if any of the variables used within
-                          it do not resolve (ie: if the body uses a variable such as {'{event.myVariable}'} but the triggered event does not have that property).
-                        </>
-                      }
-                    >
-                      <InfoIcon className='inline text-gray-500 mr-1' size={16} />
-                    </Tooltipable>
-                    <FormLabel className='cursor-pointer'>
-                      Unresolved Variable Safety Net
-                    </FormLabel>
                     <FormControl>
-                      <Input
-                        type="checkbox"
-                        className='h-3 w-3 mt-0 cursor-pointer focus-visible:bg-swishjam focus:bg-swishjam checked:bg-swishjam checked:border-transparent checked:ring-0 hover:bg-swishjam'
-                        style={{ marginTop: 0 }}
-                        {...form.register("un_resolved_variable_safety_net")}
+                      <Checkbox
+                        className='data-[state=checked]:bg-swishjam data-[state=checked]:border-swishjam'
+                        checked={field.value}
+                        onCheckedChange={field.onChange} 
                       />
                     </FormControl>
+                    <FormLabel className="flex">
+                      Unresolved Variable Safety Net
+                      <Tooltipable
+                        className="" 
+                        content={
+                          <>
+                            <span className='font-bold'>Highly encouraged to remain enabled.</span> If checked, the email will not be sent if any of the variables used within
+                            it do not resolve (ie: if the body uses a variable such as {'{event.myVariable}'} but the triggered event does not have that property).
+                          </>
+                        }
+                      >
+                        <div><LuInfo className='text-gray-500 ml-1' size={16} /></div>
+                      </Tooltipable>
+                    </FormLabel>
                     <FormMessage />
                   </FormItem>
                 )}
               />
 
-              <div className='flex gap-x-2'>
-                {/* {!form.watch('event_name') || (!form.watch('subject') && !form.watch('body'))
+            <div className='flex gap-x-2'>
+              {/* {!form.watch('event_name') || (!form.watch('subject') && !form.watch('body'))
                   ? (
                     <Tooltipable content="You must select an event, a slack channel, and provide either a subject or a body value for your slack message before you can test your trigger.">
                       <button
@@ -622,16 +639,16 @@ export default function ResendEmailView({ onSubmit }) {
                       Test Your Trigger
                     </button>
                   )} */}
-                <Button
-                  className={`!mt-6 w-full flex items-center justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white focus:outline-none focus:ring-2 ${loading ? 'bg-swishjam-dark' : 'bg-swishjam'} hover:bg-swishjam-dark`}
-                  type="submit"
-                  disabled={loading || uniqueEvents === undefined || userPropertyOptions === undefined}
-                >
-                  {loading ? <LoadingSpinner color="white" /> : 'Create Trigger'}
-                </Button>
-              </div>
-            </form>
-          </Form>
+              <Button
+                className={`!mt-6 w-full flex items-center justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white focus:outline-none focus:ring-2 ${loading ? 'bg-swishjam-dark' : 'bg-swishjam'} hover:bg-swishjam-dark`}
+                type="submit"
+                disabled={loading || uniqueEvents === undefined || userPropertyOptions === undefined}
+              >
+                {loading ? <LoadingSpinner color="white" /> : 'Create Trigger'}
+              </Button>
+            </div>
+          </form>
+        </Form>
       </div>
     </div>
   )
