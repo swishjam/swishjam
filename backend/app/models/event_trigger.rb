@@ -1,5 +1,7 @@
 class EventTrigger < Transactional
   belongs_to :workspace
+  # technically not optional but don't want to break existing records
+  belongs_to :created_by_user, class_name: User.to_s, optional: true
   has_many :event_trigger_steps, dependent: :destroy
   accepts_nested_attributes_for :event_trigger_steps
   has_many :triggered_event_triggers, dependent: :destroy

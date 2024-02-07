@@ -52,6 +52,7 @@ module Api
         end
 
         trigger = current_workspace.event_triggers.new(
+          created_by_user: current_user,
           enabled: true,
           event_name: params[:event_name], 
           conditional_statements: (params[:conditional_statements] || []).as_json,

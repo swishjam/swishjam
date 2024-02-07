@@ -1,7 +1,7 @@
 module EventTriggerSteps
   class ResendEmail < EventTriggerStep
     def from_email
-      config['from_email']
+      config['from']
     end
 
     def subject
@@ -12,8 +12,12 @@ module EventTriggerSteps
       config['body']
     end
 
-    def resend_api_key
-      config['api_key']
+    def bcc
+      config['bcc']
+    end
+
+    def cc
+      config['cc']
     end
 
     def trigger!(prepared_event, as_test: false)

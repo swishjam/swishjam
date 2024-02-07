@@ -22,7 +22,10 @@ const initializeMarkdownParser = acceptableHighlightValues => {
       const token = state.push('highlight', '', 0);
       let resolvedVariable = match[1].trim();
       token.content = resolvedVariable;
-      token.meta = { isValidHighlight: acceptableHighlightValues && acceptableHighlightValues.includes(resolvedVariable) }
+      const isValidHighlight = resolvedVariable.split('||').every(variable => {
+        return acceptableHighlightValues.includes(variable.trim()) || (variable.trim().startsWith('"') && variable.trim().endsWith('"'))
+      });
+      token.meta = { isValidHighlight }
 
       state.pos += match[0].length;
 
