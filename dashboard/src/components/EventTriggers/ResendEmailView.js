@@ -548,7 +548,14 @@ export default function ResendEmailView({ onSubmit }) {
                 name="un_resolved_variable_safety_net"
                 render={({ field }) => (
                   <FormItem className='flex items-center gap-x-2'>
-                    <Tooltipable content="Highly encouraged to remain enabled. If checked, the email will not be sent if any of the variables used within it do not resolve (ie: if the body uses a {event.myVariable} variable but the triggered event does not have that property).">
+                    <Tooltipable
+                      content={
+                        <>
+                          <span className='font-bold'>Highly encouraged to remain enabled.</span> If checked, the email will not be sent if any of the variables used within
+                          it do not resolve (ie: if the body uses a variable such as {'{event.myVariable}'} but the triggered event does not have that property).
+                        </>
+                      }
+                    >
                       <InfoIcon className='inline text-gray-500 mr-1' size={16} />
                     </Tooltipable>
                     <FormLabel className='cursor-pointer'>
