@@ -149,19 +149,19 @@ module Api
       def show
         params[:data_source] ||= 'all'
 
-        timeseries = ClickHouseQueries::Event::Timeseries.new(
+        timeseries = ClickHouseQueries::Events::Timeseries.new(
           public_keys_for_requested_data_source, 
-          event_name: params[:name],
+          event: params[:name],
           start_time: start_timestamp,
           end_time: end_timestamp
-        ).timeseries
+        ).get
 
-        comparison_timeseries = ClickHouseQueries::Event::Timeseries.new(
+        comparison_timeseries = ClickHouseQueries::Events::Timeseries.new(
           public_keys_for_requested_data_source, 
-          event_name: params[:name],
+          event: params[:name],
           start_time: comparison_start_timestamp,
           end_time: comparison_end_timestamp
-        ).timeseries
+        ).get
 
         top_attributes = ClickHouseQueries::Event::PropertyCounts.new(public_keys_for_requested_data_source, event_name: params[:name]).get
         top_users = ClickHouseQueries::Event::TopUsers::List.new(public_keys_for_requested_data_source, workspace_id: current_workspace.id, event_name: params[:name]).get
