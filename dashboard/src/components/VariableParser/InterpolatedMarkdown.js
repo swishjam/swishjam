@@ -23,7 +23,9 @@ const initializeMarkdownParser = acceptableHighlightValues => {
       let resolvedVariable = match[1].trim();
       token.content = resolvedVariable;
       const isValidHighlight = resolvedVariable.split('||').every(variable => {
-        return acceptableHighlightValues.includes(variable.trim()) || (variable.trim().startsWith('"') && variable.trim().endsWith('"'))
+        return acceptableHighlightValues.includes(variable.trim()) ||
+          (variable.trim().startsWith('"') && variable.trim().endsWith('"')) ||
+          (variable.trim().startsWith("'") && variable.trim().endsWith("'"));
       });
       token.meta = { isValidHighlight }
 

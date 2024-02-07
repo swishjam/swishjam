@@ -5,6 +5,7 @@ class EventTrigger < Transactional
   has_many :event_trigger_steps, dependent: :destroy
   accepts_nested_attributes_for :event_trigger_steps
   has_many :triggered_event_triggers, dependent: :destroy
+  has_many :triggered_event_trigger_steps, through: :event_trigger_steps
 
   scope :enabled, -> { where(enabled: true) }
   scope :disabled, -> { where(enabled: false) }

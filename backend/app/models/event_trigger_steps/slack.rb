@@ -19,7 +19,7 @@ module EventTriggerSteps
     def trigger!(prepared_event, as_test: false)
       slack_connection = Integrations::Destinations::Slack.for_workspace(event_trigger.workspace)
       slack_client = ::Slack::Client.new(slack_connection.access_token)
-      interpolated_message_body = EventVariableInterpolator.interpolated_text(message_body, prepared_event)
+      interpolated_message_body = EventVariableResolver.interpolated_text(message_body, prepared_event)
 
       if as_test
         interpolated_message_body = "#{interpolated_message_body} \n\n _:test_tube: This is a test message and was not actually triggered by a real event_"

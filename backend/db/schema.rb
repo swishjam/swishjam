@@ -252,6 +252,13 @@ ActiveRecord::Schema.define(version: 2024_02_07_000039) do
     t.index ["workspace_id"], name: "index_slack_connections_on_workspace_id"
   end
 
+  create_table "triggered_event_trigger_steps", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "event_trigger_step_id", null: false
+    t.jsonb "triggered_payload"
+    t.datetime "created_at", null: false
+    t.index ["event_trigger_step_id"], name: "index_triggered_event_trigger_steps_on_event_trigger_step_id"
+  end
+
   create_table "triggered_event_triggers", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.uuid "event_trigger_id"
     t.uuid "workspace_id"
@@ -378,6 +385,7 @@ ActiveRecord::Schema.define(version: 2024_02_07_000039) do
   add_foreign_key "retention_cohort_activity_periods", "retention_cohorts"
   add_foreign_key "retention_cohort_activity_periods", "workspaces"
   add_foreign_key "retention_cohorts", "workspaces"
+  add_foreign_key "triggered_event_trigger_steps", "event_trigger_steps"
   add_foreign_key "workspace_invitations", "workspaces"
   add_foreign_key "workspace_members", "users"
   add_foreign_key "workspace_members", "workspaces"
