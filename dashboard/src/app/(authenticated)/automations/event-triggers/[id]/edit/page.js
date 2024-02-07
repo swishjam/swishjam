@@ -1,6 +1,6 @@
 'use client'
 
-import EditSlackTriggerPage from "@/components/EventTriggers/EditSlackTriggerView";
+import EditSlackTriggerPage from "@/components/Automations/EventTriggers/EditSlackTriggerView";
 import SwishjamAPI from "@/lib/api-client/swishjam-api";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";

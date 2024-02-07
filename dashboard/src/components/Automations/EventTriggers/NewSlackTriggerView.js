@@ -8,20 +8,24 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { Input } from '@/components/ui/input';
+import Link from 'next/link';
 import LoadingSpinner from '@components/LoadingSpinner';
+import MessageBodyMarkdownRenderer from '@components/Slack/MessageBodyMarkdownRenderer';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Skeleton } from '@/components/ui/skeleton';
+import SlackMessagePreview from '@components/Slack/SlackMessagePreview';
+import { swishjam } from '@swishjam/react';
 import SwishjamAPI from '@/lib/api-client/swishjam-api';
+import { toast } from 'sonner'
 import { Textarea } from "@/components/ui/textarea"
 import { Tooltipable } from '@/components/ui/tooltip';
+import TestTriggerModal from '@/components/Automations/EventTriggers/TestTriggerModal';
 import { useEffect, useState } from 'react';
 import { useFieldArray, useForm } from "react-hook-form"
-import { ChevronRightIcon, InfoIcon } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { ArrowLeftIcon, InfoIcon } from 'lucide-react';
 import { LuPlus, LuTrash } from "react-icons/lu";
-import useAuthData from "@/hooks/useAuthData";
-import EmailPreview from "@/components/Resend/EmailPreview";
-import { ScrollArea } from "../ui/scroll-area";
-import InterpolatedMarkdown from "../VariableParser/InterpolatedMarkdown";
+import { PaperAirplaneIcon } from '@heroicons/react/24/outline';
 
 const FormInputOrLoadingState = ({ children, className, isLoading }) => {
   if (isLoading) {
@@ -31,20 +35,19 @@ const FormInputOrLoadingState = ({ children, className, isLoading }) => {
   }
 }
 
-export default function ResendEmailView({ onSubmit }) {
-  const { email: currentUserEmail } = useAuthData();
-  const form = useForm({ defaultValues: { to: '{ user.email }', send_once_per_user: true, un_resolved_variable_safety_net: true } });
+export default function NewSlackTriggerView() {
+  const form = useForm({ defaultValues: { header: '✨ Event Name' } });
   const conditionalStatementsFieldArray = useFieldArray({ control: form.control, name: "conditionalStatements" });
+  const router = useRouter();
 
-  const [ccSectionsIsExpanded, setCcSectionsIsExpanded] = useState(false);
-  const [bccSectionsIsExpanded, setBccSectionsIsExpanded] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [propertyOptionsForSelectedEvent, setPropertyOptionsForSelectedEvent] = useState();
+  const [slackChannels, setSlackChannels] = useState();
   const [uniqueEvents, setUniqueEvents] = useState();
-  const [userPropertyOptions, setUserPropertyOptions] = useState();
-  // const [testTriggerModalIsOpen, setTestTriggerModalIsOpen] = useState(false);
+  const [propertyOptionsForSelectedEvent, setPropertyOptionsForSelectedEvent] = useState();
+  const [testTriggerModalIsOpen, setTestTriggerModalIsOpen] = useState(false);
 
   const setSelectedEventAndGetPropertiesAndAutofillMessageContentIfNecessary = async eventName => {
+    form.setValue('header', '✨ ' + eventName + ' ✨')
     conditionalStatementsFieldArray.fields.forEach((field, index) => {
       // only remove conditional statements that are non-empty
       if (field.property || field.condition || field.property_value) {
@@ -52,7 +55,7 @@ export default function ResendEmailView({ onSubmit }) {
       }
     })
     SwishjamAPI.Events.Properties.listUnique(eventName).then(properties => {
-      setPropertyOptionsForSelectedEvent([...properties, ...properties.map(p => `event.${p}`)]);
+      setPropertyOptionsForSelectedEvent(properties);
       // we re-set this every time they change the event..?
       let formattedPropertyOptions = '';
       properties.forEach(property => formattedPropertyOptions += `- ${property}: {${property}}  \n`)
@@ -60,67 +63,81 @@ export default function ResendEmailView({ onSubmit }) {
     });
   }
 
-  async function verifyAndSubmitForm(values) {
+  async function onSubmit(values) {
     setLoading(true)
-    const isValid = values.event_name && values.subject && values.body && values.to && values.from;
+    const isValid = values.event_name && values.slack_channel && (values.header || values.body)
     if (!isValid) {
       Object.keys(values).forEach(key => {
-        const isRequired = ['event_name', 'subject', 'body', 'to', 'from'].includes(key);
-        if (isRequired && (!values[key] || values[key].trim().length === 0)) {
-          form.setError(key, { message: `${key[0].toUpperCase() + key.slice(1).replace('_', ' ')} is a required field.` })
-        }
-      })
-      setLoading(false);
-      return;
-    }
-    let hasEmptyConditionalStatements = false;
-    if (values.conditionalStatements.length > 0) {
-      values.conditionalStatements.forEach((statement, index) => {
-        if (!statement.property || !statement.condition || !statement.property_value) {
-          if (!statement.property) {
-            hasEmptyConditionalStatements = true;
-            form.setError(`conditionalStatements.${index}.property`, { message: 'Property is a required field.' })
-          }
-          if (!statement.condition) {
-            hasEmptyConditionalStatements = true;
-            form.setError(`conditionalStatements.${index}.condition`, { message: 'Condition is a required field.' })
-          }
-          if (!statement.property_value && statement.condition !== 'is_defined') {
-            hasEmptyConditionalStatements = true;
-            form.setError(`conditionalStatements.${index}.property_value`, { message: 'Property Value is a required field.' })
+        if (!values[key]) {
+          if ((key === 'header' || key === 'body') && !values.header && !values.body) {
+            form.setError(key, { message: 'You must provide either a header or a body value for your slack message.' })
+          } else if (key !== 'header' && key !== 'body') {
+            form.setError(key, { message: `${key[0].toUpperCase() + key.slice(1).replace('_', ' ')} is a required field.` })
           }
         }
       })
-    }
-    if (hasEmptyConditionalStatements) {
+      if (values.conditionalStatements.length > 0) {
+        values.conditionalStatements.forEach((statement, index) => {
+          if (!statement.property || !statement.condition || !statement.property_value) {
+            if (!statement.property) {
+              form.setError(`conditionalStatements.${index}.property`, { message: 'Property is a required field.' })
+            }
+            if (!statement.condition) {
+              form.setError(`conditionalStatements.${index}.condition`, { message: 'Condition is a required field.' })
+            }
+            if (!statement.property_value) {
+              form.setError(`conditionalStatements.${index}.property_value`, { message: 'Property Value is a required field.' })
+            }
+          }
+        })
+      }
       setLoading(false);
       return;
     }
 
     const config = {
-      to: values.to,
-      cc: values.cc,
-      bcc: values.bcc,
-      from: values.from,
-      subject: values.subject,
-      body: values.body,
-      send_once_per_user: values.send_once_per_user,
-      un_resolved_variable_safety_net: values.un_resolved_variable_safety_net,
+      message_header: values.header,
+      message_body: values.body,
+      channel_id: values.slack_channel,
+      channel_name: slackChannels.find(channel => channel.id === values.slack_channel)?.name,
     }
-    const payload = {
+    const { trigger, error } = await SwishjamAPI.EventTriggers.create({
       eventName: values.event_name,
       conditionalStatements: values.conditionalStatements,
-      steps: [{ type: 'EventTriggerSteps::ResendEmail', config }],
+      steps: [{ type: 'EventTriggerSteps::Slack', config }]
+    })
+
+    if (error) {
+      setLoading(false);
+      toast.error("Uh oh! Something went wrong.", {
+        description: error,
+      })
+    } else {
+      swishjam.event('event_trigger_created', {
+        event_name: values.event_name,
+        slack_channel: config.channel_name,
+        trigger_id: trigger.id,
+        message_header: config.message_header,
+      })
+      router.push(`/automations/event-triggers?success=${"Your new event trigger was created successfully."}`);
     }
-    onSubmit(payload)
   }
 
   useEffect(() => {
-    const getUniqueEventsAndUserProperties = async () => {
-      const [events, userProperties] = await Promise.all([
-        SwishjamAPI.Events.listUnique(),
-        SwishjamAPI.Users.uniqueProperties()
-      ]);
+    SwishjamAPI.Slack.getChannels().then(channels => {
+      const sortedChannels = channels?.sort((a, b) => {
+        if (a.name.toLowerCase() < b.name.toLowerCase()) {
+          return -1;
+        } else if (a.name.toLowerCase() > b.name.toLowerCase()) {
+          return 1;
+        } else {
+          return 0;
+        }
+      })
+      setSlackChannels(sortedChannels);
+    });
+
+    SwishjamAPI.Events.listUnique().then(events => {
       const sortedEvents = events.sort((a, b) => {
         if (a.name.toLowerCase() < b.name.toLowerCase()) {
           return -1;
@@ -131,55 +148,45 @@ export default function ResendEmailView({ onSubmit }) {
         }
       })
       setUniqueEvents(sortedEvents);
-      setUserPropertyOptions(['user.email', ...userProperties.map(property => `user.${property}`)])
-    }
-
-    getUniqueEventsAndUserProperties();
+    });
   }, [])
 
-  useEffect(() => {
-    form.setValue('from', currentUserEmail)
-  }, [currentUserEmail])
-
   return (
-    <div className="grid grid-cols-2 gap-8 mt-8">
-      <div>
-        <FormInputOrLoadingState isLoading={uniqueEvents === undefined || userPropertyOptions === undefined} classname='h-44'>
-          <EmailPreview
-            to={
-              <InterpolatedMarkdown
-                content={form.watch('to')}
-                availableEventOptions={[...(propertyOptionsForSelectedEvent || []), ...(userPropertyOptions || [])]}
-              />
-            }
-            cc={
-              <InterpolatedMarkdown
-                content={form.watch('cc')}
-                availableEventOptions={[...(propertyOptionsForSelectedEvent || []), ...(userPropertyOptions || [])]}
-              />
-            }
-            bcc={
-              <InterpolatedMarkdown
-                content={form.watch('bcc')}
-                availableEventOptions={[...(propertyOptionsForSelectedEvent || []), ...(userPropertyOptions || [])]}
-              />
-            }
-            from={form.watch('from')}
-            subject={
-              <InterpolatedMarkdown
-                content={form.watch('subject')}
-                availableEventOptions={[...(propertyOptionsForSelectedEvent || []), ...(userPropertyOptions || [])]}
-              />
-            }
-            body={
-              <InterpolatedMarkdown
-                content={form.watch('body')}
-                availableEventOptions={[...(propertyOptionsForSelectedEvent || []), ...(userPropertyOptions || [])]}
-              />
-            }
+    <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mb-8">
+      {testTriggerModalIsOpen && (
+        <TestTriggerModal
+          conditionalStatements={form.watch('conditionalStatements')}
+          eventName={form.watch('event_name')}
+          isOpen={testTriggerModalIsOpen}
+          onClose={() => setTestTriggerModalIsOpen(false)}
+          propertyOptions={propertyOptionsForSelectedEvent}
+          slackMessageHeader={form.watch('header')}
+          slackMessageBody={form.watch('body')}
+          slackChannelName={slackChannels.find(channel => channel.id === form.watch('slack_channel'))?.name}
+          slackChannelId={form.watch('slack_channel')}
+        />
+      )}
+      <div className="grid grid-cols-2 mt-8 items-center">
+        <div>
+          <Link
+            className='text-xs text-gray-500 hover:text-gray-600 transition-all hover:underline flex items-center mb-2'
+            href="/automations/event-triggers"
+          >
+            <ArrowLeftIcon className='inline mr-1' size={12} />
+            Back to all Event Triggers
+          </Link>
+          <h1 className="text-lg font-medium text-gray-700 mb-0">New Event Trigger</h1>
+        </div>
+      </div>
+      <div className="grid grid-cols-2 gap-8 mt-8">
+        <div>
+          <SlackMessagePreview
+            header={form.watch('header')}
+            body={<MessageBodyMarkdownRenderer body={form.watch('body')} availableEventOptions={propertyOptionsForSelectedEvent} />}
           />
-          {/* <h2 className="text-sm font-medium text-gray-700 mb-2 mt-4">Resend Email Formatting Reference</h2>
+          <h2 className="text-sm font-medium text-gray-700 mb-2 mt-4">Slack Formatting Reference</h2>
           <div className="border border-zinc-200 shadow-sm bg-white rounded-md p-4">
+
             <p className="text-sm font-medium">Links</p>
             <p className="text-sm mt-1">
               Format:
@@ -193,12 +200,11 @@ export default function ResendEmailView({ onSubmit }) {
               Result:
               <a className="ml-1 underline hover:text-blue-400" href="https://swishjam.com/integrations">Integrations</a>
             </p>
-          </div>   */}
-        </FormInputOrLoadingState>
-      </div>
-      <div>
+          </div>
+        </div>
+        <div>
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(verifyAndSubmitForm)} className="space-y-4">
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
               <FormField
                 control={form.control}
                 name="event_name"
@@ -210,7 +216,7 @@ export default function ResendEmailView({ onSubmit }) {
                         <InfoIcon className='inline ml-1 text-gray-500' size={16} />
                       </Tooltipable>
                     </FormLabel>
-                    <FormInputOrLoadingState isLoading={uniqueEvents === undefined || userPropertyOptions === undefined}>
+                    <FormInputOrLoadingState isLoading={uniqueEvents === undefined || slackChannels === undefined}>
                       <Select
                         onValueChange={(e) => { setSelectedEventAndGetPropertiesAndAutofillMessageContentIfNecessary(e); field.onChange(e) }}
                         defaultValue={field.value}
@@ -242,7 +248,7 @@ export default function ResendEmailView({ onSubmit }) {
                   </Tooltipable>
                 </FormLabel>
 
-                <FormInputOrLoadingState className='h-24 mt-2' isLoading={uniqueEvents === undefined || userPropertyOptions === undefined}>
+                <FormInputOrLoadingState className='h-24 mt-2' isLoading={uniqueEvents === undefined || slackChannels === undefined}>
                   {conditionalStatementsFieldArray.fields.length == 0 && (
                     <div
                       onClick={() => conditionalStatementsFieldArray.append()}
@@ -277,7 +283,7 @@ export default function ResendEmailView({ onSubmit }) {
                                       </SelectTrigger>
                                     </FormControl>
                                     <SelectContent>
-                                      <SelectItem value='_subject' disabled>
+                                      <SelectItem value='_header' disabled>
                                         Event Property
                                       </SelectItem>
                                       {propertyOptionsForSelectedEvent?.map(propertyName => (
@@ -308,7 +314,7 @@ export default function ResendEmailView({ onSubmit }) {
                                       </SelectTrigger>
                                     </FormControl>
                                     <SelectContent>
-                                      <SelectItem value='_subject' disabled>
+                                      <SelectItem value='_header' disabled>
                                         Condition
                                       </SelectItem>
                                       {['equals', 'contains', 'does not contain', 'ends with', 'does not end with', 'is defined'].sort().map(condition => (
@@ -369,143 +375,17 @@ export default function ResendEmailView({ onSubmit }) {
 
               <FormField
                 control={form.control}
-                name="to"
+                name="header"
                 render={({ field }) => (
-                  <FormItem className="relative">
-                    <FormLabel>
-                      To
-                      <Tooltipable
-                        content={
-                          <>
-                            Most often you will want to leave this as <span className='bg-gray-200 italic text-emerald-400 px-1 py-0.5 rounded-md'>{'{user.email}'}</span> variable,
-                            as that is the currently identified user, however you have the option to pass in a different event or user property here if you desire.
-                          </>
-                        }
-                      >
-                        <InfoIcon className='inline ml-1 text-gray-500' size={16} />
-                      </Tooltipable>
-                    </FormLabel>
+                  <FormItem>
+                    <FormLabel>Header</FormLabel>
                     <FormControl>
-                      <FormInputOrLoadingState isLoading={uniqueEvents === undefined || userPropertyOptions === undefined}>
+                      <FormInputOrLoadingState isLoading={uniqueEvents === undefined || slackChannels === undefined}>
                         <Input
-                          type="text"
-                          placeholder="{user.email}"
-                          {...form.register("to")}
-                        />
-                        <div className="absolute top-8 right-2 flex gap-2 z-10">
-                          <div className="px-2 py-0.5 rounded border border-gray-200 text-xs hover:bg-accent">
-                          BCC
-                          </div> 
-                          <div
-                            onClick={() => {
-                              if (!form.watch('cc')) {
-                                setCcSectionsIsExpanded(true)//!ccSectionsIsExpanded)
-                              }
-                            }} 
-                            className="px-2 py-0.5 rounded border border-gray-200 text-xs hover:bg-accent"
-                          >
-                            CC
-                          </div> 
-                        </div> 
-                        <div className="absolute top-8 right-2 px-2 py-0.5 rounded border border-gray-200 text-xs hover:bg-accent">CC</div> 
-                      </FormInputOrLoadingState>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="cc"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel
-                      className={`flex items-center pr-4 py-0.5 transition-all rounded w-fit ${form.watch('cc') ? '' : 'cursor-pointer hover:bg-gray-100'}`}
-                    >
-                      CC
-                    </FormLabel>
-                    <FormControl>
-                      {(ccSectionsIsExpanded || form.watch('cc')) && (
-                        <FormInputOrLoadingState isLoading={uniqueEvents === undefined || userPropertyOptions === undefined}>
-                          <Input
-                            type="text"
-                            placeholder="somone-to-cc@example.com"
-                            {...form.register("cc")}
-                          />
-                        </FormInputOrLoadingState>
-                      )}
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="bcc"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel
-                      className={`flex items-center pr-4 py-0.5 transition-all rounded w-fit ${form.watch('bcc') ? '' : 'cursor-pointer hover:bg-gray-100'}`}
-                      onClick={() => {
-                        if (!form.watch('bcc')) {
-                          setBccSectionsIsExpanded(!bccSectionsIsExpanded)
-                        }
-                      }}
-                    >
-                      <ChevronRightIcon className={`w-4 h-4 transition-all ${bccSectionsIsExpanded ? 'transform rotate-90' : ''}`} />
-                      BCC:
-                    </FormLabel>
-                    <FormControl>
-                      {(bccSectionsIsExpanded || form.watch('bcc')) && (
-                        <FormInputOrLoadingState isLoading={uniqueEvents === undefined || userPropertyOptions === undefined}>
-                          <Input
-                            type="text"
-                            placeholder="someone-to-bcc@example.com"
-                            {...form.register("bcc")}
-                          />
-                        </FormInputOrLoadingState>
-                      )}
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="from"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>From:</FormLabel>
-                    <FormControl>
-                      <FormInputOrLoadingState isLoading={uniqueEvents === undefined || userPropertyOptions === undefined}>
-                        <Input
-                          type="text"
-                          placeholder='from-email@example.com'
-                          {...form.register("from")}
-                        />
-                      </FormInputOrLoadingState>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="subject"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Subject Line</FormLabel>
-                    <FormControl>
-                      <FormInputOrLoadingState isLoading={uniqueEvents === undefined || userPropertyOptions === undefined}>
-                        <Input
-                          type="text"
-                          placeholder="Your subject line here"
+                          type="search"
+                          placeholder="✨ Event Name"
                           autoComplete="off"
-                          {...form.register("subject")}
+                          {...form.register("header")}
                         />
                       </FormInputOrLoadingState>
                     </FormControl>
@@ -520,13 +400,11 @@ export default function ResendEmailView({ onSubmit }) {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel className='flex items-center'>
-                      Email Body
+                      Body
                       <Tooltipable
                         content={
                           <>
-                            Within the body of the email you can reference event properties and user properties by wrapping the property in {"{}"} (ie: if you want to
-                            include the <span className='italic'>url</span> property of the event in the body of the email,
-                            you can reference it as <span className='bg-gray-200 italic text-emerald-400 px-1 py-0.5 rounded-md'>{'{url}'}</span>).
+                            Within the body of the Slack message you can use markdown syntax, as well as reference event properties by wrapping the property in {"{}"} (ie: if you want to include the `url` property in the body of the message, you can reference it as <span className='bg-gray-200 italic text-emerald-400 px-1 py-0.5 rounded-md'>{'{url}'}</span>).
                           </>
                         }
                       >
@@ -534,8 +412,8 @@ export default function ResendEmailView({ onSubmit }) {
                       </Tooltipable>
                     </FormLabel>
                     <FormControl>
-                      <FormInputOrLoadingState isLoading={uniqueEvents === undefined || userPropertyOptions === undefined}>
-                        <Textarea {...form.register("body")} className='min-h-[140px]' />
+                      <FormInputOrLoadingState isLoading={uniqueEvents === undefined || slackChannels === undefined}>
+                        <Textarea {...form.register("body")} />
                       </FormInputOrLoadingState>
                     </FormControl>
                     <FormMessage />
@@ -545,63 +423,31 @@ export default function ResendEmailView({ onSubmit }) {
 
               <FormField
                 control={form.control}
-                name="send_once_per_user"
+                name="slack_channel"
                 render={({ field }) => (
-                  <FormItem className='flex items-center gap-x-2'>
-                    <Tooltipable content="If checked, this email will not be sent on subsequent events for the same email address.">
-                      <InfoIcon className='inline text-gray-500 mr-1' size={16} />
-                    </Tooltipable>
-                    <FormLabel className='cursor-pointer'>
-                      Only ever send this email to a user once
-                    </FormLabel>
-                    <FormControl>
-                      <Input
-                        type="checkbox"
-                        className='h-3 w-3 mt-0 cursor-pointer focus-visible:bg-swishjam focus:bg-swishjam checked:bg-swishjam checked:border-transparent checked:ring-0 hover:bg-swishjam'
-                        style={{ marginTop: 0 }}
-                        {...form.register("send_once_per_user")}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="un_resolved_variable_safety_net"
-                render={({ field }) => (
-                  <FormItem className='flex items-center gap-x-2'>
-                    <Tooltipable
-                      content={
-                        <>
-                          <span className='font-bold'>Highly encouraged to remain enabled.</span> If checked, the email will not be sent if any of the variables used within
-                          it do not resolve (ie: if the body uses a variable such as {'{event.myVariable}'} but the triggered event does not have that property).
-                        </>
-                      }
-                    >
-                      <InfoIcon className='inline text-gray-500 mr-1' size={16} />
-                    </Tooltipable>
-                    <FormLabel className='cursor-pointer'>
-                      Unresolved Variable Safety Net
-                    </FormLabel>
-                    <FormControl>
-                      <Input
-                        type="checkbox"
-                        className='h-3 w-3 mt-0 cursor-pointer focus-visible:bg-swishjam focus:bg-swishjam checked:bg-swishjam checked:border-transparent checked:ring-0 hover:bg-swishjam'
-                        style={{ marginTop: 0 }}
-                        {...form.register("un_resolved_variable_safety_net")}
-                      />
-                    </FormControl>
+                  <FormItem>
+                    <FormLabel>Slack Channel</FormLabel>
+                    <FormInputOrLoadingState isLoading={uniqueEvents === undefined || slackChannels === undefined}>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select your slack channel" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {slackChannels && slackChannels.map(c => <SelectItem key={c.id} className="cursor-pointer hover:bg-gray-100" value={c.id}>#{c.name}</SelectItem>)}
+                        </SelectContent>
+                      </Select>
+                    </FormInputOrLoadingState>
                     <FormMessage />
                   </FormItem>
                 )}
               />
 
               <div className='flex gap-x-2'>
-                {/* {!form.watch('event_name') || (!form.watch('subject') && !form.watch('body'))
+                {!form.watch('event_name') || !form.watch('slack_channel') || (!form.watch('header') && !form.watch('body'))
                   ? (
-                    <Tooltipable content="You must select an event, a slack channel, and provide either a subject or a body value for your slack message before you can test your trigger.">
+                    <Tooltipable content="You must select an event, a slack channel, and provide either a header or a body value for your slack message before you can test your trigger.">
                       <button
                         type="button"
                         className={`!mt-6 w-full flex items-center justify-center py-2 px-4 border border-gray-200 rounded-md shadow-sm text-sm font-medium text-gray-700 focus:outline-none focus:ring-2 bg-gray-200 cursor-not-allowed`}
@@ -615,24 +461,25 @@ export default function ResendEmailView({ onSubmit }) {
                     <button
                       type="button"
                       className={`!mt-6 w-full flex items-center justify-center py-2 px-4 border border-gray-200 rounded-md shadow-sm text-sm font-medium text-gray-700 focus:outline-none focus:ring-2 bg-white hover:bg-gray-200`}
-                      disabled={loading || uniqueEvents === undefined || userPropertyOptions === undefined}
+                      disabled={loading || uniqueEvents === undefined || slackChannels === undefined}
                       onClick={() => setTestTriggerModalIsOpen(true)}
                     >
                       <PaperAirplaneIcon className='w-4 h-4 inline mr-2' />
                       Test Your Trigger
                     </button>
-                  )} */}
+                  )}
                 <Button
                   className={`!mt-6 w-full flex items-center justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white focus:outline-none focus:ring-2 ${loading ? 'bg-swishjam-dark' : 'bg-swishjam'} hover:bg-swishjam-dark`}
                   type="submit"
-                  disabled={loading || uniqueEvents === undefined || userPropertyOptions === undefined}
+                  disabled={loading || uniqueEvents === undefined || slackChannels === undefined}
                 >
                   {loading ? <LoadingSpinner color="white" /> : 'Create Trigger'}
                 </Button>
               </div>
             </form>
           </Form>
+        </div>
       </div>
-    </div>
+    </main>
   )
 }

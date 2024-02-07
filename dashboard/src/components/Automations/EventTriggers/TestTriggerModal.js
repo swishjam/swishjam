@@ -1,10 +1,10 @@
-import Modal from "../utils/Modal";
+import Modal from "../../utils/Modal";
 import { useState } from "react";
 import MonacoEditor from "@monaco-editor/react";
-import SlackMessagePreview from "../Slack/SlackMessagePreview";
+import SlackMessagePreview from "../../Slack/SlackMessagePreview";
 import Markdown from 'react-markdown'
 import SwishjamAPI from "@/lib/api-client/swishjam-api";
-import LoadingSpinner from "../LoadingSpinner";
+import LoadingSpinner from "../../LoadingSpinner";
 import { AlertOctagonIcon, CheckCircle2Icon } from "lucide-react";
 import { swishjam } from "@swishjam/react";
 

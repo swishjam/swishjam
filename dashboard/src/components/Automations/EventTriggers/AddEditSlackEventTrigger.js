@@ -22,7 +22,7 @@ import SwishjamAPI from '@/lib/api-client/swishjam-api';
 import { toast } from 'sonner'
 import { Textarea } from "@/components/ui/textarea"
 import { Tooltipable } from '@/components/ui/tooltip';
-import TestTriggerModal from '@/components/EventTriggers/TestTriggerModal';
+import TestTriggerModal from '@/components/Automations/EventTriggers/TestTriggerModal';
 import { useEffect, useState } from 'react';
 import { useFieldArray, useForm } from "react-hook-form"
 import { useRouter } from 'next/navigation';

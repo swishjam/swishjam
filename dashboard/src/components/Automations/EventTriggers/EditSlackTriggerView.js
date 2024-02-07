@@ -32,7 +32,7 @@ import { Tooltipable } from '@/components/ui/tooltip';
 import { ArrowLeftIcon, InfoIcon } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { PaperAirplaneIcon } from '@heroicons/react/24/outline';
-import TestTriggerModal from '@/components/EventTriggers/TestTriggerModal';
+import TestTriggerModal from '@/components/Automations/EventTriggers/TestTriggerModal';
 
 export default function EditSlackTriggerPage({ eventTrigger }) {
   const form = useForm({ defaultValues: { header: '✨ Event Name' } });
