@@ -67,7 +67,7 @@ export default function EditTriggerPage({ params }) {
   }
 
   const getAndSetEventOptions = async () => {
-    SwishjamAPI.Events.listUnique().then(events => {
+    SwishjamAPI.Events.listUnique({ limit: 100 }).then(events => {
       const sortedEvents = events.sort((a, b) => {
         if (a.name.toLowerCase() < b.name.toLowerCase()) {
           return -1;
