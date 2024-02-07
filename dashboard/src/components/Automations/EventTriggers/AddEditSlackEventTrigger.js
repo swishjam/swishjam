@@ -9,6 +9,8 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form"
+import Link from "next/link"
+import EmptyState from "src/app/(authenticated)/automations/EmptyState";
 import { Input } from '@/components/ui/input';
 import LoadingSpinner from '@components/LoadingSpinner';
 import MessageBodyMarkdownRenderer from '@components/Slack/MessageBodyMarkdownRenderer';
@@ -41,7 +43,7 @@ export default function AddEditSlackEventTrigger({ onEventTriggerCreated }) {
   const conditionalStatementsFieldArray = useFieldArray({ control: form.control, name: "conditionalStatements" });
   const router = useRouter();
 
-  const [loading, setLoading] = useState(false);
+  const [isFormSaving, setIsFormSaving] = useState();
   const [slackChannels, setSlackChannels] = useState();
   const [uniqueEvents, setUniqueEvents] = useState();
   const [propertyOptionsForSelectedEvent, setPropertyOptionsForSelectedEvent] = useState();
@@ -65,7 +67,7 @@ export default function AddEditSlackEventTrigger({ onEventTriggerCreated }) {
   }
 
   async function onSubmit(values) {
-    setLoading(true)
+    setIsFormSaving(true)
     const isValid = values.event_name && values.slack_channel && (values.header || values.body)
     if (!isValid) {
       Object.keys(values).forEach(key => {
@@ -92,7 +94,7 @@ export default function AddEditSlackEventTrigger({ onEventTriggerCreated }) {
           }
         })
       }
-      setLoading(false);
+      setIsFormSaving(false);
       return;
     }
 
@@ -102,61 +104,66 @@ export default function AddEditSlackEventTrigger({ onEventTriggerCreated }) {
       channel_id: values.slack_channel,
       channel_name: slackChannels.find(channel => channel.id === values.slack_channel)?.name,
     }
-    
-    // onEventTriggerCreated
-    
-    
-    
-    const { trigger, error } = await SwishjamAPI.EventTriggers.create({
-      eventName: values.event_name,
-      conditionalStatements: values.conditionalStatements,
-      steps: [{ type: 'EventTriggerSteps::Slack', config }]
-    })
-
-    if (error) {
-      setLoading(false);
-      toast.error("Uh oh! Something went wrong.", {
-        description: error,
-      })
-    } else {
-      swishjam.event('event_trigger_created', {
+      
+    const onSuccess = (trigger) => {
+      setIsFormSaving(false);
+      swishjam.event('slack_event_trigger_created', {
         event_name: values.event_name,
         slack_channel: config.channel_name,
         trigger_id: trigger.id,
         message_header: config.message_header,
       })
-      router.push(`/automations/event-triggers?success=${"Your new event trigger was created successfully."}`);
+      router.push(`/automations/event-triggers?success=${"Your new Slack event trigger was created successfully."}`);
     }
+    const onError = (error) => {
+      setIsFormSaving(false);
+      toast.error("uh oh! Something went wrong.", {
+        description: error,
+      })
+    }
+
+    onEventTriggerCreated({
+      eventName: values.event_name,
+      conditionalStatements: values.conditionalStatements,
+      steps: [{ type: 'EventTriggerSteps::Slack', config }]
+    }, onSuccess, onError)
   }
 
   useEffect(() => {
-    SwishjamAPI.Slack.getChannels().then(channels => {
-      const sortedChannels = channels?.sort((a, b) => {
-        if (a.name.toLowerCase() < b.name.toLowerCase()) {
-          return -1;
-        } else if (a.name.toLowerCase() > b.name.toLowerCase()) {
-          return 1;
-        } else {
-          return 0;
-        }
-      })
-      setSlackChannels(sortedChannels);
-    });
+    try {
+      SwishjamAPI.Slack.getChannels().then(channels => {
+        const sortedChannels = channels?.sort((a, b) => {
+          if (a.name.toLowerCase() < b.name.toLowerCase()) {
+            return -1;
+          } else if (a.name.toLowerCase() > b.name.toLowerCase()) {
+            return 1;
+          } else {
+            return 0;
+          }
+        })
+        setSlackChannels(sortedChannels);
+      });
 
-    SwishjamAPI.Events.listUnique().then(events => {
-      const sortedEvents = events.sort((a, b) => {
-        if (a.name.toLowerCase() < b.name.toLowerCase()) {
-          return -1;
-        } else if (a.name.toLowerCase() > b.name.toLowerCase()) {
-          return 1;
-        } else {
-          return 0;
-        }
-      })
-      setUniqueEvents(sortedEvents);
-    });
+      SwishjamAPI.Events.listUnique().then(events => {
+        const sortedEvents = events.sort((a, b) => {
+          if (a.name.toLowerCase() < b.name.toLowerCase()) {
+            return -1;
+          } else if (a.name.toLowerCase() > b.name.toLowerCase()) {
+            return 1;
+          } else {
+            return 0;
+          }
+        })
+        setUniqueEvents(sortedEvents);
+      });
+    } catch(e) {
+      console.log(e)
+    }
   }, [])
 
+  if(!slackChannels && slackChannels?.length == 0 && !uniqueEvents && uniqueEvents?.length == 0) {
+    return <EmptyState title={<><Link className='text-blue-700 underline' href='/integrations/destinations'>Connect Slack</Link> to begin creating Slack triggers.</>} />
+  }
   return (
     <main>
       {testTriggerModalIsOpen && (
@@ -180,20 +187,20 @@ export default function AddEditSlackEventTrigger({ onEventTriggerCreated }) {
           />
           <h2 className="text-sm font-medium text-gray-700 mb-2 mt-4">Slack Formatting Reference</h2>
           <div className="border border-zinc-200 shadow-sm bg-white rounded-md p-4">
-            
-          <p className="text-sm font-medium">Links</p>
-          <p className="text-sm mt-1">
-            Format:
-            <span className="ml-1 text-sm px-1.5 py-0.5 border border-zinc-200 bg-accent rounded-sm">{"<{your link}|Displayed text>"}</span>
-          </p>
-          <p className="text-sm py-1.5">
-            Example:
-            <span className="ml-1 text-sm px-1.5 py-0.5 border border-zinc-200 bg-accent rounded-sm">{"<https://swishjam.com/integrations|Integrations>"}</span>
-          </p>
-          <p className="text-sm">
-            Result: 
-            <a className="ml-1 underline hover:text-blue-400" href="https://swishjam.com/integrations">Integrations</a> 
-          </p>
+
+            <p className="text-sm font-medium">Links</p>
+            <p className="text-sm mt-1">
+              Format:
+              <span className="ml-1 text-sm px-1.5 py-0.5 border border-zinc-200 bg-accent rounded-sm">{"<{your link}|Displayed text>"}</span>
+            </p>
+            <p className="text-sm py-1.5">
+              Example:
+              <span className="ml-1 text-sm px-1.5 py-0.5 border border-zinc-200 bg-accent rounded-sm">{"<https://swishjam.com/integrations|Integrations>"}</span>
+            </p>
+            <p className="text-sm">
+              Result:
+              <a className="ml-1 underline hover:text-blue-400" href="https://swishjam.com/integrations">Integrations</a>
+            </p>
           </div> 
         </div>
         <div>
@@ -455,7 +462,7 @@ export default function AddEditSlackEventTrigger({ onEventTriggerCreated }) {
                     <button
                       type="button"
                       className={`!mt-6 w-full flex items-center justify-center py-2 px-4 border border-gray-200 rounded-md shadow-sm text-sm font-medium text-gray-700 focus:outline-none focus:ring-2 bg-white hover:bg-gray-200`}
-                      disabled={loading || uniqueEvents === undefined || slackChannels === undefined}
+                      disabled={isFormSaving || uniqueEvents === undefined || slackChannels === undefined}
                       onClick={() => setTestTriggerModalIsOpen(true)}
                     >
                       <PaperAirplaneIcon className='w-4 h-4 inline mr-2' />
@@ -463,11 +470,11 @@ export default function AddEditSlackEventTrigger({ onEventTriggerCreated }) {
                     </button>
                   )}
                 <Button
-                  className={`!mt-6 w-full flex items-center justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white focus:outline-none focus:ring-2 ${loading ? 'bg-swishjam-dark' : 'bg-swishjam'} hover:bg-swishjam-dark`}
+                  className={`!mt-6 w-full flex items-center justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white focus:outline-none focus:ring-2 ${isFormSaving ? 'bg-swishjam-dark' : 'bg-swishjam'} hover:bg-swishjam-dark`}
                   type="submit"
-                  disabled={loading || uniqueEvents === undefined || slackChannels === undefined}
+                  disabled={isFormSaving || uniqueEvents === undefined || slackChannels === undefined}
                 >
-                  {loading ? <LoadingSpinner color="white" /> : 'Create Trigger'}
+                  {isFormSaving ? <LoadingSpinner color="white" /> : 'Create Trigger'}
                 </Button>
               </div>
             </form>

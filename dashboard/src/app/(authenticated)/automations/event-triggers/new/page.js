@@ -1,33 +1,22 @@
 'use client'
 
 import Link from 'next/link';
-import { swishjam } from '@swishjam/react';
 import SwishjamAPI from '@/lib/api-client/swishjam-api';
-import { toast } from 'sonner'
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import { ArrowLeftIcon } from 'lucide-react';
 import AddEditSlackEventTrigger from '@/components/Automations/EventTriggers/AddEditSlackEventTrigger';
 import ResendEmailView from "@/components/EventTriggers/ResendEmailView";
 
 export default function NewEventTrigger() {
-  const router = useRouter();
   const searchParams = useSearchParams();
-
-  async function onSubmit(triggerValue) {
+ 
+  async function onSubmit(triggerValue, onSuccess = () => {}, onError = () => {}) {
     const { trigger, error } = await SwishjamAPI.EventTriggers.create(triggerValue)
     if (error) {
-      setLoading(false);
-      toast.error("Uh oh! Something went wrong.", {
-        description: error,
-      })
+      onError(error)
+      return
     } else {
-      // swishjam.event('event_trigger_created', {
-      //   event_name: values.event_name,
-      //   slack_channel: config.channel_name,
-      //   trigger_id: trigger.id,
-      //   message_header: config.message_header,
-      // })
-      router.push(`/automations/event-triggers?success=${"Your new event trigger was created successfully."}`);
+      onSuccess(trigger)
     }
   }
 

@@ -144,7 +144,6 @@ export default function ResendEmailView({ onSubmit }) {
   return (
     <div className="grid grid-cols-2 gap-8 mt-8">
       <div>
-        <span className='text-sm text-gray-500'>Email Preview</span>
         <FormInputOrLoadingState isLoading={uniqueEvents === undefined || userPropertyOptions === undefined} classname='h-44'>
           <EmailPreview
             to={
@@ -179,10 +178,25 @@ export default function ResendEmailView({ onSubmit }) {
               />
             }
           />
+          {/* <h2 className="text-sm font-medium text-gray-700 mb-2 mt-4">Resend Email Formatting Reference</h2>
+          <div className="border border-zinc-200 shadow-sm bg-white rounded-md p-4">
+            <p className="text-sm font-medium">Links</p>
+            <p className="text-sm mt-1">
+              Format:
+              <span className="ml-1 text-sm px-1.5 py-0.5 border border-zinc-200 bg-accent rounded-sm">{"<{your link}|Displayed text>"}</span>
+            </p>
+            <p className="text-sm py-1.5">
+              Example:
+              <span className="ml-1 text-sm px-1.5 py-0.5 border border-zinc-200 bg-accent rounded-sm">{"<https://swishjam.com/integrations|Integrations>"}</span>
+            </p>
+            <p className="text-sm">
+              Result:
+              <a className="ml-1 underline hover:text-blue-400" href="https://swishjam.com/integrations">Integrations</a>
+            </p>
+          </div>   */}
         </FormInputOrLoadingState>
       </div>
       <div>
-        <ScrollArea className="max-h-[80vh] overflow-y-scroll pb-10 px-2">
           <Form {...form}>
             <form onSubmit={form.handleSubmit(verifyAndSubmitForm)} className="space-y-4">
               <FormField
@@ -357,7 +371,7 @@ export default function ResendEmailView({ onSubmit }) {
                 control={form.control}
                 name="to"
                 render={({ field }) => (
-                  <FormItem>
+                  <FormItem className="relative">
                     <FormLabel>
                       To
                       <Tooltipable
@@ -378,6 +392,22 @@ export default function ResendEmailView({ onSubmit }) {
                           placeholder="{user.email}"
                           {...form.register("to")}
                         />
+                        <div className="absolute top-8 right-2 flex gap-2 z-10">
+                          <div className="px-2 py-0.5 rounded border border-gray-200 text-xs hover:bg-accent">
+                          BCC
+                          </div> 
+                          <div
+                            onClick={() => {
+                              if (!form.watch('cc')) {
+                                setCcSectionsIsExpanded(true)//!ccSectionsIsExpanded)
+                              }
+                            }} 
+                            className="px-2 py-0.5 rounded border border-gray-200 text-xs hover:bg-accent"
+                          >
+                            CC
+                          </div> 
+                        </div> 
+                        <div className="absolute top-8 right-2 px-2 py-0.5 rounded border border-gray-200 text-xs hover:bg-accent">CC</div> 
                       </FormInputOrLoadingState>
                     </FormControl>
                     <FormMessage />
@@ -392,14 +422,8 @@ export default function ResendEmailView({ onSubmit }) {
                   <FormItem>
                     <FormLabel
                       className={`flex items-center pr-4 py-0.5 transition-all rounded w-fit ${form.watch('cc') ? '' : 'cursor-pointer hover:bg-gray-100'}`}
-                      onClick={() => {
-                        if (!form.watch('cc')) {
-                          setCcSectionsIsExpanded(!ccSectionsIsExpanded)
-                        }
-                      }}
                     >
-                      <ChevronRightIcon className={`w-4 h-4 transition-all ${ccSectionsIsExpanded ? 'transform rotate-90' : ''}`} />
-                      CC:
+                      CC
                     </FormLabel>
                     <FormControl>
                       {(ccSectionsIsExpanded || form.watch('cc')) && (
@@ -608,7 +632,6 @@ export default function ResendEmailView({ onSubmit }) {
               </div>
             </form>
           </Form>
-        </ScrollArea>
       </div>
     </div>
   )

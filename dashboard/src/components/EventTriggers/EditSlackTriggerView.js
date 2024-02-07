@@ -209,7 +209,6 @@ export default function EditSlackTriggerPage({ eventTrigger }) {
       </div>
       <div className="grid grid-cols-2 gap-8 mt-8">
         <div>
-          <h2 className='text-sm italic'>Slack Preview</h2>
           <SlackMessagePreview
             header={slackMessageHeader}
             body={<MessageBodyMarkdownRenderer body={slackMessageBody} availableEventOptions={propertyOptionsForSelectedEvent} />}
