@@ -358,7 +358,19 @@ export default function ResendEmailView({ onSubmit }) {
                 name="to"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>To:</FormLabel>
+                    <FormLabel>
+                      To
+                      <Tooltipable
+                        content={
+                          <>
+                            Most often you will want to leave this as <span className='bg-gray-200 italic text-emerald-400 px-1 py-0.5 rounded-md'>{'{user.email}'}</span> variable,
+                            as that is the currently identified user, however you have the option to pass in a different event or user property here if you desire.
+                          </>
+                        }
+                      >
+                        <InfoIcon className='inline ml-1 text-gray-500' size={16} />
+                      </Tooltipable>
+                    </FormLabel>
                     <FormControl>
                       <FormInputOrLoadingState isLoading={uniqueEvents === undefined || userPropertyOptions === undefined}>
                         <Input
@@ -488,7 +500,9 @@ export default function ResendEmailView({ onSubmit }) {
                       <Tooltipable
                         content={
                           <>
-                            Within the body of the email you can reference event properties and user properties by wrapping the property in {"{}"} (ie: if you want to include the `url` property of the event in the body of the email, you can reference it as <span className='bg-gray-200 italic text-emerald-400 px-1 py-0.5 rounded-md'>{'{url}'}</span>).
+                            Within the body of the email you can reference event properties and user properties by wrapping the property in {"{}"} (ie: if you want to
+                            include the <span className='italic'>url</span> property of the event in the body of the email,
+                            you can reference it as <span className='bg-gray-200 italic text-emerald-400 px-1 py-0.5 rounded-md'>{'{url}'}</span>).
                           </>
                         }
                       >
@@ -510,10 +524,10 @@ export default function ResendEmailView({ onSubmit }) {
                 name="send_once_per_user"
                 render={({ field }) => (
                   <FormItem className='flex items-center gap-x-2'>
+                    <Tooltipable content="If checked, this email will not be sent on subsequent events for the same email address.">
+                      <InfoIcon className='inline text-gray-500 mr-1' size={16} />
+                    </Tooltipable>
                     <FormLabel className='cursor-pointer'>
-                      <Tooltipable content="If checked, this email will not be sent on subsequent events for the same user.">
-                        <InfoIcon className='inline text-gray-500 mr-1' size={16} />
-                      </Tooltipable>
                       Only ever send this email to a user once
                     </FormLabel>
                     <FormControl>
@@ -534,10 +548,10 @@ export default function ResendEmailView({ onSubmit }) {
                 name="un_resolved_variable_safety_net"
                 render={({ field }) => (
                   <FormItem className='flex items-center gap-x-2'>
+                    <Tooltipable content="Highly encouraged to remain enabled. If checked, the email will not be sent if any of the variables used within it do not resolve (ie: if the body uses a {event.myVariable} variable but the triggered event does not have that property).">
+                      <InfoIcon className='inline text-gray-500 mr-1' size={16} />
+                    </Tooltipable>
                     <FormLabel className='cursor-pointer'>
-                      <Tooltipable content="Highly encouraged to remain enabled. If checked, the email will not be sent if any of the variables used within it do not resolve (ie: if the body uses a {event.myVariable} variable but the triggered event does not have that property).">
-                        <InfoIcon className='inline text-gray-500 mr-1' size={16} />
-                      </Tooltipable>
                       Unresolved Variable Safety Net
                     </FormLabel>
                     <FormControl>
