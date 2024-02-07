@@ -177,22 +177,34 @@ export default function ResendEmailView({ onSubmit }) {
               />
             }
           />
-          {/* <h2 className="text-sm font-medium text-gray-700 mb-2 mt-4">Resend Email Formatting Reference</h2>
+          <h2 className="text-sm font-medium text-gray-700 mb-2 mt-4">Resend Email Formatting Reference</h2>
           <div className="border border-zinc-200 shadow-sm bg-white rounded-md p-4">
-            <p className="text-sm font-medium">Links</p>
+            <p className="text-sm font-medium">Using Variables</p>
             <p className="text-sm mt-1">
-              Format:
-              <span className="ml-1 text-sm px-1.5 py-0.5 border border-zinc-200 bg-accent rounded-sm">{"<{your link}|Displayed text>"}</span>
+              Basic Syntax:
+              <span className="ml-1 text-sm px-1.5 py-0.5 border border-zinc-200 bg-accent rounded-sm">{"{ VARIABLE_NAME }"}</span>
             </p>
-            <p className="text-sm py-1.5">
+            <p className="text-sm mt-1">
               Example:
-              <span className="ml-1 text-sm px-1.5 py-0.5 border border-zinc-200 bg-accent rounded-sm">{"<https://swishjam.com/integrations|Integrations>"}</span>
+              <span className="ml-1 text-sm px-1.5 py-0.5 border border-zinc-200 bg-accent rounded-sm">{"{ user.email }"}</span>
             </p>
-            <p className="text-sm">
+            <p className="text-sm mt-1">
               Result:
-              <a className="ml-1 underline hover:text-blue-400" href="https://swishjam.com/integrations">Integrations</a>
+              <span className="ml-1 text-sm px-1.5 py-0.5 border border-zinc-200 bg-accent rounded-sm">{"founders@swishjam.com"}</span>
             </p>
-          </div>   */}
+            <p className="text-sm mt-1">
+              Advanced Syntax:
+              <span className="ml-1 text-sm px-1.5 py-0.5 border border-zinc-200 bg-accent rounded-sm">{"{ user.name || 'friend'}"}</span> using the
+              <span className="ml-1 text-sm px-1.5 py-0.5 border border-zinc-200 bg-accent rounded-sm">||</span> allows you to provide a default value if the variable is not defined.
+              <br /> 
+              These can be chained like this:<span className="ml-1 text-sm px-1.5 py-0.5 border border-zinc-200 bg-accent rounded-sm">{"{ user.name || user.email || 'friend'}"}</span>
+            </p>
+             
+            <p className="text-sm font-medium mt-4">Event Variables</p>
+            <p className="text-sm mt-1">
+              Each event will have unique variables depending on the event. Custom variables that you pass to us can be referenced in the body of the email, subject line, etc.
+            </p>
+          </div>
         </FormInputOrLoadingState>
       </div>
       <div>
@@ -562,18 +574,18 @@ export default function ResendEmailView({ onSubmit }) {
               control={form.control}
               name="send_once_per_user"
               render={({ field }) => (
-                <FormItem className='flex items-center gap-x-2'>
+                <FormItem className='flex flex-row items-start space-x-3 space-y-0 bg-white rounded-md border border-gray-200 p-4 shadow-sm'>
                   <FormControl>
                     <Checkbox
                       className='data-[state=checked]:bg-swishjam data-[state=checked]:border-swishjam'
                       checked={field.value}
-                      onCheckedChange={field.onChange} 
+                      onCheckedChange={field.onChange}
                     />
                   </FormControl>
                   <FormLabel className="flex">
                     Only ever send this email to a user once
                     <Tooltipable
-                      className="" 
+                      className=""
                       content="If checked, this email will not be sent on subsequent events for the same email address."
                     >
                       <div><LuInfo className=' text-gray-500 ml-1' size={16} /></div>
@@ -588,7 +600,7 @@ export default function ResendEmailView({ onSubmit }) {
                 control={form.control}
                 name="un_resolved_variable_safety_net"
                 render={({ field }) => (
-                  <FormItem className='flex items-center gap-x-2'>
+                  <FormItem className='flex flex-row items-start space-x-3 space-y-0 bg-white rounded-md border border-gray-200 p-4 shadow-sm'>
                     <FormControl>
                       <Checkbox
                         className='data-[state=checked]:bg-swishjam data-[state=checked]:border-swishjam'
