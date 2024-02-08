@@ -173,6 +173,12 @@ export default function AddEditSlackEventTrigger({
     } catch(e) {
       console.log(e)
     }
+    if(triggerId) {
+      SwishjamAPI.Events.Properties.listUnique(defaultTriggerValues.steps[0].config.event_name).then(properties => {
+        setPropertyOptionsForSelectedEvent(properties);
+      });
+    }
+
   }, [])
 
   if(!slackChannels && slackChannels?.length == 0 && !uniqueEvents && uniqueEvents?.length == 0) {
@@ -488,7 +494,7 @@ export default function AddEditSlackEventTrigger({
                   type="submit"
                   disabled={isFormSaving || uniqueEvents === undefined || slackChannels === undefined}
                 >
-                  {isFormSaving ? <LoadingSpinner color="white" /> : 'Create Trigger'}
+                  {isFormSaving ? <LoadingSpinner color="white" /> : triggerId ? 'Save Trigger':'Create Trigger'}
                 </Button>
               </div>
             </form>

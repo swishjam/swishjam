@@ -51,6 +51,8 @@ export default function EditTriggerPage({ params }) {
         </div>
       </div>
 
+      {JSON.stringify(eventTrigger)}
+
       {eventTrigger?.steps?.[0]?.type === 'EventTriggerSteps::Slack' &&
         <AddEditSlackEventTrigger
           onSave={saveTrigger}
