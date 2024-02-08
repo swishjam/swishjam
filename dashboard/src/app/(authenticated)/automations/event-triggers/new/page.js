@@ -36,7 +36,7 @@ export default function NewEventTrigger() {
       </div>
       {searchParams.get('type') == 'Slack' && (
         <AddEditSlackEventTrigger
-          onEventTriggerCreated={onSubmit}
+          onSave={}
         />
       )}
       {searchParams.get('type') == 'ResendEmail' && (
