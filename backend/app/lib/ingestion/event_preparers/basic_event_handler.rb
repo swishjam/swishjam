@@ -26,15 +26,16 @@ module Ingestion
                                       provided_org_attributes['organization_identifier']
           if organization_identifier.present?
             org = workspace.analytics_organization_profiles.find_by(organization_unique_identifier: organization_identifier)
-            sanitized_provided_org_metadata = (provided_org_attributes['metadata'] || provided_org_attributes || {}).except('id', 'organization_identifier', 'name', 'domain', 'org_id', 'organization_id', 'orgIdentifier', 'organizationIdentifier', 'organization_identifier')
+            maybe_org_name = provided_org_attributes['organization_name'] || provided_org_attributes['name']
+            sanitized_provided_org_metadata = (provided_org_attributes['metadata'] || provided_org_attributes || {}).except('id', 'organization_identifier', 'name', 'organization_name', 'domain', 'org_id', 'organization_id', 'orgIdentifier', 'organizationIdentifier', 'organization_identifier')
             if org.present?
-              org.name = provided_org_attributes['name'] if provided_org_attributes['name'].present?
+              org.name = maybe_org_name if maybe_org_name.present?
               org.metadata = org.metadata.merge(sanitized_provided_org_metadata) if sanitized_provided_org_metadata.present?
               org.domain = provided_org_attributes['domain'] || provided_org_attributes.dig('metadata', 'domain') if provided_org_attributes['domain'].present? || provided_org_attributes.dig('metadata', 'domain').present?
             else
               org = workspace.analytics_organization_profiles.new(
                 organization_unique_identifier: organization_identifier,
-                name: provided_org_attributes['name'],
+                name: maybe_org_name,
                 metadata: sanitized_provided_org_metadata,
                 domain: provided_org_attributes['domain'] || provided_org_attributes.dig('metadata', 'domain'),
               )
