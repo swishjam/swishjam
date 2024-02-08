@@ -100,12 +100,14 @@ export default function EventTriggerRow({ trigger, onPause, onResume, onDelete, 
             </div>
           </DropdownMenuTrigger>
           <DropdownMenuContent className="w-fit border-zinc-200 shadow-sm border-sm" align='end'>
-            <Link href={`/automations/event-triggers/${trigger.id}/details`}>
-              <DropdownMenuItem className='cursor-pointer hover:bg-accent'>
-                <ScrollTextIcon className='h-4 w-4 inline-block mr-2' />
-                Trigger History
-              </DropdownMenuItem>
-            </Link>
+            {trigger.steps[0].type === 'EventTriggerSteps::Resend' && (
+              <Link href={`/automations/event-triggers/${trigger.id}/details`}>
+                <DropdownMenuItem className='cursor-pointer hover:bg-accent'>
+                  <ScrollTextIcon className='h-4 w-4 inline-block mr-2' />
+                  Trigger History
+                </DropdownMenuItem>
+              </Link>
+            )}
             <Link href={`/automations/event-triggers/${trigger.id}/edit`}>
               <DropdownMenuItem className='cursor-pointer hover:bg-accent'>
                 <LuPencil className='h-4 w-4 inline-block mr-2' />

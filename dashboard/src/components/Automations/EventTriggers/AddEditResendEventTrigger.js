@@ -226,8 +226,8 @@ export default function AddEditResendEventTrigger({
                   The <span className="ml-1 text-sm px-1.5 py-0.5 border border-zinc-200 bg-accent rounded-sm transition-colors cursor-default hover:bg-gray-200">{form.watch('event_name')}</span> event has the following properties:
                 </p>
                 <div className='flex flex-wrap gap-1 mt-1'>
-                  {propertyOptionsForSelectedEvent.filter(v => v.startsWith('event.')).map(property => (
-                    <span className="ml-1 text-sm px-1.5 py-0.5 border border-zinc-200 bg-accent rounded-sm transition-colors cursor-default hover:bg-gray-200">{'{'}{property}{'}'}</span>
+                  {propertyOptionsForSelectedEvent.filter(v => v.startsWith('event.')).map((property, i) => (
+                    <span key={i} className="ml-1 text-sm px-1.5 py-0.5 border border-zinc-200 bg-accent rounded-sm transition-colors cursor-default hover:bg-gray-200">{'{'}{property}{'}'}</span>
                   ))}
                 </div>
               </>
@@ -239,8 +239,8 @@ export default function AddEditResendEventTrigger({
             <p className="text-sm mt-1">The following user variables are available to you:</p>
             {userPropertyOptions && (
               <div className='flex flex-wrap gap-1 mt-1'>
-                {userPropertyOptions.map(property => (
-                  <span className="text-sm px-1.5 py-0.5 border border-zinc-200 bg-accent rounded-sm cursor-default transition-colors hover:bg-gray-200">{'{'}{property}{'}'}</span>
+                {userPropertyOptions.map((property, i) => (
+                  <span key={i} className="text-sm px-1.5 py-0.5 border border-zinc-200 bg-accent rounded-sm cursor-default transition-colors hover:bg-gray-200">{'{'}{property}{'}'}</span>
                 ))}
               </div>
             )}
@@ -262,10 +262,7 @@ export default function AddEditResendEventTrigger({
                     </Tooltipable>
                   </FormLabel>
                   <FormInputOrLoadingState isLoading={uniqueEvents === undefined || userPropertyOptions === undefined}>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Select your event" />

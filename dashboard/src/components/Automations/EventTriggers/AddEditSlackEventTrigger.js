@@ -45,12 +45,14 @@ export default function AddEditSlackEventTrigger({
   defaultTriggerValues = {
     event_name: '',
     conditional_statements: [],
-    steps: [{ type: 'EventTriggerSteps::Slack', config: {
-      message_header: '✨ Event Name',
-      message_body: '',
-      channel_id: '',
-      channel_name: '' 
-    }}],
+    steps: [{
+      type: 'EventTriggerSteps::Slack', config: {
+        message_header: '✨ Event Name',
+        message_body: '',
+        channel_id: '',
+        channel_name: ''
+      }
+    }],
   }
 }) {
   const form = useForm({ defaultValues: defaultTriggerValues });
@@ -82,11 +84,8 @@ export default function AddEditSlackEventTrigger({
 
   async function onSubmit(values) {
     setIsFormSaving(true)
-    console.log('vals', values)
     const isValid = values.event_name && values?.steps[0].config.channel_id && (values?.steps[0].config.message_header || values?.steps[0].config.message_body)
-    console.log('isValid', isValid)
     if (!isValid) {
-      console.log('invalid')
       Object.keys(values.steps[0].config).forEach(key => {
         if (!values.steps[0].config[key]) {
           if ((key === 'message_header' || key === 'message_body') && !values.steps[0].config.message_header && !values.steps[0].config.message_body) {
@@ -124,19 +123,18 @@ export default function AddEditSlackEventTrigger({
         message_header: values.steps[0].config.message_header,
       })
       toast.success(`${triggerId ? 'edited successfully' : 'Trigger created. Redirecting to all event triggers'} `)
-      if(!triggerId) { 
+      if (!triggerId) {
         router.push(`/automations/event-triggers?success=${"Your new Slack event trigger was created successfully."}`);
       }
     }
-      
+
     const onError = (error) => {
       setIsFormSaving(false);
       toast.error("uh oh! Something went wrong.", {
         description: error,
       })
     }
-    
-    console.log('saving here') 
+
     onSave({
       ...values,
       channel_name: slackChannels.find(channel => channel.id === values.slack_channel)?.name,
@@ -144,43 +142,40 @@ export default function AddEditSlackEventTrigger({
   }
 
   useEffect(() => {
-    try {
-      SwishjamAPI.Slack.getChannels().then(channels => {
-        const sortedChannels = channels?.sort((a, b) => {
-          if (a.name.toLowerCase() < b.name.toLowerCase()) {
-            return -1;
-          } else if (a.name.toLowerCase() > b.name.toLowerCase()) {
-            return 1;
-          } else {
-            return 0;
-          }
-        })
-        setSlackChannels(sortedChannels);
-      });
+    SwishjamAPI.Slack.getChannels().then(channels => {
+      const sortedChannels = channels?.sort((a, b) => {
+        if (a.name.toLowerCase() < b.name.toLowerCase()) {
+          return -1;
+        } else if (a.name.toLowerCase() > b.name.toLowerCase()) {
+          return 1;
+        } else {
+          return 0;
+        }
+      })
+      setSlackChannels(sortedChannels);
+    });
 
-      SwishjamAPI.Events.listUnique().then(events => {
-        const sortedEvents = events.sort((a, b) => {
-          if (a.name.toLowerCase() < b.name.toLowerCase()) {
-            return -1;
-          } else if (a.name.toLowerCase() > b.name.toLowerCase()) {
-            return 1;
-          } else {
-            return 0;
-          }
-        })
-        setUniqueEvents(sortedEvents);
-      });
-    } catch(e) {
-      console.log(e)
-    }
-    if(triggerId) {
+    SwishjamAPI.Events.listUnique().then(events => {
+      const sortedEvents = events.sort((a, b) => {
+        if (a.name.toLowerCase() < b.name.toLowerCase()) {
+          return -1;
+        } else if (a.name.toLowerCase() > b.name.toLowerCase()) {
+          return 1;
+        } else {
+          return 0;
+        }
+      })
+      setUniqueEvents(sortedEvents);
+    });
+
+    if (triggerId) {
       SwishjamAPI.Events.Properties.listUnique(defaultTriggerValues.event_name).then(properties => {
         setPropertyOptionsForSelectedEvent(properties);
       });
     }
   }, [])
 
-  if(!slackChannels && slackChannels?.length == 0 && !uniqueEvents && uniqueEvents?.length == 0) {
+  if (!slackChannels && slackChannels?.length == 0 && !uniqueEvents && uniqueEvents?.length == 0) {
     return <EmptyState title={<><Link className='text-blue-700 underline' href='/integrations/destinations'>Connect Slack</Link> to begin creating Slack triggers.</>} />
   }
   return (
@@ -220,7 +215,7 @@ export default function AddEditSlackEventTrigger({
               Result:
               <a className="ml-1 underline hover:text-blue-400" href="https://swishjam.com/integrations">Integrations</a>
             </p>
-          </div> 
+          </div>
         </div>
         <div>
           <Form {...form}>
@@ -493,7 +488,7 @@ export default function AddEditSlackEventTrigger({
                   type="submit"
                   disabled={isFormSaving || uniqueEvents === undefined || slackChannels === undefined}
                 >
-                  {isFormSaving ? <LoadingSpinner color="white" /> : triggerId ? 'Save Trigger':'Create Trigger'}
+                  {isFormSaving ? <LoadingSpinner color="white" /> : triggerId ? 'Save Trigger' : 'Create Trigger'}
                 </Button>
               </div>
             </form>
