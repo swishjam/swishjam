@@ -1,6 +1,6 @@
 'use client';
 
-import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import Link from "next/link";
 import Logo from '@components/Logo'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger, Tooltipable } from '@/components/ui/tooltip'
@@ -10,10 +10,11 @@ import {
   LuPencil, LuTrash, LuSettings,
   LuGitCommit, LuSplit, LuMousePointerClick,
 } from "react-icons/lu";
-const SlackIcon = () => (<img src={'/logos/slack.svg'} className="h-4 w-4" />) 
-const ResendIcon = () => (<img src={'/logos/resend.png'} className="h-4 w-4" />) 
+import { ScrollTextIcon } from "lucide-react";
+const SlackIcon = () => (<img src={'/logos/slack.svg'} className="h-4 w-4" />)
+const ResendIcon = () => (<img src={'/logos/resend.png'} className="h-4 w-4" />)
 
-export default function EventTriggerRow({trigger, onPause, onResume, onDelete, className, ...props}) {
+export default function EventTriggerRow({ trigger, onPause, onResume, onDelete, className, ...props }) {
 
   const eventTriggerType = trigger.steps[0].type == 'EventTriggerSteps::Slack' ? 'slack' : 'resendEmail';
   const headerText = eventTriggerType == 'slack' ? `${trigger.steps[0].config.message_header}` : `${trigger.steps[0].config.subject}`;
@@ -73,7 +74,7 @@ export default function EventTriggerRow({trigger, onPause, onResume, onDelete, c
               <span className="truncate">{trigger.event_name}</span>
             </h2>
             <LuGitCommit className="w-4 h-4" />
-            
+
             {eventTriggerType == 'slack' &&
               <>
                 <SlackIcon />
@@ -98,7 +99,13 @@ export default function EventTriggerRow({trigger, onPause, onResume, onDelete, c
               <LuSettings className="text-gray-400 h-5 w-5 hover:text-swishjam cursor-pointer duration-300 transition-all" aria-hidden="true" />
             </div>
           </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-36 border-zinc-200 shadow-sm border-sm" align={'end'}>
+          <DropdownMenuContent className="w-fit border-zinc-200 shadow-sm border-sm" align='end'>
+            <Link href={`/automations/event-triggers/${trigger.id}/details`}>
+              <DropdownMenuItem className='cursor-pointer hover:bg-accent'>
+                <ScrollTextIcon className='h-4 w-4 inline-block mr-2' />
+                Trigger History
+              </DropdownMenuItem>
+            </Link>
             <Link href={`/automations/event-triggers/${trigger.id}/edit`}>
               <DropdownMenuItem className='cursor-pointer hover:bg-accent'>
                 <LuPencil className='h-4 w-4 inline-block mr-2' />
@@ -106,16 +113,20 @@ export default function EventTriggerRow({trigger, onPause, onResume, onDelete, c
               </DropdownMenuItem>
             </Link>
             <DropdownMenuGroup>
-              {trigger.enabled ?
-                <DropdownMenuItem onClick={() => onPause(trigger.id)} className="cursor-pointer hover:bg-accent">
-                  <LuPause className='h-4 w-4 inline-block mr-2' />
-                  Pause
-                </DropdownMenuItem> :
-                <DropdownMenuItem onClick={() => onResume(trigger.id)} className="cursor-pointer hover:bg-accent">
-                  <LuPlay className='h-4 w-4 inline-block mr-2' />
-                  Resume
-                </DropdownMenuItem>
+              {trigger.enabled
+                ? (
+                  <DropdownMenuItem onClick={() => onPause(trigger.id)} className="cursor-pointer hover:bg-accent">
+                    <LuPause className='h-4 w-4 inline-block mr-2' />
+                    Pause
+                  </DropdownMenuItem>
+                ) : (
+                  <DropdownMenuItem onClick={() => onResume(trigger.id)} className="cursor-pointer hover:bg-accent">
+                    <LuPlay className='h-4 w-4 inline-block mr-2' />
+                    Resume
+                  </DropdownMenuItem>
+                )
               }
+              <DropdownMenuSeparator />
               <DropdownMenuItem className="!text-red-400 cursor-pointer hover:bg-accent" onClick={() => onDelete(trigger.id)}>
                 <LuTrash className='h-4 w-4 inline-block mr-2' />
                 Delete

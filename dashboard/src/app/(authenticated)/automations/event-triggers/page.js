@@ -78,7 +78,7 @@ export default function () {
                   trigger={trigger}
                   onPause={pauseTrigger}
                   onResume={resumeTrigger}
-                  onDelete={deleteTrigger} 
+                  onDelete={deleteTrigger}
                 />
               ))}
             </ul>
