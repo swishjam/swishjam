@@ -124,7 +124,7 @@ export default function AddEditResendEventTrigger({
       toast.success(`${triggerId ? 'edited successfully' : 'Trigger created. Redirecting to all event triggers'} `)
       
       if(!triggerId) { 
-        router.push(`/automations/event-triggers?success=${"Your new Slack event trigger was created successfully."}`);
+        router.push(`/automations/event-triggers?success=${"Your new Resend event trigger was created successfully."}`);
       }
     }
     

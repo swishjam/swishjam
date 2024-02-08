@@ -40,10 +40,14 @@ const FormInputOrLoadingState = ({ children, className, isLoading }) => {
 
 export default function AddEditSlackEventTrigger({
   onSave,
-
+  className,
+  triggerId,
+  defaultTriggerValues = {
+    header: '✨ Event Name'
+  }
 }) {
-  const form = useForm({ defaultValues: { header: '✨ Event Name' } });
-  const conditionalStatementsFieldArray = useFieldArray({ control: form.control, name: "conditionalStatements" });
+  const form = useForm({ defaultValues: defaultTriggerValues });
+  const conditionalStatementsFieldArray = useFieldArray({ control: form.control, name: "conditional_statements" });
   const router = useRouter();
 
   const [isFormSaving, setIsFormSaving] = useState();
@@ -53,7 +57,7 @@ export default function AddEditSlackEventTrigger({
   const [testTriggerModalIsOpen, setTestTriggerModalIsOpen] = useState(false);
 
   const setSelectedEventAndGetPropertiesAndAutofillMessageContentIfNecessary = async eventName => {
-    form.setValue('header', '✨ ' + eventName + ' ✨')
+    form.setValue('steps.0.config.message_header', '✨ ' + eventName + ' ✨')
     conditionalStatementsFieldArray.fields.forEach((field, index) => {
       // only remove conditional statements that are non-empty
       if (field.property || field.condition || field.property_value) {
@@ -65,7 +69,7 @@ export default function AddEditSlackEventTrigger({
       // we re-set this every time they change the event..?
       let formattedPropertyOptions = '';
       properties.forEach(property => formattedPropertyOptions += `- ${property}: {${property}}  \n`)
-      form.setValue('body', `The _${eventName}_ event has the following properties: \n${formattedPropertyOptions}`);
+      form.setValue('steps.0.config.message_body', `The _${eventName}_ event has the following properties: \n${formattedPropertyOptions}`);
     });
   }
 
@@ -86,13 +90,13 @@ export default function AddEditSlackEventTrigger({
         values.conditionalStatements.forEach((statement, index) => {
           if (!statement.property || !statement.condition || !statement.property_value) {
             if (!statement.property) {
-              form.setError(`conditionalStatements.${index}.property`, { message: 'Property is a required field.' })
+              form.setError(`conditional_statements.${index}.property`, { message: 'Property is a required field.' })
             }
             if (!statement.condition) {
-              form.setError(`conditionalStatements.${index}.condition`, { message: 'Condition is a required field.' })
+              form.setError(`conditional_statements.${index}.condition`, { message: 'Condition is a required field.' })
             }
             if (!statement.property_value) {
-              form.setError(`conditionalStatements.${index}.property_value`, { message: 'Property Value is a required field.' })
+              form.setError(`conditional_statements.${index}.property_value`, { message: 'Property Value is a required field.' })
             }
           }
         })
@@ -101,23 +105,27 @@ export default function AddEditSlackEventTrigger({
       return;
     }
 
-    const config = {
-      message_header: values.header,
-      message_body: values.body,
-      channel_id: values.slack_channel,
-      channel_name: slackChannels.find(channel => channel.id === values.slack_channel)?.name,
-    }
+    // const config = {
+    //   message_header: values.header,
+    //   message_body: values.body,
+    //   channel_id: values.slack_channel,
+    //   channel_name: slackChannels.find(channel => channel.id === values.slack_channel)?.name,
+    // }
       
     const onSuccess = (trigger) => {
       setIsFormSaving(false);
-      swishjam.event('slack_event_trigger_created', {
+      swishjam.event(`slack_event_trigger_${triggerId ? 'edited' : 'created'}`, {
         event_name: values.event_name,
         slack_channel: config.channel_name,
         trigger_id: trigger.id,
         message_header: config.message_header,
       })
-      router.push(`/automations/event-triggers?success=${"Your new Slack event trigger was created successfully."}`);
+      toast.success(`${triggerId ? 'edited successfully' : 'Trigger created. Redirecting to all event triggers'} `)
+      if(!triggerId) { 
+        router.push(`/automations/event-triggers?success=${"Your new Slack event trigger was created successfully."}`);
+      }
     }
+      
     const onError = (error) => {
       setIsFormSaving(false);
       toast.error("uh oh! Something went wrong.", {
@@ -125,11 +133,12 @@ export default function AddEditSlackEventTrigger({
       })
     }
 
-    onEventTriggerCreated({
-      eventName: values.event_name,
-      conditionalStatements: values.conditionalStatements,
-      steps: [{ type: 'EventTriggerSteps::Slack', config }]
-    }, onSuccess, onError)
+    // {
+    //   eventName: values.event_name,
+    //   conditionalStatements: values.conditionalStatements,
+    //   steps: [{ type: 'EventTriggerSteps::Slack', config }]
+    // }
+    onSave(values, onSuccess, onError)
   }
 
   useEffect(() => {
@@ -171,22 +180,22 @@ export default function AddEditSlackEventTrigger({
     <main>
       {testTriggerModalIsOpen && (
         <TestTriggerModal
-          conditionalStatements={form.watch('conditionalStatements')}
+          conditionalStatements={form.watch('conditional_statements')}
           eventName={form.watch('event_name')}
           isOpen={testTriggerModalIsOpen}
           onClose={() => setTestTriggerModalIsOpen(false)}
           propertyOptions={propertyOptionsForSelectedEvent}
-          slackMessageHeader={form.watch('header')}
-          slackMessageBody={form.watch('body')}
-          slackChannelName={slackChannels.find(channel => channel.id === form.watch('slack_channel'))?.name}
-          slackChannelId={form.watch('slack_channel')}
+          slackMessageHeader={form.watch('steps.0.config.message_header')}
+          slackMessageBody={form.watch('steps.0.config.message_body')}
+          slackChannelName={slackChannels.find(channel => channel.id === form.watch('steps.0.config.channel_id'))?.name}
+          slackChannelId={form.watch('steps.0.config.channel_id')}
         />
       )}
       <div className="grid grid-cols-2 gap-8 mt-8">
         <div>
           <SlackMessagePreview
-            header={form.watch('header')}
-            body={<MessageBodyMarkdownRenderer body={form.watch('body')} availableEventOptions={propertyOptionsForSelectedEvent} />}
+            header={form.watch('steps.0.config.message_header')}
+            body={<MessageBodyMarkdownRenderer body={form.watch('steps.0.config.message_body')} availableEventOptions={propertyOptionsForSelectedEvent} />}
           />
           <h2 className="text-sm font-medium text-gray-700 mb-2 mt-4">Slack Formatting Reference</h2>
           <div className="border border-zinc-200 shadow-sm bg-white rounded-md p-4">
@@ -272,7 +281,7 @@ export default function AddEditSlackEventTrigger({
                             </span>
                             <FormField
                               control={field.control}
-                              name={`conditionalStatements.${index}.property`}
+                              name={`conditional_statements.${index}.property`}
                               render={({ field }) => (
                                 <FormItem>
                                   <Select
@@ -303,7 +312,7 @@ export default function AddEditSlackEventTrigger({
                             />
                             <FormField
                               control={field.control}
-                              name={`conditionalStatements.${index}.condition`}
+                              name={`conditional_statements.${index}.condition`}
                               render={({ field }) => (
                                 <FormItem>
                                   <Select
@@ -332,10 +341,10 @@ export default function AddEditSlackEventTrigger({
                                 </FormItem>
                               )}
                             />
-                            {form.watch(`conditionalStatements.${index}.condition`) !== 'is_defined' && (
+                            {form.watch(`conditional_statements.${index}.condition`) !== 'is_defined' && (
                               <FormField
                                 control={form.control}
-                                name={`conditionalStatements.${index}.property_value`}
+                                name={`conditional_statements.${index}.property_value`}
                                 render={({ field }) => (
                                   <FormItem>
                                     <FormControl>
@@ -343,7 +352,7 @@ export default function AddEditSlackEventTrigger({
                                         type="text"
                                         placeholder="Your property value"
                                         disabled={propertyOptionsForSelectedEvent === undefined}
-                                        {...form.register(`conditionalStatements.${index}.property_value`)}
+                                        {...form.register(`conditional_statements.${index}.property_value`)}
                                       />
                                     </FormControl>
                                     <FormMessage />
@@ -379,7 +388,7 @@ export default function AddEditSlackEventTrigger({
 
               <FormField
                 control={form.control}
-                name="header"
+                name="steps.0.config.message_header"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Header</FormLabel>
@@ -389,7 +398,7 @@ export default function AddEditSlackEventTrigger({
                           type="search"
                           placeholder="✨ Event Name"
                           autoComplete="off"
-                          {...form.register("header")}
+                          {...form.register("steps.0.config.message_header")}
                         />
                       </FormInputOrLoadingState>
                     </FormControl>
@@ -400,7 +409,7 @@ export default function AddEditSlackEventTrigger({
 
               <FormField
                 control={form.control}
-                name="body"
+                name="steps.0.config.message_body"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel className='flex items-center'>
@@ -417,7 +426,7 @@ export default function AddEditSlackEventTrigger({
                     </FormLabel>
                     <FormControl>
                       <FormInputOrLoadingState isLoading={uniqueEvents === undefined || slackChannels === undefined}>
-                        <Textarea {...form.register("body")} />
+                        <Textarea {...form.register("steps.0.config.message_body")} />
                       </FormInputOrLoadingState>
                     </FormControl>
                     <FormMessage />
@@ -427,7 +436,7 @@ export default function AddEditSlackEventTrigger({
 
               <FormField
                 control={form.control}
-                name="slack_channel"
+                name="steps.0.config.channel_id"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Slack Channel</FormLabel>
@@ -449,7 +458,7 @@ export default function AddEditSlackEventTrigger({
               />
 
               <div className='flex gap-x-2'>
-                {!form.watch('event_name') || !form.watch('slack_channel') || (!form.watch('header') && !form.watch('body'))
+                {!form.watch('event_name') || !form.watch('steps.0.config.channel_id') || (!form.watch('steps.0.config.message_header') && !form.watch('steps.0.config.message_body'))
                   ? (
                     <Tooltipable content="You must select an event, a slack channel, and provide either a header or a body value for your slack message before you can test your trigger.">
                       <button
