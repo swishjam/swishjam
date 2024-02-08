@@ -168,7 +168,7 @@ export default function AddEditResendEventTrigger({
   return (
     <div className={`${className} grid grid-cols-2 gap-8 mt-8`}>
       <div>
-        <FormInputOrLoadingState isLoading={uniqueEvents === undefined || userPropertyOptions === undefined} classname='h-44'>
+        <FormInputOrLoadingState isLoading={uniqueEvents === undefined || userPropertyOptions === undefined} className='h-44'>
           <EmailPreview
             to={
               <InterpolatedMarkdown
@@ -207,28 +207,52 @@ export default function AddEditResendEventTrigger({
             <p className="text-sm font-medium">Using Variables</p>
             <p className="text-sm mt-1">
               Basic Syntax:
-              <span className="ml-1 text-sm px-1.5 py-0.5 border border-zinc-200 bg-accent rounded-sm">{"{ VARIABLE_NAME }"}</span>
+              <span className="ml-1 text-sm px-1.5 py-0.5 border border-zinc-200 bg-accent rounded-sm transition-colors cursor-default hover:bg-gray-200">{"{ VARIABLE_NAME }"}</span>
             </p>
             <p className="text-sm mt-1">
               Example:
-              <span className="ml-1 text-sm px-1.5 py-0.5 border border-zinc-200 bg-accent rounded-sm">{"{ user.email }"}</span>
+              <span className="ml-1 text-sm px-1.5 py-0.5 border border-zinc-200 bg-accent rounded-sm transition-colors cursor-default hover:bg-gray-200">{"{ user.email }"}</span>
             </p>
             <p className="text-sm mt-1">
               Result:
-              <span className="ml-1 text-sm px-1.5 py-0.5 border border-zinc-200 bg-accent rounded-sm">{"founders@swishjam.com"}</span>
+              <span className="ml-1 text-sm px-1.5 py-0.5 border border-zinc-200 bg-accent rounded-sm transition-colors cursor-default hover:bg-gray-200">{"founders@swishjam.com"}</span>
             </p>
             <p className="text-sm mt-1">
               Advanced Syntax:
-              <span className="ml-1 text-sm px-1.5 py-0.5 border border-zinc-200 bg-accent rounded-sm">{"{ user.name || 'friend'}"}</span> using the
-              <span className="ml-1 text-sm px-1.5 py-0.5 border border-zinc-200 bg-accent rounded-sm">||</span> allows you to provide a default value if the variable is not defined.
+              <span className="ml-1 text-sm px-1.5 py-0.5 border border-zinc-200 bg-accent rounded-sm transition-colors cursor-default hover:bg-gray-200">{"{ user.name || 'friend'}"}</span> using the
+              <span className="ml-1 text-sm px-1.5 py-0.5 border border-zinc-200 bg-accent rounded-sm transition-colors cursor-default hover:bg-gray-200">||</span> allows you to provide a default value if the variable is not defined.
               <br />
-              These can be chained like this:<span className="ml-1 text-sm px-1.5 py-0.5 border border-zinc-200 bg-accent rounded-sm">{"{ user.name || user.email || 'friend'}"}</span>
+              These can be chained like this:<span className="ml-1 text-sm px-1.5 py-0.5 border border-zinc-200 bg-accent rounded-sm transition-colors cursor-default hover:bg-gray-200">{"{ user.name || user.email || 'friend'}"}</span>
             </p>
 
             <p className="text-sm font-medium mt-4">Event Variables</p>
             <p className="text-sm mt-1">
-              Each event will have unique variables depending on the event. Custom variables that you pass to us can be referenced in the body of the email, subject line, etc.
+              Each event will have unique variables depending on the event. Custom variables that you pass to Swishjam can be referenced in the body of the email, subject line, etc.
             </p>
+            {form.watch('event_name') && propertyOptionsForSelectedEvent && (
+              <>
+                <p className="text-sm mt-1 break-words">
+                  The <span className="ml-1 text-sm px-1.5 py-0.5 border border-zinc-200 bg-accent rounded-sm transition-colors cursor-default hover:bg-gray-200">{form.watch('event_name')}</span> event has the following properties:
+                </p>
+                <div className='flex flex-wrap gap-1 mt-1'>
+                  {propertyOptionsForSelectedEvent.filter(v => v.startsWith('event.')).map(property => (
+                    <span className="ml-1 text-sm px-1.5 py-0.5 border border-zinc-200 bg-accent rounded-sm transition-colors cursor-default hover:bg-gray-200">{'{'}{property}{'}'}</span>
+                  ))}
+                </div>
+              </>
+            )}
+            <p className="text-sm font-medium mt-4">User Variables</p>
+            <p className="text-sm mt-1">
+              User variables are a combination of the attributes Swishjam automatically applies to a user and any custom attributes you pass to Swishjam during events/identify calls.
+            </p>
+            <p className="text-sm mt-1">The following user variables are available to you:</p>
+            {userPropertyOptions && (
+              <div className='flex flex-wrap gap-1 mt-1'>
+                {userPropertyOptions.map(property => (
+                  <span className="text-sm px-1.5 py-0.5 border border-zinc-200 bg-accent rounded-sm cursor-default transition-colors hover:bg-gray-200">{'{'}{property}{'}'}</span>
+                ))}
+              </div>
+            )}
           </div>
         </FormInputOrLoadingState>
       </div>
