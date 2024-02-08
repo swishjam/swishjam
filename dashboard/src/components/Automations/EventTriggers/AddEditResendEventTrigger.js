@@ -735,7 +735,7 @@ export default function AddEditResendEventTrigger({
                 type="submit"
                 disabled={loading || uniqueEvents === undefined || userPropertyOptions === undefined}
               >
-                {loading ? <LoadingSpinner color="white" /> : 'Create Trigger'}
+                {loading ? <LoadingSpinner color="white" /> : (triggerId ? 'Save Trigger':'Create Trigger')}
               </Button>
             </div>
           </form>
