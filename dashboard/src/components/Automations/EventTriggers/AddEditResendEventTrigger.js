@@ -63,22 +63,6 @@ export default function AddEditResendEventTrigger({
   const [userPropertyOptions, setUserPropertyOptions] = useState();
   // const [testTriggerModalIsOpen, setTestTriggerModalIsOpen] = useState(false);
 
-  const setSelectedEventAndGetPropertiesAndAutofillMessageContentIfNecessary = async eventName => {
-    conditionalStatementsFieldArray.fields.forEach((field, index) => {
-      // only remove conditional statements that are non-empty
-      if (field.property || field.condition || field.property_value) {
-        conditionalStatementsFieldArray.remove(index)
-      }
-    })
-    SwishjamAPI.Events.Properties.listUnique(eventName).then(properties => {
-      setPropertyOptionsForSelectedEvent([...properties, ...properties.map(p => `event.${p}`)]);
-      // we re-set this every time they change the event..?
-      let formattedPropertyOptions = '';
-      properties.forEach(property => formattedPropertyOptions += `- ${property}: {${property}}  \n`)
-      form.setValue('body', `The _${eventName}_ event has the following properties: \n${formattedPropertyOptions}`);
-    });
-  }
-
   async function verifyAndSubmitForm(values) {
     setLoading(true)
     const isValid = values.event_name && values.steps[0].config.subject && values.steps[0].config.body && values.steps[0].config.to && values.steps[0].config.from;
@@ -158,10 +142,15 @@ export default function AddEditResendEventTrigger({
       setUserPropertyOptions(['user.email', ...userProperties.map(property => `user.${property}`)])
     }
     getUniqueEventsAndUserProperties();
-    if (form.watch('event_name')) {
-      setSelectedEventAndGetPropertiesAndAutofillMessageContentIfNecessary(form.watch('event_name'));
-    }
   }, [])
+
+  useEffect(() => {
+    if (form.watch('event_name')) {
+      SwishjamAPI.Events.Properties.listUnique(form.watch('event_name')).then(properties => {
+        setPropertyOptionsForSelectedEvent([...properties, ...properties.map(p => `event.${p}`)]);
+      });
+    }
+  }, [form.watch('event_name')])
 
   useEffect(() => {
     form.setValue('from', `Your name <${currentUserEmail}>`)
@@ -170,7 +159,7 @@ export default function AddEditResendEventTrigger({
   return (
     <div className={`${className} grid grid-cols-2 gap-8 mt-8`}>
       <div>
-        <FormInputOrLoadingState isLoading={uniqueEvents === undefined || userPropertyOptions === undefined} className='h-44'>
+        <FormInputOrLoadingState isLoading={uniqueEvents === undefined || userPropertyOptions === undefined || (form.watch('event_name') && propertyOptionsForSelectedEvent === undefined)} className='h-44'>
           <EmailPreview
             to={
               <InterpolatedMarkdown
@@ -274,7 +263,7 @@ export default function AddEditResendEventTrigger({
                   </FormLabel>
                   <FormInputOrLoadingState isLoading={uniqueEvents === undefined || userPropertyOptions === undefined}>
                     <Select
-                      onValueChange={(e) => { setSelectedEventAndGetPropertiesAndAutofillMessageContentIfNecessary(e); field.onChange(e) }}
+                      onValueChange={field.onChange}
                       defaultValue={field.value}
                     >
                       <FormControl>
