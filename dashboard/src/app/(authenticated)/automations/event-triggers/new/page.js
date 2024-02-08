@@ -5,7 +5,7 @@ import SwishjamAPI from '@/lib/api-client/swishjam-api';
 import { useSearchParams } from 'next/navigation';
 import { ArrowLeftIcon } from 'lucide-react';
 import AddEditSlackEventTrigger from '@/components/Automations/EventTriggers/AddEditSlackEventTrigger';
-import ResendEmailView from "@/components/Automations/EventTriggers/ResendEmailView";
+import AddEditResendEventTrigger from "@/components/Automations/EventTriggers/AddEditResendEventTrigger";
 
 export default function NewEventTrigger() {
   const searchParams = useSearchParams();
@@ -36,11 +36,13 @@ export default function NewEventTrigger() {
       </div>
       {searchParams.get('type') == 'Slack' && (
         <AddEditSlackEventTrigger
-          onEventTriggerCreated={onSubmit}
+          onSave={onSubmit}
         />
       )}
       {searchParams.get('type') == 'ResendEmail' && (
-        <ResendEmailView onSubmit={onSubmit} />
+        <AddEditResendEventTrigger
+          onSave={onSubmit}
+        />
       )}
     </main>
   )

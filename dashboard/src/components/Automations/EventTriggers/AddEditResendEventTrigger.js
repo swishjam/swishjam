@@ -13,6 +13,7 @@ import LoadingSpinner from '@components/LoadingSpinner';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Skeleton } from '@/components/ui/skeleton';
 import SwishjamAPI from '@/lib/api-client/swishjam-api';
+import { swishjam } from '@swishjam/react';
 import { Textarea } from "@/components/ui/textarea"
 import { Tooltipable } from '@/components/ui/tooltip';
 import { useEffect, useState } from 'react';
@@ -21,6 +22,8 @@ import { LuX, LuPlus, LuTrash, LuInfo } from "react-icons/lu";
 import useAuthData from "@/hooks/useAuthData";
 import EmailPreview from "@/components/Resend/EmailPreview";
 import InterpolatedMarkdown from "../../VariableParser/InterpolatedMarkdown";
+import { useRouter } from 'next/navigation';
+import { toast } from "sonner";
 
 const FormInputOrLoadingState = ({ children, className, isLoading }) => {
   if (isLoading) {
@@ -30,13 +33,28 @@ const FormInputOrLoadingState = ({ children, className, isLoading }) => {
   }
 }
 
-export default function ResendEmailView({ onSubmit }) {
+export default function AddEditResendEventTrigger({ 
+  onSave,
+  className,
+  triggerId,
+  defaultTriggerValues = {
+    eventName: '',
+    conditional_statements: [],
+    steps: [{ type: 'EventTriggerSteps::ResendEmail', config: {
+      to: '{ user.email }',
+      send_once_per_user: true,
+      un_resolved_variable_safety_net: true
+    }}],  
+  }
+}) {
+  console.log(defaultTriggerValues) 
+  const router = useRouter();
   const { email: currentUserEmail } = useAuthData();
-  const form = useForm({ defaultValues: { to: '{ user.email }', send_once_per_user: true, un_resolved_variable_safety_net: true } });
-  const conditionalStatementsFieldArray = useFieldArray({ control: form.control, name: "conditionalStatements" });
+  const form = useForm({ defaultValues: defaultTriggerValues });
+  const conditionalStatementsFieldArray = useFieldArray({ control: form.control, name: "conditional_statements" });
 
-  const [ccSectionsIsExpanded, setCcSectionsIsExpanded] = useState(false);
-  const [bccSectionsIsExpanded, setBccSectionsIsExpanded] = useState(false);
+  const [ccSectionsIsExpanded, setCcSectionsIsExpanded] = useState(defaultTriggerValues.steps[0].config?.cc ? true:false);
+  const [bccSectionsIsExpanded, setBccSectionsIsExpanded] = useState(defaultTriggerValues.steps[0].config?.bcc ? true:false);
   const [loading, setLoading] = useState(false);
   const [propertyOptionsForSelectedEvent, setPropertyOptionsForSelectedEvent] = useState();
   const [uniqueEvents, setUniqueEvents] = useState();
@@ -61,9 +79,9 @@ export default function ResendEmailView({ onSubmit }) {
 
   async function verifyAndSubmitForm(values) {
     setLoading(true)
-    const isValid = values.event_name && values.subject && values.body && values.to && values.from;
+    const isValid = values.event_name && values.steps[0].config.subject && values.steps[0].config.body && values.steps[0].config.to && values.steps[0].config.from;
     if (!isValid) {
-      Object.keys(values).forEach(key => {
+      Object.keys(values.steps[0].config).forEach(key => {
         const isRequired = ['event_name', 'subject', 'body', 'to', 'from'].includes(key);
         if (isRequired && (!values[key] || values[key].trim().length === 0)) {
           form.setError(key, { message: `${key[0].toUpperCase() + key.slice(1).replace('_', ' ')} is a required field.` })
@@ -73,20 +91,20 @@ export default function ResendEmailView({ onSubmit }) {
       return;
     }
     let hasEmptyConditionalStatements = false;
-    if (values.conditionalStatements.length > 0) {
-      values.conditionalStatements.forEach((statement, index) => {
+    if (values.conditional_statements.length > 0) {
+      values.conditional_statements.forEach((statement, index) => {
         if (!statement.property || !statement.condition || !statement.property_value) {
           if (!statement.property) {
             hasEmptyConditionalStatements = true;
-            form.setError(`conditionalStatements.${index}.property`, { message: 'Property is a required field.' })
+            form.setError(`conditional_statements.${index}.property`, { message: 'Property is a required field.' })
           }
           if (!statement.condition) {
             hasEmptyConditionalStatements = true;
-            form.setError(`conditionalStatements.${index}.condition`, { message: 'Condition is a required field.' })
+            form.setError(`conditional_statements.${index}.condition`, { message: 'Condition is a required field.' })
           }
           if (!statement.property_value && statement.condition !== 'is_defined') {
             hasEmptyConditionalStatements = true;
-            form.setError(`conditionalStatements.${index}.property_value`, { message: 'Property Value is a required field.' })
+            form.setError(`conditional_statements.${index}.property_value`, { message: 'Property Value is a required field.' })
           }
         }
       })
@@ -96,22 +114,28 @@ export default function ResendEmailView({ onSubmit }) {
       return;
     }
 
-    const config = {
-      to: values.to,
-      cc: values.cc,
-      bcc: values.bcc,
-      from: values.from,
-      subject: values.subject,
-      body: values.body,
-      send_once_per_user: values.send_once_per_user,
-      un_resolved_variable_safety_net: values.un_resolved_variable_safety_net,
+    const onSuccess = (trigger) => {
+      setLoading(false);
+      swishjam.event(`resend_event_trigger_${triggerId ? 'edited' : 'created'}`, {
+        event_name: trigger.event_name,
+        trigger_id: trigger.id,
+        trigger: trigger 
+      })
+      toast.success(`${triggerId ? 'edited successfully' : 'Trigger created. Redirecting to all event triggers'} `)
+      
+      if(!triggerId) { 
+        router.push(`/automations/event-triggers?success=${"Your new Slack event trigger was created successfully."}`);
+      }
     }
-    const payload = {
-      eventName: values.event_name,
-      conditionalStatements: values.conditionalStatements,
-      steps: [{ type: 'EventTriggerSteps::ResendEmail', config }],
+    
+    const onError = (error) => {
+      setLoading(false);
+      toast.error("uh oh! Something went wrong.", {
+        description: error,
+      })
     }
-    onSubmit(payload)
+    console.log('saving', values)
+    onSave(values, onSuccess, onError)
   }
 
   useEffect(() => {
@@ -141,58 +165,70 @@ export default function ResendEmailView({ onSubmit }) {
   }, [currentUserEmail])
 
   return (
-    <div className="grid grid-cols-2 gap-8 mt-8">
+    <div className={`${className} grid grid-cols-2 gap-8 mt-8`}>
       <div>
         <FormInputOrLoadingState isLoading={uniqueEvents === undefined || userPropertyOptions === undefined} classname='h-44'>
           <EmailPreview
             to={
               <InterpolatedMarkdown
-                content={form.watch('to')}
+                content={form.watch('steps.0.config.to')}
                 availableEventOptions={[...(propertyOptionsForSelectedEvent || []), ...(userPropertyOptions || [])]}
               />
             }
             cc={
               <InterpolatedMarkdown
-                content={form.watch('cc')}
+                content={form.watch('steps.0.config.cc')}
                 availableEventOptions={[...(propertyOptionsForSelectedEvent || []), ...(userPropertyOptions || [])]}
               />
             }
             bcc={
               <InterpolatedMarkdown
-                content={form.watch('bcc')}
+                content={form.watch('steps.0.config.bcc')}
                 availableEventOptions={[...(propertyOptionsForSelectedEvent || []), ...(userPropertyOptions || [])]}
               />
             }
-            from={form.watch('from')}
+            from={form.watch('steps.0.config.from')}
             subject={
               <InterpolatedMarkdown
-                content={form.watch('subject')}
+                content={form.watch('steps.0.config.subject')}
                 availableEventOptions={[...(propertyOptionsForSelectedEvent || []), ...(userPropertyOptions || [])]}
               />
             }
             body={
               <InterpolatedMarkdown
-                content={form.watch('body')}
+                content={form.watch('steps.0.config.body')}
                 availableEventOptions={[...(propertyOptionsForSelectedEvent || []), ...(userPropertyOptions || [])]}
               />
             }
           />
-          {/* <h2 className="text-sm font-medium text-gray-700 mb-2 mt-4">Resend Email Formatting Reference</h2>
+          <h2 className="text-sm font-medium text-gray-700 mb-2 mt-4">Resend Email Formatting Reference</h2>
           <div className="border border-zinc-200 shadow-sm bg-white rounded-md p-4">
-            <p className="text-sm font-medium">Links</p>
+            <p className="text-sm font-medium">Using Variables</p>
             <p className="text-sm mt-1">
-              Format:
-              <span className="ml-1 text-sm px-1.5 py-0.5 border border-zinc-200 bg-accent rounded-sm">{"<{your link}|Displayed text>"}</span>
+              Basic Syntax:
+              <span className="ml-1 text-sm px-1.5 py-0.5 border border-zinc-200 bg-accent rounded-sm">{"{ VARIABLE_NAME }"}</span>
             </p>
-            <p className="text-sm py-1.5">
+            <p className="text-sm mt-1">
               Example:
-              <span className="ml-1 text-sm px-1.5 py-0.5 border border-zinc-200 bg-accent rounded-sm">{"<https://swishjam.com/integrations|Integrations>"}</span>
+              <span className="ml-1 text-sm px-1.5 py-0.5 border border-zinc-200 bg-accent rounded-sm">{"{ user.email }"}</span>
             </p>
-            <p className="text-sm">
+            <p className="text-sm mt-1">
               Result:
-              <a className="ml-1 underline hover:text-blue-400" href="https://swishjam.com/integrations">Integrations</a>
+              <span className="ml-1 text-sm px-1.5 py-0.5 border border-zinc-200 bg-accent rounded-sm">{"founders@swishjam.com"}</span>
             </p>
-          </div>   */}
+            <p className="text-sm mt-1">
+              Advanced Syntax:
+              <span className="ml-1 text-sm px-1.5 py-0.5 border border-zinc-200 bg-accent rounded-sm">{"{ user.name || 'friend'}"}</span> using the
+              <span className="ml-1 text-sm px-1.5 py-0.5 border border-zinc-200 bg-accent rounded-sm">||</span> allows you to provide a default value if the variable is not defined.
+              <br /> 
+              These can be chained like this:<span className="ml-1 text-sm px-1.5 py-0.5 border border-zinc-200 bg-accent rounded-sm">{"{ user.name || user.email || 'friend'}"}</span>
+            </p>
+             
+            <p className="text-sm font-medium mt-4">Event Variables</p>
+            <p className="text-sm mt-1">
+              Each event will have unique variables depending on the event. Custom variables that you pass to us can be referenced in the body of the email, subject line, etc.
+            </p>
+          </div>
         </FormInputOrLoadingState>
       </div>
       <div>
@@ -261,7 +297,7 @@ export default function ResendEmailView({ onSubmit }) {
                           </span>
                           <FormField
                             control={field.control}
-                            name={`conditionalStatements.${index}.property`}
+                            name={`conditional_statements.${index}.property`}
                             render={({ field }) => (
                               <FormItem>
                                 <Select
@@ -292,7 +328,7 @@ export default function ResendEmailView({ onSubmit }) {
                           />
                           <FormField
                             control={field.control}
-                            name={`conditionalStatements.${index}.condition`}
+                            name={`conditional_statements.${index}.condition`}
                             render={({ field }) => (
                               <FormItem>
                                 <Select
@@ -321,10 +357,10 @@ export default function ResendEmailView({ onSubmit }) {
                               </FormItem>
                             )}
                           />
-                          {form.watch(`conditionalStatements.${index}.condition`) !== 'is_defined' && (
+                          {form.watch(`conditional_statements.${index}.condition`) !== 'is_defined' && (
                             <FormField
                               control={form.control}
-                              name={`conditionalStatements.${index}.property_value`}
+                              name={`conditional_statements.${index}.property_value`}
                               render={({ field }) => (
                                 <FormItem>
                                   <FormControl>
@@ -332,7 +368,7 @@ export default function ResendEmailView({ onSubmit }) {
                                       type="text"
                                       placeholder="Your property value"
                                       disabled={propertyOptionsForSelectedEvent === undefined}
-                                      {...form.register(`conditionalStatements.${index}.property_value`)}
+                                      {...form.register(`conditional_statements.${index}.property_value`)}
                                     />
                                   </FormControl>
                                   <FormMessage />
@@ -368,7 +404,7 @@ export default function ResendEmailView({ onSubmit }) {
 
             <FormField
               control={form.control}
-              name="to"
+              name="steps.0.config.to"
               render={({ field }) => (
                 <FormItem className="relative">
                   <FormLabel className="flex">
@@ -389,12 +425,12 @@ export default function ResendEmailView({ onSubmit }) {
                       <Input
                         type="text"
                         placeholder="{user.email}"
-                        {...form.register("to")}
+                        {...form.register("steps.0.config.to")}
                       />
                       <div className="absolute top-6 right-2 flex gap-2 z-10">
                         <div
                           onClick={() => {
-                            if (!form.watch('bcc')) {
+                            if (!form.watch('steps.0.config.bcc')) {
                               setBccSectionsIsExpanded(true)//!ccSectionsIsExpanded)
                             }
                           }}
@@ -404,7 +440,7 @@ export default function ResendEmailView({ onSubmit }) {
                         </div>
                         <div
                           onClick={() => {
-                            if (!form.watch('cc')) {
+                            if (!form.watch('steps.0.config.cc')) {
                               setCcSectionsIsExpanded(true)//!ccSectionsIsExpanded)
                             }
                           }}
@@ -422,7 +458,7 @@ export default function ResendEmailView({ onSubmit }) {
 
             <FormField
               control={form.control}
-              name="cc"
+              name="steps.0.config.cc"
               render={({ field }) => (
                 <FormItem className="relative">
                   {(ccSectionsIsExpanded || form.watch('cc')) && <FormLabel className={`flex items-center pr-4 py-0.5`}>CC</FormLabel>}
@@ -432,16 +468,16 @@ export default function ResendEmailView({ onSubmit }) {
                         <Input
                           type="text"
                           placeholder="somone-to-cc@example.com"
-                          {...form.register("cc")}
+                          {...form.register("steps.0.config.cc")}
                         />
                         <div className="absolute top-6 right-2 flex gap-2 z-10">
                           <div
                             onClick={() => {
-                              if (!form.watch('cc')) {
+                              if (!form.watch('steps.0.config.cc')) {
                                 setCcSectionsIsExpanded(false)//!ccSectionsIsExpanded)
                               }
                             }}
-                            className={`${form.watch('cc') && 'hidden'} cursor-pointer px-2 py-1.5 text-xs hover:bg-accent rounded-md group transition-all duration-300`}
+                            className={`${form.watch('steps.0.config.cc') && 'hidden'} cursor-pointer px-2 py-1.5 text-xs hover:bg-accent rounded-md group transition-all duration-300`}
                           >
                             <LuX size={16} className="group-hover:text-gray-900 text-gray-200" />
                           </div>
@@ -456,26 +492,26 @@ export default function ResendEmailView({ onSubmit }) {
 
             <FormField
               control={form.control}
-              name="bcc"
+              name="steps.0.config.bcc"
               render={({ field }) => (
                 <FormItem className="relative">
-                  {(bccSectionsIsExpanded || form.watch('bcc')) && <FormLabel className={`flex items-center pr-4 py-0.5`}>BCC</FormLabel>}
+                  {(bccSectionsIsExpanded || form.watch('steps.0.config.bcc')) && <FormLabel className={`flex items-center pr-4 py-0.5`}>BCC</FormLabel>}
                   <FormControl>
-                    {(bccSectionsIsExpanded || form.watch('bcc')) && (
+                    {(bccSectionsIsExpanded || form.watch('steps.0.config.bcc')) && (
                       <FormInputOrLoadingState isLoading={uniqueEvents === undefined || userPropertyOptions === undefined}>
                         <Input
                           type="text"
                           placeholder="someone-to-bcc@example.com"
-                          {...form.register("bcc")}
+                          {...form.register("steps.0.config.bcc")}
                         />
                         <div className="absolute top-6 right-2 flex gap-2 z-10">
                           <div
                             onClick={() => {
-                              if (!form.watch('bcc')) {
-                                setBccSectionsIsExpanded(false)//!ccSectionsIsExpanded)
+                              if (!form.watch('steps.0.config.bcc')) {
+                                setBccSectionsIsExpanded(false)
                               }
                             }}
-                            className={`${form.watch('bcc') && 'hidden'} cursor-pointer px-2 py-1.5 text-xs hover:bg-accent rounded-md group transition-all duration-300`}
+                            className={`${form.watch('steps.0.config.bcc') && 'hidden'} cursor-pointer px-2 py-1.5 text-xs hover:bg-accent rounded-md group transition-all duration-300`}
                           >
                             <LuX size={16} className="group-hover:text-gray-900 text-gray-200" />
                           </div>
@@ -490,7 +526,7 @@ export default function ResendEmailView({ onSubmit }) {
 
             <FormField
               control={form.control}
-              name="from"
+              name='steps.0.config.from'
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>From</FormLabel>
@@ -499,7 +535,7 @@ export default function ResendEmailView({ onSubmit }) {
                       <Input
                         type="text"
                         placeholder='from-email@example.com'
-                        {...form.register("from")}
+                        {...form.register('steps.0.config.from')}
                       />
                     </FormInputOrLoadingState>
                   </FormControl>
@@ -510,7 +546,7 @@ export default function ResendEmailView({ onSubmit }) {
 
             <FormField
               control={form.control}
-              name="subject"
+              name='steps.0.config.subject'
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Subject Line</FormLabel>
@@ -520,7 +556,7 @@ export default function ResendEmailView({ onSubmit }) {
                         type="text"
                         placeholder="Your subject line here"
                         autoComplete="off"
-                        {...form.register("subject")}
+                        {...form.register('steps.0.config.subject')}
                       />
                     </FormInputOrLoadingState>
                   </FormControl>
@@ -531,7 +567,7 @@ export default function ResendEmailView({ onSubmit }) {
 
             <FormField
               control={form.control}
-              name="body"
+              name='steps.0.config.body'
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className='flex items-center'>
@@ -550,7 +586,7 @@ export default function ResendEmailView({ onSubmit }) {
                   </FormLabel>
                   <FormControl>
                     <FormInputOrLoadingState isLoading={uniqueEvents === undefined || userPropertyOptions === undefined}>
-                      <Textarea {...form.register("body")} className='min-h-[140px]' />
+                      <Textarea {...form.register('steps.0.config.body')} className='min-h-[140px]' />
                     </FormInputOrLoadingState>
                   </FormControl>
                   <FormMessage />
@@ -560,9 +596,9 @@ export default function ResendEmailView({ onSubmit }) {
 
             <FormField
               control={form.control}
-              name="send_once_per_user"
+              name='steps.0.config.send_once_per_user'
               render={({ field }) => (
-                <FormItem className='flex items-center gap-x-2'>
+                <FormItem className='flex flex-row items-start space-x-3 space-y-0 bg-white rounded-md border border-gray-200 p-4 shadow-sm'>
                   <FormControl>
                     <Checkbox
                       className='data-[state=checked]:bg-swishjam data-[state=checked]:border-swishjam'
@@ -576,7 +612,7 @@ export default function ResendEmailView({ onSubmit }) {
                       className=""
                       content="If checked, this email will not be sent on subsequent events for the same email address."
                     >
-                      <div><LuInfo className=' text-gray-500 ml-1' size={16} /></div>
+                      <div><LuInfo className='text-gray-500 ml-1' size={16} /></div>
                     </Tooltipable>
                   </FormLabel>
                   <FormMessage />
@@ -586,20 +622,20 @@ export default function ResendEmailView({ onSubmit }) {
 
             <FormField
               control={form.control}
-              name="un_resolved_variable_safety_net"
+              name='steps.0.config.un_resolved_variable_safety_net'
               render={({ field }) => (
-                <FormItem className='flex items-center gap-x-2'>
+                <FormItem className='flex flex-row items-start space-x-3 space-y-0 bg-white rounded-md border border-gray-200 p-4 shadow-sm'>
                   <FormControl>
                     <Checkbox
                       className='data-[state=checked]:bg-swishjam data-[state=checked]:border-swishjam'
                       checked={field.value}
-                      onCheckedChange={field.onChange}
+                      onCheckedChange={field.onChange} 
                     />
                   </FormControl>
                   <FormLabel className="flex">
                     Unresolved Variable Safety Net
                     <Tooltipable
-                      className=""
+                      className="" 
                       content={
                         <>
                           <span className='font-bold'>Highly encouraged to remain enabled.</span> If checked, the email will not be sent if any of the variables used within
