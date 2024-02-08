@@ -1,16 +1,20 @@
 import Base from "./base";
+import TriggeredEventTriggers from "./event-triggers/triggered-event-triggers";
 
 export class EventTriggers extends Base {
+  static TriggeredEventTriggers = TriggeredEventTriggers;
+
   static async list() {
     return await this._get('/api/v1/event_triggers')
   }
 
-  static async create({ eventName, steps, conditionalStatements }) {
-    return await this._post('/api/v1/event_triggers', { event_name: eventName, event_trigger_steps: steps, conditional_statements: conditionalStatements });
+  static async create({ event_name, steps, conditional_statements }) {
+    return await this._post('/api/v1/event_triggers', { event_name: event_name, event_trigger_steps: steps, conditional_statements: conditional_statements });
   }
 
-  static async update(id, { eventName, steps, conditionalStatements }) {
-    return await this._patch(`/api/v1/event_triggers/${id}`, { event_name: eventName, event_trigger_steps: steps, conditional_statements: conditionalStatements });
+  static async update(id, { event_name, steps, conditional_statements }) {
+    console.log('update', id, event_name, steps, conditional_statements)
+    return await this._patch(`/api/v1/event_triggers/${id}`, { event_name: event_name, event_trigger_steps: steps, conditional_statements: conditional_statements });
   }
 
   static async delete(id) {

@@ -23,12 +23,8 @@ const AccordionTrigger = React.forwardRef(({ className, children, underline = tr
         className
       )}
       {...props}>
-      {chevronFirst && (
-        <div className='flex items-center'>
-          <ChevronDown className="h-4 w-4 shrink-0 transition-transform duration-200 mr-2" />
-          {children}
-        </div>
-      )}
+      {chevronFirst && <ChevronDown className="h-4 w-4 shrink-0 transition-transform duration-200 mr-2" />}
+      {children}
       {!chevronFirst && <ChevronDown className="h-4 w-4 shrink-0 transition-transform duration-200" />}
     </AccordionPrimitive.Trigger>
   </AccordionPrimitive.Header>

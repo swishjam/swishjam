@@ -24,7 +24,13 @@ module Api
             }
           end
           has_valid_trigger_steps = new_trigger_steps.all? do |step|
-            step[:type].present? && step[:config].present? && step[:config]['channel_id'].present? && (step[:config]['message_header'].present? || step[:config]['message_body'].present?)
+            if step[:type] == 'EventTriggerSteps::Slack'
+              step[:type].present? && step[:config].present? && step[:config]['channel_id'].present? && (step[:config]['message_header'].present? || step[:config]['message_body'].present?)
+            elsif step[:type] == 'EventTriggerSteps::ResendEmail'
+              step[:type].present? && step[:config].present? && step[:config]['to'].present? && step[:config]['from'].present? && step[:config]['subject'].present? && step[:config]['body'].present?
+            else
+              false
+            end
           end
           if !has_valid_trigger_steps
             render json: { error: 'Invalid trigger steps' }, status: :unprocessable_entity
@@ -52,6 +58,7 @@ module Api
         end
 
         trigger = current_workspace.event_triggers.new(
+          created_by_user: current_user,
           enabled: true,
           event_name: params[:event_name], 
           conditional_statements: (params[:conditional_statements] || []).as_json,

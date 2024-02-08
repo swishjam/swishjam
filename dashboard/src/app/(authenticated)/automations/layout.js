@@ -21,7 +21,7 @@ const sidebarNavItems = [
 
 export default function AutomationsLayout({ children }) {
   const path = usePathname();
-  if (path.endsWith('/new') || path.endsWith('/edit')) {
+  if (path.endsWith('/new') || path.endsWith('/edit') || path.endsWith('/details')) {
     return children
   }
   return (

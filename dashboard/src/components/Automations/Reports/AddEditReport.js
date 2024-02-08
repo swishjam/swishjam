@@ -170,7 +170,7 @@ export default function AddEditReport({
     <div className={`grid grid-cols-2 gap-8 ${className}`}>
       <div className=''>
         <FormInputOrLoadingState isLoading={isAwaitingRenderData} className='h-72'>
-          <ScrollArea className="overflow-y-scroll border border-gray-200 rounded-md bg-white">
+          <ScrollArea className="border border-gray-200 rounded-md bg-white">
             <SlackMessagePreview
               header={form.getValues('cadence') + ' Update'}
               body={<MessageBodyMarkdownRenderer body={mkdPreview} />}

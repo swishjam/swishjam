@@ -17,4 +17,11 @@ FactoryBot.define do
     type { Integrations::Resend.to_s }
     enabled { true }
   end
+
+  factory :resend_destination, class: Integrations::Destinations::Resend do
+    association :workspace
+    type { Integrations::Destinations::Resend.to_s }
+    enabled { true }
+    config {{ api_key: 'api_key_xyz_fake' }}
+  end
 end
