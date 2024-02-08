@@ -1,9 +1,9 @@
 import { ArrowLongLeftIcon, ArrowLongRightIcon } from '@heroicons/react/20/solid'
 import PaginationItem from './PaginationItem';
 
-export default function Pagination({ currentPage, lastPageNum, onNewPageSelected }) {
+export default function Pagination({ currentPage, lastPageNum, onNewPageSelected, className = '' }) {
   return (
-    <nav className="flex items-center justify-between border-t border-gray-200 px-4 sm:px-0">
+    <nav className={`flex items-center justify-between border-t border-gray-200 px-4 sm:px-0 ${className}`}>
       <div className="-mt-px flex w-0 flex-1">
         <PaginationItem
           enabled={currentPage > 1}
