@@ -38,7 +38,10 @@ const FormInputOrLoadingState = ({ children, className, isLoading }) => {
   }
 }
 
-export default function AddEditSlackEventTrigger({ onEventTriggerCreated }) {
+export default function AddEditSlackEventTrigger({
+  onSave,
+
+}) {
   const form = useForm({ defaultValues: { header: '✨ Event Name' } });
   const conditionalStatementsFieldArray = useFieldArray({ control: form.control, name: "conditionalStatements" });
   const router = useRouter();

@@ -37,14 +37,19 @@ export default function AddEditResendEventTrigger({
   className,
   triggerId,
   defaultTriggerValues = {
-    to: '{ user.email }',
-    send_once_per_user: true,
-    un_resolved_variable_safety_net: true
+    eventName: '',
+    conditionalStatements: [],
+    steps: [{ type: 'EventTriggerSteps::ResendEmail', config: {
+      to: '{ user.email }',
+      send_once_per_user: true,
+      un_resolved_variable_safety_net: true
+    }}],  
   }
 }) {
+  console.log(defaultTriggerValues) 
   const router = useRouter();
   const { email: currentUserEmail } = useAuthData();
-  const form = useForm({ defaultValues:  });
+  const form = useForm({ defaultValues: defaultTriggerValues });
   const conditionalStatementsFieldArray = useFieldArray({ control: form.control, name: "conditionalStatements" });
 
   const [ccSectionsIsExpanded, setCcSectionsIsExpanded] = useState(false);
@@ -108,31 +113,20 @@ export default function AddEditResendEventTrigger({
       return;
     }
 
-    const config = {
-      to: values.to,
-      cc: values.cc,
-      bcc: values.bcc,
-      from: values.from,
-      subject: values.subject,
-      body: values.body,
-      send_once_per_user: values.send_once_per_user,
-      un_resolved_variable_safety_net: values.un_resolved_variable_safety_net,
-    }
-    const payload = {
-      eventName: values.event_name,
-      conditionalStatements: values.conditionalStatements,
-      steps: [{ type: 'EventTriggerSteps::ResendEmail', config }],
-    }
-    
     const onSuccess = (trigger) => {
       setLoading(false);
-      swishjam.event('resend_event_trigger_created', {
-        event_name: values.event_name,
+      swishjam.event(`resend_event_trigger_${triggerId ? 'edited' : 'created'}`, {
+        event_name: trigger.event_name,
         trigger_id: trigger.id,
         trigger: trigger 
       })
-      router.push(`/automations/event-triggers?success=${"Your new Slack event trigger was created successfully."}`);
+      toast.success(`${triggerId ? 'edited successfully' : 'Trigger created. Redirecting to all event triggers'} `)
+      
+      if(!triggerId) { 
+        router.push(`/automations/event-triggers?success=${"Your new Slack event trigger was created successfully."}`);
+      }
     }
+    
     const onError = (error) => {
       setLoading(false);
       toast.error("uh oh! Something went wrong.", {
@@ -140,7 +134,7 @@ export default function AddEditResendEventTrigger({
       })
     }
     
-    onSave(payload, onSuccess, onError)
+    onSave(values, onSuccess, onError)
   }
 
   useEffect(() => {
@@ -409,7 +403,7 @@ export default function AddEditResendEventTrigger({
 
             <FormField
               control={form.control}
-              name="to"
+              name="steps.0.config.to"
               render={({ field }) => (
                 <FormItem className="relative">
                   <FormLabel className="flex">
@@ -430,12 +424,12 @@ export default function AddEditResendEventTrigger({
                       <Input
                         type="text"
                         placeholder="{user.email}"
-                        {...form.register("to")}
+                        {...form.register("steps.0.config.to")}
                       />
                       <div className="absolute top-6 right-2 flex gap-2 z-10">
                         <div
                           onClick={() => {
-                            if (!form.watch('bcc')) {
+                            if (!form.watch('steps.0.config.bcc')) {
                               setBccSectionsIsExpanded(true)//!ccSectionsIsExpanded)
                             }
                           }}
@@ -445,7 +439,7 @@ export default function AddEditResendEventTrigger({
                         </div>
                         <div
                           onClick={() => {
-                            if (!form.watch('cc')) {
+                            if (!form.watch('steps.0.config.cc')) {
                               setCcSectionsIsExpanded(true)//!ccSectionsIsExpanded)
                             }
                           }}
@@ -463,7 +457,7 @@ export default function AddEditResendEventTrigger({
 
             <FormField
               control={form.control}
-              name="cc"
+              name="steps.0.config.cc"
               render={({ field }) => (
                 <FormItem className="relative">
                   {(ccSectionsIsExpanded || form.watch('cc')) && <FormLabel className={`flex items-center pr-4 py-0.5`}>CC</FormLabel>}
@@ -473,16 +467,16 @@ export default function AddEditResendEventTrigger({
                         <Input
                           type="text"
                           placeholder="somone-to-cc@example.com"
-                          {...form.register("cc")}
+                          {...form.register("steps.0.config.cc")}
                         />
                         <div className="absolute top-6 right-2 flex gap-2 z-10">
                           <div
                             onClick={() => {
-                              if (!form.watch('cc')) {
+                              if (!form.watch('steps.0.config.cc')) {
                                 setCcSectionsIsExpanded(false)//!ccSectionsIsExpanded)
                               }
                             }}
-                            className={`${form.watch('cc') && 'hidden'} cursor-pointer px-2 py-1.5 text-xs hover:bg-accent rounded-md group transition-all duration-300`}
+                            className={`${form.watch('steps.0.config.cc') && 'hidden'} cursor-pointer px-2 py-1.5 text-xs hover:bg-accent rounded-md group transition-all duration-300`}
                           >
                             <LuX size={16} className="group-hover:text-gray-900 text-gray-200" />
                           </div>
@@ -497,26 +491,26 @@ export default function AddEditResendEventTrigger({
 
             <FormField
               control={form.control}
-              name="bcc"
+              name="steps.0.config.bcc"
               render={({ field }) => (
                 <FormItem className="relative">
-                  {(bccSectionsIsExpanded || form.watch('bcc')) && <FormLabel className={`flex items-center pr-4 py-0.5`}>BCC</FormLabel>}
+                  {(bccSectionsIsExpanded || form.watch('steps.0.config.bcc')) && <FormLabel className={`flex items-center pr-4 py-0.5`}>BCC</FormLabel>}
                   <FormControl>
-                    {(bccSectionsIsExpanded || form.watch('bcc')) && (
+                    {(bccSectionsIsExpanded || form.watch('steps.0.config.bcc')) && (
                       <FormInputOrLoadingState isLoading={uniqueEvents === undefined || userPropertyOptions === undefined}>
                         <Input
                           type="text"
                           placeholder="someone-to-bcc@example.com"
-                          {...form.register("bcc")}
+                          {...form.register("steps.0.config.bcc")}
                         />
                         <div className="absolute top-6 right-2 flex gap-2 z-10">
                           <div
                             onClick={() => {
-                              if (!form.watch('bcc')) {
-                                setBccSectionsIsExpanded(false)//!ccSectionsIsExpanded)
+                              if (!form.watch('steps.0.config.bcc')) {
+                                setBccSectionsIsExpanded(false)
                               }
                             }}
-                            className={`${form.watch('bcc') && 'hidden'} cursor-pointer px-2 py-1.5 text-xs hover:bg-accent rounded-md group transition-all duration-300`}
+                            className={`${form.watch('steps.0.config.bcc') && 'hidden'} cursor-pointer px-2 py-1.5 text-xs hover:bg-accent rounded-md group transition-all duration-300`}
                           >
                             <LuX size={16} className="group-hover:text-gray-900 text-gray-200" />
                           </div>
@@ -531,7 +525,7 @@ export default function AddEditResendEventTrigger({
 
             <FormField
               control={form.control}
-              name="from"
+              name='steps.0.config.from'
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>From</FormLabel>
@@ -540,7 +534,7 @@ export default function AddEditResendEventTrigger({
                       <Input
                         type="text"
                         placeholder='from-email@example.com'
-                        {...form.register("from")}
+                        {...form.register('steps.0.config.from')}
                       />
                     </FormInputOrLoadingState>
                   </FormControl>
@@ -551,7 +545,7 @@ export default function AddEditResendEventTrigger({
 
             <FormField
               control={form.control}
-              name="subject"
+              name='steps.0.config.subject'
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Subject Line</FormLabel>
@@ -561,7 +555,7 @@ export default function AddEditResendEventTrigger({
                         type="text"
                         placeholder="Your subject line here"
                         autoComplete="off"
-                        {...form.register("subject")}
+                        {...form.register('steps.0.config.subject')}
                       />
                     </FormInputOrLoadingState>
                   </FormControl>
@@ -572,7 +566,7 @@ export default function AddEditResendEventTrigger({
 
             <FormField
               control={form.control}
-              name="body"
+              name='steps.0.config.body'
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className='flex items-center'>
@@ -591,7 +585,7 @@ export default function AddEditResendEventTrigger({
                   </FormLabel>
                   <FormControl>
                     <FormInputOrLoadingState isLoading={uniqueEvents === undefined || userPropertyOptions === undefined}>
-                      <Textarea {...form.register("body")} className='min-h-[140px]' />
+                      <Textarea {...form.register('steps.0.config.body')} className='min-h-[140px]' />
                     </FormInputOrLoadingState>
                   </FormControl>
                   <FormMessage />
@@ -601,7 +595,7 @@ export default function AddEditResendEventTrigger({
 
             <FormField
               control={form.control}
-              name="send_once_per_user"
+              name='steps.0.config.send_once_per_user'
               render={({ field }) => (
                 <FormItem className='flex flex-row items-start space-x-3 space-y-0 bg-white rounded-md border border-gray-200 p-4 shadow-sm'>
                   <FormControl>
@@ -617,7 +611,7 @@ export default function AddEditResendEventTrigger({
                       className=""
                       content="If checked, this email will not be sent on subsequent events for the same email address."
                     >
-                      <div><LuInfo className=' text-gray-500 ml-1' size={16} /></div>
+                      <div><LuInfo className='text-gray-500 ml-1' size={16} /></div>
                     </Tooltipable>
                   </FormLabel>
                   <FormMessage />
@@ -627,7 +621,7 @@ export default function AddEditResendEventTrigger({
 
             <FormField
               control={form.control}
-              name="un_resolved_variable_safety_net"
+              name='steps.0.config.un_resolved_variable_safety_net'
               render={({ field }) => (
                 <FormItem className='flex flex-row items-start space-x-3 space-y-0 bg-white rounded-md border border-gray-200 p-4 shadow-sm'>
                   <FormControl>
