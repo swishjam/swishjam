@@ -1,12 +1,13 @@
 'use client';
 
 import { ArrowLeftIcon } from "lucide-react";
+import EmptyState from "../../../EmptyState";
 import Link from "next/link";
-import TriggeredEventTriggerRow from "@/components/Automations/EventTriggers/TriggeredEventTriggerRow";
+import Pagination from "@/components/Pagination/Pagination";
 import { SwishjamAPI } from "@/lib/api-client/swishjam-api";
 import { Skeleton } from "@/components/ui/skeleton";
+import TriggeredEventTriggerRow from "@/components/Automations/EventTriggers/TriggeredEventTriggerRow";
 import { useState, useEffect } from "react";
-import Pagination from "@/components/Pagination/Pagination";
 
 export default function EventTriggerDetailsPage({ params }) {
   const { id } = params;
@@ -38,40 +39,45 @@ export default function EventTriggerDetailsPage({ params }) {
             <ArrowLeftIcon className='inline mr-1' size={12} />
             Back to all Event Triggers
           </Link>
-          <h1 className="text-lg font-medium text-gray-700 mb-0">
-            <span className='italic'>{eventTrigger?.event_name || <Skeleton className='h-6 w-10' />}</span> Event Trigger
+          <h1 className="text-lg font-medium text-gray-700 mb-0 flex items-center">
+            {eventTrigger ? <span className='italic mx-1'>{eventTrigger.event_name}</span> : <Skeleton className='h-6 w-20 mx-1 bg-gray-200 inline-block' />} Event Trigger
           </h1>
-          <h2 className="text-xs text-gray-500">
-            When the <span className='italic'>{eventTrigger?.event_name || <Skeleton className='h-4 w-10' />}</span> event is triggered, send the <span className='italic'>{eventTrigger?.steps?.[0].config?.subject || <Skeleton className='h-4 w-10' />} email.</span>
+          <h2 className="text-xs text-gray-500 flex items-center">
+            When the {eventTrigger ? <span className='italic mx-1 underline decoration-dotted'>{eventTrigger.event_name}</span> : <Skeleton className='h-4 w-10 mx-1 bg-gray-200 inline-block' />} event is triggered,
+            send the {eventTrigger ? <span className='italic mx-1 underline decoration-dotted'>{eventTrigger.steps[0].config?.subject}</span> : <Skeleton className='h-4 w-10 mx-1 bg-gray-200 inline-block' />} email.
           </h2>
         </div>
       </div>
-      {triggeredEventTriggers === undefined ? (
-        <div>
-          <ul role="list" className="w-full space-y-2 mt-8">
-            {Array.from({ length: 5 }).map((_, i) => <Skeleton className='w-full h-20' key={i} />)}
-          </ul>
-        </div>
-      ) : (
-        triggeredEventTriggers.length > 0 ? (
+      {
+        triggeredEventTriggers === undefined ? (
           <div>
             <ul role="list" className="w-full space-y-2 mt-8">
-              {triggeredEventTriggers.map((triggeredEventTrigger, i) => <TriggeredEventTriggerRow key={i} triggeredEventTrigger={triggeredEventTrigger} />)}
+              {Array.from({ length: 5 }).map((_, i) => <Skeleton className='w-full h-20 bg-gray-200' key={i} />)}
             </ul>
-            <div className='my-2 w-full bg-white rounded pb-4 border border-zinc-200 shadow-sm'>
-              <Pagination
-                className='border-none'
-                currentPage={currentPageNum}
-                lastPageNum={lastPageNum}
-                onNewPageSelected={newPageNum => {
-                  setCurrentPageNum(newPageNum);
-                  getTriggeredEventTriggers(newPageNum);
-                }}
-              />
-            </div>
           </div>
-        ) : <></>
-      )}
-    </main>
+        ) : (
+          triggeredEventTriggers.length > 0 ? (
+            <div>
+              <ul role="list" className="w-full space-y-2 mt-8">
+                {triggeredEventTriggers.map((triggeredEventTrigger, i) => <TriggeredEventTriggerRow key={i} triggeredEventTrigger={triggeredEventTrigger} />)}
+              </ul>
+              {lastPageNum > 1 && (
+                <div className='my-2 w-full bg-white rounded pb-4 border border-zinc-200 shadow-sm'>
+                  <Pagination
+                    className='border-none'
+                    currentPage={currentPageNum}
+                    lastPageNum={lastPageNum}
+                    onNewPageSelected={newPageNum => {
+                      setCurrentPageNum(newPageNum);
+                      getTriggeredEventTriggers(newPageNum);
+                    }}
+                  />
+                </div>
+              )}
+            </div>
+          ) : <EmptyState title="This automation has not been triggered yet." />
+        )
+      }
+    </main >
   )
 }
