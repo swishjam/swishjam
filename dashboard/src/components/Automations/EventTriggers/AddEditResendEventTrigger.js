@@ -65,6 +65,7 @@ export default function AddEditResendEventTrigger({
   const [uniqueEvents, setUniqueEvents] = useState();
   const [userPropertyOptions, setUserPropertyOptions] = useState();
   // const [testTriggerModalIsOpen, setTestTriggerModalIsOpen] = useState(false);
+  const isFetchingData = hasResendDestinationEnabled === undefined || uniqueEvents === undefined || userPropertyOptions === undefined;
 
   async function verifyAndSubmitForm(values) {
     setLoading(true)
@@ -146,7 +147,7 @@ export default function AddEditResendEventTrigger({
     }
     const determineIfResendDestinationIsEnabled = async () => {
       await SwishjamAPI.Integrations.list({ destinations: true }).then(({ enabled_integrations }) => {
-        const hasIntegration = enabled_integrations.find(integration => integration.name === 'ResendEmail')
+        const hasIntegration = enabled_integrations.find(integration => integration.name === 'Resend')
         setHasResendDestinationEnabled(!!hasIntegration)
       });
     }
@@ -174,7 +175,7 @@ export default function AddEditResendEventTrigger({
   return (
     <div className={`${className} grid grid-cols-2 gap-8 mt-8`}>
       <div>
-        <FormInputOrLoadingState isLoading={uniqueEvents === undefined || userPropertyOptions === undefined || (form.watch('event_name') && propertyOptionsForSelectedEvent === undefined)} className='h-44'>
+        <FormInputOrLoadingState isLoading={isFetchingData || (form.watch('event_name') && propertyOptionsForSelectedEvent === undefined)} className='h-44'>
           <EmailPreview
             to={
               <InterpolatedMarkdown
@@ -276,7 +277,7 @@ export default function AddEditResendEventTrigger({
                       <div><LuInfo className='inline ml-1 text-gray-500' size={16} /></div>
                     </Tooltipable>
                   </FormLabel>
-                  <FormInputOrLoadingState isLoading={uniqueEvents === undefined || userPropertyOptions === undefined}>
+                  <FormInputOrLoadingState isLoading={isFetchingData}>
                     <Select onValueChange={field.onChange} defaultValue={field.value}>
                       <FormControl>
                         <SelectTrigger>
@@ -305,7 +306,7 @@ export default function AddEditResendEventTrigger({
                 </Tooltipable>
               </FormLabel>
 
-              <FormInputOrLoadingState className='h-24 mt-2' isLoading={uniqueEvents === undefined || userPropertyOptions === undefined}>
+              <FormInputOrLoadingState className='h-24 mt-2' isLoading={isFetchingData}>
                 {conditionalStatementsFieldArray.fields.length == 0 && (
                   <div
                     onClick={() => conditionalStatementsFieldArray.append()}
@@ -449,7 +450,7 @@ export default function AddEditResendEventTrigger({
                     </Tooltipable>
                   </FormLabel>
                   <FormControl>
-                    <FormInputOrLoadingState isLoading={uniqueEvents === undefined || userPropertyOptions === undefined}>
+                    <FormInputOrLoadingState isLoading={isFetchingData}>
                       <Input
                         type="text"
                         placeholder="{user.email}"
@@ -492,7 +493,7 @@ export default function AddEditResendEventTrigger({
                   {(ccSectionsIsExpanded || form.watch('cc')) && <FormLabel className={`flex items-center pr-4 py-0.5`}>CC</FormLabel>}
                   <FormControl>
                     {(ccSectionsIsExpanded || form.watch('cc')) && (
-                      <FormInputOrLoadingState isLoading={uniqueEvents === undefined || userPropertyOptions === undefined}>
+                      <FormInputOrLoadingState isLoading={isFetchingData}>
                         <Input
                           type="text"
                           placeholder="somone-to-cc@example.com"
@@ -526,7 +527,7 @@ export default function AddEditResendEventTrigger({
                   {(bccSectionsIsExpanded || form.watch('steps.0.config.bcc')) && <FormLabel className={`flex items-center pr-4 py-0.5`}>BCC</FormLabel>}
                   <FormControl>
                     {(bccSectionsIsExpanded || form.watch('steps.0.config.bcc')) && (
-                      <FormInputOrLoadingState isLoading={uniqueEvents === undefined || userPropertyOptions === undefined}>
+                      <FormInputOrLoadingState isLoading={isFetchingData}>
                         <Input
                           type="text"
                           placeholder="someone-to-bcc@example.com"
@@ -559,7 +560,7 @@ export default function AddEditResendEventTrigger({
                 <FormItem>
                   <FormLabel>From</FormLabel>
                   <FormControl>
-                    <FormInputOrLoadingState isLoading={uniqueEvents === undefined || userPropertyOptions === undefined}>
+                    <FormInputOrLoadingState isLoading={isFetchingData}>
                       <Input
                         type="text"
                         placeholder='Your Name <from-email@example.com>'
@@ -579,7 +580,7 @@ export default function AddEditResendEventTrigger({
                 <FormItem>
                   <FormLabel>Subject Line</FormLabel>
                   <FormControl>
-                    <FormInputOrLoadingState isLoading={uniqueEvents === undefined || userPropertyOptions === undefined}>
+                    <FormInputOrLoadingState isLoading={isFetchingData}>
                       <Input
                         type="text"
                         placeholder="Your subject line here"
@@ -613,7 +614,7 @@ export default function AddEditResendEventTrigger({
                     </Tooltipable>
                   </FormLabel>
                   <FormControl>
-                    <FormInputOrLoadingState isLoading={uniqueEvents === undefined || userPropertyOptions === undefined}>
+                    <FormInputOrLoadingState isLoading={isFetchingData}>
                       <Textarea {...form.register('steps.0.config.body')} className='min-h-[140px]' />
                     </FormInputOrLoadingState>
                   </FormControl>
@@ -626,25 +627,27 @@ export default function AddEditResendEventTrigger({
               control={form.control}
               name='steps.0.config.delay_delivery_by_minutes'
               render={({ field }) => (
-                <FormItem className='flex flex-row items-center space-x-3 space-y-0 bg-white rounded-md border border-gray-200 p-4 shadow-sm'>
-                  <FormControl>
-                    <Input
-                      className='flex-shrink-0 w-20 text-center'
-                      type="number"
-                      placeholder="10"
-                      min="0"
-                      autoComplete="off"
-                      {...form.register('steps.0.config.delay_delivery_by_minutes')}
-                    />
-                  </FormControl>
-                  <FormLabel className="flex">
-                    Delivery delay (in minutes)
-                    <Tooltipable content="Delay the email deilvery by x minutes after the event occurs. If left blank it will be delivered immediately.">
-                      <div><LuInfo className='text-gray-500 ml-1' size={16} /></div>
-                    </Tooltipable>
-                  </FormLabel>
-                  <FormMessage />
-                </FormItem>
+                <FormInputOrLoadingState isLoading={isFetchingData}>
+                  <FormItem className='flex flex-row items-center space-x-3 space-y-0 bg-white rounded-md border border-gray-200 p-4 shadow-sm'>
+                    <FormControl>
+                      <Input
+                        className='flex-shrink-0 w-20 text-center'
+                        type="number"
+                        placeholder="10"
+                        min="0"
+                        autoComplete="off"
+                        {...form.register('steps.0.config.delay_delivery_by_minutes')}
+                      />
+                    </FormControl>
+                    <FormLabel className="flex">
+                      Delivery delay (in minutes)
+                      <Tooltipable content="Delay the email deilvery by x minutes after the event occurs. If left blank it will be delivered immediately.">
+                        <div><LuInfo className='text-gray-500 ml-1' size={16} /></div>
+                      </Tooltipable>
+                    </FormLabel>
+                    <FormMessage />
+                  </FormItem>
+                </FormInputOrLoadingState>
               )}
             />
 
@@ -652,25 +655,27 @@ export default function AddEditResendEventTrigger({
               control={form.control}
               name='steps.0.config.send_once_per_user'
               render={({ field }) => (
-                <FormItem className='flex flex-row items-start space-x-3 space-y-0 bg-white rounded-md border border-gray-200 p-4 shadow-sm'>
-                  <FormControl>
-                    <Checkbox
-                      className='data-[state=checked]:bg-swishjam data-[state=checked]:border-swishjam'
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                    />
-                  </FormControl>
-                  <FormLabel className="flex">
-                    Only ever send this email to a user once
-                    <Tooltipable
-                      className=""
-                      content="If checked, this email will not be sent on subsequent events for the same email address."
-                    >
-                      <div><LuInfo className='text-gray-500 ml-1' size={16} /></div>
-                    </Tooltipable>
-                  </FormLabel>
-                  <FormMessage />
-                </FormItem>
+                <FormInputOrLoadingState isLoading={isFetchingData}>
+                  <FormItem className='flex flex-row items-start space-x-3 space-y-0 bg-white rounded-md border border-gray-200 p-4 shadow-sm'>
+                    <FormControl>
+                      <Checkbox
+                        className='data-[state=checked]:bg-swishjam data-[state=checked]:border-swishjam'
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                    </FormControl>
+                    <FormLabel className="flex">
+                      Only ever send this email to a user once
+                      <Tooltipable
+                        className=""
+                        content="If checked, this email will not be sent on subsequent events for the same email address."
+                      >
+                        <div><LuInfo className='text-gray-500 ml-1' size={16} /></div>
+                      </Tooltipable>
+                    </FormLabel>
+                    <FormMessage />
+                  </FormItem>
+                </FormInputOrLoadingState>
               )}
             />
 
@@ -678,30 +683,32 @@ export default function AddEditResendEventTrigger({
               control={form.control}
               name='steps.0.config.un_resolved_variable_safety_net'
               render={({ field }) => (
-                <FormItem className='flex flex-row items-start space-x-3 space-y-0 bg-white rounded-md border border-gray-200 p-4 shadow-sm'>
-                  <FormControl>
-                    <Checkbox
-                      className='data-[state=checked]:bg-swishjam data-[state=checked]:border-swishjam'
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                    />
-                  </FormControl>
-                  <FormLabel className="flex">
-                    Unresolved Variable Safety Net
-                    <Tooltipable
-                      className=""
-                      content={
-                        <>
-                          <span className='font-bold'>Highly encouraged to remain enabled.</span> If checked, the email will not be sent if any of the variables used within
-                          it do not resolve (ie: if the body uses a variable such as {'{event.myVariable}'} but the triggered event does not have that property).
-                        </>
-                      }
-                    >
-                      <div><LuInfo className='text-gray-500 ml-1' size={16} /></div>
-                    </Tooltipable>
-                  </FormLabel>
-                  <FormMessage />
-                </FormItem>
+                <FormInputOrLoadingState isLoading={isFetchingData}>
+                  <FormItem className='flex flex-row items-start space-x-3 space-y-0 bg-white rounded-md border border-gray-200 p-4 shadow-sm'>
+                    <FormControl>
+                      <Checkbox
+                        className='data-[state=checked]:bg-swishjam data-[state=checked]:border-swishjam'
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                    </FormControl>
+                    <FormLabel className="flex">
+                      Unresolved Variable Safety Net
+                      <Tooltipable
+                        className=""
+                        content={
+                          <>
+                            <span className='font-bold'>Highly encouraged to remain enabled.</span> If checked, the email will not be sent if any of the variables used within
+                            it do not resolve (ie: if the body uses a variable such as {'{event.myVariable}'} but the triggered event does not have that property).
+                          </>
+                        }
+                      >
+                        <div><LuInfo className='text-gray-500 ml-1' size={16} /></div>
+                      </Tooltipable>
+                    </FormLabel>
+                    <FormMessage />
+                  </FormItem>
+                </FormInputOrLoadingState>
               )}
             />
 
