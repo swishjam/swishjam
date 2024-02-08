@@ -135,10 +135,8 @@ export default function AddEditSlackEventTrigger({
       })
     }
 
-    onSave({
-      ...values,
-      channel_name: slackChannels.find(channel => channel.id === values.slack_channel)?.name,
-    }, onSuccess, onError)
+    values.steps[0].config.channel_name = slackChannels.find(channel => channel.id === values.steps[0].config.channel_id)?.name;
+    onSave(values, onSuccess, onError)
   }
 
   useEffect(() => {

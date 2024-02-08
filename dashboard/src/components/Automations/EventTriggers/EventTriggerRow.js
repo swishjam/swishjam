@@ -15,7 +15,6 @@ const SlackIcon = () => (<img src={'/logos/slack.svg'} className="h-4 w-4" />)
 const ResendIcon = () => (<img src={'/logos/resend.png'} className="h-4 w-4" />)
 
 export default function EventTriggerRow({ trigger, onPause, onResume, onDelete, className, ...props }) {
-
   const eventTriggerType = trigger.steps[0].type == 'EventTriggerSteps::Slack' ? 'slack' : 'resendEmail';
   const headerText = eventTriggerType == 'slack' ? `${trigger.steps[0].config.message_header}` : `${trigger.steps[0].config.subject}`;
 
@@ -100,7 +99,7 @@ export default function EventTriggerRow({ trigger, onPause, onResume, onDelete, 
             </div>
           </DropdownMenuTrigger>
           <DropdownMenuContent className="w-fit border-zinc-200 shadow-sm border-sm" align='end'>
-            {trigger.steps[0].type === 'EventTriggerSteps::Resend' && (
+            {trigger.steps[0].type === 'EventTriggerSteps::ResendEmail' && (
               <Link href={`/automations/event-triggers/${trigger.id}/details`}>
                 <DropdownMenuItem className='cursor-pointer hover:bg-accent'>
                   <ScrollTextIcon className='h-4 w-4 inline-block mr-2' />

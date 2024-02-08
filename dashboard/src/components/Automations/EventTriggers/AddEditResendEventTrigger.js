@@ -8,6 +8,7 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { Checkbox } from "@/components/ui/checkbox"
+import EmptyState from "src/app/(authenticated)/automations/EmptyState";
 import { Input } from '@/components/ui/input';
 import LoadingSpinner from '@components/LoadingSpinner';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -24,6 +25,7 @@ import EmailPreview from "@/components/Resend/EmailPreview";
 import InterpolatedMarkdown from "../../VariableParser/InterpolatedMarkdown";
 import { useRouter } from 'next/navigation';
 import { toast } from "sonner";
+import Link from "next/link";
 
 const FormInputOrLoadingState = ({ children, className, isLoading }) => {
   if (isLoading) {
@@ -57,6 +59,7 @@ export default function AddEditResendEventTrigger({
 
   const [ccSectionsIsExpanded, setCcSectionsIsExpanded] = useState(defaultTriggerValues.steps[0].config?.cc ? true : false);
   const [bccSectionsIsExpanded, setBccSectionsIsExpanded] = useState(defaultTriggerValues.steps[0].config?.bcc ? true : false);
+  const [hasResendDestinationEnabled, setHasResendDestinationEnabled] = useState();
   const [loading, setLoading] = useState(false);
   const [propertyOptionsForSelectedEvent, setPropertyOptionsForSelectedEvent] = useState();
   const [uniqueEvents, setUniqueEvents] = useState();
@@ -141,6 +144,15 @@ export default function AddEditResendEventTrigger({
       setUniqueEvents(sortedEvents);
       setUserPropertyOptions(['user.email', ...userProperties.map(property => `user.${property}`)])
     }
+    const determineIfResendDestinationIsEnabled = async () => {
+      await SwishjamAPI.Integrations.list({ destinations: true }).then(({ enabled_integrations }) => {
+        debugger;
+        const hasIntegration = enabled_integrations.find(integration => integration.name === 'ResendEmail')
+        setHasResendDestinationEnabled(hasIntegration)
+      });
+    }
+
+    determineIfResendDestinationIsEnabled();
     getUniqueEventsAndUserProperties();
   }, [])
 
@@ -155,6 +167,10 @@ export default function AddEditResendEventTrigger({
   useEffect(() => {
     form.setValue('from', `Your name <${currentUserEmail}>`)
   }, [currentUserEmail])
+
+  if (hasResendDestinationEnabled === false) {
+    return <EmptyState title={<>Enable the <Link className='text-blue-600 underline' href='/integrations/destinations'>Resend destination</Link> to begin sending Resend email triggers.</>} />
+  }
 
   return (
     <div className={`${className} grid grid-cols-2 gap-8 mt-8`}>
