@@ -157,8 +157,10 @@ export default function AddEditResendEventTrigger({
       setUniqueEvents(sortedEvents);
       setUserPropertyOptions(['user.email', ...userProperties.map(property => `user.${property}`)])
     }
-
     getUniqueEventsAndUserProperties();
+    if (form.watch('event_name')) {
+      setSelectedEventAndGetPropertiesAndAutofillMessageContentIfNecessary(form.watch('event_name'));
+    }
   }, [])
 
   useEffect(() => {
