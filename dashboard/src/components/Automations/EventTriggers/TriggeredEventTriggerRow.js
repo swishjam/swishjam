@@ -36,10 +36,10 @@ export default function TriggeredEventTriggerRow({ triggeredEventTrigger }) {
                   <span className="block text-sm font-semibold leading-6 text-gray-600 min-w-0 flex-auto">
                     To: {triggeredStep.triggered_payload.resend_request_body?.to}
                   </span>
-                  <span className="text-xs text-gray-600">
-                    {triggerStepSucceeded && <span className='text-gray-600 flex items-center'>Delivered {prettyDateTime(triggeredStep.completed_at)}</span>}
+                  <span className="text-xs flex text-gray-600">
+                    {triggerStepSucceeded && <span className='text-gray-600'>Delivered {prettyDateTime(triggeredStep.completed_at)}</span>}
                     {triggerStepFailed && <span className='text-red-600'>{triggeredStep.error_message}</span>}
-                    {triggerStepIsPending && <span className='text-blue-500'>Scheduled to be delivered at {prettyDateTime(triggeredStep.triggered_payload.scheduled_delivery_for)}</span>}
+                    {triggerStepIsPending && <span className='text-blue-500'>Scheduled to be delivered on {prettyDateTime(triggeredStep.triggered_payload.scheduled_delivery_for)}</span>}
                   </span>
                 </div>
               </div>

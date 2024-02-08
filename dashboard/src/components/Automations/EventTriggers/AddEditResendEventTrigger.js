@@ -33,28 +33,30 @@ const FormInputOrLoadingState = ({ children, className, isLoading }) => {
   }
 }
 
-export default function AddEditResendEventTrigger({ 
+export default function AddEditResendEventTrigger({
   onSave,
   className,
   triggerId,
   defaultTriggerValues = {
     eventName: '',
     conditional_statements: [],
-    steps: [{ type: 'EventTriggerSteps::ResendEmail', config: {
-      to: '{ user.email }',
-      send_once_per_user: true,
-      un_resolved_variable_safety_net: true
-    }}],  
+    steps: [{
+      type: 'EventTriggerSteps::ResendEmail', config: {
+        to: '{ user.email }',
+        send_once_per_user: true,
+        un_resolved_variable_safety_net: true,
+        delay_delivery_by_minutes: 15,
+      }
+    }],
   }
 }) {
-  console.log(defaultTriggerValues) 
   const router = useRouter();
   const { email: currentUserEmail } = useAuthData();
   const form = useForm({ defaultValues: defaultTriggerValues });
   const conditionalStatementsFieldArray = useFieldArray({ control: form.control, name: "conditional_statements" });
 
-  const [ccSectionsIsExpanded, setCcSectionsIsExpanded] = useState(defaultTriggerValues.steps[0].config?.cc ? true:false);
-  const [bccSectionsIsExpanded, setBccSectionsIsExpanded] = useState(defaultTriggerValues.steps[0].config?.bcc ? true:false);
+  const [ccSectionsIsExpanded, setCcSectionsIsExpanded] = useState(defaultTriggerValues.steps[0].config?.cc ? true : false);
+  const [bccSectionsIsExpanded, setBccSectionsIsExpanded] = useState(defaultTriggerValues.steps[0].config?.bcc ? true : false);
   const [loading, setLoading] = useState(false);
   const [propertyOptionsForSelectedEvent, setPropertyOptionsForSelectedEvent] = useState();
   const [uniqueEvents, setUniqueEvents] = useState();
@@ -119,22 +121,21 @@ export default function AddEditResendEventTrigger({
       swishjam.event(`resend_event_trigger_${triggerId ? 'edited' : 'created'}`, {
         event_name: trigger.event_name,
         trigger_id: trigger.id,
-        trigger: trigger 
+        trigger: trigger
       })
-      toast.success(`${triggerId ? 'edited successfully' : 'Trigger created. Redirecting to all event triggers'} `)
-      
-      if(!triggerId) { 
-        router.push(`/automations/event-triggers?success=${"Your new Slack event trigger was created successfully."}`);
+      toast.success(`${triggerId ? 'Event Trigger updated successfully' : 'Trigger created. Redirecting to all event triggers'} `)
+
+      if (!triggerId) {
+        router.push(`/automations/event-triggers?success=${"Your new Resend event trigger was created successfully."}`);
       }
     }
-    
+
     const onError = (error) => {
       setLoading(false);
       toast.error("uh oh! Something went wrong.", {
         description: error,
       })
     }
-    console.log('saving', values)
     onSave(values, onSuccess, onError)
   }
 
@@ -220,10 +221,10 @@ export default function AddEditResendEventTrigger({
               Advanced Syntax:
               <span className="ml-1 text-sm px-1.5 py-0.5 border border-zinc-200 bg-accent rounded-sm">{"{ user.name || 'friend'}"}</span> using the
               <span className="ml-1 text-sm px-1.5 py-0.5 border border-zinc-200 bg-accent rounded-sm">||</span> allows you to provide a default value if the variable is not defined.
-              <br /> 
+              <br />
               These can be chained like this:<span className="ml-1 text-sm px-1.5 py-0.5 border border-zinc-200 bg-accent rounded-sm">{"{ user.name || user.email || 'friend'}"}</span>
             </p>
-             
+
             <p className="text-sm font-medium mt-4">Event Variables</p>
             <p className="text-sm mt-1">
               Each event will have unique variables depending on the event. Custom variables that you pass to us can be referenced in the body of the email, subject line, etc.
@@ -534,7 +535,7 @@ export default function AddEditResendEventTrigger({
                     <FormInputOrLoadingState isLoading={uniqueEvents === undefined || userPropertyOptions === undefined}>
                       <Input
                         type="text"
-                        placeholder='from-email@example.com'
+                        placeholder='Your Name <from-email@example.com>'
                         {...form.register('steps.0.config.from')}
                       />
                     </FormInputOrLoadingState>
@@ -596,6 +597,32 @@ export default function AddEditResendEventTrigger({
 
             <FormField
               control={form.control}
+              name='steps.0.config.delay_delivery_by_minutes'
+              render={({ field }) => (
+                <FormItem className='flex flex-row items-center space-x-3 space-y-0 bg-white rounded-md border border-gray-200 p-4 shadow-sm'>
+                  <FormControl>
+                    <Input
+                      className='flex-shrink-0 w-20 text-center'
+                      type="number"
+                      placeholder="10"
+                      min="0"
+                      autoComplete="off"
+                      {...form.register('steps.0.config.delay_delivery_by_minutes')}
+                    />
+                  </FormControl>
+                  <FormLabel className="flex">
+                    Delivery delay (in minutes)
+                    <Tooltipable content="Delay the email deilvery by x minutes after the event occurs. If left blank it will be delivered immediately.">
+                      <div><LuInfo className='text-gray-500 ml-1' size={16} /></div>
+                    </Tooltipable>
+                  </FormLabel>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
               name='steps.0.config.send_once_per_user'
               render={({ field }) => (
                 <FormItem className='flex flex-row items-start space-x-3 space-y-0 bg-white rounded-md border border-gray-200 p-4 shadow-sm'>
@@ -629,13 +656,13 @@ export default function AddEditResendEventTrigger({
                     <Checkbox
                       className='data-[state=checked]:bg-swishjam data-[state=checked]:border-swishjam'
                       checked={field.value}
-                      onCheckedChange={field.onChange} 
+                      onCheckedChange={field.onChange}
                     />
                   </FormControl>
                   <FormLabel className="flex">
                     Unresolved Variable Safety Net
                     <Tooltipable
-                      className="" 
+                      className=""
                       content={
                         <>
                           <span className='font-bold'>Highly encouraged to remain enabled.</span> If checked, the email will not be sent if any of the variables used within
