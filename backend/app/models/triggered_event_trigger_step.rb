@@ -1,5 +1,6 @@
 class TriggeredEventTriggerStep < Transactional
   belongs_to :event_trigger_step
+  belongs_to :triggered_event_trigger
 
   attribute :triggered_payload, :jsonb, default: {}
   attribute :triggered_event_json, :jsonb, default: {}
