@@ -43,7 +43,14 @@ export default function AddEditSlackEventTrigger({
   className,
   triggerId,
   defaultTriggerValues = {
-    header: '✨ Event Name'
+    event_name: '',
+    conditional_statements: [],
+    steps: [{ type: 'EventTriggerSteps::Slack', config: {
+      message_header: '✨ Event Name',
+      message_body: '',
+      channel_id: '',
+      channel_name: '' 
+    }}],
   }
 }) {
   const form = useForm({ defaultValues: defaultTriggerValues });
@@ -75,19 +82,19 @@ export default function AddEditSlackEventTrigger({
 
   async function onSubmit(values) {
     setIsFormSaving(true)
-    const isValid = values.event_name && values.slack_channel && (values.header || values.body)
+    const isValid = values.event_name && values.channel_id && (values.steps[0].config.message_header || values.steps[0].config.message_body)
     if (!isValid) {
-      Object.keys(values).forEach(key => {
-        if (!values[key]) {
-          if ((key === 'header' || key === 'body') && !values.header && !values.body) {
+      Object.keys(values.steps[0].config).forEach(key => {
+        if (!values.steps[0].config[key]) {
+          if ((key === 'message_header' || key === 'message_body') && !values.steps[0].config.message_header && !values.steps[0].config.message_body) {
             form.setError(key, { message: 'You must provide either a header or a body value for your slack message.' })
-          } else if (key !== 'header' && key !== 'body') {
-            form.setError(key, { message: `${key[0].toUpperCase() + key.slice(1).replace('_', ' ')} is a required field.` })
+          } else if (key !== 'message_header' && key !== 'message_body') {
+            form.setError(values.steps[0].config[key], { message: `${key[0].toUpperCase() + key.slice(1).replace('_', ' ')} is a required field.` })
           }
         }
       })
-      if (values.conditionalStatements.length > 0) {
-        values.conditionalStatements.forEach((statement, index) => {
+      if (values.conditional_statements.length > 0) {
+        values.conditional_statements.forEach((statement, index) => {
           if (!statement.property || !statement.condition || !statement.property_value) {
             if (!statement.property) {
               form.setError(`conditional_statements.${index}.property`, { message: 'Property is a required field.' })
@@ -105,13 +112,6 @@ export default function AddEditSlackEventTrigger({
       return;
     }
 
-    // const config = {
-    //   message_header: values.header,
-    //   message_body: values.body,
-    //   channel_id: values.slack_channel,
-    //   channel_name: slackChannels.find(channel => channel.id === values.slack_channel)?.name,
-    // }
-      
     const onSuccess = (trigger) => {
       setIsFormSaving(false);
       swishjam.event(`slack_event_trigger_${triggerId ? 'edited' : 'created'}`, {
@@ -133,12 +133,22 @@ export default function AddEditSlackEventTrigger({
       })
     }
 
+    // const config = {
+    //   message_header: values.header,
+    //   message_body: values.body,
+    //   channel_id: values.slack_channel,
+    //   channel_name: slackChannels.find(channel => channel.id === values.slack_channel)?.name,
+    // }
+      
     // {
     //   eventName: values.event_name,
     //   conditionalStatements: values.conditionalStatements,
     //   steps: [{ type: 'EventTriggerSteps::Slack', config }]
     // }
-    onSave(values, onSuccess, onError)
+    onSave({
+      ...values,
+      channel_name: slackChannels.find(channel => channel.id === values.slack_channel)?.name,
+    }, onSuccess, onError)
   }
 
   useEffect(() => {
