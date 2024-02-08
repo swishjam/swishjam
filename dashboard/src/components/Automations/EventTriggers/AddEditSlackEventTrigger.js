@@ -174,11 +174,10 @@ export default function AddEditSlackEventTrigger({
       console.log(e)
     }
     if(triggerId) {
-      SwishjamAPI.Events.Properties.listUnique(defaultTriggerValues.steps[0].config.event_name).then(properties => {
+      SwishjamAPI.Events.Properties.listUnique(defaultTriggerValues.event_name).then(properties => {
         setPropertyOptionsForSelectedEvent(properties);
       });
     }
-
   }, [])
 
   if(!slackChannels && slackChannels?.length == 0 && !uniqueEvents && uniqueEvents?.length == 0) {
