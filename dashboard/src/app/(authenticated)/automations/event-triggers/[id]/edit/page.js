@@ -15,7 +15,6 @@ export default function EditTriggerPage({ params }) {
 
   useEffect(() => {
     SwishjamAPI.EventTriggers.retrieve(id).then(({ trigger, error }) => {
-      console.log(trigger, error) 
       if (error) {
         toast.error("An error occurred retrieving the event trigger, please try again", {
           description: error,
@@ -34,7 +33,7 @@ export default function EditTriggerPage({ params }) {
       onError(error);
     } else {
       onSuccess(trigger);
-    } 
+    }
   }
 
   return (
@@ -46,28 +45,28 @@ export default function EditTriggerPage({ params }) {
             href="/automations/event-triggers"
           >
             <LuArrowLeft className='inline mr-1' size={12} />
-            Back to all Event Triggers 
+            Back to all Event Triggers
           </Link>
           <h2 className="text-md font-medium text-gray-700 mb-0">Edit Event Trigger</h2>
         </div>
       </div>
-      
-      {eventTrigger?.steps?.[0]?.type === 'EventTriggerSteps::Slack' && 
+
+      {eventTrigger?.steps?.[0]?.type === 'EventTriggerSteps::Slack' &&
         <AddEditSlackEventTrigger
           onSave={saveTrigger}
-          triggerId={eventTrigger.id} 
+          triggerId={eventTrigger.id}
           defaultTriggerValues={eventTrigger}
         />
       }
-      {eventTrigger?.steps?.[0]?.type === 'EventTriggerSteps::ResendEmail' && 
+      {eventTrigger?.steps?.[0]?.type === 'EventTriggerSteps::ResendEmail' &&
         <AddEditResendEventTrigger
           onSave={saveTrigger}
-          triggerId={eventTrigger.id} 
+          triggerId={eventTrigger.id}
           defaultTriggerValues={eventTrigger}
         />
       }
 
-      
+
       {/* {reportData &&
         <AddEditReport
           onSave={updateReport}

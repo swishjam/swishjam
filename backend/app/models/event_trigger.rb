@@ -17,7 +17,6 @@ class EventTrigger < Transactional
 
   after_create :send_new_trigger_notification_to_slack_if_necessary
 
-  # def trigger!(prepared_event, as_test: false)
   def trigger_if_conditions_are_met!(prepared_event, as_test: false)
     if triggered_event_triggers.find_by(event_uuid: prepared_event.uuid).present?
       Sentry.capture_message("Duplicate EventTrigger prevented. EventTrigger #{id} already triggered for event #{prepared_event.uuid} (#{prepared_event.name} event for #{workspace.name} workspace).")

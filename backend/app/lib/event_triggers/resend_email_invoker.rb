@@ -28,7 +28,10 @@ module EventTriggers
         return triggered_step_record
       end
 
-      if event_trigger_step.config['delay_delivery_by_minutes'].present? && triggered_step_record.triggered_payload['delayed_delivery_at'].nil?
+      if event_trigger_step.config['delay_delivery_by_minutes'].present? && 
+          event_trigger_step.config['delay_delivery_by_minutes'].to_i > 0 && 
+          triggered_step_record.triggered_payload['delayed_delivery_at'].nil?
+
         triggered_step_record.triggered_payload['delayed_delivery_at'] = Time.current
         triggered_step_record.triggered_payload['scheduled_delivery_for'] = Time.current + event_trigger_step.config['delay_delivery_by_minutes'].to_i.minutes
         triggered_step_record.save!

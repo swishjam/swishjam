@@ -5,9 +5,9 @@ namespace :data_migrations do
       puts "\n\nMoving #{legacy_slack_connections.count} SlackConnections to Integrations::Destinations::Slack".colorize(:yellow)
       legacy_slack_connections.each do |slack_connection|
         puts ".".colorize(:green)
-        next if Integrations::Destinations::Slack.exists?(workspace: slack_connection.workspace)
+        next if Integrations::Destinations::Slack.exists?(workspace_id: slack_connection.workspace_id)
         Integrations::Destinations::Slack.create!(
-          workspace: slack_connection.workspace,
+          workspace_id: slack_connection.workspace_id,
           enabled: true,
           config: { access_token: slack_connection.access_token },
           created_at: slack_connection.created_at,
