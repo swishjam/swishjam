@@ -123,7 +123,7 @@ export default function AddEditResendEventTrigger({
         trigger_id: trigger.id,
         trigger: trigger
       })
-      toast.success(`${triggerId ? 'Event Trigger updated successfully' : 'Trigger created. Redirecting to all event triggers'} `)
+      toast.success(`${triggerId ? 'Event Trigger updated successfully.' : 'Trigger created. Redirecting to all event triggers.'} `)
 
       if (!triggerId) {
         router.push(`/automations/event-triggers?success=${"Your new Resend event trigger was created successfully."}`);
