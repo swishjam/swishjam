@@ -56,6 +56,7 @@ export default function EditTriggerPage({ params }) {
         <AddEditSlackEventTrigger
           onSave={saveTrigger}
           triggerId={eventTrigger.id} 
+          defaultTriggerValues={eventTrigger}
         />
       }
       {eventTrigger?.steps?.[0]?.type === 'EventTriggerSteps::ResendEmail' && 

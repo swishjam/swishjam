@@ -23,6 +23,7 @@ import useAuthData from "@/hooks/useAuthData";
 import EmailPreview from "@/components/Resend/EmailPreview";
 import InterpolatedMarkdown from "../../VariableParser/InterpolatedMarkdown";
 import { useRouter } from 'next/navigation';
+import { toast } from "sonner";
 
 const FormInputOrLoadingState = ({ children, className, isLoading }) => {
   if (isLoading) {
@@ -38,7 +39,7 @@ export default function AddEditResendEventTrigger({
   triggerId,
   defaultTriggerValues = {
     eventName: '',
-    conditionalStatements: [],
+    conditional_statements: [],
     steps: [{ type: 'EventTriggerSteps::ResendEmail', config: {
       to: '{ user.email }',
       send_once_per_user: true,
@@ -50,7 +51,7 @@ export default function AddEditResendEventTrigger({
   const router = useRouter();
   const { email: currentUserEmail } = useAuthData();
   const form = useForm({ defaultValues: defaultTriggerValues });
-  const conditionalStatementsFieldArray = useFieldArray({ control: form.control, name: "conditionalStatements" });
+  const conditionalStatementsFieldArray = useFieldArray({ control: form.control, name: "conditional_statements" });
 
   const [ccSectionsIsExpanded, setCcSectionsIsExpanded] = useState(false);
   const [bccSectionsIsExpanded, setBccSectionsIsExpanded] = useState(false);
@@ -78,9 +79,9 @@ export default function AddEditResendEventTrigger({
 
   async function verifyAndSubmitForm(values) {
     setLoading(true)
-    const isValid = values.event_name && values.subject && values.body && values.to && values.from;
+    const isValid = values.event_name && values.steps[0].config.subject && values.steps[0].config.body && values.steps[0].config.to && values.steps[0].config.from;
     if (!isValid) {
-      Object.keys(values).forEach(key => {
+      Object.keys(values.steps[0].config).forEach(key => {
         const isRequired = ['event_name', 'subject', 'body', 'to', 'from'].includes(key);
         if (isRequired && (!values[key] || values[key].trim().length === 0)) {
           form.setError(key, { message: `${key[0].toUpperCase() + key.slice(1).replace('_', ' ')} is a required field.` })
@@ -90,20 +91,20 @@ export default function AddEditResendEventTrigger({
       return;
     }
     let hasEmptyConditionalStatements = false;
-    if (values.conditionalStatements.length > 0) {
-      values.conditionalStatements.forEach((statement, index) => {
+    if (values.conditional_statements.length > 0) {
+      values.conditional_statements.forEach((statement, index) => {
         if (!statement.property || !statement.condition || !statement.property_value) {
           if (!statement.property) {
             hasEmptyConditionalStatements = true;
-            form.setError(`conditionalStatements.${index}.property`, { message: 'Property is a required field.' })
+            form.setError(`conditional_statements.${index}.property`, { message: 'Property is a required field.' })
           }
           if (!statement.condition) {
             hasEmptyConditionalStatements = true;
-            form.setError(`conditionalStatements.${index}.condition`, { message: 'Condition is a required field.' })
+            form.setError(`conditional_statements.${index}.condition`, { message: 'Condition is a required field.' })
           }
           if (!statement.property_value && statement.condition !== 'is_defined') {
             hasEmptyConditionalStatements = true;
-            form.setError(`conditionalStatements.${index}.property_value`, { message: 'Property Value is a required field.' })
+            form.setError(`conditional_statements.${index}.property_value`, { message: 'Property Value is a required field.' })
           }
         }
       })
@@ -133,7 +134,7 @@ export default function AddEditResendEventTrigger({
         description: error,
       })
     }
-    
+    console.log('saving', values)
     onSave(values, onSuccess, onError)
   }
 
@@ -296,7 +297,7 @@ export default function AddEditResendEventTrigger({
                           </span>
                           <FormField
                             control={field.control}
-                            name={`conditionalStatements.${index}.property`}
+                            name={`conditional_statements.${index}.property`}
                             render={({ field }) => (
                               <FormItem>
                                 <Select
@@ -327,7 +328,7 @@ export default function AddEditResendEventTrigger({
                           />
                           <FormField
                             control={field.control}
-                            name={`conditionalStatements.${index}.condition`}
+                            name={`conditional_statements.${index}.condition`}
                             render={({ field }) => (
                               <FormItem>
                                 <Select
@@ -356,10 +357,10 @@ export default function AddEditResendEventTrigger({
                               </FormItem>
                             )}
                           />
-                          {form.watch(`conditionalStatements.${index}.condition`) !== 'is_defined' && (
+                          {form.watch(`conditional_statements.${index}.condition`) !== 'is_defined' && (
                             <FormField
                               control={form.control}
-                              name={`conditionalStatements.${index}.property_value`}
+                              name={`conditional_statements.${index}.property_value`}
                               render={({ field }) => (
                                 <FormItem>
                                   <FormControl>
@@ -367,7 +368,7 @@ export default function AddEditResendEventTrigger({
                                       type="text"
                                       placeholder="Your property value"
                                       disabled={propertyOptionsForSelectedEvent === undefined}
-                                      {...form.register(`conditionalStatements.${index}.property_value`)}
+                                      {...form.register(`conditional_statements.${index}.property_value`)}
                                     />
                                   </FormControl>
                                   <FormMessage />
