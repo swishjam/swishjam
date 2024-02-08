@@ -19,11 +19,11 @@ module Ingestion
 
       def properties
         @properties ||= begin
-          parser = PROPERTY_PARSER_DICT[event.name]
+          parser = PROPERTY_PARSER_DICT[parsed_event.name]
           if parser
             parser.new(parsed_event.properties).as_json
           else
-            Sentry.capture_message("Received Github event of type #{event.name}, but no parser exists to ingest the event.")
+            Sentry.capture_message("Received Github event of type #{parsed_event.name}, but no parser exists to ingest the event.")
             {}
           end
         end

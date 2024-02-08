@@ -9,9 +9,8 @@ import AddEditResendEventTrigger from "@/components/Automations/EventTriggers/Ad
 
 export default function NewEventTrigger() {
   const searchParams = useSearchParams();
- 
+
   async function onSubmit(triggerValue, onSuccess, onError) {
-    console.log('triggerValue', triggerValue) 
     const { trigger, error } = await SwishjamAPI.EventTriggers.create(triggerValue)
     if (error) {
       onError(error)

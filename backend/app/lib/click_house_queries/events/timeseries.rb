@@ -31,7 +31,7 @@ module ClickHouseQueries
       def sql
         <<~SQL
           SELECT
-            CAST(COUNT(DISTINCT distinct_count_field) AS int) AS count,
+            CAST(COUNT(DISTINCT #{property_select_clause}) AS INT) AS count,
             DATE_TRUNC('#{@group_by}', occurred_at) AS group_by_date
           FROM (#{from_clause}) AS e
           #{join_statements}
@@ -63,10 +63,10 @@ module ClickHouseQueries
       end
 
       def from_clause
-        should_sort_by_uuid = @distinct_count_property.nil? || @distinct_count_property == 'uuid' || @distinct_count_property == 'users'
+        should_count_distinct_uuids = @distinct_count_property.nil? || @distinct_count_property == 'uuid' || @distinct_count_property == 'users'
         <<~SQL
           SELECT 
-            #{should_sort_by_uuid ? 'e.uuid' : "JSONExtractString(e.properties, '#{@distinct_count_property}')"} AS distinct_count_field,
+            #{should_count_distinct_uuids ? 'e.uuid' : "JSONExtractString(e.properties, '#{@distinct_count_property}')"} AS distinct_count_field,
             argMax(e.name, ingested_at) AS name, 
             argMax(e.properties, ingested_at) AS properties, 
             argMax(e.user_profile_id, ingested_at) AS user_profile_id,
@@ -102,7 +102,6 @@ module ClickHouseQueries
             user_profiles.merged_into_swishjam_user_id = '#{@user_profile_id}'
           )
         SQL
-        # make sure sql starts with a space
         sql.prepend(' ') unless sql.start_with?(' ')
         sql
       end

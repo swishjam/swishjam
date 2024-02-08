@@ -64,6 +64,7 @@ export default function EventDetails({ params }) {
           previousValueDate={eventTimeseries?.previousValueDate}
           timeseries={eventTimeseries?.timeseries}
           groupedBy={eventTimeseries?.groupedBy}
+          showAxis={true}
         />
       </div>
       <div className='mt-8 grid grid-cols-2 gap-x-4'>

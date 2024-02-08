@@ -70,11 +70,11 @@ module Api
 
         payload = [payload] if payload.is_a?(Hash)
         events = payload.map do |e|
-          event = Analytics::Event.formatted_for_ingestion(
+          event = Analytics::Event.formatted_for_preparation(
             uuid: e['uuid'] || "evt-#{SecureRandom.uuid}", 
             swishjam_api_key: public_key, 
             name: e['name'], 
-            occurred_at: Time.at(e['timestamp'] || Time.current.to_i),
+            occurred_at: Time.at(e['timestamp'] || Time.current.to_f),
             properties: (e['attributes'] || {}).as_json,
           )
         end

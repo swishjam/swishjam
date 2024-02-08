@@ -65,16 +65,6 @@ export default function EditTriggerPage({ params }) {
           defaultTriggerValues={eventTrigger}
         />
       }
-
-
-      {/* {reportData &&
-        <AddEditReport
-          onSave={updateReport}
-          reportId={id}
-          defaultReportValues={reportData}
-          className="mt-8"
-        />
-      } */}
     </main>
   )
 

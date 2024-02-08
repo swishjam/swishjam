@@ -5,7 +5,6 @@ module Api
         before_action :verify_admin!
 
         def verify_admin!
-          #
           admin_emails = (ENV['SWISHJAM_ADMINS'] || '').split(',').map{ |e| e.strip } 
           if !admin_emails.include?(current_user.email)
             render json: {}, status: :unauthorized

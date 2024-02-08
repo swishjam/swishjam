@@ -4,7 +4,7 @@ module Ingestion
       EVENT_ATTRIBUTE_PARSERS_BY_EVENT_TYPE_DICT = {
         'charge.failed' => StripeHelpers::EventAttributeParsers::ChargeFailed,
         'charge.succeeded' => StripeHelpers::EventAttributeParsers::ChargeSucceeded,
-        'subscription.created' => StripeHelpers::EventAttributeParsers::SubscriptionCreated,
+        'customer.subscription.created' => StripeHelpers::EventAttributeParsers::SubscriptionCreated,
       }
 
       def handle_and_return_prepared_events!
