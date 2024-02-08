@@ -82,8 +82,11 @@ export default function AddEditSlackEventTrigger({
 
   async function onSubmit(values) {
     setIsFormSaving(true)
-    const isValid = values.event_name && values.channel_id && (values.steps[0].config.message_header || values.steps[0].config.message_body)
+    console.log('vals', values)
+    const isValid = values.event_name && values?.steps[0].config.channel_id && (values?.steps[0].config.message_header || values?.steps[0].config.message_body)
+    console.log('isValid', isValid)
     if (!isValid) {
+      console.log('invalid')
       Object.keys(values.steps[0].config).forEach(key => {
         if (!values.steps[0].config[key]) {
           if ((key === 'message_header' || key === 'message_body') && !values.steps[0].config.message_header && !values.steps[0].config.message_body) {
@@ -116,9 +119,9 @@ export default function AddEditSlackEventTrigger({
       setIsFormSaving(false);
       swishjam.event(`slack_event_trigger_${triggerId ? 'edited' : 'created'}`, {
         event_name: values.event_name,
-        slack_channel: config.channel_name,
+        slack_channel: values.steps[0].config.channel_name,
         trigger_id: trigger.id,
-        message_header: config.message_header,
+        message_header: values.steps[0].config.message_header,
       })
       toast.success(`${triggerId ? 'edited successfully' : 'Trigger created. Redirecting to all event triggers'} `)
       if(!triggerId) { 
@@ -132,19 +135,8 @@ export default function AddEditSlackEventTrigger({
         description: error,
       })
     }
-
-    // const config = {
-    //   message_header: values.header,
-    //   message_body: values.body,
-    //   channel_id: values.slack_channel,
-    //   channel_name: slackChannels.find(channel => channel.id === values.slack_channel)?.name,
-    // }
-      
-    // {
-    //   eventName: values.event_name,
-    //   conditionalStatements: values.conditionalStatements,
-    //   steps: [{ type: 'EventTriggerSteps::Slack', config }]
-    // }
+    
+    console.log('saving here') 
     onSave({
       ...values,
       channel_name: slackChannels.find(channel => channel.id === values.slack_channel)?.name,
