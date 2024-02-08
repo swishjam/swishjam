@@ -144,7 +144,7 @@ describe EventTriggers::ResendEmailInvoker do
         triggered_event_trigger: @triggered_event_trigger_2,
       ).invoke_or_schedule_email_delivery_if_necessary
       
-      expect(TriggeredEventTriggerStep.count).to be(1)
+      expect(TriggeredEventTriggerStep.count).to be(2)
       expect(result.class).to be(TriggeredEventTriggerStep)
       expect(result.id).to_not be(nil)
       expect(result.started_at).to_not be(nil)
@@ -160,7 +160,20 @@ describe EventTriggers::ResendEmailInvoker do
       expect(result.triggered_event_json['organization_properties']).to eq(prepared_event.organization_properties)
       expect(result.triggered_event_json['occurred_at'].to_time.round(2)).to eq(prepared_event.occurred_at.to_time.round(2))
 
-      expect(result_2).to be(false)
+      expect(result_2.id).to_not be(nil)
+      expect(result_2.started_at).to_not be(nil)
+      expect(result_2.completed?).to be(true)
+      expect(result_2.failed?).to be(true)
+      expect(result_2.error_message).to eq("Prevented multiple Resend triggers for user john@gmail.com.")
+      expect(result_2.triggered_event_json['uuid']).to eq(prepared_event_2.uuid)
+      expect(result_2.triggered_event_json['swishjam_api_key']).to eq(prepared_event_2.swishjam_api_key)
+      expect(result_2.triggered_event_json['name']).to eq(prepared_event_2.name)
+      expect(result_2.triggered_event_json['user_profile_id']).to eq(prepared_event_2.user_profile_id)
+      expect(result_2.triggered_event_json['organization_profile_id']).to eq(prepared_event_2.organization_profile_id)
+      expect(result_2.triggered_event_json['properties']).to eq(prepared_event_2.properties)
+      expect(result_2.triggered_event_json['user_properties']).to eq(prepared_event_2.user_properties)
+      expect(result_2.triggered_event_json['organization_properties']).to eq(prepared_event_2.organization_properties)
+      expect(result_2.triggered_event_json['occurred_at'].to_time.round(2)).to eq(prepared_event_2.occurred_at.to_time.round(2))
     end
 
     it 'does trigger a Resend email when the `send_once_per_user` config is set to true and this event_trigger has only sent emails to different email addresses' do

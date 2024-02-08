@@ -18,7 +18,10 @@ module EventTriggers
     def invoke_or_schedule_email_delivery_if_necessary
       if event_trigger_step.config['send_once_per_user'] && has_already_triggered_for_user?
         Sentry.capture_message("Preventing multiple Resend triggers for user #{request_body[:to]} for event_trigger_step_id: #{event_trigger_step.id}.")
-        return false
+        triggered_step_record.error_message = "Prevented multiple Resend triggers for user #{request_body[:to]}."
+        triggered_step_record.completed_at = Time.current
+        triggered_step_record.save!
+        return triggered_step_record
       end
 
       if event_trigger_step.config['un_resolved_variable_safety_net'] && has_any_un_resolved_variables?
