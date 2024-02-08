@@ -146,9 +146,8 @@ export default function AddEditResendEventTrigger({
     }
     const determineIfResendDestinationIsEnabled = async () => {
       await SwishjamAPI.Integrations.list({ destinations: true }).then(({ enabled_integrations }) => {
-        debugger;
         const hasIntegration = enabled_integrations.find(integration => integration.name === 'ResendEmail')
-        setHasResendDestinationEnabled(hasIntegration)
+        setHasResendDestinationEnabled(!!hasIntegration)
       });
     }
 
@@ -735,7 +734,7 @@ export default function AddEditResendEventTrigger({
                 type="submit"
                 disabled={loading || uniqueEvents === undefined || userPropertyOptions === undefined}
               >
-                {loading ? <LoadingSpinner color="white" /> : (triggerId ? 'Save Trigger':'Create Trigger')}
+                {loading ? <LoadingSpinner color="white" /> : (triggerId ? 'Save Trigger' : 'Create Trigger')}
               </Button>
             </div>
           </form>

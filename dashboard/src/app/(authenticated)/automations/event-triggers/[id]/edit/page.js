@@ -67,6 +67,4 @@ export default function EditTriggerPage({ params }) {
       }
     </main>
   )
-
-
 }
