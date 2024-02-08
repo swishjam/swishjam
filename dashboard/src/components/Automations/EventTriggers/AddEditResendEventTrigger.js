@@ -53,8 +53,8 @@ export default function AddEditResendEventTrigger({
   const form = useForm({ defaultValues: defaultTriggerValues });
   const conditionalStatementsFieldArray = useFieldArray({ control: form.control, name: "conditional_statements" });
 
-  const [ccSectionsIsExpanded, setCcSectionsIsExpanded] = useState(false);
-  const [bccSectionsIsExpanded, setBccSectionsIsExpanded] = useState(false);
+  const [ccSectionsIsExpanded, setCcSectionsIsExpanded] = useState(defaultTriggerValues.steps[0].config?.cc ? true:false);
+  const [bccSectionsIsExpanded, setBccSectionsIsExpanded] = useState(defaultTriggerValues.steps[0].config?.bcc ? true:false);
   const [loading, setLoading] = useState(false);
   const [propertyOptionsForSelectedEvent, setPropertyOptionsForSelectedEvent] = useState();
   const [uniqueEvents, setUniqueEvents] = useState();
@@ -171,32 +171,32 @@ export default function AddEditResendEventTrigger({
           <EmailPreview
             to={
               <InterpolatedMarkdown
-                content={form.watch('to')}
+                content={form.watch('steps.0.config.to')}
                 availableEventOptions={[...(propertyOptionsForSelectedEvent || []), ...(userPropertyOptions || [])]}
               />
             }
             cc={
               <InterpolatedMarkdown
-                content={form.watch('cc')}
+                content={form.watch('steps.0.config.cc')}
                 availableEventOptions={[...(propertyOptionsForSelectedEvent || []), ...(userPropertyOptions || [])]}
               />
             }
             bcc={
               <InterpolatedMarkdown
-                content={form.watch('bcc')}
+                content={form.watch('steps.0.config.bcc')}
                 availableEventOptions={[...(propertyOptionsForSelectedEvent || []), ...(userPropertyOptions || [])]}
               />
             }
-            from={form.watch('from')}
+            from={form.watch('steps.0.config.from')}
             subject={
               <InterpolatedMarkdown
-                content={form.watch('subject')}
+                content={form.watch('steps.0.config.subject')}
                 availableEventOptions={[...(propertyOptionsForSelectedEvent || []), ...(userPropertyOptions || [])]}
               />
             }
             body={
               <InterpolatedMarkdown
-                content={form.watch('body')}
+                content={form.watch('steps.0.config.body')}
                 availableEventOptions={[...(propertyOptionsForSelectedEvent || []), ...(userPropertyOptions || [])]}
               />
             }
