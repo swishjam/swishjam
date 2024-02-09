@@ -37,7 +37,9 @@ class AnalyticsOrganizationProfile < Transactional
       organization_unique_identifier: organization_unique_identifier,
       name: name,
       domain: domain,
-      metadata: metadata.to_json,
+      metadata: metadata.merge(
+        enriched_data.nil? ? {} : Hash.new.tap{ |h| enriched_data.data.each{ |k, v| h["enriched_#{k}"] = v }}
+      ).to_json,
       last_updated_from_transactional_db_at: Time.current,
       created_at: created_at,
       updated_at: updated_at,

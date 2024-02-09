@@ -16,17 +16,11 @@ class AnalyticsUserProfile < Transactional
   end
 
   belongs_to :workspace
-<<<<<<< HEAD
-  # has_one :user_profile_enrichment_data, class_name: UserProfileEnrichmentData.to_s, dependent: :destroy
   has_one :enriched_data, as: :enrichable, dependent: :destroy
   alias_attribute :enrichment_data, :enriched_data
-  
-=======
-  has_one :user_profile_enrichment_data, class_name: UserProfileEnrichmentData.to_s, dependent: :destroy
   alias_attribute :enrichment_data, :user_profile_enrichment_data
 
   has_many :analytics_user_profile_devices, dependent: :destroy
->>>>>>> main
   has_many :analytics_organization_members, dependent: :destroy
   has_many :analytics_organization_profiles, through: :analytics_organization_members
   alias_attribute :organizations, :analytics_organization_profiles
@@ -119,7 +113,9 @@ class AnalyticsUserProfile < Transactional
       email: email,
       merged_into_swishjam_user_id: merged_into_analytics_user_profile_id,
       created_by_data_source: created_by_data_source,
-      metadata: (metadata || {}).to_json,
+      metadata: metadata.merge(
+        enriched_data.nil? ? {} : Hash.new.tap{ |h| enriched_data.data.each{ |k, v| h["enriched_#{k}"] = v }}
+      ).to_json,
       first_seen_at_in_web_app: first_seen_at_in_web_app,
       last_seen_at_in_web_app: last_seen_at_in_web_app,
       created_at: created_at,

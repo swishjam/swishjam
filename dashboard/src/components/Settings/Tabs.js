@@ -1,4 +1,7 @@
+'use client'
+
 import { LuSettings, LuUser } from 'react-icons/lu'
+import { usePathname } from 'next/navigation';
 const isCurrentPage = (menuItemHref, currentPath) => currentPath == menuItemHref;
 
 const tabs = [

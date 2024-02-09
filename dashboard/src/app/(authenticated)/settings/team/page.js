@@ -43,8 +43,6 @@ export default function Team() {
         />
       )}
 
-      <Tabs className="mb-8" currentPath={pathname} />
-
       <div className='my-8 grid grid-cols-2'>
         <h1 className="text-lg font-medium text-gray-700 mb-0">Team Management</h1>
         <div className='flex justify-end'>
