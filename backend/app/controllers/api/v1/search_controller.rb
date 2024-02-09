@@ -5,7 +5,7 @@ module Api
         params[:data_source] ||= 'all'
         query = (params[:q] || params[:query])&.downcase
         limit = params[:limit] || 10
-        users = ClickHouseQueries::Users::Search.new(current_workspace, query: query, limit: limit).get
+        users = ClickHouseQueries::Users::Search.new(current_workspace.id, query: query, limit: limit).get
         organizations = current_workspace
                           .analytics_organization_profiles
                           .where('

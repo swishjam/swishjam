@@ -8,7 +8,7 @@ import SwishjamAPI from "@/lib/api-client/swishjam-api";
 import { useState } from 'react'
 import useAuthData from "@/hooks/useAuthData";
 
-export default function ResendConnectView({ onNewConnection }) {
+export default function ResendConnectView({ onNewIntegration }) {
   const { currentWorkspaceId } = useAuthData();
 
   const [errorMessage, setErrorMessage] = useState();
@@ -26,7 +26,7 @@ export default function ResendConnectView({ onNewConnection }) {
       setErrorMessage(error);
     } else {
       setShowSuccessMessage(true);
-      onNewConnection({ name: 'Resend', ...integration })
+      onNewIntegration({ name: 'Resend', ...integration })
     }
   }
 

@@ -1,9 +1,29 @@
 def setup_test_data( stub_data: { stripe: { customer_email: 'fake@example.com', customer_name: 'Fake Name' }})
-  @swishjam_organization = FactoryBot.create(:swishjam_organization)
-  stub_external_apis({ 
+  # @swishjam_organization = FactoryBot.create(:swishjam_organization)
+  stub_external_apis(
     stripe_customer_email: stub_data[:stripe][:customer_email], 
     stripe_customer_name: stub_data[:stripe][:customer_name],
-  })
+  )
+end
+
+def insert_events_into_click_house!(opts = {}) 
+  if !block_given?
+    raise "Must provide a block of events to insert"
+  end
+  events = yield.map do |event|
+    event[:uuid] ||= SecureRandom.uuid
+    event[:swishjam_api_key] ||= opts[:public_key] || opts[:swishjam_api_key]
+    event[:name] ||= opts[:name] || opts[:event_name]
+    event[:properties] = (event[:properties] || {}).to_json
+    event[:user_properties] = (event[:user_properties] || {}).to_json
+    event[:organization_properties] = (event[:organization_properties] || {}).to_json
+    event[:user_profile_id] ||= opts[:user_profile_id]
+    event[:organization_profile_id] ||= opts[:organization_profile_id]
+    event[:occurred_at] ||= opts[:occurred_at] || Time.current
+    event[:ingested_at] ||= opts[:ingested_at] || Time.current
+    event
+  end
+  Analytics::Event.insert_all!(events)
 end
 
 def stub_external_apis(stripe_customer_email: 'fake@example.com', stripe_customer_name: 'Fake Name')

@@ -3,6 +3,8 @@
 import { useRouter } from 'next/navigation'
 import { useAuthData } from "@/hooks/useAuthData";
 import LoadingSpinner from "@/components/LoadingSpinner";
+import SheetProvider from '@/providers/SheetProvider';
+import EnlargableDashboardComponentProvider from '@/providers/EnlargableDashboardComponentProvider';
 
 const ADMINS = (process.env.NEXT_PUBLIC_SWISHJAM_ADMINS || '').split(',').map(email => email.trim());
 
@@ -17,7 +19,13 @@ export default function Layout({ children }) {
       </div>
     )
   } else if (!isLoggedOut && ADMINS.includes(email)) {
-    return children
+    return (
+      <SheetProvider>
+        <EnlargableDashboardComponentProvider>
+          {children}
+        </EnlargableDashboardComponentProvider>
+      </SheetProvider>
+    )
   } else {
     router.push('/')
   }

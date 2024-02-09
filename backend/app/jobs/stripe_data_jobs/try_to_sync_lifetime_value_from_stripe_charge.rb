@@ -6,6 +6,7 @@ module StripeDataJobs
     queue_as :default
 
     def perform(stripe_charge_id, stripe_account_id)
+      raise NotImplementedError, "This job is deprecated."
       integration = Integrations::Stripe.find_by_account_id(stripe_account_id)
       raise FailedUpdateError, "Unable to find `Integrations::Stripe` with Stripe Account ID #{stripe_account_id}, skipping `UpdateLifetimeValueFromStripeCharge`" if !integration
       raise FailedUpdateError, "Integration with Stripe Account ID #{stripe_account_id} is not enabled, skipping `UpdateLifetimeValueFromStripeCharge`" if !integration.enabled?

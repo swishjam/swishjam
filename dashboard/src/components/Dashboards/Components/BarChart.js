@@ -7,12 +7,12 @@ import ConditionalCardWrapper from './ConditionalCardWrapper';
 import { COLORS as DEFAULT_COLORS } from '@/lib/utils/colorHelpers';
 import { dateFormatterForGrouping } from '@/lib/utils/timeseriesHelpers';
 import EmptyState from '@/components/EmptyState';
-import SettingsDropdown from './SettingsDropdown';
 import { Skeleton } from "@/components/ui/skeleton"
 import { useRef, useState } from 'react';
 
 export default function BarChartComponent({
   colors = DEFAULT_COLORS,
+  colorsByKey = {},
   data,
   groupedBy,
   height = 'h-96',
@@ -24,6 +24,7 @@ export default function BarChartComponent({
   showXAxis = true,
   showYAxis = true,
   showTableInsteadOfLegend = false,
+  stackOffset = 'none',
   title,
   tableTitle,
   valueFormatter = val => val,
@@ -43,7 +44,7 @@ export default function BarChartComponent({
   const [includeXAxis, setIncludeXAxis] = useState(showXAxis);
   const [includeYAxis, setIncludeYAxis] = useState(showYAxis);
   const [includeGridLines, setIncludeGridLines] = useState(showGridLines);
-  const [includeLegendOrTable, setIncludeLegendOrTableOrTable] = useState(showLegend);
+  const [includeLegendOrTable, setIncludeLegendOrTable] = useState(showLegend);
   const [useTableInsteadOfLegend, setUseTableInsteadOfLegend] = useState(showTableInsteadOfLegend);
 
   const dateFormatter = dateFormatterForGrouping(groupedBy)
@@ -64,7 +65,7 @@ export default function BarChartComponent({
   let colorsToChooseFrom = [...colors];
   const getColorForName = name => {
     if (!colorDict.current[name]) {
-      colorDict.current[name] = colorsToChooseFrom.shift();
+      colorDict.current[name] = colorsByKey[name] || colorsToChooseFrom.shift();
     }
     return colorDict.current[name];
   }
@@ -87,7 +88,7 @@ export default function BarChartComponent({
                     style={{ backgroundColor: color }}
                   />
                   <span className='transition-all text-sm text-gray-700'>
-                    {key}: {data[key]}
+                    {key}: {yAxisFormatter(data[key])}
                   </span>
                 </div>
               )
@@ -101,47 +102,23 @@ export default function BarChartComponent({
 
   return (
     <ConditionalCardWrapper
-      className={`${className} group`}
+      className={className}
       includeCard={includeCard}
-      title={
-        <div className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <h2 className="text-sm font-medium cursor-default">{title}</h2>
-          {includeSettingsDropdown && (
-            <SettingsDropdown
-              options={[
-                { name: 'Include Y-Axis', key: 'include-y-axis', isActive: includeYAxis },
-                { name: 'Include X-Axis', key: 'include-x-axis', isActive: includeXAxis },
-                { name: 'Include Table/Legend', key: 'include-legend-or-table', isActive: includeLegendOrTable },
-                { name: 'Include Grid Lines', key: 'include-grid-lines', isActive: includeGridLines },
-                { name: 'Use Table Instead of Legend', key: 'table-instead-of-legend', isActive: useTableInsteadOfLegend },
-              ]}
-              onSettingChange={key => {
-                switch (key) {
-                  case 'include-y-axis':
-                    return setIncludeYAxis(!includeYAxis)
-                  case 'include-x-axis':
-                    return setIncludeXAxis(!includeXAxis)
-                  case 'include-legend-or-table':
-                    return setIncludeLegendOrTableOrTable(!includeLegendOrTable)
-                  case 'include-grid-lines':
-                    return setIncludeGridLines(!includeGridLines)
-                  case 'table-instead-of-legend':
-                    return setUseTableInsteadOfLegend(!useTableInsteadOfLegend)
-                  default:
-                    throw new Error(`Unrecognized setting change received: ${key}`)
-                }
-              }}
-            />
-          )}
-        </div>
-      }
+      settings={[
+        { onChange: setIncludeYAxis, label: 'Include Y-Axis', enabled: includeYAxis },
+        { onChange: setIncludeXAxis, label: 'Include X-Axis', enabled: includeXAxis },
+        { onChange: setIncludeLegendOrTable, label: 'Include Table/Legend', enabled: includeLegendOrTable },
+        { onChange: setIncludeGridLines, label: 'Include Grid Lines', enabled: includeGridLines },
+        { onChange: setUseTableInsteadOfLegend, label: 'Use Table Instead of Legend', enabled: useTableInsteadOfLegend },
+      ]}
+      title={title}
     >
       {data.length === 0
         ? <EmptyState msg={noDataMessage} />
         : (
           <div className={`flex align-center justify-center my-6 ${height}`}>
             <ResponsiveContainer width="100%" height='100%'>
-              <BarChart data={data} margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>
+              <BarChart data={data} margin={{ top: 0, right: 0, left: 0, bottom: 0 }} stackOffset={stackOffset}>
                 {includeGridLines && <CartesianGrid strokeDasharray="4 4" vertical={false} opacity={0.75} />}
                 {includeXAxis && <XAxis dataKey={xAxisKey} tickFormatter={dateFormatter} angle={0} tick={{ fontSize: '12px' }} />}
                 {includeYAxis &&
@@ -177,14 +154,24 @@ export default function BarChartComponent({
                   />
                 )}
                 <Tooltip
-                  animationBegin={200}
-                  animationDuration={400}
-                  wrapperStyle={{ outline: "none" }}
+                  // animationBegin={200}
+                  // animationDuration={400}
+                  // animationEasing='ease-in-out'
+                  isAnimationActive={false}
                   content={<CustomTooltip />}
                   allowEscapeViewBox={{ x: false, y: true }}
-                  animationEasing='ease-in-out'
+                  wrapperStyle={{ outline: "none", zIndex: 1000 }}
                 />
-                {uniqueKeys.map((key, i) => <Bar key={i} dataKey={key} stackId='a' fill={getColorForName(key)} />)}
+                {uniqueKeys.map((key, i, arr) => {
+                  return (
+                    <Bar
+                      key={i}
+                      dataKey={key}
+                      stackId='a'
+                      fill={getColorForName(key)}
+                    />
+                  )
+                })}
               </BarChart>
             </ResponsiveContainer>
 

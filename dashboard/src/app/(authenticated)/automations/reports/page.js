@@ -1,18 +1,21 @@
 'use client';
 
-import AddReportModal from "@/components/Automations/Reports/AddReportModal";
-import { Cog6ToothIcon } from '@heroicons/react/24/outline'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { Button } from '@/components/ui/button';
 import EmptyState from '../EmptyState';
-import { HiOutlineMail } from "react-icons/hi";
 import Link from "next/link";
-import { LuClock } from "react-icons/lu";
-import { PauseCircleIcon, PlayCircleIcon, TrashIcon } from '@heroicons/react/24/outline'
-import { SiSlack } from "react-icons/si";
 import { Skeleton } from "@/components/ui/skeleton";
 import { SwishjamAPI } from "@/lib/api-client/swishjam-api";
 import { toast } from "sonner";
 import { useState, useEffect } from "react";
+                      
+import {
+  LuPlus, LuClock, LuPause,
+  LuPlay, LuPencil, LuTrash,
+  LuSettings, LuCalendarDays,
+} from "react-icons/lu";
+import { HiOutlineMail } from "react-icons/hi";
+import { SiSlack } from "react-icons/si";
 
 export default function ReportsPage() {
   const [reports, setReports] = useState();
@@ -22,7 +25,7 @@ export default function ReportsPage() {
   const pauseReport = async (reportId) => {
     SwishjamAPI.Reports.disable(reportId).then(({ report, error }) => {
       if (error) {
-        toast("Uh oh! Something went wrong.", {
+        toast.error("Uh oh! Something went wrong.", {
           description: "Contact founders@swishjam.com for help",
         })
       } else {
@@ -35,7 +38,7 @@ export default function ReportsPage() {
   const resumeReport = async (reportId) => {
     SwishjamAPI.Reports.enable(reportId).then(({ report, error }) => {
       if (error) {
-        toast("Uh oh! Something went wrong.", {
+        toast.error("Uh oh! Something went wrong.", {
           description: error,
         })
       } else {
@@ -75,7 +78,16 @@ export default function ReportsPage() {
     <div>
       <div className="flex items-center justify-between">
         <h2 className="text-md font-medium text-gray-700 mb-0">Reports</h2>
-        {hasSlackConnection && <AddReportModal open={open} setOpen={setOpen} onNewReport={newReport => setReports([...reports, newReport])} />}
+        {hasSlackConnection && 
+          <Link href="/automations/reports/new">
+            <Button
+              className={`duration-300 transition-all ml-2 flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white focus:outline-none focus:ring-2 bg-swishjam hover:bg-swishjam-dark`}
+            >
+              <LuPlus className="h-4 w-4 mt-0.5 mr-2" />
+              New Report
+            </Button>
+          </Link> 
+        }
       </div>
       {reports === undefined ? (
         <div>
@@ -88,7 +100,7 @@ export default function ReportsPage() {
           <div>
             <ul role="list" className="w-full space-y-2 mt-8">
               {reports.sort((a, b) => new Date(a.created_at) - new Date(b.created_at)).map(report => (
-                <li key={report.id} className="bg-white relative flex items-center space-x-4 px-4 py-2 border border-gray-300 rounded">
+                <li key={report.id} className="bg-white relative flex items-center space-x-4 px-4 py-2 border border-zinc-00 rounded-md shadow-sm">
                   <div className="min-w-0 flex-auto">
                     <div className="flex items-center gap-x-3">
                       {report.sending_mechanism == 'slack' && <SiSlack className="w-4 h-4" />}
@@ -100,7 +112,7 @@ export default function ReportsPage() {
                   </div>
                   {report.enabled &&
                     <div className="inline-flex items-center gap-x-1.5 px-1.5 capitalize">
-                      <LuClock className="w-4 h-4" />
+                      {report.cadence == 'daily' ? <LuClock className="w-5 h-5" />:<LuCalendarDays className="w-5 h-5" />}
                       {report.cadence}
                     </div>
                   }
@@ -122,25 +134,31 @@ export default function ReportsPage() {
 
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Cog6ToothIcon className="h-5 w-5 hover:text-swishjam cursor-pointer duration-300 transition-all" aria-hidden="true" />
+                      <div>
+                        <LuSettings className='h-5 w-5 hover:text-swishjam cursor-pointer duration-300 transition-all' />
+                      </div> 
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent className="w-36" align={'end'}>
-                      <DropdownMenuLabel>Edit Report</DropdownMenuLabel>
-                      <DropdownMenuSeparator />
+                    <DropdownMenuContent className="w-36 border-zinc-200 shadow-sm border-sm" align={'end'}>
+                      <Link href={`/automations/reports/${report.id}/edit`}>
+                        <DropdownMenuItem className='cursor-pointer'>
+                          <LuPencil className='h-4 w-4 inline-block mr-2' />
+                          Edit
+                        </DropdownMenuItem>
+                      </Link>                    
                       <DropdownMenuGroup>
                         {report.enabled ? (
                           <DropdownMenuItem onClick={() => pauseReport(report.id)} className="cursor-pointer">
-                            <PauseCircleIcon className='h-4 w-4 inline-block mr-2' />
+                            <LuPause className='h-4 w-4 inline-block mr-2' />
                             Pause
                           </DropdownMenuItem>
                         ) : (
                           <DropdownMenuItem onClick={() => resumeReport(report.id)} className="cursor-pointer">
-                            <PlayCircleIcon className='h-4 w-4 inline-block mr-2' />
+                            <LuPlay className='h-4 w-4 inline-block mr-2' />
                             Resume
                           </DropdownMenuItem>
                         )}
                         <DropdownMenuItem className="!text-red-400 cursor-pointer" onClick={() => deleteReport(report.id)}>
-                          <TrashIcon className='h-4 w-4 inline-block mr-2' />
+                          <LuTrash className='h-4 w-4 inline-block mr-2' />
                           Delete
                         </DropdownMenuItem>
                       </DropdownMenuGroup>

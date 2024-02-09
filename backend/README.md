@@ -30,3 +30,7 @@ Things you may want to cover:
 - Turn on redis server, in /backend run `redis-server`
 - Turn on the worker, in /backend run `bundle exec sidekiq`
 - Turn on clickhouse, in /backend/clickhouse-server (or where you installed clickhouse) run `./clickhouse server`
+
+
+##### Setting up Slack to test locally
+`Integrations::Destinations::Slack.create!(workspace: Workspace.last, enabled: true, config: { access_token: "YOUR_SLACK_ACCESS_TOKEN" })`

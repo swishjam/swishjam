@@ -1,5 +1,6 @@
 class Workspace < Transactional
   has_many :analytics_user_profiles, dependent: :destroy
+  has_many :analytics_user_profile_devices, dependent: :destroy
   has_many :analytics_organization_profiles, dependent: :destroy
   has_many :api_keys, dependent: :destroy
   has_many :customer_subscriptions, dependent: :destroy
@@ -14,7 +15,6 @@ class Workspace < Transactional
   has_many :retention_cohorts, dependent: :destroy
   has_many :retention_cohort_activity_periods, through: :retention_cohorts
   has_one :settings, class_name: WorkspaceSetting.to_s, dependent: :destroy
-  has_one :slack_connection, dependent: :destroy
   has_many :workspace_invitations, dependent: :destroy
   has_many :workspace_members, dependent: :destroy
   has_many :users, through: :workspace_members

@@ -5,7 +5,7 @@ module Api
 
       def unique
         params[:data_source] ||= 'all'
-        limit = params[:limit] || 50
+        limit = (params[:limit] || 50).to_i
         events = ClickHouseQueries::Events::Unique::List.new(public_keys_for_requested_data_source, limit: limit, start_time: 6.months.ago, end_time: Time.current).get
         render json: events, status: :ok
       end
@@ -134,8 +134,8 @@ module Api
       def count
         params[:data_source] ||= 'all'
         event_name = URI.decode_uri_component(params[:name])
-        count = ClickHouseQueries::Events::Count::Total.new(public_keys_for_requested_data_source, event_name: event_name, start_time: start_timestamp, end_time: end_timestamp).get
-        comparison_count = ClickHouseQueries::Events::Count::Total.new(public_keys_for_requested_data_source, event_name: event_name, start_time: comparison_start_timestamp, end_time: comparison_end_timestamp).get
+        count = ClickHouseQueries::Events::Count::Total.new(public_keys_for_requested_data_source, event: event_name, start_time: start_timestamp, end_time: end_timestamp).get
+        comparison_count = ClickHouseQueries::Events::Count::Total.new(public_keys_for_requested_data_source, event: event_name, start_time: comparison_start_timestamp, end_time: comparison_end_timestamp).get
         render json: { 
           count: count, 
           comparison_count: comparison_count,
@@ -149,22 +149,22 @@ module Api
       def show
         params[:data_source] ||= 'all'
 
-        timeseries = ClickHouseQueries::Event::Timeseries.new(
+        timeseries = ClickHouseQueries::Events::Timeseries.new(
           public_keys_for_requested_data_source, 
-          event_name: params[:name],
+          event: params[:name],
           start_time: start_timestamp,
           end_time: end_timestamp
-        ).timeseries
+        ).get
 
-        comparison_timeseries = ClickHouseQueries::Event::Timeseries.new(
+        comparison_timeseries = ClickHouseQueries::Events::Timeseries.new(
           public_keys_for_requested_data_source, 
-          event_name: params[:name],
+          event: params[:name],
           start_time: comparison_start_timestamp,
           end_time: comparison_end_timestamp
-        ).timeseries
+        ).get
 
         top_attributes = ClickHouseQueries::Event::PropertyCounts.new(public_keys_for_requested_data_source, event_name: params[:name]).get
-        top_users = ClickHouseQueries::Event::TopUsers::List.new(public_keys_for_requested_data_source, event_name: params[:name]).get
+        top_users = ClickHouseQueries::Event::TopUsers::List.new(public_keys_for_requested_data_source, workspace_id: current_workspace.id, event_name: params[:name]).get
 
         render json: {
           timeseries: timeseries.formatted_data,

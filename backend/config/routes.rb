@@ -1,17 +1,7 @@
 require 'sidekiq/web'
+require 'sidekiq/api'
 
 Rails.application.routes.draw do
-  Sidekiq::Web.use Rack::Auth::Basic do |username, password|
-    # Protect against timing attacks:
-    # - See https://codahale.com/a-lesson-in-timing-attacks/
-    # - See https://thisdata.com/blog/timing-attacks-against-string-comparison/
-    # - Use & (do not use &&) so that it doesn't short circuit.
-    # - Use digests to stop length information leaking (see also ActiveSupport::SecurityUtils.variable_size_secure_compare)
-    ActiveSupport::SecurityUtils.secure_compare(::Digest::SHA256.hexdigest(username), ::Digest::SHA256.hexdigest(ENV["SIDEKIQ_USERNAME"])) &
-      ActiveSupport::SecurityUtils.secure_compare(::Digest::SHA256.hexdigest(password), ::Digest::SHA256.hexdigest(ENV["SIDEKIQ_PASSWORD"]))
-  end if Rails.env.production?
-  mount Sidekiq::Web => '/sidekiq'
-
   post '/auth/register' => 'users#create'
   post '/auth/login' => 'sessions#create'
   post '/auth/logout' => 'sessions#destroy'
@@ -26,8 +16,9 @@ Rails.application.routes.draw do
   namespace :api do
     namespace :v1 do
 
-      get :capture, to: 'capture#process_data'
+      # get :capture, to: 'capture#process_data'
       post :capture, to: 'capture#process_data'
+      post :event, to: 'capture#server_side_event'
 
       resources :config, only: [:index]
       resources :search, only: [:index]
@@ -94,7 +85,8 @@ Rails.application.routes.draw do
         collection do
           get :active
           get :timeseries
-          get :unique_attributes
+          get :unique_properties
+          get :unique_property_values
         end
         resources :events, only: [:index], controller: :'users/events'
         resources :organizations, only: [:index], controller: :'users/organizations'
@@ -199,12 +191,16 @@ Rails.application.routes.draw do
         end
       end
 
-      resources :event_triggers, only: [:destroy, :index, :create] do
-        member do
+      resources :event_triggers do
+        collection do
           post :test_trigger
+        end
+        member do
+          # post :test_trigger
           patch :enable
           patch :disable
         end
+        resources :triggered_event_triggers, only: [:index]
       end
 
       resources :slack_connections, only: [:index]
@@ -214,7 +210,7 @@ Rails.application.routes.draw do
         end
       end
 
-      resources :reports, only: [:destroy, :index, :create] do
+      resources :reports do
         member do
           patch :enable
           patch :disable
@@ -229,12 +225,44 @@ Rails.application.routes.draw do
       end
 
       resources :do_not_enrich_user_profile_rules, only: [:create, :destroy]
+      namespace :saas_metrics, only: [] do
+        resources :revenue, only: [] do
+          collection do
+            get :timeseries
+            get :retention
+            get :heatmap
+            get :per_customer_timeseries
+          end
+        end
+        resources :free_trials, only: [] do
+          get :timeseries, on: :collection
+        end
+        resources :customers, only: [] do
+          get :timeseries, on: :collection
+        end
+        resources :churn, only: [] do
+          get :timeseries, on: :collection
+        end
+        resources :churn_rate, only: [] do
+          get :timeseries, on: :collection
+        end
+        resources :mrr, only: [] do
+          collection do
+            get :timeseries
+            get :heatmap
+          end
+        end
+        resources :mrr_movement, only: [] do
+          get :stacked_bar_chart, on: :collection
+        end
+      end
       
       get :'/admin/ingestion/queuing', to: 'admin/ingestion#queueing'
       get :'/admin/ingestion/queue_stats', to: 'admin/ingestion#queue_stats'
       get :'/admin/ingestion/event_counts', to: 'admin/ingestion#event_counts'
       get :'/admin/ingestion/ingestion_batches', to: 'admin/ingestion#ingestion_batches'
       get :'/admin/data_syncs', to: 'admin/data_syncs#index'
+      get :'/admin/event_triggers/delay_time_timeseries', to: 'admin/event_triggers#delay_time_timeseries'
 
       namespace :webhooks do
         post :'cal_com/:workspace_id', to: 'cal_com#receive'
@@ -245,4 +273,25 @@ Rails.application.routes.draw do
       end
     end
   end
+
+  ####################
+  ## SIDEKIQ ROUTES ##
+  ####################
+  Sidekiq::Web.use Rack::Auth::Basic do |username, password|
+    ActiveSupport::SecurityUtils.secure_compare(::Digest::SHA256.hexdigest(password), ::Digest::SHA256.hexdigest(ENV["SIDEKIQ_PASSWORD"]))
+  end if Rails.env.production?
+  mount Sidekiq::Web => '/sidekiq'
+  match "queues/status" => proc {
+    [
+      200, 
+      {"Content-Type" => "text/plain"}, 
+      [
+        Hash.new.tap do |h|
+          Sidekiq::Queue.all.each do |q|
+            h[q.name] = { size: q.size, latency: q.latency }
+          end
+        end.to_json
+      ]
+    ] 
+  }, via: :get
 end

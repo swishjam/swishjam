@@ -24,7 +24,7 @@ class ApiKey < Transactional
   # validate :one_enabled_key_per_data_source, on: [:create, :update]
   before_validation { self.enabled = true if self.enabled.nil? }
   before_validation { self.data_source = self.data_source&.downcase }
-  before_validation :generate_keys, on: :create
+  before_validation :generate_keys, on: :create 
 
   scope :enabled, -> { where(enabled: true) }
   scope :disabled, -> { where(enabled: false) }
@@ -32,17 +32,25 @@ class ApiKey < Transactional
   def self.generate_default_keys_for(workspace)
     return false if workspace.api_keys.any?
     workspace.api_keys.insert_all([
-      { data_source: ReservedDataSources.PRODUCT , public_key: generate_key("swishjam_prdct", :public_key), private_key: generate_key("swishjam_prdct", :private_key), enabled: true, created_at: Time.current, updated_at: Time.current }, 
-      { data_source: ReservedDataSources.MARKETING, public_key: generate_key("swishjam_mrkt", :public_key), private_key: generate_key("swishjam_mrkt", :private_key), enabled: true, created_at: Time.current, updated_at: Time.current },
+      { data_source: ReservedDataSources.PRODUCT , public_key: generate_key("public--swishjam_prdct", :public_key), private_key: generate_key("private--swishjam_prdct", :private_key), enabled: true, created_at: Time.current, updated_at: Time.current }, 
+      { data_source: ReservedDataSources.MARKETING, public_key: generate_key("public--swishjam_web", :public_key), private_key: generate_key("private--swishjam_web", :private_key), enabled: true, created_at: Time.current, updated_at: Time.current },
     ])
   end
 
-  def self.for_data_source(data_source)
-    enabled.find_by(data_source: data_source)
+  def self.for_data_source(data_source, enabled_only: false)
+    if enabled_only
+      enabled.find_by(data_source: data_source)
+    else
+      find_by(data_source: data_source)
+    end
   end
 
-  def self.for_data_source!(data_source)
-    enabled.find_by!(data_source: data_source)
+  def self.for_data_source!(data_source, enabled_only: false)
+    if enabled_only
+      enabled.find_by!(data_source: data_source)
+    else
+      find_by!(data_source: data_source)
+    end
   rescue ActiveRecord::RecordNotFound => e
     raise ActiveRecord::RecordNotFound, "No enabled API key found for data source: #{data_source}"
   end
@@ -62,7 +70,7 @@ class ApiKey < Transactional
   def generate_keys
     prefix = {
       ReservedDataSources.PRODUCT => 'swishjam_prdct',
-      ReservedDataSources.MARKETING => 'swishjam_mrkt',
+      ReservedDataSources.MARKETING => 'swishjam_web',
     }[self.data_source] || "swishjam_#{data_source[0..5]}"
     self.public_key = self.class.generate_key(prefix, :public_key)
     self.private_key = self.class.generate_key(prefix, :private_key)

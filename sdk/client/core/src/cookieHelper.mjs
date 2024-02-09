@@ -1,7 +1,7 @@
 import Util from "./util.mjs";
 
 export class CookieHelper {
-  static setCookie = ({ name, value, expiresIn, path, domain, secure }) => {
+  static setCookie = ({ name, value, expiresIn, path = '/', domain, secure }) => {
     let cookie = `${name}=${value}`;
     domain = domain || Util.smartCookieDomain();
     if (expiresIn) {

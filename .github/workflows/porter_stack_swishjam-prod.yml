@@ -2,6 +2,7 @@
   push:
     branches:
     - main
+    
 name: Deploy to swishjam-prod
 jobs:
   porter-deploy:

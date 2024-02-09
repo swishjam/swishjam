@@ -26,34 +26,43 @@ export class Base {
   }
 
   static async _request(method, urlPath, payload = {}) {
-    const filteredPayload = _filterUndefinedData(payload);
-    const opts = {
-      method: method,
-      headers: {
-        'Content-Type': 'application/json',
-        'X-Swishjam-Token': localStorage.getItem('swishjam-token'),
-      },
-    };
-    if (method === 'GET') {
-      urlPath += '?' + new URLSearchParams(filteredPayload).toString();
-    } else {
-      opts.body = JSON.stringify(filteredPayload);
-    }
-    const response = await fetch(`${API_HOST}${urlPath}`, opts);
-    if (response.status === 401) {
-      window.location.href = `/logout?return_url=${window.location.pathname}`
-      return {};
-    } else if (response.status === 500) {
-      Sentry.captureMessage('API 500 error in client', {
-        extra: { method, urlPath, payload },
-      })
+    try {
+      const filteredPayload = _filterUndefinedData(payload);
+      const opts = {
+        method: method,
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Swishjam-Token': localStorage.getItem('swishjam-token'),
+        },
+      };
+      if (method === 'GET') {
+        urlPath += '?' + new URLSearchParams(filteredPayload).toString();
+      } else {
+        opts.body = JSON.stringify(filteredPayload);
+      }
+      const response = await fetch(`${API_HOST}${urlPath}`, opts);
+      if (response.status === 401) {
+        window.location.href = `/logout?return_url=${window.location.pathname}`
+        return {};
+      } else if (response.status === 500) {
+        Sentry.captureMessage('API 500 error in client', {
+          extra: { method, urlPath, payload },
+        })
+        toast.error('An unexpected error occurred..', {
+          description: 'We\'re actively looking into the issue. Please contact founders@swishjam.com for help.',
+          duration: 10_000,
+        })
+        return { error: 'An unexpected error occurred.' };
+      } else {
+        return await response.json();
+      }
+    } catch (err) {
+      Sentry.captureException(err);
       toast.error('An unexpected error occurred..', {
-        description: 'We\'re actively looking into the issue. Please contact founders@swishjam.com for help.',
+        description: 'We\'re actively looking into the issue. Please try again later.',
         duration: 10_000,
       })
       return { error: 'An unexpected error occurred.' };
-    } else {
-      return await response.json();
     }
   }
 }

@@ -19,5 +19,9 @@ module SharedMethods
     def self.oldest(column = :created_at)
       self.least_recent(column)
     end
+
+    def self.older_than(time, column: :created_at)
+      where("#{column} < ?", time)
+    end
   end
 end

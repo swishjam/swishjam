@@ -1,30 +1,81 @@
 class AnalyticsUserProfile < Transactional
+  class ReservedMetadataProperties
+    class << self
+      PROPERTY_NAMES = %i[INITIAL_LANDING_PAGE_URL INITIAL_REFERRER_URL GRAVATAR_URL]
+      
+      def all
+        PROPERTY_NAMES
+      end
+
+      PROPERTY_NAMES.each do |property_name|
+        define_method(property_name) do
+          property_name.to_s.downcase
+        end
+      end
+    end
+  end
+
   belongs_to :workspace
+<<<<<<< HEAD
   # has_one :user_profile_enrichment_data, class_name: UserProfileEnrichmentData.to_s, dependent: :destroy
   has_one :enriched_data, as: :enrichable, dependent: :destroy
   alias_attribute :enrichment_data, :enriched_data
   
+=======
+  has_one :user_profile_enrichment_data, class_name: UserProfileEnrichmentData.to_s, dependent: :destroy
+  alias_attribute :enrichment_data, :user_profile_enrichment_data
+
+  has_many :analytics_user_profile_devices, dependent: :destroy
+>>>>>>> main
   has_many :analytics_organization_members, dependent: :destroy
   has_many :analytics_organization_profiles, through: :analytics_organization_members
   alias_attribute :organizations, :analytics_organization_profiles
   has_many :customer_subscriptions, as: :parent_profile, dependent: :destroy
   has_many :enrichment_attempts, as: :enrichable, dependent: :destroy
 
+  attribute :metadata, :jsonb, default: {}
+
   validates :user_unique_identifier, uniqueness: { scope: :workspace_id }, if: -> { user_unique_identifier.present? }
 
-  # after_create :try_to_set_gravatar_url
+  scope :anonymous, -> { where(user_unique_identifier: nil, email: nil) }
+  scope :identified, -> { where.not(user_unique_identifier: nil).or(where.not(email: nil)) }
+
   before_create :try_to_set_gravatar_url
   after_create :enrich_profile!
   after_create :enqueue_replication_to_clickhouse
   after_update :enqueue_replication_to_clickhouse
 
+  ReservedMetadataProperties.all.each do |property_name|
+    define_method(property_name.to_s.downcase) do
+      metadata[property_name.to_s.downcase]
+    end
+  end
+
   def self.find_by_case_insensitive_email(email)
     where("lower(email) = ?", email.downcase).first
   end
 
+  def anonymous?
+    user_unique_identifier.blank?
+  end
+  alias is_anonymous? anonymous?
+  alias anonymous anonymous?
+  alias is_anonymous anonymous?
+
   def full_name
-    return nil if first_name.blank? || last_name.blank?
-    "#{first_name} #{last_name}"
+    if first_name.blank? || last_name.blank?
+      metadata['name'] || metadata['fullName'] || metadata['full_name']
+    else
+      "#{first_name} #{last_name}"
+    end
+  end
+
+  def first_name
+    metadata['firstName'] || metadata['first_name']
+  end
+
+  def last_name
+    metadata['lastName'] || metadata['last_name']
   end
 
   def initials
@@ -51,54 +102,26 @@ class AnalyticsUserProfile < Transactional
     url = "https://www.gravatar.com/avatar/#{Digest::MD5.hexdigest(email.downcase)}?d=404"
     response = HTTParty.get(url)
     return unless response.code == 200
-    self.gravatar_url = url
-    # update_column :gravatar_url, url
+    self.metadata.merge!(gravatar_url: url)
   end
 
   def enqueue_replication_to_clickhouse
-    Ingestion::QueueManager.push_records_into_queue(Ingestion::QueueManager::Queues.CLICKHOUSE_USER_PROFILES, formatted_for_clickhouse_replication)
+    Ingestion::QueueManager.push_records_into_queue(Ingestion::QueueManager::Queues.CLICK_HOUSE_USER_PROFILES, formatted_for_clickhouse_replication)
   end
-
+  
   private
 
   def formatted_for_clickhouse_replication
     {
       workspace_id: workspace_id,
       swishjam_user_id: id,
-      swishjam_api_key: workspace.api_keys.for_data_source!(ApiKey::ReservedDataSources.PRODUCT).public_key,
       user_unique_identifier: user_unique_identifier,
       email: email,
-      first_name: first_name,
-      last_name: last_name,
-      full_name: full_name,
-      gravatar_url: gravatar_url,
-      initial_landing_page_url: initial_landing_page_url,
-      initial_referrer_url: initial_referrer_url,
-      lifetime_value_in_cents: lifetime_value_in_cents,
-      monthly_recurring_revenue_in_cents: customer_subscriptions.active.sum{ |sub| StripeHelpers::MrrCalculator.calculate_for_swishjam_subscription_record(sub) },
-      current_subscription_plan_name: customer_subscriptions.active.not_canceled.map{ |sub| sub.customer_subscription_items.map(&:product_name) }.flatten.join(', '),
+      merged_into_swishjam_user_id: merged_into_analytics_user_profile_id,
       created_by_data_source: created_by_data_source,
-      metadata: (immutable_metadata || {}).merge(metadata || {}).to_json,
-      # TODO: move all enrichment data into a JSON blob so it can be polymorphic
-      # enrichment_match_likelihood: enrichment_data&.match_likelihood,
-      # enrichment_first_name: enrichment_data&.first_name,
-      # enrichment_last_name: enrichment_data&.last_name,
-      # enrichment_linkedin_url: enrichment_data&.linkedin_url,
-      # enrichment_twitter_url: enrichment_data&.twitter_url,
-      # enrichment_github_url: enrichment_data&.github_url,
-      # enrichment_personal_email: enrichment_data&.personal_email,
-      # enrichment_industry: enrichment_data&.industry,
-      # enrichment_job_title: enrichment_data&.job_title,
-      # enrichment_company_name: enrichment_data&.company_name,
-      # enrichment_company_website: enrichment_data&.company_website,
-      # enrichment_company_size: enrichment_data&.company_size,
-      # enrichment_year_company_founded: enrichment_data&.year_company_founded,
-      # enrichment_company_industry: enrichment_data&.company_industry,
-      # enrichment_company_linkedin_url: enrichment_data&.company_linkedin_url,
-      # enrichment_company_twitter_url: enrichment_data&.company_twitter_url,
-      # enrichment_company_location_metro: enrichment_data&.company_location_metro,
-      # enrichment_company_location_geo_coordinates: enrichment_data&.company_location_geo_coordinates,
+      metadata: (metadata || {}).to_json,
       first_seen_at_in_web_app: first_seen_at_in_web_app,
+      last_seen_at_in_web_app: last_seen_at_in_web_app,
       created_at: created_at,
       updated_at: updated_at,
       last_updated_from_transactional_db_at: Time.current,

@@ -9,7 +9,7 @@ import { useState } from 'react'
 import useAuthData from "@/hooks/useAuthData";
 import CopiableSnippet from "./CopiableSnippet";
 
-export default function CalComConnectView({ onNewConnection }) {
+export default function CalComConnectView({ onNewIntegration }) {
   const { currentWorkspaceId } = useAuthData();
 
   const [errorMessage, setErrorMessage] = useState();
@@ -29,7 +29,7 @@ export default function CalComConnectView({ onNewConnection }) {
       setErrorMessage(error);
     } else {
       setShowSuccessMessage(true);
-      onNewConnection({ name: 'Cal.com', ...integration })
+      onNewIntegration({ name: 'Cal.com', ...integration })
     }
   }
 

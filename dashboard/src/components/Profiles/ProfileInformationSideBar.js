@@ -34,7 +34,7 @@ export default function ProfileInformationSideBar({ userData, hasStripeIntegrati
             {/* {userData.poweruser ? <PowerUserBadge className="absolute top-5 right-5" size={8} /> : ''}
             {userData.churnwarning ? <ChurnWarningUserBadge className="absolute top-5 right-5" size={8} /> : ''} */}
             <CardTitle className='text-2xl'>
-              {userData.full_name || userData.email || userData.user_unique_identifier}
+              {userData.full_name || userData.email || userData.user_unique_identifier || (<>Anonymous User <span className='italic'>{userData.id.slice(0, 6)}</span></>)}
             </CardTitle>
             {userData.full_name && (
               <CardDescription className='text-base text-gray-500'>
@@ -58,7 +58,7 @@ export default function ProfileInformationSideBar({ userData, hasStripeIntegrati
               <div className="px-4 py-2 col-span-1 grid grid-cols-2 sm:px-0">
                 <dt className="text-sm font-medium leading-6 text-gray-900">First Identified</dt>
                 <dd className="text-sm leading-6 text-gray-700 text-right">
-                  {dateFormatter(userData.created_at)}
+                  {dateFormatter(userData.first_seen_at_in_web_app || userData.created_at)}
                 </dd>
               </div>
               {/* <div className="px-4 py-2 col-span-1 grid grid-cols-2 sm:px-0">
@@ -85,14 +85,14 @@ export default function ProfileInformationSideBar({ userData, hasStripeIntegrati
               <>
                 <EnrichedDataItem
                   title='Initial Referrer'
-                  enrichmentData={{ initial_referrer: userData?.immutable_metadata?.initial_referrer }}
+                  enrichmentData={{ initial_referrer: userData.metadata.initial_referrer_url }}
                   enrichmentKey='initial_referrer'
                   formatter={referrer => referrer === '' ? 'Direct' : referrer}
                 />
                 <EnrichedDataItem
                   title='Initial Landing Page'
-                  enrichmentData={{ initial_url: userData?.immutable_metadata?.initial_url }}
-                  enrichmentKey='initial_url'
+                  enrichmentData={{ initial_landing_page_url: userData.metadata.initial_landing_page_url }}
+                  enrichmentKey='initial_landing_page_url'
                   formatter={url => (
                     <Tooltipable content={url}>
                       <a
@@ -116,7 +116,7 @@ export default function ProfileInformationSideBar({ userData, hasStripeIntegrati
                         direction="right"
                         content={
                           <div className='px-4 py-2 text-sm text-gray-500'>
-                            Payment data is not enabled. <a href='/data-sources' target='_blank' className='text-blue-400 hover:underline'>Connect your Stripe account</a> to begin importing your payments data to Swishjam.
+                            Payment data is not enabled. <a href='/integrations' target='_blank' className='text-blue-400 hover:underline'>Connect your Stripe account</a> to begin importing your payments data to Swishjam.
                           </div>
                         }
                       >
@@ -348,9 +348,9 @@ export default function ProfileInformationSideBar({ userData, hasStripeIntegrati
                   <dd className="text-sm leading-6 text-gray-700 text-right">
                     {userData.metadata
                       ? (
-                        Object.keys(userData.metadata).map(key => (
-                          <span className='block'>{key}: {userData.metadata[key]}</span>
-                        ))
+                        Object.keys(userData.metadata)
+                          .filter(key => !['name', 'firstName', 'first_name', 'lastName', 'last_name', 'initial_landing_page_url', 'initial_referrer_url', 'gravatar_url'].includes(key))
+                          .map(key => <span className='block'>{key}: {userData.metadata[key]}</span>)
                       )
                       : 'No attributes provided.'}
                   </dd>

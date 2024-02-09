@@ -1,16 +1,23 @@
 module Ingestion
   class QueueManager
     class Queues
+      # EVENTS_TO_PREPARE is only used for its DLQ when we fail to prepare any or all events during Ingestion::EventsPreparer#prepare_events!
+      QUEUE_NAMES = %i[
+        EVENTS_TO_PREPARE
+        PREPARED_EVENTS 
+        CLICK_HOUSE_USER_PROFILES
+        CLICK_HOUSE_ORGANIZATION_PROFILES
+        CLICK_HOUSE_ORGANIZATION_MEMBERS
+      ]
+      
       class << self
-        %i[
-          EVENTS EVENTS_DEAD_LETTER_QUEUE
-          IDENTIFY IDENTIFY_DEAD_LETTER_QUEUE
-          ORGANIZATION ORGANIZATION_DEAD_LETTER_QUEUE
-          CLICKHOUSE_USER_PROFILES CLICKHOUSE_USER_PROFILE_DEAD_LETTER_QUEUE
-          CLICKHOUSE_ORGANIZATION_PROFILES CLICKHOUSE_ORGANIZATION_PROFILE_DEAD_LETTER_QUEUE
-          CLICKHOUSE_ORGANIZATION_MEMBERS CLICKHOUSE_ORGANIZATION_MEMBERS_DEAD_LETTER_QUEUE
-        ].each do |method|
+        def all
+          QUEUE_NAMES.map{ |q| [send(q), send("#{q}_DLQ")] }.flatten
+        end
+
+        QUEUE_NAMES.each do |method|
           define_method(method.to_s.upcase) { "#{method.to_s.downcase}_ingestion_queue" }
+          define_method("#{method.to_s.upcase}_DLQ") { "#{method.to_s.downcase}_ingestion_dead_letter_queue" }
         end
       end
     end
@@ -32,6 +39,7 @@ module Ingestion
 
     def self.push_records_into_queue(queue, records)
       records = records.is_a?(Array) ? records : [records]
+      return if records.empty?
       stringified_records = records.map{ |r| r.to_json }
       redis do |conn|
         conn.lpush(queue, stringified_records)

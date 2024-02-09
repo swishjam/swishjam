@@ -1,36 +1,58 @@
 'use client'
 
+import { ArrowPathIcon } from "@heroicons/react/24/outline";
 import BarList from "@/components/Dashboards/Components/BarList";
 import Breadcrumbs from "@/components/Breadcrumbs";
+import { Button } from "@/components/ui/button";
 import EventFeed from "@/components/Dashboards/Components/EventFeed";
 import LoadingView from "./LoadingView";
 import LineChartWithValue from '@/components/Dashboards/Components/LineChartWithValue';
 import ProfileInformationSideBar from "@/components/Profiles/ProfileInformationSideBar";
+import { setStateFromTimeseriesResponse } from "@/lib/utils/timeseriesHelpers";
 import { SwishjamAPI } from "@/lib/api-client/swishjam-api";
 import { useEffect, useState } from "react";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const UserProfile = ({ params }) => {
   const { id: userId } = params;
   const [hasProfileEnrichmentEnabled, setHasProfileEnrichmentEnabled] = useState();
   const [hasStripeIntegrationEnabled, setHasStripeIntegrationEnabled] = useState();
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const [pageViewsData, setPageViewsData] = useState();
   const [recentEvents, setRecentEvents] = useState();
   const [sessionTimeseriesData, setSessionTimeseriesData] = useState();
   const [userData, setUserData] = useState();
   // const [organizationsListExpanded, setOrganizationsListExpanded] = useState(false);
 
-  useEffect(() => {
-    SwishjamAPI.Users.retrieve(userId).then(setUserData);
-    SwishjamAPI.Users.Events.list(userId, { limit: 5 }).then(setRecentEvents);
-    SwishjamAPI.Users.PageViews.list(userId).then(pageViews => {
+  const getEvents = async () => {
+    return await SwishjamAPI.Users.Events.list(userId, { limit: 5 }).then(setRecentEvents);
+  }
+
+  const getPageViews = async () => {
+    return await SwishjamAPI.Users.PageViews.list(userId).then(pageViews => {
       setPageViewsData(pageViews.map(({ url, count }) => ({ name: url, value: count })));
     });
-    SwishjamAPI.Users.Sessions.timeseries(userId).then(({ timeseries }) => {
-      setSessionTimeseriesData({
-        timeseries,
-        value: timeseries.map(({ value }) => value).reduce((a, b) => a + b, 0),
-      })
-    });
+  }
+
+  const getSessions = async () => {
+    return await SwishjamAPI.Users.Sessions.timeseries(userId).then(data => setStateFromTimeseriesResponse(data, setSessionTimeseriesData));
+  }
+
+  const getAllData = async () => {
+    setRecentEvents();
+    setPageViewsData();
+    setSessionTimeseriesData();
+    setIsRefreshing(true);
+    await Promise.all([
+      getEvents(),
+      getPageViews(),
+      getSessions(),
+    ])
+    setIsRefreshing(false);
+  }
+
+  useEffect(() => {
+    SwishjamAPI.Users.retrieve(userId).then(setUserData);
     SwishjamAPI.Integrations.list().then(({ enabled_integrations }) => {
       const stripeIntegration = enabled_integrations.find(({ name }) => name.toLowerCase() === 'stripe');
       setHasStripeIntegrationEnabled(stripeIntegration !== undefined);
@@ -38,23 +60,34 @@ const UserProfile = ({ params }) => {
     SwishjamAPI.Config.retrieve().then(({ settings }) => {
       setHasProfileEnrichmentEnabled(settings.should_enrich_user_profile_data === true);
     });
+    getAllData();
   }, [])
-
-  const breadcrumbPaths = [
-    {
-      title: 'Users',
-      url: '/users'
-    },
-    {
-      title: userData?.full_name || userData?.email || `Un-named User: ${userData?.user_unique_identifier}`,
-      url: null
-    }
-  ]
 
   return (
     userData ? (
       <main className="mx-auto max-w-7xl px-4 mt-8 sm:px-6 lg:px-8 mb-8">
-        <Breadcrumbs paths={breadcrumbPaths} />
+        <div className='flex justify-between items-center'>
+          <Breadcrumbs
+            paths={[
+              {
+                title: 'Users',
+                url: '/users'
+              },
+              {
+                title: userData.full_name || userData.email || (userData.user_unique_identifier ? `Un-named User: ${userData.user_unique_identifier}` : `Anonymous User ${userData.id.slice(0, 6)}`),
+                url: null
+              }
+            ]}
+          />
+          <Button
+            variant="ghost"
+            className={`duration-500 transition-all mr-4 hover:text-swishjam ${isRefreshing ? "cursor-not-allowed text-swishjam" : ""}`}
+            onClick={getAllData}
+            disabled={isRefreshing}
+          >
+            <ArrowPathIcon className={`h-4 w-4 ${isRefreshing ? "animate-spin" : ""}`} />
+          </Button>
+        </div>
         <div className='grid grid-cols-10 gap-4 mt-8'>
           <ProfileInformationSideBar
             userData={userData}
@@ -87,7 +120,7 @@ const UserProfile = ({ params }) => {
               }}
               loadMoreEventsIncrement={5}
               rightItemKey='occurred_at'
-              rightItemKeyFormatter={date => new Date(date).toLocaleTimeString('en-us', { hour: 'numeric', minute: "2-digit" })}
+              rightItemKeyFormatter={date => new Date(date).toLocaleTimeString('en-us', { hour: 'numeric', minute: "2-digit", second: "2-digit" })}
               title='Recent Events'
               viewAllLink={`/users/${userId}/events`}
             />

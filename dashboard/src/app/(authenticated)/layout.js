@@ -1,23 +1,40 @@
 'use client'
 
-import dynamic from 'next/dynamic';
 import AuthenticatedView from "@/components/Auth/AuthenticatedView";
 import CommandBarProvider from '@/providers/CommandBarProvider';
+import dynamic from 'next/dynamic';
+import EnlargableDashboardComponentProvider from "@/providers/EnlargableDashboardComponentProvider";
 import HotKeyProvider from '@/providers/HotKeyProvider';
 import LoadingSpinner from '@/components/LoadingSpinner';
-import { Toaster } from 'sonner'
-import { IntercomProvider } from 'react-use-intercom';
+import SheetProvider from '@/providers/SheetProvider';
+import { Toaster, toast } from 'sonner'
+import { useSearchParams } from "next/navigation";
+import { useEffect } from "react";
+// import { IntercomProvider } from 'react-use-intercom';
 
 export default function layout({ children }) {
   const LoadingView = getLoadingView(children);
+
+  const searchParams = useSearchParams();
+  useEffect(() => {
+    const successMessage = searchParams.get('success');
+    if (successMessage) {
+      toast.success(successMessage);
+    }
+  }, [searchParams])
+
   return (
     <>
       {/* <IntercomProvider appId="p7d72soi" autoBoot={true}> */}
       <CommandBarProvider>
         <HotKeyProvider>
-          <AuthenticatedView LoadingView={LoadingView}>
-            {children}
-          </AuthenticatedView>
+          <SheetProvider>
+            <EnlargableDashboardComponentProvider>
+              <AuthenticatedView LoadingView={LoadingView}>
+                {children}
+              </AuthenticatedView>
+            </EnlargableDashboardComponentProvider>
+          </SheetProvider>
         </HotKeyProvider>
       </CommandBarProvider>
       {/* </IntercomProvider> */}

@@ -57,11 +57,11 @@ export default function BarListConfiguration({ onConfigurationSave = () => { } }
       })
     } else if (calculation === 'users' && eventName) {
       SwishjamAPI.Events.Users.list(eventName, { dataSource, limit: 10 }).then(data => {
-        const formattedData = data.map(({ id, email, full_name: _full_name, count }) => {
-          if (id) {
-            return { name: email, value: count }
-          } else {
-            return { name: <span className='italic'>Anonymous User</span>, value: count }
+        const formattedData = data.map(({ user_profile_id, email, metadata, count }) => {
+          return {
+            name: email || <span className='italic'>Anonymous User {user_profile_id.slice(0, 6)}</span>,
+            value: count,
+            href: `/users/${user_profile_id}`
           }
         })
         setBarListData(formattedData);
@@ -99,7 +99,7 @@ export default function BarListConfiguration({ onConfigurationSave = () => { } }
     <form onSubmit={onFormSubmit}>
       <h1 className='text-lg font-medium text-gray-700'>Bar List Configuration</h1>
       <h2 className='text-sm text-gray-500 mb-4'>Visualize data in an itemized list</h2>
-      <div className='grid grid-cols-2 gap-4 flex items-center'>
+      <div className='grid grid-cols-2 gap-4 items-center'>
         <div>
           <input className='input' placeholder='Bar List Title' value={title} onChange={e => setTitle(e.target.value)} />
         </div>

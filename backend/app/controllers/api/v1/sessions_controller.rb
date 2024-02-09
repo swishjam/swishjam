@@ -4,22 +4,27 @@ module Api
       include TimeseriesHelper
 
       def count
-        raise "Deprecated"
+        raise NotImplementedError, "This endpoint is deprecated"
       end
 
       def timeseries
         params[:data_source] ||= ApiKey::ReservedDataSources.MARKETING
 
-        timeseries = ClickHouseQueries::Sessions::Timeseries.new(
+        timeseries = ClickHouseQueries::Events::Timeseries.new(
           public_keys_for_requested_data_source,
+          event: ClickHouseQueries::Events::Timeseries.ANY_EVENT,
+          distinct_count_property: Analytics::Event::ReservedPropertyNames.SESSION_IDENTIFIER,
           start_time: start_timestamp,
-          end_time: end_timestamp
-        ).timeseries
-        comparison_timeseries = ClickHouseQueries::Sessions::Timeseries.new(
+          end_time: end_timestamp,
+        ).get
+
+        comparison_timeseries = ClickHouseQueries::Events::Timeseries.new(
           public_keys_for_requested_data_source,
+          event: ClickHouseQueries::Events::Timeseries.ANY_EVENT,
+          distinct_count_property: Analytics::Event::ReservedPropertyNames.SESSION_IDENTIFIER,
           start_time: comparison_start_timestamp,
-          end_time: comparison_end_timestamp
-        ).timeseries
+          end_time: comparison_end_timestamp,
+        ).get
 
         render json: {
           timeseries: timeseries.formatted_data,
@@ -37,46 +42,11 @@ module Api
       end
 
       def referrers
-        params[:data_source] ||= ApiKey::ReservedDataSources.MARKETING
-
-        params[:by_referrer_host] = params[:by_referrer_host].present?
-        querier = ClickHouseQueries::Sessions::Referrers::List.new(
-          public_keys_for_requested_data_source,
-          start_time: start_timestamp,
-          end_time: end_timestamp,
-          limit: params[:limit] || 10
-        )
-        referrers = params[:by_referrer_host] ? querier.by_host : querier.by_full_url
-        render json: { referrers: referrers, start_time: start_timestamp, end_time: end_timestamp }, status: :ok
+        raise NotImplementedError, "This endpoint is deprecated"
       end
 
       def demographics
-        limit = params[:limit] = 10
-        params[:data_source] ||= ApiKey::ReservedDataSources.MARKETING
-        params[:types] = JSON.parse(params[:types] || ['device_type', 'browser', 'city', 'region', 'country'].to_s)
-        json = { start_time: start_timestamp, end_time: end_timestamp }
-
-        if params[:types].include?('device_type')
-          json[:device_types] = ClickHouseQueries::Sessions::DeviceTypes::List.new(
-            public_keys_for_requested_data_source,
-            start_time: start_timestamp,
-            end_time: end_timestamp,
-          ).get
-        end
-        if params[:types].include?('browser')
-          json[:browsers] = ClickHouseQueries::Sessions::Browsers::List.new(
-            public_keys_for_requested_data_source,
-            start_time: start_timestamp,
-            end_time: end_timestamp,
-            limit: params[:limit] || 10
-          ).get
-        end
-
-        # json[:cities] = querier.get(:city) if params[:types].include?('city')
-        # json[:regions] = querier.get(:region) if params[:types].include?('region')
-        # json[:countries] = querier.get(:country) if params[:types].include?('country')
-
-        render json: json, status: :ok
+        raise NotImplementedError, "This endpoint is deprecated"
       end
     end
   end

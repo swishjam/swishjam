@@ -3,7 +3,7 @@ module ClickHouseQueries
     class Search
       include ClickHouseQueries::Helpers
 
-      def initialize(workspace_id, query:, limit: 10, columns: ['swishjam_user_id', 'email', 'full_name', 'gravatar_url', 'created_at'])
+      def initialize(workspace_id, query:, limit: 10, columns: ['swishjam_user_id', 'email', 'created_at'])
         @workspace_id = workspace_id.is_a?(Workspace) ? workspace_id.id : workspace_id
         @query = query.downcase
         @limit = limit
@@ -20,7 +20,7 @@ module ClickHouseQueries
           FROM swishjam_user_profiles as user_profiles
           WHERE 
             workspace_id = '#{@workspace_id}' AND
-            (LOWER(user_profiles.email) LIKE '%#{@query}%' OR LOWER(user_profiles.full_name) LIKE '%#{@query}%')
+            LOWER(user_profiles.email) LIKE '%#{@query}%'
           GROUP BY user_profiles.workspace_id, user_profiles.swishjam_user_id
           ORDER BY created_at DESC
           LIMIT #{@limit}

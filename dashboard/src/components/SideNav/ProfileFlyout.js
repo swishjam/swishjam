@@ -36,9 +36,9 @@ export default function UserFlyout() {
   return (
     <DropdownMenu className='w-full'>
       <DropdownMenuTrigger asChild>
-        <Button variant='outline' className='w-full border-none rounded-none flex justify-between !ring-0'>
+        <Button variant='outline' className='hover:bg-accent w-full border-none rounded-none flex justify-between !ring-0'>
           <div className='flex items-center truncate'>
-            <Avatar className="h-6 w-6 mr-2 bg-gray-300">
+            <Avatar className="h-6 w-6 mr-2 bg-gray-300 border border-slate-200">
               <AvatarImage src={`https://www.gravatar.com/avatar/${md5(email)}?d=mp`} />
             </Avatar>
             <span className='truncate text-gray-700'>{email}</span>

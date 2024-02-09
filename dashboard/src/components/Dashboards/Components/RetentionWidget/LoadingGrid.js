@@ -9,7 +9,7 @@ export default function LoadingState() {
             <th className="text-left text-sm text-gray-700 font-normal">
             </th>
             {Array.from(({ length: 10 }), (_, i) => (
-              <th key={i} className="text-left text-sm text-gray-700 text-center font-normal">
+              <th key={i} className="text-left text-sm text-gray-700 font-normal">
                 Week {i + 1}
               </th>
             ))}
@@ -22,9 +22,9 @@ export default function LoadingState() {
                 <td className="pr-2">
                   <Skeleton className='h-8 w-20' />
                 </td>
-                {Array.from(({ length: 10 }), (_, i) => (
-                  <td key={i}>
-                    <Skeleton className="w-20 h-20" />
+                {Array.from(({ length: 10 - i }), (_, j) => (
+                  <td key={j}>
+                    <Skeleton className="w-20 h-8" />
                   </td>
                 ))}
               </>

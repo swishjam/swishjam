@@ -5,14 +5,24 @@ module Api
         def index
           limit = params[:limit] || 10
           params[:data_source] ||= 'all'
-          querier = ClickHouseQueries::Users::PageViews::MostVisited::List.new(
+          list = ClickHouseQueries::Events::List.new(
             public_keys_for_requested_data_source,
-            user_profile_id: @user.id, 
+            workspace_id: current_workspace.id,
             start_time: start_timestamp,
             end_time: end_timestamp,
+            event: Analytics::Event::ReservedNames.PAGE_VIEW,
+            property: 'url',
+            user_profile_id: @user.id,
             limit: limit
-          )
-          render json: querier.get, status: :ok
+          ).get
+          # querier = ClickHouseQueries::Users::PageViews::MostVisited::List.new(
+          #   public_keys_for_requested_data_source,
+          #   user_profile_id: @user.id, 
+          #   start_time: start_timestamp,
+          #   end_time: end_timestamp,
+          #   limit: limit
+          # )
+          render json: list, status: :ok
         end
       end
     end

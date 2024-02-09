@@ -1,13 +1,9 @@
-'use client'
-
-import { Cog6ToothIcon, UserGroupIcon } from '@heroicons/react/24/outline'
-import { usePathname } from 'next/navigation';
-
+import { LuSettings, LuUser } from 'react-icons/lu'
 const isCurrentPage = (menuItemHref, currentPath) => currentPath == menuItemHref;
 
 const tabs = [
-  { name: 'Settings', href: '/settings', icon: Cog6ToothIcon },
-  { name: 'Team', href: '/settings/team', icon: UserGroupIcon },
+  { name: 'Settings', href: '/settings', icon: LuSettings },
+  { name: 'Team', href: '/settings/team', icon: LuUser },
 ]
 
 function classNames(...classes) {

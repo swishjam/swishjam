@@ -2,31 +2,42 @@ module Api
   module V1
     module Admin
       class IngestionController < BaseController
+        include TimeseriesHelper
+
         def queueing
-          diagnostics = ClickHouseQueries::Events::Diagnostics.new(start_time: 7.day.ago, end_time: Time.current, group_by: :minute).timeseries
-          formatted_timeseries = diagnostics.map{ |e| { date: e.timeperiod, value: e.average_ingestion_time }}
-          render json: formatted_timeseries, status: :ok
+          queueing_timeseries = ClickHouseQueries::Admin::IngestionQueueingTimes.new(start_time: 3.day.ago, end_time: Time.current).timeseries
+          render json: {
+            timeseries: queueing_timeseries,
+            start_time: 3.days.ago,
+            end_time: Time.current,
+            grouped_by: :minute,
+          }, status: :ok
         end
 
         def queue_stats
-          event_count = Ingestion::QueueManager.num_records_in_queue(Ingestion::QueueManager::Queues.EVENTS)
-          user_identify_count = Ingestion::QueueManager.num_records_in_queue(Ingestion::QueueManager::Queues.IDENTIFY)
-          organization_profile_count = Ingestion::QueueManager.num_records_in_queue(Ingestion::QueueManager::Queues.ORGANIZATION)
-          clickhouse_user_profile_count = Ingestion::QueueManager.num_records_in_queue(Ingestion::QueueManager::Queues.CLICKHOUSE_USER_PROFILES)
-          clickhouse_organization_profile_count = Ingestion::QueueManager.num_records_in_queue(Ingestion::QueueManager::Queues.CLICKHOUSE_ORGANIZATION_PROFILES)
-          clickhouse_organization_member_count = Ingestion::QueueManager.num_records_in_queue(Ingestion::QueueManager::Queues.CLICKHOUSE_ORGANIZATION_MEMBERS)
+          prepared_events = Ingestion::QueueManager.num_records_in_queue(Ingestion::QueueManager::Queues.PREPARED_EVENTS)
+          clickhouse_user_profiles = Ingestion::QueueManager.num_records_in_queue(Ingestion::QueueManager::Queues.CLICK_HOUSE_USER_PROFILES)
+          clickhouse_organization_profiles = Ingestion::QueueManager.num_records_in_queue(Ingestion::QueueManager::Queues.CLICK_HOUSE_ORGANIZATION_PROFILES)
+          clickhouse_organization_members = Ingestion::QueueManager.num_records_in_queue(Ingestion::QueueManager::Queues.CLICK_HOUSE_ORGANIZATION_MEMBERS)
+
+          prepared_events_dlq = Ingestion::QueueManager.num_records_in_queue(Ingestion::QueueManager::Queues.PREPARED_EVENTS_DLQ)
+          clickhouse_user_profiles_dlq = Ingestion::QueueManager.num_records_in_queue(Ingestion::QueueManager::Queues.CLICK_HOUSE_USER_PROFILES_DLQ)
+          clickhouse_organization_profiles_dlq = Ingestion::QueueManager.num_records_in_queue(Ingestion::QueueManager::Queues.CLICK_HOUSE_ORGANIZATION_PROFILES_DLQ)
+          clickhouse_organization_members_dlq = Ingestion::QueueManager.num_records_in_queue(Ingestion::QueueManager::Queues.CLICK_HOUSE_ORGANIZATION_MEMBERS_DLQ)
           render json: {
-            event_count: event_count,
-            user_identify_count: user_identify_count,
-            organization_profile_count: organization_profile_count,
-            clickhouse_user_profile_count: clickhouse_user_profile_count,
-            clickhouse_organization_profile_count: clickhouse_organization_profile_count,
-            clickhouse_organization_member_count: clickhouse_organization_member_count,
+            prepared_events_count: prepared_events,
+            clickhouse_user_profiles_count: clickhouse_user_profiles,
+            clickhouse_organization_profiles_count: clickhouse_organization_profiles,
+            clickhouse_organization_members_count: clickhouse_organization_members,
+            prepared_events_dlq_count: prepared_events_dlq,
+            clickhouse_user_profiles_dlq_count: clickhouse_user_profiles_dlq,
+            clickhouse_organization_profiles_dlq_count: clickhouse_organization_profiles_dlq,
+            clickhouse_organization_members_dlq_count: clickhouse_organization_members_dlq,
           }, status: :ok
         end
 
         def event_counts
-          render json: ClickHouseQueries::Events::GlobalCountTimeseries.get.formatted_data, status: :ok
+          render json: ClickHouseQueries::Admin::GlobalEventCountTimeseries.get.formatted_data, status: :ok
         end
 
         def ingestion_batches

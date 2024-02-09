@@ -10,9 +10,26 @@ require 'factory_bot_rails'
 require 'database_cleaner'
 require 'helpers/utils'
 require 'helpers/stripe_mocks'
+require 'sidekiq/testing'
 
 RSpec.configure do |config|
   config.include FactoryBot::Syntax::Methods
+  Sidekiq::Testing.fake!
+
+  def _flush_clickhouse_data!
+    ActiveRecord::Base.logger.silence do
+      Analytics::ClickHouseRecord.connection.tables.excluding('schema_migrations', 'ar_internal_metadata').each do |table|
+        if ['revenue_monthly_retention_periods', 'swishjam_user_profiles', 'swishjam_organization_profiles', 'swishjam_organization_members'].include?(table)
+          Analytics::ClickHouseRecord.execute_sql("DELETE FROM #{table} WHERE workspace_id IS NOT NULL", format: nil)
+        else
+          Analytics::ClickHouseRecord.execute_sql("DELETE FROM #{table} WHERE swishjam_api_key IS NOT NULL", format: nil)
+        end
+        Analytics::ClickHouseRecord.execute_sql("OPTIMIZE TABLE #{table} FINAL", format: nil)
+      rescue => e
+        byebug
+      end
+    end
+  end
 
   config.before(:suite) do
     DatabaseCleaner.strategy = :transaction
@@ -21,23 +38,11 @@ RSpec.configure do |config|
 
   config.before(:each) do |example|
     DatabaseCleaner.start
-
-    ActiveRecord::Base.logger.silence do
-      Analytics::ClickHouseRecord.connection.tables.excluding('schema_migrations', 'ar_internal_metadata').each do |table|
-        Analytics::ClickHouseRecord.execute_sql("DELETE FROM #{table} WHERE swishjam_api_key IS NOT NULL", format: nil)
-        Analytics::ClickHouseRecord.execute_sql("OPTIMIZE TABLE #{table} FINAL", format: nil)
-      end
-    end
+    _flush_clickhouse_data!
   end
 
   config.after(:each) do |example|
     DatabaseCleaner.clean
-
-    ActiveRecord::Base.logger.silence do
-      Analytics::ClickHouseRecord.connection.tables.excluding('schema_migrations', 'ar_internal_metadata').each do |table|
-        Analytics::ClickHouseRecord.execute_sql("DELETE FROM #{table} WHERE swishjam_api_key IS NOT NULL", format: nil)
-        Analytics::ClickHouseRecord.execute_sql("OPTIMIZE TABLE #{table} FINAL", format: nil)
-      end
-    end
+    _flush_clickhouse_data!
   end
 end

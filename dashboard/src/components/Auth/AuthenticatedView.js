@@ -2,15 +2,15 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-// import { SwishjamMemory } from '@/lib/swishjam-memory';
+import { SwishjamMemory } from '@/lib/swishjam-memory';
 import Sidebar from "@/components/SideNav/Nav";
 import LoadingSpinner from "@/components/LoadingSpinner";
 import { useAuthData } from "@/hooks/useAuthData";
 
 export default function AuthenticatedView({ children, LoadingView }) {
-  // const [sideNavIsCollapsed, setSideNavIsCollapsed] = useState(typeof SwishjamMemory.get('isNavCollapsed') === 'boolean' ? SwishjamMemory.get('isNavCollapsed') : false);
+  const [sideNavIsCollapsed, setSideNavIsCollapsed] = useState(typeof SwishjamMemory.get('isNavCollapsed') === 'boolean' ? SwishjamMemory.get('isNavCollapsed') : false);
   const router = useRouter();
-  const [sideNavIsCollapsed, setSideNavIsCollapsed] = useState(false);
+  // const [sideNavIsCollapsed, setSideNavIsCollapsed] = useState(false);
   const { isAwaitingData, isLoggedOut, email } = useAuthData();
 
   if (isLoggedOut) {
@@ -24,6 +24,11 @@ export default function AuthenticatedView({ children, LoadingView }) {
           email={email}
         />
         <main className={`${sideNavIsCollapsed ? "lg:pl-12" : "lg:pl-64"}`}>
+          {process.env.NEXT_PUBLIC_GLOBAL_BANNER_NOTIFICATION_MESSAGE && (
+            <div className="w-full text-sm bg-swishjam px-4 py-4 rounded-b-md text-white drop-shadow-md flex items-center justify-center">
+              {process.env.NEXT_PUBLIC_GLOBAL_BANNER_NOTIFICATION_MESSAGE}
+            </div>
+          )}
           {process.env.NEXT_PUBLIC_ENABLE_LOADING_STATES_BETWEEN_AUTH && (
             <div className="pr-4 sm:pr-6 lg:pr-8">
               {LoadingView ? (
@@ -47,6 +52,11 @@ export default function AuthenticatedView({ children, LoadingView }) {
           email={email}
         />
         <main className={`${sideNavIsCollapsed ? "lg:pl-12" : "lg:pl-64"} `}>
+          {process.env.NEXT_PUBLIC_GLOBAL_BANNER_NOTIFICATION_MESSAGE && (
+            <div className="w-full text-sm bg-swishjam px-4 py-4 rounded-b-md text-white drop-shadow-md flex items-center justify-center">
+              {process.env.NEXT_PUBLIC_GLOBAL_BANNER_NOTIFICATION_MESSAGE}
+            </div>
+          )}
           <div className="pr-4 sm:pr-6 lg:pr-8">{children}</div>
         </main>
       </>

@@ -10,6 +10,17 @@ const ONE_DAY_IN_SECONDS = ONE_DAY_IN_MS / 1_000;
 const LONG_MONTHS = ['January', "February", 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
 const SHORT_MONTHS = ['Jan', "Feb", 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
 
+const prettyDateTime = (date, opts = {}) => {
+  const month = opts.month || 'long';
+  const day = opts.day || 'numeric';
+  const year = opts.year || 'numeric';
+  const hour = opts.hour || 'numeric';
+  const minute = opts.minute || 'numeric';
+  const seconds = opts.seconds || 'none';
+  const d = new Date(date);
+  return `${d.toLocaleDateString('en-US', { month, day, year })} at ${d.toLocaleTimeString('en-US', { hour, minute, seconds })}`
+}
+
 const intelligentlyFormattedMs = ms => {
   try {
     let remainingMs = ms;
@@ -48,6 +59,7 @@ const intelligentlyFormattedMs = ms => {
 }
 
 export {
+  prettyDateTime,
   intelligentlyFormattedMs,
   LONG_MONTHS,
   ONE_SECOND_IN_MS,

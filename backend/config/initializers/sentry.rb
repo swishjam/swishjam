@@ -1,4 +1,4 @@
-return unless (Rails.env.production? || ENV['SENTRY_ENABLED']) && ENV['SENTRY_DSN']
+return unless (Rails.env.production? || ENV['IS_STAGING'] || ENV['SENTRY_ENABLED']) && ENV['SENTRY_DSN']
 SWISHJAM_VERSION = File.read(Rails.root.join('.swishjam-version')).strip
 
 Sentry.init do |config|
@@ -12,4 +12,8 @@ Sentry.init do |config|
   config.profiles_sample_rate = (ENV['SENTRY_PROFILE_SAMPLE_RATE'] || 0.2).to_f
 
   config.release = SWISHJAM_VERSION
+
+  if ENV['IS_STAGING']
+    config.environment = 'staging'
+  end
 end
