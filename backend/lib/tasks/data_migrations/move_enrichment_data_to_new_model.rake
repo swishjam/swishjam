@@ -3,6 +3,9 @@ require 'colorize'
 namespace :data_migrations do
   desc "Moves the old `user_profile_enrichment_data` table to the new `enriched_data` table"
   task move_enrichment_data_to_new_model: [:environment] do
+    puts "Purging ann `EnrichedData` records with bad data....".
+    EnrichedData.where(enrichable_type: 'UserProfileEnrichmentData').delete_all
+
     puts "Starting migration...".colorize(:gray)
     ActiveRecord::Base.logger.silence do
       users_with_new_enrichment_data = []
@@ -15,7 +18,7 @@ namespace :data_migrations do
         else
           EnrichedData.create!(
             workspace: old_enrichment_data.workspace,
-            enrichable: old_enrichment_data,
+            enrichable: old_enrichment_data.analytics_user_profile,
             enrichment_service: 'people_data_labs',
             data: {
               match_likelihood: old_enrichment_data.match_likelihood,

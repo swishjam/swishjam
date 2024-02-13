@@ -5,6 +5,8 @@ class EnrichedData < Transactional
 
   attribute :data, :jsonb, default: {}
 
+  validates :enrichable_type, presence: true, inclusion: { in: [AnalyticsUserProfile.to_s, AnalyticsOrganizationProfile.to_s] }
+
   # makes it so that you can do `enriched_data.first_name` instead of `enriched_data.data['first_name']`
   def method_missing(method_name, *args, &block)
     if data.key?(method_name.to_s)
