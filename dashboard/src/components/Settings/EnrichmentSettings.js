@@ -89,8 +89,8 @@ export default function EnrichmentSettings({
                 </form>
                 <div className='flex flex-wrap gap-1 mt-2'>
                   {doNotEnrichEmailDomains?.map(({ email_domain, id }) => (
-                    <Badge variant='secondary' className='py-2 flex items-center w-fit'>
-                      <span className='text-sm text-gray-700 block mr-1'>{email_domain}</span>
+                    <Badge variant='secondary' className='py-2 pl-4 flex items-center w-fit'>
+                      <span className='text-xs font-semibold text-gray-700 block mr-1'>{email_domain}</span>
                       <button
                         className='text-sm text-gray-500 flex items-center rounded-full p-1 hover:bg-gray-200'
                         onClick={() => onDoNotEnrichEmailDomainRemoved(id)}

@@ -18,11 +18,12 @@ export default function SettingsPage() {
     });
   }, []);
 
-  const handleEnrichmentToggle = async checked => {
+  const handleUserEnrichmentToggle = async checked => {
     setWorkspaceSettings({ ...workspaceSettings, should_enrich_user_profile_data: checked })
     SwishjamAPI.WorkspaceSettings.update({
-      combine_marketing_and_product_data_sources: workspaceSettings.combine_marketing_and_product_data_sources,
       should_enrich_user_profile_data: checked,
+      combine_marketing_and_product_data_sources: workspaceSettings.combine_marketing_and_product_data_sources,
+      should_enrich_organization_profile_data: workspaceSettings.should_enrich_organization_profile_data,
       enrichment_provider: workspaceSettings.enrichment_provider,
     }).then(({ error }) => {
       if (error) {
@@ -36,9 +37,9 @@ export default function SettingsPage() {
   const handleOrganizationEnrichmentToggle = async checked => {
     setWorkspaceSettings({ ...workspaceSettings, should_enrich_organization_profile_data: checked })
     SwishjamAPI.WorkspaceSettings.update({
+      should_enrich_organization_profile_data: checked,
       combine_marketing_and_product_data_sources: workspaceSettings.combine_marketing_and_product_data_sources,
       should_enrich_user_profile_data: workspaceSettings.should_enrich_user_profile_data,
-      should_enrich_organization_profile_data: checked,
       enrichment_provider: workspaceSettings.enrichment_provider,
     }).then(({ error }) => {
       if (error) {
@@ -111,7 +112,7 @@ export default function SettingsPage() {
           onDoNotEnrichEmailDomainAdded={handleDoNotEnrichEmailDomainAdded}
           onDoNotEnrichEmailDomainRemoved={handleDoNotEnrichEmailDomainRemoved}
           onEnrichmentProviderChanged={handleEnrichmentProviderChange}
-          onUserEnrichmentToggle={handleEnrichmentToggle}
+          onUserEnrichmentToggle={handleUserEnrichmentToggle}
           onOrganizationEnrichmentToggle={handleOrganizationEnrichmentToggle}
         />
       </div>
