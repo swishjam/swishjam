@@ -16,14 +16,14 @@ module ProfileEnrichers
         workspace: enrichable.workspace,
         enrichable: enrichable,
         attempted_payload: params,
-        enrichment_service: self.class.to_s.split('::').last,
+        enrichment_service: self.class.to_s.split('::').last.underscore,
       )
       enrichment_results = try_to_make_enrichment_request!
       if enrichment_results.successful?
         enriched_data = EnrichedData.create!(
           workspace: enrichable.workspace,
           enrichable: enrichable,
-          enrichment_service: self.class.to_s.split('::').last,
+          enrichment_service: self.class.to_s.split('::').last.underscore,
           data: enrichment_results.data,
         )
         enrichment_attempt.enriched_data = enriched_data
