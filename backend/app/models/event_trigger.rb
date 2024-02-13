@@ -9,6 +9,7 @@ class EventTrigger < Transactional
 
   scope :enabled, -> { where(enabled: true) }
   scope :disabled, -> { where(enabled: false) }
+  scope :has_event_trigger_step_type, ->(type) { joins(:event_trigger_steps).where(event_trigger_steps: { type: type.to_s }) }
 
   attribute :conditional_statements, :jsonb, default: []
 
