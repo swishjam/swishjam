@@ -18,7 +18,6 @@ class AnalyticsUserProfile < Transactional
   belongs_to :workspace
   has_one :enriched_data, as: :enrichable, dependent: :destroy
   alias_attribute :enrichment_data, :enriched_data
-  alias_attribute :enrichment_data, :user_profile_enrichment_data
 
   has_many :analytics_user_profile_devices, dependent: :destroy
   has_many :analytics_organization_members, dependent: :destroy
