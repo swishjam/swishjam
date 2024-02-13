@@ -1,18 +1,14 @@
 module ProfileEnrichers
   class Base
     attr_reader :enrichable, :workspace
+
+    class << self
+      attr_accessor :params_definition
+    end
     
     def initialize(enrichable)
       @enrichable = enrichable
       @workspace = enrichable.workspace
-    end
-
-    def params
-      raise NotImplementedError, "Must implement `params` in subclass #{self.class}."
-    end
-
-    def make_enrichment_request!
-      raise NotImplementedError, "Must implement `make_enrichment_request!` in subclass #{self.class}."
     end
 
     def try_to_enrich!
@@ -22,7 +18,7 @@ module ProfileEnrichers
         attempted_payload: params,
         enrichment_service: self.class.to_s.split('::').last,
       )
-      enrichment_results = make_enrichment_request!
+      enrichment_results = try_to_make_enrichment_request!
       if enrichment_results.successful?
         enriched_data = EnrichedData.create!(
           workspace: enrichable.workspace,
@@ -50,6 +46,42 @@ module ProfileEnrichers
         error_message: error_message,
         failed?: !success,
       )
+    end
+
+    private
+
+    def params
+      if self.class.params_definition.is_a?(Array)
+        json = {}
+        self.class.params_definition.each do |param|
+          json[param] = enrichable.send(param) if enrichable.send(param).present?
+        end
+        json
+      elsif self.class.params_definition.is_a?(Hash)
+        json = {}
+        self.class.params_definition.each do |param, enrichable_attr|
+          json[param] = enrichable.send(enrichable_attr) if enrichable.send(enrichable_attr).present?
+        end
+        json
+      else
+        raise NotImplementedError, "Must define `params_definition` in subclass #{self.class}."
+      end
+    end
+
+    def try_to_make_enrichment_request!
+      if defined?(make_enrichment_request!)
+        begin
+          if params.empty?
+            return enrichment_response(success: false, error_message: "swishjam_no_params_provided: expected to #{enrichable.class.to_s} #{enrichable.id} to have #{self.class.params_definition.is_a?(Array) ? self.class.params_definition.join(', ') : self.class.params_definition.values.join(', ')} attributes, but results were empty.")
+          end
+          make_enrichment_request!
+        rescue => e
+          Sentry.capture_exception(e)
+          enrichment_response(success: false, error_message: "swishjam_uncaught_exception: #{e.message}")
+        end
+      else
+        raise NotImplementedError, "Must implement `make_enrichment_request!` in subclass #{self.class}."
+      end
     end
   end
 end

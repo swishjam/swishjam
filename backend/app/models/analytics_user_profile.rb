@@ -84,8 +84,8 @@ class AnalyticsUserProfile < Transactional
     email.split('@').last
   end
 
-  def enrich_profile!(override_sampling: false)
-    return false if override_sampling == false && rand() >= (ENV['USER_ENRICHMENT_SAMPLING_RATE'] || 1.0).to_f
+  def enrich_profile!
+    # return false if override_sampling == false && rand() >= (ENV['USER_ENRICHMENT_SAMPLING_RATE'] || 1.0).to_f
     ProfileEnrichers::User.new(self, enricher: workspace.settings.enrichment_provider).try_to_enrich_profile_if_necessary!
   rescue => e
     Sentry.capture_exception(e)
@@ -100,11 +100,9 @@ class AnalyticsUserProfile < Transactional
   end
 
   def enqueue_replication_to_clickhouse
-    Ingestion::QueueManager.push_records_into_queue(Ingestion::QueueManager::Queues.CLICK_HOUSE_USER_PROFILES, formatted_for_clickhouse_replication)
+    Ingestion::QueueManager.push_records_into_queue(Ingestion::QueueManager::Queues.CLICK_HOUSE_USER_PROFILES, self.reload.formatted_for_clickhouse_replication)
   end
   
-  private
-
   def formatted_for_clickhouse_replication
     {
       workspace_id: workspace_id,

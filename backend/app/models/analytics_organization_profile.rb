@@ -19,15 +19,14 @@ class AnalyticsOrganizationProfile < Transactional
     name.split(' ').map{ |word| word[0] }.join('').upcase
   end
 
-  def enrich_profile!(override_sampling: false)
-    return false if override_sampling == false && rand() >= (ENV['ORGANIZATION_ENRICHMENT_SAMPLING_RATE'] || 1.0).to_f
+  def enrich_profile!
     ProfileEnrichers::Organization.new(self, enricher: workspace.settings.enrichment_provider).try_to_enrich_profile_if_necessary!
   rescue => e
     Sentry.capture_exception(e)
   end
 
   def enqueue_replication_to_clickhouse
-    Ingestion::QueueManager.push_records_into_queue(Ingestion::QueueManager::Queues.CLICK_HOUSE_ORGANIZATION_PROFILES, formatted_for_clickhouse_replication)
+    Ingestion::QueueManager.push_records_into_queue(Ingestion::QueueManager::Queues.CLICK_HOUSE_ORGANIZATION_PROFILES, self.reload.formatted_for_clickhouse_replication)
   end
 
   def formatted_for_clickhouse_replication
