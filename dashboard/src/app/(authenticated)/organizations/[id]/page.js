@@ -9,6 +9,8 @@ import ActiveUsersLineChartWithValue from "@/components/Dashboards/Components/Ac
 import BarList from "@/components/Dashboards/Components/BarList";
 import LoadingView from './LoadingView'
 import Breadcrumbs from "@/components/Breadcrumbs";
+import { prettyDateTime } from "@/lib/utils/timeHelpers";
+import { humanizeVariable } from "@/lib/utils/misc";
 
 const OrgProfileCard = ({ orgData, ...props }) => {
   return (
@@ -39,58 +41,15 @@ const OrgProfileCard = ({ orgData, ...props }) => {
           <div className="mt-4">
             <dl className="grid grid-cols-1">
               <div className="px-4 py-2 col-span-1 sm:px-0 grid grid-cols-2">
-                <dt className="text-sm font-medium leading-6 text-gray-900">Description</dt>
-                <dd className="text-sm leading-6 text-gray-700 text-right">{orgData?.description || '-'}</dd>
+                <dt className="text-sm font-medium leading-6 text-gray-900">First Seen At</dt>
+                <dd className="text-sm leading-6 text-gray-700 text-right">{prettyDateTime(orgData.created_at)}</dd>
               </div>
-              <div className="px-4 py-2 col-span-1 sm:px-0 grid grid-cols-2">
-                <dt className="text-sm font-medium leading-6 text-gray-900">Tags</dt>
-                <dd className="text-sm leading-6 text-gray-700 text-right">{orgData?.tags || '-'}</dd>
-              </div>
-              <div className="px-4 py-2 col-span-1 sm:px-0 grid grid-cols-2">
-                <dt className="text-sm font-medium leading-6 text-gray-900">Phone</dt>
-                <dd className="text-sm leading-6 text-gray-700 text-right">{orgData?.phone || '-'}</dd>
-              </div>
-              <div className="px-4 py-2 col-span-1 sm:px-0 grid grid-cols-2">
-                <dt className="text-sm font-medium leading-6 text-gray-900">Sector</dt>
-                <dd className="text-sm leading-6 text-gray-700 text-right">{orgData?.sector || '-'}</dd>
-              </div>
-              <div className="px-4 py-2 col-span-1 sm:px-0 grid grid-cols-2">
-                <dt className="text-sm font-medium leading-6 text-gray-900">Industry</dt>
-                <dd className="text-sm leading-6 text-gray-700 text-right">{orgData?.industry || '-'}</dd>
-              </div>
-              <div className="px-4 py-2 col-span-1 sm:px-0 grid grid-cols-2">
-                <dt className="text-sm font-medium leading-6 text-gray-900">Location</dt>
-                <dd className="text-sm leading-6 text-gray-700 text-right">{orgData?.location || '-'}</dd>
-              </div>
-              <div className="px-4 py-2 col-span-1 sm:px-0 grid grid-cols-2">
-                <dt className="text-sm font-medium leading-6 text-gray-900">Employees</dt>
-                <dd className="text-sm leading-6 text-gray-700 text-right">{orgData?.employees || '-'}</dd>
-              </div>
-              <div className="px-4 py-2 col-span-1 sm:px-0 grid grid-cols-2">
-                <dt className="text-sm font-medium leading-6 text-gray-900">Estimated ARR</dt>
-                <dd className="text-sm leading-6 text-gray-700 text-right">{orgData?.arr || '-'}</dd>
-              </div>
-              <div className="px-4 py-2 col-span-1 sm:px-0 grid grid-cols-2">
-                <dt className="text-sm font-medium leading-6 text-gray-900">Technology Used</dt>
-                <dd className="text-sm leading-6 text-gray-700 text-right">{orgData?.tech || '-'}</dd>
-              </div>
-              <div className="my-4 border-t border-slate-100 w-full" />
-              <div className="px-4 py-2 col-span-1 sm:px-0 grid grid-cols-2">
-                <dt className="text-sm font-medium leading-6 text-gray-900">Social Accounts</dt>
-                <dd className="text-sm leading-6 text-gray-700 text-right"></dd>
-              </div>
-              <div className="px-4 py-2 col-span-1 sm:px-0 grid grid-cols-2">
-                <dt className="text-sm font-medium leading-6 text-gray-900">Linkedin</dt>
-                <dd className="text-sm leading-6 text-gray-700 text-right">{orgData?.linkedin || '-'}</dd>
-              </div>
-              <div className="px-4 py-2 col-span-1 sm:px-0 grid grid-cols-2">
-                <dt className="text-sm font-medium leading-6 text-gray-900">Twitter</dt>
-                <dd className="text-sm leading-6 text-gray-700 text-right">{orgData?.twitter || '-'}</dd>
-              </div>
-              <div className="px-4 py-2 col-span-1 sm:px-0 grid grid-cols-2">
-                <dt className="text-sm font-medium leading-6 text-gray-900">Facebook</dt>
-                <dd className="text-sm leading-6 text-gray-700 text-right">{orgData?.facebook || '-'}</dd>
-              </div>
+              {Object.keys(orgData.enriched_data || {}).map((enrichmentKey, i) => (
+                <div className="px-4 py-2 col-span-1 sm:px-0 grid grid-cols-2">
+                  <dt className="text-sm font-medium leading-6 text-gray-900">{humanizeVariable(enrichmentKey)}</dt>
+                  <dd className="text-sm leading-6 text-gray-700 text-right">{orgData.enriched_data[enrichmentKey]}</dd>
+                </div>
+              ))}
             </dl>
           </div>
         </div>
@@ -159,10 +118,7 @@ const OrganizationProfile = ({ params }) => {
     <main className="mx-auto max-w-7xl px-4 mt-8 sm:px-6 lg:px-8 mb-8">
       <Breadcrumbs paths={breadcrumbPaths} />
       <div className='grid grid-cols-10 gap-4 mt-8'>
-        <OrgProfileCard
-          className="col-span-4"
-          orgData={organizationData}
-        />
+        <OrgProfileCard className="col-span-4" orgData={organizationData} />
         <div className='col-span-6'>
           <ActiveUsersLineChartWithValue
             data={activeUsersData}

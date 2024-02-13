@@ -16,7 +16,8 @@ class AnalyticsUserProfile < Transactional
   end
 
   belongs_to :workspace
-  has_one :user_profile_enrichment_data, class_name: UserProfileEnrichmentData.to_s, dependent: :destroy
+  has_one :enriched_data, as: :enrichable, dependent: :destroy
+  alias_attribute :enrichment_data, :enriched_data
   alias_attribute :enrichment_data, :user_profile_enrichment_data
 
   has_many :analytics_user_profile_devices, dependent: :destroy
@@ -24,6 +25,7 @@ class AnalyticsUserProfile < Transactional
   has_many :analytics_organization_profiles, through: :analytics_organization_members
   alias_attribute :organizations, :analytics_organization_profiles
   has_many :customer_subscriptions, as: :parent_profile, dependent: :destroy
+  has_many :enrichment_attempts, as: :enrichable, dependent: :destroy
 
   attribute :metadata, :jsonb, default: {}
 
@@ -77,12 +79,16 @@ class AnalyticsUserProfile < Transactional
     "#{first_name[0]}#{last_name[0]}".upcase
   end
 
-  def enrich_profile!(override_sampling: false)
-    return false
-  #   return false if override_sampling == false && rand() >= (ENV['USER_ENRICHMENT_SAMPLING_RATE'] || 1.0).to_f
-  #   ProfileEnrichers::User.new(self).try_to_enrich_profile_if_necessary!
-  # rescue => e
-  #   Sentry.capture_exception(e)
+  def email_domain
+    return nil if email.blank?
+    email.split('@').last
+  end
+
+  def enrich_profile!
+    # return false if override_sampling == false && rand() >= (ENV['USER_ENRICHMENT_SAMPLING_RATE'] || 1.0).to_f
+    ProfileEnrichers::User.new(self, enricher: workspace.settings.enrichment_provider).try_to_enrich_profile_if_necessary!
+  rescue => e
+    Sentry.capture_exception(e)
   end
 
   def try_to_set_gravatar_url
@@ -94,11 +100,9 @@ class AnalyticsUserProfile < Transactional
   end
 
   def enqueue_replication_to_clickhouse
-    Ingestion::QueueManager.push_records_into_queue(Ingestion::QueueManager::Queues.CLICK_HOUSE_USER_PROFILES, formatted_for_clickhouse_replication)
+    Ingestion::QueueManager.push_records_into_queue(Ingestion::QueueManager::Queues.CLICK_HOUSE_USER_PROFILES, self.reload.formatted_for_clickhouse_replication)
   end
   
-  private
-
   def formatted_for_clickhouse_replication
     {
       workspace_id: workspace_id,
@@ -107,7 +111,9 @@ class AnalyticsUserProfile < Transactional
       email: email,
       merged_into_swishjam_user_id: merged_into_analytics_user_profile_id,
       created_by_data_source: created_by_data_source,
-      metadata: (metadata || {}).to_json,
+      metadata: metadata.merge(
+        enriched_data.nil? ? {} : Hash.new.tap{ |h| enriched_data.data.each{ |k, v| h["enriched_#{k}"] = v }}
+      ).to_json,
       first_seen_at_in_web_app: first_seen_at_in_web_app,
       last_seen_at_in_web_app: last_seen_at_in_web_app,
       created_at: created_at,

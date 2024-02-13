@@ -1,5 +1,9 @@
+'use client'
+
 import { LuSettings, LuUser } from 'react-icons/lu'
-const isCurrentPage = (menuItemHref, currentPath) => {return currentPath == menuItemHref};
+import { usePathname } from 'next/navigation';
+const isCurrentPage = (menuItemHref, currentPath) => currentPath == menuItemHref;
+
 const tabs = [
   { name: 'Settings', href: '/settings', icon: LuSettings },
   { name: 'Team', href: '/settings/team', icon: LuUser },
@@ -9,7 +13,8 @@ function classNames(...classes) {
   return classes.filter(Boolean).join(' ')
 }
 
-export default function Tabs({ currentPath, className }) {
+export default function Tabs({ className }) {
+  const currentPath = usePathname();
 
   return (
     <div className={className}>
@@ -17,17 +22,6 @@ export default function Tabs({ currentPath, className }) {
         <label htmlFor="tabs" className="sr-only">
           Select a tab
         </label>
-        {/* Use an "onChange" listener to redirect the user to the selected tab URL. */}
-        {/*<select
-          id="tabs"
-          name="tabs"
-          className="block w-full rounded-md border-gray-300 focus:border-swishjam focus:ring-indigo-500"
-          defaultValue={tabs.find((tab) => tab.current).name}
-        >
-          {tabs.map((tab) => (
-            <option key={tab.name}>{tab.name}</option>
-          ))}
-        </select>*/}
       </div>
       <div className="hidden sm:block">
         <div className="border-b border-gray-200">

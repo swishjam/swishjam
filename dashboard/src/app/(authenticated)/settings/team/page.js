@@ -10,7 +10,7 @@ import { useAuthData } from '@/hooks/useAuthData'
 import { useState, useEffect, Fragment } from 'react';
 import Tabs from '@/components/Settings/Tabs';
 
-import { LuTrash, LuMoreVertical, LuPlus, LuClipboardCheck  } from 'react-icons/lu'
+import { LuTrash, LuMoreVertical, LuPlus, LuClipboardCheck } from 'react-icons/lu'
 
 const classNames = (...classes) => classes.filter(Boolean).join(' ')
 
@@ -42,29 +42,21 @@ export default function Team() {
           onRemoveWorkspaceMember={workspaceMemberId => setWorkspaceMembers(workspaceMembers.filter(wm => wm.id !== workspaceMemberId))}
         />
       )}
-      <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mb-8 mt-12">
-        <div className='grid grid-cols-2 my-8 flex items-center'>
-          <div>
-            <h1 className="text-lg font-medium text-gray-700 mb-0">Settings</h1>
-          </div>
-        </div>
 
-        <Tabs className="mb-8" currentPath={pathname} />
-    
-        <div className='my-8 grid grid-cols-2'>
-          <h1 className="text-lg font-medium text-gray-700 mb-0">Team Management</h1>
-          <div className='flex justify-end'>
-            <button
-              onClick={() => setInviteModalIsOpen(true)}
-              className="flex items-center rounded-md bg-swishjam px-2.5 py-2 text-sm font-semibold text-white shadow-sm hover:bg-swishjam-dark focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-swishjam transition duration-300"
-            >
-              <LuPlus className='h-4 w-4 inline-block mr-1' />
-              New Teammate
-            </button>
-          </div>
+      <div className='my-8 grid grid-cols-2'>
+        <h1 className="text-lg font-medium text-gray-700 mb-0">Team Management</h1>
+        <div className='flex justify-end'>
+          <button
+            onClick={() => setInviteModalIsOpen(true)}
+            className="flex items-center rounded-md bg-swishjam px-2.5 py-2 text-sm font-semibold text-white shadow-sm hover:bg-swishjam-dark focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-swishjam transition duration-300"
+          >
+            <LuPlus className='h-4 w-4 inline-block mr-1' />
+            New Teammate
+          </button>
         </div>
+      </div>
 
-        <div className='mt-8 border border-zinc-200 shadow-sm rounded-md overflow-hidden'>
+      <div className='mt-8 border border-zinc-200 shadow-sm rounded-md overflow-hidden'>
         <table className="min-w-full divide-y divide-gray-300">
           <thead>
             <tr>
@@ -126,8 +118,7 @@ export default function Team() {
             }
           </tbody>
         </table>
-        </div>
-      </main>
+      </div>
     </>
   )
 }

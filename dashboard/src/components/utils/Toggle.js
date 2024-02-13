@@ -1,6 +1,6 @@
 import { Switch } from '@headlessui/react'
 
-export default function Toggle({ checked, onChange, text, className }) {
+export default function Toggle({ checked, onChange, text, className, disabled }) {
   return (
     <Switch.Group className={className}>
       <div className='flex items-center'>
@@ -8,7 +8,8 @@ export default function Toggle({ checked, onChange, text, className }) {
         <Switch
           checked={checked}
           onChange={onChange}
-          className={`${checked ? 'bg-swishjam' : 'bg-gray-200'} relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out`}
+          disabled={disabled}
+          className={`${checked ? 'bg-swishjam' : 'bg-gray-200'} ${disabled ? 'cursor-not-allowed' : ''} relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out`}
         >
           <span className={`${checked ? 'translate-x-5' : 'translate-x-0'} pointer-events-none relative inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out`}>
             <span

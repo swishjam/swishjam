@@ -4,6 +4,7 @@ import BillingData from './billing-data';
 import Config from './config';
 import DashboardComponents from './dashboard-components';
 import Dashboards from './dashboards';
+import DoNotEnrichUserProfileRules from './do-not-enrich-user-profile-rules';
 import EventTriggers from './event-triggers';
 import Events from './events';
 import GoogleSearchConsole from './google-search-console';
@@ -32,6 +33,7 @@ export class SwishjamAPI {
   static Config = Config;
   static Dashboards = Dashboards;
   static DashboardComponents = DashboardComponents;
+  static DoNotEnrichUserProfileRules = DoNotEnrichUserProfileRules;
   static Events = Events;
   static EventTriggers = EventTriggers;
   static GoogleSearchConsole = GoogleSearchConsole;

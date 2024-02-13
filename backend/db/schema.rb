@@ -166,6 +166,39 @@ ActiveRecord::Schema.define(version: 2024_02_07_000039) do
     t.index ["workspace_id"], name: "index_data_syncs_on_workspace_id"
   end
 
+  create_table "do_not_enrich_user_profile_rules", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "workspace_id", null: false
+    t.string "email_domain", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["workspace_id"], name: "index_do_not_enrich_user_profile_rules_on_workspace_id"
+  end
+
+  create_table "enriched_data", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "workspace_id", null: false
+    t.string "enrichable_type", null: false
+    t.uuid "enrichable_id", null: false
+    t.string "enrichment_service", null: false
+    t.jsonb "data", default: {}
+    t.index ["enrichable_type", "enrichable_id"], name: "index_enriched_data_on_enrichable"
+    t.index ["workspace_id"], name: "index_enriched_data_on_workspace_id"
+  end
+
+  create_table "enrichment_attempts", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "workspace_id", null: false
+    t.string "enrichable_type", null: false
+    t.uuid "enrichable_id", null: false
+    t.uuid "enriched_data_id"
+    t.string "enrichment_service", null: false
+    t.jsonb "attempted_payload", default: {}
+    t.datetime "attempted_at", default: -> { "now()" }
+    t.boolean "successful", default: false
+    t.string "error_message"
+    t.index ["enrichable_type", "enrichable_id"], name: "index_enrichment_attempts_on_enrichable"
+    t.index ["enriched_data_id"], name: "index_enrichment_attempts_on_enriched_data_id"
+    t.index ["workspace_id"], name: "index_enrichment_attempts_on_workspace_id"
+  end
+
   create_table "event_trigger_steps", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.uuid "event_trigger_id"
     t.string "type"
@@ -366,6 +399,8 @@ ActiveRecord::Schema.define(version: 2024_02_07_000039) do
     t.boolean "combine_marketing_and_product_data_sources"
     t.boolean "should_enrich_user_profile_data"
     t.boolean "revenue_analytics_enabled", default: true, null: false
+    t.string "enrichment_provider"
+    t.boolean "should_enrich_organization_profile_data", default: false
     t.index ["workspace_id"], name: "index_workspace_settings_on_workspace_id"
   end
 

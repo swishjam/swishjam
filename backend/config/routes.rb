@@ -224,6 +224,7 @@ Rails.application.routes.draw do
         end
       end
 
+      resources :do_not_enrich_user_profile_rules, only: [:create, :destroy]
       namespace :saas_metrics, only: [] do
         resources :revenue, only: [] do
           collection do
