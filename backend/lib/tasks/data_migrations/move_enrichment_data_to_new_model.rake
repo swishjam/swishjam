@@ -3,8 +3,11 @@ require 'colorize'
 namespace :data_migrations do
   desc "Moves the old `user_profile_enrichment_data` table to the new `enriched_data` table"
   task move_enrichment_data_to_new_model: [:environment] do
-    puts "Purging ann `EnrichedData` records with bad data....".
-    EnrichedData.where(enrichable_type: 'UserProfileEnrichmentData').delete_all
+    bad_enriched_data = EnrichedData.where.not(enrichable_type: [AnalyticsUserProfile.to_s, AnalyticsOrganizationProfile.to_s])
+    if bad_enriched_data.any?
+      puts "Purging all #{bad_enriched_data} `EnrichedData` records with bad data...."
+      bad_enriched_data.delete_all
+    end
 
     puts "Starting migration...".colorize(:gray)
     ActiveRecord::Base.logger.silence do
