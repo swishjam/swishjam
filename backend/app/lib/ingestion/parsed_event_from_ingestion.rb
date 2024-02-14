@@ -148,7 +148,7 @@ module Ingestion
 
     def validate!
       required_keys = %w[uuid swishjam_api_key name occurred_at properties]
-      missing_keys = required_keys.select{ |key| event_json[key].blank? }
+      missing_keys = required_keys.select{ |key| event_json[key].blank? && !event_json.is_a?(Hash) }
       if missing_keys.any?
         raise InvalidEventFormatError, "ParsedEventFromIngestion was initialized with missing required keys: #{missing_keys.join(', ')}."
       end

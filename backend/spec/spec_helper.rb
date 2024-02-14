@@ -25,8 +25,6 @@ RSpec.configure do |config|
           Analytics::ClickHouseRecord.execute_sql("DELETE FROM #{table} WHERE swishjam_api_key IS NOT NULL", format: nil)
         end
         Analytics::ClickHouseRecord.execute_sql("OPTIMIZE TABLE #{table} FINAL", format: nil)
-      rescue => e
-        byebug
       end
     end
   end

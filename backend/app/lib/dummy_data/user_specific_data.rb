@@ -15,30 +15,26 @@ module DummyData
           email = prompter.ask("Enter the email for the user:"){ |q| q.required true }
           first_name = prompter.ask('Enter first name for the user:'){ |q| q.required true }
           last_name = prompter.ask('Enter last name for the user:'){ |q| q.required true }
+          metadata = {
+            first_name: first_name,
+            last_name: last_name,
+          }
+          metadata[AnalyticsUserProfile::ReservedMetadataProperties.INITIAL_REFERRER_URL] = 'https://reddit.com'
+          metadata[AnalyticsUserProfile::ReservedMetadataProperties.INITIAL_LANDING_PAGE_URL] = initial_url
           user_profile = AnalyticsUserProfile.create!(
             workspace: workspace, 
             email: email, 
-            first_name: first_name, 
-            last_name: last_name, 
             user_unique_identifier: email,
-            immutable_metadata: {
-              initial_referrer: 'https://reddit.com',
-              initial_url: initial_url,
-            },
+            metadata: metadata,
           )
 
           domain_name = email.split('@')[-1]
           organization_name = domain_name.split('.')[0].capitalize
-          user_profile.analytics_organization_profiles << AnalyticsOrganizationProfile.create!(workspace: workspace, name: organization_name, organization_unique_identifier: organization_name)
+          users_org = AnalyticsOrganizationProfile.create!(workspace: workspace, name: organization_name, organization_unique_identifier: organization_name)
+          user_profile.analytics_organization_profiles << users_org
 
           device_identifier = SecureRandom.uuid
           public_key = workspace.api_keys.for_data_source!(ApiKey::ReservedDataSources.PRODUCT).public_key
-          identify = Analytics::UserIdentifyEvent.create!(
-            swishjam_api_key: public_key,
-            device_identifier: device_identifier,
-            swishjam_user_id: user_profile.id,
-            occurred_at: Faker::Time.between(from: 1.year.ago, to: Time.now),
-          )
 
           workspace.customer_subscriptions.create!(
             parent_profile: user_profile,
@@ -62,15 +58,17 @@ module DummyData
           web_traffic_seeder = WebTraffic.new(
             public_key: public_key,
             number_of_sessions: nil, 
-            device_identifiers: [device_identifier], 
+            user_profile_ids: [user_profile.id], 
+            organization_profile_ids: [users_org.id],
             url_host: url_host, 
             url_paths: url_paths, 
             event_names: event_name_options, 
             data_begins_max_number_of_days_ago: data_begins_max_number_of_days_ago,
           )
-          10.times do
-            web_traffic_seeder.create_session_with_page_views_and_events!(device_identifier: device_identifier, start_time: Time.current - rand(-10..30).days)
+          event_json = 10.times.map do
+            web_traffic_seeder.session_with_page_views_and_events!(user_profile_id: user_profile.id, organization_profile_id: users_org.id, start_time: Time.current - rand(-10..30).days)
           end
+          Ingestion::QueueManager.push_records_into_queue(Ingestion::QueueManager::Queues.PREPARED_EVENTS, event_json.flatten)
 
           puts "Generating random Resend and Stripe events for #{user_profile.email}".colorize(:green)
           Integrations.seed_events!(
