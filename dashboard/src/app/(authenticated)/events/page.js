@@ -13,7 +13,7 @@ export default function Events() {
 
   const getEvents = async () => {
     setEvents()
-    await SwishjamAPI.Events.listUnique().then(setEvents);
+    await SwishjamAPI.Events.listUnique({ limit: 100 }).then(setEvents);
   }
 
   useEffect(() => {

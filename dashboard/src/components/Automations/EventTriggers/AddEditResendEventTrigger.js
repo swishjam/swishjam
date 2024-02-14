@@ -130,7 +130,7 @@ export default function AddEditResendEventTrigger({
   useEffect(() => {
     const getUniqueEventsAndUserProperties = async () => {
       const [events, userProperties] = await Promise.all([
-        SwishjamAPI.Events.listUnique(),
+        SwishjamAPI.Events.listUnique({ limit: 100 }),
         SwishjamAPI.Users.uniqueProperties()
       ]);
       const sortedEvents = events.sort((a, b) => {
