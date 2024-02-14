@@ -4,9 +4,9 @@ module.exports = {
   images: {
     remotePatterns: []
   },
-  experimental: {
-    appDir: true,
-  },
+  // experimental: {
+  //   appDir: true,
+  // },
 };
 
 if (process.env.NEXT_PUBLIC_SENTRY_DSN) {

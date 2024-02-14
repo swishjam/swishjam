@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2024_02_07_000039) do
+ActiveRecord::Schema.define(version: 2024_02_14_004858) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
@@ -360,6 +360,30 @@ ActiveRecord::Schema.define(version: 2024_02_07_000039) do
     t.index ["workspace_id"], name: "index_user_profile_enrichment_data_on_workspace_id"
   end
 
+  create_table "user_segment_filters", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "user_segment_id", null: false
+    t.uuid "parent_filter_id"
+    t.string "parent_relationship_connector"
+    t.string "object_type", null: false
+    t.string "object_attribute", null: false
+    t.string "operator", null: false
+    t.string "value", null: false
+    t.integer "num_days_lookback"
+    t.index ["parent_filter_id"], name: "index_user_segment_filters_on_parent_filter_id"
+    t.index ["user_segment_id"], name: "index_user_segment_filters_on_user_segment_id"
+  end
+
+  create_table "user_segments", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "workspace_id", null: false
+    t.uuid "created_by_user_id", null: false
+    t.string "name", null: false
+    t.string "description"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["created_by_user_id"], name: "index_user_segments_on_created_by_user_id"
+    t.index ["workspace_id"], name: "index_user_segments_on_workspace_id"
+  end
+
   create_table "users", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.string "email", null: false
     t.string "password_digest", null: false
@@ -427,6 +451,10 @@ ActiveRecord::Schema.define(version: 2024_02_07_000039) do
   add_foreign_key "retention_cohorts", "workspaces"
   add_foreign_key "triggered_event_trigger_steps", "event_trigger_steps"
   add_foreign_key "triggered_event_trigger_steps", "triggered_event_triggers"
+  add_foreign_key "user_segment_filters", "user_segment_filters", column: "parent_filter_id"
+  add_foreign_key "user_segment_filters", "user_segments"
+  add_foreign_key "user_segments", "users", column: "created_by_user_id"
+  add_foreign_key "user_segments", "workspaces"
   add_foreign_key "workspace_invitations", "workspaces"
   add_foreign_key "workspace_members", "users"
   add_foreign_key "workspace_members", "workspaces"

@@ -12,6 +12,7 @@ import { useRouter } from "next/navigation";
 import UserProfilesCollection from "@/lib/collections/user-profiles";
 // import FilterableDropdownItem from "@/components/utils/FilterDropdown";
 import { Skeleton } from "@/components/ui/skeleton";
+import QueryBuilderModal from "@/components/UserSegments/QueryBuilderModal";
 
 const UsersTableBody = ({ currentPageNum, onUsersFetched = () => { } }) => {
   const router = useRouter();
@@ -101,9 +102,10 @@ export default function Users() {
 
   const [currentPageNum, setCurrentPageNum] = useState(1);
   const [hasNoUsers, setHasNoUsers] = useState(false);
-  // const [hasProfileEnrichmentEnabled, setHasProfileEnrichmentEnabled] = useState();
   const [lastPageNum, setLastPageNum] = useState();
-  const [selectedFilters, setSelectedFilters] = useState({}); // { section: [value, value] }
+  const [queryBuilderModalIsOpen, setQueryBuilderModalIsOpen] = useState(false);
+  // const [hasProfileEnrichmentEnabled, setHasProfileEnrichmentEnabled] = useState();
+  // const [selectedFilters, setSelectedFilters] = useState({}); // { section: [value, value] }
   // const [filterOptions, setFilterOptions] = useState();
 
   // useEffect(() => {
@@ -144,6 +146,13 @@ export default function Users() {
         </div>
 
         <div className="w-full flex items-center justify-end">
+          <QueryBuilderModal isOpen={queryBuilderModalIsOpen} onClose={() => setQueryBuilderModalIsOpen(false)} />
+          <button
+            className='text-sm border-none bg-swishjam text-white rounded-md px-4 py-2 hover:bg-swishjam-dark'
+            onClick={() => setQueryBuilderModalIsOpen(true)}
+          >
+            Create Segment
+          </button>
         </div>
       </div>
 
