@@ -8,7 +8,7 @@ module AuthenticationHelper
         api_keys: Hash.new.tap{ |h| workspace.api_keys.enabled.each{ |k| h[k.data_source] = k.public_key }},
       },
       workspaces: user.workspaces.map{ |w| { id: w.id, name: w.name }},
-      expires_at_epoch: (ENV['AUTH_LENGTH_IN_MINUTES'] || 24 * 60 * 7).to_i.minutes.from_now.to_i,
+      expires_at_epoch: (ENV['AUTH_LENGTH_IN_DAYS'] || 30).to_i.days.from_now.to_i,
     }
     token = JWT.encode(data_to_encode, user.jwt_secret_key, 'HS256')
     AuthSession.create!(user: user, jwt_value: token)
