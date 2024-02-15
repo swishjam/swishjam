@@ -3,7 +3,7 @@ module ClickHouseQueries
     class List
       include ClickHouseQueries::Helpers
 
-      def initialize(workspace_id, user_segments: [], page: 1, limit: 25)
+      def initialize(workspace_id, user_segments: [], columns: [], page: 1, limit: 25)
         @workspace_id = workspace_id.is_a?(Workspace) ? workspace_id.id : workspace_id
         @user_segments = user_segments
         @page = page.to_i
@@ -38,8 +38,9 @@ module ClickHouseQueries
             user_profiles.swishjam_user_id AS swishjam_user_id, 
             user_profiles.email AS email, 
             user_profiles.metadata AS metadata, 
-            #{select_clickhouse_timestamp_with_timezone('created_at')}, 
-            user_profiles.first_seen_at_in_web_app AS first_seen_at_in_web_app
+            user_profiles.first_seen_at_in_web_app AS first_seen_at_in_web_app,
+            #{select_clickhouse_timestamp_with_timezone('created_at')}
+            #{maybe_event_count_select_statements}
           FROM (
             SELECT 
               swishjam_user_id,
@@ -61,10 +62,25 @@ module ClickHouseQueries
         SQL
       end
 
+      def maybe_event_count_select_statements
+        sql = ''
+        return sql if !has_event_count_user_segment_filters?
+        @user_segments.each do |user_segment|
+          user_segment.user_segment_filters.each do |filter|
+            next if filter.config['object_type'] != 'event'
+            sql << ", #{filter.config['event_name'].gsub(' ', '_')}_count_for_user.event_count_for_user_within_lookback_period AS #{filter.config['event_name'].gsub(' ', '_')}_count_for_user"
+          end
+        end
+        sql
+      end
+
+      def has_event_count_user_segment_filters?
+        @has_event_count_user_segment_filters ||= @user_segments.any? && @user_segments.map(&:user_segment_filters).flatten.any? { |f| f.config['object_type'] == 'event' }
+      end
+
       def maybe_event_table_join_clause
         sql = ''
-        should_join_events_table = @user_segments.any? && @user_segments.map(&:user_segment_filters).flatten.any? { |f| f.config['object_type'] == 'event' }
-        return sql if !should_join_events_table
+        return sql if !has_event_count_user_segment_filters?
         @user_segments.each do |user_segment|
           user_segment.user_segment_filters.each do |filter|
             next if filter.config['object_type'] != 'event'
@@ -86,8 +102,7 @@ module ClickHouseQueries
             when 'user'
               query << ClickHouseQueries::Common::WhereClauseForUserSegmentUserPropertyFilter.where_clause_statement(filter.config, users_table_alias: 'user_profiles')
             when 'event'
-              # query << ClickHouseQueries::Common::WhereClauseForUserSegmentEventFilter.where_clause_statement(filter.config, events_table_alias: 'events')
-              query << "#{filter.config['event_name']}_count_for_user.event_count_for_user_within_lookback_period >= #{filter.config['num_event_occurrences']}"
+              query << "#{filter.config['event_name'].gsub(' ', '_')}_count_for_user.event_count_for_user_within_lookback_period >= #{filter.config['num_event_occurrences']}"
             else
               raise "Unknown `object_type` in `UserSegmentFilter`: #{filter.config['object_type']}"
             end

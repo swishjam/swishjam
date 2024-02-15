@@ -14,6 +14,10 @@ export class Users extends Base {
     return await this._get('/api/v1/users', { page, per_page: limit, user_segment_ids: userSegmentIds })
   }
 
+  static async count() {
+    return await this._get('/api/v1/users/count');
+  }
+
   static async retrieve(id) {
     return await this._get(`/api/v1/users/${id}`);
   }

@@ -24,7 +24,7 @@ module ClickHouseQueries
               name = '#{filter_config['event_name']}'
               AND date_diff ('minute', occurred_at, now(), 'UTC') <= #{filter_config['num_lookback_days'] * 24 * 60}
             GROUP BY user_profile_id
-          ) AS #{filter_config['event_name']}_count_for_user ON #{users_table_alias}.swishjam_user_id = #{filter_config['event_name']}_count_for_user.user_profile_id
+          ) AS #{filter_config['event_name'].gsub(' ', '_')}_count_for_user ON #{users_table_alias}.swishjam_user_id = #{filter_config['event_name'].gsub(' ', '_')}_count_for_user.user_profile_id
         SQL
       end
     end

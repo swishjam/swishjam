@@ -4,6 +4,8 @@ class UserSegmentFilter < Transactional
   has_many :child_filters, class_name: UserSegmentFilter.to_s, foreign_key: :parent_filter_id, dependent: :destroy
 
   validate :has_valid_config
+  validates :sequence_position, presence: true, numericality: { only_integer: true, greater_than_or_equal_to: 1 }, uniqueness: { scope: :user_segment_id }
+  validates :parent_relationship_operator, inclusion: { in: %w[and or] }, if: -> { sequence_position > 1 }
 
   private
 
@@ -23,47 +25,3 @@ class UserSegmentFilter < Transactional
     end
   end
 end
-
-
-# UserSegment - name: "Active Users"
-#               description: "Users who have visited 5 or more dashboards in the last 14 days, OR have recevied 4 or more reports in the last 30 days AND have invited 2 or more teammates in the last 28 days."
-#
-# UserSegmentFilters:
-# |
-# | - - id = 1
-# |      parent_filter_id = NULL
-# |      parent_relationship_connector = NULL
-# |      object_type = 'event'
-# |      object_attribute = 'url'
-# |      operator = 'contains'
-# |      value = '/dashboards
-# |      num_days_lookback = 14
-# |
-# | - - - - id = 2
-# |           parent_filter_id = 1 
-# |           parent_relationship_connector = 'AND'
-# |           object_type = 'event'
-# |           object_attribute = 'url'
-# |           operator = 'contains'
-# |           value = '/dashboards
-# |           num_days_lookback = NULL
-# |
-# | - - id = 3
-# |      parent_filter_id = NULL
-# |      parent_relationship_connector = NULL
-# |      object_type = 'event'
-# |      object_name = 'report_received'
-# |      object_attribute = NULL
-# |      operator = 'greater_than_or_equal_to'
-# |      value = 4
-# |      num_days_lookback = 14
-# |
-# | - - - - id = 4
-# |           parent_filter_id = 3
-# |           parent_relationship_connector = 'AND'
-# |           object_type = 'event'
-# |           object_name = 'teammate_invited'
-# |           object_attribute = NULL
-# |           operator = 'greater_than_or_equal_to'
-# |           value = 2
-# |           num_days_lookback = 28

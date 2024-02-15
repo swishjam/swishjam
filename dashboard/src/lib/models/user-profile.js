@@ -1,9 +1,9 @@
 export class UserProfile {
   constructor(attributes) {
+    this._attributes = attributes;
     this._id = attributes.id ? attributes.id : attributes.swishjam_user_id;
     this._email = attributes.email;
     this._uniqueIdentifier = attributes.user_unique_identifier;
-    this._gravatarUrl = attributes.gravatar_url;
     this._metadata = attributes.metadata || {};
     this._createdAt = attributes.created_at;
     if (typeof this._metadata === 'string') {
@@ -14,16 +14,32 @@ export class UserProfile {
   id = () => this._id;
   email = () => this._email;
   uniqueIdentifier = () => this._uniqueIdentifier;
-  gravatarUrl = () => this._gravatarUrl;
   metadata = () => this._metadata;
+  properties = () => this._metadata;
   createdAt = () => this._createdAt;
+  attributes = () => this._attributes;
+
+  metadataItem = key => this.metadata()[key];
+  property = this.metadataItem;
+
+  firstName = () => {
+    return this.property('first_name') || this.property('firstName');
+  }
+
+  lastName = () => {
+    return this.property('last_name') || this.property('lastName');
+  }
 
   fullName = () => {
-    let name = this.metadata().full_name || this.metadata().fullName;
-    if (!name && (this.metadata().first_name || this.metadata().firstName) && (this.metadata().last_name || this.metadata().lastName)) {
-      name = `${this.metadata().first_name || this.metadata().firstName} ${this.metadata().last_name || this.metadata().lastName}`;
+    let name = this.property('full_name') || this.property('fullName') || this.property('name');
+    if (!name && (this.firstName() && this.lastName())) {
+      name = `${this.firstName()} ${this.lastName()}`;
     }
     return name;
+  }
+
+  gravatarUrl = () => {
+    return this.property('gravatar_url');
   }
 
   initials = () => {
@@ -34,6 +50,23 @@ export class UserProfile {
       return noDomain.split('').slice(0, 2).join('');
     }
   }
+
+  asJson = () => {
+    return {
+      id: this.id(),
+      uniqueIdentifier: this.uniqueIdentifier(),
+      email: this.email(),
+      metadata: this.metadata(),
+      firstName: this.firstName(),
+      lastName: this.lastName(),
+      fullName: this.fullName(),
+      initials: this.initials(),
+      gravatarUrl: this.gravatarUrl(),
+      createdAt: this.createdAt(),
+      attributes: this.attributes(),
+    }
+  }
+
 }
 
 export default UserProfile;

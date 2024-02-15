@@ -10,12 +10,12 @@ module Api
         if params[:q]
           users = ClickHouseQueries::Users::Search.new(current_workspace, query: params[:q], limit: per_page).get
           render json: { users: users }, status: :ok
-        elsif params[:segment_ids]
-          user_segments = current_workspace.user_segments.includes(:user_segment_filters).where(id: params[:segment_ids])
-          ClickHouseQueries::Users::List.new(current_workspace, user_segments: user_segments, page: page, limit: per_page).get
-          byebug
         else
-          users_results = ClickHouseQueries::Users::List.new(current_workspace, page: page, limit: per_page).get
+          user_segments = []
+          if params[:user_segment_ids].present?
+            user_segments = current_workspace.user_segments.includes(:user_segment_filters).where(id: params[:user_segment_ids])
+          end
+          users_results = ClickHouseQueries::Users::List.new(current_workspace, user_segments: user_segments, page: page, limit: per_page).get
           render json: {
             users: users_results['users'],
             previous_page: params[:page].to_i > 1 ? params[:page].to_i - 1 : nil,
@@ -24,6 +24,11 @@ module Api
             total_num_records: users_results['total_num_users'],
           }, status: :ok
         end
+      end
+
+      def count
+        counts = ClickHouseQueries::Users::Count.new(current_workspace).get
+        render json: counts, status: :ok
       end
 
       def show
