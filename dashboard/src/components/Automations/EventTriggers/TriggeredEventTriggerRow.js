@@ -54,6 +54,7 @@ export default function TriggeredEventTriggerRow({ triggeredEventTrigger }) {
                 resendEmailId={triggeredStep.triggered_payload.resend_response?.id}
                 to={triggeredStep.triggered_payload.resend_request_body.to}
                 from={triggeredStep.triggered_payload.resend_request_body.from}
+                replyTo={triggeredStep.triggered_payload.resend_request_body.reply_to}
                 cc={triggeredStep.triggered_payload.resend_request_body.cc}
                 bcc={triggeredStep.triggered_payload.resend_request_body.bcc}
                 subject={triggeredStep.triggered_payload.resend_request_body.subject}

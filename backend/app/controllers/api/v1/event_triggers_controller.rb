@@ -23,6 +23,12 @@ module Api
               config: JSON.parse((step[:config] || {}).to_json),
             }
           end
+          if new_trigger_steps.count != 1
+            # this entire update endpoint is a major hack until we support multiple trigger steps
+            Sentry.capture_message("User attempted to update a trigger with more than one trigger step. This shouldn't be possible. User: #{current_user.email}, Trigger: #{trigger.id}", level: 'error')
+            render json: { error: 'Only one trigger step is allowed' }, status: :unprocessable_entity
+            return
+          end
           has_valid_trigger_steps = new_trigger_steps.all? do |step|
             if step[:type] == 'EventTriggerSteps::Slack'
               step[:type].present? && step[:config].present? && step[:config]['channel_id'].present? && (step[:config]['message_header'].present? || step[:config]['message_body'].present?)
@@ -37,9 +43,7 @@ module Api
             return
           end
           if trigger.update(event_name: params[:event_name], conditional_statements: (params[:conditional_statements] || []).as_json)
-            trigger.event_trigger_steps.destroy_all
-            trigger.event_trigger_steps_attributes = new_trigger_steps
-            trigger.save
+            trigger.event_trigger_steps.first.update!(config: new_trigger_steps.first[:config])
             render json: { trigger: EventTriggerSerializer.new(trigger) }, status: :ok
           else
             render json: { error: trigger.errors.full_messages.join(' ') }, status: :unprocessable_entity
