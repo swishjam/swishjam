@@ -24,6 +24,7 @@ import WorkspaceInvitations from './workspace-invitations';
 import WorkspaceMembers from './workspace-members';
 import WorkspaceSettings from './workspace-settings';
 import Reports from './reports';
+import UserSegments from './user-segments';
 
 
 export class SwishjamAPI {
@@ -48,6 +49,7 @@ export class SwishjamAPI {
   static SlackConnections = SlackConnections;
   static Team = Team;
   static Users = Users;
+  static UserSegments = UserSegments;
   static Workspace = Workspace;
   static WorkspaceInvitations = WorkspaceInvitations;
   static WorkspaceMembers = WorkspaceMembers;

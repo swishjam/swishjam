@@ -3,17 +3,16 @@ module ClickHouseQueries
     class List
       include ClickHouseQueries::Helpers
 
-      def initialize(workspace_id, where: {}, columns: ['email', 'metadata', 'created_at'], page: 1, limit: 25)
+      def initialize(workspace_id, user_segments: [], page: 1, limit: 25)
         @workspace_id = workspace_id.is_a?(Workspace) ? workspace_id.id : workspace_id
-        @where = where
-        @columns = columns
+        @user_segments = user_segments
         @page = page.to_i
         @limit = limit.to_i
       end
 
       def get
         users = Analytics::ClickHouseRecord.execute_sql(list_users_sql.squish!)
-        total_num_users = Analytics::ClickHouseRecord.execute_sql(total_num_pages_sql.squish!).first['total_num_users']
+        total_num_users = Analytics::ClickHouseRecord.execute_sql(total_num_users_sql.squish!).first['total_num_users']
         {
           users: users,
           total_num_users: total_num_users,
@@ -21,25 +20,26 @@ module ClickHouseQueries
         }.with_indifferent_access
       end
 
-      def total_num_pages_sql
+      def total_num_users_sql
         <<~SQL
-          SELECT CAST(COUNT(DISTINCT swishjam_user_id) AS INT) AS total_num_users
-          FROM swishjam_user_profiles
+          SELECT CAST(COUNT(DISTINCT user_profiles.swishjam_user_id) AS INT) AS total_num_users
+          FROM swishjam_user_profiles AS user_profiles
+          #{maybe_event_table_join_clause}
           WHERE 
-            workspace_id = '#{@workspace_id}' AND
-            isNull(merged_into_swishjam_user_id) AND
-            #{dynamic_where_clause}
+            user_profiles.workspace_id = '#{@workspace_id}' AND
+            isNull(user_profiles.merged_into_swishjam_user_id) AND
+            #{user_segment_filter_where_clause}
         SQL
       end
 
       def list_users_sql
         <<~SQL
           SELECT 
-            swishjam_user_id, 
-            email, 
-            metadata, 
+            user_profiles.swishjam_user_id AS swishjam_user_id, 
+            user_profiles.email AS email, 
+            user_profiles.metadata AS metadata, 
             #{select_clickhouse_timestamp_with_timezone('created_at')}, 
-            first_seen_at_in_web_app
+            user_profiles.first_seen_at_in_web_app AS first_seen_at_in_web_app
           FROM (
             SELECT 
               swishjam_user_id,
@@ -51,39 +51,50 @@ module ClickHouseQueries
             FROM swishjam_user_profiles
             WHERE workspace_id = '#{@workspace_id}'
             GROUP BY swishjam_user_id
-          )
+          ) AS user_profiles
+          #{maybe_event_table_join_clause}
           WHERE 
-            isNull(merged_into_swishjam_user_id) AND
-            #{dynamic_where_clause}
-          ORDER BY created_at DESC
+            isNull(user_profiles.merged_into_swishjam_user_id) AND
+            #{user_segment_filter_where_clause}
+          ORDER BY user_profiles.created_at DESC
           LIMIT #{@limit} OFFSET #{(@page - 1) * @limit}
         SQL
       end
 
-      def dynamic_where_clause
-        if @where.nil? || @where.empty?
-          "1 = 1"
-        else
-          @where.map do |key, value|
-            if value.is_a?(Array) && value.empty?
-              "1 = 1"
-            else
-              if key.start_with?('metadata')
-                if value.is_a?(Array)
-                  "JSONExtractString(metadata, '#{key.split('.')[1..key.split('.').length - 1].join('.')}') IN #{formatted_in_clause(value)}"
-                else
-                  "JSONExtractString(metadata, '#{key.split('.')[1..key.split('.').length - 1].join('.')}') = '#{value}'"
-                end
-              else
-                if value.is_a?(Array)
-                  "#{key} IN #{formatted_in_clause(value)}"
-                else
-                  "#{key} = '#{value}'"
-                end
-              end
-            end
-          end.join(' AND ')
+      def maybe_event_table_join_clause
+        sql = ''
+        should_join_events_table = @user_segments.any? && @user_segments.map(&:user_segment_filters).flatten.any? { |f| f.config['object_type'] == 'event' }
+        return sql if !should_join_events_table
+        @user_segments.each do |user_segment|
+          user_segment.user_segment_filters.each do |filter|
+            next if filter.config['object_type'] != 'event'
+            sql << ClickHouseQueries::Common::LeftJoinStatementsForUserSegmentEventFilter.left_join_statement(filter.config)
+          end
         end
+        sql
+      end
+
+      def user_segment_filter_where_clause
+        return "1 = 1" if @user_segments.empty?
+        query = ""
+        @user_segments.each_with_index do |user_segment, i|
+          query << " AND " if i > 0
+          query << " ( "
+          user_segment.user_segment_filters.order(sequence_position: :ASC).each do |filter|
+            query << " #{filter.parent_relationship_operator} " if filter.parent_relationship_operator.present?
+            case filter.config['object_type']
+            when 'user'
+              query << ClickHouseQueries::Common::WhereClauseForUserSegmentUserPropertyFilter.where_clause_statement(filter.config, users_table_alias: 'user_profiles')
+            when 'event'
+              # query << ClickHouseQueries::Common::WhereClauseForUserSegmentEventFilter.where_clause_statement(filter.config, events_table_alias: 'events')
+              query << "#{filter.config['event_name']}_count_for_user.event_count_for_user_within_lookback_period >= #{filter.config['num_event_occurrences']}"
+            else
+              raise "Unknown `object_type` in `UserSegmentFilter`: #{filter.config['object_type']}"
+            end
+          end
+          query << " ) "
+        end
+        query
       end
 
     end

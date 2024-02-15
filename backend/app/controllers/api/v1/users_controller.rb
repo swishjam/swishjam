@@ -6,12 +6,16 @@ module Api
       def index
         per_page = params[:per_page] || 10
         page = params[:page] || 1
+        # I don't think this gets used anywhere, we only use the SearchController currently
         if params[:q]
           users = ClickHouseQueries::Users::Search.new(current_workspace, query: params[:q], limit: per_page).get
           render json: { users: users }, status: :ok
+        elsif params[:segment_ids]
+          user_segments = current_workspace.user_segments.includes(:user_segment_filters).where(id: params[:segment_ids])
+          ClickHouseQueries::Users::List.new(current_workspace, user_segments: user_segments, page: page, limit: per_page).get
+          byebug
         else
-          where_clause = JSON.parse(params[:where] || {}.to_json)
-          users_results = ClickHouseQueries::Users::List.new(current_workspace, where: where_clause, page: page, limit: per_page).get
+          users_results = ClickHouseQueries::Users::List.new(current_workspace, page: page, limit: per_page).get
           render json: {
             users: users_results['users'],
             previous_page: params[:page].to_i > 1 ? params[:page].to_i - 1 : nil,

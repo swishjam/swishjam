@@ -19,6 +19,14 @@ module Ingestion
           define_method(method.to_s.upcase) { "#{method.to_s.downcase}_ingestion_queue" }
           define_method("#{method.to_s.upcase}_DLQ") { "#{method.to_s.downcase}_ingestion_dead_letter_queue" }
         end
+
+
+        def _flush_all_queues!
+          all.each do |queue|
+            puts "Flushing queue: #{queue}".colorize(:red)
+            Ingestion::QueueManager.pop_all_records_from_queue(queue)
+          end
+        end
       end
     end
 

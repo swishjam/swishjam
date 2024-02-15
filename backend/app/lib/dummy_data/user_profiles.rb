@@ -6,28 +6,35 @@ module DummyData
       def generate!(workspace:, number_of_users:, data_begins_max_number_of_days_ago:, initial_url_options:)
         progress_bar = TTY::ProgressBar.new("Seeding #{number_of_users} user profiles [:bar]", total: number_of_users, bar_format: :block)
 
-        users = number_of_users.to_i.times.map do
-          user = AnalyticsUserProfile.create!(
-            workspace: workspace,
+        user_data = number_of_users.to_i.times.map do
+          ts = rand(0..data_begins_max_number_of_days_ago).days.ago
+          profile_json = {
+            workspace_id: workspace.id,
             user_unique_identifier: SecureRandom.uuid,
             email: Faker::Internet.email,
-            first_name: Faker::Name.first_name,
-            last_name: Faker::Name.last_name,
-            created_at: rand(0..data_begins_max_number_of_days_ago).days.ago,
-            initial_landing_page_url: REFERRER_OPTIONS.sample,
-            initial_referrer_url: REFERRER_OPTIONS.sample,
+            created_at: ts,
+            updated_at: ts,
             metadata: Hash.new.tap do |h|
+              h['first_name'] = Faker::Name.first_name
+              h['last_name'] = Faker::Name.last_name
+              h[AnalyticsUserProfile::ReservedMetadataProperties.INITIAL_LANDING_PAGE_URL] = initial_url_options.sample
+              h[AnalyticsUserProfile::ReservedMetadataProperties.INITIAL_REFERRER_URL] = REFERRER_OPTIONS.sample
               rand(1..user_attribute_options.count).times do |i|
                 h[user_attribute_options[i][:key]] = user_attribute_options[i][:faker_klass].send(user_attribute_options[i][:faker_method])
               end
             end
-          )
+          }
           progress_bar.advance
-          user
+          profile_json
         end
-        Ingestion::UserProfileClickHouseReplicationIngestion.ingest!
+        AnalyticsUserProfile.insert_all!(user_data)
+        all_profiles = workspace.analytics_user_profiles
+        Ingestion::QueueManager.push_records_into_queue(
+          Ingestion::QueueManager::Queues.CLICK_HOUSE_USER_PROFILES, 
+          all_profiles.map(&:formatted_for_clickhouse_replication)
+        )
         puts "\n"
-        users
+        all_profiles
       end
 
       private
