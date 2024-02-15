@@ -10,10 +10,14 @@ module ClickHouseQueries
           include ClickHouseQueries::Helpers
           include TimeseriesHelper
 
-          def initialize(public_keys, workspace_id:, start_time: self.class.default_start_time, end_time: self.class.default_end_time || Time.current)
+          def initialize(public_keys, workspace_id:, use_active_users_segment: true, start_time: self.class.default_start_time, end_time: self.class.default_end_time || Time.current)
             @public_keys = public_keys.is_a?(Array) ? public_keys : [public_keys]
             @workspace_id = workspace_id
             @start_time, @end_time = rounded_timestamps(start_ts: start_time, end_ts: end_time, group_by: self.class.sql_date_trunc_unit)
+            if use_active_users_segment
+              workspace = Workspace.find(workspace_id)
+              @active_users_segment = workspace.user_segments.ACTIVE_USERS_SEGMENT
+            end
           end
 
           def timeseries
@@ -31,26 +35,33 @@ module ClickHouseQueries
           end
 
           def sql
+            # isNull(user_profiles.merged_into_swishjam_user_id),
+            # IF(
+            #   isNull(events.user_profile_id),
+            #   JSONExtractString(events.properties, 'device_identifier'),
+            #   events.user_profile_id
+            # ),
+            # user_profiles.merged_into_swishjam_user_id
             <<~SQL
               SELECT 
                 DATE_TRUNC('#{self.class.sql_date_trunc_unit}', events.occurred_at) AS group_by_date,
                 DATE_TRUNC('year', events.occurred_at) AS year,
                 CAST(COUNT(DISTINCT
                   IF(
-                    isNull(user_profiles.merged_into_swishjam_user_id),
-                    IF(
-                      isNull(events.user_profile_id),
-                      JSONExtractString(events.properties, 'device_identifier'),
-                      events.user_profile_id
-                    ),
-                    user_profiles.merged_into_swishjam_user_id
+                    isNull(user_profiles.finalized_swishjam_user_id),
+                    JSONExtractString(events.properties, 'device_identifier'),
+                    user_profiles.finalized_swishjam_user_id
                   )
-                ) AS int) AS num_unique_users
+                ) AS INT) AS num_unique_users
               FROM events
               LEFT JOIN (
                 SELECT 
                   swishjam_user_id, 
-                  argMax(merged_into_swishjam_user_id, updated_at) AS merged_into_swishjam_user_id
+                  IF(
+                    isNull(merged_into_swishjam_user_id), 
+                    swishjam_user_id, 
+                    merged_into_swishjam_user_id
+                  ) AS finalized_swishjam_user_id
                 FROM swishjam_user_profiles
                 WHERE workspace_id = '#{@workspace_id}'
                 GROUP BY swishjam_user_id
