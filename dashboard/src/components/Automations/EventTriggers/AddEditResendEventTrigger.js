@@ -62,6 +62,7 @@ export default function AddEditResendEventTrigger({
   const [hasResendDestinationEnabled, setHasResendDestinationEnabled] = useState();
   const [loading, setLoading] = useState(false);
   const [propertyOptionsForSelectedEvent, setPropertyOptionsForSelectedEvent] = useState();
+  const [replyToSectionIsExpanded, setReplyToSectionIsExpanded] = useState(defaultTriggerValues.steps[0].config?.reply_to ? true : false);
   const [uniqueEvents, setUniqueEvents] = useState();
   const [userPropertyOptions, setUserPropertyOptions] = useState();
   // const [testTriggerModalIsOpen, setTestTriggerModalIsOpen] = useState(false);
@@ -185,17 +186,28 @@ export default function AddEditResendEventTrigger({
             }
             cc={
               <InterpolatedMarkdown
-                content={form.watch('steps.0.config.cc')}
+                content={(form.watch('steps.0.config.cc') || '').replace(/</g, '&lt;').replace(/>/g, '&gt;')}
                 availableEventOptions={[...(propertyOptionsForSelectedEvent || []), ...(userPropertyOptions || [])]}
               />
             }
             bcc={
               <InterpolatedMarkdown
-                content={form.watch('steps.0.config.bcc')}
+                content={(form.watch('steps.0.config.bcc') || '').replace(/</g, '&lt;').replace(/>/g, '&gt;')}
                 availableEventOptions={[...(propertyOptionsForSelectedEvent || []), ...(userPropertyOptions || [])]}
               />
             }
-            from={form.watch('steps.0.config.from')}
+            from={
+              <InterpolatedMarkdown
+                content={(form.watch('steps.0.config.from') || '').replace(/</g, '&lt;').replace(/>/g, '&gt;')}
+                availableEventOptions={[...(propertyOptionsForSelectedEvent || []), ...(userPropertyOptions || [])]}
+              />
+            }
+            replyTo={
+              <InterpolatedMarkdown
+                content={(form.watch('steps.0.config.reply_to') || '').replace(/</g, '&lt;').replace(/>/g, '&gt;')}
+                availableEventOptions={[...(propertyOptionsForSelectedEvent || []), ...(userPropertyOptions || [])]}
+              />
+            }
             subject={
               <InterpolatedMarkdown
                 content={form.watch('steps.0.config.subject')}
@@ -457,26 +469,22 @@ export default function AddEditResendEventTrigger({
                         {...form.register("steps.0.config.to")}
                       />
                       <div className="absolute top-6 right-2 flex gap-2 z-10">
-                        <div
-                          onClick={() => {
-                            if (!form.watch('steps.0.config.bcc')) {
-                              setBccSectionsIsExpanded(true)//!ccSectionsIsExpanded)
-                            }
-                          }}
-                          className={`${bccSectionsIsExpanded && 'hidden'} cursor-pointer px-2 py-0.5 rounded border border-gray-200 text-xs hover:bg-accent`}
-                        >
-                          BCC
-                        </div>
-                        <div
-                          onClick={() => {
-                            if (!form.watch('steps.0.config.cc')) {
-                              setCcSectionsIsExpanded(true)//!ccSectionsIsExpanded)
-                            }
-                          }}
-                          className={`${ccSectionsIsExpanded && 'hidden'} cursor-pointer px-2 py-0.5 rounded border border-gray-200 text-xs hover:bg-accent`}
-                        >
-                          CC
-                        </div>
+                        {!bccSectionsIsExpanded && (
+                          <div
+                            onClick={() => setBccSectionsIsExpanded(true)}
+                            className='cursor-pointer px-2 py-0.5 rounded border border-gray-200 text-xs hover:bg-accent'
+                          >
+                            BCC
+                          </div>
+                        )}
+                        {!ccSectionsIsExpanded && (
+                          <div
+                            onClick={() => setCcSectionsIsExpanded(true)}
+                            className='cursor-pointer px-2 py-0.5 rounded border border-gray-200 text-xs hover:bg-accent'
+                          >
+                            CC
+                          </div>
+                        )}
                       </div>
                     </FormInputOrLoadingState>
                   </FormControl>
@@ -502,11 +510,10 @@ export default function AddEditResendEventTrigger({
                         <div className="absolute top-6 right-2 flex gap-2 z-10">
                           <div
                             onClick={() => {
-                              if (!form.watch('steps.0.config.cc')) {
-                                setCcSectionsIsExpanded(false)//!ccSectionsIsExpanded)
-                              }
+                              setCcSectionsIsExpanded(false)
+                              form.setValue('steps.0.config.cc', null)
                             }}
-                            className={`${form.watch('steps.0.config.cc') && 'hidden'} cursor-pointer px-2 py-1.5 text-xs hover:bg-accent rounded-md group transition-all duration-300`}
+                            className={`cursor-pointer px-2 py-1.5 text-xs hover:bg-accent rounded-md group transition-all duration-300`}
                           >
                             <LuX size={16} className="group-hover:text-gray-900 text-gray-200" />
                           </div>
@@ -536,11 +543,10 @@ export default function AddEditResendEventTrigger({
                         <div className="absolute top-6 right-2 flex gap-2 z-10">
                           <div
                             onClick={() => {
-                              if (!form.watch('steps.0.config.bcc')) {
-                                setBccSectionsIsExpanded(false)
-                              }
+                              setBccSectionsIsExpanded(false)
+                              form.setValue('steps.0.config.bcc', null)
                             }}
-                            className={`${form.watch('steps.0.config.bcc') && 'hidden'} cursor-pointer px-2 py-1.5 text-xs hover:bg-accent rounded-md group transition-all duration-300`}
+                            className='cursor-pointer px-2 py-1.5 text-xs hover:bg-accent rounded-md group transition-all duration-300'
                           >
                             <LuX size={16} className="group-hover:text-gray-900 text-gray-200" />
                           </div>
@@ -557,8 +563,8 @@ export default function AddEditResendEventTrigger({
               control={form.control}
               name='steps.0.config.from'
               render={({ field }) => (
-                <FormItem>
-                  <FormLabel>From</FormLabel>
+                <FormItem className='relative'>
+                  <FormLabel className='flex'>From</FormLabel>
                   <FormControl>
                     <FormInputOrLoadingState isLoading={isFetchingData}>
                       <Input
@@ -566,7 +572,50 @@ export default function AddEditResendEventTrigger({
                         placeholder='Your Name <from-email@example.com>'
                         {...form.register('steps.0.config.from')}
                       />
+                      {!replyToSectionIsExpanded && (
+                        <div className="absolute top-6 right-2 flex gap-2 z-10">
+                          <div
+                            onClick={() => setReplyToSectionIsExpanded(true)}
+                            className='cursor-pointer px-2 py-0.5 rounded border border-gray-200 text-xs hover:bg-accent'
+                          >
+                            REPLY TO
+                          </div>
+                        </div>
+                      )}
                     </FormInputOrLoadingState>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="steps.0.config.reply_to"
+              render={({ field }) => (
+                <FormItem className="relative">
+                  {(replyToSectionIsExpanded || form.watch('steps.0.config.reply_to')) && <FormLabel className={`flex items-center pr-4 py-0.5`}>Reply To</FormLabel>}
+                  <FormControl>
+                    {(replyToSectionIsExpanded || form.watch('steps.0.config.reply_to')) && (
+                      <FormInputOrLoadingState isLoading={isFetchingData}>
+                        <Input
+                          type="text"
+                          placeholder="reply-to@example.com"
+                          {...form.register("steps.0.config.reply_to")}
+                        />
+                        <div className="absolute top-6 right-2 flex gap-2 z-10">
+                          <div
+                            onClick={() => {
+                              setReplyToSectionIsExpanded(false)
+                              form.setValue('steps.0.config.reply_to', null)
+                            }}
+                            className='cursor-pointer px-2 py-1.5 text-xs hover:bg-accent rounded-md group transition-all duration-300'
+                          >
+                            <LuX size={16} className="group-hover:text-gray-900 text-gray-200" />
+                          </div>
+                        </div>
+                      </FormInputOrLoadingState>
+                    )}
                   </FormControl>
                   <FormMessage />
                 </FormItem>

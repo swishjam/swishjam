@@ -8,7 +8,8 @@ module EventTriggers
       if triggered_event_trigger.nil? && triggered_event_trigger_step.nil?
         raise ArgumentError, "`triggered_event_trigger` or `triggered_event_trigger_step` must be provided"
       end
-      @triggered_step_record = triggered_event_trigger_step || event_trigger_step.triggered_event_trigger_steps.new(
+      @triggered_step_record = triggered_event_trigger_step || TriggeredEventTriggerStep.new(
+        event_trigger_step: event_trigger_step,
         triggered_event_trigger: triggered_event_trigger,
         triggered_event_json: prepared_event.as_json, 
         triggered_payload: { resend_request_body: request_body }
@@ -88,6 +89,7 @@ module EventTriggers
         }
         payload[:cc] = EventVariableResolver.interpolated_text(event_trigger_step.config['cc'], prepared_event) if event_trigger_step.config['cc'].present?
         payload[:bcc] = EventVariableResolver.interpolated_text(event_trigger_step.config['bcc'], prepared_event) if event_trigger_step.config['bcc'].present?
+        payload[:reply_to] = EventVariableResolver.interpolated_text(event_trigger_step.config['reply_to'], prepared_event) if event_trigger_step.config['reply_to'].present?
         payload
       end
     end

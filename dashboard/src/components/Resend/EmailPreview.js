@@ -3,10 +3,11 @@ import { BsArrowUpRight } from 'react-icons/bs'
 
 const ResendIcon = () => (<img src={'/logos/resend.png'} className="h-6 w-6 -ml-1 -my-1" />)
 
-export default function EmailPreview({ to, from, cc, bcc, subject, body, className, resendEmailId, includeResendPreviewBadge = true }) {
+export default function EmailPreview({ to, from, cc, bcc, subject, body, replyTo, className, resendEmailId, includeResendPreviewBadge = true }) {
   const hasCc = typeof cc === 'string' && cc.trim().length > 0 || typeof cc === 'object' && cc.props?.content && cc.props?.content?.trim()?.length > 0;
   const hasBcc = typeof bcc === 'string' && bcc.trim().length > 0 || typeof bcc === 'object' && bcc.props?.content && bcc.props?.content?.trim()?.length > 0;
   const hasBodyContent = typeof body === 'string' && body.trim().length > 0 || typeof body === 'object' && body.props?.content && body.props?.content?.trim()?.length > 0;
+  const hasReplyTo = typeof replyTo === 'string' && replyTo.trim().length > 0 || typeof replyTo === 'object' && replyTo.props?.content && replyTo.props?.content?.trim()?.length > 0;
 
   return (
     <div className={`relative text-sm shadow-sm border border-gray-200 bg-white rounded-md p-4 ${className}`}>
@@ -49,8 +50,18 @@ export default function EmailPreview({ to, from, cc, bcc, subject, body, classNa
       }
       <div className='flex gap-x-2 border-t border-gray-200 py-3 px-1'>
         <span className='text-gray-400'>From:</span>
-        <span className='text-gray-900'>{from}</span>
+        <span className='text-gray-900'>
+          {from}
+        </span>
       </div>
+
+      {hasReplyTo && (
+        <div className='flex gap-x-2 border-t border-gray-200 py-3 px-1'>
+          <span className='text-gray-400'>Reply To:</span>
+          <span className='text-gray-900'>{replyTo}</span>
+        </div>
+      )}
+
       <div className='flex gap-x-2 border-t border-gray-200 py-3 px-1'>
         <span className='text-gray-400'>Subject:</span>
         <span className='text-gray-900'>{subject}</span>
