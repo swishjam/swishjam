@@ -19,6 +19,20 @@ export class UserProfile {
   createdAt = () => this._createdAt;
   attributes = () => this._attributes;
 
+  enrichmentData = () => {
+    if (this.attributes().enrichment_data) {
+      return this.attributes().enrichment_data;
+    } else {
+      let enrichmentData = {};
+      Object.keys(this.metadata()).forEach(key => {
+        if (key.startsWith('enrichment_')) {
+          enrichmentData[key] = this.metadata()[key];
+        }
+      })
+      return enrichmentData;
+    }
+  }
+
   metadataItem = key => this.metadata()[key];
   property = this.metadataItem;
 

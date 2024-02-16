@@ -1,6 +1,7 @@
 class UserSegment < Transactional
   belongs_to :workspace
   belongs_to :created_by_user, class_name: User.to_s
+  has_many :profile_tags, dependent: :nullify
   has_many :user_segment_filters, dependent: :destroy
   accepts_nested_attributes_for :user_segment_filters, allow_destroy: true
 
@@ -10,6 +11,10 @@ class UserSegment < Transactional
   
   def self.ACTIVE_USERS_SEGMENT
     where(name: ACTIVE_USERS_SEGMENT_NAME).limit(1).first
+  end
+
+  def profile_tag_name
+    name.singularize
   end
 
   private

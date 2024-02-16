@@ -1,14 +1,18 @@
 'use client'
 
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import FilterDisplay from "@/components/UserSegments/FilterDisplay";
+import DottedUnderline from "@/components/utils/DottedUnderline";
+import FiltersDisplayFeed from "@/components/UserSegments/FiltersDisplayFeed";
+import { humanizeVariable } from "@/lib/utils/misc";
 import Pagination from "@/components/Pagination/Pagination";
 import { prettyDateTime } from "@/lib/utils/timeHelpers";
 import { Skeleton } from "@/components/ui/skeleton";
 import Table from "@/components/utils/Table";
+import { Tooltipable } from "@/components/ui/tooltip";
 import SwishjamAPI from "@/lib/api-client/swishjam-api";
 import { useEffect, useState } from "react";
 import UserProfilesCollection from "@/lib/collections/user-profiles";
+import Link from "next/link";
 
 export default function UserSegmentDetailsPage({ params }) {
   const { id } = params;
@@ -24,9 +28,13 @@ export default function UserSegmentDetailsPage({ params }) {
     tableHeaders = ['User']
     userSegment.user_segment_filters.forEach(filter => {
       if (filter.config.object_type === 'user') {
-        tableHeaders.push(filter.config.user_property_name)
+        tableHeaders.push(humanizeVariable(filter.config.user_property_name))
       } else {
-        tableHeaders.push(<># of <span className='italic underline decoration-dotted text-zinc-500 hover:text-zinc-700 transition-colors'>{filter.config.event_name}</span> events last <span className='italic underline decoration-dotted text-zinc-500 hover:text-zinc-700 transition-colors'>{filter.config.num_lookback_days} days</span></>)
+        tableHeaders.push(
+          <>
+            # of <DottedUnderline className='text-zinc-500 hover:text-zinc-700'>{filter.config.event_name}</DottedUnderline> events last <DottedUnderline className='text-zinc-500 hover:text-zinc-700'>{filter.config.num_lookback_days} days</DottedUnderline>
+          </>
+        )
       }
     })
     tableHeaders.push('Created At')
@@ -53,16 +61,42 @@ export default function UserSegmentDetailsPage({ params }) {
     <main className="mx-auto max-w-7xl px-4 mt-8 sm:px-6 lg:px-8 mb-8">
       <div className='grid grid-cols-2 my-8 items-center'>
         <div>
-          <h1 className="text-lg font-medium text-gray-700 mb-0">User Segment Details</h1>
+          <h1 className="text-lg font-medium text-gray-700 mb-0">
+            Segment Details
+          </h1>
         </div>
       </div>
       <div className='bg-white rounded-md border border-gray-200 p-8'>
-        <h3 className='text-lg font-medium'>{userSegment?.name}</h3>
-        {totalNumUsersInSegment === undefined || totalUserCounts === undefined
-          ? <Skeleton className='h-4 w-20' />
-          : <h4 className='text-sm text-gray-500'>{totalNumUsersInSegment} users fall into this segment ({(totalNumUsersInSegment / totalUserCounts.total_count * 100).toFixed(2)}% of all users, {(totalNumUsersInSegment / totalUserCounts.identified_count * 100).toFixed(2)}% of identified users.).</h4>
-        }
-        {userSegment?.user_segment_filters?.map((filter, i) => <FilterDisplay key={i} filter={filter} />)}
+        <div className='mb-4'>
+          <h1 className="text-lg font-medium text-gray-700 mb-1">
+            {userSegment?.name ? <DottedUnderline className='text-lg'>{userSegment.name}</DottedUnderline> : <Skeleton className='h-8 w-12' />}
+          </h1>
+          <h2 className="text-xs text-gray-500">
+            {userSegment?.description || <Skeleton className='h-6 w-24' />}
+          </h2>
+        </div>
+        <div className='text-gray-700'>
+          <FiltersDisplayFeed filters={userSegment?.user_segment_filters} />
+        </div>
+        <div className='mt-6'>
+          {totalNumUsersInSegment === undefined && <Skeleton className='h-6 w-18' />}
+          {totalNumUsersInSegment !== undefined && (
+            <h2 className="text-sm text-gray-700 font-semibold cursor-default w-fit">
+              <Tooltipable
+                content={
+                  <h4 className='text-xs text-gray-500'>
+                    {totalNumUsersInSegment} users is {(totalNumUsersInSegment / totalUserCounts.total_count * 100).toFixed(2)}% of all users, and {(totalNumUsersInSegment / totalUserCounts.identified_count * 100).toFixed(2)}% of identified users.
+                  </h4>
+                }
+              >
+                <div className="inline-block">
+                  <DottedUnderline>{totalNumUsersInSegment !== undefined ? totalNumUsersInSegment : <Skeleton className='h-6 w-8' />} users</DottedUnderline>
+                </div>
+              </Tooltipable>
+              {' '}currently fall into this segment.
+            </h2>
+          )}
+        </div>
       </div>
       <div className='mt-8 bg-white rounded border border-gray-200 p-4'>
         {userProfilesCollectionForSegment === undefined
@@ -74,30 +108,30 @@ export default function UserSegmentDetailsPage({ params }) {
                 <>
                   <Table
                     headers={tableHeaders}
-                    rows={userProfilesCollectionForSegment.models().map(user => {
-                      return [
-                        <div className="flex items-center">
-                          <div className="flex-shrink-0">
-                            <Avatar className="border border-slate-200">
-                              <AvatarImage src={user.gravatarUrl()} />
-                              <AvatarFallback>{user.initials()}</AvatarFallback>
-                            </Avatar>
-                          </div>
-                          <div className="ml-4">
+                    rows={userProfilesCollectionForSegment.models().map(user => ([
+                      <div className="flex items-center">
+                        <div className="flex-shrink-0">
+                          <Avatar className="border border-slate-200">
+                            <AvatarImage src={user.gravatarUrl()} />
+                            <AvatarFallback>{user.initials()}</AvatarFallback>
+                          </Avatar>
+                        </div>
+                        <div className="ml-4">
+                          <Link href={`/users/${user.id()}`} className='hover:underline'>
                             <span className="block font-medium text-gray-900">{user.fullName() || user.email()}</span>
                             {user.fullName() && user.email() ? <span className="text-gray-500">{user.email()}</span> : null}
-                          </div>
-                        </div>,
-                        ...userSegment.user_segment_filters.map(filter => {
-                          if (filter.config.object_type === 'user') {
-                            return user.metadata()[filter.config.user_property_name] || 'N/A'
-                          } else {
-                            return user.attributes()[`${filter.config.event_name.replace(/\s/g, '_')}_count_for_user`]
-                          }
-                        }),
-                        <span className='text-sm text-gray-700'>{prettyDateTime(user.createdAt())}</span>,
-                      ]
-                    })}
+                          </Link>
+                        </div>
+                      </div>,
+                      ...userSegment.user_segment_filters.map(filter => {
+                        if (filter.config.object_type === 'user') {
+                          return user.metadata()[filter.config.user_property_name] || 'N/A'
+                        } else {
+                          return user.attributes()[`${filter.config.event_name.replace(/\s/g, '_')}_count_for_user`]
+                        }
+                      }),
+                      <span className='text-sm text-gray-700'>{prettyDateTime(user.createdAt())}</span>,
+                    ]))}
                   />
                   {userProfilesCollectionForSegment.models().length > 0 && (
                     <Pagination

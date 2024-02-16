@@ -3,15 +3,18 @@ module ClickHouseQueries
     class List
       include ClickHouseQueries::Helpers
 
-      def initialize(workspace_id, user_segments: [], columns: [], page: 1, limit: 25)
+      def initialize(workspace_id, user_segments: [], columns: nil, return_user_segment_event_counts: true, page: 1, limit: 25)
         @workspace_id = workspace_id.is_a?(Workspace) ? workspace_id.id : workspace_id
         @user_segments = user_segments
+        @columns = columns || ['swishjam_user_id', 'email', 'metadata', 'first_seen_at_in_web_app', 'created_at']
+        @return_user_segment_event_counts = return_user_segment_event_counts
         @page = page.to_i
         @limit = limit.to_i
       end
 
       def get
         users = Analytics::ClickHouseRecord.execute_sql(list_users_sql.squish!)
+        TODO: this isn't working, I think `total_num_users.sql` has the correct query, use that!
         total_num_users = Analytics::ClickHouseRecord.execute_sql(total_num_users_sql.squish!).first['total_num_users']
         {
           users: users,
@@ -34,13 +37,7 @@ module ClickHouseQueries
 
       def list_users_sql
         <<~SQL
-          SELECT 
-            user_profiles.swishjam_user_id AS swishjam_user_id, 
-            user_profiles.email AS email, 
-            user_profiles.metadata AS metadata, 
-            user_profiles.first_seen_at_in_web_app AS first_seen_at_in_web_app,
-            #{select_clickhouse_timestamp_with_timezone('created_at')}
-            #{maybe_event_count_select_statements}
+          SELECT #{select_statement_for_columns_and_user_segments}
           FROM (
             SELECT 
               swishjam_user_id,
@@ -62,9 +59,23 @@ module ClickHouseQueries
         SQL
       end
 
+      def select_statement_for_columns_and_user_segments
+        sql = ''
+        @columns.each_with_index do |column, i|
+          if column == 'created_at'
+            sql << "#{select_clickhouse_timestamp_with_timezone('user_profiles.created_at')} AS created_at"
+          else
+            sql << "user_profiles.#{column} AS #{column}"
+          end
+          sql << ", " if i < @columns.length - 1
+        end
+        sql << maybe_event_count_select_statements
+        sql
+      end
+
       def maybe_event_count_select_statements
         sql = ''
-        return sql if !has_event_count_user_segment_filters?
+        return sql if !has_event_count_user_segment_filters? || !@return_user_segment_event_counts
         @user_segments.each do |user_segment|
           user_segment.user_segment_filters.each do |filter|
             next if filter.config['object_type'] != 'event'

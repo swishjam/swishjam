@@ -1,7 +1,7 @@
 class DataSync < Transactional
   belongs_to :workspace
 
-  validates :provider, presence: true, inclusion: { in: %w[stripe stripe_backfill] }
+  validates :provider, presence: true
   
   scope :by_provider, ->(provider) { where(provider: provider) }
   scope :pending, -> { where(completed_at: nil) }
