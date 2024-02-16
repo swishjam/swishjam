@@ -7,6 +7,8 @@ class UserSegment < Transactional
 
   validate :only_one_active_user_segment, on: :create
 
+  after_create :enqueue_user_segment_sync_job
+
   ACTIVE_USERS_SEGMENT_NAME = "Active Users".freeze
   
   def self.ACTIVE_USERS_SEGMENT
@@ -18,6 +20,10 @@ class UserSegment < Transactional
   end
 
   private
+
+  def enqueue_user_segment_sync_job
+    UpdateUserSegmentProfileTagsJob.perform_async(self.id)
+  end
 
   def only_one_active_user_segment
     if name == self.class::ACTIVE_USERS_SEGMENT_NAME && workspace.user_segments.where(name: self.class::ACTIVE_USERS_SEGMENT_NAME).exists?

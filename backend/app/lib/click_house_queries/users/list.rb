@@ -6,16 +6,17 @@ module ClickHouseQueries
       def initialize(workspace_id, user_segments: [], columns: nil, return_user_segment_event_counts: true, page: 1, limit: 25)
         @workspace_id = workspace_id.is_a?(Workspace) ? workspace_id.id : workspace_id
         @user_segments = user_segments
-        @columns = columns || ['swishjam_user_id', 'email', 'metadata', 'first_seen_at_in_web_app', 'created_at']
+        @columns = columns || ['email', 'metadata', 'first_seen_at_in_web_app', 'created_at']
+        @columns << 'created_at' if !@columns.include?('created_at') # needed for ordering
         @return_user_segment_event_counts = return_user_segment_event_counts
         @page = page.to_i
         @limit = limit.to_i
       end
 
       def get
-        users = Analytics::ClickHouseRecord.execute_sql(list_users_sql.squish!)
-        TODO: this isn't working, I think `total_num_users.sql` has the correct query, use that!
-        total_num_users = Analytics::ClickHouseRecord.execute_sql(total_num_users_sql.squish!).first['total_num_users']
+        byebug
+        users = Analytics::ClickHouseRecord.execute_sql(sql.squish!)
+        total_num_users = ClickHouseQueries::Users::Count.new(@workspace_id, user_segments: @user_segments).get['total_num_users']
         {
           users: users,
           total_num_users: total_num_users,
@@ -23,37 +24,14 @@ module ClickHouseQueries
         }.with_indifferent_access
       end
 
-      def total_num_users_sql
-        <<~SQL
-          SELECT CAST(COUNT(DISTINCT user_profiles.swishjam_user_id) AS INT) AS total_num_users
-          FROM swishjam_user_profiles AS user_profiles
-          #{maybe_event_table_join_clause}
-          WHERE 
-            user_profiles.workspace_id = '#{@workspace_id}' AND
-            isNull(user_profiles.merged_into_swishjam_user_id) AND
-            #{user_segment_filter_where_clause}
-        SQL
-      end
-
-      def list_users_sql
+      def sql
         <<~SQL
           SELECT #{select_statement_for_columns_and_user_segments}
-          FROM (
-            SELECT 
-              swishjam_user_id,
-              argMax(merged_into_swishjam_user_id, updated_at) AS merged_into_swishjam_user_id,
-              argMax(email, updated_at) AS email,
-              argMax(metadata, updated_at) AS metadata,
-              argMax(created_at, updated_at) AS created_at,
-              argMax(first_seen_at_in_web_app, updated_at) AS first_seen_at_in_web_app
-            FROM swishjam_user_profiles
-            WHERE workspace_id = '#{@workspace_id}'
-            GROUP BY swishjam_user_id
-          ) AS user_profiles
-          #{maybe_event_table_join_clause}
+          FROM (#{ClickHouseQueries::Common::DeDupedUserProfilesFromClause.from_clause(workspace_id: @workspace_id, columns_to_return: @columns)}) AS user_profiles
+          #{ClickHouseQueries::FilterHelpers::LeftJoinStatementsForUserSegmentsEventFilters.left_join_statements(@user_segments)}
           WHERE 
             isNull(user_profiles.merged_into_swishjam_user_id) AND
-            #{user_segment_filter_where_clause}
+            #{ClickHouseQueries::FilterHelpers::UserSegmentFilterWhereClause.where_clause_statements(@user_segments)}
           ORDER BY user_profiles.created_at DESC
           LIMIT #{@limit} OFFSET #{(@page - 1) * @limit}
         SQL
@@ -75,52 +53,15 @@ module ClickHouseQueries
 
       def maybe_event_count_select_statements
         sql = ''
-        return sql if !has_event_count_user_segment_filters? || !@return_user_segment_event_counts
+        return sql if !@return_user_segment_event_counts
         @user_segments.each do |user_segment|
           user_segment.user_segment_filters.each do |filter|
             next if filter.config['object_type'] != 'event'
-            sql << ", #{filter.config['event_name'].gsub(' ', '_')}_count_for_user.event_count_for_user_within_lookback_period AS #{filter.config['event_name'].gsub(' ', '_')}_count_for_user"
+            event_count_column_name = "#{ClickHouseQueries::FilterHelpers::LeftJoinStatementsForUserSegmentsEventFilters.join_table_alias_for_segment_filter(filter.config)}.event_count_for_user_within_lookback_period"
+            sql << ", #{event_count_column_name} AS #{filter.config['event_name'].gsub(' ', '_')}_count_for_user"
           end
         end
         sql
-      end
-
-      def has_event_count_user_segment_filters?
-        @has_event_count_user_segment_filters ||= @user_segments.any? && @user_segments.map(&:user_segment_filters).flatten.any? { |f| f.config['object_type'] == 'event' }
-      end
-
-      def maybe_event_table_join_clause
-        sql = ''
-        return sql if !has_event_count_user_segment_filters?
-        @user_segments.each do |user_segment|
-          user_segment.user_segment_filters.each do |filter|
-            next if filter.config['object_type'] != 'event'
-            sql << ClickHouseQueries::Common::LeftJoinStatementsForUserSegmentEventFilter.left_join_statement(filter.config)
-          end
-        end
-        sql
-      end
-
-      def user_segment_filter_where_clause
-        return "1 = 1" if @user_segments.empty?
-        query = ""
-        @user_segments.each_with_index do |user_segment, i|
-          query << " AND " if i > 0
-          query << " ( "
-          user_segment.user_segment_filters.order(sequence_position: :ASC).each do |filter|
-            query << " #{filter.parent_relationship_operator} " if filter.parent_relationship_operator.present?
-            case filter.config['object_type']
-            when 'user'
-              query << ClickHouseQueries::Common::WhereClauseForUserSegmentUserPropertyFilter.where_clause_statement(filter.config, users_table_alias: 'user_profiles')
-            when 'event'
-              query << "#{filter.config['event_name'].gsub(' ', '_')}_count_for_user.event_count_for_user_within_lookback_period >= #{filter.config['num_event_occurrences']}"
-            else
-              raise "Unknown `object_type` in `UserSegmentFilter`: #{filter.config['object_type']}"
-            end
-          end
-          query << " ) "
-        end
-        query
       end
 
     end

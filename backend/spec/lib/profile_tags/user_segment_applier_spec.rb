@@ -28,7 +28,7 @@ describe ProfileTags::UserSegmentApplier do
       expect(IngestionJobs::PrepareEventsAndEnqueueIntoClickHouseWriter).to receive(:perform_async).with([
         hash_including(
           swishjam_api_key: @swishjam_api_key,
-          name: 'swishjam_bot.segment_profile_tag_applied',
+          name: 'swishjam_bot.added_to_segment',
           properties: hash_including(
             profile_type: 'user',
             profile_id: @user_profile_1.id,
@@ -80,7 +80,7 @@ describe ProfileTags::UserSegmentApplier do
       expect(IngestionJobs::PrepareEventsAndEnqueueIntoClickHouseWriter).to receive(:perform_async).with([
         hash_including(
           swishjam_api_key: @swishjam_api_key,
-          name: 'swishjam_bot.segment_profile_tag_removed',
+          name: 'swishjam_bot.removed_from_segment',
           properties: hash_including(
             profile_type: 'user',
             profile_id: @user_profile_1.id,

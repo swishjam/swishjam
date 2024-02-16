@@ -27,7 +27,7 @@ module Api
       end
 
       def count
-        counts = ClickHouseQueries::Users::Count.new(current_workspace).get
+        counts = ClickHouseQueries::Users::Count.new(current_workspace.id).get
         render json: counts, status: :ok
       end
 

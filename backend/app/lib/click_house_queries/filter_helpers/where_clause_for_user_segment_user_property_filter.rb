@@ -1,7 +1,7 @@
 module ClickHouseQueries
-  module Common
+  module FilterHelpers
     class WhereClauseForUserSegmentUserPropertyFilter
-      def self.where_clause_statement(filter_config, users_table_alias: '')
+      def self.where_clause_statements(filter_config, users_table_alias: '')
         metadata_column = users_table_alias.blank? ? 'metadata' : "#{users_table_alias}.metadata"
         case filter_config['user_property_operator']
         when 'is_defined'

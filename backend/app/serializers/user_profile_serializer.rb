@@ -7,7 +7,10 @@ class UserProfileSerializer < ActiveModel::Serializer
   end
 
   def tags
-    object.tags.map do |tag|
+    # if there are two 'Active User' tags (at least one has to be removed), we only want the most recently applied one
+    subquery = object.tags.group(:name).maximum(:applied_at)
+    most_recent_tags_by_name = object.tags.where(name: subquery.keys, applied_at: subquery.values)
+    most_recent_tags_by_name.map do |tag|
       {
         id: tag.id,
         name: tag.name,

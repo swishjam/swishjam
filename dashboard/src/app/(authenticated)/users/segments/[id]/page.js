@@ -13,6 +13,7 @@ import SwishjamAPI from "@/lib/api-client/swishjam-api";
 import { useEffect, useState } from "react";
 import UserProfilesCollection from "@/lib/collections/user-profiles";
 import Link from "next/link";
+import { UserIcon } from "lucide-react";
 
 export default function UserSegmentDetailsPage({ params }) {
   const { id } = params;
@@ -57,50 +58,53 @@ export default function UserSegmentDetailsPage({ params }) {
     getUsersForSegment(currentPageNum);
   }, [currentPageNum])
 
+  console.log(totalUserCounts)
+  console.log(totalNumUsersInSegment)
+
   return (
     <main className="mx-auto max-w-7xl px-4 mt-8 sm:px-6 lg:px-8 mb-8">
-      <div className='grid grid-cols-2 my-8 items-center'>
-        <div>
-          <h1 className="text-lg font-medium text-gray-700 mb-0">
-            Segment Details
-          </h1>
-        </div>
-      </div>
+      <h1 className="text-lg font-medium text-gray-700 my-8">
+        Segment Details
+      </h1>
       <div className='bg-white rounded-md border border-gray-200 p-8'>
         <div className='mb-4'>
-          <h1 className="text-lg font-medium text-gray-700 mb-1">
-            {userSegment?.name ? <DottedUnderline className='text-lg'>{userSegment.name}</DottedUnderline> : <Skeleton className='h-8 w-12' />}
-          </h1>
-          <h2 className="text-xs text-gray-500">
-            {userSegment?.description || <Skeleton className='h-6 w-24' />}
-          </h2>
+          <div className='grid grid-cols-4 items-start space-x-4'>
+            <div className='col-span-3'>
+              <h1 className="text-lg font-medium text-gray-700 mb-1">
+                {userSegment?.name ? <DottedUnderline className='text-lg'>{userSegment.name}</DottedUnderline> : <Skeleton className='h-8 w-48' />}
+              </h1>
+              <h2 className="text-xs text-gray-500">
+                {userSegment?.description || <Skeleton className='h-8 w-72' />}
+              </h2>
+            </div>
+            <div className='flex justify-end'>
+              {totalNumUsersInSegment === undefined && totalUserCounts === undefined && <Skeleton className='h-8 w-20' />}
+              {totalNumUsersInSegment !== undefined && totalUserCounts !== undefined && (
+                <Tooltipable
+                  content={
+                    <h4 className='text-xs text-gray-500'>
+                      {totalNumUsersInSegment} user currently falls into this segment, which {totalNumUsersInSegment === 1 ? '' : 's'} is {(totalNumUsersInSegment / totalUserCounts.total_num_users * 100).toFixed(2)}% of all users, and {(totalNumUsersInSegment / totalUserCounts.total_num_identified_users * 100).toFixed(2)}% of identified users.
+                    </h4>
+                  }
+                >
+                  <div className="rounded-md bg-blue-50 ring-blue-600/20 text-blue-600 text-sm font-semibold cursor-default w-fit px-4 py-2">
+                    <UserIcon className='h-4 w-4 inline-block mr-1' />
+                    <DottedUnderline className='font-normal text-blue-600 hover:text-blue-700'>
+                      {totalNumUsersInSegment} user{totalNumUsersInSegment === 1 ? '' : 's'}
+                    </DottedUnderline>
+                  </div>
+                </Tooltipable>
+              )}
+            </div>
+          </div>
         </div>
         <div className='text-gray-700'>
           <FiltersDisplayFeed filters={userSegment?.user_segment_filters} />
         </div>
-        <div className='mt-6'>
-          {totalNumUsersInSegment === undefined && <Skeleton className='h-6 w-18' />}
-          {totalNumUsersInSegment !== undefined && (
-            <h2 className="text-sm text-gray-700 font-semibold cursor-default w-fit">
-              <Tooltipable
-                content={
-                  <h4 className='text-xs text-gray-500'>
-                    {totalNumUsersInSegment} users is {(totalNumUsersInSegment / totalUserCounts.total_count * 100).toFixed(2)}% of all users, and {(totalNumUsersInSegment / totalUserCounts.identified_count * 100).toFixed(2)}% of identified users.
-                  </h4>
-                }
-              >
-                <div className="inline-block">
-                  <DottedUnderline>{totalNumUsersInSegment !== undefined ? totalNumUsersInSegment : <Skeleton className='h-6 w-8' />} users</DottedUnderline>
-                </div>
-              </Tooltipable>
-              {' '}currently fall into this segment.
-            </h2>
-          )}
-        </div>
       </div>
       <div className='mt-8 bg-white rounded border border-gray-200 p-4'>
-        {userProfilesCollectionForSegment === undefined
-          ? Array.from({ length: 10 }).map((_, i) => <Skeleton key={i} className='h-12 w-ful my-1' />)
+        {userProfilesCollectionForSegment === undefined || userSegment === undefined
+          ? Array.from({ length: 10 }).map((_, i) => <Skeleton key={i} className='h-12 w-full my-1' />)
           : (
             userProfilesCollectionForSegment.models().length === 0
               ? <p className='text-sm text-gray-700'>No users match this segment.</p>

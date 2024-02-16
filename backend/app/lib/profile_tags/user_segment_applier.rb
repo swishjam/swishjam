@@ -28,13 +28,13 @@ module ProfileTags
       user_ids_to_add_profile_tag.each do |user_id|
         user = workspace.analytics_user_profiles.find(user_id)
         tag = user.profile_tags.create!(workspace: workspace, name: user_segment.profile_tag_name, user_segment: user_segment)
-        events << event_for_ingestion(tag, user, "segment_profile_tag_applied")
+        events << event_for_ingestion(tag, user, "added_to_segment")
       end
       user_ids_to_remove_profile_tag.each do |user_id|
         user = workspace.analytics_user_profiles.find(user_id)
         tag = user.profile_tags.find_by(removed_at: nil, user_segment: user_segment)
         tag.remove!
-        events << event_for_ingestion(tag, user, "segment_profile_tag_removed")
+        events << event_for_ingestion(tag, user, "removed_from_segment")
       end
       return if events.empty?
       IngestionJobs::PrepareEventsAndEnqueueIntoClickHouseWriter.perform_async(events)
