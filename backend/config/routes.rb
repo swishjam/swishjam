@@ -15,10 +15,8 @@ Rails.application.routes.draw do
 
   namespace :api do
     namespace :v1 do
-
-      # get :capture, to: 'capture#process_data'
       post :capture, to: 'capture#process_data'
-      post :event, to: 'capture#server_side_event'
+      post :event, to: 'capture#process_data'
 
       resources :config, only: [:index]
       resources :search, only: [:index]

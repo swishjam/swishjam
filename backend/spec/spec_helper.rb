@@ -6,6 +6,7 @@ SimpleCov.start 'rails' do
 end
 
 require_relative "../config/environment"
+require 'rspec/rails'
 require 'factory_bot_rails'
 require 'database_cleaner'
 require 'helpers/utils'
