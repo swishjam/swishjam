@@ -5,6 +5,7 @@ class UserSegment < Transactional
   has_many :user_segment_filters, dependent: :destroy
   accepts_nested_attributes_for :user_segment_filters, allow_destroy: true
 
+  validates :workspace_id, presence: true
   validate :only_one_active_user_segment, on: :create
 
   after_create :enqueue_user_segment_sync_job

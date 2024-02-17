@@ -129,6 +129,7 @@ RSpec.describe ClickHouseQueries::Users::List do
 
       expect(result[:users].length).to eq(1)
       user_1 = result[:users].find { |user| user['swishjam_user_id'] == '5' }
+
       expect(user_1['email']).to eq('user-5@gmail.com')
       expect(user_1['metadata']).to eq({ birthday: '11/05/1992', mrr: 100 }.to_json)
 

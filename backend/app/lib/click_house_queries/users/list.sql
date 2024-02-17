@@ -1,9 +1,21 @@
 SELECT
-  user_profiles.swishjam_user_id AS swishjam_user_id
+  user_profiles.email AS email,
+  user_profiles.metadata AS metadata,
+  user_profiles.first_seen_at_in_web_app AS first_seen_at_in_web_app,
+  concat (
+    toString (toDateTime (user_profiles.created_at), 'UTC'),
+    ' GMT-0800'
+  ) AS created_at,
+  user_profiles.merged_into_swishjam_user_id AS merged_into_swishjam_user_id,
+  added_seat_count_for_user.event_count_for_user_within_lookback_period AS added_seat_count_for_user
 FROM
   (
     SELECT
       swishjam_user_id,
+      argMax (email, updated_at) AS email,
+      argMax (metadata, updated_at) AS metadata,
+      argMax (first_seen_at_in_web_app, updated_at) AS first_seen_at_in_web_app,
+      argMax (created_at, updated_at) AS created_at,
       argMax (merged_into_swishjam_user_id, updated_at) AS merged_into_swishjam_user_id
     FROM
       swishjam_user_profiles
@@ -49,6 +61,6 @@ WHERE
 ORDER BY
   user_profiles.created_at DESC
 LIMIT
-  1000
+  25
 OFFSET
   0

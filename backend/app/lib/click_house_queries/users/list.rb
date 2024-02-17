@@ -7,6 +7,7 @@ module ClickHouseQueries
         @workspace_id = workspace_id.is_a?(Workspace) ? workspace_id.id : workspace_id
         @user_segments = user_segments
         @columns = columns || ['email', 'metadata', 'first_seen_at_in_web_app', 'created_at']
+        @columns << 'swishjam_user_id' if !@columns.include?('swishjam_user_id')
         @columns << 'created_at' if !@columns.include?('created_at') # needed for ordering
         @return_user_segment_event_counts = return_user_segment_event_counts
         @page = page.to_i
@@ -14,7 +15,6 @@ module ClickHouseQueries
       end
 
       def get
-        byebug
         users = Analytics::ClickHouseRecord.execute_sql(sql.squish!)
         total_num_users = ClickHouseQueries::Users::Count.new(@workspace_id, user_segments: @user_segments).get['total_num_users']
         {
@@ -27,8 +27,8 @@ module ClickHouseQueries
       def sql
         <<~SQL
           SELECT #{select_statement_for_columns_and_user_segments}
-          FROM (#{ClickHouseQueries::Common::DeDupedUserProfilesFromClause.from_clause(workspace_id: @workspace_id, columns_to_return: @columns)}) AS user_profiles
-          #{ClickHouseQueries::FilterHelpers::LeftJoinStatementsForUserSegmentsEventFilters.left_join_statements(@user_segments)}
+          FROM (#{ClickHouseQueries::Common::DeDupedUserProfilesQuery.sql(workspace_id: @workspace_id, columns: @columns)}) AS user_profiles
+          #{ClickHouseQueries::FilterHelpers::LeftJoinStatementsForUserSegmentsEventCountFilters.left_join_statements(@user_segments)}
           WHERE 
             isNull(user_profiles.merged_into_swishjam_user_id) AND
             #{ClickHouseQueries::FilterHelpers::UserSegmentFilterWhereClause.where_clause_statements(@user_segments)}
@@ -57,7 +57,7 @@ module ClickHouseQueries
         @user_segments.each do |user_segment|
           user_segment.user_segment_filters.each do |filter|
             next if filter.config['object_type'] != 'event'
-            event_count_column_name = "#{ClickHouseQueries::FilterHelpers::LeftJoinStatementsForUserSegmentsEventFilters.join_table_alias_for_segment_filter(filter.config)}.event_count_for_user_within_lookback_period"
+            event_count_column_name = "#{ClickHouseQueries::FilterHelpers::LeftJoinStatementsForUserSegmentsEventCountFilters.join_table_alias_for_segment_filter(filter.config)}.event_count_for_user_within_lookback_period"
             sql << ", #{event_count_column_name} AS #{filter.config['event_name'].gsub(' ', '_')}_count_for_user"
           end
         end

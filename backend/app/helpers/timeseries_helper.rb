@@ -40,10 +40,16 @@ module TimeseriesHelper
     end
   end
 
-  def rounded_timestamps(start_ts:, end_ts:, group_by:)
+  def rounded_timestamps(start_ts:, end_ts:, group_by:, round_up: false)
     if ![:hour, :day, :week, :month].include?(group_by.to_sym)
       raise "Unknown group_by: #{group_by}. Expected one of: :hour, :day, :week, :month."
     end
-    [start_ts.send(:"beginning_of_#{group_by}"), end_ts.send(:"end_of_#{group_by}")]
+    if round_up
+      # start_time = 01/01/2024 00:00:00, end_time = 02/01/2024 00:00:00
+      [start_ts.send(:"beginning_of_#{group_by}"), (end_ts + 1.send(group_by)).send(:"beginning_of_#{group_by}")]
+    else
+      # start_time = 01/01/2024 00:00:00, end_time = 01/31/2024 23:59:59.999999
+      [start_ts.send(:"beginning_of_#{group_by}"), end_ts.send(:"end_of_#{group_by}")]
+    end
   end
 end

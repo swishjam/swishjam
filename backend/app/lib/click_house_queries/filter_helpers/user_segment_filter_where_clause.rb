@@ -7,7 +7,7 @@ module ClickHouseQueries
         user_segments.each_with_index do |user_segment, i|
           query << " AND " if i > 0
           query << " ( "
-          user_segment.user_segment_filters.order(sequence_position: :ASC).each do |filter|
+          user_segment.user_segment_filters.in_order.each do |filter|
             query << " #{filter.parent_relationship_operator} " if filter.parent_relationship_operator.present?
             case filter.config['object_type']
             when 'user'
@@ -26,7 +26,7 @@ module ClickHouseQueries
       private
 
       def self.where_clause_statements_for_event_count_segment_filter(filter_config)
-        "#{LeftJoinStatementsForUserSegmentsEventFilters.join_table_alias_for_segment_filter(filter_config)}.event_count_for_user_within_lookback_period >= #{filter_config['num_event_occurrences']}"
+        "#{LeftJoinStatementsForUserSegmentsEventCountFilters.join_table_alias_for_segment_filter(filter_config)}.event_count_for_user_within_lookback_period >= #{filter_config['num_event_occurrences']}"
       end
 
       def self.where_clause_statements_for_user_property_segment_filter(filter_config, users_table_alias: '')

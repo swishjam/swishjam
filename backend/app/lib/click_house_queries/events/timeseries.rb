@@ -4,12 +4,23 @@ module ClickHouseQueries
       include ClickHouseQueries::Helpers
       include TimeseriesHelper
 
-      def initialize(public_keys, event:, start_time:, end_time:, workspace_id: nil, user_profile_id: nil, group_by: nil, distinct_count_property: nil)
+      def initialize(
+        public_keys, 
+        event:, 
+        start_time:, 
+        end_time:, 
+        user_segments: [],
+        workspace_id: nil, 
+        user_profile_id: nil, 
+        group_by: nil, 
+        distinct_count_property: 'uuid'
+      )
         @public_keys = public_keys.is_a?(Array) ? public_keys : [public_keys]
         @workspace_id = workspace_id
         @event = event
         @group_by = group_by || derived_group_by(start_ts: start_time, end_ts: end_time)
         @start_time, @end_time = rounded_timestamps(start_ts: start_time, end_ts: end_time, group_by: @group_by)
+        @user_segments = user_segments
         @user_profile_id = user_profile_id
         @distinct_count_property = distinct_count_property
         validate!
@@ -32,12 +43,13 @@ module ClickHouseQueries
         <<~SQL
           SELECT
             CAST(COUNT(DISTINCT #{property_select_clause}) AS INT) AS count,
-            DATE_TRUNC('#{@group_by}', occurred_at) AS group_by_date
+            DATE_TRUNC('#{@group_by}', e.occurred_at) AS group_by_date
           FROM (#{from_clause}) AS e
           #{join_statements}
           WHERE
-            notEmpty(#{property_select_clause})
-            #{user_profile_id_where_clause}
+            notEmpty(#{property_select_clause}) AND
+            #{user_profile_id_where_clause} AND
+            #{ClickHouseQueries::FilterHelpers::UserSegmentFilterWhereClause.where_clause_statements(@user_segments, users_table_alias: 'user_profiles')}
           GROUP BY group_by_date
           ORDER BY group_by_date
         SQL
@@ -58,52 +70,48 @@ module ClickHouseQueries
             )
           SQL
         else
-          'e.distinct_count_field'
+          "e.#{@distinct_count_property}"
         end
       end
 
       def from_clause
-        should_count_distinct_uuids = @distinct_count_property.nil? || @distinct_count_property == 'uuid' || @distinct_count_property == 'users'
-        <<~SQL
-          SELECT 
-            #{should_count_distinct_uuids ? 'e.uuid' : "JSONExtractString(e.properties, '#{@distinct_count_property}')"} AS distinct_count_field,
-            argMax(e.name, ingested_at) AS name, 
-            argMax(e.properties, ingested_at) AS properties, 
-            argMax(e.user_profile_id, ingested_at) AS user_profile_id,
-            argMax(e.occurred_at, ingested_at) AS occurred_at
-          FROM events AS e
-          WHERE 
-            e.swishjam_api_key IN #{formatted_in_clause(@public_keys)} AND
-            e.occurred_at BETWEEN '#{formatted_time(@start_time)}' AND '#{formatted_time(@end_time)}'
-            #{@event == self.class.ANY_EVENT ? "" : " AND e.name = '#{@event}'"}
-          GROUP BY distinct_count_field
-        SQL
+        distinct_count_property = @distinct_count_property.nil? || @distinct_count_property == 'users' ? 'uuid' : @distinct_count_property
+        ClickHouseQueries::Common::DeDupedEventsQuery.sql(
+          public_keys: @public_keys,
+          start_time: @start_time,
+          end_time: @end_time,
+          event_name: @event,
+          all_events: @event == self.class.ANY_EVENT,
+          distinct_count_property: distinct_count_property,
+        )
       end
 
       def join_statements
-        return '' unless @distinct_count_property == 'users' || @user_profile_id.present?
-        <<~SQL
-          LEFT JOIN (
-            SELECT 
-              swishjam_user_id, 
-              argMax(merged_into_swishjam_user_id, updated_at) AS merged_into_swishjam_user_id
-            FROM swishjam_user_profiles
-            WHERE workspace_id = '#{@workspace_id}'
-            GROUP BY swishjam_user_id
-          ) AS user_profiles ON user_profiles.swishjam_user_id = e.user_profile_id
-        SQL
+        sql = ''
+        needs_finalized_user_properties = @user_segments.any?{ |seg| seg.user_segment_filters.any?{ |f| f.config['object_type'] == 'user' }}
+        if (@distinct_count_property == 'users' || @user_profile_id.present?) && !needs_finalized_user_properties
+          sql << <<~SQL
+            LEFT JOIN (
+              #{ClickHouseQueries::Common::DeDupedUserProfilesQuery.sql(workspace_id: @workspace_id, columns: [])}
+            ) AS user_profiles ON user_profiles.swishjam_user_id = e.user_profile_id
+          SQL
+        elsif needs_finalized_user_properties
+          sql << ClickHouseQueries::Common::FinalizedUserProfilesToEventsJoinQuery.sql(@workspace_id, columns: ['metadata'], table_alias: 'user_profiles', event_table_alias: 'e')
+        end
+        if @user_segments.any?
+          sql << ClickHouseQueries::FilterHelpers::LeftJoinStatementsForUserSegmentsEventCountFilters.left_join_statements(@user_segments, users_table_alias: 'user_profiles')
+        end
+        sql
       end
 
       def user_profile_id_where_clause
-        return '' unless @user_profile_id.present?
-        sql = <<~SQL
-          AND (
+        return '1 = 1' unless @user_profile_id.present?
+        <<~SQL
+          (
             user_profiles.swishjam_user_id = '#{@user_profile_id}' OR 
             user_profiles.merged_into_swishjam_user_id = '#{@user_profile_id}'
           )
         SQL
-        sql.prepend(' ') unless sql.start_with?(' ')
-        sql
       end
 
       def validate!

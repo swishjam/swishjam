@@ -7,6 +7,8 @@ class UserSegmentFilter < Transactional
   validates :sequence_position, presence: true, numericality: { only_integer: true, greater_than_or_equal_to: 1 }, uniqueness: { scope: :user_segment_id }
   validates :parent_relationship_operator, inclusion: { in: %w[and or] }, if: -> { sequence_position > 1 }
 
+  scope :in_order, -> { order(sequence_position: :ASC) }
+
   private
 
   def has_valid_config

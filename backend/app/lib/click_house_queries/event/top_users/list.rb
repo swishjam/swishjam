@@ -25,7 +25,7 @@ module ClickHouseQueries
               user_profiles.metadata AS metadata,
               CAST(COUNT(DISTINCT e.uuid) AS INT) AS count
             FROM events AS e
-            #{ClickHouseQueries::Common::JoinFinalizedUserProfilesToEvents.sql(@workspace_id, as: 'user_profiles')}
+            #{ClickHouseQueries::Common::FinalizedUserProfilesToEventsJoinQuery.sql(@workspace_id, table_alias: 'user_profiles', event_table_alias: 'e')}
             WHERE
               e.swishjam_api_key IN #{formatted_in_clause(@public_keys)} AND
               e.name = '#{@event_name}' AND
