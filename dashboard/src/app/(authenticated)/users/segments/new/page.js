@@ -1,6 +1,6 @@
 'use client'
 
-import QueryBuilder from "@/components/UserSegments/QueryBuilder";
+import QueryBuilder from "@/components/QueryBuilder/QueryBuilder";
 
 export default function NewUserSegmentPage() {
   return (
@@ -13,9 +13,7 @@ export default function NewUserSegmentPage() {
         <div className="w-full flex items-center justify-end">
         </div>
       </div>
-      <div className='relative bg-white rounded-md border border-gray-200 px-4 py-8'>
-        <QueryBuilder />
-      </div>
+      <QueryBuilder />
     </main>
   )
 }

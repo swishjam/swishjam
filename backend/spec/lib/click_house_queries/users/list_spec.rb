@@ -43,7 +43,7 @@ RSpec.describe ClickHouseQueries::Users::List do
       ])
 
       user_segment = FactoryBot.create(:user_segment, workspace: @workspace, created_by_user: @user, name: '11/01/1992 birthdays')
-      filter = FactoryBot.create(:user_segment_filter, user_segment: user_segment, sequence_position: 1, config: { object_type: 'user', user_property_name: 'birthday', user_property_operator: 'equals', user_property_value: '11/01/1992' })
+      filter = FactoryBot.create(:user_segment_filter, user_segment: user_segment, sequence_index: 1, config: { object_type: 'user', user_property_name: 'birthday', user_property_operator: 'equals', user_property_value: '11/01/1992' })
 
       result = described_class.new(@workspace, user_segments: [user_segment]).get
 
@@ -81,7 +81,7 @@ RSpec.describe ClickHouseQueries::Users::List do
       end
 
       user_segment = FactoryBot.create(:user_segment, workspace: @workspace, created_by_user: @user, name: 'Active Users')
-      filter = FactoryBot.create(:user_segment_filter, user_segment: user_segment, sequence_position: 1, config: { object_type: 'event', event_name: 'active_user_event', num_lookback_days: 7, num_event_occurrences: 2 })
+      filter = FactoryBot.create(:user_segment_filter, user_segment: user_segment, sequence_index: 1, config: { object_type: 'event', event_name: 'active_user_event', num_lookback_days: 7, num_event_occurrences: 2 })
 
       result = described_class.new(@workspace, user_segments: [user_segment]).get
 
@@ -122,8 +122,8 @@ RSpec.describe ClickHouseQueries::Users::List do
       end
 
       user_segment = FactoryBot.create(:user_segment, workspace: @workspace, created_by_user: @user, name: 'Active Users')
-      FactoryBot.create(:user_segment_filter, user_segment: user_segment, sequence_position: 1, config: { object_type: 'event', event_name: 'active_user_event', num_lookback_days: 7, num_event_occurrences: 2 })
-      FactoryBot.create(:user_segment_filter, user_segment: user_segment, sequence_position: 2, parent_relationship_operator: 'and', config: { object_type: 'user', user_property_name: 'mrr', user_property_operator: 'greater_than_or_equal_to', user_property_value: 100 })
+      FactoryBot.create(:user_segment_filter, user_segment: user_segment, sequence_index: 1, config: { object_type: 'event', event_name: 'active_user_event', num_lookback_days: 7, num_event_occurrences: 2 })
+      FactoryBot.create(:user_segment_filter, user_segment: user_segment, sequence_index: 2, parent_relationship_operator: 'and', config: { object_type: 'user', user_property_name: 'mrr', user_property_operator: 'greater_than_or_equal_to', user_property_value: 100 })
 
       result = described_class.new(@workspace, user_segments: [user_segment]).get
 

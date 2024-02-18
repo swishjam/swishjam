@@ -1,17 +1,17 @@
+import { Badge } from "../ui/badge"
 import { Button } from "@/components/ui/button"
 import Combobox from "@/components/utils/Combobox"
 import { Input } from "@/components/ui/input"
 import { SparklesIcon, UserCircleIcon } from "lucide-react"
 import { useState } from "react"
 import { LuTrash } from "react-icons/lu"
-import { Badge } from "../ui/badge"
 
 export default function UserSegmentFilterConfiguration({
+  className,
   displayAndOrButtons,
   displayDeleteButton,
-  onAndClick,
+  onNewFilterClick,
   onDelete,
-  onOrClick,
   onUpdate,
   operator,
   uniqueUserProperties,
@@ -49,13 +49,15 @@ export default function UserSegmentFilterConfiguration({
     : segmentConfig.event_name && segmentConfig.num_event_occurrences && segmentConfig.num_lookback_days;
 
   return (
-    <div className='flex text-sm items-center space-x-2'>
+    <div className={`flex text-sm items-center space-x-2 ${className}`}>
       <span>
         {!operator
           ? 'Users '
           : (
             <>
-              <Badge variant='secondary' className='w-fit py-1 px-2 text-xs'>{operator.toUpperCase()}</Badge> users{' '}
+              <Badge variant='secondary' className='w-fit py-1 px-2 text-sm bg-green-100 text-green-500 ring-green-600/20 cursor-default transition-colors hover:bg-green-200'>
+                {operator.toUpperCase()}
+              </Badge> users{' '}
             </>
           )}
         who
@@ -86,16 +88,16 @@ export default function UserSegmentFilterConfiguration({
               onUpdate(newConfig)
             }}
             options={[
-              { label: "=", value: "equals" },
-              { label: "≠", value: "does_not_equal" },
+              { label: "equals", value: "equals" },
+              { label: "does not equal", value: "does_not_equal" },
               { label: "contains", value: "contains" },
               { label: "does not contain", value: "does_not_contain" },
               { label: 'is defined', value: 'is_defined' },
               { label: 'is not defined', value: 'is_not_defined' },
-              { label: ">", value: "greater_than" },
-              { label: "<", value: "less_than" },
-              { label: "≥", value: "greater_than_or_equal_to" },
-              { label: "≤", value: "less_than_or_equal_to" },
+              { label: "greater than", value: "greater_than" },
+              { label: "less than", value: "less_than" },
+              { label: "greater than or equal to", value: "greater_than_or_equal_to" },
+              { label: "less than or equal to", value: "less_than_or_equal_to" },
             ]}
           />
           {segmentConfig.user_property_operator !== "is_defined" && segmentConfig.user_property_operator !== "is_not_defined" && (
@@ -151,10 +153,14 @@ export default function UserSegmentFilterConfiguration({
         </>
       )}
       {isComplete && displayAndOrButtons && (
-        <>
-          <Button className='text-xs p-2' variant='ghost' onClick={onAndClick}>AND</Button>
-          <Button className='text-xs p-2' variant='ghost' onClick={onOrClick}>OR</Button>
-        </>
+        <div className='flex items-center space-x-2 ml-2'>
+          <Button className='text-xs p-2' variant='ghost' onClick={() => onNewFilterClick('and')}>
+            + AND
+          </Button>
+          <Button className='text-xs p-2' variant='ghost' onClick={() => onNewFilterClick('or')}>
+            + OR
+          </Button>
+        </div>
       )}
       {displayDeleteButton && (
         <Button className='p-2 hover:text-red-400' variant='ghost' onClick={onDelete}>

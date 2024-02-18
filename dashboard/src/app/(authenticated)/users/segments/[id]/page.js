@@ -2,7 +2,7 @@
 
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import DottedUnderline from "@/components/utils/DottedUnderline";
-import FiltersDisplayFeed from "@/components/UserSegments/FiltersDisplayFeed";
+import FiltersDisplayFeed from "@/components/QueryBuilder/FiltersDisplayFeed";
 import { humanizeVariable } from "@/lib/utils/misc";
 import Pagination from "@/components/Pagination/Pagination";
 import { prettyDateTime } from "@/lib/utils/timeHelpers";

@@ -22,7 +22,7 @@ module ClickHouseQueries
           SELECT #{select_statement}
           FROM (#{datetimes_from_statement}) AS dates
           #{maybe_event_counts_left_join_statements}
-          #{maybe_finalized_user_profiles_to_events_join_statement}
+          #{users_query_for_user_property_filters_if_any}
           GROUP BY time_period
           ORDER BY time_period
         SQL
@@ -49,11 +49,18 @@ module ClickHouseQueries
         ClickHouseQueries::FilterHelpers::LeftJoinStatementsForUserSegmentsEventCountFilters.left_join_statements(@user_segments, as_timeseries: true)
       end
 
+      def users_query_for_user_property_filters_if_any
+        return ''
+        <<~SQL
+          RIGHT JOIN 
+        SQL
+      end
+
       def maybe_finalized_user_profiles_to_events_join_statement
         # TODO - I think we need to do a right join maybe? we don't want to tie it to the events, we just need all users?
         # idk it feels weird to have a timeseries filtered by a user property cause it's stateful, not event-based
         # @user_segments.map do |user_segment|
-        #   user_segment.user_segment_filters.in_order.map do |filter|
+        #   user_segment.user_segment_filters.in_sequence_order.map do |filter|
         #     ClickHouseQueries::Common::FinalizedUserProfilesToEventsJoinQuery.sql(
         #       @workspace_id, 
         #       columns: ['email', 'metadata'], 

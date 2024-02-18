@@ -18,7 +18,7 @@ module Api
           created_by_user: current_user,
           user_segment_filters_attributes: params[:filters].map do |filter|
             {
-              sequence_position: filter[:sequence_position],
+              sequence_index: filter[:sequence_index],
               parent_relationship_operator: filter[:parent_relationship_operator],
               config: filter[:filter_config].as_json,
             }

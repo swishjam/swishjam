@@ -256,6 +256,25 @@ ActiveRecord::Schema.define(version: 2024_02_15_190428) do
     t.index ["workspace_id"], name: "index_profile_tags_on_workspace_id"
   end
 
+  create_table "query_filter_groups", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.string "filterable_type", null: false
+    t.uuid "filterable_id", null: false
+    t.uuid "parent_query_filter_group_id"
+    t.integer "sequence_index", null: false
+    t.string "previous_query_filter_group_relationship_operator"
+    t.index ["filterable_type", "filterable_id"], name: "index_query_filter_groups_on_filterable"
+    t.index ["parent_query_filter_group_id"], name: "index_query_filter_groups_on_parent_query_filter_group_id"
+  end
+
+  create_table "query_filters", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "query_filter_group_id", null: false
+    t.string "type", null: false
+    t.integer "sequence_index", null: false
+    t.string "previous_query_filter_relationship_operator"
+    t.jsonb "config", null: false
+    t.index ["query_filter_group_id"], name: "index_query_filters_on_query_filter_group_id"
+  end
+
   create_table "reports", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.uuid "workspace_id"
     t.boolean "enabled"
@@ -376,16 +395,6 @@ ActiveRecord::Schema.define(version: 2024_02_15_190428) do
     t.index ["workspace_id"], name: "index_user_profile_enrichment_data_on_workspace_id"
   end
 
-  create_table "user_segment_filters", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
-    t.uuid "user_segment_id", null: false
-    t.uuid "parent_filter_id"
-    t.integer "sequence_position", null: false
-    t.string "parent_relationship_operator"
-    t.jsonb "config", null: false
-    t.index ["parent_filter_id"], name: "index_user_segment_filters_on_parent_filter_id"
-    t.index ["user_segment_id"], name: "index_user_segment_filters_on_user_segment_id"
-  end
-
   create_table "user_segments", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.uuid "workspace_id", null: false
     t.uuid "created_by_user_id", null: false
@@ -462,13 +471,13 @@ ActiveRecord::Schema.define(version: 2024_02_15_190428) do
   add_foreign_key "profile_tags", "user_segments"
   add_foreign_key "profile_tags", "users", column: "applied_by_user_id"
   add_foreign_key "profile_tags", "workspaces"
+  add_foreign_key "query_filter_groups", "query_filter_groups", column: "parent_query_filter_group_id"
+  add_foreign_key "query_filters", "query_filter_groups"
   add_foreign_key "retention_cohort_activity_periods", "retention_cohorts"
   add_foreign_key "retention_cohort_activity_periods", "workspaces"
   add_foreign_key "retention_cohorts", "workspaces"
   add_foreign_key "triggered_event_trigger_steps", "event_trigger_steps"
   add_foreign_key "triggered_event_trigger_steps", "triggered_event_triggers"
-  add_foreign_key "user_segment_filters", "user_segment_filters", column: "parent_filter_id"
-  add_foreign_key "user_segment_filters", "user_segments"
   add_foreign_key "user_segments", "users", column: "created_by_user_id"
   add_foreign_key "user_segments", "workspaces"
   add_foreign_key "workspace_invitations", "workspaces"
