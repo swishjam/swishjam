@@ -7,15 +7,17 @@ import { Badge } from "../ui/badge";
 
 export default function QueryFilterGroupBuilder({
   className,
-  onNewGroupClick,
+  defaultFilters = [{ sequence_index: 0, previous_query_filter_relationship_operator: null, config: {} }],
   onDeleteClick,
+  onNewGroupClick,
+  onUpdate,
   previousQueryFilterGroupRelationshipOperator,
   showDeleteButton,
   showNewGroupButtons,
   uniqueEvents,
   uniqueUserProperties,
 }) {
-  const [queryFilters, setQueryFilters] = useState([{ sequence_index: 1, previous_query_filter_relationship_operator: null, config: {} }])
+  const [queryFilters, setQueryFilters] = useState(defaultFilters)
 
   if (!uniqueUserProperties || !uniqueEvents) {
     return <Skeleton className='h-10 w-20' />
@@ -30,8 +32,9 @@ export default function QueryFilterGroupBuilder({
   return (
     <>
       {previousQueryFilterGroupRelationshipOperator && (
-        <div className='flex justify-center mb-2'>
-          <Badge variant='secondary' className='w-fit py-1 px-4 text-sm bg-green-100 text-green-500 ring-green-600/20 cursor-default transition-colors hover:bg-green-200'>
+        <div className='flex justify-center mb-4 relative'>
+          <span className="absolute w-0.5 bg-gray-400 left-0 right-0 mx-auto z-0" style={{ height: '200%', top: '-50%' }} />
+          <Badge variant='secondary' className='z-1 w-fit py-1 px-4 text-sm bg-green-100 text-green-500 ring-green-600/20 cursor-default transition-colors hover:bg-green-200' style={{ zIndex: 1 }}>
             {previousQueryFilterGroupRelationshipOperator.toUpperCase()}
           </Badge>
         </div>
@@ -40,20 +43,22 @@ export default function QueryFilterGroupBuilder({
         {queryFilters.map((filter, i) => {
           let className = ''
           if (i > 0) {
-            className = 'mt-2 ml-8'
+            className = 'mt-4 ml-8'
           }
           return (
             <QueryFilterBuilder
               key={i}
               className={className}
+              defaultFilterConfig={filter.config}
               displayAndOrButtons={i === queryFilters.length - 1}
               displayDeleteButton={i > 0}
               onNewFilterClick={operator => setQueryFilters([...queryFilters, { sequence_index: i + 1, previous_query_filter_relationship_operator: operator, config: {} }])}
               onDelete={() => setQueryFilters(queryFilters.filter((_, index) => index !== i))}
-              onUpdate={newConfig => {
+              onUpdate={updatedFilterConfig => {
                 const newFilters = [...queryFilters]
-                newFilters[i].config = newConfig
+                newFilters[i].config = updatedFilterConfig
                 setQueryFilters(newFilters)
+                onUpdate(newFilters);
               }}
               operator={filter.previous_query_filter_relationship_operator}
               uniqueUserProperties={uniqueUserProperties}

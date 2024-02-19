@@ -11,11 +11,16 @@ module Api
           users = ClickHouseQueries::Users::Search.new(current_workspace, query: params[:q], limit: per_page).get
           render json: { users: users }, status: :ok
         else
-          user_segments = []
+          filter_groups = []
           if params[:user_segment_ids].present?
-            user_segments = current_workspace.user_segments.includes(:user_segment_filters).where(id: params[:user_segment_ids])
+            user_segments = current_workspace.user_segments.includes(:query_filter_groups).where(id: params[:user_segment_ids])
+            user_segments.each do |user_segment|
+              user_segment.query_filter_groups.in_sequence_order.each do |filter_group|
+                filter_groups << filter_group
+              end
+            end
           end
-          users_results = ClickHouseQueries::Users::List.new(current_workspace, user_segments: user_segments, page: page, limit: per_page).get
+          users_results = ClickHouseQueries::Users::List.new(current_workspace, filter_groups: filter_groups, page: page, limit: per_page).get
           render json: {
             users: users_results['users'],
             previous_page: params[:page].to_i > 1 ? params[:page].to_i - 1 : nil,

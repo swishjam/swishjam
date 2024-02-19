@@ -49,7 +49,7 @@ module ClickHouseQueries
           WHERE
             notEmpty(#{property_select_clause}) AND
             #{user_profile_id_where_clause} AND
-            #{ClickHouseQueries::FilterHelpers::UserSegmentFilterWhereClause.where_clause_statements(@user_segments, users_table_alias: 'user_profiles')}
+            #{ClickHouseQueries::FilterHelpers::WhereClauseForFilterGroups.where_clause_statements(@user_segments, users_table_alias: 'user_profiles')}
           GROUP BY group_by_date
           ORDER BY group_by_date
         SQL
@@ -88,7 +88,7 @@ module ClickHouseQueries
 
       def join_statements
         sql = ''
-        needs_finalized_user_properties = @user_segments.any?{ |seg| seg.user_segment_filters.any?{ |f| f.config['object_type'] == 'user' }}
+        needs_finalized_user_properties = @user_segments.any?{ |seg| seg.query_filter_groups.any?{ |f| f.config['object_type'] == 'user' }}
         if (@distinct_count_property == 'users' || @user_profile_id.present?) && !needs_finalized_user_properties
           sql << <<~SQL
             LEFT JOIN (
@@ -99,7 +99,7 @@ module ClickHouseQueries
           sql << ClickHouseQueries::Common::FinalizedUserProfilesToEventsJoinQuery.sql(@workspace_id, columns: ['metadata'], table_alias: 'user_profiles', event_table_alias: 'e')
         end
         if @user_segments.any?
-          sql << ClickHouseQueries::FilterHelpers::LeftJoinStatementsForUserSegmentsEventCountFilters.left_join_statements(@user_segments, users_table_alias: 'user_profiles')
+          sql << ClickHouseQueries::FilterHelpers::LeftJoinStatementsForEventCountByUserFilters.left_join_statements(@user_segments, users_table_alias: 'user_profiles')
         end
         sql
       end

@@ -1,8 +1,11 @@
 'use client'
 
 import QueryBuilder from "@/components/QueryBuilder/QueryBuilder";
+import { useRouter } from "next/navigation";
 
 export default function NewUserSegmentPage() {
+  const router = useRouter();
+
   return (
     <main className="mx-auto max-w-7xl px-4 mt-8 sm:px-6 lg:px-8 mb-8">
       <div className='grid grid-cols-2 my-8 items-center'>
@@ -13,7 +16,7 @@ export default function NewUserSegmentPage() {
         <div className="w-full flex items-center justify-end">
         </div>
       </div>
-      <QueryBuilder />
+      <QueryBuilder onCreate={newSegment => router.push(`/users/segment/${newSegment.id}`)} />
     </main>
   )
 }

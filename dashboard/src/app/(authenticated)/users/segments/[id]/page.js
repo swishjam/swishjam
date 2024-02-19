@@ -2,7 +2,6 @@
 
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import DottedUnderline from "@/components/utils/DottedUnderline";
-import FiltersDisplayFeed from "@/components/QueryBuilder/FiltersDisplayFeed";
 import { humanizeVariable } from "@/lib/utils/misc";
 import Pagination from "@/components/Pagination/Pagination";
 import { prettyDateTime } from "@/lib/utils/timeHelpers";
@@ -14,6 +13,7 @@ import { useEffect, useState } from "react";
 import UserProfilesCollection from "@/lib/collections/user-profiles";
 import Link from "next/link";
 import { UserIcon } from "lucide-react";
+import FilterGroupsDisplay from "@/components/QueryBuilder/FilterGroupsDisplay";
 
 export default function UserSegmentDetailsPage({ params }) {
   const { id } = params;
@@ -27,16 +27,18 @@ export default function UserSegmentDetailsPage({ params }) {
   let tableHeaders;
   if (userSegment) {
     tableHeaders = ['User']
-    userSegment.user_segment_filters.forEach(filter => {
-      if (filter.config.object_type === 'user') {
-        tableHeaders.push(humanizeVariable(filter.config.user_property_name))
-      } else {
-        tableHeaders.push(
-          <>
-            # of <DottedUnderline className='text-zinc-500 hover:text-zinc-700'>{filter.config.event_name}</DottedUnderline> events last <DottedUnderline className='text-zinc-500 hover:text-zinc-700'>{filter.config.num_lookback_days} days</DottedUnderline>
-          </>
-        )
-      }
+    userSegment.query_filter_groups.forEach(filterGroup => {
+      filterGroup.query_filters.forEach(filter => {
+        if (filter.type === 'QueryFilters::UserProperty') {
+          tableHeaders.push(humanizeVariable(filter.config.property_name))
+        } else if (filter.type === 'QueryFilters::EventCountForUserOverTimePeriod') {
+          tableHeaders.push(
+            <>
+              # of <DottedUnderline className='text-zinc-500 hover:text-zinc-700'>{filter.config.event_name}</DottedUnderline> events last <DottedUnderline className='text-zinc-500 hover:text-zinc-700'>{filter.config.num_lookback_days} days</DottedUnderline>
+            </>
+          )
+        }
+      })
     })
     tableHeaders.push('Created At')
   }
@@ -57,9 +59,6 @@ export default function UserSegmentDetailsPage({ params }) {
   useEffect(() => {
     getUsersForSegment(currentPageNum);
   }, [currentPageNum])
-
-  console.log(totalUserCounts)
-  console.log(totalNumUsersInSegment)
 
   return (
     <main className="mx-auto max-w-7xl px-4 mt-8 sm:px-6 lg:px-8 mb-8">
@@ -99,7 +98,7 @@ export default function UserSegmentDetailsPage({ params }) {
           </div>
         </div>
         <div className='text-gray-700'>
-          <FiltersDisplayFeed filters={userSegment?.user_segment_filters} />
+          <FilterGroupsDisplay filterGroups={userSegment?.query_filter_groups} />
         </div>
       </div>
       <div className='mt-8 bg-white rounded border border-gray-200 p-4'>
@@ -127,13 +126,15 @@ export default function UserSegmentDetailsPage({ params }) {
                           </Link>
                         </div>
                       </div>,
-                      ...userSegment.user_segment_filters.map(filter => {
-                        if (filter.config.object_type === 'user') {
-                          return user.metadata()[filter.config.user_property_name] || 'N/A'
-                        } else {
-                          return user.attributes()[`${filter.config.event_name.replace(/\s/g, '_')}_count_for_user`]
-                        }
-                      }),
+                      ...[].concat(...userSegment.query_filter_groups.map(filterGroup => {
+                        return filterGroup.query_filters.map(filter => {
+                          if (filter.type === 'QueryFilters::UserProperty') {
+                            return user.metadata()[filter.config.property_name] || '-'
+                          } else {
+                            return user.attributes()[`${filter.config.event_name.replace(/\s/g, '_')}_count_for_user`]
+                          }
+                        })
+                      })),
                       <span className='text-sm text-gray-700'>{prettyDateTime(user.createdAt())}</span>,
                     ]))}
                   />

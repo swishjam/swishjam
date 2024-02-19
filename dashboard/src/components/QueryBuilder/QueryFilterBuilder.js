@@ -3,11 +3,12 @@ import { Button } from "@/components/ui/button"
 import Combobox from "@/components/utils/Combobox"
 import { Input } from "@/components/ui/input"
 import { SparklesIcon, UserCircleIcon } from "lucide-react"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { LuTrash } from "react-icons/lu"
 
 export default function UserSegmentFilterConfiguration({
   className,
+  defaultFilter = { config: {} },
   displayAndOrButtons,
   displayDeleteButton,
   onNewFilterClick,
@@ -17,54 +18,62 @@ export default function UserSegmentFilterConfiguration({
   uniqueUserProperties,
   uniqueEvents,
 }) {
-  const [segmentConfig, setSegmentConfig] = useState({})
+  const [filter, setFilter] = useState(defaultFilter)
+
+  useEffect(() => {
+    setFilter(defaultFilter)
+  }, [defaultFilter])
 
   const updateSelectedUserPropertyOrEventName = selectedValue => {
-    const newConfig = { ...segmentConfig }
-    const objectType = selectedValue.split('.')[0]
-    newConfig.object_type = objectType
-    if (objectType === "event") {
-      delete newConfig.user_property_name
-      delete newConfig.user_property_operator
-      delete newConfig.user_property_value
-      newConfig.event_name = selectedValue.split('.').slice(1).join('.')
-    } else if (objectType === "user") {
-      delete newConfig.event_name
-      delete newConfig.num_event_occurrences
-      delete newConfig.num_lookback_days
-      if (!newConfig.user_property_operator) {
-        newConfig.user_property_operator = 'equals'
+    const updatedFilterData = { ...filter }
+    const selectedObject = selectedValue.split('.')[0]
+    const objectType = {
+      user: 'QueryFilters::UserProperty',
+      event: 'QueryFilters::EventCountForUserOverTimePeriod'
+    }[selectedObject]
+    updatedFilterData.type = objectType
+    if (objectType === "QueryFilters::EventCountForUserOverTimePeriod") {
+      delete updatedFilterData.config.property_name
+      delete updatedFilterData.config.operator
+      delete updatedFilterData.config.property_value
+      updatedFilterData.config.event_name = selectedValue.split('.').slice(1).join('.')
+    } else if (objectType === "QueryFilters::UserProperty") {
+      delete updatedFilterData.config.event_name
+      delete updatedFilterData.config.num_occurrences
+      delete updatedFilterData.config.num_lookback_days
+      if (!updatedFilterData.config.operator) {
+        updatedFilterData.config.operator = 'equals'
       }
-      newConfig.user_property_name = selectedValue.split('.').slice(1).join('.')
+      updatedFilterData.config.property_name = selectedValue.split('.').slice(1).join('.')
+    } else {
+      throw new Error('Unexpected object type, expected either `user` or `event`, got:', selectedObject)
     }
-    setSegmentConfig(newConfig)
-    onUpdate(newConfig)
+    setFilter(updatedFilterData)
+    onUpdate(updatedFilterData)
   }
 
   const formattedUserPropertyOptions = uniqueUserProperties.map(option => ({ label: option, value: `user.${option}` }))
   const formattedEventPropertyOptions = uniqueEvents.map(option => ({ label: option, value: `event.${option}` }))
 
-  const isComplete = segmentConfig.object_type === 'user'
-    ? segmentConfig.user_property_name && segmentConfig.user_property_operator && (segmentConfig.user_property_operator === "is_defined" || segmentConfig.user_property_operator === "is_not_defined" || segmentConfig.user_property_value)
-    : segmentConfig.event_name && segmentConfig.num_event_occurrences && segmentConfig.num_lookback_days;
+  const isComplete = filter.config.type === 'QueryFilters::UserProperty'
+    ? filter.config.property_name && filter.config.operator && (filter.config.operator === "is_defined" || filter.config.operator === "is_not_defined" || filter.config.property_value)
+    : filter.config.event_name && filter.config.num_occurrences && filter.config.num_lookback_days;
 
   return (
     <div className={`flex text-sm items-center space-x-2 ${className}`}>
       <span>
-        {!operator
-          ? 'Users '
-          : (
-            <>
-              <Badge variant='secondary' className='w-fit py-1 px-2 text-sm bg-green-100 text-green-500 ring-green-600/20 cursor-default transition-colors hover:bg-green-200'>
-                {operator.toUpperCase()}
-              </Badge> users{' '}
-            </>
-          )}
-        who
-        {segmentConfig.object_type === "user" ? "'s " : " have triggered the "}
+        {operator && (
+          <div className='inline-flex relative mr-2'>
+            <span className="absolute w-0.5 bg-gray-400 left-0 right-0 mx-auto z-0" style={{ height: '150%', top: '-50%' }} />
+            <Badge variant='secondary' className='justify-center z-10 py-1 w-14 text-sm bg-green-100 text-green-500 ring-green-600/20 cursor-default transition-colors hover:bg-green-200'>
+              {operator.toUpperCase()}
+            </Badge>
+          </div>
+        )}
+        Users who have triggered the
       </span>
       <Combobox
-        selectedValue={segmentConfig.user_property_name ? `user.${segmentConfig.user_property_name}` : segmentConfig.event_name ? `event.${segmentConfig.event_name}` : null}
+        selectedValue={filter.config.property_name ? `user.${filter.config.property_name}` : filter.config.event_name ? `event.${filter.config.event_name}` : null}
         onSelectionChange={updateSelectedUserPropertyOrEventName}
         options={[
           { type: "title", label: <div className='flex items-center'><UserCircleIcon className='h-4 w-4 mr-1' /> User Properties</div> },
@@ -75,16 +84,16 @@ export default function UserSegmentFilterConfiguration({
         ]}
         placeholder="Select a property"
       />
-      {segmentConfig.object_type === "user" && (
+      {filter.config.type === "QueryFilters::UserProperty" && (
         <>
           <span>
             property
           </span>
           <Combobox
-            selectedValue={segmentConfig.user_property_operator}
+            selectedValue={filter.config.operator}
             onSelectionChange={selectedValue => {
-              const newConfig = { ...segmentConfig, user_property_operator: selectedValue }
-              setSegmentConfig(newConfig)
+              const newFilterData = { ...filter, config: { ...filter.config, operator: selectedValue } }
+              setFilter(newConfig)
               onUpdate(newConfig)
             }}
             options={[
@@ -100,22 +109,22 @@ export default function UserSegmentFilterConfiguration({
               { label: "less than or equal to", value: "less_than_or_equal_to" },
             ]}
           />
-          {segmentConfig.user_property_operator !== "is_defined" && segmentConfig.user_property_operator !== "is_not_defined" && (
+          {filter.config.operator !== "is_defined" && filter.config.operator !== "is_not_defined" && (
             <Input
               className='w-fit max-w-[200px]'
               type='text'
               placeholder='Property value'
-              value={segmentConfig.user_property_value}
+              value={filter.config.property_value}
               onChange={e => {
-                const newConfig = { ...segmentConfig, user_property_value: e.target.value }
-                setSegmentConfig(newConfig)
-                onUpdate(newConfig)
+                const newFilterData = { ...filter, config: { ...filter.config, property_value: e.target.value } }
+                setFilter(newFilterData)
+                onUpdate(newFilterData)
               }}
             />
           )}
         </>
       )}
-      {segmentConfig.object_type === "event" && (
+      {filter.config.type === "QueryFilters::EventCountForUserOverTimePeriod" && (
         <>
           <span>
             event
@@ -124,13 +133,13 @@ export default function UserSegmentFilterConfiguration({
             className='w-20'
             min={1}
             onChange={e => {
-              const newConfig = { ...segmentConfig, num_event_occurrences: parseInt(e.target.value) }
-              setSegmentConfig(newConfig)
-              onUpdate(newConfig)
+              const newFilterData = { ...filter, config: { ...filter.config, num_occurrences: parseInt(e.target.value) } }
+              setFilterConfig(newFilterData)
+              onUpdate(newFilterData)
             }}
             placeholder='5'
             type='number'
-            value={segmentConfig.num_event_occurrences}
+            value={filter.config.num_occurrences}
           />
           <span>
             or more times in the last
@@ -139,13 +148,13 @@ export default function UserSegmentFilterConfiguration({
             className='w-20'
             min={1}
             onChange={e => {
-              const newConfig = { ...segmentConfig, num_lookback_days: parseInt(e.target.value) }
-              setSegmentConfig(newConfig)
-              onUpdate(newConfig)
+              const newFilterData = { ...filter, config: { ...filter.config, num_lookback_days: parseInt(e.target.value) } }
+              setFilterConfig(newFilterData)
+              onUpdate(newFilterData)
             }}
             placeholder='5'
             type='number'
-            value={segmentConfig.num_lookback_days}
+            value={filter.config.num_lookback_days}
           />
           <span>
             days

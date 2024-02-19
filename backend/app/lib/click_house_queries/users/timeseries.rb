@@ -32,7 +32,7 @@ module ClickHouseQueries
         <<~SQL
           dates.date AS time_period,
           SUM(
-            IF (#{ClickHouseQueries::FilterHelpers::UserSegmentFilterWhereClause.where_clause_statements(@user_segments, users_table_alias: 'finalized_user_profiles')}, 1, 0)
+            IF (#{ClickHouseQueries::FilterHelpers::WhereClauseForFilterGroups.where_clause_statements(@user_segments, users_table_alias: 'finalized_user_profiles')}, 1, 0)
           ) AS user_count
         SQL
       end
@@ -46,7 +46,7 @@ module ClickHouseQueries
       end
 
       def maybe_event_counts_left_join_statements
-        ClickHouseQueries::FilterHelpers::LeftJoinStatementsForUserSegmentsEventCountFilters.left_join_statements(@user_segments, as_timeseries: true)
+        ClickHouseQueries::FilterHelpers::LeftJoinStatementsForEventCountByUserFilters.left_join_statements(@user_segments, as_timeseries: true)
       end
 
       def users_query_for_user_property_filters_if_any
@@ -60,13 +60,13 @@ module ClickHouseQueries
         # TODO - I think we need to do a right join maybe? we don't want to tie it to the events, we just need all users?
         # idk it feels weird to have a timeseries filtered by a user property cause it's stateful, not event-based
         # @user_segments.map do |user_segment|
-        #   user_segment.user_segment_filters.in_sequence_order.map do |filter|
+        #   user_segment.query_filter_groups.in_sequence_order.map do |filter|
         #     ClickHouseQueries::Common::FinalizedUserProfilesToEventsJoinQuery.sql(
         #       @workspace_id, 
         #       columns: ['email', 'metadata'], 
         #       table_alias: 'finalized_user_profiles', 
         #       # what happens if there's multiple user segments...?
-        #       event_table_alias: ClickHouseQueries::FilterHelpers::LeftJoinStatementsForUserSegmentsEventCountFilters.join_table_alias_for_segment_filter(filter.config)
+        #       event_table_alias: ClickHouseQueries::FilterHelpers::LeftJoinStatementsForEventCountByUserFilters.join_table_alias_for_segment_filter(filter.config)
         #     )
         #   end
         # end

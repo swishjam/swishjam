@@ -4,13 +4,23 @@ import QueryFilterGroupBuilder from "./QueryFilterGroupBuilder";
 import { Skeleton } from "@/components/ui/skeleton";
 import SwishjamAPI from "@/lib/api-client/swishjam-api";
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 
-export default function QueryBuilder() {
+export default function QueryBuilder({
+  onCreate,
+  defaultQueryFilterGroups = [{ sequence_index: 0, previous_query_filter_group_relationship_operator: null, query_filters: [] }],
+}) {
+  
+
   const [isLoading, setIsLoading] = useState(false)
-  const [queryFilterGroups, setQueryFilterGroups] = useState([{ sequence_index: 1, previous_query_filter_group_relationship_operator: null, query_filters: [] }])
+  const [queryFilterGroups, setQueryFilterGroups] = useState(defaultQueryFilterGroups)
   const [segmentName, setSegmentName] = useState('')
   const [uniqueUserProperties, setUniqueUserProperties] = useState()
   const [uniqueEvents, setUniqueEvents] = useState()
+
+  useEffect(() => {
+    setQueryFilterGroups(defaultQueryFilterGroups)
+  }, [defaultQueryFilterGroups])
 
   useEffect(() => {
     SwishjamAPI.Users.uniqueProperties().then(userProperties => setUniqueUserProperties(userProperties.sort()))
@@ -32,31 +42,39 @@ export default function QueryBuilder() {
 
   const createSegment = async () => {
     setIsLoading(true)
-    const results = await SwishjamAPI.UserSegments.create({ name: segmentName, filters: queryFilterGroups })
-    console.log(results)
+    const { user_segment, error } = await SwishjamAPI.UserSegments.create({ name: segmentName, queryFilterGroups })
+    if (error) {
+      toast.error('An error occurred', {
+        description: results.error,
+        duration: 10_000,
+      })
+    } else {
+      onCreate(user_segment)
+    }
     setIsLoading(false)
   }
 
-  const allFiltersComplete = queryFilterGroups.every(group => {
-    return group.query_filters.every(filter => {
-      return filter.type === 'QueryFilterGroups::UserProperty'
-        ? filter.filter_config.user_property_name && filter.filter_config.user_property_operator && (filter.filter_config.user_property_operator === "is_defined" || filter.filter_config.user_property_operator === "is_not_defined" || filter.filter_config.user_property_value)
-        : filter.filter_config.event_name && filter.filter_config.num_event_occurrences && filter.filter_config.num_lookback_days;
-    })
-  })
+  const allFiltersComplete = true;
+  // const allFiltersComplete = queryFilterGroups.every(group => {
+  //   return group.query_filters.every(filter => {
+  //     return filter.type === 'QueryFilterGroups::UserProperty'
+  //       ? filter.config.user_property_name && filter.config.user_property_operator && (filter.config.user_property_operator === "is_defined" || filter.config.user_property_operator === "is_not_defined" || filter.config.user_property_value)
+  //       : filter.config.event_name && filter.config.num_event_occurrences && filter.config.num_lookback_days;
+  //   })
+  // })
 
   return (
     <>
       {queryFilterGroups.map((filter, i) => (
-        <div className='mt-2' key={i}>
+        <div className='mt-4' key={i}>
           <QueryFilterGroupBuilder
             className='relative bg-white rounded-md border border-gray-200 px-4 py-8'
             onNewGroupClick={operator => setQueryFilterGroups([...queryFilterGroups, { sequence_index: i + 1, previous_query_filter_group_relationship_operator: operator, query_filters: [] }])}
             onDeleteClick={() => setQueryFilterGroups(queryFilterGroups.filter((_, index) => index !== i))}
-            onUpdate={newConfig => {
-              const newFilters = [...queryFilterGroups]
-              newFilters[i].filter_config = newConfig
-              setQueryFilterGroups(newFilters)
+            onUpdate={updatedQueryFiltersForGroup => {
+              const newQueryFilterGroups = [...queryFilterGroups]
+              newQueryFilterGroups[i].query_filters = updatedQueryFiltersForGroup
+              setQueryFilterGroups(newQueryFilterGroups)
             }}
             previousQueryFilterGroupRelationshipOperator={filter.previous_query_filter_group_relationship_operator}
             showDeleteButton={i > 0}

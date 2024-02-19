@@ -1,20 +1,13 @@
 SELECT
-  user_profiles.email AS email,
-  user_profiles.metadata AS metadata,
-  user_profiles.first_seen_at_in_web_app AS first_seen_at_in_web_app,
   concat (
     toString (toDateTime (user_profiles.created_at), 'UTC'),
     ' GMT-0800'
   ) AS created_at,
-  user_profiles.merged_into_swishjam_user_id AS merged_into_swishjam_user_id,
-  added_seat_count_for_user.event_count_for_user_within_lookback_period AS added_seat_count_for_user
+  user_profiles.merged_into_swishjam_user_id AS merged_into_swishjam_user_id
 FROM
   (
     SELECT
       swishjam_user_id,
-      argMax (email, updated_at) AS email,
-      argMax (metadata, updated_at) AS metadata,
-      argMax (first_seen_at_in_web_app, updated_at) AS first_seen_at_in_web_app,
       argMax (created_at, updated_at) AS created_at,
       argMax (merged_into_swishjam_user_id, updated_at) AS merged_into_swishjam_user_id
     FROM
@@ -27,9 +20,9 @@ FROM
   LEFT JOIN (
     SELECT
       finalized_user_profiles.finalized_swishjam_user_id AS user_profile_id,
-      CAST(COUNT(DISTINCT uuid) AS INT) AS event_count_for_user_within_lookback_period
+      CAST(COUNT(DISTINCT e.uuid) AS INT) AS event_count_for_user_within_lookback_period
     FROM
-      events
+      events AS e
       LEFT JOIN (
         SELECT
           swishjam_user_id AS user_profile_id_at_time_of_event,
@@ -45,22 +38,25 @@ FROM
           workspace_id = '104c4667-638b-4749-80d8-d1feb30d0636'
         GROUP BY
           user_profile_id_at_time_of_event
-      ) AS finalized_user_profiles ON events.user_profile_id = finalized_user_profiles.user_profile_id_at_time_of_event
+      ) AS finalized_user_profiles ON e.user_profile_id = finalized_user_profiles.user_profile_id_at_time_of_event
     WHERE
-      name = 'added seat'
-      AND date_diff ('minute', occurred_at, now (), 'UTC') <= 20160
+      e.name = 'added seat'
+      AND date_diff ('minute', e.occurred_at, now (), 'UTC') <= 20160
     GROUP BY
       user_profile_id
-  ) AS added_seat_count_for_user ON user_profiles.swishjam_user_id = added_seat_count_for_user.user_profile_id
+  ) AS added_seat_event_count_for_user_within_last_14_days ON user_profiles.swishjam_user_id = added_seat_event_count_for_user_within_last_14_days.user_profile_id
 WHERE
   isNull (user_profiles.merged_into_swishjam_user_id)
   AND (
-    JSONExtractString (metadata, 'college attended') = 'Springfield'
-    or added_seat_count_for_user.event_count_for_user_within_lookback_period >= 4
+    LOWER(JSONExtractString (metadata, 'favorite beer')) = 'coors'
+    or LOWER(JSONExtractString (metadata, 'favorite color')) = 'blue'
+  )
+  or (
+    added_seat_event_count_for_user_within_last_14_days.event_count_for_user_within_lookback_period >= 4
   )
 ORDER BY
   user_profiles.created_at DESC
 LIMIT
-  25
+  1000
 OFFSET
   0

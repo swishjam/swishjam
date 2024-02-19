@@ -53,6 +53,7 @@ module ProfileTags
           profile_email: user.email,
           tag_name: user_segment.profile_tag_name,
           tag_id: tag.id,
+          segment_id: user_segment.id,
         },
       )
     end
@@ -71,7 +72,7 @@ module ProfileTags
     def get_user_ids_for_user_segment_page(page)
       ClickHouseQueries::Users::List.new(
         user_segment.workspace_id, 
-        user_segments: [user_segment], 
+        filter_groups: user_segment.query_filter_groups.in_sequence_order.to_a,
         columns: ['swishjam_user_id'], 
         return_user_segment_event_counts: false,
         page: page, 

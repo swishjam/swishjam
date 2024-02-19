@@ -32,10 +32,10 @@ export default function UserSegmentsPage() {
           <div className="flex items-center space-x-2">
             <h2 className="text-sm font-semibold leading-6 text-gray-600 min-w-0 flex-auto">{segment.name}</h2>
             <span className='text-xs text-gray-500'>Created on {prettyDateTime(segment.created_at, { hour: 'none', minute: 'none' })}</span>
-            {segment?.user_segment_filters?.length > 0 && (
-              <Tooltipable content={<span className='text-xs'>Segment has {segment.user_segment_filters.length} filter conditions defined.</span>}>
+            {segment?.query_filter_groups?.length > 0 && (
+              <Tooltipable content={<span className='text-xs'>Segment has {segment.query_filter_groups.length} filter conditions defined.</span>}>
                 <span className="text-xs inline-flex items-center gap-x-1.5 rounded-sm bg-accent px-1.5 py-0.5 font-medium text-gray-600 cursor-default">
-                  {segment.user_segment_filters.length} <LuSplit className='h-3 w-3 inline-block' />
+                  {segment.query_filter_groups.length} <LuSplit className='h-3 w-3 inline-block' />
                 </span>
               </Tooltipable>
             )}

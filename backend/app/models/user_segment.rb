@@ -3,8 +3,7 @@ class UserSegment < Transactional
   belongs_to :created_by_user, class_name: User.to_s
   has_many :profile_tags, dependent: :nullify
   has_many :query_filter_groups, as: :filterable, dependent: :destroy
-  # has_many :user_segment_filters, dependent: :destroy
-  # accepts_nested_attributes_for :user_segment_filters, allow_destroy: true
+  accepts_nested_attributes_for :query_filter_groups, allow_destroy: true
 
   validates :workspace_id, presence: true
   validate :only_one_active_user_segment, on: :create

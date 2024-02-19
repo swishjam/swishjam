@@ -1,8 +1,8 @@
 import Base from "./base";
 
 export class UserSegments extends Base {
-  static async create({ name, description, filters }) {
-    return await this._post('/api/v1/user_segments', { name, description, filters })
+  static async create({ name, description, queryFilterGroups }) {
+    return await this._post('/api/v1/user_segments', { name, description, query_filter_groups: queryFilterGroups })
   }
 
   static async list({ page, perPage } = {}) {
