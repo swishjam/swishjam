@@ -44,30 +44,50 @@ module ClickHouseQueries
       end
 
       def self.where_clause_statements_for_user_property_segment_filter(filter, users_table_alias: 'user_profiles')
-        metadata_column = users_table_alias.blank? ? 'metadata' : "#{users_table_alias}.metadata"
-        case filter.operator
-        when 'is_defined'
-          "JSONHas(#{metadata_column}, '#{filter.property_name}') = 1"
-        when 'is_not_defined'
-          "JSONHas(#{metadata_column}, '#{filter.property_name}') = 0"
-        when 'contains'
-          "LOWER(JSONExtractString(#{metadata_column}, '#{filter.property_name}')) LIKE '%#{filter.property_value.downcase}%'"
-        when 'does_not_contain'
-          "LOWER(JSONExtractString(#{metadata_column}, '#{filter.property_name}')) NOT LIKE '%#{filter.property_value.downcase}%'"
-        when 'equals'
-          "LOWER(JSONExtractString(#{metadata_column}, '#{filter.property_name}')) = '#{filter.property_value.downcase}'"
-        when 'does_not_equal'
-          "LOWER(JSONExtractString(#{metadata_column}, '#{filter.property_name}')) != '#{filter.property_value.downcase}'"
-        when 'greater_than'
-          "JSONExtractFloat(#{metadata_column}, '#{filter.property_name}') > #{filter.property_value.to_f}"
-        when 'less_than'
-          "JSONExtractFloat(#{metadata_column}, '#{filter.property_name}') < #{filter.property_value.to_f}"
-        when 'greater_than_or_equal_to'
-          "JSONExtractFloat(#{metadata_column}, '#{filter.property_name}') >= #{filter.property_value.to_f}"
-        when 'less_than_or_equal_to'
-          "JSONExtractFloat(#{metadata_column}, '#{filter.property_name}') <= #{filter.property_value.to_f}"
+        if filter.property_name == 'email'
+          user_column = users_table_alias.blank? ? 'email' : "#{users_table_alias}.email"
+          case filter.operator
+          when 'is_defined'
+            "notEmpty(#{user_column}) AND isNotNull(#{user_column})"
+          when 'is_not_defined'
+            "empty(#{user_column}) OR isNull(#{user_column})"
+          when 'contains'
+            "LOWER(#{user_column}) LIKE '%#{filter.property_value.downcase}%'"
+          when 'does_not_contain'
+            "LOWER(#{user_column}) NOT LIKE '%#{filter.property_value.downcase}%'"
+          when 'equals'
+            "LOWER(#{user_column}) = '#{filter.property_value.downcase}'"
+          when 'does_not_equal'
+            "LOWER(#{user_column}) != '#{filter.property_value.downcase}'"
+          else
+            raise "Unknown `user_property_operator` in `UserSegmentFilter`: #{filter.operator}"
+          end
         else
-          raise "Unknown `user_property_operator` in `UserSegmentFilter`: #{filter.operator}"
+          user_column = users_table_alias.blank? ? 'metadata' : "#{users_table_alias}.metadata"
+          case filter.operator
+          when 'is_defined'
+            "JSONHas(#{user_column}, '#{filter.property_name}') = 1"
+          when 'is_not_defined'
+            "JSONHas(#{user_column}, '#{filter.property_name}') = 0"
+          when 'contains'
+            "LOWER(JSONExtractString(#{user_column}, '#{filter.property_name}')) LIKE '%#{filter.property_value.downcase}%'"
+          when 'does_not_contain'
+            "LOWER(JSONExtractString(#{user_column}, '#{filter.property_name}')) NOT LIKE '%#{filter.property_value.downcase}%'"
+          when 'equals'
+            "LOWER(JSONExtractString(#{user_column}, '#{filter.property_name}')) = '#{filter.property_value.downcase}'"
+          when 'does_not_equal'
+            "LOWER(JSONExtractString(#{user_column}, '#{filter.property_name}')) != '#{filter.property_value.downcase}'"
+          when 'greater_than'
+            "JSONExtractFloat(#{user_column}, '#{filter.property_name}') > #{filter.property_value.to_f}"
+          when 'less_than'
+            "JSONExtractFloat(#{user_column}, '#{filter.property_name}') < #{filter.property_value.to_f}"
+          when 'greater_than_or_equal_to'
+            "JSONExtractFloat(#{user_column}, '#{filter.property_name}') >= #{filter.property_value.to_f}"
+          when 'less_than_or_equal_to'
+            "JSONExtractFloat(#{user_column}, '#{filter.property_name}') <= #{filter.property_value.to_f}"
+          else
+            raise "Unknown `user_property_operator` in `UserSegmentFilter`: #{filter.operator}"
+          end
         end
       end
     end

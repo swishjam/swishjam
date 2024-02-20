@@ -7,6 +7,7 @@ class QueryFilterGroup < Transactional
 
   validates :sequence_index, presence: true, numericality: { only_integer: true, greater_than_or_equal_to: 0 }, uniqueness: { scope: :filterable }
   validate :has_valid_operator
+  validate :has_at_least_one_query_filter
 
   scope :in_sequence_order, -> { order(sequence_index: :ASC) }
 
@@ -15,6 +16,12 @@ class QueryFilterGroup < Transactional
   end
 
   private
+
+  def has_at_least_one_query_filter
+    if query_filters.empty?
+      errors.add(:base, "Query filter group must have at least one query filter")
+    end
+  end
 
   def has_valid_operator
     if sequence_index > 0 && !%w[and or AND OR].include?(previous_query_filter_group_relationship_operator)

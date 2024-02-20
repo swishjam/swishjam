@@ -1,29 +1,36 @@
 import { Button } from "../ui/button";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form"
+import { Input } from "../ui/input";
 import LoadingSpinner from "../LoadingSpinner";
+import Modal from "../utils/Modal";
 import QueryFilterGroupBuilder from "./QueryFilterGroupBuilder";
 import { Skeleton } from "@/components/ui/skeleton";
 import SwishjamAPI from "@/lib/api-client/swishjam-api";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import { Textarea } from "../ui/textarea";
 
 export default function QueryBuilder({
-  onCreate,
   defaultQueryFilterGroups = [{ sequence_index: 0, previous_query_filter_group_relationship_operator: null, query_filters: [] }],
+  isLoading = false,
+  onSave,
 }) {
-  
-
-  const [isLoading, setIsLoading] = useState(false)
+  const [nameAndDescriptionModalIsOpen, setNameAndDescriptionModalIsOpen] = useState(false)
   const [queryFilterGroups, setQueryFilterGroups] = useState(defaultQueryFilterGroups)
   const [segmentName, setSegmentName] = useState('')
+  const [segmentDescription, setSegmentDescription] = useState('')
   const [uniqueUserProperties, setUniqueUserProperties] = useState()
   const [uniqueEvents, setUniqueEvents] = useState()
 
   useEffect(() => {
-    setQueryFilterGroups(defaultQueryFilterGroups)
-  }, [defaultQueryFilterGroups])
-
-  useEffect(() => {
-    SwishjamAPI.Users.uniqueProperties().then(userProperties => setUniqueUserProperties(userProperties.sort()))
+    SwishjamAPI.Users.uniqueProperties().then(userProperties => setUniqueUserProperties([...userProperties, 'email'].sort()))
     SwishjamAPI.Events.listUnique().then(eventsAndCounts => {
       const names = eventsAndCounts.map(event => event.name)
       setUniqueEvents(names.sort())
@@ -32,26 +39,6 @@ export default function QueryBuilder({
 
   if (!uniqueUserProperties || !uniqueEvents) {
     return <Skeleton className='h-10 w-20' />
-  }
-
-  const previewSegment = async () => {
-    setIsLoading(true)
-    const results = await SwishjamAPI.Users.list({ filters: queryFilterGroups })
-    setIsLoading(false)
-  }
-
-  const createSegment = async () => {
-    setIsLoading(true)
-    const { user_segment, error } = await SwishjamAPI.UserSegments.create({ name: segmentName, queryFilterGroups })
-    if (error) {
-      toast.error('An error occurred', {
-        description: results.error,
-        duration: 10_000,
-      })
-    } else {
-      onCreate(user_segment)
-    }
-    setIsLoading(false)
   }
 
   const allFiltersComplete = true;
@@ -65,6 +52,33 @@ export default function QueryBuilder({
 
   return (
     <>
+      {nameAndDescriptionModalIsOpen && (
+        <Modal onClose={() => setNameAndDescriptionModalIsOpen(false)} title='Name your segment'>
+          <form onSubmit={e => {
+            e.preventDefault()
+            onSave({ name: segmentName, description: segmentDescription, queryFilterGroups })
+          }}
+          >
+            <div>
+              <label htmlFor='name' className='mb-1 block text-sm font-medium text-gray-700'>Name</label>
+              <Input type='text' placeholder='My segment' label='Name' value={segmentName} onChange={e => setSegmentName(e.target.value)} />
+            </div>
+            <div className='mt-2'>
+              <label htmlFor='name' className='mb-1 block text-sm font-medium text-gray-700'>Description</label>
+              <Textarea type='textarea' placeholder='A short description of the segment.' label='Description' value={segmentDescription} onChange={e => setSegmentDescription(e.target.value)} />
+            </div>
+            <div className='mt-4 flex items-center justify-end space-x-4'>
+              <Button
+                disabled={isLoading}
+                variant='swishjam'
+                type='submit'
+              >
+                {isLoading ? <LoadingSpinner color='white' className='h-5 w-5 mx-8' /> : <>Create Segment</>}
+              </Button>
+            </div>
+          </form>
+        </Modal>
+      )}
       {queryFilterGroups.map((filter, i) => (
         <div className='mt-4' key={i}>
           <QueryFilterGroupBuilder
@@ -86,10 +100,14 @@ export default function QueryBuilder({
       ))
       }
       <div className='mt-4 flex items-center justify-end space-x-4'>
-        <Button variant='outline' disabled={!allFiltersComplete || isLoading} onClick={previewSegment}>
+        {/* <Button variant='outline' disabled={!allFiltersComplete || isLoading} onClick={previewSegment}>
           {isLoading ? <LoadingSpinner color='white' className='h-5 w-5 mx-8' /> : <>Preview Segment</>}
-        </Button>
-        <Button variant='swishjam' disabled={!allFiltersComplete || isLoading} onClick={createSegment}>
+        </Button> */}
+        <Button
+          variant='swishjam'
+          disabled={!allFiltersComplete || isLoading}
+          onClick={() => setNameAndDescriptionModalIsOpen(true)}
+        >
           {isLoading ? <LoadingSpinner color='white' className='h-5 w-5 mx-8' /> : <>Create Segment</>}
         </Button>
       </div>

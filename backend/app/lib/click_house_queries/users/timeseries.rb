@@ -13,7 +13,6 @@ module ClickHouseQueries
       end
 
       def get
-        byebug
         Analytics::ClickHouseRecord.execute_sql(sql.squish!)
       end
 

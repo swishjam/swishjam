@@ -24,7 +24,7 @@ module Api
                 {
                   sequence_index: filter[:sequence_index],
                   previous_query_filter_relationship_operator: filter[:previous_query_filter_relationship_operator],
-                  type: filter[:config][:type],
+                  type: filter[:type],
                   config: filter[:config].except(:type).as_json,
                 }
               end
@@ -32,7 +32,6 @@ module Api
           end
         })
         if user_segment.save
-          byebug
           render json: { user_segment: UserSegmentSerializer.new(user_segment) }, status: :ok
         else
           render json: { error: user_segment.errors.full_messages.join(" ") }, status: :unprocessable_entity

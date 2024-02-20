@@ -54,9 +54,9 @@ export default function QueryFilterGroupBuilder({
               displayDeleteButton={i > 0}
               onNewFilterClick={operator => setQueryFilters([...queryFilters, { sequence_index: i + 1, previous_query_filter_relationship_operator: operator, config: {} }])}
               onDelete={() => setQueryFilters(queryFilters.filter((_, index) => index !== i))}
-              onUpdate={updatedFilterConfig => {
+              onUpdate={updatedFilter => {
                 const newFilters = [...queryFilters]
-                newFilters[i].config = updatedFilterConfig
+                newFilters[i] = { ...newFilters[i], ...updatedFilter }
                 setQueryFilters(newFilters)
                 onUpdate(newFilters);
               }}

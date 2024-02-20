@@ -20,10 +20,6 @@ export default function UserSegmentFilterConfiguration({
 }) {
   const [filter, setFilter] = useState(defaultFilter)
 
-  useEffect(() => {
-    setFilter(defaultFilter)
-  }, [defaultFilter])
-
   const updateSelectedUserPropertyOrEventName = selectedValue => {
     const updatedFilterData = { ...filter }
     const selectedObject = selectedValue.split('.')[0]
@@ -55,7 +51,7 @@ export default function UserSegmentFilterConfiguration({
   const formattedUserPropertyOptions = uniqueUserProperties.map(option => ({ label: option, value: `user.${option}` }))
   const formattedEventPropertyOptions = uniqueEvents.map(option => ({ label: option, value: `event.${option}` }))
 
-  const isComplete = filter.config.type === 'QueryFilters::UserProperty'
+  const isComplete = filter.type === 'QueryFilters::UserProperty'
     ? filter.config.property_name && filter.config.operator && (filter.config.operator === "is_defined" || filter.config.operator === "is_not_defined" || filter.config.property_value)
     : filter.config.event_name && filter.config.num_occurrences && filter.config.num_lookback_days;
 
@@ -64,13 +60,15 @@ export default function UserSegmentFilterConfiguration({
       <span>
         {operator && (
           <div className='inline-flex relative mr-2'>
-            <span className="absolute w-0.5 bg-gray-400 left-0 right-0 mx-auto z-0" style={{ height: '150%', top: '-50%' }} />
+            <span className="absolute w-0.5 bg-gray-400 left-0 right-0 mx-auto z-0" style={{ height: '150%', top: '-80%' }} />
             <Badge variant='secondary' className='justify-center z-10 py-1 w-14 text-sm bg-green-100 text-green-500 ring-green-600/20 cursor-default transition-colors hover:bg-green-200'>
               {operator.toUpperCase()}
             </Badge>
           </div>
         )}
-        Users who have triggered the
+        {!filter.type && 'Users who '}
+        {filter.type === "QueryFilters::UserProperty" && 'Users whose '}
+        {filter.type === "QueryFilters::EventCountForUserOverTimePeriod" && 'Users who have triggered the'}
       </span>
       <Combobox
         selectedValue={filter.config.property_name ? `user.${filter.config.property_name}` : filter.config.event_name ? `event.${filter.config.event_name}` : null}
@@ -84,7 +82,7 @@ export default function UserSegmentFilterConfiguration({
         ]}
         placeholder="Select a property"
       />
-      {filter.config.type === "QueryFilters::UserProperty" && (
+      {filter.type === "QueryFilters::UserProperty" && (
         <>
           <span>
             property
@@ -93,8 +91,8 @@ export default function UserSegmentFilterConfiguration({
             selectedValue={filter.config.operator}
             onSelectionChange={selectedValue => {
               const newFilterData = { ...filter, config: { ...filter.config, operator: selectedValue } }
-              setFilter(newConfig)
-              onUpdate(newConfig)
+              setFilter(newFilterData)
+              onUpdate(newFilterData)
             }}
             options={[
               { label: "equals", value: "equals" },
@@ -124,7 +122,7 @@ export default function UserSegmentFilterConfiguration({
           )}
         </>
       )}
-      {filter.config.type === "QueryFilters::EventCountForUserOverTimePeriod" && (
+      {filter.type === "QueryFilters::EventCountForUserOverTimePeriod" && (
         <>
           <span>
             event
@@ -134,7 +132,7 @@ export default function UserSegmentFilterConfiguration({
             min={1}
             onChange={e => {
               const newFilterData = { ...filter, config: { ...filter.config, num_occurrences: parseInt(e.target.value) } }
-              setFilterConfig(newFilterData)
+              setFilter(newFilterData)
               onUpdate(newFilterData)
             }}
             placeholder='5'
@@ -149,7 +147,7 @@ export default function UserSegmentFilterConfiguration({
             min={1}
             onChange={e => {
               const newFilterData = { ...filter, config: { ...filter.config, num_lookback_days: parseInt(e.target.value) } }
-              setFilterConfig(newFilterData)
+              setFilter(newFilterData)
               onUpdate(newFilterData)
             }}
             placeholder='5'

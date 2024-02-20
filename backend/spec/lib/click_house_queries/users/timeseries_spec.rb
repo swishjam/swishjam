@@ -15,7 +15,6 @@ describe ClickHouseQueries::Users::Timeseries do
       FactoryBot.create(:user_segment_filter, user_segment: segment, sequence_index: 2, parent_relationship_operator: 'or', config: { 'object_type' => 'user', 'user_property_name' => 'college_attended', 'user_property_operator' => 'equals', 'user_property_value' => 'Springfield' })
 
       result = ClickHouseQueries::Users::Timeseries.new(@workspace.id, start_time: @start_time, end_time: @end_time, user_segments: [segment]).get
-      byebug
     end
   end
 end

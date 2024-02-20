@@ -15,7 +15,6 @@ class QueryFilter < Transactional
 
   def has_valid_operator
     if sequence_index > 0 && !%w[and or AND OR].include?(previous_query_filter_relationship_operator)
-      byebug
       errors.add(:base, "Query filter that is not the first of the group must have a `previous_query_filter_relationship_operator` equal to 'and' or 'or', received: #{previous_query_filter_relationship_operator}")
     end
   end

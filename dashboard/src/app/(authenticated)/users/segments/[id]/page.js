@@ -12,7 +12,7 @@ import SwishjamAPI from "@/lib/api-client/swishjam-api";
 import { useEffect, useState } from "react";
 import UserProfilesCollection from "@/lib/collections/user-profiles";
 import Link from "next/link";
-import { UserIcon } from "lucide-react";
+import { ArrowLeftIcon, UserIcon } from "lucide-react";
 import FilterGroupsDisplay from "@/components/QueryBuilder/FilterGroupsDisplay";
 
 export default function UserSegmentDetailsPage({ params }) {
@@ -62,9 +62,17 @@ export default function UserSegmentDetailsPage({ params }) {
 
   return (
     <main className="mx-auto max-w-7xl px-4 mt-8 sm:px-6 lg:px-8 mb-8">
-      <h1 className="text-lg font-medium text-gray-700 my-8">
-        Segment Details
-      </h1>
+      <div className="my-8">
+        <Link href='/users/segments' className='text-gray-400 hover:underline'>
+          <h4 className='text-xs flex items-center'>
+            <ArrowLeftIcon className='h-4 w-4 inline-block mr-1' />
+            Back to all segments
+          </h4>
+        </Link>
+        <h1 className="text-lg font-medium text-gray-700">
+          Segment Details
+        </h1>
+      </div>
       <div className='bg-white rounded-md border border-gray-200 p-8'>
         <div className='mb-4'>
           <div className='grid grid-cols-4 items-start space-x-4'>

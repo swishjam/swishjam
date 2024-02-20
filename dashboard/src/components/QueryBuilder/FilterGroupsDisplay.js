@@ -1,13 +1,13 @@
 import DottedUnderline from "@/components/utils/DottedUnderline"
 import { Skeleton } from "../ui/skeleton"
 
-const FilterItem = ({ filter, operator, operatorSize, className }) => {
+const FilterItem = ({ filter, operator, className }) => {
   return (
-    <div className={`relative flex space-x-3 items-center rounded w-fit px-4 cursor-default transition-colors hover:bg-gray-50 ${className}`} >
+    <div className={`relative flex space-x-3 items-center rounded w-fit px-4 pr-4 cursor-default transition-colors hover:bg-gray-50 ${className}`} >
       <div>
         {operator
           ? (
-            <span className={`bg-gray-200 h-${operatorSize || '8'} w-${operatorSize || '8'} rounded-full flex items-center justify-center ring-4 ring-white ${operatorSize >= 8 ? 'text-sm' : 'text-xs'} font-medium`}>
+            <span className={`bg-gray-200 h-8 w-8 rounded-full flex items-center justify-center ring-4 ring-white text-xs font-medium`}>
               {operator}
             </span>
           ) : (
@@ -42,6 +42,7 @@ const FilterItem = ({ filter, operator, operatorSize, className }) => {
 const FilterGroupItem = ({ filterGroup }) => {
   const firstFilter = filterGroup.query_filters[0]
   const otherFilters = filterGroup.query_filters.slice(1)
+  console.log(filterGroup)
   return (
     <li key={filterGroup.id}>
       <div className="relative pb-8">
@@ -59,7 +60,6 @@ const FilterGroupItem = ({ filterGroup }) => {
                   key={i}
                   filter={filter}
                   operator={filter.previous_query_filter_relationship_operator}
-                  operatorSize={5}
                 />
               </div>
             )

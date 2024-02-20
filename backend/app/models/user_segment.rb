@@ -13,7 +13,7 @@ class UserSegment < Transactional
   ACTIVE_USERS_SEGMENT_NAME = "Active Users".freeze
   
   def self.ACTIVE_USERS_SEGMENT
-    where(name: ACTIVE_USERS_SEGMENT_NAME).limit(1).first
+    where("lower(name) = ?", self.class::ACTIVE_USERS_SEGMENT_NAME.downcase).limit(1).first
   end
 
   def profile_tag_name
@@ -27,7 +27,7 @@ class UserSegment < Transactional
   end
 
   def only_one_active_user_segment
-    if name == self.class::ACTIVE_USERS_SEGMENT_NAME && workspace.user_segments.where(name: self.class::ACTIVE_USERS_SEGMENT_NAME).exists?
+    if name == self.class::ACTIVE_USERS_SEGMENT_NAME && workspace.user_segments.where("lower(name) = ?", self.class::ACTIVE_USERS_SEGMENT_NAME.downcase).exists?
       errors.add(:base, "#{self.class::ACTIVE_USERS_SEGMENT_NAME} is a reserved segment name which already exists. Please choose a different name.")
     end
   end
