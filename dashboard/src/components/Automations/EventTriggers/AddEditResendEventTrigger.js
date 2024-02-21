@@ -8,7 +8,7 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { Checkbox } from "@/components/ui/checkbox"
-import EmptyState from "src/app/(authenticated)/automations/EmptyState";
+import EmptyState from "@/components/utils/PageEmptyState";
 import { Input } from '@/components/ui/input';
 import LoadingSpinner from '@components/LoadingSpinner';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"

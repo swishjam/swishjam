@@ -1,7 +1,7 @@
 'use client';
 
 import { ArrowLeftIcon } from "lucide-react";
-import EmptyState from "../../../EmptyState";
+import EmptyState from "@/components/utils/PageEmptyState";
 import Link from "next/link";
 import Pagination from "@/components/Pagination/Pagination";
 import { SwishjamAPI } from "@/lib/api-client/swishjam-api";

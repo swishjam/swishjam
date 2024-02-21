@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from "react";
-import EmptyState from '../EmptyState';
+import EmptyState from '@/components/utils/PageEmptyState';
 import { SwishjamAPI } from "@/lib/api-client/swishjam-api";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";

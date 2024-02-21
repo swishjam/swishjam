@@ -10,7 +10,7 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import Link from "next/link"
-import EmptyState from "src/app/(authenticated)/automations/EmptyState";
+import EmptyState from "@/components/utils/PageEmptyState";
 import { Input } from '@/components/ui/input';
 import LoadingSpinner from '@components/LoadingSpinner';
 import MessageBodyMarkdownRenderer from '@components/Slack/MessageBodyMarkdownRenderer';

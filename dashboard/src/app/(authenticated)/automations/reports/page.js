@@ -2,13 +2,13 @@
 
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Button } from '@/components/ui/button';
-import EmptyState from '../EmptyState';
+import EmptyState from '@/components/utils/PageEmptyState';
 import Link from "next/link";
 import { Skeleton } from "@/components/ui/skeleton";
 import { SwishjamAPI } from "@/lib/api-client/swishjam-api";
 import { toast } from "sonner";
 import { useState, useEffect } from "react";
-                      
+
 import {
   LuPlus, LuClock, LuPause,
   LuPlay, LuPencil, LuTrash,
@@ -78,7 +78,7 @@ export default function ReportsPage() {
     <div>
       <div className="flex items-center justify-between">
         <h2 className="text-md font-medium text-gray-700 mb-0">Reports</h2>
-        {hasSlackConnection && 
+        {hasSlackConnection &&
           <Link href="/automations/reports/new">
             <Button
               className={`duration-300 transition-all ml-2 flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white focus:outline-none focus:ring-2 bg-swishjam hover:bg-swishjam-dark`}
@@ -86,7 +86,7 @@ export default function ReportsPage() {
               <LuPlus className="h-4 w-4 mt-0.5 mr-2" />
               New Report
             </Button>
-          </Link> 
+          </Link>
         }
       </div>
       {reports === undefined ? (
@@ -112,7 +112,7 @@ export default function ReportsPage() {
                   </div>
                   {report.enabled &&
                     <div className="inline-flex items-center gap-x-1.5 px-1.5 capitalize">
-                      {report.cadence == 'daily' ? <LuClock className="w-5 h-5" />:<LuCalendarDays className="w-5 h-5" />}
+                      {report.cadence == 'daily' ? <LuClock className="w-5 h-5" /> : <LuCalendarDays className="w-5 h-5" />}
                       {report.cadence}
                     </div>
                   }
@@ -136,7 +136,7 @@ export default function ReportsPage() {
                     <DropdownMenuTrigger asChild>
                       <div>
                         <LuSettings className='h-5 w-5 hover:text-swishjam cursor-pointer duration-300 transition-all' />
-                      </div> 
+                      </div>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent className="w-36 border-zinc-200 shadow-sm border-sm" align={'end'}>
                       <Link href={`/automations/reports/${report.id}/edit`}>
@@ -144,7 +144,7 @@ export default function ReportsPage() {
                           <LuPencil className='h-4 w-4 inline-block mr-2' />
                           Edit
                         </DropdownMenuItem>
-                      </Link>                    
+                      </Link>
                       <DropdownMenuGroup>
                         {report.enabled ? (
                           <DropdownMenuItem onClick={() => pauseReport(report.id)} className="cursor-pointer">
