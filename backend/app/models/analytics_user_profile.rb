@@ -35,6 +35,7 @@ class AnalyticsUserProfile < Transactional
   scope :anonymous, -> { where(user_unique_identifier: nil, email: nil) }
   scope :identified, -> { where.not(user_unique_identifier: nil).or(where.not(email: nil)) }
   scope :with_active_profile_tag, ->(tag_name) { joins(:profile_tags).where(profile_tags: { name: tag_name, removed_at: nil }) }
+  scope :has_metadata_key, ->(key) { where("metadata ? :key", key: key) }
 
   before_create :try_to_set_gravatar_url
   after_create :enrich_profile!

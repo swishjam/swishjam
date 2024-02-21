@@ -16,9 +16,8 @@ module ClickHouseQueries
         def sql
           <<~SQL
             SELECT DISTINCT property_name
-            FROM swishjam_user_profiles
+            FROM (#{ClickHouseQueries::Common::DeDupedUserProfilesQuery.sql(workspace_id: @workspace_id, columns: ['metadata'])})
             ARRAY JOIN JSONExtractKeys(metadata) AS property_name
-            WHERE workspace_id = '#{@workspace_id}'
             LIMIT #{@limit}
           SQL
         end
