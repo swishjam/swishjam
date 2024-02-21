@@ -36,7 +36,7 @@ const Badge = ({ tag }) => (
 
 export default function ProfileTags({ profileTags }) {
   return (
-    <div className='flex flex-wrap gap-2'>
+    <div className='flex items-center flex-wrap gap-2'>
       {profileTags.map(tag => {
         if (tag.removed_at) {
           return (

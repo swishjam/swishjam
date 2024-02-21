@@ -5,7 +5,7 @@ module ClickHouseQueries
 
       def self.where_clause_statements(filter_groups, users_table_alias: 'user_profiles')
         return "1 = 1" if filter_groups.empty?
-        query = "( "
+        query = ""
         filter_groups.each_with_index do |filter_group, filter_group_index|
           query << " #{filter_group.previous_query_filter_group_relationship_operator} " if filter_group.previous_query_filter_group_relationship_operator.present? && filter_group_index > 0
           if filter_group_index == 0 && filter_group.previous_query_filter_group_relationship_operator.present?
@@ -15,7 +15,9 @@ module ClickHouseQueries
           end
 
           query << " ( "
-          filter_group.query_filters.in_sequence_order.each_with_index do |filter, filter_index|
+          # using .sort here instead of the scope so that it can iterate over in memory objects that are not in the DB
+          sorted_query_filters = filter_group.query_filters.sort{ |f| f.sequence_index }
+          sorted_query_filters.each_with_index do |filter, filter_index|
             query << " #{filter.previous_query_filter_relationship_operator} " if filter.previous_query_filter_relationship_operator.present? && filter_index > 0
             if filter_index == 0 && filter.previous_query_filter_relationship_operator.present?
               Sentry.capture_message("First filter item should not have a `previous_query_filter_relationship_operator`, ignoring the operator in the query...", extra: { filter: filter })
@@ -33,7 +35,6 @@ module ClickHouseQueries
           end
           query << " ) "
         end
-        query << " ) "
         query
       end
 
@@ -44,8 +45,8 @@ module ClickHouseQueries
       end
 
       def self.where_clause_statements_for_user_property_segment_filter(filter, users_table_alias: 'user_profiles')
-        if filter.property_name == 'email'
-          user_column = users_table_alias.blank? ? 'email' : "#{users_table_alias}.email"
+        if ['email', 'user_unique_identifier'].include?(filter.property_name)
+          user_column = users_table_alias.blank? ? filter.property_name : [users_table_alias, filter.property_name].join(".")
           case filter.operator
           when 'is_defined'
             "notEmpty(#{user_column}) AND isNotNull(#{user_column})"
@@ -59,8 +60,26 @@ module ClickHouseQueries
             "LOWER(#{user_column}) = '#{filter.property_value.downcase}'"
           when 'does_not_equal'
             "LOWER(#{user_column}) != '#{filter.property_value.downcase}'"
+          when 'is_generic_email'
+            raise InvalidFilterGroupError, "Cannot use `is_generic_email` on any other property than `email`, received: #{filter.property_name}" unless filter.property_name == 'email'
+            <<~SQL
+              (
+                notEmpty(#{user_column}) AND 
+                isNotNull(#{user_column}) AND 
+                arrayElement( splitByChar('@', assumeNotNull(#{user_column})), length(splitByChar('@', assumeNotNull(#{user_column}))) ) IN [#{GenericEmailDetector::GENERIC_EMAIL_PROVIDERS.map{ |d| "'#{d}'" }.join(', ')}]
+              )
+            SQL
+          when 'is_not_generic_email'
+            raise InvalidFilterGroupError, "Cannot use `is_not_generic_email` on any other property than `email`, received: #{filter.property_name}" unless filter.property_name == 'email'
+            <<~SQL
+              (
+                notEmpty(#{user_column}) AND 
+                isNotNull(#{user_column}) AND 
+                arrayElement( splitByChar('@', assumeNotNull(#{user_column})), length(splitByChar('@', assumeNotNull(#{user_column}))) ) NOT IN [#{GenericEmailDetector::GENERIC_EMAIL_PROVIDERS.map{ |d| "'#{d}'" }.join(', ')}]
+              )
+            SQL
           else
-            raise "Unknown `user_property_operator` in `UserSegmentFilter`: #{filter.operator}"
+            raise InvalidFilterGroupError, "Unknown `user_property_operator` in `UserSegmentFilter`: #{filter.operator}"
           end
         else
           user_column = users_table_alias.blank? ? 'metadata' : "#{users_table_alias}.metadata"

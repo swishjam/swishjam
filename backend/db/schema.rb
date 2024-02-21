@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2024_02_15_190428) do
+ActiveRecord::Schema.define(version: 2024_02_20_152853) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
@@ -163,6 +163,9 @@ ActiveRecord::Schema.define(version: 2024_02_15_190428) do
     t.text "error_message"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.string "synced_object_type"
+    t.uuid "synced_object_id"
+    t.index ["synced_object_type", "synced_object_id"], name: "index_data_syncs_on_synced_object"
     t.index ["workspace_id"], name: "index_data_syncs_on_workspace_id"
   end
 
@@ -397,7 +400,7 @@ ActiveRecord::Schema.define(version: 2024_02_15_190428) do
 
   create_table "user_segments", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.uuid "workspace_id", null: false
-    t.uuid "created_by_user_id", null: false
+    t.uuid "created_by_user_id"
     t.string "name", null: false
     t.string "description"
     t.datetime "created_at", precision: 6, null: false
@@ -444,9 +447,9 @@ ActiveRecord::Schema.define(version: 2024_02_15_190428) do
     t.datetime "updated_at", precision: 6, null: false
     t.boolean "combine_marketing_and_product_data_sources"
     t.boolean "should_enrich_user_profile_data"
+    t.boolean "revenue_analytics_enabled", default: true, null: false
     t.string "enrichment_provider"
     t.boolean "should_enrich_organization_profile_data", default: false
-    t.boolean "revenue_analytics_enabled", default: true, null: false
     t.index ["workspace_id"], name: "index_workspace_settings_on_workspace_id"
   end
 

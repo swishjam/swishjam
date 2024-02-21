@@ -45,7 +45,7 @@ module ClickHouseQueries
       end
 
       def maybe_event_counts_left_join_statements
-        ClickHouseQueries::FilterHelpers::LeftJoinStatementsForEventCountByUserFilters.left_join_statements(@user_segments, as_timeseries: true)
+        ClickHouseQueries::FilterHelpers::LeftJoinStatementsForEventCountByUserFilters.left_join_statements(@user_segments, workspace_id: @workspace_id, as_timeseries: true)
       end
 
       def users_query_for_user_property_filters_if_any

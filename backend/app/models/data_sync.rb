@@ -1,5 +1,6 @@
 class DataSync < Transactional
   belongs_to :workspace
+  belongs_to :synced_object, polymorphic: true, optional: true
 
   validates :provider, presence: true
   

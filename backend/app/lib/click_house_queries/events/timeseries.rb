@@ -99,7 +99,7 @@ module ClickHouseQueries
           sql << ClickHouseQueries::Common::FinalizedUserProfilesToEventsJoinQuery.sql(@workspace_id, columns: ['metadata'], table_alias: 'user_profiles', event_table_alias: 'e')
         end
         if @user_segments.any?
-          sql << ClickHouseQueries::FilterHelpers::LeftJoinStatementsForEventCountByUserFilters.left_join_statements(@user_segments, users_table_alias: 'user_profiles')
+          sql << ClickHouseQueries::FilterHelpers::LeftJoinStatementsForEventCountByUserFilters.left_join_statements(@user_segments, workspace_id: @workspace_id, users_table_alias: 'user_profiles')
         end
         sql
       end

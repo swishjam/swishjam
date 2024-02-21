@@ -45,19 +45,19 @@ export default function Combobox({ selectedValue, onSelectionChange, options, pl
                     return <CommandSeparator className='my-1' key={i} />
                   } else if (option.type === 'title') {
                     return (
-                      <CommandItem
+                      <div
                         key={i}
-                        className="text-sm font-bold text-gray-900"
+                        className={`text-sm font-bold text-gray-700 py-2 px-1 mt-1 border-gray-200 ${i > 0 ? 'border-t' : ''}`}
                         disabled
                       >
                         {option.label}
-                      </CommandItem>
+                      </div>
                     )
                   } else {
                     return (
                       <CommandItem
                         className='text-gray-700 cursor-pointer hover:bg-gray-100 transition-colors duration-100 ease-in-out pl-2'
-                        key={option.value}
+                        key={i}
                         value={option.value}
                         onSelect={newValue => {
                           setIsOpen(false)

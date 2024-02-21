@@ -10,6 +10,7 @@ import SheetProvider from '@/providers/SheetProvider';
 import { Toaster, toast } from 'sonner'
 import { useSearchParams } from "next/navigation";
 import { useEffect } from "react";
+import { ConfirmationModalProvider } from "@/providers/ConfirmationModalProvider";
 // import { IntercomProvider } from 'react-use-intercom';
 
 export default function layout({ children }) {
@@ -29,11 +30,13 @@ export default function layout({ children }) {
       <CommandBarProvider>
         <HotKeyProvider>
           <SheetProvider>
-            <EnlargableDashboardComponentProvider>
-              <AuthenticatedView LoadingView={LoadingView}>
-                {children}
-              </AuthenticatedView>
-            </EnlargableDashboardComponentProvider>
+            <ConfirmationModalProvider>
+              <EnlargableDashboardComponentProvider>
+                <AuthenticatedView LoadingView={LoadingView}>
+                  {children}
+                </AuthenticatedView>
+              </EnlargableDashboardComponentProvider>
+            </ConfirmationModalProvider>
           </SheetProvider>
         </HotKeyProvider>
       </CommandBarProvider>

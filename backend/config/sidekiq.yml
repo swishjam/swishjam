@@ -5,7 +5,7 @@
   :schedule:
     update_user_segments_profile_tags:
       # TEMPORARY! JUST FOR TESTING, SHOULD BE A MUCH LONGER INTERVAL
-      cron: "* * * * *"
+      cron: "*/10 * * * *"
       class: UpdateUserSegmentProfileTagsJob
     stripe_data_daily_sync:
       cron: "0 8 * * *" # every day @ 8am UTC

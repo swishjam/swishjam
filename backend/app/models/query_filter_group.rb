@@ -7,7 +7,7 @@ class QueryFilterGroup < Transactional
 
   validates :sequence_index, presence: true, numericality: { only_integer: true, greater_than_or_equal_to: 0 }, uniqueness: { scope: :filterable }
   validate :has_valid_operator
-  validate :has_at_least_one_query_filter
+  # validate :has_at_least_one_query_filter
 
   scope :in_sequence_order, -> { order(sequence_index: :ASC) }
 

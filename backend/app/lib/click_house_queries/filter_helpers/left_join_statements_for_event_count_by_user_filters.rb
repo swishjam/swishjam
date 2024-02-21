@@ -1,13 +1,14 @@
 module ClickHouseQueries
   module FilterHelpers
     class LeftJoinStatementsForEventCountByUserFilters
-      def self.left_join_statements(filter_groups, as_timeseries: false, users_table_alias: 'user_profiles')
+      def self.left_join_statements(filter_groups, workspace_id:, as_timeseries: false, users_table_alias: 'user_profiles')
         sql = ''
         return sql if filter_groups.blank?
         filter_groups.each do |filter_group|
-          filter_group.query_filters.in_sequence_order.each do |filter|
+          query_filters = filter_group.query_filters.sort{ |f| f.sequence_index }
+          query_filters.each do |filter|
             next if !filter.is_a?(QueryFilters::EventCountForUserOverTimePeriod)
-            sql << left_join_statement_for_segment_filter(filter_group.workspace_id, filter, as_timeseries: as_timeseries, users_table_alias: users_table_alias)
+            sql << left_join_statement_for_segment_filter(workspace_id, filter, as_timeseries: as_timeseries, users_table_alias: users_table_alias)
           end
         end
         sql

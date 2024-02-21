@@ -2,9 +2,11 @@ module ProfileTags
   class UserSegmentApplier
     attr_reader :user_segment, :workspace
 
-    def initialize(user_segment)
+    def initialize(user_segment, emit_events: true)
       @user_segment = user_segment
       @workspace = user_segment.workspace
+      @emit_events = emit_events
+      @data_sync = @user_segment.data_syncs.create!(workspace: @workspace, provider: "user_segment_profile_tags", started_at: Time.current)
     end
 
     def update_user_segment_profile_tags!
@@ -13,11 +15,13 @@ module ProfileTags
       user_ids_to_add_profile_tag = user_ids_in_segment - current_user_ids_with_user_segment_profile_tag
       user_ids_to_remove_profile_tag = current_user_ids_with_user_segment_profile_tag - user_ids_in_segment
       update_user_segment_profile_tags_and_enqueue_events!(user_ids_to_add_profile_tag, user_ids_to_remove_profile_tag)
+      @data_sync.completed!
       {
         user_ids_added: user_ids_to_add_profile_tag,
         num_users_added: user_ids_to_add_profile_tag.count,
         user_ids_removed: user_ids_to_remove_profile_tag,
         num_users_removed: user_ids_to_remove_profile_tag.count,
+        data_sync_id: @data_sync.id,
       }
     end
 
@@ -28,15 +32,15 @@ module ProfileTags
       user_ids_to_add_profile_tag.each do |user_id|
         user = workspace.analytics_user_profiles.find(user_id)
         tag = user.profile_tags.create!(workspace: workspace, name: user_segment.profile_tag_name, user_segment: user_segment)
-        events << event_for_ingestion(tag, user, "added_to_segment")
+        events << event_for_ingestion(tag, user, "added_to_segment") if @emit_events
       end
       user_ids_to_remove_profile_tag.each do |user_id|
         user = workspace.analytics_user_profiles.find(user_id)
         tag = user.profile_tags.find_by(removed_at: nil, user_segment: user_segment)
         tag.remove!
-        events << event_for_ingestion(tag, user, "removed_from_segment")
+        events << event_for_ingestion(tag, user, "removed_from_segment") if @emit_events
       end
-      return if events.empty?
+      return if events.empty? || !@emit_events
       IngestionJobs::PrepareEventsAndEnqueueIntoClickHouseWriter.perform_async(events)
     end
 

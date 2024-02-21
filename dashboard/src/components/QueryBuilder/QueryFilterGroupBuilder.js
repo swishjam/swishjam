@@ -8,6 +8,7 @@ import { Badge } from "../ui/badge";
 export default function QueryFilterGroupBuilder({
   className,
   defaultFilters = [{ sequence_index: 0, previous_query_filter_relationship_operator: null, config: {} }],
+  hasGroupAfter = false,
   onDeleteClick,
   onNewGroupClick,
   onUpdate,
@@ -20,26 +21,28 @@ export default function QueryFilterGroupBuilder({
   const [queryFilters, setQueryFilters] = useState(defaultFilters)
 
   if (!uniqueUserProperties || !uniqueEvents) {
-    return <Skeleton className='h-10 w-20' />
+    return (
+      <>
+        <Skeleton className='rounded-md w-full h-40 bg-gray-200' />
+        <Skeleton className='rounded-md w-full h-40 bg-gray-200 mt-4' />
+      </>
+    )
   }
-
-  const allFiltersComplete = queryFilters.every(filter => {
-    return filter.type === 'QueryFilterGroups::UserProperty'
-      ? filter.config.property_name && filter.config.operator && (filter.config.operator === "is_defined" || filter.config.operator === "is_not_defined" || filter.config.property_value)
-      : filter.config.event_name && filter.config.num_event_occurrences && filter.config.num_lookback_days;
-  })
 
   return (
     <>
       {previousQueryFilterGroupRelationshipOperator && (
-        <div className='flex justify-center mb-4 relative'>
-          <span className="absolute w-0.5 bg-gray-400 left-0 right-0 mx-auto z-0" style={{ height: '200%', top: '-50%' }} />
-          <Badge variant='secondary' className='z-1 w-fit py-1 px-4 text-sm bg-green-100 text-green-500 ring-green-600/20 cursor-default transition-colors hover:bg-green-200' style={{ zIndex: 1 }}>
+        <div className='flex justify-center mb-4 relative group'>
+          <span className="absolute w-0.5 bg-gray-200 group-hover:bg-gray-300 left-0 right-0 mx-auto z-0" style={{ height: '200%', top: '-50%' }} />
+          <Badge variant='secondary' className='z-1 w-fit py-1 px-4 text-sm bg-green-100 text-green-500 ring-green-600/20 cursor-default transition-colors group-hover:bg-green-200' style={{ zIndex: 1 }}>
             {previousQueryFilterGroupRelationshipOperator.toUpperCase()}
           </Badge>
         </div>
       )}
       <div className={className}>
+        {previousQueryFilterGroupRelationshipOperator && (
+          <div className='absolute -top-1 left-0 right-0 mx-auto z-10 rounded-full w-1.5 h-1.5 bg-gray-200' />
+        )}
         {queryFilters.map((filter, i) => {
           let className = ''
           if (i > 0) {
@@ -49,11 +52,19 @@ export default function QueryFilterGroupBuilder({
             <QueryFilterBuilder
               key={i}
               className={className}
-              defaultFilterConfig={filter.config}
+              defaultFilter={filter}
               displayAndOrButtons={i === queryFilters.length - 1}
               displayDeleteButton={i > 0}
-              onNewFilterClick={operator => setQueryFilters([...queryFilters, { sequence_index: i + 1, previous_query_filter_relationship_operator: operator, config: {} }])}
-              onDelete={() => setQueryFilters(queryFilters.filter((_, index) => index !== i))}
+              onNewFilterClick={operator => {
+                const updatedFilters = [...queryFilters, { sequence_index: i + 1, previous_query_filter_relationship_operator: operator, config: {} }]
+                setQueryFilters(updatedFilters)
+                onUpdate(updatedFilters);
+              }}
+              onDelete={() => {
+                const updatedFilters = queryFilters.filter((_, index) => index !== i)
+                setQueryFilters(updatedFilters)
+                onUpdate(updatedFilters);
+              }}
               onUpdate={updatedFilter => {
                 const newFilters = [...queryFilters]
                 newFilters[i] = { ...newFilters[i], ...updatedFilter }
@@ -66,6 +77,7 @@ export default function QueryFilterGroupBuilder({
             />
           )
         })}
+        {hasGroupAfter && <div className='absolute -bottom-1 left-0 right-0 mx-auto z-10 rounded-full w-1.5 h-1.5 bg-gray-200' />}
       </div>
       {showNewGroupButtons && (
         <div className='flex justify-center mt-2 space-x-2'>
