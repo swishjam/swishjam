@@ -400,7 +400,7 @@ ActiveRecord::Schema.define(version: 2024_02_20_152853) do
 
   create_table "user_segments", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.uuid "workspace_id", null: false
-    t.uuid "created_by_user_id"
+    t.uuid "created_by_user_id", null: false
     t.string "name", null: false
     t.string "description"
     t.datetime "created_at", precision: 6, null: false
@@ -447,9 +447,9 @@ ActiveRecord::Schema.define(version: 2024_02_20_152853) do
     t.datetime "updated_at", precision: 6, null: false
     t.boolean "combine_marketing_and_product_data_sources"
     t.boolean "should_enrich_user_profile_data"
-    t.boolean "revenue_analytics_enabled", default: true, null: false
     t.string "enrichment_provider"
     t.boolean "should_enrich_organization_profile_data", default: false
+    t.boolean "revenue_analytics_enabled", default: true, null: false
     t.index ["workspace_id"], name: "index_workspace_settings_on_workspace_id"
   end
 

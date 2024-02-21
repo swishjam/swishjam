@@ -1,7 +1,7 @@
 export class UserProfile {
   constructor(attributes) {
     this._attributes = attributes;
-    this._id = attributes.id ? attributes.id : attributes.swishjam_user_id;
+    this._id = attributes.id || attributes.swishjam_user_id;
     this._email = attributes.email;
     this._uniqueIdentifier = attributes.user_unique_identifier;
     this._metadata = attributes.metadata || {};
@@ -18,6 +18,7 @@ export class UserProfile {
   properties = () => this._metadata;
   createdAt = () => this._createdAt;
   attributes = () => this._attributes;
+  anonymousUserIdDisplay = () => this.id().slice(0, 6)
 
   enrichmentData = () => {
     if (this.attributes().enrichment_data) {

@@ -13,12 +13,12 @@ const rowForUser = ({ user, queryFilterGroups }) => {
       <div className="flex-shrink-0">
         <Avatar className="border border-slate-200">
           <AvatarImage src={user.gravatarUrl()} />
-          <AvatarFallback>{user.initials()}</AvatarFallback>
+          <AvatarFallback>{user.initials() || user.id().slice(0, 2)}</AvatarFallback>
         </Avatar>
       </div>
       <div className="ml-4">
         <Link href={`/users/${user.id()}`} className='hover:underline'>
-          <span className="block font-medium text-gray-900">{user.fullName() || user.email()}</span>
+          <span className="block font-medium text-gray-900">{user.fullName() || user.email() || `Anonymous User ${user.anonymousUserIdDisplay()}`}</span>
           {user.fullName() && user.email() ? <span className="text-gray-500">{user.email()}</span> : null}
         </Link>
       </div>

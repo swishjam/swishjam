@@ -27,26 +27,31 @@ module ProfileTags
 
     private
 
-    def update_user_segment_profile_tags_and_enqueue_events!(user_ids_to_add_profile_tag, user_ids_to_remove_profile_tag)
+    def update_user_segment_profile_tags_and_enqueue_events!(user_ids_to_add_profile_tag, user_ids_to_remove_profile_tag)      
+      users_to_add_profile_tag = workspace.analytics_user_profiles.where(id: user_ids_to_add_profile_tag)
+      profile_tags_to_create = users_to_add_profile_tag.map do |user|
+        { workspace_id: workspace.id, name: user_segment.profile_tag_name, user_segment_id: user_segment.id, profile_type: AnalyticsUserProfile.to_s, profile_id: user.id, applied_at: Time.current }
+      end
+      ProfileTag.insert_all!(profile_tags_to_create) if profile_tags_to_create.any?
+
+      users_to_remove_profile_tag = workspace.analytics_user_profiles.where(id: user_ids_to_remove_profile_tag)
+      profile_tags_to_remove = user_segment.profile_tags.where(profile: users_to_remove_profile_tag, removed_at: nil)
+      profile_tags_to_remove.update_all(removed_at: Time.current) if profile_tags_to_remove.any?
+      
+      return if !@emit_events
+      
       events = []
-      user_ids_to_add_profile_tag.each do |user_id|
-        user = workspace.analytics_user_profiles.find(user_id)
-        tag = user.profile_tags.create!(workspace: workspace, name: user_segment.profile_tag_name, user_segment: user_segment)
-        events << event_for_ingestion(tag, user, "added_to_segment") if @emit_events
-      end
-      user_ids_to_remove_profile_tag.each do |user_id|
-        user = workspace.analytics_user_profiles.find(user_id)
-        tag = user.profile_tags.find_by(removed_at: nil, user_segment: user_segment)
-        tag.remove!
-        events << event_for_ingestion(tag, user, "removed_from_segment") if @emit_events
-      end
-      return if events.empty? || !@emit_events
+      users_to_add_profile_tag.each{ |user| events << event_for_ingestion(user, "added_to_segment") }
+      users_to_remove_profile_tag.each{ |user| events << event_for_ingestion(user, "removed_from_segment") }
+      return if events.empty?
+
       IngestionJobs::PrepareEventsAndEnqueueIntoClickHouseWriter.perform_async(events)
     end
 
-    def event_for_ingestion(tag, user, event_name)
+    def event_for_ingestion(user, event_name)
+      # not idempotent...
       Ingestion::EventsPreparer.format_for_events_to_prepare_queue(
-        uuid: "#{event_name}-#{tag.id}",
+        uuid: SecureRandom.uuid,
         swishjam_api_key: swishjam_api_key,
         name: "swishjam_bot.#{event_name}",
         occurred_at: Time.current.to_f,
@@ -56,7 +61,6 @@ module ProfileTags
           profile_name: user.full_name,
           profile_email: user.email,
           tag_name: user_segment.profile_tag_name,
-          tag_id: tag.id,
           segment_id: user_segment.id,
         },
       )
