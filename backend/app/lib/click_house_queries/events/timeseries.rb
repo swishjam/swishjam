@@ -9,7 +9,6 @@ module ClickHouseQueries
         event:, 
         start_time:, 
         end_time:, 
-        user_segments: [],
         workspace_id: nil, 
         user_profile_id: nil, 
         group_by: nil, 
@@ -20,7 +19,6 @@ module ClickHouseQueries
         @event = event
         @group_by = group_by || derived_group_by(start_ts: start_time, end_ts: end_time)
         @start_time, @end_time = rounded_timestamps(start_ts: start_time, end_ts: end_time, group_by: @group_by)
-        @user_segments = user_segments
         @user_profile_id = user_profile_id
         @distinct_count_property = distinct_count_property
         validate!
@@ -48,8 +46,7 @@ module ClickHouseQueries
           #{join_statements}
           WHERE
             notEmpty(#{property_select_clause}) AND
-            #{user_profile_id_where_clause} AND
-            #{ClickHouseQueries::FilterHelpers::WhereClauseForFilterGroups.where_clause_statements(@user_segments, users_table_alias: 'user_profiles')}
+            #{user_profile_id_where_clause}
           GROUP BY group_by_date
           ORDER BY group_by_date
         SQL
@@ -75,31 +72,24 @@ module ClickHouseQueries
       end
 
       def from_clause
-        distinct_count_property = @distinct_count_property.nil? || @distinct_count_property == 'users' ? 'uuid' : @distinct_count_property
         ClickHouseQueries::Common::DeDupedEventsQuery.sql(
           public_keys: @public_keys,
           start_time: @start_time,
           end_time: @end_time,
           event_name: @event,
           all_events: @event == self.class.ANY_EVENT,
-          distinct_count_property: distinct_count_property,
+          distinct_count_property: @distinct_count_property.nil? || @distinct_count_property == 'users' ? 'uuid' : @distinct_count_property,
         )
       end
 
       def join_statements
         sql = ''
-        needs_finalized_user_properties = @user_segments.any?{ |seg| seg.query_filter_groups.any?{ |f| f.config['object_type'] == 'user' }}
-        if (@distinct_count_property == 'users' || @user_profile_id.present?) && !needs_finalized_user_properties
+        if @distinct_count_property == 'users' || @user_profile_id.present?
           sql << <<~SQL
             LEFT JOIN (
-              #{ClickHouseQueries::Common::DeDupedUserProfilesQuery.sql(workspace_id: @workspace_id, columns: [])}
+              #{ClickHouseQueries::Common::DeDupedUserProfilesQuery.sql(workspace_id: @workspace_id, columns: ['merged_into_swishjam_user_id'])}
             ) AS user_profiles ON user_profiles.swishjam_user_id = e.user_profile_id
           SQL
-        elsif needs_finalized_user_properties
-          sql << ClickHouseQueries::Common::FinalizedUserProfilesToEventsJoinQuery.sql(@workspace_id, columns: ['metadata'], table_alias: 'user_profiles', event_table_alias: 'e')
-        end
-        if @user_segments.any?
-          sql << ClickHouseQueries::FilterHelpers::LeftJoinStatementsForEventCountByUserFilters.left_join_statements(@user_segments, workspace_id: @workspace_id, users_table_alias: 'user_profiles')
         end
         sql
       end

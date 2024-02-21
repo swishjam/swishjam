@@ -184,7 +184,7 @@ RSpec.describe ClickHouseQueries::Users::List do
       expect(result[:total_num_pages]).to eq(1)
     end
 
-    it 'correctly filters out generic email addresses when the the `QueryFilter` is a `QueryFilters::UserProperty` type with `is_not_generic` operator' do
+    it 'correctly filters out generic email addresses when the the `QueryFilter` is a `QueryFilters::UserProperty` type with `is_not_generic_email` operator' do
       Analytics::SwishjamUserProfile.insert_all!([
         { workspace_id: @workspace.id, swishjam_user_id: 1, merged_into_swishjam_user_id: nil, email: 'user-1@gmail.com', metadata: { is_internal: 'true', birthday: '11/01/1992', mrr: 99 }.to_json, created_at: 1.day.ago },
         { workspace_id: @workspace.id, swishjam_user_id: 2, merged_into_swishjam_user_id: nil, email: 'user-2@gmail.com', metadata: { birthday: '11/02/1992', mrr: 101 }.to_json, created_at: 1.day.ago },
@@ -192,6 +192,7 @@ RSpec.describe ClickHouseQueries::Users::List do
         { workspace_id: @workspace.id, swishjam_user_id: 4, merged_into_swishjam_user_id: nil, email: 'user-4@gmail.com', metadata: { birthday: '11/04/1992' }.to_json, created_at: 1.day.ago },
         { workspace_id: @workspace.id, swishjam_user_id: 5, merged_into_swishjam_user_id: nil, email: 'user-5@swishjam.com', metadata: { birthday: '11/05/1992', mrr: 100 }.to_json, created_at: 1.day.ago },
         { workspace_id: @workspace.id, swishjam_user_id: 6, merged_into_swishjam_user_id: 5, email: 'MERGED@gmail.com', metadata: { birthday: 'MERGED-11/06/1992' }.to_json, created_at: 1.day.ago },
+        { workspace_id: @workspace.id, swishjam_user_id: 7, merged_into_swishjam_user_id: nil, email: nil, metadata: {}.to_json, created_at: 1.day.ago },
       ])
 
       insert_events_into_click_house!(swishjam_api_key: @workspace.api_keys.first.public_key) do
@@ -208,12 +209,16 @@ RSpec.describe ClickHouseQueries::Users::List do
           # should return user 5 because it doess not have a generic email and has 2 occurrences of the event
           { name: 'active_user_event', user_profile_id: 5, occurred_at: 1.day.ago },
           { name: 'active_user_event', user_profile_id: 6, occurred_at: 1.day.ago },
+          # should not return user 7 because it has a nil email
+          { name: 'active_user_event', user_profile_id: 7, occurred_at: 1.day.ago },
+          { name: 'active_user_event', user_profile_id: 7, occurred_at: 1.day.ago },
+          { name: 'active_user_event', user_profile_id: 7, occurred_at: 1.day.ago },
         ]
       end
 
       user_segment = FactoryBot.create(:user_segment, workspace: @workspace, created_by_user: @user, name: 'Active Users')
       query_filter_group = FactoryBot.create(:user_segment_query_filter_group, filterable: user_segment)
-      FactoryBot.create(:user_property_query_filter, query_filter_group: query_filter_group, sequence_index: 0, config: { property_name: 'email', operator: 'is_not_generic' })
+      FactoryBot.create(:user_property_query_filter, query_filter_group: query_filter_group, sequence_index: 0, config: { property_name: 'email', operator: 'is_not_generic_email' })
       FactoryBot.create(:event_count_for_user_query_filter, query_filter_group: query_filter_group, sequence_index: 1, previous_query_filter_relationship_operator: 'and', config: { event_name: 'active_user_event', num_lookback_days: 7, num_occurrences: 2 })
 
       result = described_class.new(@workspace, filter_groups: [query_filter_group]).get
