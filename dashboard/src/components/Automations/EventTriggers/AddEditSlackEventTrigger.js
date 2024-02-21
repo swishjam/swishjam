@@ -26,9 +26,10 @@ import TestTriggerModal from '@/components/Automations/EventTriggers/TestTrigger
 import { useEffect, useState } from 'react';
 import { useFieldArray, useForm } from "react-hook-form"
 import { useRouter } from 'next/navigation';
-import { InfoIcon } from 'lucide-react';
+import { InfoIcon, SparkleIcon, UserCircleIcon, UserIcon } from 'lucide-react';
 import { LuPlus, LuTrash } from "react-icons/lu";
 import { PaperAirplaneIcon } from '@heroicons/react/24/outline';
+import Combobox from "@/components/utils/Combobox";
 
 const FormInputOrLoadingState = ({ children, className, isLoading }) => {
   if (isLoading) {
@@ -65,6 +66,7 @@ export default function AddEditSlackEventTrigger({
   const [slackChannels, setSlackChannels] = useState();
   const [testTriggerModalIsOpen, setTestTriggerModalIsOpen] = useState(false);
   const [uniqueEvents, setUniqueEvents] = useState();
+  const [uniqueUserProperties, setUniqueUserProperties] = useState();
 
   const setSelectedEventAndGetPropertiesAndAutofillMessageContentIfNecessary = async eventName => {
     form.setValue('steps.0.config.message_header', '✨ ' + eventName + ' ✨')
@@ -75,7 +77,7 @@ export default function AddEditSlackEventTrigger({
       }
     })
     SwishjamAPI.Events.Properties.listUnique(eventName).then(properties => {
-      setPropertyOptionsForSelectedEvent(properties);
+      setPropertyOptionsForSelectedEvent(properties.sort());
       // we re-set this every time they change the event..?
       let formattedPropertyOptions = '';
       properties.forEach(property => formattedPropertyOptions += `- ${property}: {${property}}  \n`)
@@ -177,6 +179,8 @@ export default function AddEditSlackEventTrigger({
       setUniqueEvents(sortedEvents);
     });
 
+    SwishjamAPI.Users.uniqueProperties().then(properties => setUniqueUserProperties(properties.sort()))
+
     if (triggerId) {
       SwishjamAPI.Events.Properties.listUnique(defaultTriggerValues.event_name).then(properties => {
         setPropertyOptionsForSelectedEvent(properties);
@@ -188,9 +192,6 @@ export default function AddEditSlackEventTrigger({
     return <EmptyState title={<><Link className='text-blue-700 underline' href='/integrations/destinations'>Connect Slack</Link> to begin creating Slack triggers.</>} />
   }
 
-  if (!slackChannels && slackChannels?.length == 0 && !uniqueEvents && uniqueEvents?.length == 0) {
-    return <EmptyState title={<><Link className='text-blue-700 underline' href='/integrations/destinations'>Connect Slack</Link> to begin creating Slack triggers.</>} />
-  }
   return (
     <main>
       {testTriggerModalIsOpen && (
@@ -238,13 +239,24 @@ export default function AddEditSlackEventTrigger({
                 name="event_name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className='flex items-center'>
+                    <FormLabel className='flex items-center mb-1'>
                       Trigger Event
                       <Tooltipable content="The event which should set off this Event Trigger (pending your trigger conditions are also met).">
                         <InfoIcon className='inline ml-1 text-gray-500' size={16} />
                       </Tooltipable>
                     </FormLabel>
                     <FormInputOrLoadingState isLoading={uniqueEvents === undefined || slackChannels === undefined}>
+                      {/* <Combobox
+                        minWidth='0'
+                        buttonClass='w-full'
+                        selectedValue={field.value}
+                        onSelectionChange={val => {
+                          setSelectedEventAndGetPropertiesAndAutofillMessageContentIfNecessary(val);
+                          form.setValue(`event_name`, val)
+                        }}
+                        options={uniqueEvents?.map(e => e.name)}
+                        placeholder={<span className='text-gray-500 italic'>Select your event</span>}
+                      /> */}
                       <Select
                         onValueChange={(e) => { setSelectedEventAndGetPropertiesAndAutofillMessageContentIfNecessary(e); field.onChange(e) }}
                         defaultValue={field.value}
@@ -293,34 +305,25 @@ export default function AddEditSlackEventTrigger({
                           <li key={index} className='w-full flex items-center gap-x-2'>
                             <span className='text-sm'>
                               {conditionalStatementsFieldArray.fields.length > 1 && index > 0 ? 'And if' : 'If'}
+                              {form.watch(`conditional_statements.${index}.property`)?.startsWith('user.') ? ' the user\'s' : ' the event\'s'}
                             </span>
                             <FormField
                               control={field.control}
                               name={`conditional_statements.${index}.property`}
                               render={({ field }) => (
                                 <FormItem>
-                                  <Select
-                                    className='flex-grow'
-                                    disabled={propertyOptionsForSelectedEvent === undefined}
-                                    onValueChange={field.onChange}
-                                    value={field.value}
-                                  >
-                                    <FormControl>
-                                      <SelectTrigger>
-                                        <SelectValue placeholder={<span className='text-gray-500 italic'>Event Property</span>} />
-                                      </SelectTrigger>
-                                    </FormControl>
-                                    <SelectContent>
-                                      <SelectItem value='_header' disabled>
-                                        Event Property
-                                      </SelectItem>
-                                      {propertyOptionsForSelectedEvent?.map(propertyName => (
-                                        <SelectItem className="cursor-pointer hover:bg-gray-100" value={propertyName} key={propertyName}>
-                                          {propertyName}
-                                        </SelectItem>
-                                      ))}
-                                    </SelectContent>
-                                  </Select>
+                                  <Combobox
+                                    minWidth='0'
+                                    selectedValue={field.value}
+                                    onSelectionChange={val => form.setValue(`conditional_statements.${index}.property`, val)}
+                                    options={[
+                                      { type: "title", label: <div className='flex items-center'><SparkleIcon className='h-4 w-4 mr-1' /> Event Properties</div> },
+                                      ...(propertyOptionsForSelectedEvent || []).map(p => ({ label: p, value: `event.${p}` })),
+                                      { type: "title", label: <div className='flex items-center'><UserCircleIcon className='h-4 w-4 mr-1' /> User Properties</div> },
+                                      ...(uniqueUserProperties || []).map(p => ({ label: p, value: `user.${p}` })),
+                                    ]}
+                                    placeholder={<span className='text-gray-500 italic'>Property</span>}
+                                  />
                                   <FormMessage />
                                 </FormItem>
                               )}
@@ -330,28 +333,26 @@ export default function AddEditSlackEventTrigger({
                               name={`conditional_statements.${index}.condition`}
                               render={({ field }) => (
                                 <FormItem>
-                                  <Select
-                                    className='flex-grow'
-                                    disabled={propertyOptionsForSelectedEvent === undefined}
-                                    onValueChange={field.onChange}
-                                    value={field.value}
-                                  >
-                                    <FormControl>
-                                      <SelectTrigger>
-                                        <SelectValue placeholder={<span className='text-gray-500 italic mr-2'>Condition</span>} />
-                                      </SelectTrigger>
-                                    </FormControl>
-                                    <SelectContent>
-                                      <SelectItem value='_header' disabled>
-                                        Condition
-                                      </SelectItem>
-                                      {['equals', 'contains', 'does not contain', 'ends with', 'does not end with', 'is defined'].sort().map(condition => (
-                                        <SelectItem className="cursor-pointer hover:bg-gray-100" value={condition.replace(/\s/g, '_')} key={condition}>
-                                          {condition}
-                                        </SelectItem>
-                                      ))}
-                                    </SelectContent>
-                                  </Select>
+                                  <Combobox
+                                    minWidth='0'
+                                    selectedValue={field.value}
+                                    onSelectionChange={val => form.setValue(`conditional_statements.${index}.condition`, val)}
+                                    options={[
+                                      { label: 'equals', value: 'equals' },
+                                      { label: 'does not equals', value: 'does_not_equal' },
+                                      { label: 'contains', value: 'contains' },
+                                      { label: 'does not contain', value: 'does_not_contain' },
+                                      { label: 'ends with', value: 'ends_with' },
+                                      { label: 'does not end with', value: 'does_not_end_with' },
+                                      { label: 'is defined', value: 'is_defined' },
+                                      { label: 'is not defined', value: 'is_not_defined' },
+                                      { label: 'greater than', value: 'greater_than' },
+                                      { label: 'less than', value: 'less_than' },
+                                      { label: 'greater than or equal to', value: 'greater_than_or_equal_to' },
+                                      { label: 'less than or equal to', value: 'less_than_or_equal_to' },
+                                    ]}
+                                    placeholder={<span className='text-gray-500 italic'>Condition</span>}
+                                  />
                                   <FormMessage />
                                 </FormItem>
                               )}
@@ -366,7 +367,7 @@ export default function AddEditSlackEventTrigger({
                                       <Input
                                         type="text"
                                         placeholder="Your property value"
-                                        disabled={propertyOptionsForSelectedEvent === undefined}
+                                        // disabled={propertyOptionsForSelectedEvent === undefined}
                                         {...form.register(`conditional_statements.${index}.property_value`)}
                                       />
                                     </FormControl>

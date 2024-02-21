@@ -14,7 +14,18 @@ module EventTriggers
         raise InvalidConditionalStatement, "`property_value` is not defined for conditional statement: #{statement}" if statement['property_value'].blank? && statement['condition'] != 'is_defined'
         
         conditional_statements_specified_property_value = statement['property_value'].to_s.downcase.strip
-        value_for_conditional_statements_specified_property = prepared_event.properties[statement['property']]&.to_s&.downcase&.strip
+
+        value_for_conditional_statements_specified_property = nil
+        if statement['property'].starts_with?('event.')
+          event_property_name = statement['property'].split('.')[1..-1].join('.')
+          value_for_conditional_statements_specified_property = prepared_event.properties[event_property_name]&.to_s&.downcase&.strip
+        elsif statement['property'].starts_with?('user.')
+          user_property_name = statement['property'].split('.')[1..-1].join('.')
+          value_for_conditional_statements_specified_property = prepared_event.user_properties[user_property_name]&.to_s&.downcase&.strip
+        else
+          value_for_conditional_statements_specified_property = prepared_event.properties[statement['property']]&.to_s&.downcase&.strip
+        end
+
         if statement['property'] === 'user_attributes' && prepared_event.user_properties[statement['property']].nil?
           # quick fix for all of Magic Patterns' event triggers which rely on the legacy `user_properties` key in the event properties
           value_for_conditional_statements_specified_property = prepared_event.user_properties.to_s.downcase.strip
@@ -43,6 +54,20 @@ module EventTriggers
           !value_for_conditional_statements_specified_property.end_with?(conditional_statements_specified_property_value)
         when 'is_defined'
           value_for_conditional_statements_specified_property.present?
+        when 'is_not_defined'
+          value_for_conditional_statements_specified_property.blank?
+        when 'greater_than'
+          return false if value_for_conditional_statements_specified_property.blank?
+          value_for_conditional_statements_specified_property.to_f > conditional_statements_specified_property_value.to_f
+        when 'less_than'
+          return false if value_for_conditional_statements_specified_property.blank?
+          value_for_conditional_statements_specified_property.to_f < conditional_statements_specified_property_value.to_f
+        when 'greater_than_or_equal_to'
+          return false if value_for_conditional_statements_specified_property.blank?
+          value_for_conditional_statements_specified_property.to_f >= conditional_statements_specified_property_value.to_f
+        when 'less_than_or_equal_to'
+          return false if value_for_conditional_statements_specified_property.blank?
+          value_for_conditional_statements_specified_property.to_f <= conditional_statements_specified_property_value.to_f
         else
           raise InvalidConditionalStatement, "Invalid condition provided: #{statement['condition']}"
         end
