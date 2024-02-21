@@ -8,13 +8,13 @@ module ClickHouseQueries
           query_filters = filter_group.query_filters.sort{ |f| f.sequence_index }
           query_filters.each do |filter|
             next if !filter.is_a?(QueryFilters::EventCountForUserOverTimePeriod)
-            sql << left_join_statement_for_segment_filter(workspace_id, filter, as_timeseries: as_timeseries, users_table_alias: users_table_alias)
+            sql << left_join_statement_for_event_count_for_user_filter(workspace_id, filter, as_timeseries: as_timeseries, users_table_alias: users_table_alias)
           end
         end
         sql
       end
 
-      def self.join_table_alias_for_segment_filter(filter)
+      def self.join_table_alias_for_event_count_for_user_filter(filter)
         "#{filter.event_name.gsub(' ', '_')}_event_count_for_user_within_last_#{filter.num_lookback_days}_days"
       end
 
@@ -22,7 +22,7 @@ module ClickHouseQueries
 
       # gets the resolved user profile for the event
       # returns the new user profile if the event is associated to a user profile that has been merged
-      def self.left_join_statement_for_segment_filter(workspace_id, filter, as_timeseries: false, users_table_alias: 'user_profiles')
+      def self.left_join_statement_for_event_count_for_user_filter(workspace_id, filter, as_timeseries: false, users_table_alias: 'user_profiles')
         <<~SQL
           LEFT JOIN (
             SELECT
@@ -47,7 +47,7 @@ module ClickHouseQueries
               e.name = '#{filter.event_name}' AND 
               date_diff ('minute', e.occurred_at, #{as_timeseries ? "toDateTime(subtractMinutes(event_date, #{filter.num_lookback_days * 24 * 60}))" : 'now()'}, 'UTC') <= #{filter.num_lookback_days * 24 * 60}
             GROUP BY user_profile_id #{as_timeseries ? ', event_date' : ''}
-          ) AS #{join_table_alias_for_segment_filter(filter)} ON #{as_timeseries ? "dates.date = #{join_table_alias_for_segment_filter(filter)}.event_date" : "#{users_table_alias}.swishjam_user_id = #{join_table_alias_for_segment_filter(filter)}.user_profile_id"}
+          ) AS #{join_table_alias_for_event_count_for_user_filter(filter)} ON #{as_timeseries ? "dates.date = #{join_table_alias_for_event_count_for_user_filter(filter)}.event_date" : "#{users_table_alias}.swishjam_user_id = #{join_table_alias_for_event_count_for_user_filter(filter)}.user_profile_id"}
         SQL
       end
     end

@@ -2,7 +2,6 @@ import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@
 import { Skeleton } from '../ui/skeleton'
 
 export default function TableComponent({ headers, rows, noDataMessage = 'No data.' }) {
-  console.log(rows)
   return (
     <Table>
       <TableHeader>

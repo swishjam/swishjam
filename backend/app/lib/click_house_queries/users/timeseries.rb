@@ -5,6 +5,7 @@ module ClickHouseQueries
       include TimeseriesHelper
 
       def initialize(workspace_id, start_time:, end_time:, group_by: nil, user_segments: [], public_keys: nil)
+        raise NotImplementedError, '`ClickHouseQueries::Users::Timeseries` is not yet implemented.'
         @workspace_id = workspace_id
         @group_by = group_by || derived_group_by(start_ts: start_time, end_ts: end_time)
         @start_time, @end_time = rounded_timestamps(start_ts: start_time, end_ts: end_time, group_by: @group_by, round_up: true)
@@ -65,7 +66,7 @@ module ClickHouseQueries
         #       columns: ['email', 'metadata'], 
         #       table_alias: 'finalized_user_profiles', 
         #       # what happens if there's multiple user segments...?
-        #       event_table_alias: ClickHouseQueries::FilterHelpers::LeftJoinStatementsForEventCountByUserFilters.join_table_alias_for_segment_filter(filter.config)
+        #       event_table_alias: ClickHouseQueries::FilterHelpers::LeftJoinStatementsForEventCountByUserFilters.join_table_alias_for_event_count_for_user_filter(filter.config)
         #     )
         #   end
         # end

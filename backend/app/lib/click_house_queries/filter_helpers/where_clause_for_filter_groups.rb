@@ -26,9 +26,9 @@ module ClickHouseQueries
             end
 
             if filter.is_a?(QueryFilters::UserProperty)
-              query << where_clause_statements_for_user_property_segment_filter(filter, users_table_alias: users_table_alias)
+              query << where_clause_statements_for_user_property_filter(filter, users_table_alias: users_table_alias)
             elsif filter.is_a?(QueryFilters::EventCountForUserOverTimePeriod)
-              query << where_clause_statements_for_event_count_segment_filter(filter)
+              query << where_clause_statements_for_event_count_for_user_filter(filter)
             else
               raise "Unknown `QueryFilter` type in `WhereClauseForFilterGroups`: #{filter.class}"
             end
@@ -40,11 +40,11 @@ module ClickHouseQueries
 
       private
 
-      def self.where_clause_statements_for_event_count_segment_filter(filter)
-        "#{LeftJoinStatementsForEventCountByUserFilters.join_table_alias_for_segment_filter(filter)}.event_count_for_user_within_lookback_period >= #{filter.num_occurrences}"
+      def self.where_clause_statements_for_event_count_for_user_filter(filter)
+        "#{LeftJoinStatementsForEventCountByUserFilters.join_table_alias_for_event_count_for_user_filter(filter)}.event_count_for_user_within_lookback_period >= #{filter.num_occurrences}"
       end
 
-      def self.where_clause_statements_for_user_property_segment_filter(filter, users_table_alias: 'user_profiles')
+      def self.where_clause_statements_for_user_property_filter(filter, users_table_alias: 'user_profiles')
         if ['email', 'user_unique_identifier'].include?(filter.property_name)
           user_column = users_table_alias.blank? ? filter.property_name : [users_table_alias, filter.property_name].join(".")
           case filter.operator

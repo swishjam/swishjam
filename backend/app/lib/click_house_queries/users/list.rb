@@ -3,11 +3,11 @@ module ClickHouseQueries
     class List
       include ClickHouseQueries::Helpers
 
-      def initialize(workspace_id, filter_groups: [], columns: nil, return_user_segment_event_counts: true, page: 1, limit: 25)
+      def initialize(workspace_id, filter_groups: [], columns: nil, return_event_count_for_user_filter_counts: true, page: 1, limit: 25)
         @workspace_id = workspace_id.is_a?(Workspace) ? workspace_id.id : workspace_id
         @filter_groups = filter_groups
         @columns = columns || ['email', 'metadata', 'created_at']
-        @return_user_segment_event_counts = return_user_segment_event_counts
+        @return_event_count_for_user_filter_counts = return_event_count_for_user_filter_counts
         @page = page.to_i
         @limit = limit.to_i
         add_required_columns_if_necessary!
@@ -54,12 +54,12 @@ module ClickHouseQueries
 
       def maybe_event_count_select_statements
         sql = ''
-        return sql if !@return_user_segment_event_counts
+        return sql if !@return_event_count_for_user_filter_counts
         @filter_groups.each do |filter_group|
           query_filters = filter_group.query_filters.sort{ |f| f.sequence_index }
           query_filters.each do |filter|
             next if !filter.is_a?(QueryFilters::EventCountForUserOverTimePeriod)
-            event_count_column_name = "#{ClickHouseQueries::FilterHelpers::LeftJoinStatementsForEventCountByUserFilters.join_table_alias_for_segment_filter(filter)}.event_count_for_user_within_lookback_period"
+            event_count_column_name = "#{ClickHouseQueries::FilterHelpers::LeftJoinStatementsForEventCountByUserFilters.join_table_alias_for_event_count_for_user_filter(filter)}.event_count_for_user_within_lookback_period"
             sql << ", #{event_count_column_name} AS #{filter.config['event_name'].gsub(' ', '_')}_count_for_user"
           end
         end

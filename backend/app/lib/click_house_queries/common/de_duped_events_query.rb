@@ -34,18 +34,3 @@ module ClickHouseQueries
     end
   end
 end
-
-# <<~SQL
-#   SELECT 
-#     #{should_count_distinct_uuids ? 'e.uuid' : "JSONExtractString(e.properties, '#{@distinct_count_property}')"} AS distinct_count_field,
-#     argMax(e.name, ingested_at) AS name, 
-#     argMax(e.properties, ingested_at) AS properties, 
-#     argMax(e.user_profile_id, ingested_at) AS user_profile_id,
-#     argMax(e.occurred_at, ingested_at) AS occurred_at
-#   FROM events AS e
-#   WHERE 
-#     e.swishjam_api_key IN #{formatted_in_clause(@public_keys)} AND
-#     e.occurred_at BETWEEN '#{formatted_time(@start_time)}' AND '#{formatted_time(@end_time)}'
-#     #{@event == self.class.ANY_EVENT ? "" : " AND e.name = '#{@event}'"}
-#   GROUP BY distinct_count_field
-# SQL

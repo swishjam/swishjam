@@ -11,6 +11,8 @@ class QueryFilter < Transactional
 
   scope :in_sequence_order, -> { order(sequence_index: :ASC) }
 
+  attribute :config, :jsonb, default: {}
+
   private
 
   def has_valid_operator

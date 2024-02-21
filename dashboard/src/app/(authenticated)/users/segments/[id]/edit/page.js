@@ -41,7 +41,6 @@ export default function EditUserSegmentPage({ params }) {
   const previewSegment = queryFilterGroups => {
     setIsLoading(true)
     SwishjamAPI.UserSegments.preview({ queryFilterGroups }).then(({ user_segment, error }) => {
-      debugger;
       setIsLoading(false)
       if (error) {
         toast.error('Failed to preview user segment', {

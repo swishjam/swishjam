@@ -78,7 +78,7 @@ module ProfileTags
         user_segment.workspace_id, 
         filter_groups: user_segment.query_filter_groups.in_sequence_order.to_a,
         columns: ['swishjam_user_id'], 
-        return_user_segment_event_counts: false,
+        return_event_count_for_user_filter_counts: false,
         page: page, 
         limit: 1_000,
       ).get
