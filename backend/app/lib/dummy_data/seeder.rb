@@ -33,33 +33,37 @@ module DummyData
           data_begins_max_number_of_days_ago: data_begins_max_number_of_days_ago,
           initial_url_options: url_paths.map{ |url_path| "https://#{url_host}#{url_path}" },
         )
-        organizations = OrganizationProfiles.generate!(workspace, (number_of_users_to_generate * 0.75).to_i)
-        UserOrganizationAssigner.assign_user_profiles_to_organization_profiles!(users, organizations)
-        UserIdentifyEvents.create_user_identify_events!(workspace: workspace, user_profiles: users, device_identifiers: device_identifiers)
-        
-        marketing_web_traffic_seeder = WebTraffic.new(
-          public_key: workspace.api_keys.for_data_source!(ApiKey::ReservedDataSources.MARKETING).public_key, 
-          number_of_sessions: number_of_sessions_to_generate, 
-          device_identifiers: device_identifiers, 
-          url_host: marketing_url_host, 
-          url_paths: ['/', '/pricing', '/blog', '/about', "/blog/#{Faker::Lorem.word}", "/docs", "/docs/#{Faker::Lorem.word}"], 
-          event_names: event_name_options, 
+        organizations = OrganizationProfiles.generate!(
+          workspace: workspace, 
+          num_of_organizations: (number_of_users_to_generate * 0.75).to_i,
           data_begins_max_number_of_days_ago: data_begins_max_number_of_days_ago,
         )
-        marketing_sessions = marketing_web_traffic_seeder.create_sessions_page_views_and_events!
+        UserOrganizationAssigner.assign_user_profiles_to_organization_profiles!(users, organizations)
+        # should we create `analytics_user_profile_devices` here instead? doesn't really matter except for instrumentation/ingestion purposes
+        # UserIdentifyEvents.create_user_identify_events!(workspace: workspace, user_profiles: users, device_identifiers: device_identifiers)
+        
+        WebTraffic.new(
+          public_key: workspace.api_keys.for_data_source!(ApiKey::ReservedDataSources.MARKETING).public_key, 
+          number_of_sessions: number_of_sessions_to_generate, 
+          user_profile_ids: users.pluck(:id), 
+          organization_profile_ids: organizations.pluck(:id),
+          url_host: marketing_url_host, 
+          url_paths: ['/', "/solutions", '/pricing', '/blog', '/about', "/blog/#{Faker::Lorem.word}", "/docs", "/docs/#{Faker::Lorem.word}"], 
+          event_names: event_name_options, 
+          data_begins_max_number_of_days_ago: data_begins_max_number_of_days_ago,
+        ).create_sessions_page_views_and_events!
 
-        product_web_traffic_seeder = WebTraffic.new(
+        WebTraffic.new(
           public_key: workspace.api_keys.for_data_source!(ApiKey::ReservedDataSources.PRODUCT).public_key, 
           number_of_sessions: number_of_sessions_to_generate, 
-          device_identifiers: device_identifiers, 
+          user_profile_ids: users.pluck(:id), 
+          organization_profile_ids: organizations.pluck(:id),
           url_host: product_url_host, 
           url_paths: url_paths,
           event_names: event_name_options, 
           data_begins_max_number_of_days_ago: data_begins_max_number_of_days_ago,
-        )
-        product_sessions = product_web_traffic_seeder.create_sessions_page_views_and_events!
+        ).create_sessions_page_views_and_events!
 
-        OrganizationIdentifyEvents.create_organization_identify_events_for_sessions!(product_sessions)
         BillingData.generate!(workspace)
         Integrations.seed_events!(
           workspace: workspace,
@@ -77,6 +81,9 @@ module DummyData
           data_begins_max_number_of_days_ago: data_begins_max_number_of_days_ago,
           initial_url: "https://#{marketing_url_host}#{url_paths.sample}",
         )
+
+        puts "Writing enqueued data to ClickHouse...".colorize(:yellow)
+        IngestionJobs::WriteToClickHouseFromIngestionQueues.perform_sync
 
         puts "Completed seed in #{Time.current - start_time} seconds.".colorize(:green)
       end

@@ -7,5 +7,15 @@ export const safelyParseURL = url => {
 }
 
 export const humanizeVariable = variableName => {
-  return variableName.split('_').map(w => `${w[0].toUpperCase()}${w.slice(1, w.length)}`).join(' ')
+  try {
+    return variableName
+      .replace(/([A-Z])/g, ' $1')
+      .replace(/_/g, ' ')
+      .trim()
+      .split(/\s+/)
+      .map(w => `${w[0].toUpperCase()}${w.slice(1, w.length)}`)
+      .join(' ')
+  } catch (err) {
+    return variableName;
+  }
 }

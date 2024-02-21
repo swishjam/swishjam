@@ -1,15 +1,12 @@
 import { ArrowTopRightOnSquareIcon } from "@heroicons/react/24/outline";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-// import ChurnWarningUserBadge from "./ChurnWarningUserBadge";
-import { dateFormatterForGrouping } from "@/lib/utils/timeseriesHelpers";
 import EnrichedDataItem from "@/components/Profiles/EnrichedDataItem";
-// import PowerUserBadge from "./PowerUserBadge";
 import { Lock } from "lucide-react";
-import { safelyParseURL } from "@/lib/utils/misc";
+import { humanizeVariable, safelyParseURL } from "@/lib/utils/misc";
 import { Tooltipable } from '@/components/ui/tooltip'
-
-const dateFormatter = dateFormatterForGrouping('minute')
+import { prettyDateTime } from "@/lib/utils/timeHelpers";
+import ProfileTags from "./ProfileTags";
 
 export default function ProfileInformationSideBar({ userData, hasStripeIntegrationEnabled, hasProfileEnrichmentEnabled }) {
   const hasNoEnrichmentData = !userData.enrichment_data?.job_title &&
@@ -19,6 +16,8 @@ export default function ProfileInformationSideBar({ userData, hasStripeIntegrati
     !userData.enrichment_data?.company_size &&
     !userData.enrichment_data?.company_industry &&
     !userData.enrichment_data?.company_location_metro;
+
+  const metadataKeysToDisplay = Object.keys(userData.metadata || {}).filter(key => !['name', 'firstName', 'first_name', 'lastName', 'last_name', 'initial_landing_page_url', 'initial_referrer_url', 'gravatar_url'].includes(key))
 
   return (
     <Card className='col-span-4 relative'>
@@ -31,8 +30,6 @@ export default function ProfileInformationSideBar({ userData, hasStripeIntegrati
             }
           </Avatar>
           <div>
-            {/* {userData.poweruser ? <PowerUserBadge className="absolute top-5 right-5" size={8} /> : ''}
-            {userData.churnwarning ? <ChurnWarningUserBadge className="absolute top-5 right-5" size={8} /> : ''} */}
             <CardTitle className='text-2xl'>
               {userData.full_name || userData.email || userData.user_unique_identifier || (<>Anonymous User <span className='italic'>{userData.id.slice(0, 6)}</span></>)}
             </CardTitle>
@@ -40,6 +37,11 @@ export default function ProfileInformationSideBar({ userData, hasStripeIntegrati
               <CardDescription className='text-base text-gray-500'>
                 {userData.email}
               </CardDescription>
+            )}
+            {userData.tags.length > 0 && (
+              <div className='mt-4'>
+                <ProfileTags profileTags={userData.tags} />
+              </div>
             )}
           </div>
         </div>
@@ -52,21 +54,18 @@ export default function ProfileInformationSideBar({ userData, hasStripeIntegrati
               <div className="px-4 py-2 col-span-1 sm:px-0 grid grid-cols-2">
                 <dt className="text-sm font-medium leading-6 text-gray-900">Full name</dt>
                 <dd className="text-sm leading-6 text-gray-700 text-right">
-                  {userData.full_name || (userData.enrichment_data.first_name || '') + (userData.enrichment_data.last_name || '')}
+                  {userData.full_name || (userData.enrichment_data.first_name || '') + (userData.enrichment_data.last_name || '') || '-'}
                 </dd>
               </div>
               <div className="px-4 py-2 col-span-1 grid grid-cols-2 sm:px-0">
                 <dt className="text-sm font-medium leading-6 text-gray-900">First Identified</dt>
                 <dd className="text-sm leading-6 text-gray-700 text-right">
-                  {dateFormatter(userData.first_seen_at_in_web_app || userData.created_at)}
+                  {(userData.first_seen_at_in_web_app || userData.created_at)
+                    ? prettyDateTime(userData.first_seen_at_in_web_app || userData.created_at, { month: 'short' })
+                    : '-'
+                  }
                 </dd>
               </div>
-              {/* <div className="px-4 py-2 col-span-1 grid grid-cols-2 sm:px-0">
-                <dt className="text-sm font-medium leading-6 text-gray-900">First Identified By</dt>
-                <dd className="text-sm leading-6 text-gray-700 text-right">
-                  {userData.created_by_data_source}
-                </dd>
-              </div> */}
               <div className="px-4 py-2 col-span-1 grid grid-cols-2 sm:px-0">
                 <dt className="text-sm font-medium leading-6 text-gray-900">Organizations</dt>
                 <dd className="text-sm leading-6 text-gray-700 text-right flex flex-col">
@@ -74,7 +73,11 @@ export default function ProfileInformationSideBar({ userData, hasStripeIntegrati
                     ? '-'
                     : userData.organizations.map((org, i) => (
                       <div>
-                        <a key={org.id} href={`/organizations/${org.id}`} className={`${i > 0 ? 'mt-2' : ''} inline-flex items-center rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10 hover:underline`}>
+                        <a
+                          key={org.id}
+                          href={`/organizations/${org.id}`}
+                          className={`${i > 0 ? 'mt-2' : ''} inline-flex items-center rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10 hover:underline`}
+                        >
                           {org.name}
                         </a>
                       </div>
@@ -109,6 +112,14 @@ export default function ProfileInformationSideBar({ userData, hasStripeIntegrati
                     </Tooltipable>
                   )}
                 />
+                {metadataKeysToDisplay.map((key, i) => (
+                  <div className="px-4 py-2 col-span-1 grid grid-cols-2 sm:px-0">
+                    <dt className="text-sm font-medium leading-6 text-gray-900">{humanizeVariable(key)}</dt>
+                    <dd className="text-sm leading-6 text-gray-700 text-right flex flex-col">
+                      {humanizeVariable(userData.metadata[key])}
+                    </dd>
+                  </div>
+                ))}
                 <div className='relative'>
                   {userData.active_subscriptions && userData.active_subscriptions.length === 0 && hasStripeIntegrationEnabled === false ? (
                     <div className='group cursor-default relative'>
@@ -127,21 +138,17 @@ export default function ProfileInformationSideBar({ userData, hasStripeIntegrati
                       <div className="px-4 py-2 col-span-1 sm:px-0 grid grid-cols-2">
                         <dt className="text-sm font-medium leading-6 text-gray-900">Subscription Plan</dt>
                         <dd className="text-sm leading-6 text-gray-700 flex justify-end blur-sm group-hover:blur-md transition-all">
-                          <dd>
-                            <span className="blur-md inline-flex items-center rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20">
-                              Gold Plan
-                            </span>
-                          </dd>
+                          <span className="blur-md inline-flex items-center rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20">
+                            Gold Plan
+                          </span>
                         </dd>
                       </div>
                       <div className="px-4 py-2 col-span-1 sm:px-0 grid grid-cols-2">
                         <dt className="text-sm font-medium leading-6 text-gray-900">Subscription MRR</dt>
                         <dd className="text-sm leading-6 text-gray-700 flex justify-end blur-sm group-hover:blur-md transition-all">
-                          <dd>
-                            <span className="blur-md inline-flex items-center rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20">
-                              $79.99
-                            </span>
-                          </dd>
+                          <span className="blur-md inline-flex items-center rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20">
+                            $79.99
+                          </span>
                         </dd>
                       </div>
 
@@ -224,14 +231,14 @@ export default function ProfileInformationSideBar({ userData, hasStripeIntegrati
                       <div className="px-4 py-2 col-span-1 sm:px-0 grid grid-cols-2">
                         <dt className="text-sm font-medium leading-6 text-gray-900">Twitter Profile</dt>
                         <dd className="text-sm leading-6 text-gray-700 flex justify-end blur-sm group-hover:blur-md transition-all">
-                          <dd>@CollinSchneid</dd>
+                          <dd>@jenny.rosen</dd>
                         </dd>
                       </div>
 
                       <div className="px-4 py-2 col-span-1 sm:px-0 grid grid-cols-2">
                         <dt className="text-sm font-medium leading-6 text-gray-900">LinkedIn Profile</dt>
                         <dd className="text-sm leading-6 text-gray-700 flex justify-end blur-sm group-hover:blur-md transition-all">
-                          <dd>Collin-Schneider</dd>
+                          <dd>Jenny-Rosen</dd>
                         </dd>
                       </div>
 
@@ -338,31 +345,6 @@ export default function ProfileInformationSideBar({ userData, hasStripeIntegrati
                     </>
                   )}
                 </div>
-
-                <div className="my-4 border-t border-slate-100 w-full" />
-                <div className="px-4 py-2 col-span-1 sm:px-0 grid grid-cols-2">
-                  <dt className="text-sm font-medium leading-6 text-gray-900">Attributes</dt>
-                </div>
-                <div className="px-4 py-2 col-span-1 sm:px-0 grid grid-cols-2">
-                  <dt className="text-sm font-medium leading-6 text-gray-900"></dt>
-                  <dd className="text-sm leading-6 text-gray-700 text-right">
-                    {userData.metadata
-                      ? (
-                        Object.keys(userData.metadata)
-                          .filter(key => !['name', 'firstName', 'first_name', 'lastName', 'last_name', 'initial_landing_page_url', 'initial_referrer_url', 'gravatar_url'].includes(key))
-                          .map(key => <span className='block'>{key}: {userData.metadata[key]}</span>)
-                      )
-                      : 'No attributes provided.'}
-                  </dd>
-                </div>
-                {/* <div className="my-4 border-t border-slate-100 w-full" />
-                      <div className="px-4 py-2 col-span-1 sm:px-0 grid grid-cols-2">
-                        <dt className="text-sm font-medium leading-6 text-gray-900">Connected Apps</dt>
-                      </div>
-                      <div className="px-4 py-2 col-span-1 sm:px-0 grid grid-cols-2">
-                        <dt className="text-sm font-medium leading-6 text-gray-900"></dt>
-                        <dd className="text-sm leading-6 text-gray-700 text-right">No additional data</dd>
-                      </div> */}
               </>
             </dl>
           </div>

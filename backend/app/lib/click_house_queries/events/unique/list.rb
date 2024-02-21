@@ -19,7 +19,7 @@ module ClickHouseQueries
 
         def sql
           <<~SQL
-            SELECT name, count() AS count
+            SELECT name, CAST(count() AS INT) AS count
             FROM events
             WHERE
               swishjam_api_key IN #{formatted_in_clause(@public_keys)} AND

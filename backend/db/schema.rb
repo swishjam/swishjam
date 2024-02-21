@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2024_02_07_000039) do
+ActiveRecord::Schema.define(version: 2024_02_20_152853) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
@@ -163,6 +163,9 @@ ActiveRecord::Schema.define(version: 2024_02_07_000039) do
     t.text "error_message"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.string "synced_object_type"
+    t.uuid "synced_object_id"
+    t.index ["synced_object_type", "synced_object_id"], name: "index_data_syncs_on_synced_object"
     t.index ["workspace_id"], name: "index_data_syncs_on_workspace_id"
   end
 
@@ -238,6 +241,41 @@ ActiveRecord::Schema.define(version: 2024_02_07_000039) do
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.index ["workspace_id"], name: "index_integrations_on_workspace_id"
+  end
+
+  create_table "profile_tags", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "workspace_id", null: false
+    t.string "profile_type", null: false
+    t.uuid "profile_id", null: false
+    t.uuid "applied_by_user_id"
+    t.uuid "user_segment_id"
+    t.string "name", null: false
+    t.datetime "applied_at", default: -> { "now()" }
+    t.datetime "removed_at"
+    t.index ["applied_by_user_id"], name: "index_profile_tags_on_applied_by_user_id"
+    t.index ["name"], name: "index_profile_tags_on_name"
+    t.index ["profile_type", "profile_id"], name: "index_profile_tags_on_profile"
+    t.index ["user_segment_id"], name: "index_profile_tags_on_user_segment_id"
+    t.index ["workspace_id"], name: "index_profile_tags_on_workspace_id"
+  end
+
+  create_table "query_filter_groups", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.string "filterable_type", null: false
+    t.uuid "filterable_id", null: false
+    t.uuid "parent_query_filter_group_id"
+    t.integer "sequence_index", null: false
+    t.string "previous_query_filter_group_relationship_operator"
+    t.index ["filterable_type", "filterable_id"], name: "index_query_filter_groups_on_filterable"
+    t.index ["parent_query_filter_group_id"], name: "index_query_filter_groups_on_parent_query_filter_group_id"
+  end
+
+  create_table "query_filters", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "query_filter_group_id", null: false
+    t.string "type", null: false
+    t.integer "sequence_index", null: false
+    t.string "previous_query_filter_relationship_operator"
+    t.jsonb "config", null: false
+    t.index ["query_filter_group_id"], name: "index_query_filters_on_query_filter_group_id"
   end
 
   create_table "reports", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -360,6 +398,17 @@ ActiveRecord::Schema.define(version: 2024_02_07_000039) do
     t.index ["workspace_id"], name: "index_user_profile_enrichment_data_on_workspace_id"
   end
 
+  create_table "user_segments", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "workspace_id", null: false
+    t.uuid "created_by_user_id"
+    t.string "name", null: false
+    t.string "description"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["created_by_user_id"], name: "index_user_segments_on_created_by_user_id"
+    t.index ["workspace_id"], name: "index_user_segments_on_workspace_id"
+  end
+
   create_table "users", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.string "email", null: false
     t.string "password_digest", null: false
@@ -422,11 +471,18 @@ ActiveRecord::Schema.define(version: 2024_02_07_000039) do
   add_foreign_key "auth_sessions", "users"
   add_foreign_key "data_syncs", "workspaces"
   add_foreign_key "integrations", "workspaces"
+  add_foreign_key "profile_tags", "user_segments"
+  add_foreign_key "profile_tags", "users", column: "applied_by_user_id"
+  add_foreign_key "profile_tags", "workspaces"
+  add_foreign_key "query_filter_groups", "query_filter_groups", column: "parent_query_filter_group_id"
+  add_foreign_key "query_filters", "query_filter_groups"
   add_foreign_key "retention_cohort_activity_periods", "retention_cohorts"
   add_foreign_key "retention_cohort_activity_periods", "workspaces"
   add_foreign_key "retention_cohorts", "workspaces"
   add_foreign_key "triggered_event_trigger_steps", "event_trigger_steps"
   add_foreign_key "triggered_event_trigger_steps", "triggered_event_triggers"
+  add_foreign_key "user_segments", "users", column: "created_by_user_id"
+  add_foreign_key "user_segments", "workspaces"
   add_foreign_key "workspace_invitations", "workspaces"
   add_foreign_key "workspace_members", "users"
   add_foreign_key "workspace_members", "workspaces"

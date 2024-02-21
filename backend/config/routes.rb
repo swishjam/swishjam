@@ -81,6 +81,7 @@ Rails.application.routes.draw do
       ########################
       resources :users, only: [:index, :show] do
         collection do
+          get :count
           get :active
           get :timeseries
           get :unique_properties
@@ -177,6 +178,12 @@ Rails.application.routes.draw do
         end
       end
       resources :dashboards_dashboard_components, only: [:destroy]
+
+      resources :user_segments do
+        collection do
+          patch :preview
+        end
+      end
 
       resources :billing_data_snapshots, only: [:index]
 

@@ -11,7 +11,6 @@ import ProfileInformationSideBar from "@/components/Profiles/ProfileInformationS
 import { setStateFromTimeseriesResponse } from "@/lib/utils/timeseriesHelpers";
 import { SwishjamAPI } from "@/lib/api-client/swishjam-api";
 import { useEffect, useState } from "react";
-import { Skeleton } from "@/components/ui/skeleton";
 
 const UserProfile = ({ params }) => {
   const { id: userId } = params;
@@ -22,7 +21,6 @@ const UserProfile = ({ params }) => {
   const [recentEvents, setRecentEvents] = useState();
   const [sessionTimeseriesData, setSessionTimeseriesData] = useState();
   const [userData, setUserData] = useState();
-  // const [organizationsListExpanded, setOrganizationsListExpanded] = useState(false);
 
   const getEvents = async () => {
     return await SwishjamAPI.Users.Events.list(userId, { limit: 5 }).then(setRecentEvents);
@@ -81,7 +79,7 @@ const UserProfile = ({ params }) => {
           />
           <Button
             variant="ghost"
-            className={`duration-500 transition-all mr-4 hover:text-swishjam ${isRefreshing ? "cursor-not-allowed text-swishjam" : ""}`}
+            className={`duration-500 transition-all hover:text-swishjam ${isRefreshing ? "cursor-not-allowed text-swishjam" : ""}`}
             onClick={getAllData}
             disabled={isRefreshing}
           >
@@ -89,11 +87,13 @@ const UserProfile = ({ params }) => {
           </Button>
         </div>
         <div className='grid grid-cols-10 gap-4 mt-8'>
-          <ProfileInformationSideBar
-            userData={userData}
-            hasProfileEnrichmentEnabled={hasProfileEnrichmentEnabled}
-            hasStripeIntegrationEnabled={hasStripeIntegrationEnabled}
-          />
+          <div className='col-span-4'>
+            <ProfileInformationSideBar
+              userData={userData}
+              hasProfileEnrichmentEnabled={hasProfileEnrichmentEnabled}
+              hasStripeIntegrationEnabled={hasStripeIntegrationEnabled}
+            />
+          </div>
 
           <div className="col-span-6">
             <LineChartWithValue

@@ -25,6 +25,8 @@ class AnalyticsUserProfile < Transactional
   alias_attribute :organizations, :analytics_organization_profiles
   has_many :customer_subscriptions, as: :parent_profile, dependent: :destroy
   has_many :enrichment_attempts, as: :enrichable, dependent: :destroy
+  has_many :profile_tags, as: :profile, dependent: :destroy
+  alias_attribute :tags, :profile_tags
 
   attribute :metadata, :jsonb, default: {}
 
@@ -32,6 +34,7 @@ class AnalyticsUserProfile < Transactional
 
   scope :anonymous, -> { where(user_unique_identifier: nil, email: nil) }
   scope :identified, -> { where.not(user_unique_identifier: nil).or(where.not(email: nil)) }
+  scope :with_active_profile_tag, ->(tag_name) { joins(:profile_tags).where(profile_tags: { name: tag_name, removed_at: nil }) }
 
   before_create :try_to_set_gravatar_url
   after_create :enrich_profile!

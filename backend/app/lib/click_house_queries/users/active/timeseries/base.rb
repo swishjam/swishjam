@@ -45,16 +45,9 @@ module ClickHouseQueries
                     ),
                     user_profiles.merged_into_swishjam_user_id
                   )
-                ) AS int) AS num_unique_users
+                ) AS INT) AS num_unique_users
               FROM events
-              LEFT JOIN (
-                SELECT 
-                  swishjam_user_id, 
-                  argMax(merged_into_swishjam_user_id, updated_at) AS merged_into_swishjam_user_id
-                FROM swishjam_user_profiles
-                WHERE workspace_id = '#{@workspace_id}'
-                GROUP BY swishjam_user_id
-              ) AS user_profiles ON user_profiles.swishjam_user_id = events.user_profile_id
+              LEFT JOIN (#{ClickHouseQueries::Common::DeDupedUserProfilesQuery.sql(workspace_id: @workspace_id)}) AS user_profiles ON user_profiles.swishjam_user_id = events.user_profile_id
               WHERE
                 events.swishjam_api_key IN #{formatted_in_clause(@public_keys)} AND
                 events.occurred_at BETWEEN '#{formatted_time(@start_time)}' AND '#{formatted_time(@end_time)}'

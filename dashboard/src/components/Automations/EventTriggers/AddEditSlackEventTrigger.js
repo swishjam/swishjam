@@ -59,11 +59,12 @@ export default function AddEditSlackEventTrigger({
   const conditionalStatementsFieldArray = useFieldArray({ control: form.control, name: "conditional_statements" });
   const router = useRouter();
 
+  const [hasSlackDestination, setHasSlackDestination] = useState();
   const [isFormSaving, setIsFormSaving] = useState();
-  const [slackChannels, setSlackChannels] = useState();
-  const [uniqueEvents, setUniqueEvents] = useState();
   const [propertyOptionsForSelectedEvent, setPropertyOptionsForSelectedEvent] = useState();
+  const [slackChannels, setSlackChannels] = useState();
   const [testTriggerModalIsOpen, setTestTriggerModalIsOpen] = useState(false);
+  const [uniqueEvents, setUniqueEvents] = useState();
 
   const setSelectedEventAndGetPropertiesAndAutofillMessageContentIfNecessary = async eventName => {
     form.setValue('steps.0.config.message_header', '✨ ' + eventName + ' ✨')
@@ -140,17 +141,27 @@ export default function AddEditSlackEventTrigger({
   }
 
   useEffect(() => {
-    SwishjamAPI.Slack.getChannels().then(channels => {
-      const sortedChannels = channels?.sort((a, b) => {
-        if (a.name.toLowerCase() < b.name.toLowerCase()) {
-          return -1;
-        } else if (a.name.toLowerCase() > b.name.toLowerCase()) {
-          return 1;
+    SwishjamAPI.Slack.getChannels().then(resp => {
+      if (resp.error) {
+        if (/must connect your slack/i.test(resp.error)) {
+          setHasSlackDestination(false);
         } else {
-          return 0;
+          toast.error("Uh oh! Something went wrong.", {
+            description: resp.error,
+          })
         }
-      })
-      setSlackChannels(sortedChannels);
+      } else {
+        const sortedChannels = resp.sort((a, b) => {
+          if (a.name.toLowerCase() < b.name.toLowerCase()) {
+            return -1;
+          } else if (a.name.toLowerCase() > b.name.toLowerCase()) {
+            return 1;
+          } else {
+            return 0;
+          }
+        })
+        setSlackChannels(sortedChannels);
+      }
     });
 
     SwishjamAPI.Events.listUnique({ limit: 100 }).then(events => {
@@ -172,6 +183,10 @@ export default function AddEditSlackEventTrigger({
       });
     }
   }, [])
+
+  if (hasSlackDestination === false) {
+    return <EmptyState title={<><Link className='text-blue-700 underline' href='/integrations/destinations'>Connect Slack</Link> to begin creating Slack triggers.</>} />
+  }
 
   if (!slackChannels && slackChannels?.length == 0 && !uniqueEvents && uniqueEvents?.length == 0) {
     return <EmptyState title={<><Link className='text-blue-700 underline' href='/integrations/destinations'>Connect Slack</Link> to begin creating Slack triggers.</>} />

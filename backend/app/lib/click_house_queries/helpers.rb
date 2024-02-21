@@ -1,7 +1,7 @@
 module ClickHouseQueries
   module Helpers
     def select_clickhouse_timestamp_with_timezone(column)
-      "concat(toString(toDateTime(#{column}), 'UTC'), ' GMT-0800') AS #{column}"
+      "concat(toString(toDateTime(#{column}), 'UTC'), ' GMT-0800')"
     end
 
     def formatted_time(time)

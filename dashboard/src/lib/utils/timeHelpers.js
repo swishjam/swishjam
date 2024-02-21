@@ -18,7 +18,11 @@ const prettyDateTime = (date, opts = {}) => {
   const minute = opts.minute || 'numeric';
   const seconds = opts.seconds || 'none';
   const d = new Date(date);
-  return `${d.toLocaleDateString('en-US', { month, day, year })} at ${d.toLocaleTimeString('en-US', { hour, minute, seconds })}`
+  if (hour === 'none' && minute === 'none' && seconds === 'none') {
+    return `${d.toLocaleDateString('en-US', { month, day, year })}`
+  } else {
+    return `${d.toLocaleDateString('en-US', { month, day, year })} at ${d.toLocaleTimeString('en-US', { hour, minute, seconds })}`
+  }
 }
 
 const intelligentlyFormattedMs = ms => {

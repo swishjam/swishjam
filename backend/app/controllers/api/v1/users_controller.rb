@@ -6,12 +6,21 @@ module Api
       def index
         per_page = params[:per_page] || 10
         page = params[:page] || 1
+        # I don't think this gets used anywhere, we only use the SearchController currently
         if params[:q]
           users = ClickHouseQueries::Users::Search.new(current_workspace, query: params[:q], limit: per_page).get
           render json: { users: users }, status: :ok
         else
-          where_clause = JSON.parse(params[:where] || {}.to_json)
-          users_results = ClickHouseQueries::Users::List.new(current_workspace, where: where_clause, page: page, limit: per_page).get
+          filter_groups = []
+          if params[:user_segment_ids].present?
+            user_segments = current_workspace.user_segments.includes(:query_filter_groups).where(id: params[:user_segment_ids])
+            user_segments.each do |user_segment|
+              user_segment.query_filter_groups.in_sequence_order.each do |filter_group|
+                filter_groups << filter_group
+              end
+            end
+          end
+          users_results = ClickHouseQueries::Users::List.new(current_workspace, filter_groups: filter_groups, page: page, limit: per_page).get
           render json: {
             users: users_results['users'],
             previous_page: params[:page].to_i > 1 ? params[:page].to_i - 1 : nil,
@@ -20,6 +29,11 @@ module Api
             total_num_records: users_results['total_num_users'],
           }, status: :ok
         end
+      end
+
+      def count
+        counts = ClickHouseQueries::Users::Count.new(current_workspace.id).get
+        render json: counts, status: :ok
       end
 
       def show

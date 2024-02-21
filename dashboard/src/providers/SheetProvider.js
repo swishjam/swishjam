@@ -35,7 +35,7 @@ const SheetProvider = ({ children }) => {
   return (
     <SheetContext.Provider value={{ openSheetWithContent }}>
       <Sheet open={sheetIsOpen} onOpenChange={onOpenChange}>
-        <SheetContent>
+        <SheetContent className='overflow-y-scroll'>
           <SheetHeader className='border-b mb-2 pb-2'>
             <SheetTitle>{sheetTitle}</SheetTitle>
           </SheetHeader>

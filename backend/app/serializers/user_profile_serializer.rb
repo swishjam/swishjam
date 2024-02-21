@@ -1,9 +1,27 @@
 class UserProfileSerializer < ActiveModel::Serializer
-  attributes :id, :user_unique_identifier, :email, :lifetime_value_in_cents, :initials, :full_name, :first_name, :last_name, :metadata, :immutable_metadata, 
+  attributes :id, :user_unique_identifier, :email, :lifetime_value_in_cents, :initials, :full_name, :first_name, :last_name, :metadata, :tags,
               :created_at, :organizations, :enrichment_data, :active_subscriptions, :current_mrr_in_cents, :gravatar_url, :created_by_data_source, :is_anonymous
 
   def organizations
     object.analytics_organization_profiles
+  end
+
+  def tags
+    # if there are two 'Active User' tags (at least one has to be removed), we only want the most recently applied one
+    subquery = object.tags.group(:name).maximum(:applied_at)
+    most_recent_tags_by_name = object.tags.where(name: subquery.keys, applied_at: subquery.values)
+    most_recent_tags_by_name.map do |tag|
+      {
+        id: tag.id,
+        name: tag.name,
+        applied_at: tag.applied_at,
+        applied_by_user_email: tag.applied_by_user&.email,
+        user_segment_id: tag.user_segment_id,
+        user_segment_name: tag.user_segment&.name,
+        user_segment_description: tag.user_segment&.description,
+        removed_at: tag.removed_at,
+      }
+    end
   end
 
   def enrichment_data

@@ -26,6 +26,10 @@ def insert_events_into_click_house!(opts = {})
   Analytics::Event.insert_all!(events)
 end
 
+def insert_analytics_user_profiles_into_clickhouse!(analytics_user_profiles)
+  Analytics::SwishjamUserProfile.insert_all!(analytics_user_profiles.map(&:formatted_for_clickhouse_replication))
+end
+
 def stub_external_apis(stripe_customer_email: 'fake@example.com', stripe_customer_name: 'Fake Name')
   stub_geocoder
   stub_stripe_subscription_list_call(customer_email: stripe_customer_email, customer_name: stripe_customer_name)

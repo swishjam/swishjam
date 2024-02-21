@@ -5,7 +5,7 @@ export default function TableComponent({ headers, rows, noDataMessage = 'No data
   return (
     <Table>
       <TableHeader>
-        <TableRow>
+        <TableRow className='hover:bg-white'>
           {headers.map((header, i) => (
             <TableHead key={i} className='cursor-default'>{header}</TableHead>
           ))}

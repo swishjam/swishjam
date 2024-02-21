@@ -8,7 +8,7 @@ module Ingestion
         uuid: uuid,
         swishjam_api_key: swishjam_api_key,
         name: name,
-        occurred_at: occurred_at,
+        occurred_at: occurred_at.to_f,
         properties: properties,
       }
     end
