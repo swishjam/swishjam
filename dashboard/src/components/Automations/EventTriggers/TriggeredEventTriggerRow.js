@@ -1,5 +1,5 @@
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
-import { BadgeAlertIcon, BadgeCheckIcon, CalendarClockIcon, RefreshCwIcon, RotateCcwIcon } from "lucide-react";
+import { BadgeAlertIcon, BadgeCheckIcon, CalendarClockIcon, RefreshCwIcon } from "lucide-react";
 import EmailPreview from "@/components/Resend/EmailPreview";
 import { prettyDateTime } from "@/lib/utils/timeHelpers";
 import { useState } from "react";
@@ -60,7 +60,7 @@ export default function TriggeredEventTriggerRow({ triggeredEventTrigger }) {
                 </div>
               </div>
               <div className='flex flex-col justify-end'>
-                {triggerStepFailed && !triggeredEventTrigger.retried_triggered_event_trigger_id || true && (
+                {triggerStepFailed && !triggeredEventTrigger.retried_triggered_event_trigger_id && (
                   <button
                     className={`${isRetrying ? 'bg-gray-200 cursor-not-allowed' : 'bg-white'} outline rounded-sm outline-gray-200 px-4 py-2 text-xs text-gray-600 mb-2 transition-colors hover:bg-gray-100 flex items-center`}
                     disabled={isRetrying}
