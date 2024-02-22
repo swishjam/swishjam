@@ -1,5 +1,5 @@
 class TriggeredEventTriggerSerializer < ActiveModel::Serializer
-  attributes :created_at, :event_json, :triggered_event_trigger_steps
+  attributes :id, :created_at, :event_json, :event_trigger_id, :triggered_event_trigger_steps, :retried_triggered_event_trigger_id
 
   def triggered_event_trigger_steps
     object.triggered_event_trigger_steps.map do |step|

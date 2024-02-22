@@ -182,7 +182,7 @@ export default function AddEditSlackEventTrigger({
       setUniqueEvents(sortedEvents);
     });
 
-    SwishjamAPI.Users.uniqueProperties().then(properties => setUniqueUserProperties(['email', ...properties.sort()]))
+    SwishjamAPI.Users.uniqueProperties().then(properties => setUniqueUserProperties(['email', ...properties].sort()))
 
     if (triggerId) {
       SwishjamAPI.Events.Properties.listUnique(defaultTriggerValues.event_name).then(properties => {

@@ -1,18 +1,34 @@
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
-import { BadgeAlertIcon, BadgeCheckIcon, CalendarClockIcon } from "lucide-react";
+import { BadgeAlertIcon, BadgeCheckIcon, CalendarClockIcon, RefreshCwIcon, RotateCcwIcon } from "lucide-react";
 import EmailPreview from "@/components/Resend/EmailPreview";
 import { prettyDateTime } from "@/lib/utils/timeHelpers";
 import { useState } from "react";
+import SwishjamAPI from "@/lib/api-client/swishjam-api";
+import { toast } from "sonner";
 
 export default function TriggeredEventTriggerRow({ triggeredEventTrigger }) {
   const triggeredStep = triggeredEventTrigger.triggered_event_trigger_steps[0]
   if (!triggeredStep) return <></>;
 
   const [isHovered, setIsHovered] = useState(false)
+  const [isRetrying, setIsRetrying] = useState(false)
 
   const triggerStepFailed = triggeredStep.error_message;
   const triggerStepSucceeded = !triggerStepFailed && triggeredStep.completed_at;
   const triggerStepIsPending = !triggerStepFailed && !triggerStepSucceeded;
+
+  const onRetryClick = e => {
+    setIsRetrying(true)
+    e.preventDefault();
+    SwishjamAPI.EventTriggers.TriggeredEventTriggers.retry(triggeredEventTrigger.event_trigger_id, triggeredEventTrigger.id).then(({ error, new_triggered_event_trigger }) => {
+      setIsRetrying(false)
+      if (error) {
+        toast.error('Retry failed', { description: error });
+      } else {
+        toast.success('Retry successful, find the results on page 1.');
+      }
+    })
+  }
 
   return (
     <li
@@ -43,9 +59,21 @@ export default function TriggeredEventTriggerRow({ triggeredEventTrigger }) {
                   </span>
                 </div>
               </div>
-              <span className="text-xs leading-6 text-gray-600 hover:underline">
-                View Details
-              </span>
+              <div className='flex flex-col justify-end'>
+                {triggerStepFailed && !triggeredEventTrigger.retried_triggered_event_trigger_id || true && (
+                  <button
+                    className={`${isRetrying ? 'bg-gray-200 cursor-not-allowed' : 'bg-white'} outline rounded-sm outline-gray-200 px-4 py-2 text-xs text-gray-600 mb-2 transition-colors hover:bg-gray-100 flex items-center`}
+                    disabled={isRetrying}
+                    onClick={onRetryClick}
+                  >
+                    Retry
+                    <RefreshCwIcon className={`h-3 w-3 inline-block ml-1 ${isRetrying ? 'animate-spin' : ''}`} />
+                  </button>
+                )}
+                <span className="text-xs leading-6 text-gray-600 hover:underline">
+                  View Details
+                </span>
+              </div>
             </div>
           </AccordionTrigger>
           <AccordionContent>

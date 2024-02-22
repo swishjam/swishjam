@@ -19,23 +19,24 @@ class EventTrigger < Transactional
 
   after_create :send_new_trigger_notification_to_slack_if_necessary
 
-  def trigger_if_conditions_are_met!(prepared_event, as_test: false)
-    if triggered_event_triggers.find_by(event_uuid: prepared_event.uuid).present?
+  def trigger_if_conditions_are_met!(prepared_event, as_test: false, is_retry: false)
+    if !is_retry && triggered_event_triggers.find_by(event_uuid: prepared_event.uuid).present?
       Sentry.capture_message("Duplicate EventTrigger prevented. EventTrigger #{id} already triggered for event #{prepared_event.uuid} (#{prepared_event.name} event for #{workspace.name} workspace).")
       false
     elsif EventTriggers::ConditionalStatementsEvaluator.new(prepared_event).event_meets_all_conditions?(conditional_statements)
       seconds_since_occurred_at = Time.current - prepared_event.occurred_at
-      if seconds_since_occurred_at > (ENV['EVENT_TRIGGER_LAG_WARNING_THRESHOLD'] || 60 * 5).to_i
+      if !is_retry && seconds_since_occurred_at > (ENV['EVENT_TRIGGER_LAG_WARNING_THRESHOLD'] || 60 * 5).to_i
         Sentry.capture_message("EventTrigger #{id} took #{seconds_since_occurred_at} seconds to reach trigger logic.")
         return if ENV['DISABLE_EVENT_TRIGGER_WHEN_LAGGING']
       end
       triggered_event_trigger = triggered_event_triggers.create!(
         workspace: workspace, 
-        seconds_from_occurred_at_to_triggered: seconds_since_occurred_at,
+        seconds_from_occurred_at_to_triggered: is_retry ? nil : seconds_since_occurred_at,
         event_json: prepared_event.as_json,
         event_uuid: prepared_event.uuid,
       )
       event_trigger_steps.each{ |step| step.trigger!(prepared_event, triggered_event_trigger, as_test: as_test) }
+      triggered_event_trigger
     else
       false
     end

@@ -9,6 +9,7 @@ module EventTriggers
         raise ArgumentError, "`triggered_event_trigger` or `triggered_event_trigger_step` must be provided"
       end
       @triggered_step_record = triggered_event_trigger_step || TriggeredEventTriggerStep.new(
+        started_at: Time.current,
         event_trigger_step: event_trigger_step,
         triggered_event_trigger: triggered_event_trigger,
         triggered_event_json: prepared_event.as_json, 
@@ -51,6 +52,7 @@ module EventTriggers
         triggered_step_record.triggered_payload.delete('scheduled_delivery_for')
         triggered_step_record.triggered_payload.delete('delayed_delivery_at')
         triggered_step_record.triggered_payload['was_scheduled'] = true
+        # dont return, continue to deliver email
       end
 
       deliver_email!
