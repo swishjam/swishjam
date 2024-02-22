@@ -31,7 +31,7 @@ module EventTriggerSteps
         interpolated_message_body = "#{interpolated_message_body} \n\n _:test_tube: This is a test message and was not actually triggered by a real event_"
       end
       interpolated_message_body = "#{interpolated_message_body[0..2996]}..." if interpolated_message_body.length > 3000
-      trigger_step_record.triggered_payload = { message_body: interpolated_message_body, message_header: message_header }
+      triggered_step_record.triggered_payload = { message_body: interpolated_message_body, message_header: message_header }
       
       slack_client.post_message_to_channel(
         channel: channel_id, 
