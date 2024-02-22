@@ -3,14 +3,14 @@ import CopiableText from "@/components/utils/CopiableText";
 const Variable = ({ children }) => {
   return (
     <CopiableText value={`{{ ${children} }}`}>
-      <span class="text-sm group text-emerald-500 bg-emerald-50 transition-colors hover:bg-emerald-100 italic px-1 py-0.5 rounded-md whitespace-nowrap">
+      <span className="text-sm group text-emerald-500 bg-emerald-50 transition-colors hover:bg-emerald-100 italic px-1 py-0.5 rounded-md whitespace-nowrap">
         {'{{ '}
         {children.split('||').map((variable, i) => {
           const variableColor = variable.trim().startsWith('"') || variable.trim().startsWith("'") ? 'text-orange-500 group-hover:text-orange-600' : 'text-emerald-600 group-hover:text-emerald-700';
           return (
             <span key={i}>
-              <span class={variableColor}>{variable.trim()}</span>
-              {i !== children.split('||').length - 1 && <span class="text-sm text-emerald-500 transition-colors italic px-1 py-0.5 rounded-md whitespace-nowrap">||</span>}
+              <span className={variableColor}>{variable.trim()}</span>
+              {i !== children.split('||').length - 1 && <span className="text-sm text-emerald-500 transition-colors italic px-1 py-0.5 rounded-md whitespace-nowrap">||</span>}
             </span>
           )
         })}
@@ -20,7 +20,7 @@ const Variable = ({ children }) => {
   )
 }
 
-export default function VariableSyntaxDocumentation({ eventName, availableUserProperties, availableEventProperties, ...props }) {
+export default function VariableSyntaxDocumentation({ eventName, availableUserProperties, availableEventProperties, additionalSections = [], ...props }) {
   return (
     <div className="border border-zinc-200 shadow-sm bg-white rounded-md p-4" {...props}>
       <p className="text-sm font-medium">Using Variables</p>
@@ -65,6 +65,7 @@ export default function VariableSyntaxDocumentation({ eventName, availableUserPr
           {availableUserProperties.map((property, i) => <Variable key={i}>{property}</Variable>)}
         </div>
       )}
+      {additionalSections.map((section, i) => <div key={i} className="mt-4">{section}</div>)}
     </div>
   )
 }

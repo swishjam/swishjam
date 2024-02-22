@@ -56,8 +56,8 @@ const initializeMarkdownParser = acceptableHighlightValues => {
 }
 
 
-export default function MessageBodyMarkdownRenderer({ body, availableEventOptions }) {
-  const markdown = useMemo(() => initializeMarkdownParser(availableEventOptions), [availableEventOptions]);
+export default function MessageBodyMarkdownRenderer({ body, availableVariables }) {
+  const markdown = useMemo(() => initializeMarkdownParser(availableVariables), [availableVariables]);
   const __html = markdown.render(body || '');
   return <div dangerouslySetInnerHTML={{ __html }} />
 }

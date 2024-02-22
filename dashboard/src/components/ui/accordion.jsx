@@ -2,9 +2,10 @@
 
 import * as React from "react"
 import * as AccordionPrimitive from "@radix-ui/react-accordion"
-import { ChevronDown } from "lucide-react"
+import { ChevronDown, ChevronRight } from "lucide-react"
 
 import { cn } from "src/lib/utils"
+import { SwishjamMemory } from "@/lib/swishjam-memory"
 
 const Accordion = AccordionPrimitive.Root
 
@@ -18,12 +19,14 @@ const AccordionTrigger = React.forwardRef(({ className, children, underline = tr
     <AccordionPrimitive.Trigger
       ref={ref}
       className={cn(
-        "flex flex-1 items-center justify-between py-4 font-medium transition-all [&[data-state=open]>div>svg]:rotate-180 [&[data-state=open]>svg]:rotate-180",
+        "group flex flex-1 items-center py-4 font-medium transition-all",
+        chevronFirst && '[&[data-state=open]>div>svg]:rotate-90 [&[data-state=open]>svg]:rotate-90',
+        !chevronFirst && '[&[data-state=open]>div>svg]:rotate-180 [&[data-state=open]>svg]:rotate-180',
         underline && "hover:underline",
         className
       )}
       {...props}>
-      {chevronFirst && <ChevronDown className="h-4 w-4 shrink-0 transition-transform duration-200 mr-2" />}
+      {chevronFirst && <ChevronRight className="h-4 w-4 shrink-0 transition-transform duration-200 mr-2" />}
       {children}
       {!chevronFirst && <ChevronDown className="h-4 w-4 shrink-0 transition-transform duration-200" />}
     </AccordionPrimitive.Trigger>
@@ -42,4 +45,33 @@ const AccordionContent = React.forwardRef(({ className, children, ...props }, re
 
 AccordionContent.displayName = AccordionPrimitive.Content.displayName
 
-export { Accordion, AccordionItem, AccordionTrigger, AccordionContent }
+const AccordionOpen = ({ trigger, children, open = false, rememberState = false }) => {
+  const memoryId = `accordion-open-${Object.values(trigger.props).join('_').replace(/\s/g, '-')}`
+  const isOpen = SwishjamMemory.get(memoryId) ?? open;
+  
+  const onChange = value => {
+    if (rememberState) {
+      SwishjamMemory.set(memoryId, value === '1')
+    }
+  }
+
+  return (
+    <Accordion 
+      type="single" 
+      defaultValue={isOpen && '1'}
+      onValueChange={onChange}
+      collapsible 
+      >
+      <AccordionItem value='1' className="border-none">
+        <AccordionTrigger className="cursor-pointer active:scale-[98%]" chevronFirst={true} underline={false}>
+          {trigger}
+        </AccordionTrigger>
+        <AccordionContent>
+          {children}
+        </AccordionContent>
+      </AccordionItem>
+    </Accordion >
+  )
+}
+
+export { Accordion, AccordionItem, AccordionTrigger, AccordionContent, AccordionOpen }

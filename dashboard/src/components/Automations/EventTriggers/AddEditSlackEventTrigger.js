@@ -1,6 +1,8 @@
 'use client'
 
+import { AccordionOpen } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button"
+import Combobox from "@/components/utils/Combobox";
 import {
   Form,
   FormControl,
@@ -9,11 +11,14 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form"
-import Link from "next/link"
 import EmptyState from "@/components/utils/PageEmptyState";
+import { FormInput, InfoIcon, SparkleIcon, UserCircleIcon } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import LoadingSpinner from '@components/LoadingSpinner';
+import Link from "next/link"
+import { LuPlus, LuTrash } from "react-icons/lu";
 import MessageBodyMarkdownRenderer from '@components/Slack/MessageBodyMarkdownRenderer';
+import { PaperAirplaneIcon } from '@heroicons/react/24/outline';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Skeleton } from '@/components/ui/skeleton';
 import SlackMessagePreview from '@components/Slack/SlackMessagePreview';
@@ -26,10 +31,8 @@ import TestTriggerModal from '@/components/Automations/EventTriggers/TestTrigger
 import { useEffect, useState } from 'react';
 import { useFieldArray, useForm } from "react-hook-form"
 import { useRouter } from 'next/navigation';
-import { InfoIcon, SparkleIcon, UserCircleIcon, UserIcon } from 'lucide-react';
-import { LuPlus, LuTrash } from "react-icons/lu";
-import { PaperAirplaneIcon } from '@heroicons/react/24/outline';
-import Combobox from "@/components/utils/Combobox";
+import VariableSyntaxDocumentation from "./VariableSyntaxDocumentation";
+import InterpolatedMarkdown from "@/components/VariableParser/InterpolatedMarkdown";
 
 const FormInputOrLoadingState = ({ children, className, isLoading }) => {
   if (isLoading) {
@@ -179,7 +182,7 @@ export default function AddEditSlackEventTrigger({
       setUniqueEvents(sortedEvents);
     });
 
-    SwishjamAPI.Users.uniqueProperties().then(properties => setUniqueUserProperties(properties.sort()))
+    SwishjamAPI.Users.uniqueProperties().then(properties => setUniqueUserProperties(['email', ...properties.sort()]))
 
     if (triggerId) {
       SwishjamAPI.Events.Properties.listUnique(defaultTriggerValues.event_name).then(properties => {
@@ -209,26 +212,40 @@ export default function AddEditSlackEventTrigger({
       )}
       <div className="grid grid-cols-2 gap-8 mt-8">
         <div>
-          <SlackMessagePreview
-            header={form.watch('steps.0.config.message_header')}
-            body={<MessageBodyMarkdownRenderer body={form.watch('steps.0.config.message_body')} availableEventOptions={propertyOptionsForSelectedEvent} />}
-          />
-          <h2 className="text-sm font-medium text-gray-700 mb-2 mt-4">Slack Formatting Reference</h2>
-          <div className="border border-zinc-200 shadow-sm bg-white rounded-md p-4">
-
-            <p className="text-sm font-medium">Links</p>
-            <p className="text-sm mt-1">
-              Format:
-              <span className="ml-1 text-sm px-1.5 py-0.5 border border-zinc-200 bg-accent rounded-sm">{"<{your link}|Displayed text>"}</span>
-            </p>
-            <p className="text-sm py-1.5">
-              Example:
-              <span className="ml-1 text-sm px-1.5 py-0.5 border border-zinc-200 bg-accent rounded-sm">{"<https://swishjam.com/integrations|Integrations>"}</span>
-            </p>
-            <p className="text-sm">
-              Result:
-              <a className="ml-1 underline hover:text-blue-400" href="https://swishjam.com/integrations">Integrations</a>
-            </p>
+          <FormInputOrLoadingState className='h-44' isLoading={uniqueEvents === undefined || slackChannels === undefined}>
+            <SlackMessagePreview
+              header={form.watch('steps.0.config.message_header')}
+              body={
+                <InterpolatedMarkdown
+                  content={form.watch('steps.0.config.message_body')}
+                  availableVariables={propertyOptionsForSelectedEvent || []}
+                />
+              }
+            />
+          </FormInputOrLoadingState>
+          <div className='mt-2'>
+            <AccordionOpen
+              trigger={<h2 className="text-sm font-medium text-gray-700">Slack Formatting Reference</h2>}
+              open={true}
+              rememberState={true}
+            >
+              <VariableSyntaxDocumentation
+                availableEventProperties={propertyOptionsForSelectedEvent}
+                availableUserProperties={(uniqueUserProperties || []).map(p => `user.${p}`)}
+                eventName={form.watch('event_name')}
+                additionalSections={[
+                  <>
+                    <p className="text-sm font-medium">Hyperlinks</p>
+                    <p className="text-sm mt-1">
+                      If you'd like to add a link to your text rather than just displaying the URL, you can use the following syntax:
+                      <span className="ml-1 text-sm px-1.5 py-0.5 border border-zinc-200 bg-accent rounded-sm transition-colors cursor-default hover:bg-gray-200">
+                        {'<https://example.com | Your Text>'}
+                      </span>
+                    </p>
+                  </>
+                ]}
+              />
+            </AccordionOpen>
           </div>
         </div>
         <div>

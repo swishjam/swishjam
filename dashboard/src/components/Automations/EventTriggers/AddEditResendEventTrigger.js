@@ -1,3 +1,4 @@
+import { AccordionOpen } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import Combobox from "@/components/utils/Combobox";
@@ -184,7 +185,7 @@ export default function AddEditResendEventTrigger({
             to={
               <InterpolatedMarkdown
                 content={form.watch('steps.0.config.to')}
-                availableEventOptions={[
+                availableVariables={[
                   ...[...(propertyOptionsForSelectedEvent || []), ...(propertyOptionsForSelectedEvent || []).map(e => `event.${e}`)],
                   ...(userPropertyOptions || [])
                 ]}
@@ -193,7 +194,7 @@ export default function AddEditResendEventTrigger({
             cc={
               <InterpolatedMarkdown
                 content={(form.watch('steps.0.config.cc') || '').replace(/</g, '&lt;').replace(/>/g, '&gt;')}
-                availableEventOptions={[
+                availableVariables={[
                   ...[...(propertyOptionsForSelectedEvent || []), ...(propertyOptionsForSelectedEvent || []).map(e => `event.${e}`)],
                   ...(userPropertyOptions || [])
                 ]}
@@ -202,7 +203,7 @@ export default function AddEditResendEventTrigger({
             bcc={
               <InterpolatedMarkdown
                 content={(form.watch('steps.0.config.bcc') || '').replace(/</g, '&lt;').replace(/>/g, '&gt;')}
-                availableEventOptions={[
+                availableVariables={[
                   ...[...(propertyOptionsForSelectedEvent || []), ...(propertyOptionsForSelectedEvent || []).map(e => `event.${e}`)],
                   ...(userPropertyOptions || [])
                 ]}
@@ -211,7 +212,7 @@ export default function AddEditResendEventTrigger({
             from={
               <InterpolatedMarkdown
                 content={(form.watch('steps.0.config.from') || '').replace(/</g, '&lt;').replace(/>/g, '&gt;')}
-                availableEventOptions={[
+                availableVariables={[
                   ...[...(propertyOptionsForSelectedEvent || []), ...(propertyOptionsForSelectedEvent || []).map(e => `event.${e}`)],
                   ...(userPropertyOptions || [])
                 ]}
@@ -220,7 +221,7 @@ export default function AddEditResendEventTrigger({
             replyTo={
               <InterpolatedMarkdown
                 content={(form.watch('steps.0.config.reply_to') || '').replace(/</g, '&lt;').replace(/>/g, '&gt;')}
-                availableEventOptions={[
+                availableVariables={[
                   ...[...(propertyOptionsForSelectedEvent || []), ...(propertyOptionsForSelectedEvent || []).map(e => `event.${e}`)],
                   ...(userPropertyOptions || [])
                 ]}
@@ -229,7 +230,7 @@ export default function AddEditResendEventTrigger({
             subject={
               <InterpolatedMarkdown
                 content={form.watch('steps.0.config.subject')}
-                availableEventOptions={[
+                availableVariables={[
                   ...[...(propertyOptionsForSelectedEvent || []), ...(propertyOptionsForSelectedEvent || []).map(e => `event.${e}`)],
                   ...(userPropertyOptions || [])
                 ]}
@@ -238,19 +239,26 @@ export default function AddEditResendEventTrigger({
             body={
               <InterpolatedMarkdown
                 content={form.watch('steps.0.config.body')}
-                availableEventOptions={[
+                availableVariables={[
                   ...[...(propertyOptionsForSelectedEvent || []), ...(propertyOptionsForSelectedEvent || []).map(e => `event.${e}`)],
                   ...(userPropertyOptions || [])
                 ]}
               />
             }
           />
-          <h2 className="text-sm font-medium text-gray-700 mb-2 mt-4">Resend Email Formatting Reference</h2>
-          <VariableSyntaxDocumentation
-            availableEventProperties={propertyOptionsForSelectedEvent}
-            availableUserProperties={userPropertyOptions}
-            eventName={form.watch('event_name')}
-          />
+          <div className='mt-2'>
+            <AccordionOpen
+              trigger={<h2 className="text-sm font-medium text-gray-700">Resend Email Formatting Reference</h2>}
+              open={true}
+              rememberState={true}
+            >
+              <VariableSyntaxDocumentation
+                availableEventProperties={propertyOptionsForSelectedEvent}
+                availableUserProperties={userPropertyOptions}
+                eventName={form.watch('event_name')}
+              />
+            </AccordionOpen>
+          </div>
         </FormInputOrLoadingState>
       </div>
       <div>

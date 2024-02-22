@@ -79,8 +79,8 @@ const initializeMarkdownParser = acceptableHighlightValues => {
 }
 
 
-export default function InterpolatedMarkdown({ content, availableEventOptions }) {
-  const markdown = useMemo(() => initializeMarkdownParser(availableEventOptions), [availableEventOptions]);
+export default function InterpolatedMarkdown({ content, availableVariables }) {
+  const markdown = useMemo(() => initializeMarkdownParser(availableVariables), [availableVariables]);
   const __html = markdown.render(content || '');
   return <div dangerouslySetInnerHTML={{ __html }} />
 }
