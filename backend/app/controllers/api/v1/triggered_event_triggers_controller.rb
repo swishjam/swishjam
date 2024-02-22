@@ -17,6 +17,34 @@ module Api
           render json: { error: 'Trigger not found' }, status: :not_found
         end
       end
+
+      def retry
+        event_trigger = current_workspace.event_triggers.find_by(id: params[:event_trigger_id])
+        if !event_trigger.present?
+          render json: { error: 'Event Trigger not found' }, status: :not_found
+          return
+        end
+        triggered_event_trigger = event_trigger.triggered_event_triggers.find_by(id: params[:id])
+        if !triggered_event_trigger.present?
+          render json: { error: 'Triggered Event Trigger not found' }, status: :not_found
+          return
+        end
+        # this runs in the web request, not a background job
+        maybe_new_triggered_event_trigger = triggered_event_trigger.retry!
+        render json: {
+          previous_triggered_event_trigger: TriggeredEventTriggerSerializer.new(triggered_event_trigger).as_json,
+          new_triggered_event_trigger: maybe_new_triggered_event_trigger ? TriggeredEventTriggerSerializer.new(maybe_new_triggered_event_trigger).as_json : nil,
+          retry_successful: maybe_new_triggered_event_trigger != false,
+          error: maybe_new_triggered_event_trigger == false ? "Automation was not triggered because the conditions set on the event trigger was not met." : nil,
+        }, status: :ok
+      rescue TriggeredEventTrigger::InvalidRetryError => e
+        Sentry.capture_exception(e)
+        render json: { 
+          retry_successful: false,
+          error: "This trigger is unable to be retried due to the fact it has already succeeded or has already been successfully retried.",
+        }, status: :unprocessable_entity
+      end
+
     end
   end
 end

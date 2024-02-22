@@ -1,4 +1,5 @@
 class EventTrigger < Transactional
+  VALID_CONDITIONAL_OPERATORS = %w[equals does_not_equal contains does_not_contain ends_with does_not_end_with is_defined is_not_defined greater_than less_than greater_than_or_equal_to less_than_or_equal_to]
   belongs_to :workspace
   # technically not optional but don't want to break existing records
   belongs_to :created_by_user, class_name: User.to_s, optional: true
@@ -18,23 +19,24 @@ class EventTrigger < Transactional
 
   after_create :send_new_trigger_notification_to_slack_if_necessary
 
-  def trigger_if_conditions_are_met!(prepared_event, as_test: false)
-    if triggered_event_triggers.find_by(event_uuid: prepared_event.uuid).present?
+  def trigger_if_conditions_are_met!(prepared_event, as_test: false, is_retry: false)
+    if !is_retry && triggered_event_triggers.find_by(event_uuid: prepared_event.uuid).present?
       Sentry.capture_message("Duplicate EventTrigger prevented. EventTrigger #{id} already triggered for event #{prepared_event.uuid} (#{prepared_event.name} event for #{workspace.name} workspace).")
       false
     elsif EventTriggers::ConditionalStatementsEvaluator.new(prepared_event).event_meets_all_conditions?(conditional_statements)
       seconds_since_occurred_at = Time.current - prepared_event.occurred_at
-      if seconds_since_occurred_at > (ENV['EVENT_TRIGGER_LAG_WARNING_THRESHOLD'] || 60 * 5).to_i
+      if !is_retry && seconds_since_occurred_at > (ENV['EVENT_TRIGGER_LAG_WARNING_THRESHOLD'] || 60 * 5).to_i
         Sentry.capture_message("EventTrigger #{id} took #{seconds_since_occurred_at} seconds to reach trigger logic.")
         return if ENV['DISABLE_EVENT_TRIGGER_WHEN_LAGGING']
       end
       triggered_event_trigger = triggered_event_triggers.create!(
         workspace: workspace, 
-        seconds_from_occurred_at_to_triggered: seconds_since_occurred_at,
+        seconds_from_occurred_at_to_triggered: is_retry ? nil : seconds_since_occurred_at,
         event_json: prepared_event.as_json,
         event_uuid: prepared_event.uuid,
       )
       event_trigger_steps.each{ |step| step.trigger!(prepared_event, triggered_event_trigger, as_test: as_test) }
+      triggered_event_trigger
     else
       false
     end
@@ -46,8 +48,8 @@ class EventTrigger < Transactional
     conditional_statements.each do |statement|
       if statement['property'].blank? || statement['condition'].blank? || (statement['property_value'].blank? && statement['condition'] != 'is_defined')
         errors.add(:conditional_statements, 'must have a property, condition, and property_value.')
-      elsif !['equals', 'does_not_equal', 'contains', 'does_not_contain', 'ends_with', 'does_not_end_with', 'is_defined'].include?(statement['condition'])
-        errors.add(:base, "#{statement['condition']} is not a valid condition, valid conditions are: `equals`, `contains`, `does_not_contain`, `ends_with`, `does_not_end_with`.")
+      elsif !self.class::VALID_CONDITIONAL_OPERATORS.include?(statement['condition'])
+        errors.add(:base, "#{statement['condition']} is not a valid condition, valid conditions are: #{self.class::VALID_CONDITIONAL_OPERATORS.join(', ')}.")
       end
     end
   end

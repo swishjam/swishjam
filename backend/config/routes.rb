@@ -205,7 +205,11 @@ Rails.application.routes.draw do
           patch :enable
           patch :disable
         end
-        resources :triggered_event_triggers, only: [:index]
+        resources :triggered_event_triggers, only: [:index] do
+          member do
+            post :retry
+          end
+        end
       end
 
       resources :slack_connections, only: [:index]

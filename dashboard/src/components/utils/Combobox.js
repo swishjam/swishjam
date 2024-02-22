@@ -6,7 +6,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { useState } from "react"
 import { Skeleton } from "@/components/ui/skeleton"
 
-export default function Combobox({ selectedValue, onSelectionChange, options, placeholder = "Select an option", maxHeight = '400px' }) {
+export default function Combobox({ selectedValue, onSelectionChange, options, placeholder = "Select an option", minWidth = '200px', maxHeight = '400px', buttonClass }) {
   const [isOpen, setIsOpen] = useState(false)
 
   if (options) {
@@ -21,7 +21,7 @@ export default function Combobox({ selectedValue, onSelectionChange, options, pl
   return (
     options === undefined
       ? (
-        <Skeleton className="w-[200px] h-10" />
+        <Skeleton className={`w-${minWidth} h-10`} />
       ) : (
         <Popover open={isOpen} onOpenChange={setIsOpen}>
           <PopoverTrigger asChild>
@@ -29,13 +29,13 @@ export default function Combobox({ selectedValue, onSelectionChange, options, pl
               variant="outline"
               role="combobox"
               aria-expanded={isOpen}
-              className="min-w-[200px] max-w-[400px] justify-between font-normal text-sm"
+              className={`min-w-${minWidth} max-w-[400px] justify-between font-normal text-sm ${buttonClass}`}
             >
               {selectedValue ? options.find(option => option.value && option.value.toLowerCase() === selectedValue.toLowerCase())?.label : placeholder}
               <CaretSortIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
             </Button >
           </PopoverTrigger >
-          <PopoverContent className="max-w-[400px] p-0">
+          <PopoverContent className={`max-w-[400px] p-0 ${buttonClass}`}>
             <Command>
               <CommandInput placeholder="Search..." />
               <CommandEmpty>No results found for search.</CommandEmpty>
