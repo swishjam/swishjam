@@ -17,11 +17,11 @@ module EventTriggers
 
         event_or_user_property_value = nil
         if statement['property'].starts_with?('event.')
-          event_property_name = statement['property'].split('.')[1..-1].join('.')
-          event_or_user_property_value = prepared_event.properties[event_property_name]&.to_s&.downcase&.strip
+          event_property_key = statement['property'].split('.')[1..-1].join('.')
+          event_or_user_property_value = prepared_event.properties[event_property_key]&.to_s&.downcase&.strip
         elsif statement['property'].starts_with?('user.')
-          user_property_name = statement['property'].split('.')[1..-1].join('.')
-          event_or_user_property_value = prepared_event.user_properties[user_property_name]&.to_s&.downcase&.strip
+          user_property_key = statement['property'].split('.')[1..-1].join('.')
+          event_or_user_property_value = prepared_event.user_properties[user_property_key]&.to_s&.downcase&.strip
         else
           event_or_user_property_value = prepared_event.properties[statement['property']]&.to_s&.downcase&.strip
         end
