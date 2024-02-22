@@ -1,4 +1,7 @@
 import { Button } from "@/components/ui/button"
+import { Checkbox } from "@/components/ui/checkbox"
+import Combobox from "@/components/utils/Combobox";
+import EmptyState from "@/components/utils/PageEmptyState";
 import {
   Form,
   FormControl,
@@ -7,12 +10,11 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form"
-import { Checkbox } from "@/components/ui/checkbox"
-import EmptyState from "@/components/utils/PageEmptyState";
 import { Input } from '@/components/ui/input';
 import LoadingSpinner from '@components/LoadingSpinner';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Skeleton } from '@/components/ui/skeleton';
+import { SparkleIcon, UserCircleIcon } from "lucide-react";
 import SwishjamAPI from '@/lib/api-client/swishjam-api';
 import { swishjam } from '@swishjam/react';
 import { Textarea } from "@/components/ui/textarea"
@@ -26,6 +28,7 @@ import InterpolatedMarkdown from "../../VariableParser/InterpolatedMarkdown";
 import { useRouter } from 'next/navigation';
 import { toast } from "sonner";
 import Link from "next/link";
+import VariableSyntaxDocumentation from "./VariableSyntaxDocumentation";
 
 const FormInputOrLoadingState = ({ children, className, isLoading }) => {
   if (isLoading) {
@@ -44,7 +47,7 @@ export default function AddEditResendEventTrigger({
     conditional_statements: [],
     steps: [{
       type: 'EventTriggerSteps::ResendEmail', config: {
-        to: '{ user.email }',
+        to: '{{ user.email }}',
         send_once_per_user: true,
         un_resolved_variable_safety_net: true,
         delay_delivery_by_minutes: 15,
@@ -144,7 +147,7 @@ export default function AddEditResendEventTrigger({
         }
       })
       setUniqueEvents(sortedEvents);
-      setUserPropertyOptions(['user.email', ...userProperties.map(property => `user.${property}`)])
+      setUserPropertyOptions(['user.email', ...userProperties.map(property => `user.${property}`)].sort())
     }
     const determineIfResendDestinationIsEnabled = async () => {
       await SwishjamAPI.Integrations.list({ destinations: true }).then(({ enabled_integrations }) => {
@@ -160,7 +163,7 @@ export default function AddEditResendEventTrigger({
   useEffect(() => {
     if (form.watch('event_name')) {
       SwishjamAPI.Events.Properties.listUnique(form.watch('event_name')).then(properties => {
-        setPropertyOptionsForSelectedEvent([...properties, ...properties.map(p => `event.${p}`)]);
+        setPropertyOptionsForSelectedEvent(properties.sort());
       });
     }
   }, [form.watch('event_name')])
@@ -181,98 +184,73 @@ export default function AddEditResendEventTrigger({
             to={
               <InterpolatedMarkdown
                 content={form.watch('steps.0.config.to')}
-                availableEventOptions={[...(propertyOptionsForSelectedEvent || []), ...(userPropertyOptions || [])]}
+                availableEventOptions={[
+                  ...[...(propertyOptionsForSelectedEvent || []), ...(propertyOptionsForSelectedEvent || []).map(e => `event.${e}`)],
+                  ...(userPropertyOptions || [])
+                ]}
               />
             }
             cc={
               <InterpolatedMarkdown
                 content={(form.watch('steps.0.config.cc') || '').replace(/</g, '&lt;').replace(/>/g, '&gt;')}
-                availableEventOptions={[...(propertyOptionsForSelectedEvent || []), ...(userPropertyOptions || [])]}
+                availableEventOptions={[
+                  ...[...(propertyOptionsForSelectedEvent || []), ...(propertyOptionsForSelectedEvent || []).map(e => `event.${e}`)],
+                  ...(userPropertyOptions || [])
+                ]}
               />
             }
             bcc={
               <InterpolatedMarkdown
                 content={(form.watch('steps.0.config.bcc') || '').replace(/</g, '&lt;').replace(/>/g, '&gt;')}
-                availableEventOptions={[...(propertyOptionsForSelectedEvent || []), ...(userPropertyOptions || [])]}
+                availableEventOptions={[
+                  ...[...(propertyOptionsForSelectedEvent || []), ...(propertyOptionsForSelectedEvent || []).map(e => `event.${e}`)],
+                  ...(userPropertyOptions || [])
+                ]}
               />
             }
             from={
               <InterpolatedMarkdown
                 content={(form.watch('steps.0.config.from') || '').replace(/</g, '&lt;').replace(/>/g, '&gt;')}
-                availableEventOptions={[...(propertyOptionsForSelectedEvent || []), ...(userPropertyOptions || [])]}
+                availableEventOptions={[
+                  ...[...(propertyOptionsForSelectedEvent || []), ...(propertyOptionsForSelectedEvent || []).map(e => `event.${e}`)],
+                  ...(userPropertyOptions || [])
+                ]}
               />
             }
             replyTo={
               <InterpolatedMarkdown
                 content={(form.watch('steps.0.config.reply_to') || '').replace(/</g, '&lt;').replace(/>/g, '&gt;')}
-                availableEventOptions={[...(propertyOptionsForSelectedEvent || []), ...(userPropertyOptions || [])]}
+                availableEventOptions={[
+                  ...[...(propertyOptionsForSelectedEvent || []), ...(propertyOptionsForSelectedEvent || []).map(e => `event.${e}`)],
+                  ...(userPropertyOptions || [])
+                ]}
               />
             }
             subject={
               <InterpolatedMarkdown
                 content={form.watch('steps.0.config.subject')}
-                availableEventOptions={[...(propertyOptionsForSelectedEvent || []), ...(userPropertyOptions || [])]}
+                availableEventOptions={[
+                  ...[...(propertyOptionsForSelectedEvent || []), ...(propertyOptionsForSelectedEvent || []).map(e => `event.${e}`)],
+                  ...(userPropertyOptions || [])
+                ]}
               />
             }
             body={
               <InterpolatedMarkdown
                 content={form.watch('steps.0.config.body')}
-                availableEventOptions={[...(propertyOptionsForSelectedEvent || []), ...(userPropertyOptions || [])]}
+                availableEventOptions={[
+                  ...[...(propertyOptionsForSelectedEvent || []), ...(propertyOptionsForSelectedEvent || []).map(e => `event.${e}`)],
+                  ...(userPropertyOptions || [])
+                ]}
               />
             }
           />
           <h2 className="text-sm font-medium text-gray-700 mb-2 mt-4">Resend Email Formatting Reference</h2>
-          <div className="border border-zinc-200 shadow-sm bg-white rounded-md p-4">
-            <p className="text-sm font-medium">Using Variables</p>
-            <p className="text-sm mt-1">
-              Basic Syntax:
-              <span className="ml-1 text-sm px-1.5 py-0.5 border border-zinc-200 bg-accent rounded-sm transition-colors cursor-default hover:bg-gray-200">{"{ VARIABLE_NAME }"}</span>
-            </p>
-            <p className="text-sm mt-1">
-              Example:
-              <span className="ml-1 text-sm px-1.5 py-0.5 border border-zinc-200 bg-accent rounded-sm transition-colors cursor-default hover:bg-gray-200">{"{ user.email }"}</span>
-            </p>
-            <p className="text-sm mt-1">
-              Result:
-              <span className="ml-1 text-sm px-1.5 py-0.5 border border-zinc-200 bg-accent rounded-sm transition-colors cursor-default hover:bg-gray-200">{"founders@swishjam.com"}</span>
-            </p>
-            <p className="text-sm mt-1">
-              Advanced Syntax:
-              <span className="ml-1 text-sm px-1.5 py-0.5 border border-zinc-200 bg-accent rounded-sm transition-colors cursor-default hover:bg-gray-200">{"{ user.name || 'friend'}"}</span> using the
-              <span className="ml-1 text-sm px-1.5 py-0.5 border border-zinc-200 bg-accent rounded-sm transition-colors cursor-default hover:bg-gray-200">||</span> allows you to provide a default value if the variable is not defined.
-              <br />
-              These can be chained like this:<span className="ml-1 text-sm px-1.5 py-0.5 border border-zinc-200 bg-accent rounded-sm transition-colors cursor-default hover:bg-gray-200">{"{ user.name || user.email || 'friend'}"}</span>
-            </p>
-
-            <p className="text-sm font-medium mt-4">Event Variables</p>
-            <p className="text-sm mt-1">
-              Each event will have unique variables depending on the event. Custom variables that you pass to Swishjam can be referenced in the body of the email, subject line, etc.
-            </p>
-            {form.watch('event_name') && propertyOptionsForSelectedEvent && (
-              <>
-                <p className="text-sm mt-1 break-words">
-                  The <span className="ml-1 text-sm px-1.5 py-0.5 border border-zinc-200 bg-accent rounded-sm transition-colors cursor-default hover:bg-gray-200">{form.watch('event_name')}</span> event has the following properties:
-                </p>
-                <div className='flex flex-wrap gap-1 mt-1'>
-                  {propertyOptionsForSelectedEvent.filter(v => v.startsWith('event.')).map((property, i) => (
-                    <span key={i} className="ml-1 text-sm px-1.5 py-0.5 border border-zinc-200 bg-accent rounded-sm transition-colors cursor-default hover:bg-gray-200">{'{'}{property}{'}'}</span>
-                  ))}
-                </div>
-              </>
-            )}
-            <p className="text-sm font-medium mt-4">User Variables</p>
-            <p className="text-sm mt-1">
-              User variables are a combination of the attributes Swishjam automatically applies to a user and any custom attributes you pass to Swishjam during events/identify calls.
-            </p>
-            <p className="text-sm mt-1">The following user variables are available to you:</p>
-            {userPropertyOptions && (
-              <div className='flex flex-wrap gap-1 mt-1'>
-                {userPropertyOptions.map((property, i) => (
-                  <span key={i} className="text-sm px-1.5 py-0.5 border border-zinc-200 bg-accent rounded-sm cursor-default transition-colors hover:bg-gray-200">{'{'}{property}{'}'}</span>
-                ))}
-              </div>
-            )}
-          </div>
+          <VariableSyntaxDocumentation
+            availableEventProperties={propertyOptionsForSelectedEvent}
+            availableUserProperties={userPropertyOptions}
+            eventName={form.watch('event_name')}
+          />
         </FormInputOrLoadingState>
       </div>
       <div>
@@ -333,36 +311,27 @@ export default function AddEditResendEventTrigger({
                     {conditionalStatementsFieldArray.fields.map((field, index) => {
                       return (
                         <li key={index} className='w-full flex items-center gap-x-2'>
-                          <span className='text-sm'>
+                          <span className='text-sm break-keep'>
                             {conditionalStatementsFieldArray.fields.length > 1 && index > 0 ? 'And if' : 'If'}
+                            {form.watch(`conditional_statements.${index}.property`)?.startsWith('user.') ? ' the user\'s' : ' the event\'s'}
                           </span>
                           <FormField
                             control={field.control}
                             name={`conditional_statements.${index}.property`}
                             render={({ field }) => (
                               <FormItem>
-                                <Select
-                                  className='flex-grow'
-                                  disabled={propertyOptionsForSelectedEvent === undefined}
-                                  onValueChange={field.onChange}
-                                  value={field.value}
-                                >
-                                  <FormControl>
-                                    <SelectTrigger>
-                                      <SelectValue placeholder={<span className='text-gray-500 italic'>Event Property</span>} />
-                                    </SelectTrigger>
-                                  </FormControl>
-                                  <SelectContent>
-                                    <SelectItem value='_subject' disabled>
-                                      Event Property
-                                    </SelectItem>
-                                    {propertyOptionsForSelectedEvent?.map(propertyName => (
-                                      <SelectItem className="cursor-pointer hover:bg-gray-100" value={propertyName} key={propertyName}>
-                                        {propertyName}
-                                      </SelectItem>
-                                    ))}
-                                  </SelectContent>
-                                </Select>
+                                <Combobox
+                                  minWidth='0'
+                                  selectedValue={field.value}
+                                  onSelectionChange={val => form.setValue(`conditional_statements.${index}.property`, val)}
+                                  options={[
+                                    { type: "title", label: <div className='flex items-center'><SparkleIcon className='h-4 w-4 mr-1' /> Event Properties</div> },
+                                    ...(propertyOptionsForSelectedEvent || []).map(p => ({ label: p, value: `event.${p}` })),
+                                    { type: "title", label: <div className='flex items-center'><UserCircleIcon className='h-4 w-4 mr-1' /> User Properties</div> },
+                                    ...(userPropertyOptions || []).map(value => ({ label: value.replace(/user\./, ''), value })),
+                                  ]}
+                                  placeholder={<span className='text-gray-500 italic'>Property</span>}
+                                />
                                 <FormMessage />
                               </FormItem>
                             )}
@@ -372,28 +341,26 @@ export default function AddEditResendEventTrigger({
                             name={`conditional_statements.${index}.condition`}
                             render={({ field }) => (
                               <FormItem>
-                                <Select
-                                  className='flex-grow'
-                                  disabled={propertyOptionsForSelectedEvent === undefined}
-                                  onValueChange={field.onChange}
-                                  value={field.value}
-                                >
-                                  <FormControl>
-                                    <SelectTrigger>
-                                      <SelectValue placeholder={<span className='text-gray-500 italic mr-2'>Condition</span>} />
-                                    </SelectTrigger>
-                                  </FormControl>
-                                  <SelectContent>
-                                    <SelectItem value='_subject' disabled>
-                                      Condition
-                                    </SelectItem>
-                                    {['equals', 'contains', 'does not contain', 'ends with', 'does not end with', 'is defined'].sort().map(condition => (
-                                      <SelectItem className="cursor-pointer hover:bg-gray-100" value={condition.replace(/\s/g, '_')} key={condition}>
-                                        {condition}
-                                      </SelectItem>
-                                    ))}
-                                  </SelectContent>
-                                </Select>
+                                <Combobox
+                                  minWidth='0'
+                                  selectedValue={field.value}
+                                  onSelectionChange={val => form.setValue(`conditional_statements.${index}.condition`, val)}
+                                  options={[
+                                    { label: 'equals', value: 'equals' },
+                                    { label: 'does not equals', value: 'does_not_equal' },
+                                    { label: 'contains', value: 'contains' },
+                                    { label: 'does not contain', value: 'does_not_contain' },
+                                    { label: 'ends with', value: 'ends_with' },
+                                    { label: 'does not end with', value: 'does_not_end_with' },
+                                    { label: 'is defined', value: 'is_defined' },
+                                    { label: 'is not defined', value: 'is_not_defined' },
+                                    { label: 'greater than', value: 'greater_than' },
+                                    { label: 'less than', value: 'less_than' },
+                                    { label: 'greater than or equal to', value: 'greater_than_or_equal_to' },
+                                    { label: 'less than or equal to', value: 'less_than_or_equal_to' },
+                                  ]}
+                                  placeholder={<span className='text-gray-500 italic'>Operator</span>}
+                                />
                                 <FormMessage />
                               </FormItem>
                             )}
@@ -408,7 +375,7 @@ export default function AddEditResendEventTrigger({
                                     <Input
                                       type="text"
                                       placeholder="Your property value"
-                                      disabled={propertyOptionsForSelectedEvent === undefined}
+                                      // disabled={propertyOptionsForSelectedEvent === undefined}
                                       {...form.register(`conditional_statements.${index}.property_value`)}
                                     />
                                   </FormControl>

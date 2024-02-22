@@ -68,5 +68,18 @@ describe EventVariableResolver do
       resolved_test = EventVariableResolver.interpolated_text(un_resolved_test, prepared_event)
       expect(resolved_test).to eq("Hello there!")
     end
+
+    it 'should support both single and double brackets' do
+      un_resolved_test = "Hello {{event.nilProperty || user.nope || 'there'}}, { event.singleBracketVariable }"
+      prepared_event = Ingestion::ParsedEventFromIngestion.new(
+        uuid: '1',
+        swishjam_api_key: 'xyz',
+        name: 'page_view',
+        properties: { nilProperty: nil,singleBracketVariable: 'resolved!' },
+        occurred_at: Time.current,
+      )
+      resolved_test = EventVariableResolver.interpolated_text(un_resolved_test, prepared_event)
+      expect(resolved_test).to eq("Hello there, resolved!")
+    end
   end
 end

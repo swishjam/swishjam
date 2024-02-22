@@ -351,7 +351,7 @@ export default function AddEditSlackEventTrigger({
                                       { label: 'greater than or equal to', value: 'greater_than_or_equal_to' },
                                       { label: 'less than or equal to', value: 'less_than_or_equal_to' },
                                     ]}
-                                    placeholder={<span className='text-gray-500 italic'>Condition</span>}
+                                    placeholder={<span className='text-gray-500 italic'>Operator</span>}
                                   />
                                   <FormMessage />
                                 </FormItem>

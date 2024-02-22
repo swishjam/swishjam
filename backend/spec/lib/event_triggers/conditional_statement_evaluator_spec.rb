@@ -11,6 +11,10 @@ describe EventTriggers::ConditionalStatementsEvaluator do
         properties: {
           'email' => 'jenny@swishjam.com',
           'url' => 'https://swishjam.com',
+          'the_number_10' => '10'
+        },
+        user_properties: {
+          'email' => 'user-properties-email@swishjam.com'
         }
       )
     end
@@ -125,6 +129,144 @@ describe EventTriggers::ConditionalStatementsEvaluator do
       expect(described_class.new(@prepared_event).event_meets_all_conditions?(conditional_statements)).to eq(false)
     end
 
+    it 'returns true if its a `is_defined` condition and the event property is defined' do
+      conditional_statements = [
+        {
+          'property' => 'email',
+          'condition' => 'is_defined',
+        }
+      ]
+      expect(described_class.new(@prepared_event).event_meets_all_conditions?(conditional_statements)).to eq(true)
+    end
+
+    it 'returns false if its a `is_defined` condition and the event property is not defined' do
+      conditional_statements = [
+        {
+          'property' => 'non_existent_property',
+          'condition' => 'is_defined',
+        }
+      ]
+      expect(described_class.new(@prepared_event).event_meets_all_conditions?(conditional_statements)).to eq(false)
+    end
+
+    it 'returns true if its a `is_not_defined` condition and the event property is not defined' do
+      conditional_statements = [
+        {
+          'property' => 'non_existent_property',
+          'condition' => 'is_not_defined',
+        }
+      ]
+      expect(described_class.new(@prepared_event).event_meets_all_conditions?(conditional_statements)).to eq(true)
+    end
+
+    it 'returns false if its a `is_not_defined` condition and the event property is defined' do
+      conditional_statements = [
+        {
+          'property' => 'email',
+          'condition' => 'is_not_defined',
+        }
+      ]
+      expect(described_class.new(@prepared_event).event_meets_all_conditions?(conditional_statements)).to eq(false)
+    end
+
+    it 'returns true if its a `greater_than` condition and the event property is greater than the specified value' do
+      conditional_statements = [
+        {
+          'property' => 'the_number_10',
+          'condition' => 'greater_than',
+          'property_value' => '9',
+        }
+      ]
+      expect(described_class.new(@prepared_event).event_meets_all_conditions?(conditional_statements)).to eq(true)
+    end
+
+    it 'returns false if its a `greater_than` condition and the event property is not greater than the specified value' do
+      conditional_statements = [
+        {
+          'property' => 'the_number_10',
+          'condition' => 'greater_than',
+          'property_value' => '10',
+        },
+        {
+          'property' => 'the_number_10',
+          'condition' => 'greater_than',
+          'property_value' => '9',
+        },
+      ]
+      expect(described_class.new(@prepared_event).event_meets_all_conditions?(conditional_statements)).to eq(false)
+    end
+
+    it 'returns true if its a `less_than` condition and the event property is less than the specified value' do
+      conditional_statements = [
+        {
+          'property' => 'the_number_10',
+          'condition' => 'less_than',
+          'property_value' => '11',
+        }
+      ]
+      expect(described_class.new(@prepared_event).event_meets_all_conditions?(conditional_statements)).to eq(true)
+    end
+
+    it 'returns false if its a `less_than` condition and the event property is not less than the specified value' do
+      conditional_statements = [
+        {
+          'property' => 'the_number_10',
+          'condition' => 'less_than',
+          'property_value' => '10',
+        },
+        {
+          'property' => 'the_number_10',
+          'condition' => 'less_than',
+          'property_value' => '9',
+        }
+      ]
+      expect(described_class.new(@prepared_event).event_meets_all_conditions?(conditional_statements)).to eq(false)
+    end
+
+    it 'returns true if its a `greater_than_or_equal_to` condition and the event property is greater than or equal to the specified value' do
+      conditional_statements = [
+        {
+          'property' => 'the_number_10',
+          'condition' => 'greater_than_or_equal_to',
+          'property_value' => '10',
+        }
+      ]
+      expect(described_class.new(@prepared_event).event_meets_all_conditions?(conditional_statements)).to eq(true)
+    end
+
+    it 'returns false if its a `greater_than_or_equal_to` condition and the event property is not greater than or equal to the specified value' do
+      conditional_statements = [
+        {
+          'property' => 'the_number_10',
+          'condition' => 'greater_than_or_equal_to',
+          'property_value' => '11',
+        }
+      ]
+      expect(described_class.new(@prepared_event).event_meets_all_conditions?(conditional_statements)).to eq(false)
+    end
+
+    it 'returns true if its a `less_than_or_equal_to` condition and the event property is not less than or equal to the specified value' do
+      conditional_statements = [
+        {
+          'property' => 'the_number_10',
+          'condition' => 'less_than_or_equal_to',
+          'property_value' => '10',
+        }
+      ]
+      expect(described_class.new(@prepared_event).event_meets_all_conditions?(conditional_statements)).to eq(true)
+    end
+
+    it 'returns false if its a `less_than_or_equal_to` condition and the event property is not less than or equal to the specified value' do
+      conditional_statements = [
+        {
+          'property' => 'the_number_10',
+          'condition' => 'less_than_or_equal_to',
+          'property_value' => '9',
+        }
+      ]
+      expect(described_class.new(@prepared_event).event_meets_all_conditions?(conditional_statements)).to eq(false)
+    end
+
     it 'raises an error if an invalid condition is provided' do
       conditional_statements = [
         {
@@ -134,6 +276,28 @@ describe EventTriggers::ConditionalStatementsEvaluator do
         }
       ]
       expect { described_class.new(@prepared_event).event_meets_all_conditions?(conditional_statements) }.to raise_error(EventTriggers::ConditionalStatementsEvaluator::InvalidConditionalStatement)
+    end
+
+    it 'correctly references the event\'s `user_properties` when the conditional statement\'s property value starts with `user.`' do
+      conditional_statements = [
+        {
+          'property' => 'user.email',
+          'condition' => 'equals',
+          'property_value' => 'user-properties-email@swishjam.com'
+        }
+      ]
+      expect(described_class.new(@prepared_event).event_meets_all_conditions?(conditional_statements)).to eq(true)
+    end
+
+    it 'correctly references the event\'s `properties` when the conditional statement\'s property value starts with `event.`' do
+      conditional_statements = [
+        {
+          'property' => 'event.email',
+          'condition' => 'equals',
+          'property_value' => 'jenny@swishjam.com',
+        }
+      ]
+      expect(described_class.new(@prepared_event).event_meets_all_conditions?(conditional_statements)).to eq(true)
     end
   end
 end
