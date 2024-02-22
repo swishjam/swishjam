@@ -32,8 +32,8 @@ export const setAuthToken = tokenValue => {
   }
 }
 
-export const signUserUp = async ({ email, password, companyUrl, inviteCode }) => {
-  const { error, user, workspace, token } = await SwishjamAPI.Auth.register({ email, password, companyUrl, inviteCode });
+export const signUserUp = async ({ email, password, companyUrl }) => {
+  const { error, user, workspace, token } = await SwishjamAPI.Auth.register({ email, password, companyUrl });
   if (token) {
     const { email, first_name, last_name } = user;
     swishjam.identify(user.id, { email, first_name, last_name });

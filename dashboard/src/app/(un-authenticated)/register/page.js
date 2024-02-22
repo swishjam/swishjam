@@ -15,7 +15,6 @@ const SignUpSchema = Yup.object().shape({
   email: Yup.string().email('Invalid email').required('Required'),
   companyUrl: Yup.string().required('Required'),
   password: Yup.string().required('Required'),
-  inviteCode: Yup.string().required('Required')
 });
 
 export default function SignUpPage() {
@@ -54,7 +53,6 @@ export default function SignUpPage() {
               email: '',
               companyUrl: '',
               password: '',
-              inviteCode: ''
             }}
             validationSchema={SignUpSchema}
             onSubmit={signUp}
@@ -77,26 +75,8 @@ export default function SignUpPage() {
                       <div className="text-red-600 mt-1 text-sm text-right">{errors.email}</div>
                     ) : null}
                   </div>
-                </div>{/* End Email input */}
-
-                {/* <div>
-                  <label htmlFor="company" className="block text-sm font-medium text-gray-700">
-                    Workspace Name
-                  </label>
-                  <div className="mt-1">
-                    <Field
-                      className={cn('input', errors.workspaceName && touched.workspaceName && 'border-red-400')}
-                      id="workspaceName"
-                      name="workspaceName"
-                      placeholder="Workspace Name"
-                      type="text"
-                    />
-                    {errors.workspaceName && touched.workspaceName ? (
-                      <div className="text-red-600 mt-1 text-sm text-right">{errors.workspaceName}</div>
-                    ) : null}
-                  </div>
-                </div> */}
-
+                </div>
+               
                 <div>
                   <label htmlFor="company" className="block text-sm font-medium text-gray-700">
                     Company URL
@@ -134,23 +114,6 @@ export default function SignUpPage() {
                     />
                     {errors.password && touched.password ? (
                       <div className="text-red-600 mt-1 text-sm text-right">{errors.password}</div>
-                    ) : null}
-                  </div>
-                </div>
-
-                <div>{/* password input */}
-                  <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-                    Invite Code
-                  </label>
-                  <div className="mt-1">
-                    <Field
-                      className={cn('input', errors.inviteCode && touched.inviteCode && 'border-red-400')}
-                      id="inviteCode"
-                      name="inviteCode"
-                      type="inviteCode"
-                    />
-                    {errors.inviteCode && touched.inviteCode ? (
-                      <div className="text-red-600 mt-1 text-sm text-right">{errors.inviteCode}</div>
                     ) : null}
                   </div>
                 </div>
