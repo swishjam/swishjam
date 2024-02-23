@@ -1,24 +1,26 @@
 import { prettyDateTime } from "@/lib/utils/timeHelpers";
 import { Tooltipable } from "../ui/tooltip";
-import { BanIcon } from "lucide-react";
+import { BanIcon, UserMinus } from "lucide-react";
 import { LuUserCheck } from "react-icons/lu";
 import DottedUnderline from "../utils/DottedUnderline";
 
-const CLASSES = ['bg-blue-50 hover:bg-blue-100 text-blue-700 ring-blue-600/20', 'bg-yellow-50 hover:bg-yellow-100 text-yellow-700 ring-yellow-600/20', 'bg-indigo-50 hover:bg-indigo-100 text-indigo-700 ring-indigo-600/20', 'bg-pink-50 hover:bg-pink-100 text-pink-700 ring-pink-600/20', 'bg-purple-50 hover:bg-purple-100 text-purple-700 ring-purple-600/20', 'bg-green-50 hover:bg-green-100 text-green-700 ring-green-600/20', 'bg-teal-50 hover:bg-teal-100 text-teal-700 ring-teal-600/20', 'bg-orange-50 hover:bg-orange-100 text-orange-700 ring-orange-600/20'];
-
 const CLASSES_BY_TAG_NAME = {
   'Active User': 'bg-green-50 hover:bg-green-100 text-green-700 ring-green-600/20',
+  'Identified User': 'bg-blue-50 hover:bg-blue-100 text-blue-700 ring-blue-600/20',
+  'Anonymous User': 'bg-yellow-50 hover:bg-yellow-100 text-yellow-700 ring-yellow-600/20',
 }
 
 const ICONS_BY_TAG_NAME = {
   'Active User': <LuUserCheck className='h-3 w-3 inline-block mr-1 text-green-700' />,
+  'Identified User': <LuUserCheck className='h-3 w-3 inline-block mr-1 text-blue-700' />,
+  'Anonymous User': <UserMinus className='h-3 w-3 inline-block mr-1 text-yellow-700' />,
 }
 
 const classesForTag = tag => {
   if (tag.removed_at) {
     return 'bg-gray-50 hover:bg-gray-100 text-gray-700 ring-gray-600/20'
   }
-  return CLASSES_BY_TAG_NAME[tag.name] || CLASSES[Math.floor(Math.random() * CLASSES.length)]
+  return CLASSES_BY_TAG_NAME[tag.name] || 'bg-swishjam-light hover:bg-swishjam-medium text-gray-700 ring-swishjam-medium-600/20'
 }
 
 const iconForTag = tag => {

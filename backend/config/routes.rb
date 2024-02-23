@@ -208,6 +208,7 @@ Rails.application.routes.draw do
         resources :triggered_event_triggers, only: [:index] do
           member do
             post :retry
+            post :cancel
           end
         end
       end

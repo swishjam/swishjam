@@ -10,6 +10,7 @@ class TriggeredEventTriggerStep < Transactional
   scope :in_progress, -> { where(completed_at: nil) }
   scope :failed, -> { where.not(error_message: nil) }
   scope :succeeded, -> { completed.where(error_message: nil) }
+  scope :able_to_cancel, -> { in_progress.joins(:event_trigger_step).where(event_trigger_steps: { type: EventTriggerSteps::ResendEmail.to_s }) }
 
   def failed?
     error_message.present?
