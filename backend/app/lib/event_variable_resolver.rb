@@ -2,13 +2,13 @@ module EventVariableResolver
   DOUBLE_BRACKET_REGEX = /\{\{([^}]+)\}\}/
   SINGLE_BRACKET_REGEX = /\{([^}]+)\}/
   def self.interpolated_text(text, prepared_event)
-    text.gsub!(DOUBLE_BRACKET_REGEX) do |match|
+    double_bracket_resolved_variables = text.gsub(DOUBLE_BRACKET_REGEX) do |match|
       try_to_replace_regex_match_with_resolved_variable_value($1.strip, prepared_event)
     end
-    text.gsub!(SINGLE_BRACKET_REGEX) do |match|
+    resolved = double_bracket_resolved_variables.gsub(SINGLE_BRACKET_REGEX) do |match|
       try_to_replace_regex_match_with_resolved_variable_value($1.strip, prepared_event)
     end
-    text
+    resolved
   end
 
   private

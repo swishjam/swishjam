@@ -75,7 +75,34 @@ export default function EventTriggerDetailsPage({ params }) {
           triggeredEventTriggers.length > 0 ? (
             <div>
               <ul role="list" className="w-full space-y-2 mt-8">
-                {triggeredEventTriggers.map((triggeredEventTrigger, i) => <TriggeredEventTriggerRow key={i} triggeredEventTrigger={triggeredEventTrigger} />)}
+                {triggeredEventTriggers.map((triggeredEventTrigger, i) => {
+                  return (
+                    <TriggeredEventTriggerRow
+                      key={i}
+                      triggeredEventTrigger={triggeredEventTrigger}
+                      onNewTriggeredEventTrigger={newTriggeredEventTrigger => setTriggeredEventTriggers([newTriggeredEventTrigger, ...triggeredEventTriggers])}
+                      onCancel={canceledTriggeredEventTrigger => {
+                        const updatedTriggeredEventTriggers = triggeredEventTriggers.map(triggeredEventTrigger => {
+                          if (triggeredEventTrigger.id === canceledTriggeredEventTrigger.id) {
+                            return canceledTriggeredEventTrigger;
+                          }
+                          return triggeredEventTrigger;
+                        });
+                        debugger
+                        setTriggeredEventTriggers(updatedTriggeredEventTriggers);
+                      }}
+                      onRetry={(retriedTriggeredEventTrigger, newTriggeredEventTrigger) => {
+                        const updatedTriggeredEventTriggers = triggeredEventTriggers.map(triggeredEventTrigger => {
+                          if (triggeredEventTrigger.id === retriedTriggeredEventTrigger.id) {
+                            return retriedTriggeredEventTrigger;
+                          }
+                          return triggeredEventTrigger;
+                        });
+                        setTriggeredEventTriggers([newTriggeredEventTrigger, ...updatedTriggeredEventTriggers]);
+                      }}
+                    />
+                  )
+                })}
               </ul>
               {lastPageNum > 1 && (
                 <div className='my-2 w-full bg-white rounded pb-4 border border-zinc-200 shadow-sm'>

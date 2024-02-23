@@ -53,13 +53,13 @@ module StripeHelpers
       end
       
       def subscription_was_active_at_point_in_time?(subscription, time)
-        was_not_cancelled = subscription.canceled_at.nil? || subscription.canceled_at > time.to_i
+        was_not_canceled = subscription.canceled_at.nil? || subscription.canceled_at > time.to_i
         was_not_trialing = subscription.trial_end.nil? || subscription.trial_end < time.to_i
         started_before_or_at_point_in_time = subscription.start_date <= time.to_i
         did_not_end_before_point_in_time = subscription.ended_at.nil? || subscription.ended_at > time.to_i
         is_paid = subscription.items.data.any?{ |item| item.price.unit_amount > 0 }
         started_before_or_at_point_in_time && 
-          was_not_cancelled && 
+          was_not_canceled && 
           was_not_trialing && 
           did_not_end_before_point_in_time && 
           is_paid

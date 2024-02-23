@@ -4,6 +4,7 @@ class TriggeredEventTrigger < Transactional
   belongs_to :workspace
   belongs_to :event_trigger
   belongs_to :retried_triggered_event_trigger, class_name: TriggeredEventTrigger.to_s, optional: true
+  has_one :triggered_event_trigger_retried_from, class_name: TriggeredEventTrigger.to_s, foreign_key: :retried_triggered_event_trigger_id, dependent: :nullify
   has_many :triggered_event_trigger_steps, dependent: :destroy
 
   attribute :event_json, :jsonb, default: {}
@@ -21,5 +22,22 @@ class TriggeredEventTrigger < Transactional
 
   def can_retry?
     retried_triggered_event_trigger_id.nil? && triggered_event_trigger_steps.failed.any?
+  end
+
+  def cancel!(user_email)
+    if can_cancel?
+      triggered_event_trigger_steps.able_to_cancel.each do |triggered_step|
+        triggered_step.triggered_payload['scheduled_delivery_canceled_at'] = Time.current
+        triggered_step.error_message = "Scheduled delivery was canceled by #{user_email}."
+        triggered_step.completed_at = Time.current
+        triggered_step.save!
+      end
+    else
+      raise "Cannot cancel TriggeredEventTrigger #{id} because it is not in a state where it can be canceled."
+    end
+  end
+
+  def can_cancel?
+    triggered_event_trigger_steps.able_to_cancel.any?
   end
 end
