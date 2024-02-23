@@ -71,8 +71,8 @@ export default function AdminPage() {
           </div>
         ))}
       </div>
-      <div className='grid gap-4 mb-4 grid-cols-4'>
-        {['prepared_events_dlq', 'clickhouse_user_profiles_dlq', 'clickhouse_organization_profiles_dlq', 'clickhouse_organization_members_dlq'].map(queueName => (
+      <div className='grid gap-4 mb-4 grid-cols-3'>
+        {['capture_endpoint_dlq', 'events_to_prepare_dlq', 'prepared_events_dlq', 'clickhouse_user_profiles_dlq', 'clickhouse_organization_profiles_dlq', 'clickhouse_organization_members_dlq'].map(queueName => (
           <div className='rounded border border-red-200 text-gray-700 flex items-center justify-center p-4 bg-white'>
             <div className='text-center'>
               <h4 className='text-md'>{queueName} queue</h4>

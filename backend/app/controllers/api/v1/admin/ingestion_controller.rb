@@ -20,6 +20,8 @@ module Api
           clickhouse_organization_profiles = Ingestion::QueueManager.num_records_in_queue(Ingestion::QueueManager::Queues.CLICK_HOUSE_ORGANIZATION_PROFILES)
           clickhouse_organization_members = Ingestion::QueueManager.num_records_in_queue(Ingestion::QueueManager::Queues.CLICK_HOUSE_ORGANIZATION_MEMBERS)
 
+          capture_endpoint_dlq = Ingestion::QueueManager.num_records_in_queue(Ingestion::QueueManager::Queues.CAPTURE_ENDPOINT_DLQ)
+          events_to_prepare_dlq = Ingestion::QueueManager.num_records_in_queue(Ingestion::QueueManager::Queues.EVENTS_TO_PREPARE_DLQ)
           prepared_events_dlq = Ingestion::QueueManager.num_records_in_queue(Ingestion::QueueManager::Queues.PREPARED_EVENTS_DLQ)
           clickhouse_user_profiles_dlq = Ingestion::QueueManager.num_records_in_queue(Ingestion::QueueManager::Queues.CLICK_HOUSE_USER_PROFILES_DLQ)
           clickhouse_organization_profiles_dlq = Ingestion::QueueManager.num_records_in_queue(Ingestion::QueueManager::Queues.CLICK_HOUSE_ORGANIZATION_PROFILES_DLQ)
@@ -29,6 +31,8 @@ module Api
             clickhouse_user_profiles_count: clickhouse_user_profiles,
             clickhouse_organization_profiles_count: clickhouse_organization_profiles,
             clickhouse_organization_members_count: clickhouse_organization_members,
+            capture_endpoint_dlq_count: capture_endpoint_dlq,
+            events_to_prepare_dlq_count: events_to_prepare_dlq,
             prepared_events_dlq_count: prepared_events_dlq,
             clickhouse_user_profiles_dlq_count: clickhouse_user_profiles_dlq,
             clickhouse_organization_profiles_dlq_count: clickhouse_organization_profiles_dlq,
