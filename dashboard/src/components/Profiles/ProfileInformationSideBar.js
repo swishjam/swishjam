@@ -2,11 +2,12 @@ import { ArrowTopRightOnSquareIcon } from "@heroicons/react/24/outline";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import EnrichedDataItem from "@/components/Profiles/EnrichedDataItem";
-import { Lock } from "lucide-react";
+import { CopyIcon, Lock } from "lucide-react";
 import { humanizeVariable, safelyParseURL } from "@/lib/utils/misc";
 import { Tooltipable } from '@/components/ui/tooltip'
 import { prettyDateTime } from "@/lib/utils/timeHelpers";
 import ProfileTags from "./ProfileTags";
+import CopiableText from "../utils/CopiableText";
 
 export default function ProfileInformationSideBar({ userData, hasStripeIntegrationEnabled, hasProfileEnrichmentEnabled }) {
   const hasNoEnrichmentData = !userData.enrichment_data?.job_title &&
@@ -30,12 +31,13 @@ export default function ProfileInformationSideBar({ userData, hasStripeIntegrati
             }
           </Avatar>
           <div>
-            <CardTitle className='text-2xl'>
+            <CardTitle className='text-2xl flex items-center'>
               {userData.full_name || userData.email || userData.user_unique_identifier || (<>Anonymous User <span className='italic'>{userData.id.slice(0, 6)}</span></>)}
+              {!userData.full_name && userData.email && <CopiableText value={userData.email} className='ml-2' />}
             </CardTitle>
             {userData.full_name && (
               <CardDescription className='text-base text-gray-500'>
-                {userData.email}
+                {userData.email} <CopiableText value={userData.email} className='ml-2' />
               </CardDescription>
             )}
             {userData.tags.length > 0 && (

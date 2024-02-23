@@ -80,25 +80,23 @@ export default function EventTriggerDetailsPage({ params }) {
                     <TriggeredEventTriggerRow
                       key={i}
                       triggeredEventTrigger={triggeredEventTrigger}
-                      onNewTriggeredEventTrigger={newTriggeredEventTrigger => setTriggeredEventTriggers([newTriggeredEventTrigger, ...triggeredEventTriggers])}
-                      onCancel={canceledTriggeredEventTrigger => {
+                      onCancelSuccess={canceledTriggeredEventTrigger => {
                         const updatedTriggeredEventTriggers = triggeredEventTriggers.map(triggeredEventTrigger => {
                           if (triggeredEventTrigger.id === canceledTriggeredEventTrigger.id) {
                             return canceledTriggeredEventTrigger;
                           }
                           return triggeredEventTrigger;
                         });
-                        debugger
                         setTriggeredEventTriggers(updatedTriggeredEventTriggers);
                       }}
-                      onRetry={(retriedTriggeredEventTrigger, newTriggeredEventTrigger) => {
+                      onRetrySuccess={({ newTrigger, retriedTrigger }) => {
                         const updatedTriggeredEventTriggers = triggeredEventTriggers.map(triggeredEventTrigger => {
-                          if (triggeredEventTrigger.id === retriedTriggeredEventTrigger.id) {
-                            return retriedTriggeredEventTrigger;
+                          if (triggeredEventTrigger.id === retriedTrigger.id) {
+                            return retriedTrigger;
                           }
                           return triggeredEventTrigger;
                         });
-                        setTriggeredEventTriggers([newTriggeredEventTrigger, ...updatedTriggeredEventTriggers]);
+                        setTriggeredEventTriggers([newTrigger, ...updatedTriggeredEventTriggers]);
                       }}
                     />
                   )

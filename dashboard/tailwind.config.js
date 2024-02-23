@@ -25,6 +25,8 @@ module.exports = {
       colors: {
         swishjam: {
           DEFAULT: '#7487F7',
+          light: '#cbd2fc',
+          medium: '#95a4ff',
           dark: '#46518f',
           yellow: '#F7E474',
           green: '#6ee7b7',

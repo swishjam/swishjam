@@ -26,7 +26,7 @@ class TriggeredEventTrigger < Transactional
 
   def cancel!(user_email)
     if can_cancel?
-      triggered_event_trigger_steps.able_to_cancel.each do |triggered_step|
+      updated_triggered_steps = triggered_event_trigger_steps.able_to_cancel.each do |triggered_step|
         triggered_step.triggered_payload['scheduled_delivery_canceled_at'] = Time.current
         triggered_step.error_message = "Scheduled delivery was canceled by #{user_email}."
         triggered_step.completed_at = Time.current

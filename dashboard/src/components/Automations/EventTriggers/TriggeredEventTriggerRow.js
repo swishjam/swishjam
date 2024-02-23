@@ -7,7 +7,7 @@ import SwishjamAPI from "@/lib/api-client/swishjam-api";
 import { toast } from "sonner";
 import { useState } from "react";
 
-export default function TriggeredEventTriggerRow({ triggeredEventTrigger, onNewTriggeredEventTrigger, onRetry, onCancel }) {
+export default function TriggeredEventTriggerRow({ triggeredEventTrigger, onRetrySuccess, onCancelSuccess }) {
   if (!triggeredEventTrigger.triggered_event_trigger_steps[0]) return <></>;
 
   const [isHovered, setIsHovered] = useState(false)
@@ -27,22 +27,21 @@ export default function TriggeredEventTriggerRow({ triggeredEventTrigger, onNewT
       if (error) {
         toast.error('Retry failed', { description: error });
       } else {
-        onRetry(provided_triggered_event_trigger, new_triggered_event_trigger_retry)
+        onRetrySuccess({ newTrigger: new_triggered_event_trigger_retry, retriedTrigger: provided_triggered_event_trigger })
         toast.success('Successfully retried event trigger (refresh view to see the new retry trigger).');
       }
     })
   }
 
   const onCancelClick = e => {
-    setIsCancelling(true)
     e.preventDefault();
+    setIsCancelling(true)
     SwishjamAPI.EventTriggers.TriggeredEventTriggers.cancel(triggeredEventTrigger.event_trigger_id, triggeredEventTrigger.id).then(response => {
       setIsCancelling(false)
       if (response.error) {
-        toast.error('Cancellation failed', { description: response.error });
+        toast.error('Unable to cancel delivery', { description: response.error });
       } else {
-        // TODO: for some reason this callback doesn't update the component, it still shows the cancel button
-        onCancel(triggeredEventTrigger)
+        onCancelSuccess(response)
         toast.success('Successfully cancelled the scheduled delivery.');
       }
     })
@@ -66,12 +65,11 @@ export default function TriggeredEventTriggerRow({ triggeredEventTrigger, onNewT
                   <div className="block">
                     <span className='text-sm text-gray-600 mr-1'>To:</span>
                     <CopiableText value={triggeredStep.triggered_payload.resend_request_body?.to} onClick={e => e.preventDefault()}>
-                      <span className="text-sm font-semibold text-gray-600 transition-colors hover:text-swishjam">
+                      <span className="text-sm font-semibold text-gray-600">
                         {triggeredStep.triggered_payload.resend_request_body?.to}
-                        <CopyIcon className='h-4 w-4 inline-block ml-1' />
+                        <CopyIcon className='h-3 w-3 inline-block ml-1 transition-colors text-gray-600 group-hover:text-swishjam' />
                       </span>
                     </CopiableText>
-                    <span className='text-sm ml-2'>{prettyDateTime(triggeredEventTrigger.created_at)}</span>
                   </div>
                   <span className="text-xs flex text-gray-600 mt-2">
                     {triggerStepSucceeded && <span className='text-gray-600'>Delivered {prettyDateTime(triggeredStep.completed_at)}</span>}
@@ -93,7 +91,7 @@ export default function TriggeredEventTriggerRow({ triggeredEventTrigger, onNewT
                 )}
                 {triggerStepIsPending && (
                   <button
-                    className={`${isCancelling ? 'bg-gray-200 cursor-not-allowed' : 'bg-white'} outline rounded-sm outline-gray-200 px-4 py-2 text-xs text-gray-600 mb-2 transition-colors hover:bg-red-100 flex items-center`}
+                    className={`${isCancelling ? 'bg-gray-200 cursor-not-allowed' : 'bg-white'} flex items-center outline rounded-sm outline-gray-200 px-4 py-2 text-xs text-gray-600 mb-2 transition-colors hover:text-red-400 hover:outline-red-100`}
                     disabled={isCancelling}
                     onClick={onCancelClick}
                   >
