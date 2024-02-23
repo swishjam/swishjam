@@ -1,12 +1,12 @@
 require 'spec_helper'
 
 describe EventTriggers::ResendEmailInvoker do
-  def expect_resend_api_request(api_key, request_body, times: 1)
+  def expect_resend_api_request(api_key, request_body)
     expect(HTTParty).to receive(:post).with(
       'https://api.resend.com/emails',
       body: request_body,
       headers: { 'Authorization' => "Bearer #{api_key}" }
-    ).exactly(times).times.and_return(double(code: 200, as_json: { 'id' => 'some-resend-email-id' }))
+    ).exactly(1).times.and_return(double(code: 200, as_json: { 'id' => 'some-resend-email-id' }))
   end
 
   def expect_no_resend_api_request(api_key, request_body)
@@ -36,7 +36,8 @@ describe EventTriggers::ResendEmailInvoker do
   end
 
   before do
-    TriggeredEventTrigger.destroy_all
+    ENV['SEND_RESEND_EVENT_TRIGGERS_IN_DEVELOPMENT'] = 'true'
+
     @workspace = FactoryBot.create(:workspace)
     FactoryBot.create(:resend_destination, workspace: @workspace, config: { api_key: 'a_resend_api_key!' })
     @event_trigger = FactoryBot.create(:event_trigger, workspace: @workspace, event_name: 'my_event_to_trigger_off_of')
@@ -67,6 +68,10 @@ describe EventTriggers::ResendEmailInvoker do
         un_resolved_variable_safety_net: true,
       }
     )
+  end
+
+  after do
+    ENV.delete('SEND_RESEND_EVENT_TRIGGERS_IN_DEVELOPMENT')
   end
 
   describe '#invoke_or_schedule_email_delivery_if_necessary!' do

@@ -77,7 +77,6 @@ module EventTriggers
     end
 
     def deliver_email!
-      resend_api_key = Integrations::Destinations::Resend.for_workspace(event_trigger_step.event_trigger.workspace).api_key
       if !Rails.env.production? && ENV['SEND_RESEND_EVENT_TRIGGERS_IN_DEVELOPMENT'] != 'true'
         triggered_step_record.triggered_payload['resend_response'] = { 'id' => 'stubbed!' }
       else
@@ -88,6 +87,10 @@ module EventTriggers
         end
         triggered_step_record.triggered_payload['resend_response'] = resp.as_json
       end
+    end
+
+    def resend_api_key
+      @resend_api_key ||= Integrations::Destinations::Resend.for_workspace(event_trigger_step.event_trigger.workspace).api_key
     end
 
     def request_body
