@@ -5,6 +5,7 @@ import { logUserIn } from '@/lib/auth';
 import cn from 'classnames';
 import { Field, Form, Formik } from 'formik';
 import * as Yup from 'yup';
+import Link from 'next/link';
 import Logo from '@components/Logo';
 import LoadingSpinner from '@components/LoadingSpinner';
 import { useSearchParams } from 'next/navigation';
@@ -119,12 +120,11 @@ export default function LoginPage() {
         </div>
       </div>
 
-      {/*<div className="mt-8 sm:mx-auto sm:w-full sm:max-w-lg">
+      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-lg">
         <p className="text-sm text-gray-600">
-          Don't have an account? <span className="font-medium text-swishjam hover:text-swishjam-dark"><Link href={`register?return_url=${return_url}`}><span className="cursor-pointer">Sign up for free account</span></Link></span>
+          Don't have an account? <span className="font-medium text-swishjam hover:text-swishjam-dark"><Link href={`/register?return_url=${return_url || '/'}`}>Sign up for free</Link></span>
         </p>
-      </div>*/}
-
+      </div>
     </div>
   )
 };

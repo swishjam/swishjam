@@ -76,7 +76,7 @@ export default function SignUpPage() {
                     ) : null}
                   </div>
                 </div>
-               
+
                 <div>
                   <label htmlFor="company" className="block text-sm font-medium text-gray-700">
                     Company URL
@@ -137,7 +137,7 @@ export default function SignUpPage() {
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-lg">
         <p className="text-sm text-gray-600">
-          Already have an account? <span className="font-medium text-swishjam hover:text-swishjam-dark"><Link href={`/login?return_url=${return_url}`}>Sign in</Link></span>
+          Already have an account? <span className="font-medium text-swishjam hover:text-swishjam-dark"><Link href={`/login?return_url=${return_url || '/'}`}>Sign in</Link></span>
         </p>
       </div>
 
