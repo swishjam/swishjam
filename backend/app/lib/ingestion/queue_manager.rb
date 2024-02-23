@@ -3,6 +3,7 @@ module Ingestion
     class Queues
       # EVENTS_TO_PREPARE is only used for its DLQ when we fail to prepare any or all events during Ingestion::EventsPreparer#prepare_events!
       QUEUE_NAMES = %i[
+        CAPTURE_ENDPOINT
         EVENTS_TO_PREPARE
         PREPARED_EVENTS 
         CLICK_HOUSE_USER_PROFILES
