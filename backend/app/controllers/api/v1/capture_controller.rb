@@ -18,7 +18,7 @@ module Api
           return
         end
 
-        if !ApiKey.enabled.where(public_key: api_key).exists?
+        if !ENV['BYPASS_API_KEY_CHECKS_DURING_INGESTION'].present? && !ApiKey.enabled.where(public_key: api_key).exists?
           msg = "Invalid Swishjam API Key provided to capture endpoint: #{api_key}."
           Sentry.capture_message(msg)
           render json: { error: msg }, status: :unauthorized
@@ -34,6 +34,13 @@ module Api
             properties: e['attributes'] || e['properties'] || e.except('uuid', 'event', 'event_name', 'name', 'timestamp', 'source'),
           )
         end
+
+        if events.length > (ENV['MAX_EVENTS_IN_CAPTURE_REQUEST'] || 100).to_i
+          msg = "Invalid payload format. Cannot send more than #{ENV['MAX_EVENTS_IN_CAPTURE_REQUEST'] || 100} events in one request."
+          Sentry.capture_message(msg)
+          render json: { error: msg }, status: :bad_request
+          return
+        end
         
         if events.any? { |e| e[:name].blank? }
           msg = "Invalid payload format. Event name is required for each event."
@@ -45,6 +52,10 @@ module Api
         IngestionJobs::PrepareEventsAndEnqueueIntoClickHouseWriter.perform_async(events)
         render json: { message: 'ok' }, status: :ok
       rescue => e
+        Ingestion::QueueManager.push_records_into_queue(
+          Ingestion::QueueManager::Queues.CAPTURE_ENDPOINT_DLQ, 
+          { 'swishjam_api_key' => request.headers['X-Swishjam-Api-Key'], 'payload' => request.body.read }
+        )
         Sentry.capture_exception(e)
         render json: { error: e.message }, status: :internal_server_error
       end

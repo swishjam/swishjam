@@ -1,7 +1,8 @@
 module Ingestion
   class EventsPreparer
     attr_accessor :ingestion_batch, :raw_events_to_prepare, :event_trigger_evaluator
-    EVENT_NAMES_TO_IGNORE = %w[sdk_error].freeze
+    EVENT_NAMES_TO_NOT_WRITE_TO_EVENTS_TABLE = %w[*update_user].freeze
+    EVENT_NAMES_NOT_ELIGIBLE_FOR_EVENT_TRIGGER_EVALUATION = %w[*update_user].freeze
     
     def self.format_for_events_to_prepare_queue(uuid:, swishjam_api_key:, name:, occurred_at:, properties:)
       {
@@ -23,6 +24,7 @@ module Ingestion
       begin
         prepared_events_formatted_for_ingestion = []
         failed_events = []
+        num_events_bypassed_from_events_table = 0
         raw_events_to_prepare.each do |event_json|
           event = Ingestion::ParsedEventFromIngestion.new(event_json)
           if event.name == 'sdk_error'
@@ -33,9 +35,16 @@ module Ingestion
           prepared_event = event_preparer_klass.new(event).handle_and_return_prepared_events!
           prepared_events = prepared_event.is_a?(Array) ? prepared_event : [prepared_event]
           prepared_events.each do |prepared_event|
+            next if EVENT_NAMES_NOT_ELIGIBLE_FOR_EVENT_TRIGGER_EVALUATION.include?(prepared_event.name)
             event_trigger_evaluator.enqueue_event_trigger_jobs_that_match_event(prepared_event)
           end
-          prepared_events_formatted_for_ingestion += prepared_events.map(&:formatted_for_ingestion)
+          prepared_events.each do |prepared_event|
+            if EVENT_NAMES_TO_NOT_WRITE_TO_EVENTS_TABLE.include?(prepared_event.name)
+              num_events_bypassed_from_events_table += 1
+            else
+              prepared_events_formatted_for_ingestion << prepared_event.formatted_for_ingestion
+            end
+          end
         rescue => e
           failed_events << event_json
           Sentry.capture_message("Error preparing event into ingestion format during events ingestion, continuing with the rest of the events in the queue and pushing this one to the DLQ.\nerror: #{e.message}\nevent: #{event_json}", level: 'error')
@@ -43,7 +52,7 @@ module Ingestion
 
         Ingestion::QueueManager.push_records_into_queue(Ingestion::QueueManager::Queues.PREPARED_EVENTS, prepared_events_formatted_for_ingestion)
         Ingestion::QueueManager.push_records_into_queue(Ingestion::QueueManager::Queues.EVENTS_TO_PREPARE_DLQ, failed_events)
-        ingestion_batch.num_successful_records = prepared_events_formatted_for_ingestion.count
+        ingestion_batch.num_successful_records = prepared_events_formatted_for_ingestion.count + num_events_bypassed_from_events_table
         ingestion_batch.num_failed_records = failed_events.count
       rescue => e
         Ingestion::QueueManager.push_records_into_queue(Ingestion::QueueManager::Queues.EVENTS_TO_PREPARE_DLQ, raw_events_to_prepare)
