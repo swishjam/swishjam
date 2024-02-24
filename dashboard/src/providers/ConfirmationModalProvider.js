@@ -10,6 +10,9 @@ export const ConfirmationModalProvider = ({ children }) => {
   const [onConfirmation, setOnConfirmation] = useState()
 
   const displayConfirmation = ({ title, body, callback }) => {
+    if (!title || !body || !callback) {
+      throw new Error('displayConfirmation requires a title, body, and callback argument.')
+    }
     setConfirmationModalTitle(title)
     setConfirmationModalBody(body)
     setOnConfirmation(() => () => {

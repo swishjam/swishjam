@@ -6,6 +6,7 @@ import LoadingSpinner from "@/components/LoadingSpinner";
 import SheetProvider from '@/providers/SheetProvider';
 import EnlargableDashboardComponentProvider from '@/providers/EnlargableDashboardComponentProvider';
 import ConfirmationModalProvider from '@/providers/ConfirmationModalProvider';
+import { Toaster } from 'sonner'
 
 const ADMINS = (process.env.NEXT_PUBLIC_SWISHJAM_ADMINS || '').split(',').map(email => email.trim());
 
@@ -21,13 +22,16 @@ export default function Layout({ children }) {
     )
   } else if (!isLoggedOut && ADMINS.includes(email)) {
     return (
-      <SheetProvider>
-        <EnlargableDashboardComponentProvider>
-          <ConfirmationModalProvider>
-            {children}
-          </ConfirmationModalProvider>
-        </EnlargableDashboardComponentProvider>
-      </SheetProvider>
+      <>
+        <SheetProvider>
+          <EnlargableDashboardComponentProvider>
+            <ConfirmationModalProvider>
+              {children}
+            </ConfirmationModalProvider>
+          </EnlargableDashboardComponentProvider>
+        </SheetProvider>
+        <Toaster richColors closeButton />
+      </>
     )
   } else {
     router.push('/')

@@ -14,6 +14,59 @@ module Api
         QUEUE_DESCRIPTIONS = {
           Ingestion::QueueManager::Queues.EVENTS_TO_PREPARE_DLQ => "This queue contains events that failed during the preparation process of ingestion in the Ingestion::EventsPreparer class where events that were sent to capture are prepared for ClickHouse ingestion.",
         }
+        
+        def retry
+          queue_name = HUMAN_NAME_TO_QUEUE_NAME_DICT[params[:queue_name]]
+          if !queue_name
+            render json: { error: "Queue not found" }, status: :not_found
+            return
+          end
+          if params[:ALL_RECORDS] == 'true'
+            IngestionJobs::RetryDeadLetterQueue.perform_async(queue_name)
+          elsif params[:records] || params[:record]
+            records = (params[:records] || [params[:record]]).as_json
+            ingestion_batch = nil
+            case queue_name
+            when Ingestion::QueueManager::Queues.EVENTS_TO_PREPARE_DLQ
+              ingestion_batch = Ingestion::DeadLetterQueueRetriers::EventsToPrepareDlq.new(records: records).retry!
+            else
+              render json: { error: "Retry logic for #{queue_name} not implemented" }, status: :not_implemented
+              return
+            end
+            render json: { 
+              queue_name: queue_name,
+              num_successful_records: ingestion_batch.num_successful_records,
+              num_failed_records: ingestion_batch.num_failed_records,
+              num_records: ingestion_batch.num_records,
+            }, status: :ok
+          else
+            render json: { error: "Request must include either a `record`, `records`, or `ALL_RECORDS` parameter" }, status: :bad_request
+            return
+          end
+        end
+
+        def destroy
+          queue_name = HUMAN_NAME_TO_QUEUE_NAME_DICT[params[:queue_name]]
+          if !queue_name
+            render json: { error: "Queue not found" }, status: :not_found
+            return
+          end
+          if params[:ALL_RECORDS] == 'true'
+            num_records_in_queue = Ingestion::QueueManager.num_records_in_queue(queue_name)
+            Ingestion::QueueManager.flush_queue!(queue_name)
+            render json: { queue_name: queue_name, num_records_removed: num_records_in_queue }, status: :ok
+          elsif params[:records] || params[:record]
+            records = params[:records] || [params[:record]]
+            num_records_removed = 0
+            records.each do |record|
+              num_records_removed += Ingestion::QueueManager.remove_record_from_queue(queue_name, record)
+            end
+            render json: { queue_name: queue_name, num_records_removed: num_records_removed }, status: :ok
+          else
+            render json: { error: "Request must include either a `record`, `records`, or `ALL_RECORDS` parameter" }, status: :bad_request
+            return
+          end
+        end
 
         def show
           queue_name = HUMAN_NAME_TO_QUEUE_NAME_DICT[params[:name]]
