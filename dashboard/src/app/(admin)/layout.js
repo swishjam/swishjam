@@ -5,6 +5,7 @@ import { useAuthData } from "@/hooks/useAuthData";
 import LoadingSpinner from "@/components/LoadingSpinner";
 import SheetProvider from '@/providers/SheetProvider';
 import EnlargableDashboardComponentProvider from '@/providers/EnlargableDashboardComponentProvider';
+import ConfirmationModalProvider from '@/providers/ConfirmationModalProvider';
 
 const ADMINS = (process.env.NEXT_PUBLIC_SWISHJAM_ADMINS || '').split(',').map(email => email.trim());
 
@@ -22,7 +23,9 @@ export default function Layout({ children }) {
     return (
       <SheetProvider>
         <EnlargableDashboardComponentProvider>
-          {children}
+          <ConfirmationModalProvider>
+            {children}
+          </ConfirmationModalProvider>
         </EnlargableDashboardComponentProvider>
       </SheetProvider>
     )

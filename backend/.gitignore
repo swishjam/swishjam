@@ -31,3 +31,5 @@ clickhouse-server/*
 clickhouse/*
 
 client_secret.json
+
+*magic_patterns_user*

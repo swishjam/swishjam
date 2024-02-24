@@ -31,9 +31,17 @@ module Ingestion
       end
     end
 
-    def self.read_all_records_from_queue(queue)
+    def self.stats
+      Hash.new.tap do |h|
+        Queues.all.map do |queue|
+          h[queue] = num_records_in_queue(queue)
+        end
+      end
+    end
+
+    def self.read_all_records_from_queue(queue, offset: 0, num_records: -1)
       redis do |conn|
-        raw_records = conn.lrange(queue, 0, -1)
+        raw_records = conn.lrange(queue, offset, num_records)
         raw_records.map{ |r| JSON.parse(r) }
       end
     end

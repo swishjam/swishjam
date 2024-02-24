@@ -273,6 +273,7 @@ Rails.application.routes.draw do
       get :'/admin/ingestion/ingestion_batches', to: 'admin/ingestion#ingestion_batches'
       get :'/admin/data_syncs', to: 'admin/data_syncs#index'
       get :'/admin/event_triggers/delay_time_timeseries', to: 'admin/event_triggers#delay_time_timeseries'
+      get :'/admin/queues/:name', to: 'admin/queues#show', param: :name
 
       namespace :webhooks do
         post :'cal_com/:workspace_id', to: 'cal_com#receive'

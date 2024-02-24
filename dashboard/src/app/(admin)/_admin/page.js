@@ -8,6 +8,7 @@ import { useEffect, useState } from 'react'
 import { Skeleton } from '@/components/ui/skeleton';
 import { intelligentlyFormattedMs } from '@/lib/utils/timeHelpers';
 import { setStateFromTimeseriesResponse } from '@/lib/utils/timeseriesHelpers';
+import Link from 'next/link';
 
 export default function AdminPage() {
   const [dataSyncs, setDataSyncs] = useState();
@@ -67,6 +68,7 @@ export default function AdminPage() {
                 ? <h1 className='text-4xl'>{queueStats[`${queueName}_count`]}</h1>
                 : <Skeleton className='h-12 w-8 m-auto' />
               }
+              <Link className='text-xs mt-4 text-blue-600 cursor-pointer hover:underline hover:text-blue-700' href={`/_admin/queues/${queueName}`}>View</Link>
             </div>
           </div>
         ))}
@@ -80,6 +82,7 @@ export default function AdminPage() {
                 ? <h1 className='text-4xl'>{queueStats[`${queueName}_count`]}</h1>
                 : <Skeleton className='h-12 w-8 m-auto' />
               }
+              <Link className='text-xs mt-4 text-blue-600 cursor-pointer hover:underline hover:text-blue-700' href={`/_admin/queues/${queueName}`}>View</Link>
             </div>
           </div>
         ))}
