@@ -22,7 +22,13 @@ module Api
             return
           end
           if params[:ALL_RECORDS] == 'true'
-            IngestionJobs::RetryDeadLetterQueue.perform_async(queue_name)
+            num_records_in_queue = Ingestion::QueueManager.num_records_in_queue(queue_name)
+            ingestion_batch = IngestionBatch.start!("#{queue_name}_retry", num_records: num_records_in_queue)
+            IngestionJobs::RetryDeadLetterQueue.perform_async(queue_name, ingestion_batch.id)
+            render json: {
+              queue_name: queue_name,
+              ingestion_batch: ingestion_batch.as_json,
+            }
           elsif params[:records] || params[:record]
             records = (params[:records] || [params[:record]]).as_json
             ingestion_batch = nil

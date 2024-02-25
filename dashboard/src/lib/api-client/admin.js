@@ -3,6 +3,7 @@ import Base from "./base";
 import DataSyncs from "./admin/data-syncs";
 import EventTriggers from "./admin/event-triggers";
 import Ingestion from "./admin/ingestion";
+import IngestionBatches from "./admin/ingestion-batches";
 import Queues from './admin/queues';
 
 export class Admin extends Base {
@@ -10,6 +11,7 @@ export class Admin extends Base {
   static DataSyncs = DataSyncs;
   static EventTriggers = EventTriggers
   static Ingestion = Ingestion;
+  static IngestionBatches = IngestionBatches;
   static Queues = Queues;
 }
 

@@ -8,13 +8,17 @@ export const ConfirmationModalProvider = ({ children }) => {
   const [confirmationModalTitle, setConfirmationModalTitle] = useState()
   const [confirmationModalBody, setConfirmationModalBody] = useState()
   const [onConfirmation, setOnConfirmation] = useState()
+  const [confirmationButtonText, setConfirmationButtonText] = useState('Confirm')
+  const [confirmationButtonVariant, setConfirmationButtonVariant] = useState('destructive')
 
-  const displayConfirmation = ({ title, body, callback }) => {
+  const displayConfirmation = ({ title, body, callback, confirmButtonText = 'Confirm', confirmButtonVariant = 'destructive' }) => {
     if (!title || !body || !callback) {
       throw new Error('displayConfirmation requires a title, body, and callback argument.')
     }
     setConfirmationModalTitle(title)
     setConfirmationModalBody(body)
+    setConfirmationButtonText(confirmButtonText)
+    setConfirmationButtonVariant(confirmButtonVariant)
     setOnConfirmation(() => () => {
       callback()
       close()
@@ -26,6 +30,8 @@ export const ConfirmationModalProvider = ({ children }) => {
     setConfirmationModalIsDisplayed(false)
     setOnConfirmation(null)
     setTimeout(() => {
+      setConfirmationButtonText('Confirm')
+      setConfirmationButtonVariant('destructive')
       setConfirmationModalTitle(null)
       setConfirmationModalBody(null)
     }, 500)
@@ -39,8 +45,11 @@ export const ConfirmationModalProvider = ({ children }) => {
           <Button variant='outline' onClick={close}>
             Cancel
           </Button>
-          <Button onClick={onConfirmation} variant='destructive'>
-            Confirm
+          <Button
+            onClick={onConfirmation}
+            variant={confirmationButtonVariant}
+          >
+            {confirmationButtonText}
           </Button>
         </div>
       </Modal>

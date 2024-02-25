@@ -15,18 +15,13 @@ module Ingestion
       }
     end
 
-    def initialize(raw_events_to_prepare, ingestion_batch: nil)
-      @ingestion_batch = ingestion_batch || IngestionBatch.create!(
-        started_at: Time.current, 
-        event_type: 'event_preparer', 
-        num_records: raw_events_to_prepare.count,
-        num_successful_records: 0,
-        num_failed_records: 0,
-      )
+    def initialize(raw_events_to_prepare, ingestion_batch: nil, update_ingestion_batch_periodically: true)
+      @ingestion_batch = ingestion_batch || IngestionBatch.start!('event_preparer', num_records: raw_events_to_prepare.count)
       @raw_events_to_prepare = raw_events_to_prepare
-      @event_trigger_evaluator = EventTriggers::Evaluator.new
       @prepared_events_formatted_for_ingestion = []
       @failed_events = []
+      @event_trigger_evaluator = EventTriggers::Evaluator.new
+      @update_ingestion_batch_periodically = update_ingestion_batch_periodically
     end
 
     def prepare_events!
@@ -62,13 +57,13 @@ module Ingestion
       end
       
       ingestion_batch.num_successful_records += prepared_events.count
-      ingestion_batch.save! if ingestion_batch.num_successful_records + ingestion_batch.num_failed_records % 10 == 0
+      ingestion_batch.save! if @update_ingestion_batch_periodically && ingestion_batch.num_successful_records + ingestion_batch.num_failed_records % 10 == 0
     rescue => e
-      Sentry.capture_message("Error preparing event into ingestion format during events ingestion, continuing with the rest of the events in the queue and pushing this one to the DLQ.\nerror: #{e.message}\nevent: #{event_json}", level: 'error')
+      Sentry.capture_message("Error preparing event into ingestion format during events ingestion, continuing with the rest of the events in the queue and pushing this one to the DLQ.\nerror: #{e.message}", level: 'error', extra: { event_json: event_json })
       event_json['dlq_data'] = { error_message: e.message, errored_at: Time.current }
       @failed_events << event_json
       ingestion_batch.num_failed_records += 1
-      ingestion_batch.save! if ingestion_batch.num_successful_records + ingestion_batch.num_failed_records % 10 == 0
+      ingestion_batch.save! if @update_ingestion_batch_periodically && ingestion_batch.num_successful_records + ingestion_batch.num_failed_records % 10 == 0
     end
 
     def event_preparer_klass_for_event(event_name)

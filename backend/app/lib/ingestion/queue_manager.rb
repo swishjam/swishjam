@@ -1,7 +1,7 @@
 module Ingestion
   class QueueManager
     class Queues
-      # EVENTS_TO_PREPARE is only used for its DLQ when we fail to prepare any or all events during Ingestion::EventsPreparer#prepare_events!
+      # EVENTS_TO_PREPARE and CAPTURE_ENDPOINT are only used for DLQs
       QUEUE_NAMES = %i[
         CAPTURE_ENDPOINT
         EVENTS_TO_PREPARE

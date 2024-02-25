@@ -5,9 +5,9 @@ module Ingestion
         attr_accessor :queue_name
       end
 
-      attr_reader :json_records, :retry_all_records
+      attr_reader :json_records, :retry_all_records, :ingestion_batch
 
-      def initialize(record: nil, records: nil, all_records: nil)
+      def initialize(record: nil, records: nil, all_records: nil, ingestion_batch: nil)
         if [record, records, all_records].compact.count != 1
           raise ArgumentError, "Must provide exactly one of `record`, `records`, or `all_records`"
         end
@@ -16,6 +16,7 @@ module Ingestion
         end
         @json_records = records || [record]
         @retry_all_records = all_records || false
+        @ingestion_batch = ingestion_batch || IngestionBatch.start!("#{self.class.queue_name}_retry")
       end
 
       def retry!
@@ -25,6 +26,7 @@ module Ingestion
         else
           records_to_retry.each{ |json_record| Ingestion::QueueManager.remove_record_from_queue(self.class.queue_name, json_record) }
         end
+        ingestion_batch.num_records = records_to_retry.count
         records_to_retry = records_to_retry.map do |json| 
           Ingestion::EventsPreparer.format_for_events_to_prepare_queue(
             uuid: json['uuid'],
@@ -35,6 +37,7 @@ module Ingestion
           )
         end
         retry_records!(records_to_retry)
+        ingestion_batch.complete!
       end
 
       def retry_records!(records)
