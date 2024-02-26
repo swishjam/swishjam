@@ -12,12 +12,11 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import EmptyState from "@/components/utils/PageEmptyState";
-import { FormInput, InfoIcon, SparkleIcon, UserCircleIcon } from 'lucide-react';
+import { InfoIcon, SparkleIcon, UserCircleIcon } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import LoadingSpinner from '@components/LoadingSpinner';
 import Link from "next/link"
 import { LuPlus, LuTrash } from "react-icons/lu";
-import MessageBodyMarkdownRenderer from '@components/Slack/MessageBodyMarkdownRenderer';
 import { PaperAirplaneIcon } from '@heroicons/react/24/outline';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Skeleton } from '@/components/ui/skeleton';

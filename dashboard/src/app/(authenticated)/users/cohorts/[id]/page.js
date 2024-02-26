@@ -49,14 +49,14 @@ export default function UserSegmentDetailsPage({ params }) {
             </h4>
           </Link>
           <h1 className="text-lg font-medium text-gray-700">
-            Segment Details
+            Cohort Details
           </h1>
         </div>
         <div className='flex justify-end'>
           <Link href={`/users/cohorts/${id}/edit`}>
             <Button variant='swishjam' className='flex items-center space-x-2'>
               <PencilSquareIcon className='h-4 w-4 mr-2' />
-              Edit Segment
+              Edit Cohort
             </Button>
           </Link>
         </div>
