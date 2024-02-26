@@ -16,11 +16,18 @@ module Ingestion
           QUEUE_NAMES.map{ |q| [send(q), send("#{q}_DLQ")] }.flatten
         end
 
+        def dead_letter_queues
+          QUEUE_NAMES.map{ |q| send("#{q}_DLQ") }
+        end
+
+        def ingestion_queues
+          QUEUE_NAMES.map{ |q| send(q) }
+        end
+
         QUEUE_NAMES.each do |method|
           define_method(method.to_s.upcase) { "#{method.to_s.downcase}_ingestion_queue" }
           define_method("#{method.to_s.upcase}_DLQ") { "#{method.to_s.downcase}_ingestion_dead_letter_queue" }
         end
-
 
         def _flush_all_queues!
           all.each do |queue|
@@ -87,6 +94,14 @@ module Ingestion
       potential_num_records_removed = starting_num_records_in_queue - new_queue_records_with_record_removed.count
       overwrite_queue!(queue, new_queue_records_with_record_removed) if potential_num_records_removed > 0
       potential_num_records_removed
+    end
+
+    def self.redis_stats
+      redis do |conn|
+        conn.info.merge(
+          'url' => ENV['REDIS_INGESTION_QUEUE_URL'],
+        )
+      end
     end
 
     private

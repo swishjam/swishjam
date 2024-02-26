@@ -16,14 +16,13 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 export default function Queue({ params }) {
-  const { name } = params;
+  const { name: queueName } = params;
   const { displayConfirmation } = useConfirmationModal();
 
   const [workspaceForDisplayedRecord, setWorkspaceForDisplayedRecord] = useState();
   const [currentPage, setCurrentPage] = useState(1);
   const [displayRecord, setDisplayRecord] = useState();
   const [isLoading, setIsLoading] = useState(false);
-  const [formalQueueName, setFormalQueueName] = useState();
   const [recentRetryBatches, setRecentRetryBatches] = useState();
   const [recordsInQueue, setRecordsInQueue] = useState();
   const [queueDescription, setQueueDescription] = useState();
@@ -37,20 +36,19 @@ export default function Queue({ params }) {
     "events_to_prepare_ingestion_dead_letter_queue",
     "prepared_events_ingestion_queue",
     "prepared_events_ingestion_dead_letter_queue",
-  ].includes(formalQueueName)
+  ].includes(queueName)
 
   const fetchRetryBatches = ({ limit = 10 } = {}) => {
     setRecentRetryBatches()
-    SwishjamAPI.Admin.IngestionBatches.list({ type: `${formalQueueName}_retry`, limit }).then(setRecentRetryBatches)
+    SwishjamAPI.Admin.IngestionBatches.list({ type: `${queueName}_retry`, limit }).then(setRecentRetryBatches)
   }
 
   const fetchRecords = async ({ page = 1, limit = 25 } = {}) => {
     setIsLoading(true)
     setRecordsInQueue()
     setQueueSize()
-    return SwishjamAPI.Admin.Queues.retrieve(name, { page, limit }).then(({ name, description, records, total_pages, total_count }) => {
+    return SwishjamAPI.Admin.Queues.retrieve(queueName, { page, limit }).then(({ description, records, total_pages, total_count }) => {
       setIsLoading(false)
-      setFormalQueueName(name)
       setRecordsInQueue(records);
       setQueueDescription(description);
       setQueueSize(total_count);
@@ -65,10 +63,10 @@ export default function Queue({ params }) {
   }, [currentPage])
 
   useEffect(() => {
-    if (formalQueueName) {
+    if (queueName) {
       fetchRetryBatches()
     }
-  }, [formalQueueName])
+  }, [queueName])
 
   useEffect(() => {
     if (displayRecord) {
@@ -78,27 +76,28 @@ export default function Queue({ params }) {
 
   const retryRecord = recordJson => {
     setIsLoading(true)
-    SwishjamAPI.Admin.Queues.retryRecord(name, recordJson).then(response => {
+    SwishjamAPI.Admin.Queues.retryRecord(queueName, recordJson).then(({ error, ingestion_batch }) => {
       setIsLoading(false)
-      if (response.error) {
+      if (error) {
         toast.error('Failed to retry record', {
-          description: response.error,
+          description: error,
           duration: 10_000,
         })
       } else {
         setDisplayRecord()
-        if (response.num_failed_records > 0) {
+        setRecentRetryBatches([ingestion_batch, ...recentRetryBatches])
+        if (ingestion_batch.num_failed_records > 0) {
           fetchRecords({ page: currentPage })
           toast.error('The retry attempt for this record was unsucccessful.', {
             description: <>
-              <span className='block'>This likely means the event payload is invalid, or there is an outstanding error happening during ingestion. This record was removed from the ${name} queue, but a new one was most likely (definitely?) re-enqueued.</span>
+              <span className='block'>This likely means the event payload is invalid, or there is an outstanding error happening during ingestion. This record was removed from the {queueName} queue, but a new one was most likely (definitely?) re-enqueued.</span>
             </>,
             duration: 20_000,
           })
-        } else if (response.num_successful_records > 0) {
+        } else if (ingestion_batch.num_successful_records > 0) {
           toast.success(`Successfully retried record.`, { duration: 10_000 })
           setRecordsInQueue(recordsInQueue.filter(r => JSON.stringify(r) !== JSON.stringify(recordJson)))
-          setQueueSize(queueSize - response.num_successful_records)
+          setQueueSize(queueSize - ingestion_batch.num_successful_records)
         }
       }
     })
@@ -106,7 +105,7 @@ export default function Queue({ params }) {
 
   const retryAllRecordsInQueue = () => {
     setIsLoading(true)
-    SwishjamAPI.Admin.Queues.retryAllRecordsInQueue(name).then(response => {
+    SwishjamAPI.Admin.Queues.retryAllRecordsInQueue(queueName).then(response => {
       setIsLoading(false)
       if (response.error) {
         toast.error('Failed to retry all records in queue', {
@@ -125,7 +124,7 @@ export default function Queue({ params }) {
 
   const removeSpecificRecordFromQueue = recordJson => {
     setIsLoading(true)
-    SwishjamAPI.Admin.Queues.removeRecordFromQueue(name, recordJson).then(response => {
+    SwishjamAPI.Admin.Queues.removeRecordFromQueue(queueName, recordJson).then(response => {
       setIsLoading(false)
       if (response.error) {
         toast.error('Failed to remove record from queue', {
@@ -147,7 +146,7 @@ export default function Queue({ params }) {
 
   const flushEntireQueue = () => {
     setIsLoading(true)
-    SwishjamAPI.Admin.Queues.flushEntireQueue(name).then(response => {
+    SwishjamAPI.Admin.Queues.flushEntireQueue(queueName).then(response => {
       setIsLoading(false)
       if (response.error) {
         toast.error('Failed to clear queue', {
@@ -157,7 +156,7 @@ export default function Queue({ params }) {
       } else {
         setRecordsInQueue([])
         setQueueSize(0)
-        toast.success(`Successfully flushed ${response.num_records_removed} records from ${name} queue.`, { duration: 10_000 })
+        toast.success(`Successfully flushed ${response.num_records_removed} records from ${queueName} queue.`, { duration: 10_000 })
       }
     })
   }
@@ -173,7 +172,7 @@ export default function Queue({ params }) {
             <ArrowLeftIcon className='h-4 w-4 inline-block mr-2' />
             Back
           </Link>
-          <h1 className='text-lg text-gray-700'>{name} - {queueSize} records in queue</h1>
+          <h1 className='text-lg text-gray-700'>{queueName} - {queueSize} records in queue</h1>
           <h2 className='text-sm text-gray-500'>{queueDescription}</h2>
         </div>
         <div className='flex items-center justify-end space-x-4'>
@@ -194,7 +193,7 @@ export default function Queue({ params }) {
             disabled={isLoading || queueSize === 0}
             onClick={() => {
               displayConfirmation({
-                title: `Retry all ${queueSize} records in ${formalQueueName}?`,
+                title: `Retry all ${queueSize} records in ${queueName}?`,
                 body: `This will enqueue a background job and attempt to retry all records in the queue.`,
                 callback: retryAllRecordsInQueue,
                 confirmButtonVariant: 'swishjam',
@@ -214,7 +213,7 @@ export default function Queue({ params }) {
             disabled={isLoading || queueSize === 0}
             onClick={() => {
               displayConfirmation({
-                title: `Clear ${queueSize} records from ${formalQueueName}?`,
+                title: `Clear ${queueSize} records from ${queueName}?`,
                 body: `This action cannot be undone, we will no longer be able to retry these events.`,
                 callback: flushEntireQueue,
               })
@@ -257,7 +256,7 @@ export default function Queue({ params }) {
                 {isLoading
                   ? <LoadingSpinner size={4} className='mr-2' />
                   : <TrashIcon className='h-4 w-4 mr-2' />}
-                Remove from {name} Queue
+                Remove from {queueName} Queue
               </Button>
               <Button
                 variant='outline'
