@@ -36,9 +36,12 @@ export default function ProfileInformationSideBar({ userData, hasStripeIntegrati
               {!userData.full_name && userData.email && <CopiableText value={userData.email} className='ml-2' />}
             </CardTitle>
             {userData.full_name && (
-              <CardDescription className='text-base text-gray-500'>
-                {userData.email} <CopiableText value={userData.email} className='ml-2' />
-              </CardDescription>
+              <div className='flex items-center'>
+                <CardDescription className='text-base text-gray-500'>
+                  {userData.email}
+                </CardDescription>
+                <CopiableText value={userData.email} className='ml-2' copyIconClassName='h-3 w-3 text-gray-500' />
+              </div>
             )}
             {userData.tags.length > 0 && (
               <div className='mt-4'>

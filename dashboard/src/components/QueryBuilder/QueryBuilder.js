@@ -13,7 +13,7 @@ export default function QueryBuilder({
   isLoading = false,
   onSave,
   onPreview,
-  saveButtonText = 'Create Segment',
+  saveButtonText = 'Create Cohort',
 }) {
   const [errorMessage, setErrorMessage] = useState()
   const [nameAndDescriptionModalIsOpen, setNameAndDescriptionModalIsOpen] = useState(false)
@@ -103,7 +103,7 @@ export default function QueryBuilder({
               }
             }}
           >
-            {isLoading ? <LoadingSpinner center={true} className='h-5 w-5 mx-8' /> : <>Preview Segment</>}
+            {isLoading ? <LoadingSpinner center={true} className='h-5 w-5 mx-8' /> : <>Preview Cohort</>}
           </Button>
           <Button
             variant='swishjam'

@@ -66,13 +66,13 @@ export default function EditUserSegmentPage({ params }) {
             setUserSegment({ ...userSegment, name, description })
             setNameAndDescriptionModalIsOpen(false)
           }}
-          saveText='Update Segment'
+          saveText='Update Cohort'
         />
       )}
       <div className='grid grid-cols-2 my-8 items-center'>
         <div>
           <Link href='/users/cohorts' className="flex items-center space-x-1 mb-1 text-xs font-medium text-gray-500 hover:text-swishjam transition duration-300 hover:underline">
-            <ArrowLeftIcon className='w-3 h-3' /> All Segments
+            <ArrowLeftIcon className='w-3 h-3' /> All Cohorts
           </Link>
           <div>
             <div>
@@ -102,7 +102,7 @@ export default function EditUserSegmentPage({ params }) {
           isLoading={isLoading}
           onPreview={previewSegment}
           onSave={({ queryFilterGroups }) => updateSegment(queryFilterGroups)}
-          saveButtonText='Update Segment'
+          saveButtonText='Update Cohort'
         />
       ) : (
         <>

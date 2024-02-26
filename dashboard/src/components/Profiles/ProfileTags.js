@@ -1,6 +1,6 @@
 import { prettyDateTime } from "@/lib/utils/timeHelpers";
 import { Tooltipable } from "../ui/tooltip";
-import { BanIcon, UserMinus } from "lucide-react";
+import { BanIcon, TargetIcon, UserMinus, Users2Icon } from "lucide-react";
 import { LuUserCheck } from "react-icons/lu";
 import DottedUnderline from "../utils/DottedUnderline";
 
@@ -27,7 +27,7 @@ const iconForTag = tag => {
   if (tag.removed_at) {
     return <BanIcon className='h-3 w-3 inline-block mr-1 text-gray-700' />
   }
-  return ICONS_BY_TAG_NAME[tag.name]
+  return ICONS_BY_TAG_NAME[tag.name] || <Users2Icon className='h-3 w-3 inline-block mr-1 text-gray-700' />
 }
 
 const Badge = ({ tag }) => (
