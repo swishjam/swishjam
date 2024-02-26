@@ -57,13 +57,13 @@ module Ingestion
       end
       
       ingestion_batch.num_successful_records += prepared_events.count
-      ingestion_batch.save! if (@update_ingestion_batch_every_n_iterations || 0) > 0 && ingestion_batch.num_successful_records + ingestion_batch.num_failed_records % @update_ingestion_batch_every_n_iterations == 0
+      ingestion_batch.save! if (@update_ingestion_batch_every_n_iterations || 0) > 0 && (ingestion_batch.num_successful_records + ingestion_batch.num_failed_records) % @update_ingestion_batch_every_n_iterations == 0
     rescue => e
       Sentry.capture_message("Error preparing event into ingestion format during events ingestion, continuing with the rest of the events in the queue and pushing this one to the DLQ.\nerror: #{e.message}", level: 'error', extra: { event_json: event_json })
       event_json['dlq_data'] = { error_message: e.message, errored_at: Time.current }
       @failed_events << event_json
       ingestion_batch.num_failed_records += 1
-      ingestion_batch.save! if (@update_ingestion_batch_every_n_iterations || 0) > 0 && ingestion_batch.num_successful_records + ingestion_batch.num_failed_records % @update_ingestion_batch_every_n_iterations == 0
+      ingestion_batch.save! if (@update_ingestion_batch_every_n_iterations || 0) > 0 && (ingestion_batch.num_successful_records + ingestion_batch.num_failed_records) % @update_ingestion_batch_every_n_iterations == 0
     end
 
     def event_preparer_klass_for_event(event_name)
