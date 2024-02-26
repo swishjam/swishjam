@@ -8,7 +8,14 @@ module Api
           return
         end
 
-        payload = JSON.parse(request.body.read || '{}')
+        payload = nil
+        begin
+          payload = JSON.parse(request.body.read || '{}')
+        rescue JSON::ParserError => e
+          Sentry.capture_exception(e)
+          render json: { error: "Invalid JSON payload provided." }, status: :bad_request
+          return
+        end
         payload = [payload] if payload.is_a?(Hash)
           
         if !payload.is_a?(Array)
