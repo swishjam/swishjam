@@ -60,9 +60,9 @@ module ProfileTags
           profile_id: user.id,
           profile_name: user.full_name,
           profile_email: user.email,
-          segment_name: user_segment.name,
+          cohort_name: user_segment.name,
           tag_name: user_segment.profile_tag_name,
-          segment_id: user_segment.id,
+          cohort_id: user_segment.id,
         },
       )
     end
