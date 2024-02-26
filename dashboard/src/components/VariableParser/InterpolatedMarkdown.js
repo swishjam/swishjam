@@ -1,7 +1,7 @@
 import MarkdownIt from 'markdown-it'
 import { useMemo } from 'react';
 
-const initializeMarkdownParser = acceptableHighlightValues => {
+const initializeMarkdownParser = (acceptableHighlightValues, useSlackLinkFormatting) => {
   const markdown = new MarkdownIt();
 
   function variablesHighlight(md, acceptableHighlightValues) {
@@ -76,7 +76,9 @@ const initializeMarkdownParser = acceptableHighlightValues => {
   }
 
   markdown.use(variablesHighlight, acceptableHighlightValues);
-  markdown.use(slackLink);
+  if (useSlackLinkFormatting) {
+    markdown.use(slackLink);
+  }
 
   // Overwrite the default renderer for 'highlight' tokens
   markdown.renderer.rules.highlight = function (tokens, idx) {
@@ -113,8 +115,8 @@ const initializeMarkdownParser = acceptableHighlightValues => {
   return markdown;
 }
 
-export default function InterpolatedMarkdown({ content, availableVariables }) {
-  const markdown = useMemo(() => initializeMarkdownParser(availableVariables), [availableVariables]);
+export default function InterpolatedMarkdown({ content, availableVariables, useSlackLinkFormatting = false }) {
+  const markdown = useMemo(() => initializeMarkdownParser(availableVariables, useSlackLinkFormatting), [availableVariables, useSlackLinkFormatting]);
   const css = `<style>
     .markdown-content a { color: blue }
   </style>`

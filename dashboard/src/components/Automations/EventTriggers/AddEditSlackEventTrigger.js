@@ -217,8 +217,9 @@ export default function AddEditSlackEventTrigger({
               header={form.watch('steps.0.config.message_header')}
               body={
                 <InterpolatedMarkdown
-                  content={form.watch('steps.0.config.message_body')}
                   availableVariables={propertyOptionsForSelectedEvent || []}
+                  content={form.watch('steps.0.config.message_body')}
+                  useSlackLinkFormatting={true}
                 />
               }
             />
