@@ -56,6 +56,7 @@ module ProfileTags
         name: "swishjam_bot.#{event_name}",
         occurred_at: Time.current.to_f,
         properties: {
+          user_id: user.user_unique_identifier,
           profile_type: 'user',
           profile_id: user.id,
           profile_name: user.full_name,

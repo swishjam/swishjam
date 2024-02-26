@@ -8,6 +8,8 @@ module Ingestion
       }
 
       def handle_and_return_prepared_events!
+        # make sure we initialize the stripe event immediately, because the event properties will get updated which will break the Stripe event construction
+        stripe_event
         parsed_event.set_user_profile(user_profile_for_event) if user_profile_for_event.present?
         parsed_event.override_properties!(event_properties_for_event_type)
         [parsed_event].concat(supplemental_events_to_be_processed)
@@ -75,11 +77,11 @@ module Ingestion
       end
 
       def stripe_object
-        stripe_event.data.object
+        @stripe_object ||= stripe_event.data.object
       end
 
       def stripe_event
-        ::Stripe::Event.construct_from(parsed_event.properties)
+        @stripe_event ||= ::Stripe::Event.construct_from(parsed_event.properties)
       end
     end
   end

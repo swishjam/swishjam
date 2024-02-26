@@ -149,7 +149,7 @@ export default function TestTriggerModal({
                 disabled={isSendingTest}
               >
                 {isSendingTest
-                  ? <LoadingSpinner color='white' className='w-5 h-5 px-8' />
+                  ? <LoadingSpinner color='white' center={true} />
                   : `Send Test to #${slackChannelName}`
                 }
               </button>
