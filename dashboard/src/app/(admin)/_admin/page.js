@@ -8,6 +8,11 @@ import { useEffect, useState } from 'react'
 import { Skeleton } from '@/components/ui/skeleton';
 import { intelligentlyFormattedMs } from '@/lib/utils/timeHelpers';
 import { setStateFromTimeseriesResponse } from '@/lib/utils/timeseriesHelpers';
+import Link from 'next/link';
+import Modal from '@/components/utils/Modal';
+import JsonEditor from '@/components/utils/JsonEditor';
+import { AccordionOpen } from '@/components/ui/accordion';
+import { DatabaseIcon } from 'lucide-react';
 
 export default function AdminPage() {
   const [dataSyncs, setDataSyncs] = useState();
@@ -15,6 +20,7 @@ export default function AdminPage() {
   const [eventTriggerDelayTimeTimeseries, setEventTriggerDelayTimeTimeseries] = useState();
   const [ingestionBatches, setIngestionBatches] = useState();
   const [isRefreshing, setIsRefreshing] = useState(false)
+  const [redisModalIsOpen, setRedisModalIsOpen] = useState(false);
   const [queueStats, setQueueStats] = useState();
   const [queueingTimeTimeseries, setQueueingTimeTimeseries] = useState();
 
@@ -49,41 +55,109 @@ export default function AdminPage() {
     <main className='w-screen h-screen px-8 py-8'>
       <div className='w-full flex justify-between mb-8'>
         <h1 className='text-lg text-gray-700'>Admin</h1>
-        <Button
-          variant='outline'
-          className={`ml-4 bg-white ${isRefreshing ? 'cursor-not-allowed' : ''}`}
-          onClick={() => getData()}
-          disabled={isRefreshing}
-        >
-          <ArrowPathIcon className={`h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
-        </Button>
+        <div className='flex items-center space-x-4'>
+          <Button
+            variant='outline'
+            className='bg-white'
+            onClick={() => setRedisModalIsOpen(true)}
+            disabled={isRefreshing}
+          >
+            <DatabaseIcon className='h-4 w-4 mr-2' />
+            Redis Stats
+          </Button>
+          <Button
+            variant='outline'
+            className={`ml-4 bg-white ${isRefreshing ? 'cursor-not-allowed' : ''}`}
+            onClick={() => getData()}
+            disabled={isRefreshing}
+          >
+            <ArrowPathIcon className={`h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+          </Button>
+        </div>
       </div>
-      <div className='grid gap-4 mb-4 grid-cols-4'>
-        {['prepared_events', 'clickhouse_user_profiles', 'clickhouse_organization_profiles', 'clickhouse_organization_members'].map(queueName => (
-          <div className='rounded border border-gray-200 text-gray-700 flex items-center justify-center p-4 bg-white'>
+      <Modal
+        isOpen={redisModalIsOpen}
+        onClose={() => setRedisModalIsOpen(false)}
+        title='Redis Stats'
+        size='x-large'
+      >
+        <div className='grid grid-cols-2 gap-4'>
+          <div className='rounded border text-gray-700 flex items-center justify-center p-4 bg-white'>
             <div className='text-center'>
-              <h4 className='text-md'>{queueName} queue</h4>
-              {queueStats
-                ? <h1 className='text-4xl'>{queueStats[`${queueName}_count`]}</h1>
-                : <Skeleton className='h-12 w-8 m-auto' />
-              }
+              <h4 className='text-md'>Memory Usage</h4>
+              <h4 className='text-4xl'>
+                {(queueStats?.redis_stats || {}).used_memory_human}
+              </h4>
+              <h5 className='text-md mt-2'>{((parseInt((queueStats?.redis_stats || {}).used_memory) / 262100000) * 100).toFixed(2)}%</h5>
             </div>
           </div>
-        ))}
-      </div>
-      <div className='grid gap-4 mb-4 grid-cols-3'>
-        {['capture_endpoint_dlq', 'events_to_prepare_dlq', 'prepared_events_dlq', 'clickhouse_user_profiles_dlq', 'clickhouse_organization_profiles_dlq', 'clickhouse_organization_members_dlq'].map(queueName => (
-          <div className='rounded border border-red-200 text-gray-700 flex items-center justify-center p-4 bg-white'>
+          <div className='rounded border text-gray-700 flex items-center justify-center p-4 bg-white'>
             <div className='text-center'>
-              <h4 className='text-md'>{queueName} queue</h4>
-              {queueStats
-                ? <h1 className='text-4xl'>{queueStats[`${queueName}_count`]}</h1>
-                : <Skeleton className='h-12 w-8 m-auto' />
-              }
+              <h4 className='text-md'>Connected Clients</h4>
+              <h4 className='text-4xl'>{(queueStats?.redis_stats || {}).connected_clients}</h4>
+              <h5 className='text-md mt-2'>
+                Out of {queueStats?.redis_stats?.maxclients} ({(parseInt(queueStats?.redis_stats?.connected_clients) / (parseInt(queueStats?.redis_stats?.maxclients)) * 100).toFixed(2)}%)
+              </h5>
             </div>
           </div>
-        ))}
-      </div>
+        </div>
+        <AccordionOpen trigger={<>Redis Stats</>}>
+          <JsonEditor
+            height='75vh'
+            json={queueStats?.redis_stats}
+            readonly={true}
+          />
+        </AccordionOpen>
+        <div className='flex items-center justify-end mt-4'>
+          <Link
+            className='text-sm text-blue-600 cursor-pointer hover:underline hover:text-blue-700'
+            href='https://app.redislabs.com/#/subscriptions/subscription/2197891/bdb-view/12005102/metric'
+            target='_blank'
+          >
+            {queueStats?.redis_stats?.url} - View in Redis
+          </Link>
+        </div>
+      </Modal>
+      {queueStats === undefined ?
+        (
+          <>
+            <div className='grid gap-4 mb-4 grid-cols-3'>
+              {Array.from({ length: 6 }).map((_, i) => (
+                <div className='rounded border bg-gray-200 h-24 animate-pulse' />
+              ))}
+            </div>
+            <div className='grid gap-4 mb-4 grid-cols-3'>
+              {Array.from({ length: 6 }).map((_, i) => (
+                <div className='rounded border bg-gray-200 h-24 animate-pulse' />
+              ))}
+            </div>
+          </>
+        ) : (
+          <>
+            <div className='grid gap-4 mb-4 grid-cols-3'>
+              {(queueStats || {}).ingestion_queues?.map(({ queue, num_records_in_queue }) => (
+                <div className='rounded border text-gray-700 flex items-center justify-center p-4 bg-white'>
+                  <div className='text-center'>
+                    <h4 className='text-md'>{queue} queue</h4>
+                    <h4 className='text-4xl'>{num_records_in_queue}</h4>
+                    <Link className='text-xs mt-4 text-blue-600 cursor-pointer hover:underline hover:text-blue-700' href={`/_admin/queues/${queue}`}>View</Link>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className='grid gap-4 mb-4 grid-cols-3'>
+              {(queueStats || {}).dead_letter_queues?.map(({ queue, num_records_in_queue }) => (
+                <div className='rounded border border-red-200 text-gray-700 flex items-center justify-center p-4 bg-white'>
+                  <div className='text-center'>
+                    <h4 className='text-md'>{queue} queue</h4>
+                    <h4 className='text-4xl'>{num_records_in_queue}</h4>
+                    <Link className='text-xs mt-4 text-blue-600 cursor-pointer hover:underline hover:text-blue-700' href={`/_admin/queues/${queue}`}>View</Link>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </>
+        )}
       <LineChartWithValue
         title='Global events ingested.'
         value={eventCountsTimeseries && eventCountsTimeseries[eventCountsTimeseries.length - 1].value}

@@ -17,8 +17,8 @@ export class Base {
     return await this._request('POST', urlPath, payload);
   }
 
-  static async _delete(urlPath) {
-    return await this._request('DELETE', urlPath);
+  static async _delete(urlPath, payload = {}) {
+    return await this._request('DELETE', urlPath, payload);
   }
 
   static async _patch(urlPath, payload = {}) {

@@ -267,12 +267,21 @@ Rails.application.routes.draw do
         end
       end
       
+      ##################
+      ## ADMIN ROUTES ##
+      ##################
       get :'/admin/ingestion/queuing', to: 'admin/ingestion#queueing'
       get :'/admin/ingestion/queue_stats', to: 'admin/ingestion#queue_stats'
       get :'/admin/ingestion/event_counts', to: 'admin/ingestion#event_counts'
       get :'/admin/ingestion/ingestion_batches', to: 'admin/ingestion#ingestion_batches'
       get :'/admin/data_syncs', to: 'admin/data_syncs#index'
       get :'/admin/event_triggers/delay_time_timeseries', to: 'admin/event_triggers#delay_time_timeseries'
+      get :'/admin/api_keys/workspace_for_api_key/:public_key', to: 'admin/api_keys#workspace_for_api_key'
+      get :'/admin/ingestion_batches', to: 'admin/ingestion_batches#index'
+      
+      get :'/admin/queues/:name', to: 'admin/queues#show', param: :name
+      post :'/admin/queues/:queue_name/records/retry', to: 'admin/queues#retry'
+      delete :'/admin/queues/:queue_name/records/delete', to: 'admin/queues#destroy'
 
       namespace :webhooks do
         post :'cal_com/:workspace_id', to: 'cal_com#receive'

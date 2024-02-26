@@ -15,28 +15,20 @@ module Api
         end
 
         def queue_stats
-          prepared_events = Ingestion::QueueManager.num_records_in_queue(Ingestion::QueueManager::Queues.PREPARED_EVENTS)
-          clickhouse_user_profiles = Ingestion::QueueManager.num_records_in_queue(Ingestion::QueueManager::Queues.CLICK_HOUSE_USER_PROFILES)
-          clickhouse_organization_profiles = Ingestion::QueueManager.num_records_in_queue(Ingestion::QueueManager::Queues.CLICK_HOUSE_ORGANIZATION_PROFILES)
-          clickhouse_organization_members = Ingestion::QueueManager.num_records_in_queue(Ingestion::QueueManager::Queues.CLICK_HOUSE_ORGANIZATION_MEMBERS)
-
-          capture_endpoint_dlq = Ingestion::QueueManager.num_records_in_queue(Ingestion::QueueManager::Queues.CAPTURE_ENDPOINT_DLQ)
-          events_to_prepare_dlq = Ingestion::QueueManager.num_records_in_queue(Ingestion::QueueManager::Queues.EVENTS_TO_PREPARE_DLQ)
-          prepared_events_dlq = Ingestion::QueueManager.num_records_in_queue(Ingestion::QueueManager::Queues.PREPARED_EVENTS_DLQ)
-          clickhouse_user_profiles_dlq = Ingestion::QueueManager.num_records_in_queue(Ingestion::QueueManager::Queues.CLICK_HOUSE_USER_PROFILES_DLQ)
-          clickhouse_organization_profiles_dlq = Ingestion::QueueManager.num_records_in_queue(Ingestion::QueueManager::Queues.CLICK_HOUSE_ORGANIZATION_PROFILES_DLQ)
-          clickhouse_organization_members_dlq = Ingestion::QueueManager.num_records_in_queue(Ingestion::QueueManager::Queues.CLICK_HOUSE_ORGANIZATION_MEMBERS_DLQ)
           render json: {
-            prepared_events_count: prepared_events,
-            clickhouse_user_profiles_count: clickhouse_user_profiles,
-            clickhouse_organization_profiles_count: clickhouse_organization_profiles,
-            clickhouse_organization_members_count: clickhouse_organization_members,
-            capture_endpoint_dlq_count: capture_endpoint_dlq,
-            events_to_prepare_dlq_count: events_to_prepare_dlq,
-            prepared_events_dlq_count: prepared_events_dlq,
-            clickhouse_user_profiles_dlq_count: clickhouse_user_profiles_dlq,
-            clickhouse_organization_profiles_dlq_count: clickhouse_organization_profiles_dlq,
-            clickhouse_organization_members_dlq_count: clickhouse_organization_members_dlq,
+            ingestion_queues: Ingestion::QueueManager::Queues.ingestion_queues.map do |queue| 
+              {
+                queue: queue,
+                num_records_in_queue: Ingestion::QueueManager.num_records_in_queue(queue),
+              }
+            end,
+            dead_letter_queues: Ingestion::QueueManager::Queues.dead_letter_queues.map do |queue| 
+              {
+                queue: queue,
+                num_records_in_queue: Ingestion::QueueManager.num_records_in_queue(queue),
+              }
+            end,
+            redis_stats: Ingestion::QueueManager.redis_stats,
           }, status: :ok
         end
 

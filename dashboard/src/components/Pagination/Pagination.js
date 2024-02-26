@@ -34,7 +34,7 @@ export default function Pagination({ currentPage, lastPageNum, onNewPageSelected
             </>
           ) : (
             <>
-              {currentPage === lastPageNum && (
+              {currentPage === lastPageNum && lastPageNum > 2 && (
                 <PaginationItem enabled={true} content={currentPage - 2} onSelect={() => onNewPageSelected(currentPage - 2)} />
               )}
               <PaginationItem enabled={true} content={currentPage - 1} onSelect={() => onNewPageSelected(currentPage - 1)} />
