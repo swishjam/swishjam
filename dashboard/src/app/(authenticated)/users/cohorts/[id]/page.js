@@ -42,10 +42,10 @@ export default function UserSegmentDetailsPage({ params }) {
     <main className="mx-auto max-w-7xl px-4 mt-8 sm:px-6 lg:px-8 mb-8">
       <div className="my-8 grid grid-cols-2">
         <div>
-          <Link href='/users/segments' className='text-gray-400 hover:underline'>
+          <Link href='/users/cohorts' className='text-gray-400 hover:underline'>
             <h4 className='text-xs flex items-center'>
               <ArrowLeftIcon className='h-4 w-4 inline-block mr-1' />
-              Back to all segments
+              Back to all cohorts
             </h4>
           </Link>
           <h1 className="text-lg font-medium text-gray-700">
@@ -53,7 +53,7 @@ export default function UserSegmentDetailsPage({ params }) {
           </h1>
         </div>
         <div className='flex justify-end'>
-          <Link href={`/users/segments/${id}/edit`}>
+          <Link href={`/users/cohorts/${id}/edit`}>
             <Button variant='swishjam' className='flex items-center space-x-2'>
               <PencilSquareIcon className='h-4 w-4 mr-2' />
               Edit Segment
@@ -78,7 +78,7 @@ export default function UserSegmentDetailsPage({ params }) {
                 <Tooltipable
                   content={
                     <h4 className='text-xs text-gray-500'>
-                      {totalNumUsersInSegment} user currently falls into this segment, which {totalNumUsersInSegment === 1 ? '' : 's'} is {(totalNumUsersInSegment / totalUserCounts.total_num_users * 100).toFixed(2)}% of all users, and {(totalNumUsersInSegment / totalUserCounts.total_num_identified_users * 100).toFixed(2)}% of identified users.
+                      {totalNumUsersInSegment} user currently falls into this cohort, which {totalNumUsersInSegment === 1 ? '' : 's'} is {(totalNumUsersInSegment / totalUserCounts.total_num_users * 100).toFixed(2)}% of all users, and {(totalNumUsersInSegment / totalUserCounts.total_num_identified_users * 100).toFixed(2)}% of identified users.
                     </h4>
                   }
                 >

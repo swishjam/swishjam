@@ -4,7 +4,7 @@ import { useMemo } from 'react';
 const initializeMarkdownParser = acceptableHighlightValues => {
   const markdown = new MarkdownIt();
 
-  function customHighlight(md, acceptableHighlightValues) {
+  function variablesHighlight(md, acceptableHighlightValues) {
     const singleBrackPattern = /\{([^}]+)\}/;
     const doubleBrackPattern = /\{\{([^}]+)\}\}/;
 
@@ -41,7 +41,42 @@ const initializeMarkdownParser = acceptableHighlightValues => {
     md.inline.ruler.before('emphasis', 'highlight', tokenize);
   }
 
-  markdown.use(customHighlight, acceptableHighlightValues);
+  function slackLink(md) {
+    const slackLinkPattern = /<[^>]*\|[^>]*>/;;
+
+    function tokenize(state, silent) {
+      const start = state.pos;
+      const match = slackLinkPattern.exec(state.src.slice(start));
+
+      if (!match || match.index !== 0) {
+        return false;
+      }
+
+      if (silent) {
+        return true;
+      }
+
+      const link = match[0].split('|')[0].slice(1);
+      const text = match[0].split('|')[1].slice(0, -1);
+
+      const linkOpenToken = state.push('link_open', 'a', 1);
+      linkOpenToken.attrs = [['href', link]];
+
+      const textToken = state.push('text', '', 0);
+      textToken.content = text;
+
+      state.push('link_close', 'a', -1);
+
+      state.pos += match[0].length;
+
+      return true;
+    }
+
+    md.inline.ruler.before('highlight', 'slackLink', tokenize);
+  }
+
+  markdown.use(variablesHighlight, acceptableHighlightValues);
+  markdown.use(slackLink);
 
   // Overwrite the default renderer for 'highlight' tokens
   markdown.renderer.rules.highlight = function (tokens, idx) {
@@ -78,9 +113,11 @@ const initializeMarkdownParser = acceptableHighlightValues => {
   return markdown;
 }
 
-
 export default function InterpolatedMarkdown({ content, availableVariables }) {
   const markdown = useMemo(() => initializeMarkdownParser(availableVariables), [availableVariables]);
-  const __html = markdown.render(content || '');
+  const css = `<style>
+    .markdown-content a { color: blue }
+  </style>`
+  const __html = `${css}<div class='markdown-content'>${markdown.render(content || '')}</div>`
   return <div dangerouslySetInnerHTML={{ __html }} />
 }

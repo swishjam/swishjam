@@ -60,7 +60,7 @@ module ClickHouseQueries
           query_filters.each do |filter|
             next if !filter.is_a?(QueryFilters::EventCountForUserOverTimePeriod)
             event_count_column_name = "#{ClickHouseQueries::FilterHelpers::LeftJoinStatementsForEventCountByUserFilters.join_table_alias_for_event_count_for_user_filter(filter)}.event_count_for_user_within_lookback_period"
-            sql << ", #{event_count_column_name} AS #{filter.config['event_name'].gsub(' ', '_')}_count_for_user"
+            sql << ", #{event_count_column_name} AS #{filter.config['event_name'].gsub(' ', '_').gsub('.', '_')}_count_for_user"
           end
         end
         sql

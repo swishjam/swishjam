@@ -31,10 +31,10 @@ const rowForUser = ({ user, queryFilterGroups }) => {
           } else if (filter.config.property_name === 'user_unique_identifier') {
             return user.uniqueIdentifier()
           } else {
-            return user.metadata()[filter.config.property_name] || '-'
+            return user.metadata()[filter.config.property_name] ?? '-'
           }
         } else {
-          return user.attributes()[`${filter.config.event_name.replace(/\s/g, '_')}_count_for_user`]
+          return user.attributes()[`${filter.config.event_name.replace(/\s/g, '_').replace(/\./g, '_')}_count_for_user`]
         }
       })
     })),
@@ -78,7 +78,7 @@ export default function UsersTablePreview({ userProfilesCollection, queryFilterG
         noDataMessage={
           <>
             <UserX2Icon className='h-12 w-12 mx-auto text-gray-400' />
-            <p className='text-sm text-gray-700 text-center my-4'>No users currently match this segment.</p>
+            <p className='text-sm text-gray-700 text-center my-4'>No users currently match this cohort.</p>
           </>
         }
       />

@@ -24,12 +24,12 @@ export default function NewUserSegmentPage() {
     SwishjamAPI.UserSegments.create({ name, description, queryFilterGroups }).then(({ user_segment, error }) => {
       if (error) {
         setIsLoading(false)
-        toast.error('Failed to create user segment', {
+        toast.error('Failed to create user cohort', {
           description: error,
           duration: 10_000,
         })
       } else {
-        router.push(`/users/segments/${user_segment.id}`)
+        router.push(`/users/cohorts/${user_segment.id}`)
       }
     })
   }
@@ -40,7 +40,7 @@ export default function NewUserSegmentPage() {
     SwishjamAPI.UserSegments.preview({ queryFilterGroups, page }).then(({ error, users, total_pages, total_num_records }) => {
       setIsLoading(false)
       if (error) {
-        toast.error('Failed to preview user segment', {
+        toast.error('Failed to preview user cohort', {
           description: error,
           duration: 10_000,
         })
@@ -58,7 +58,7 @@ export default function NewUserSegmentPage() {
     <main className="mx-auto max-w-7xl px-4 mt-8 sm:px-6 lg:px-8 mb-8">
       <div className='grid grid-cols-2 my-8 items-center'>
         <div>
-          <h1 className="text-lg font-medium text-gray-700 mb-0">New User Segment</h1>
+          <h1 className="text-lg font-medium text-gray-700 mb-0">New User Cohort</h1>
         </div>
 
         <div className="w-full flex items-center justify-end">
@@ -72,7 +72,7 @@ export default function NewUserSegmentPage() {
       />
       {previewedUsers && (
         <div className='relative bg-white rounded-md border border-gray-200 p-8 mt-8'>
-          <h2 className='text-md font-medium text-gray-700 mb-2'>{totalNumUsersInPreview} users would fall into this segment.</h2>
+          <h2 className='text-md font-medium text-gray-700 mb-2'>{totalNumUsersInPreview} users would fall into this cohort.</h2>
           <Button className='absolute top-2 right-2' variant='ghost' onClick={() => setPreviewedUsers()}>
             <XIcon className='h-4 w-4 text-gray-500' />
           </Button>

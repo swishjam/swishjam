@@ -15,7 +15,7 @@ module ClickHouseQueries
       end
 
       def self.join_table_alias_for_event_count_for_user_filter(filter)
-        "#{filter.event_name.gsub(' ', '_')}_event_count_for_user_within_last_#{filter.num_lookback_days}_days"
+        "#{filter.event_name.gsub(' ', '_').gsub('.', '_')}_event_count_for_user_within_last_#{filter.num_lookback_days}_days"
       end
 
       private

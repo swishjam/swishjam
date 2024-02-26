@@ -6,7 +6,7 @@ module ProfileTags
       @user_segment = user_segment
       @workspace = user_segment.workspace
       @emit_events = emit_events
-      @data_sync = @user_segment.data_syncs.create!(workspace: @workspace, provider: "user_segment_profile_tags", started_at: Time.current)
+      @data_sync = @user_segment.data_syncs.create!(workspace: @workspace, provider: "user_cohort_profile_tags", started_at: Time.current)
     end
 
     def update_user_segment_profile_tags!
@@ -41,8 +41,8 @@ module ProfileTags
       return if !@emit_events
       
       events = []
-      users_to_add_profile_tag.each{ |user| events << event_for_ingestion(user, "added_to_segment") }
-      users_to_remove_profile_tag.each{ |user| events << event_for_ingestion(user, "removed_from_segment") }
+      users_to_add_profile_tag.each{ |user| events << event_for_ingestion(user, "added_to_cohort") }
+      users_to_remove_profile_tag.each{ |user| events << event_for_ingestion(user, "removed_from_cohort") }
       return if events.empty?
 
       IngestionJobs::PrepareEventsAndEnqueueIntoClickHouseWriter.perform_async(events)
@@ -60,9 +60,9 @@ module ProfileTags
           profile_id: user.id,
           profile_name: user.full_name,
           profile_email: user.email,
-          segment_name: user_segment.name,
+          cohort_name: user_segment.name,
           tag_name: user_segment.profile_tag_name,
-          segment_id: user_segment.id,
+          cohort_id: user_segment.id,
         },
       )
     end

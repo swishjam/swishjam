@@ -1,6 +1,6 @@
 import { prettyDateTime } from "@/lib/utils/timeHelpers";
 import { Tooltipable } from "../ui/tooltip";
-import { BanIcon, UserMinus } from "lucide-react";
+import { BanIcon, TargetIcon, UserMinus, Users2Icon } from "lucide-react";
 import { LuUserCheck } from "react-icons/lu";
 import DottedUnderline from "../utils/DottedUnderline";
 
@@ -27,7 +27,7 @@ const iconForTag = tag => {
   if (tag.removed_at) {
     return <BanIcon className='h-3 w-3 inline-block mr-1 text-gray-700' />
   }
-  return ICONS_BY_TAG_NAME[tag.name]
+  return ICONS_BY_TAG_NAME[tag.name] || <Users2Icon className='h-3 w-3 inline-block mr-1 text-gray-700' />
 }
 
 const Badge = ({ tag }) => (
@@ -47,7 +47,7 @@ export default function ProfileTags({ profileTags }) {
               content={
                 <div className='text-xs'>
                   <span className='block'><strong className='block'>No longer an active tag.</strong></span>
-                  <span classname='mt-2'>User was in the <DottedUnderline className='text-xs'>{tag.name}</DottedUnderline> segment from {prettyDateTime(tag.applied_at)} to {prettyDateTime(tag.removed_at)}.</span>
+                  <span classname='mt-2'>User was in the <DottedUnderline className='text-xs'>{tag.name}</DottedUnderline> cohort from {prettyDateTime(tag.applied_at)} to {prettyDateTime(tag.removed_at)}.</span>
                 </div>
               }
             >
@@ -62,7 +62,7 @@ export default function ProfileTags({ profileTags }) {
               key={tag.id}
               content={
                 <div className='text-xs'>
-                  <span className='block'>Automatically applied by the <strong>{tag.user_segment_name}</strong> segment on <strong>{prettyDateTime(tag.applied_at)}</strong>.</span>
+                  <span className='block'>Automatically applied by the <strong>{tag.user_segment_name}</strong> cohort on <strong>{prettyDateTime(tag.applied_at)}</strong>.</span>
                   {tag.user_segment_description && <span className='block mt-2 text-gray-600'>{tag.user_segment_description}</span>}
                 </div>
               }

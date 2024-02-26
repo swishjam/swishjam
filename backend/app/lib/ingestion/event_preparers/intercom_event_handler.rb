@@ -16,19 +16,19 @@ module Ingestion
       private
 
       def event_properties
-        @event_properties ||= (PROPERTY_PARSER_DICT[parsed_event.name] || Intercom::EventPayloadParsers::Default).new(parsed_event.payload).properties
+        @event_properties ||= (PROPERTY_PARSER_DICT[parsed_event.name] || Intercom::EventPayloadParsers::Default).new(parsed_event.properties).properties
       end
 
       def user_profile_for_event
         @user_profile ||= begin
-          email = parsed_event.payload.dig('data', 'item', 'source', 'author', 'email')
+          email = parsed_event.properties.dig('data', 'item', 'source', 'author', 'email')
           return if email.blank?
-          user_profile = @workspace.analytics_user_profiles.find_by(email: email)
+          user_profile = workspace.analytics_user_profiles.find_by(email: email)
           if user_profile.nil?
-            user_profile = @workspace.analytics_user_profiles.new(email: email, created_by_data_source: ApiKey::ReservedDataSources.INTERCOM)
+            user_profile = workspace.analytics_user_profiles.new(email: email, created_by_data_source: ApiKey::ReservedDataSources.INTERCOM)
           end
-          user_profile.metadata['intercom_name'] = parsed_event.payload.dig('data', 'item', 'source', 'author', 'name')
-          user_profile.metadata['intercom_id'] = parsed_event.payload.dig('data', 'item', 'source', 'author', 'id')
+          user_profile.metadata['intercom_name'] = parsed_event.properties.dig('data', 'item', 'source', 'author', 'name')
+          user_profile.metadata['intercom_id'] = parsed_event.properties.dig('data', 'item', 'source', 'author', 'id')
           user_profile.save! if user_profile.changed?
           user_profile
         end

@@ -130,7 +130,12 @@ export default function TestTriggerModal({
               }}
             />
           </div>
-          <SlackMessagePreview header={slackMessageHeader} body={<Markdown>{interpolatedSlackBody}</Markdown>} className='mt-2' />
+          <SlackMessagePreview
+            className='mt-2'
+            header={slackMessageHeader}
+            // we don't use InterpolatedMarkdown because we dont display variables, we just display the result
+            body={<Markdown>{interpolatedSlackBody}</Markdown>}
+          />
           <div className='mt-2'>
             {resultMessage && (
               <div className='text-sm text-gray-700 mb-2 text-center'>

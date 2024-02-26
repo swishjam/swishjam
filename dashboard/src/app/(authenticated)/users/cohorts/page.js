@@ -26,12 +26,12 @@ export default function UserSegmentsPage() {
     <main className="mx-auto max-w-7xl px-4 mt-8 sm:px-6 lg:px-8 mb-8">
       <div className='grid grid-cols-2 my-8 items-center'>
         <div>
-          <h1 className="text-lg font-medium text-gray-700 mb-0">User Segments</h1>
+          <h1 className="text-lg font-medium text-gray-700 mb-0">User Cohorts</h1>
         </div>
 
         <div className="w-full flex items-center justify-end">
-          <Link href='/users/segments/new'>
-            <Button variant='swishjam'>New User Segment</Button>
+          <Link href='/users/cohorts/new'>
+            <Button variant='swishjam'>New User Cohort</Button>
           </Link>
         </div>
       </div>
@@ -57,21 +57,21 @@ export default function UserSegmentsPage() {
             ))
           ) : (
             userSegments.length === 0
-              ? <EmptyState title="You haven't defined any user segments yet." />
+              ? <EmptyState title="You haven't defined any user cohorts yet." />
               : (
                 userSegments.map(segment => (
                   <div key={segment.id} className='bg-white relative px-8 py-4 border border-zinc-200 shadow-sm rounded-sm'>
                     <div className="flex items-center space-x-2">
                       <h2 className="text-sm font-semibold leading-6 text-gray-600 min-w-0 flex-auto">{segment.name}</h2>
                       {segment.last_synced_profile_tags_at && (
-                        <Tooltipable content={<span className='text-xs'>Segment has {segment.rough_user_count} users (as of {prettyDateTime(segment.last_synced_profile_tags_at)}).</span>}>
+                        <Tooltipable content={<span className='text-xs'>Cohort has {segment.rough_user_count} users (as of {prettyDateTime(segment.last_synced_profile_tags_at)}).</span>}>
                           <span className="text-xs inline-flex items-center gap-x-1.5 rounded-sm bg-green-100 px-1.5 py-0.5 font-medium text-green-700 cursor-default">
                             {segment.rough_user_count} <UserIcon className='h-3 w-3 inline-block' />
                           </span>
                         </Tooltipable>
                       )}
                       {segment?.query_filter_groups?.length > 0 && (
-                        <Tooltipable content={<span className='text-xs'>Segment has {segment.query_filter_groups.reduce((acc, group) => acc + group.query_filters.length, 0)} filters defined across {segment.query_filter_groups.length} filter groups.</span>}>
+                        <Tooltipable content={<span className='text-xs'>Cohort has {segment.query_filter_groups.reduce((acc, group) => acc + group.query_filters.length, 0)} filters defined across {segment.query_filter_groups.length} filter groups.</span>}>
                           <span className="text-xs inline-flex items-center gap-x-1.5 rounded-sm bg-accent px-1.5 py-0.5 font-medium text-gray-600 cursor-default">
                             {segment.query_filter_groups.reduce((acc, group) => acc + group.query_filters.length, 0)} <FilterIcon className='h-3 w-3 inline-block' />
                           </span>
@@ -89,13 +89,13 @@ export default function UserSegmentsPage() {
                           </div>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent className="w-fit border-zinc-200 shadow-sm border-sm" align='end'>
-                          <Link href={`/users/segments/${segment.id}`}>
+                          <Link href={`/users/cohorts/${segment.id}`}>
                             <DropdownMenuItem className='cursor-pointer hover:bg-accent'>
                               <LuReceipt className='h-4 w-4 inline-block mr-2' />
                               View Details
                             </DropdownMenuItem>
                           </Link>
-                          <Link href={`/users/segments/${segment.id}/edit`}>
+                          <Link href={`/users/cohorts/${segment.id}/edit`}>
                             <DropdownMenuItem className='cursor-pointer hover:bg-accent'>
                               <LuPencil className='h-4 w-4 inline-block mr-2' />
                               Edit
@@ -107,18 +107,18 @@ export default function UserSegmentsPage() {
                               className="!text-red-400 cursor-pointer hover:bg-accent"
                               onClick={() => {
                                 displayConfirmation({
-                                  title: <>Delete the '{segment.name}' segment?</>,
-                                  body: <>This action cannot be undone. Are you sure you want to delete this segment?</>,
+                                  title: <>Delete the '{segment.name}' cohort?</>,
+                                  body: <>This action cannot be undone. Are you sure you want to delete this cohort?</>,
                                   callback: () => {
                                     SwishjamAPI.UserSegments.delete(segment.id).then(({ error }) => {
                                       if (error) {
-                                        toast.error('Failed to delete user segment', {
+                                        toast.error('Failed to delete user cohort', {
                                           description: error,
                                           duration: 10_000,
                                         })
                                       } else {
                                         setUserSegments(userSegments.filter(s => s.id !== segment.id))
-                                        toast.success(`Successfully deleted the '${segment.name}' segment.`)
+                                        toast.success(`Successfully deleted the '${segment.name}' cohort.`)
                                       }
                                     })
                                   },
