@@ -6,16 +6,18 @@ module Automations
       @automation = automation
       @prepared_event = prepared_event
       @as_test = as_test
+      create_executed_automation!
     end
 
     def execute_automation!
-      automation.first_automation_step.execute_and_run_next_step_if_necessary!(prepared_event, executed_automation)
+      execute_automation_steps_recursively!(automation.first_automation_step)
+      executed_automation
     end
 
     private
 
     def execute_automation_steps_recursively!(automation_step)
-      executed_step = automation_step.executed_automation_steps.create!(started_at: Time.current)
+      executed_step = automation_step.executed_automation_steps.create!(executed_automation: executed_automation, started_at: Time.current)
       automation_step.execute_automation!(prepared_event, executed_step)
       if executed_step.completed?
         next_steps = next_automation_steps(automation_step, prepared_event)
@@ -54,5 +56,6 @@ module Automations
         )
       end
     end
+    alias create_executed_automation! executed_automation
   end
 end

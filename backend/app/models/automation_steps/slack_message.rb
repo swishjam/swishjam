@@ -47,15 +47,10 @@ module AutomationSteps
           }
         ]
       )
-      executed_automation_step.completed_at = Time.current
-      executed_automation_step.save!
-      executed_automation_step
+      executed_automation_step.completed!
     rescue => e
       Sentry.capture_exception(e)
-      executed_automation_step.error_message = e.message
-      executed_automation_step.completed_at = Time.current
-      executed_automation_step.save!
-      executed_automation_step
+      executed_automation_step.completed!
     end
   end
 end

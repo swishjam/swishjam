@@ -1,4 +1,4 @@
-class Automations < ActiveRecord::Migration[6.1]
+class CreateAutomations < ActiveRecord::Migration[6.1]
   def change
     create_table :automations, id: :uuid do |t|
       t.references :workspace, type: :uuid, null: false, foreign_key: true
@@ -13,7 +13,7 @@ class Automations < ActiveRecord::Migration[6.1]
     create_table :executed_automations, id: :uuid do |t|
       t.references :automation, type: :uuid, null: false, foreign_key: true
       t.references :retried_from_executed_automation, type: :uuid, foreign_key: { to_table: :executed_automations }, index: { name: 'idx_executed_automations_on_retried_from_executed_automation_id' }
-      t.references :executed_on_user_profile_id, type: :uuid, foreign_key: { to_table: :analytics_user_profiles }
+      t.references :executed_on_user_profile, type: :uuid, foreign_key: { to_table: :analytics_user_profiles }
       t.jsonb :event_json, null: false, default: {}
       t.string :event_uuid, null: false, index: { unique: true }
       t.float :seconds_from_occurred_at_to_executed
