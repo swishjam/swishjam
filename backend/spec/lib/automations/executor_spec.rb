@@ -2,15 +2,14 @@ require 'spec_helper'
 
 describe Automations::Executor do
   let(:workspace) { FactoryBot.create(:workspace) }
-  let(:automation) { FactoryBot.create(:automation) }
+  let(:automation) { FactoryBot.create(:automation, workspace: workspace) }
   let(:analytics_user_profile) { FactoryBot.create(:analytics_user_profile, workspace: workspace) }
+  let(:slack_destination) { FactoryBot.create(:slack_destination, workspace: workspace) }
   
   let(:slack_message_automation_step) { FactoryBot.create(:slack_message_automation_step, automation: automation, sequence_index: 0) }
-  let(:delay_automation_step) { FactoryBot.create(:delay_automation_step, automation: automation, sequence_index: 1) }
-  let(:resend_email_automation_step) { FactoryBot.create(:resend_email_automation_step, automation: automation, sequence_index: 2) }
+  let(:resend_email_automation_step) { FactoryBot.create(:resend_email_automation_step, automation: automation, sequence_index: 1) }
 
-  let(:slack_to_delay_next_automation_step_condition) { FactoryBot.create(:always_true_next_automation_step_condition, automation_step: slack_message_automation_step, next_automation_step: delay_automation_step) }
-  let(:delay_to_resend_email_next_automation_step_condition) { FactoryBot.create(:always_true_next_automation_step_condition, automation_step: delay_automation_step, next_automation_step: resend_email_automation_step) }
+  let(:slack_to_resend_next_automation_step_condition) { FactoryBot.create(:always_true_next_automation_step_condition, automation_step: slack_message_automation_step, next_automation_step: resend_email_automation_step) }
   
   let(:prepared_event) do
     Ingestion::ParsedEventFromIngestion.new(
@@ -23,12 +22,12 @@ describe Automations::Executor do
       user_properties: { email: analytics_user_profile.email },
     )
   end
-  let(:executor) { described_class.new(automation, prepared_event) }
+  let(:executor) { described_class.new(automation: automation, prepared_event: prepared_event) }
 
   before do
     # these won't exist in the DB until we call the methods below?
-    slack_to_delay_next_automation_step_condition
-    delay_to_resend_email_next_automation_step_condition
+    slack_to_resend_next_automation_step_condition
+    slack_destination
   end
 
   describe '#execute_automation!' do
@@ -53,20 +52,14 @@ describe Automations::Executor do
 
       executor.execute_automation!
 
-      expect(automation.executed_automation_steps.count).to eq(3)
+      expect(automation.executed_automation_steps.count).to eq(2)
       expect(slack_message_automation_step.executed_automation_steps.count).to eq(1)
-      expect(delay_automation_step.executed_automation_steps.count).to eq(1)
       expect(resend_email_automation_step.executed_automation_steps.count).to eq(1)
 
       slack_execution = slack_message_automation_step.executed_automation_steps.first
       expect(slack_execution.started_at).to be_present
       expect(slack_execution.completed_at).to be_present
       expect(slack_execution.error_message).to be_nil
-
-      delay_execution = delay_automation_step.executed_automation_steps.first
-      expect(delay_execution.started_at).to be_present
-      expect(delay_execution.completed_at).to be_present
-      expect(delay_execution.error_message).to be_nil
 
       resend_email_execution = resend_email_automation_step.executed_automation_steps.first
       expect(resend_email_execution.started_at).to be_present
@@ -75,25 +68,55 @@ describe Automations::Executor do
     end
 
     it 'does not complete the automation or execute the next automation step when the executed_automation_step is not completed after being executed' do
-      expect_any_instance_of(AutomationSteps::SlackMessage).to receive(:execute_automation!).with(prepared_event, anything).exactly(1).times.and_call_original
-      expect_any_instance_of(AutomationSteps::Delay).to receive(:execute_automation!).with(prepared_event, anything).exactly(1).times.and_return(nil)
+      expect_any_instance_of(AutomationSteps::SlackMessage).to receive(:execute!).with(prepared_event, anything, executed_automation_step: nil).exactly(1).times.and_call_original
+      expect_any_instance_of(AutomationSteps::SlackMessage).to receive(:execute_automation!).with(prepared_event, anything).exactly(1).times.and_return(nil)
+      expect_any_instance_of(AutomationSteps::ResendEmail).to_not receive(:execute!)
       expect_any_instance_of(AutomationSteps::ResendEmail).to_not receive(:execute_automation!)
 
       executor.execute_automation!
 
-      expect(automation.executed_automation_steps.count).to eq(2)
+      expect(automation.executed_automation_steps.count).to eq(1)
+      
+      slack_execution = slack_message_automation_step.executed_automation_steps.first
+      expect(slack_execution.started_at).to be_present
+      expect(slack_execution.completed_at).to be_nil
+      expect(slack_execution.error_message).to be_nil
+    end
+
+    it 'completes the automation and does not execute any more automation steps when the automation step that was executed has no `next_automation_step_conditions` that satisfy the event' do
+      expect(executor).to receive(:next_automation_steps).with(anything, prepared_event).and_return([])
+
+      automation_execution = executor.execute_automation!
+
+      expect(automation.executed_automation_steps.count).to be(1)
       
       slack_execution = slack_message_automation_step.executed_automation_steps.first
       expect(slack_execution.started_at).to be_present
       expect(slack_execution.completed_at).to be_present
       expect(slack_execution.error_message).to be_nil
 
-      delay_execution = delay_automation_step.executed_automation_steps.first
-      expect(delay_execution.started_at).to be_present
-      expect(delay_execution.completed_at).to be_nil
-      expect(delay_execution.error_message).to be_nil
+      expect(automation_execution.completed_at).to be_present
     end
+  end
 
-    it ''
+  describe '#pick_back_up_automation_from_executed_automation_step!' do
+    it 'uses the provided executed_automation_step and does not create a new one to continue the automation execution' do
+      executed_automation_step = ExecutedAutomationStep.create!(
+        started_at: 5.minutes.ago, 
+        executed_automation: executor.executed_automation, 
+        automation_step: resend_email_automation_step,
+      )
+
+      expect_any_instance_of(AutomationSteps::SlackMessage).to_not receive(:execute!)
+      expect_any_instance_of(AutomationSteps::SlackMessage).to_not receive(:execute_automation!)
+      expect_any_instance_of(AutomationSteps::ResendEmail).to receive(:execute!).with(
+        prepared_event, 
+        executor.executed_automation, 
+        executed_automation_step: executed_automation_step
+      ).exactly(1).times.and_call_original
+      expect_any_instance_of(AutomationSteps::ResendEmail).to receive(:execute_automation!).with(prepared_event, executed_automation_step).exactly(1).times.and_return(nil)
+
+      executor.pick_back_up_automation_from_executed_automation_step!(executed_automation_step)
+    end
   end
 end
