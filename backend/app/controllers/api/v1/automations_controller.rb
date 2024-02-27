@@ -6,7 +6,12 @@ module Api
       end
 
       def show
-        render json: current_workspace.automations.find(params[:id]), status: :ok
+        automation = current_workspace.automations.find(params[:id])
+        render json: {
+          automation: automation,
+          automation_steps: automation.automation_steps.in_sequence_order,
+          next_automation_step_conditions: automation.next_automation_step_conditions,
+        }, status: :ok
       end
 
       def create

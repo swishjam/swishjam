@@ -1,5 +1,6 @@
 import Admin from './admin';
 import Auth from './auth';
+import Automations from './automations';
 import BillingData from './billing-data';
 import Config from './config';
 import DashboardComponents from './dashboard-components';
@@ -30,6 +31,7 @@ import UserSegments from './user-segments';
 export class SwishjamAPI {
   static Admin = Admin;
   static Auth = Auth;
+  static Automations = Automations;
   static BillingData = BillingData;
   static Config = Config;
   static Dashboards = Dashboards;
