@@ -259,7 +259,7 @@ ActiveRecord::Schema.define(version: 2024_02_27_024126) do
   create_table "executed_automations", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.uuid "automation_id", null: false
     t.uuid "retried_from_executed_automation_id"
-    t.uuid "executed_on_user_profile_id_id"
+    t.uuid "executed_on_user_profile_id"
     t.jsonb "event_json", default: {}, null: false
     t.string "event_uuid", null: false
     t.float "seconds_from_occurred_at_to_executed"
@@ -267,7 +267,7 @@ ActiveRecord::Schema.define(version: 2024_02_27_024126) do
     t.datetime "completed_at"
     t.index ["automation_id"], name: "index_executed_automations_on_automation_id"
     t.index ["event_uuid"], name: "index_executed_automations_on_event_uuid", unique: true
-    t.index ["executed_on_user_profile_id_id"], name: "index_executed_automations_on_executed_on_user_profile_id_id"
+    t.index ["executed_on_user_profile_id"], name: "index_executed_automations_on_executed_on_user_profile_id"
     t.index ["retried_from_executed_automation_id"], name: "idx_executed_automations_on_retried_from_executed_automation_id"
   end
 
@@ -462,7 +462,7 @@ ActiveRecord::Schema.define(version: 2024_02_27_024126) do
 
   create_table "user_segments", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.uuid "workspace_id", null: false
-    t.uuid "created_by_user_id", null: false
+    t.uuid "created_by_user_id"
     t.string "name", null: false
     t.string "description"
     t.datetime "created_at", precision: 6, null: false
@@ -537,7 +537,7 @@ ActiveRecord::Schema.define(version: 2024_02_27_024126) do
   add_foreign_key "data_syncs", "workspaces"
   add_foreign_key "executed_automation_steps", "automation_steps"
   add_foreign_key "executed_automation_steps", "executed_automations"
-  add_foreign_key "executed_automations", "analytics_user_profiles", column: "executed_on_user_profile_id_id"
+  add_foreign_key "executed_automations", "analytics_user_profiles", column: "executed_on_user_profile_id"
   add_foreign_key "executed_automations", "automations"
   add_foreign_key "executed_automations", "executed_automations", column: "retried_from_executed_automation_id"
   add_foreign_key "integrations", "workspaces"
