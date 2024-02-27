@@ -196,6 +196,7 @@ Rails.application.routes.draw do
         end
       end
 
+      resources :automations
       resources :event_triggers do
         collection do
           post :test_trigger
