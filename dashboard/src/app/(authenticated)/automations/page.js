@@ -59,7 +59,6 @@ export default function () {
   return (
     <div>
       <div className="flex items-center justify-between">
-        <h2 className="text-md font-medium text-gray-700 mb-0">Event Triggers</h2>
         <AddNewEventTriggerModal />
       </div>
       {triggers === undefined ? (

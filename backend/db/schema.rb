@@ -462,7 +462,7 @@ ActiveRecord::Schema.define(version: 2024_02_27_024126) do
 
   create_table "user_segments", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.uuid "workspace_id", null: false
-    t.uuid "created_by_user_id"
+    t.uuid "created_by_user_id", null: false
     t.string "name", null: false
     t.string "description"
     t.datetime "created_at", precision: 6, null: false
