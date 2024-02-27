@@ -34,6 +34,8 @@ module Ingestion
           if user_profile.nil?
             user_profile = workspace.analytics_user_profiles.new(email: resend_email, created_by_data_source: ApiKey::ReservedDataSources.RESEND)
           end
+          # there are some scenarios where metadata is null somehow?
+          user_profile.metadata ||= {}
           user_profile.metadata['resend_user_email'] ||= resend_email
           user_profile.save! if user_profile.changed?
           user_profile

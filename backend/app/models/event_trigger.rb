@@ -26,8 +26,12 @@ class EventTrigger < Transactional
     elsif EventTriggers::ConditionalStatementsEvaluator.new(prepared_event).event_meets_all_conditions?(conditional_statements)
       seconds_since_occurred_at = Time.current - prepared_event.occurred_at
       if !is_retry && seconds_since_occurred_at > (ENV['EVENT_TRIGGER_LAG_WARNING_THRESHOLD'] || 60 * 5).to_i
-        Sentry.capture_message("EventTrigger #{id} took #{seconds_since_occurred_at} seconds to reach trigger logic.")
-        return if ENV['DISABLE_EVENT_TRIGGER_WHEN_LAGGING']
+        if ENV['DISABLE_EVENT_TRIGGER_WHEN_LAGGING']
+          Sentry.capture_message("EventTrigger #{id} took #{seconds_since_occurred_at} seconds to reach trigger logic, HAULTING TRIGGER FROM EXECUTING.")
+          return
+        else
+          Sentry.capture_message("EventTrigger #{id} took #{seconds_since_occurred_at} seconds to reach trigger logic.")
+        end
       end
       triggered_event_trigger = triggered_event_triggers.create!(
         workspace: workspace, 
