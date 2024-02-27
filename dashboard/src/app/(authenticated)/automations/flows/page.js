@@ -5,7 +5,7 @@ import SwishjamAPI from '@/lib/api-client/swishjam-api';
 import { LuArrowLeft } from 'react-icons/lu';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { NodeTypes, NodeWidth, NodeHeight } from '@/components/Automations/Flow/NodeTypes';
+import { NodeTypes, NodeWidth, NodeHeight } from '@/components/Automations/Flow/FlowHelpers';
 import { ButtonEdge } from '@/components/Automations/Flow/ButtonEdge';
 
 import ReactFlow, {
@@ -22,6 +22,7 @@ import ReactFlow, {
 } from 'reactflow';
 import dagre from 'dagre';
 import 'reactflow/dist/style.css';
+import { KeyIcon } from 'lucide-react';
 
 const dagreGraph = new dagre.graphlib.Graph();
 dagreGraph.setDefaultEdgeLabel(() => ({}));
@@ -66,13 +67,27 @@ const getLayoutedElements = (nodes, edges, direction = 'TB') => {
   return { nodes, edges };
 };
 
+const createNewNode = (id, type, data, onChange,) => {
+  let nid = id || 'new-'+Math.random().toString(36);
+   
+  return {
+    id: nid,
+    position: { x: 0, y: 0 },
+    data: { onChange, width: NodeWidth, height: NodeHeight, content: data },
+    type
+  }
+}
 
 export default function FlowEditor() {
- 
-  const onAddNodeInEdge = (nodeType) => {
-    console.log('nodeType, onaddnode in edge', nodeType)
-    setNodes([...nodes, { id: 'asdfasdf', position: { x: 200, y: 0 }, data: { onChange: () => console.log('change'), width: NodeWidth, height: NodeHeight, content: { label: 'poop' }, }, type: nodeType }]);
+
   
+  const onAddNodeInEdge = (nodeType, edgeId) => {
+    console.log('nodeType, onaddnode in edge', nodeType)
+    let newNode = createNewNode(null, nodeType, { label: 'poop' }, () => console.log('change'))
+    setNodes([
+      ...nodes,
+      newNode
+    ])
   }
 
   const initialNodes = [
@@ -83,8 +98,8 @@ export default function FlowEditor() {
   ];
   const initialEdges = [
     { id: 'e1-2', source: '1', target: '2', type: 'buttonedge', data: { onAddNode: onAddNodeInEdge}},
-    { id: 'e2-3', source: '2', target: '3', type: 'buttonedge'},
-    { id: 'e4-4', source: '3', target: '4', type: 'buttonedge'}
+    { id: 'e2-3', source: '2', target: '3', type: 'buttonedge', data: { onAddNode: onAddNodeInEdge}},
+    { id: 'e3-4', source: '3', target: '4', type: 'buttonedge', data: { onAddNode: onAddNodeInEdge}},
   ];
 
   const { nodes: layoutedNodes, edges: layoutedEdges } = getLayoutedElements(

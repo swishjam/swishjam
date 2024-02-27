@@ -31,7 +31,7 @@ export function ButtonEdge({
   const onAddNode = (nodeType) => {
     console.log('edgeId', id)
     console.log('nodeType', nodeType)
-    data.onAddNode(nodeType)
+    data.onAddNode(nodeType, id)
     // console.log('all Nodes', nodes)
     // console.log('all edges', edges)
     // let newNode = { id: 'asdfasdf', position: { x: 0, y: 1000 }, data: { onChange: () => console.log('change'), width: NodeWidth, height: NodeHeight, content: { label: 'poop' }, }, type: 'slack' };

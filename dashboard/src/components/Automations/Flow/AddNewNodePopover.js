@@ -3,7 +3,7 @@
 import { LuPlus } from 'react-icons/lu';
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
-import { NodeTypesList } from '@/components/Automations/Flow/NodeTypes';
+import { NodeTypesList } from '@/components/Automations/Flow/FlowHelpers';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList, CommandSeparator } from "@/components/ui/command"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 
