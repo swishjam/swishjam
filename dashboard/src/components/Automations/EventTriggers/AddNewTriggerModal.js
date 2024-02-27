@@ -39,7 +39,7 @@ export default function AddNewEventTriggerModal({trigger, onPause, onResume, onD
           Choose Trigger Type 
         </Label>
         <div className="flex flex-col gap-4">
-          <Link href="/automations/event-triggers/new?type=Slack" className="group border p-4 border-gray-200 rounded-sm flex items-center gap-x-1.5 hover:bg-accent duration-300 transition-all">
+          <Link href="/automations/new?type=Slack" className="group border p-4 border-gray-200 rounded-sm flex items-center gap-x-1.5 hover:bg-accent duration-300 transition-all">
             <Logo className="h-8" />
             <h2 className="min-w-0 text-xs font-semibold leading-6 text-gray-600">
               <span className="truncate">Swishjam Event</span>
@@ -53,7 +53,7 @@ export default function AddNewEventTriggerModal({trigger, onPause, onResume, onD
               <LuArrowUpRight className="group-hover:text-swishjam float-right w-4 h-4" />
             </div> 
           </Link>
-          <Link href="/automations/event-triggers/new?type=ResendEmail" className="group border p-4 border-gray-200 rounded-sm flex items-center gap-x-1.5 hover:bg-accent duration-300 transition-all">
+          <Link href="/automations/new?type=ResendEmail" className="group border p-4 border-gray-200 rounded-sm flex items-center gap-x-1.5 hover:bg-accent duration-300 transition-all">
             <Logo className="h-8" />
             <h2 className="min-w-0 text-xs font-semibold leading-6 text-gray-600">
               <span className="truncate">Swishjam Event</span>

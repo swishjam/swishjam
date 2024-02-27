@@ -21,8 +21,8 @@ const sidebarNavItems = [
 
 export default function AutomationsLayout({ children }) {
   const path = usePathname();
-  if (path.endsWith('/new') || path.endsWith('/edit') || path.endsWith('/details')) {
-    return children
+  if (path.endsWith('/new') || path.endsWith('/edit') || path.endsWith('/details') || path.endsWith('/flows')) {
+    return <div className='overflow-x-hidden'>{children}</div>
   }
   return (
     <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mb-8">
@@ -32,10 +32,12 @@ export default function AutomationsLayout({ children }) {
         </div>
       </div>
       <div className="flex flex-col space-y-8 lg:flex-row lg:space-x-12 lg:space-y-0 mt-8">
-        <aside className="lg:w-1/6">
+        {/* <aside className="lg:w-1/6">
           <VerticalTabs items={sidebarNavItems} />
-        </aside>
-        <div className="flex-1">{children}</div>
+        </aside> */}
+        <div className="flex-1">
+          {children}
+        </div>
       </div>
       {/*<Tabs className="mb-8" currentPath={pathname} />*/}
     </main>
