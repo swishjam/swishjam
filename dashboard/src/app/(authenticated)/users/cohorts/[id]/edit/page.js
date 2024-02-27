@@ -1,14 +1,18 @@
 'use client'
 
+import { ArrowLeftIcon, PencilIcon } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
 import NameAndDescriptionModal from "@/components/QueryBuilder/NameAndDescriptionModal";
 import QueryBuilder from "@/components/QueryBuilder/QueryBuilder";
 import { Skeleton } from "@/components/ui/skeleton";
 import SwishjamAPI from "@/lib/api-client/swishjam-api";
-import { ArrowLeftIcon, PencilIcon } from "lucide-react";
-import Link from "next/link";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import UserProfilesCollection from "@/lib/collections/user-profiles";
+import UsersTablePreview from "@/components/QueryBuilder/UsersTablePreview";
+import { XIcon } from "lucide-react";
 
 export default function EditUserSegmentPage({ params }) {
   const { id } = params;
@@ -17,6 +21,12 @@ export default function EditUserSegmentPage({ params }) {
   const [isLoading, setIsLoading] = useState(false)
   const [nameAndDescriptionModalIsOpen, setNameAndDescriptionModalIsOpen] = useState(false)
   const [userSegment, setUserSegment] = useState()
+
+  const [previewedUsers, setPreviewedUsers] = useState()
+  const [currentPreviewedUsersPageNum, setCurrentPreviewedUsersPageNum] = useState()
+  const [previewedUsersTotalPages, setPreviewedUsersTotalPages] = useState()
+  const [previewedQueryFilterGroups, setPreviewedQueryFilterGroups] = useState()
+  const [totalNumUsersInPreview, setTotalNumUsersInPreview] = useState()
 
   useEffect(() => {
     SwishjamAPI.UserSegments.retrieve(id).then(({ user_segment }) => setUserSegment(user_segment))
@@ -38,9 +48,10 @@ export default function EditUserSegmentPage({ params }) {
     })
   }
 
-  const previewSegment = queryFilterGroups => {
+  const previewSegment = (queryFilterGroups, page = 1) => {
     setIsLoading(true)
-    SwishjamAPI.UserSegments.preview({ queryFilterGroups }).then(({ user_segment, error }) => {
+    setCurrentPreviewedUsersPageNum(page)
+    SwishjamAPI.UserSegments.preview({ queryFilterGroups, page }).then(({ error, users, total_pages, total_num_records }) => {
       setIsLoading(false)
       if (error) {
         toast.error('Failed to preview user cohort', {
@@ -49,7 +60,11 @@ export default function EditUserSegmentPage({ params }) {
         })
       } else {
         setIsLoading(false)
-        toast.success('User cohort previewed successfully.')
+        setPreviewedQueryFilterGroups(queryFilterGroups)
+        setPreviewedUsers(users)
+        setPreviewedUsersTotalPages(total_pages)
+        setTotalNumUsersInPreview(total_num_records)
+        setIsLoading(false)
       }
     })
   }
@@ -109,6 +124,21 @@ export default function EditUserSegmentPage({ params }) {
           <Skeleton className='rounded-md w-full h-40 bg-gray-200' />
           <Skeleton className='rounded-md w-full h-40 bg-gray-200 mt-4' />
         </>
+      )}
+      {previewedUsers && (
+        <div className='relative bg-white rounded-md border border-gray-200 p-8 mt-8'>
+          <h2 className='text-md font-medium text-gray-700 mb-2'>{totalNumUsersInPreview} users would fall into this cohort.</h2>
+          <Button className='absolute top-2 right-2' variant='ghost' onClick={() => setPreviewedUsers()}>
+            <XIcon className='h-4 w-4 text-gray-500' />
+          </Button>
+          <UsersTablePreview
+            currentPageNum={currentPreviewedUsersPageNum}
+            lastPageNum={previewedUsersTotalPages}
+            onNewPage={page => previewSegment(previewedQueryFilterGroups, page)}
+            queryFilterGroups={previewedQueryFilterGroups}
+            userProfilesCollection={new UserProfilesCollection(previewedUsers)}
+          />
+        </div>
       )}
     </main>
   )
