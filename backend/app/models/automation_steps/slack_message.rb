@@ -50,7 +50,7 @@ module AutomationSteps
       executed_automation_step.completed!
     rescue => e
       Sentry.capture_exception(e)
-      executed_automation_step.completed!
+      executed_automation_step.completed!(error_message: e.message)
     end
   end
 end

@@ -11,8 +11,14 @@ class AutomationStep < Transactional
 
   validates :sequence_index, presence: true, numericality: { only_integer: true, greater_than_or_equal_to: 0 }, uniqueness: { scope: :automation_id }
 
+  def execute!(prepared_event, executed_automation, executed_automation_step: nil)
+    executed_step = executed_automation_step || executed_automation_steps.create!(executed_automation: executed_automation, started_at: Time.current)
+    execute_automation!(prepared_event, executed_step)
+    executed_step
+  end
+
   def execute_automation!(prepared_event, executed_step)
-    raise NotImplementedError, "Subclasss #{self.class} must implement #execute_automation!"
+    raise NotImplementedError, "Subclass #{self.class} must implement #execute_automation!"
   end
 end
 

@@ -9,6 +9,10 @@ class ExecutedAutomationStep < Transactional
 
   attribute :execution_data, :jsonb, default: {}
 
+  def automation
+    automation_step.automation
+  end
+
   def completed!(error_message: nil)
     self.completed_at = Time.current
     self.error_message = error_message
