@@ -12,8 +12,8 @@ const EndNode = memo(({ data }) => {
   const { content, onChange, width, height } = data;
 
   return (
-    <div style={{ width }} className='!pointer-default bg-white border border-gray-200 shadow-sm p-4 rounded-md overflow-hidden text-left align-top'>
-      <p className='text-md font-medium leading-none flex items-center mb-1'>
+    <div style={{ width }} className='!pointer-default bg-white border border-gray-200 shadow-sm p-4 rounded-md overflow-hidden text-center'>
+      <p className='text-md font-medium leading-none flex items-center mb-1 text-center'>
         <LuFlag className='inline mr-2 text-swishjam' size={16} />
         End of Automation 
       </p>

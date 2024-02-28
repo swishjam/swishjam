@@ -1,5 +1,6 @@
 'use client'
 
+import { useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import SwishjamAPI from '@/lib/api-client/swishjam-api';
 import { LuArrowLeft } from 'react-icons/lu';
@@ -11,18 +12,18 @@ import { ButtonEdge } from '@/components/Automations/Flow/ButtonEdge';
 import ReactFlow, {
   ReactFlowProvider,
   useNodes,
-  MiniMap,
-  Controls,
   Panel, 
   Background,
   useNodesState,
   useEdgesState,
-  addEdge,
-  Handle, Position, NodeToolbar,
+  // Handle,
+  // Position,
+  // NodeToolbar,
+  // MiniMap,
+  // Controls,
 } from 'reactflow';
 import dagre from 'dagre';
 import 'reactflow/dist/style.css';
-import { KeyIcon } from 'lucide-react';
 
 const dagreGraph = new dagre.graphlib.Graph();
 dagreGraph.setDefaultEdgeLabel(() => ({}));
@@ -48,7 +49,6 @@ const getLayoutedElements = (nodes, edges, direction = 'TB') => {
 
     // We are shifting the dagre node position (anchor=center center) to the top left
     // so it matches the React Flow node anchor point (top left).
-    console.log(index)
     if(index === 0) {
       node.position = {
         x: nodeWithPosition.x - NodeWidth / 2,
@@ -67,53 +67,86 @@ const getLayoutedElements = (nodes, edges, direction = 'TB') => {
   return { nodes, edges };
 };
 
-const createNewNode = (id, type, data, onChange,) => {
+const createNewNode = (id, type, data, onChange) => {
   let nid = id || 'new-'+Math.random().toString(36);
    
   return {
     id: nid,
     position: { x: 0, y: 0 },
     data: { onChange, width: NodeWidth, height: NodeHeight, content: data },
+    draggable: false, 
     type
   }
 }
 
-export default function FlowEditor() {
-
-  
-  const onAddNodeInEdge = (nodeType, edgeId) => {
-    console.log('nodeType, onaddnode in edge', nodeType)
-    let newNode = createNewNode(null, nodeType, { label: 'poop' }, () => console.log('change'))
-    setNodes([
-      ...nodes,
-      newNode
-    ])
+const createNewEdge = (source, target, data, type = 'buttonedge') => {
+  return { 
+    id: `e${source}-${target}`,
+    source,
+    target,
+    type,
+    data
   }
+}
 
-  const initialNodes = [
-    { id: '1', position: { x: 0, y: 0 }, data: { onChange: () => console.log('change'), width: NodeWidth, height: NodeHeight, content: { label: 'poop' }, }, type: 'trigger' },
-    { id: '2', position: { x: 0, y: 0 }, data: { onChange: () => console.log('change'), width: NodeWidth, height: NodeHeight, content: { label: 'poop' }, }, type: 'slack' },
-    { id: '3', position: { x: 0, y: 0 }, data: { onChange: () => console.log('change'), width: NodeWidth, height: NodeHeight, content: { label: 'poop' }, }, type: 'slack' },
-    { id: '4', position: { x: 0, y: 0 }, data: { width: NodeWidth, height: NodeHeight }, type: 'end' },
-  ];
-  const initialEdges = [
-    { id: 'e1-2', source: '1', target: '2', type: 'buttonedge', data: { onAddNode: onAddNodeInEdge}},
-    { id: 'e2-3', source: '2', target: '3', type: 'buttonedge', data: { onAddNode: onAddNodeInEdge}},
-    { id: 'e3-4', source: '3', target: '4', type: 'buttonedge', data: { onAddNode: onAddNodeInEdge}},
-  ];
+export default function FlowEditor() {
+  const [nodes, setNodes, onNodesChange] = useNodesState([]);
+  const [edges, setEdges, onEdgesChange] = useEdgesState([]);
 
-  const { nodes: layoutedNodes, edges: layoutedEdges } = getLayoutedElements(
-    initialNodes,
-    initialEdges
-  );
+  useEffect(() => {
+    const initialNodes = [
+      createNewNode('1', 'trigger', { label: 'poop' }, () => console.log('change')),
+      createNewNode('2', 'slack', { label: 'poop' }, () => console.log('change')),
+      createNewNode('3', 'slack', { label: 'poop' }, () => console.log('change')),
+      createNewNode('4', 'end', null, null),
+    ];
+    const initialEdges = [
+      { id: 'e1-2', source: '1', target: '2', type: 'buttonedge', data: { onAddNode: onAddNodeInEdge } },
+      { id: 'e2-3', source: '2', target: '3', type: 'buttonedge', data: { onAddNode: onAddNodeInEdge } },
+      { id: 'e3-4', source: '3', target: '4', type: 'buttonedge', data: { onAddNode: onAddNodeInEdge } },
+    ];
+    const { nodes: layoutedNodes, edges: layoutedEdges } = getLayoutedElements(
+      initialNodes,
+      initialEdges
+    );
+    // setNodes((nds) => nds.concat(layoutedNodes)); 
+    // setEdges((egs) => egs.concat(layoutedEdges)); 
+    setNodes(layoutedNodes)
+    setEdges(layoutedEdges)
+  },[])
 
-  const [nodes, setNodes, onNodesChange] = useNodesState(layoutedNodes);
-  const [edges, setEdges, onEdgesChange] = useEdgesState(layoutedEdges);
+  const onAddNodeInEdge = useCallback((nodeType, edgeId) => {
+    console.log(`onAddNodeInEdge for Edge id: ${edgeId}`, nodeType)
+    let newNode = createNewNode(null, nodeType, { label: 'poop' }, () => console.log('change'))
+  
+    // find the edge from edges that matches edgeId
+    console.log('Edges', edges)
+    const removedEdge = edges.find(edge => edge.id === edgeId);
+    console.log('Removed Edge', removedEdge)
+    const remainingEdges = edges.filter((edge) => edge.id !== edgeId)
+    // create 2 new edges 
+    const newEdge1 = createNewEdge(removedEdge.source, newNode.id, { onAddNode: onAddNodeInEdge }) 
+    const newEdge2 = createNewEdge(newNode.id, removedEdge.target, { onAddNode: onAddNodeInEdge })
+    console.log('New Edges 1', newEdge1)
+    console.log('New Edges 2', newEdge2)
+
+    // setNodes((nds) => nds.concat(newNode));
+    // setEdges((egs) => egs.concat(newEdge1, newEdge2));
+
+    const { nodes: layoutedNodes, edges: layoutedEdges } = getLayoutedElements(
+      [...nodes, newNode],
+      [...remainingEdges, newEdge1, newEdge2]
+    );
+    setNodes([...layoutedNodes]);
+    setEdges([...layoutedEdges]);
+  }, [nodes, edges])
+
+ 
+
 
   const edgeTypes = {
     buttonedge: ButtonEdge,
   };
-
 
   async function onSubmit(triggerValue, onSuccess, onError) {
     const { trigger, error } = await SwishjamAPI.EventTriggers.create(triggerValue)
@@ -132,6 +165,8 @@ export default function FlowEditor() {
         <ReactFlow
           nodes={nodes}
           edges={edges}
+          onNodesChange={onNodesChange}
+          onEdgesChange={onEdgesChange} 
           nodeTypes={NodeTypes} 
           edgeTypes={edgeTypes} 
           snapToGrid={true}

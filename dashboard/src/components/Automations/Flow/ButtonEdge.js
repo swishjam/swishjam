@@ -29,13 +29,8 @@ export function ButtonEdge({
   });
 
   const onAddNode = (nodeType) => {
-    console.log('edgeId', id)
-    console.log('nodeType', nodeType)
+    console.log(`Add Node ${nodeType} at edgeId:`, id)
     data.onAddNode(nodeType, id)
-    // console.log('all Nodes', nodes)
-    // console.log('all edges', edges)
-    // let newNode = { id: 'asdfasdf', position: { x: 0, y: 1000 }, data: { onChange: () => console.log('change'), width: NodeWidth, height: NodeHeight, content: { label: 'poop' }, }, type: 'slack' };
-    // setNodes([...nodes, newNode])
   };
 
   return (
@@ -51,9 +46,6 @@ export function ButtonEdge({
           }}
           className="nodrag nopan"
         >
-          {/* <Button onClick={() => onEdgeClick(id)} className="bg-swishjam hover:bg-swishjam-dark">
-            <LuPlus size={16} className='' />
-          </Button> */}
           <AddNewNodePopover onSelection={onAddNode} />
         </div>
       </EdgeLabelRenderer>
