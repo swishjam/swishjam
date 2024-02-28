@@ -9,7 +9,8 @@ describe Automations::Executor do
   let(:slack_message_automation_step) { FactoryBot.create(:slack_message_automation_step, automation: automation, sequence_index: 0) }
   let(:resend_email_automation_step) { FactoryBot.create(:resend_email_automation_step, automation: automation, sequence_index: 1) }
 
-  let(:slack_to_resend_next_automation_step_condition) { FactoryBot.create(:always_true_next_automation_step_condition, automation_step: slack_message_automation_step, next_automation_step: resend_email_automation_step) }
+  let(:slack_to_resend_next_automation_step_condition) { FactoryBot.create(:next_automation_step_condition, automation_step: slack_message_automation_step, next_automation_step: resend_email_automation_step) }
+  let(:slack_to_resend_next_automation_step_condition_rule) { FactoryBot.create(:event_property_equals_next_automation_step_condition_rule, next_automation_step_condition: slack_to_resend_next_automation_step_condition) }
   
   let(:prepared_event) do
     Ingestion::ParsedEventFromIngestion.new(

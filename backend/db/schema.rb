@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2024_02_27_024126) do
+ActiveRecord::Schema.define(version: 2024_02_28_003907) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
@@ -292,11 +292,18 @@ ActiveRecord::Schema.define(version: 2024_02_27_024126) do
     t.index ["workspace_id"], name: "index_integrations_on_workspace_id"
   end
 
+  create_table "next_automation_step_condition_rules", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "next_automation_step_condition_id", null: false
+    t.string "type"
+    t.jsonb "config", default: {}
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["next_automation_step_condition_id"], name: "idx_nasc_rules_on_next_automation_step_condition_id "
+  end
+
   create_table "next_automation_step_conditions", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.uuid "automation_step_id", null: false
     t.uuid "next_automation_step_id", null: false
-    t.string "type", null: false
-    t.jsonb "config", default: {}, null: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.index ["automation_step_id"], name: "index_next_automation_step_conditions_on_automation_step_id"
@@ -541,6 +548,7 @@ ActiveRecord::Schema.define(version: 2024_02_27_024126) do
   add_foreign_key "executed_automations", "automations"
   add_foreign_key "executed_automations", "executed_automations", column: "retried_from_executed_automation_id"
   add_foreign_key "integrations", "workspaces"
+  add_foreign_key "next_automation_step_condition_rules", "next_automation_step_conditions"
   add_foreign_key "next_automation_step_conditions", "automation_steps"
   add_foreign_key "next_automation_step_conditions", "automation_steps", column: "next_automation_step_id"
   add_foreign_key "profile_tags", "user_segments"
