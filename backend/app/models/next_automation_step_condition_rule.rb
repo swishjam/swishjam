@@ -6,6 +6,16 @@ class NextAutomationStepConditionRule < Transactional
   validate :config_has_required_fields
   attribute :config, :jsonb, default: {}
 
+  (self.required_config_fields || []).each do |field|
+    define_method(field) do
+      config[field]
+    end
+  end
+
+  def is_satisfied_by_event?(_prepared_event)
+    raise NotImplementedError, "Subclass #{self.class.name} must implement #is_satisfied_by_event? method"
+  end
+
   private
 
   def config_has_required_fields
