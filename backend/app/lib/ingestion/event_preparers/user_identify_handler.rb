@@ -55,6 +55,7 @@ module Ingestion
             )
           else
             user_profile.email = provided_email if !provided_email.blank?
+            user_profile.metadata ||= {}
             user_profile.metadata = user_profile.metadata.merge(sanitized_user_properties)
             user_profile.last_seen_at_in_web_app = Time.current
             user_profile.first_seen_at_in_web_app ||= Time.current
