@@ -87,6 +87,9 @@
   .input {
     @apply block w-full appearance-none rounded-md border border-gray-300 px-3 py-2 placeholder-gray-400 shadow-sm focus:border-swishjam focus:outline-none focus:ring-swishjam sm:text-sm
   }
+  .card {
+    @apply bg-white border border-gray-200 shadow-sm p-4 rounded-md overflow-hidden;
+  }
 }
 
 @layer utilities {

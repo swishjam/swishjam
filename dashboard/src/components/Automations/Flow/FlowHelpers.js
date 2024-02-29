@@ -1,6 +1,7 @@
 import TriggerNode from '@/components/Automations/Flow/TriggerNode';
 import EndNode from '@/components/Automations/Flow/EndNode';
 import SlackNode from '@/components/Automations/Flow/SlackNode';
+import { ButtonEdge } from '@/components/Automations/Flow/ButtonEdge';
 import { 
   LuBrain, LuMail, LuMegaphone,
   LuWebhook, LuUser, LuSplit,
@@ -66,6 +67,27 @@ const NodeTypesList = [
 const NodeWidth = 300;
 const NodeHeight = 125;
 
+const CreateNewNode = (id, type, data, onEdit, onDelete) => {
+  let nid = id || 'new-'+Math.random().toString(36);
+  return {
+    id: nid,
+    position: { x: 0, y: 0 },
+    data: { onEdit, onDelete, width: NodeWidth, height: NodeHeight, content: data },
+    draggable: false, 
+    type
+  }
+}   
+
+const CreateNewEdge = (source, target, data, type = 'buttonedge') => {
+  return { 
+    id: `e${source}-${target}`,
+    source,
+    target,
+    type,
+    data
+  }
+}
+
 
 // For ReactFlow to render the custom nodes,
 // we need to provide a nodeTypes object to the ReactFlow component.
@@ -78,9 +100,16 @@ const NodeTypes = {
   end: EndNode, 
 }
 
+const EdgeTypes = {
+  buttonedge: ButtonEdge,
+}
+
 export {
   NodeTypesList,
   NodeTypes,
+  EdgeTypes,
+  CreateNewNode,
+  CreateNewEdge,
   NodeWidth,
   NodeHeight
 }

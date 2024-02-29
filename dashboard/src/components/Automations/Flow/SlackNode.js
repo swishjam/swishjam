@@ -1,12 +1,11 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import ReactFlow, {
   Handle,
   Position,
 } from 'reactflow';
 import { memo } from 'react';
-
 import {
   Dialog,
   DialogContent,
@@ -29,17 +28,31 @@ const SlackIcon = ({className}) => (<img src={'/logos/slack.svg'} className={cla
 
 import { ComboboxEvents } from "@/components/ComboboxEvents";
 
-const SlackNode = memo(({ data }) => {
-  const { content, onChange, width, height } = data;
-  const [dialogOpen, setDialogOpen] = useState(false)
-  const onDelete = (id) => {}
+const SlackNode = memo(({ id, data }) => {
+  const [ dialogOpen, setDialogOpen ] = useState(false)
+  const { content, onEdit, onDelete, width, height } = data;
 
+
+  useEffect(() => {
+    if (!dialogOpen) {
+      setTimeout(() => {
+        document.body.style.pointerEvents = ''
+      }, 500)
+    }
+  }, [dialogOpen])
+
+  // const localOnDelete = () => {
+  //   onDelete(id)
+  // }
+  // const localOnEdit = (id) => {
+  //   onEdit(id)
+  // }
 
   return (
-    <div style={{ width }} className='bg-white border border-gray-200 shadow-sm p-4 rounded-md overflow-hidden text-left align-top'>
+    <div style={{ width, pointerEvents: 'all'}} className='nodrag nopan card text-left align-top cursor-default'>
       <p className='text-md font-medium leading-none flex items-center mb-1'>
         <SlackIcon className="h-4 w-4 mr-2"/>
-        Send Slack Message 
+        Send Slack Message {id} 
       </p>
       {/* <hr className='mt-3 border-1 border-gray-100 w-full'/>  */}
       <h2 className="text-sm font-semibold leading-6 text-gray-600 min-w-0 flex-auto mt-5 w-full truncate text-ellipsis">
@@ -52,7 +65,6 @@ const SlackNode = memo(({ data }) => {
           #testing-slack adfa sdfa sdf asd fa sdf asd fas
         </h2>
       </div>
-
 
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
@@ -67,17 +79,16 @@ const SlackNode = memo(({ data }) => {
           </DropdownMenuItem>
           <DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem className="!text-red-400 cursor-pointer hover:bg-accent" onClick={() => onDelete(trigger.id)}>
+            <DropdownMenuItem className="!text-red-400 cursor-pointer hover:bg-accent" onClick={() => onDelete(id)}>
               <LuTrash className='h-4 w-4 inline-block mr-2' />
               Delete
             </DropdownMenuItem>
           </DropdownMenuGroup>
         </DropdownMenuContent>
       </DropdownMenu>
-
-
+     
       <Dialog open={dialogOpen} onOpenChange={() => setDialogOpen(false)}>
-        <DialogContent className="min-w-full m-8 p-8">
+        <DialogContent className="">
           <DialogHeader>
             <DialogTitle>Are you absolutely sure?</DialogTitle>
             <DialogDescription>
@@ -87,8 +98,6 @@ const SlackNode = memo(({ data }) => {
           </DialogHeader>
         </DialogContent>
       </Dialog>
-
-     
       
       <Handle type="target" position={Position.Top} />
       <Handle type="source" position={Position.Bottom} />

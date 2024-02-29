@@ -1,6 +1,8 @@
 import React from 'react';
 import { AddNewNodePopover } from '@/components/Automations/Flow/AddNewNodePopover';
 import {
+  useNodes,
+  useEdges,
   BaseEdge,
   EdgeLabelRenderer,
   getSmoothStepPath,
@@ -18,7 +20,10 @@ export function ButtonEdge({
   markerEnd,
   data,
 }) {
-  
+ 
+  const allNodes = useNodes();
+  const allEdges = useEdges();
+
   const [edgePath, labelX, labelY] = getSmoothStepPath({
     sourceX,
     sourceY,
@@ -29,8 +34,10 @@ export function ButtonEdge({
   });
 
   const onAddNode = (nodeType) => {
+    // console.log('all nodes in edge', allNodes)
+    // console.log('all edges', allEdges)
     console.log(`Add Node ${nodeType} at edgeId:`, id)
-    data.onAddNode(nodeType, id)
+    data.onAddNode(nodeType, id, allNodes, allEdges)
   };
 
   return (
