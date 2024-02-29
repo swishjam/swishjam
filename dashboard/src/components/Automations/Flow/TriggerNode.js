@@ -12,7 +12,7 @@ const TriggerNode = memo(({ data }) => {
   const { content, onChange, width, height } = data;
 
   return (
-    <div style={{ width }} className='bg-white border border-gray-200 shadow-sm p-4 rounded-md overflow-hidden text-left align-top'>
+    <div style={{ width, pointerEvents: 'all'}} className='nodrag nopan card text-left align-top'>
       <p className='text-md font-medium leading-none flex items-center mb-1'>
         <LuZap className='inline mr-2 text-emerald-500' size={16} />
         Flow Trigger
