@@ -101,6 +101,9 @@ export default function FlowEditor() {
 
   useEffect(() => {
 
+    
+
+
     const initialNodes = [
       CreateNewNode('1', 'trigger', { label: 'poop' }, onNodeEdit, onNodeDelete),
       CreateNewNode('2', 'slack', { label: 'poop' }, onNodeEdit, onNodeDelete),

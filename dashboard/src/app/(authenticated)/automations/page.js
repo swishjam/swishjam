@@ -9,7 +9,7 @@ import EventTriggerRow from "@/components/Automations/EventTriggers/EventTrigger
 import AddNewEventTriggerModal from "@/components/Automations/EventTriggers/AddNewTriggerModal";
 
 export default function () {
-  const [triggers, setTriggers] = useState();
+  const [automations, setAutomations] = useState();
 
   const pauseTrigger = async (triggerId) => {
     SwishjamAPI.EventTriggers.disable(triggerId).then(({ trigger, error }) => {
@@ -47,13 +47,13 @@ export default function () {
     })
   }
 
-  const loadTriggers = async () => {
-    const triggers = await SwishjamAPI.EventTriggers.list()
-    setTriggers(triggers)
+  const load = async () => {
+    const automations = await SwishjamAPI.Automations.list()
+    setAutomations(automations)
   }
 
   useEffect(() => {
-    loadTriggers()
+    load()
   }, []);
 
   return (
@@ -61,17 +61,17 @@ export default function () {
       <div className="flex items-center justify-between">
         <AddNewEventTriggerModal />
       </div>
-      {triggers === undefined ? (
+      {automations === undefined ? (
         <div>
           <ul role="list" className="w-full space-y-2 mt-8">
             {Array.from({ length: 5 }).map((_, i) => <Skeleton className='w-full h-10' key={i} />)}
           </ul>
         </div>
       ) : (
-        triggers.length > 0 ? (
+        automations.length > 0 ? (
           <div>
             <ul role="list" className="w-full space-y-2 mt-8">
-              {triggers.sort((a, b) => new Date(a.created_at) - new Date(b.created_at)).map(trigger => (
+              {automations.sort((a, b) => new Date(a.created_at) - new Date(b.created_at)).map(trigger => (
                 <EventTriggerRow
                   key={trigger.id}
                   trigger={trigger}
@@ -82,7 +82,7 @@ export default function () {
               ))}
             </ul>
           </div>
-        ) : <EmptyState title={"No Event Triggers"} />
+        ) : <EmptyState title={"No Automations"} />
       )
       }
     </div>

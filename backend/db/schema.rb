@@ -305,6 +305,8 @@ ActiveRecord::Schema.define(version: 2024_02_29_025350) do
   create_table "next_automation_step_conditions", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.uuid "automation_step_id", null: false
     t.uuid "next_automation_step_id", null: false
+    t.string "type", null: false
+    t.jsonb "config", default: {}, null: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.index ["automation_step_id"], name: "index_next_automation_step_conditions_on_automation_step_id"
