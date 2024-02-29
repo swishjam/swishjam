@@ -1,7 +1,7 @@
 module AutomationSteps
   class Delay < AutomationStep
-    self.required_jsonb_fields :config, %i[delay_amount delay_unit]
-    self.define_jsonb_methods :config, %i[delay_amount delay_unit]
+    self.required_jsonb_fields :config, :delay_amount, :delay_unit
+    self.define_jsonb_methods :config, :delay_amount, :delay_unit
     VALID_DELAY_UNITS = %w[minute minutes hour hours day days week weeks month months year years].freeze
     
     validate :has_valid_config

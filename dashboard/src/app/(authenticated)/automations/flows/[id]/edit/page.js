@@ -71,10 +71,11 @@ const getLayoutedElements = (nodes, edges, direction = 'TB') => {
   return { nodes, edges };
 };
 
-export default function FlowEditor() {
-
+export default function FlowEditor({ params }) {
+  const { id: automationId } = params;
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
+  const [automation, setAutomation] = useState();
 
   const onNodeEdit = useCallback((nodeId, curNodes, curEdges) => {
     console.log('on node edit')
@@ -85,14 +86,14 @@ export default function FlowEditor() {
     console.log('on node delete')
   }, [])
 
-  const onAddNodeInEdge = useCallback((nodeType, edgeId, curNodes, curEdges) => {
-    const newNode = CreateNewNode(null, nodeType, { label: 'poop' }, () => console.log('change'))
-    const removedEdge = curEdges.find(edge => edge.id === edgeId);
-    const remainingEdges = curEdges.filter((edge) => edge.id !== edgeId)
+  const onAddNodeInEdge = useCallback(({ nodeType, data, edgeId, currentNodes, currentEdges }) => {
+    const newNode = CreateNewNode(null, nodeType, data, onNodeEdit, onNodeDelete)
+    const removedEdge = currentEdges.find(edge => edge.id === edgeId);
+    const remainingEdges = currentEdges.filter((edge) => edge.id !== edgeId)
     const newEdge1 = CreateNewEdge(removedEdge.source, newNode.id, { onAddNode: onAddNodeInEdge })
     const newEdge2 = CreateNewEdge(newNode.id, removedEdge.target, { onAddNode: onAddNodeInEdge })
     const { nodes: layoutedNodes, edges: layoutedEdges } = getLayoutedElements(
-      [...curNodes, newNode],
+      [...currentNodes, newNode],
       [...remainingEdges, newEdge1, newEdge2]
     );
     setNodes(layoutedNodes);
@@ -100,34 +101,38 @@ export default function FlowEditor() {
   }, [])
 
   useEffect(() => {
-    const initialNodes = [
-      CreateNewNode('1', 'trigger', { label: 'poop' }, onNodeEdit, onNodeDelete),
-      CreateNewNode('2', 'slack', { label: 'poop' }, onNodeEdit, onNodeDelete),
-      CreateNewNode('3', 'slack', { label: 'poop' }, onNodeEdit, onNodeDelete),
-      CreateNewNode('4', 'end', null, null),
-    ];
-    const initialEdges = [
-      CreateNewEdge('1', '2', { onAddNode: onAddNodeInEdge }),
-      CreateNewEdge('2', '3', { onAddNode: onAddNodeInEdge }),
-      CreateNewEdge('3', '4', { onAddNode: onAddNodeInEdge }),
-    ];
-    const { nodes: layoutedNodes, edges: layoutedEdges } = getLayoutedElements(
-      initialNodes,
-      initialEdges
-    );
-    setNodes(layoutedNodes)
-    setEdges(layoutedEdges)
-  }, [])
+    SwishjamAPI.Automations.retrieve(automationId).then(setAutomation)
+    SwishjamAPI.Automations.AutomationSteps.list(automationId).then(steps => {
+      const mappedNodesFromAutomationSteps = [];
+      const mappedEdgesFromNextAutomationStepConditions = [];
+      steps.forEach(step => {
+        mappedNodesFromAutomationSteps.push(CreateNewNode(step.id, step.type.split('::')[1], step.config, onNodeEdit, onNodeDelete))
+        step.next_automation_step_conditions.forEach(condition => {
+          mappedEdgesFromNextAutomationStepConditions.push(CreateNewEdge(step.id, condition.next_automation_step.id, { onAddNode: onAddNodeInEdge, condition }))
+        })
+      })
+      const initialNodes = [
+        CreateNewNode('entry-point', 'trigger', {}, onNodeEdit, onNodeDelete),
+        ...mappedNodesFromAutomationSteps,
+        CreateNewNode('end-node', 'end'),
+      ];
 
-  // async function onSubmit(triggerValue, onSuccess, onError) {
-  //   const { trigger, error } = await SwishjamAPI.EventTriggers.create(triggerValue)
-  //   if (error) {
-  //     onError(error)
-  //     return
-  //   } else {
-  //     onSuccess(trigger)
-  //   }
-  // }
+      const initialEdges = [
+        CreateNewEdge('entry-point', steps[0].id, { onAddNode: onAddNodeInEdge }),
+        ...mappedEdgesFromNextAutomationStepConditions,
+        // TODO: if a node has no next_automation_step_conditions, create an edge to an end-node
+        CreateNewEdge(steps[steps.length - 1].id, 'end-node', { onAddNode: onAddNodeInEdge }),
+      ];
+      const { nodes: layoutedNodes, edges: layoutedEdges } = getLayoutedElements(initialNodes, initialEdges);
+      setNodes(layoutedNodes)
+      setEdges(layoutedEdges)
+    })
+  }, [automationId])
+
+  async function onSubmit() {
+    console.log(nodes);
+    console.log(edges);
+  }
 
   return (
     <ReactFlowProvider>
@@ -156,11 +161,11 @@ export default function FlowEditor() {
                     <LuArrowLeft className='inline mr-1' size={12} />
                     Back to all Automation Flows
                   </Link>
-                  <h1 className="text-lg font-medium text-gray-700 mb-0">New Automation</h1>
+                  <h1 className="text-lg font-medium text-gray-700 mb-0">Edit Automation</h1>
                 </div>
                 <p className='text-sm font-medium leading-none flex items-center mb-1 mt-6'>Automation Name</p>
-                <Input className='w-full' />
-                <Button className="mt-4 w-full">Save Flow</Button>
+                <Input className='w-full' value={automation?.name} onChange={e => setAutomation({ ...automation, name: e.target.value })} />
+                <Button onClick={onSubmit} className="mt-4 w-full">Save Flow</Button>
               </div>
             </Panel>
 

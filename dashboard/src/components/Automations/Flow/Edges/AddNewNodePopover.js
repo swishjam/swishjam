@@ -9,19 +9,18 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 
 export function AddNewNodePopover({ onSelection }) {
   const [open, setOpen] = useState(false)
-  const [selectedStatus, setSelectedStatus] = useState(null)
 
   return (
     <div className="flex items-center space-x-4">
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <Button variant="outline" className="justify-start hover:border-gray-900">
-            <LuPlus className="h-5 w-5" /> 
+            <LuPlus className="h-5 w-5" />
           </Button>
         </PopoverTrigger>
         <PopoverContent className="p-0" side="right" align="start">
           <Command>
-            <CommandInput placeholder="Search Automation Steps" className="border-0"/>
+            <CommandInput placeholder="Search Automation Steps" className="border-0" />
             <CommandList>
               <CommandEmpty>No automation step found.</CommandEmpty>
               {NodeTypesList.map((group, idx) => (
@@ -32,8 +31,8 @@ export function AddNewNodePopover({ onSelection }) {
                         className="cursor-pointer"
                         key={item.value}
                         value={item.value}
-                        onSelect={(value) => {
-                          onSelection(value)
+                        onSelect={() => {
+                          onSelection(item.value)
                           setOpen(false)
                         }}
                       >
