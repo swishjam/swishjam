@@ -41,8 +41,6 @@ class CreateAutomations < ActiveRecord::Migration[6.1]
     create_table :next_automation_step_conditions, id: :uuid do |t|
       t.references :automation_step, type: :uuid, null: false, foreign_key: true
       t.references :next_automation_step, type: :uuid, null: false, foreign_key: { to_table: :automation_steps }, index: { name: 'idx_next_automation_step_conditions_on_next_automation_step_id' }
-      t.string :type, null: false
-      t.jsonb :config, null: false, default: {}
       t.timestamps
     end
   end

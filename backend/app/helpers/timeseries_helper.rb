@@ -52,4 +52,15 @@ module TimeseriesHelper
       [start_ts.send(:"beginning_of_#{group_by}"), end_ts.send(:"end_of_#{group_by}")]
     end
   end
+
+  def formated_groupdate_timeseries(timestamp_column: :created_at, group_by: nil, metric: :count, start_time: nil, end_time: nil, include_comparison: false)
+    if !block_given?
+      raise "Must provide a block of the ActiveRecord collection to perform the groupdate query."
+    end
+    start_time ||= start_timestamp
+    end_time ||= end_timestamp
+    group_by ||= derived_group_by(start_ts: start_time, end_ts: end_time)
+    yield.group_by_period(group_by, timestamp_column, range: start_time..end_time).send(metric).to_a.map { |k, v| { date: k, count: v }}
+    # @automation.executed_automations.group_by_hour(:started_at, range: start_timestamp..end_timestamp).send(metric).to_a.map { |k, v| { date: k, count: v } }
+  end
 end

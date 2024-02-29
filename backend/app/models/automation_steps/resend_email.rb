@@ -1,6 +1,13 @@
 module AutomationSteps
   class ResendEmail < AutomationStep
+    self.required_jsonb_fields :config, :to, :from, :subject, :body
+    self.define_jsonb_methods :config, to: :to_email, from: :from_email, subject: :email_subject, body: :email_body, 
+                                        cc: :cc_email, bcc: :bcc_email, reply_to: :reply_to_email, 
+                                        send_once_per_user: :prevent_from_email_being_sent_to_user_multiple_times?, 
+                                        un_resolved_variable_safety_net: :prevent_from_email_being_sent_with_unresolved_variables?
+
     def execute_automation!(prepared_event, executed_automation_step, as_test: false)
+      # TODO: what if it's as_test?
       Automations::ResendEmailExecutor.new(
         automation_step: self, 
         prepared_event: prepared_event, 
@@ -8,42 +15,6 @@ module AutomationSteps
         as_test: as_test
       ).deliver_email_if_necessary!
       executed_automation_step.completed!
-    end
-
-    def to_email
-      config['to']
-    end
-
-    def from_email
-      config['from']
-    end
-
-    def email_subject
-      config['subject']
-    end
-
-    def email_body
-      config['body']
-    end
-
-    def cc_email
-      config['cc']
-    end
-
-    def bcc_email
-      config['bcc']
-    end
-
-    def reply_to_email
-      config['reply_to']
-    end
-
-    def prevent_from_email_being_sent_to_user_multiple_times?
-      config['send_once_per_user']
-    end
-
-    def prevent_from_email_being_sent_with_unresolved_variables? 
-      config['un_resolved_variable_safety_net']
     end
   end
 end

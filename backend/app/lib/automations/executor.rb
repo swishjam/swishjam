@@ -6,8 +6,8 @@ module Automations
     def initialize(automation:, prepared_event:, executed_automation: nil, as_test: false)
       @automation = automation
       @prepared_event = prepared_event
-      @executed_automation = executed_automation || create_executed_automation!
       @as_test = as_test
+      @executed_automation = executed_automation || create_executed_automation!
     end
 
     def pick_back_up_automation_from_executed_automation_step!(executed_automation_step)
@@ -27,14 +27,15 @@ module Automations
     end
 
     def execute_automation_steps_recursively!(automation_step, pre_existing_executed_automation_step: nil)
-      executed_step = automation_step.execute!(prepared_event, executed_automation, executed_automation_step: pre_existing_executed_automation_step)
+      executed_step = automation_step.execute!(prepared_event, executed_automation, executed_automation_step: pre_existing_executed_automation_step, as_test: as_test)
       if executed_step.completed?
-        next_steps = next_automation_steps(automation_step, prepared_event)
-        if next_steps.empty?
+        satisfied_next_step_conditions = satisfied_next_automation_step_conditions(automation_step, prepared_event)
+        if satisfied_next_step_conditions.empty?
           executed_automation.completed!
         else
-          next_steps.each do |next_step|
-            execute_automation_steps_recursively!(next_step)
+          satisfied_next_step_conditions.each do |condition|
+            executed_step.satisfied_next_automation_step_conditions.create!({ next_automation_step_condition_id: condition.id })
+            execute_automation_steps_recursively!(condition.next_automation_step)
           end
         end
       else
@@ -43,10 +44,10 @@ module Automations
       end
     end
 
-    def next_automation_steps(automation_step, prepared_event)
-      automation_step.next_automation_step_conditions.select do |condition|
+    def satisfied_next_automation_step_conditions(automation_step, prepared_event)
+      automation_step.next_automation_step_conditions.includes(:next_automation_step).select do |condition|
         condition.is_satisfied_by_event?(prepared_event)
-      end.map(&:next_automation_step)
+      end
     end
 
     def create_executed_automation!
@@ -63,6 +64,7 @@ module Automations
         event_json: prepared_event.as_json,
         event_uuid: prepared_event.uuid,
         seconds_from_occurred_at_to_executed: seconds_since_occurred_at,
+        is_test_execution: as_test,
       )
     end
   end

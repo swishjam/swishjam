@@ -1,6 +1,7 @@
 class ExecutedAutomationStep < Transactional
   belongs_to :executed_automation
   belongs_to :automation_step
+  has_many :satisfied_next_automation_step_conditions, dependent: :destroy
 
   scope :pending, -> { where(completed_at: nil) }
   scope :completed, -> { where.not(completed_at: nil) }
@@ -38,6 +39,12 @@ class ExecutedAutomationStep < Transactional
 
   def completed_successfully?
     completed? && successful?
+  end
+
+  def status
+    return "failed" if failed?
+    return "completed" if completed?
+    "pending"
   end
 end
 

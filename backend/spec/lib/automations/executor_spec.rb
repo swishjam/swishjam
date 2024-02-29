@@ -69,8 +69,8 @@ describe Automations::Executor do
     end
 
     it 'does not complete the automation or execute the next automation step when the executed_automation_step is not completed after being executed' do
-      expect_any_instance_of(AutomationSteps::SlackMessage).to receive(:execute!).with(prepared_event, anything, executed_automation_step: nil).exactly(1).times.and_call_original
-      expect_any_instance_of(AutomationSteps::SlackMessage).to receive(:execute_automation!).with(prepared_event, anything).exactly(1).times.and_return(nil)
+      expect_any_instance_of(AutomationSteps::SlackMessage).to receive(:execute!).with(prepared_event, anything, executed_automation_step: nil, as_test: false).exactly(1).times.and_call_original
+      expect_any_instance_of(AutomationSteps::SlackMessage).to receive(:execute_automation!).with(prepared_event, anything, as_test: false).exactly(1).times.and_return(nil)
       expect_any_instance_of(AutomationSteps::ResendEmail).to_not receive(:execute!)
       expect_any_instance_of(AutomationSteps::ResendEmail).to_not receive(:execute_automation!)
 
@@ -85,7 +85,7 @@ describe Automations::Executor do
     end
 
     it 'completes the automation and does not execute any more automation steps when the automation step that was executed has no `next_automation_step_conditions` that satisfy the event' do
-      expect(executor).to receive(:next_automation_steps).with(anything, prepared_event).and_return([])
+      expect(executor).to receive(:satisfied_next_automation_step_conditions).with(anything, prepared_event).and_return([])
 
       automation_execution = executor.execute_automation!
 
@@ -97,6 +97,18 @@ describe Automations::Executor do
       expect(slack_execution.error_message).to be_nil
 
       expect(automation_execution.completed_at).to be_present
+    end
+
+    it 'creates a `satisfied_next_automation_step_condition` record for each `next_automation_step_condition` that is satisfied by the event' do
+      expect(SatisfiedNextAutomationStepCondition.count).to eq(0)
+
+      executed_automation = executor.execute_automation!
+
+      expect(SatisfiedNextAutomationStepCondition.count).to eq(1)
+      expect(slack_to_resend_next_automation_step_condition.satisfied_next_automation_step_conditions.count).to eq(1)
+      expect(slack_message_automation_step.executed_automation_steps.count).to eq(1)
+      slack_execution = slack_message_automation_step.executed_automation_steps.first
+      expect(slack_execution.satisfied_next_automation_step_conditions.count).to eq(1)
     end
   end
 
@@ -113,9 +125,10 @@ describe Automations::Executor do
       expect_any_instance_of(AutomationSteps::ResendEmail).to receive(:execute!).with(
         prepared_event, 
         executor.executed_automation, 
-        executed_automation_step: executed_automation_step
+        executed_automation_step: executed_automation_step,
+        as_test: false,
       ).exactly(1).times.and_call_original
-      expect_any_instance_of(AutomationSteps::ResendEmail).to receive(:execute_automation!).with(prepared_event, executed_automation_step).exactly(1).times.and_return(nil)
+      expect_any_instance_of(AutomationSteps::ResendEmail).to receive(:execute_automation!).with(prepared_event, executed_automation_step, as_test: false).exactly(1).times.and_return(nil)
 
       executor.pick_back_up_automation_from_executed_automation_step!(executed_automation_step)
     end

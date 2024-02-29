@@ -6,8 +6,5 @@ class CreateNextAutomationStepConditionRules < ActiveRecord::Migration[6.1]
       t.jsonb :config, default: {}
       t.timestamps
     end
-
-    remove_column :next_automation_step_conditions, :config, :jsonb
-    remove_column :next_automation_step_conditions, :type, :string
   end
 end

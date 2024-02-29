@@ -13,7 +13,6 @@ export class EventTriggers extends Base {
   }
 
   static async update(id, { event_name, steps, conditional_statements }) {
-    console.log('update', id, event_name, steps, conditional_statements)
     return await this._patch(`/api/v1/event_triggers/${id}`, { event_name: event_name, event_trigger_steps: steps, conditional_statements: conditional_statements });
   }
 

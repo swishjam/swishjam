@@ -21,7 +21,7 @@ const sidebarNavItems = [
 
 export default function AutomationsLayout({ children }) {
   const path = usePathname();
-  if (path.endsWith('/new') || path.endsWith('/edit') || path.endsWith('/details') || path.endsWith('/flows')) {
+  if (path.endsWith('/new') || path.endsWith('/edit') || path.endsWith('/details') || path.includes('/flows')) {
     return <div className='overflow-x-hidden'>{children}</div>
   }
   return (

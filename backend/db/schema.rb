@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2024_02_28_003907) do
+ActiveRecord::Schema.define(version: 2024_02_29_025350) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
@@ -265,6 +265,7 @@ ActiveRecord::Schema.define(version: 2024_02_28_003907) do
     t.float "seconds_from_occurred_at_to_executed"
     t.datetime "started_at"
     t.datetime "completed_at"
+    t.boolean "is_test_execution", default: false, null: false
     t.index ["automation_id"], name: "index_executed_automations_on_automation_id"
     t.index ["event_uuid"], name: "index_executed_automations_on_event_uuid", unique: true
     t.index ["executed_on_user_profile_id"], name: "index_executed_automations_on_executed_on_user_profile_id"
@@ -380,6 +381,15 @@ ActiveRecord::Schema.define(version: 2024_02_28_003907) do
     t.index ["time_granularity"], name: "index_retention_cohorts_on_time_granularity"
     t.index ["time_period"], name: "index_retention_cohorts_on_time_period"
     t.index ["workspace_id"], name: "index_retention_cohorts_on_workspace_id"
+  end
+
+  create_table "satisfied_next_automation_step_conditions", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "executed_automation_step_id", null: false
+    t.uuid "next_automation_step_condition_id", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["executed_automation_step_id"], name: "idx_satisfied_next_automation_step_conditions_on_eas_id"
+    t.index ["next_automation_step_condition_id"], name: "idx_satisfied_next_automation_step_conditions_on_nasc_id"
   end
 
   create_table "slack_connections", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -559,6 +569,8 @@ ActiveRecord::Schema.define(version: 2024_02_28_003907) do
   add_foreign_key "retention_cohort_activity_periods", "retention_cohorts"
   add_foreign_key "retention_cohort_activity_periods", "workspaces"
   add_foreign_key "retention_cohorts", "workspaces"
+  add_foreign_key "satisfied_next_automation_step_conditions", "executed_automation_steps"
+  add_foreign_key "satisfied_next_automation_step_conditions", "next_automation_step_conditions"
   add_foreign_key "triggered_event_trigger_steps", "event_trigger_steps"
   add_foreign_key "triggered_event_trigger_steps", "triggered_event_triggers"
   add_foreign_key "triggered_event_triggers", "triggered_event_triggers", column: "retried_triggered_event_trigger_id"

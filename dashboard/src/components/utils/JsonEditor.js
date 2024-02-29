@@ -8,7 +8,7 @@ export default function JsonEditor({ json, onChange = () => { }, height = '200px
       language="json"
       theme={theme}
       value={JSON.stringify(json, null, 2)}
-      onChange={onChange}
+      onChange={j => onChange(JSON.parse(j))}
       options={{
         minimap: { enabled: minimap },
         scrollBeyondLastLine: false,

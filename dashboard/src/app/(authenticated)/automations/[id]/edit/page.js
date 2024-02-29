@@ -15,7 +15,6 @@ export default function EditTriggerPage({ params }) {
 
   useEffect(() => {
     SwishjamAPI.EventTriggers.retrieve(id).then(({ trigger, error }) => {
-      console.log('trigger', JSON.stringify(trigger))
       if (error) {
         toast.error("An error occurred retrieving the event trigger, please try again", {
           description: error,

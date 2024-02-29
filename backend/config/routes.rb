@@ -196,7 +196,17 @@ Rails.application.routes.draw do
         end
       end
 
-      resources :automations
+      resources :automations do
+        collection do
+          post :test_execution
+        end
+        resources :automation_steps, only: [:index]
+        resources :executed_automations, only: [:index] do
+          collection do
+            get :timeseries
+          end
+        end
+      end
       resources :event_triggers do
         collection do
           post :test_trigger

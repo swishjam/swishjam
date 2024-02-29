@@ -1,6 +1,7 @@
 module NextAutomationStepConditionRules
   class EventProperty < NextAutomationStepConditionRule
-    self.required_config_fields = %w[property operator]
+    self.required_jsonb_fields :config, :property, :operator
+    self.define_jsonb_methods :config, :property, :operator, :value
 
     SUPPORTED_OPERATORS = %w[equals does_not_equal is_defined is_not_defined ends_with does_not_end_with starts_with does_not_start_with greater_than less_than greater_than_or_equal_to less_than_or_equal_to]
     OPERATORS_REQUIRING_VALUE = SUPPORTED_OPERATORS.reject { |op| %w[is_defined is_not_defined].include?(op) }
@@ -45,6 +46,14 @@ module NextAutomationStepConditionRules
       else
         raise "Unsupported operator: #{operator}"
       end      
+    end
+
+    def plain_english_description
+      if operator.starts_with?('greater_than') || operator.starts_with?('less_than')
+        "If the event's #{property} property is #{operator.gsub('_', ' ')} #{value}."
+      else
+        "If the event's #{property} property #{operator.gsub('_', ' ')} #{value}."
+      end
     end
 
     private

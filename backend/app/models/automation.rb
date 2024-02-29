@@ -8,11 +8,10 @@ class Automation < Transactional
   accepts_nested_attributes_for :automation_steps, allow_destroy: true
 
   def execute!(prepared_event, as_test: false)
-    Automations::Executor.new(self, prepared_event, as_test: as_test).execute_automation!
+    Automations::Executor.new(automation: self, prepared_event: prepared_event, as_test: as_test).execute_automation!
   end
 
   def first_automation_step
     automation_steps.in_sequence_order.first
   end
 end
-
