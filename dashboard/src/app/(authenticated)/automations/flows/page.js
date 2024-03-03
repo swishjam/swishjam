@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
   NodeTypes, EdgeTypes, NodeWidth, NodeHeight,
-  CreateNewNode, CreateNewEdge
+  CreateNewNode, CreateNewEdge, LayoutedElements
 } from '@/components/Automations/Flow/FlowHelpers';
 
 import ReactFlow, {
@@ -25,51 +25,7 @@ import ReactFlow, {
   // MiniMap,
   // Controls,
 } from 'reactflow';
-import dagre from 'dagre';
 import 'reactflow/dist/style.css';
-
-const dagreGraph = new dagre.graphlib.Graph();
-dagreGraph.setDefaultEdgeLabel(() => ({}));
-
-
-const getLayoutedElements = (nodes, edges, direction = 'TB') => {
-  dagreGraph.setGraph({ rankdir: direction });
-
-  nodes.forEach((node) => {
-    dagreGraph.setNode(node.id, { width: NodeWidth, height: NodeHeight });
-  });
-
-  edges.forEach((edge) => {
-    dagreGraph.setEdge(edge.source, edge.target);
-  });
-
-  dagre.layout(dagreGraph);
-
-  nodes.forEach((node, index) => {
-    const nodeWithPosition = dagreGraph.node(node.id);
-    node.targetPosition = 'top';
-    node.sourcePosition = 'bottom';
-
-    // We are shifting the dagre node position (anchor=center center) to the top left
-    // so it matches the React Flow node anchor point (top left).
-    if (index === 0) {
-      node.position = {
-        x: 0, //nodeWithPosition.x,
-        // x: nodeWithPosition.x - NodeWidth / 2,
-        y: nodeWithPosition.y - NodeHeight,
-      };
-    } else {
-      node.position = {
-        x: 0, //nodeWithPosition.x,
-        y: nodeWithPosition.y * 1.2 - NodeHeight,
-      };
-    }
-
-    return node;
-  });
-
-  return { nodes, edges };
-};
 
 export default function FlowEditor() {
 
@@ -91,7 +47,7 @@ export default function FlowEditor() {
     const remainingEdges = curEdges.filter((edge) => edge.id !== edgeId)
     const newEdge1 = CreateNewEdge(removedEdge.source, newNode.id, { onAddNode: onAddNodeInEdge })
     const newEdge2 = CreateNewEdge(newNode.id, removedEdge.target, { onAddNode: onAddNodeInEdge })
-    const { nodes: layoutedNodes, edges: layoutedEdges } = getLayoutedElements(
+    const { nodes: layoutedNodes, edges: layoutedEdges } = LayoutedElements(
       [...curNodes, newNode],
       [...remainingEdges, newEdge1, newEdge2]
     );
@@ -111,7 +67,7 @@ export default function FlowEditor() {
       CreateNewEdge('2', '3', { onAddNode: onAddNodeInEdge }),
       CreateNewEdge('3', '4', { onAddNode: onAddNodeInEdge }),
     ];
-    const { nodes: layoutedNodes, edges: layoutedEdges } = getLayoutedElements(
+    const { nodes: layoutedNodes, edges: layoutedEdges } = LayoutedElements(
       initialNodes,
       initialEdges
     );

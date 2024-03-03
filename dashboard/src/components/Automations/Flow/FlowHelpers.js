@@ -5,7 +5,13 @@ import { ButtonEdge } from '@/components/Automations/Flow/Edges/ButtonEdge';
 import { LuBrain, LuMail, LuMegaphone, LuFilter, LuAlarmClock } from 'react-icons/lu';
 import ResendEmailNode from './Nodes/ResendEmailNode';
 import DelayNode from './Nodes/DelayNode';
+import dagre from 'dagre';
 const SlackIcon = ({ className }) => (<img src={'/logos/slack.svg'} className={className} />)
+
+const dagreGraph = new dagre.graphlib.Graph();
+dagreGraph.setDefaultEdgeLabel(() => ({}));
+const NodeWidth = 300;
+const NodeHeight = 125;
 
 // For Add New Node Popover 
 // we need to provide a nodeTypes object to the ReactFlow component.
@@ -62,8 +68,45 @@ const NodeTypesList = [
   },
 ]
 
-const NodeWidth = 300;
-const NodeHeight = 125;
+const LayoutedElements = (nodes, edges, direction = 'TB') => {
+  dagreGraph.setGraph({ rankdir: direction });
+
+  nodes.forEach((node) => {
+    dagreGraph.setNode(node.id, { width: NodeWidth, height: NodeHeight });
+  });
+
+  edges.forEach((edge) => {
+    dagreGraph.setEdge(edge.source, edge.target);
+  });
+
+  dagre.layout(dagreGraph);
+
+  nodes.forEach((node, index) => {
+    const nodeWithPosition = dagreGraph.node(node.id);
+    node.targetPosition = 'top';
+    node.sourcePosition = 'bottom';
+
+    // We are shifting the dagre node position (anchor=center center) to the top left
+    // so it matches the React Flow node anchor point (top left).
+    if (index === 0) {
+      node.position = {
+        x: 0, //nodeWithPosition.x,
+        // x: nodeWithPosition.x - NodeWidth / 2,
+        y: nodeWithPosition.y - NodeHeight,
+      };
+    } else {
+      node.position = {
+        x: 0, //nodeWithPosition.x,
+        y: nodeWithPosition.y * 1.2 - NodeHeight,
+      };
+    }
+
+    return node;
+  });
+
+  return { nodes, edges };
+};
+
 
 const CreateNewNode = (id, type, data, onEdit, onDelete) => {
   let nid = id || 'new-' + Math.random().toString(36);
@@ -107,6 +150,7 @@ export {
   EdgeTypes,
   CreateNewNode,
   CreateNewEdge,
+  LayoutedElements, 
   NodeWidth,
   NodeHeight
 }
