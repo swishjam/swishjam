@@ -6,6 +6,15 @@ export class Automations extends Base {
   static AutomationSteps = AutomationSteps;
   static ExecutedAutomations = ExecutedAutomations;
 
+  static async create({ name, entry_point_event_name, automation_steps, next_automation_step_conditions }) {
+    return await this._post('/api/v1/automations', {
+      name,
+      entry_point_event_name,
+      automation_steps,
+      next_automation_step_conditions,
+    });
+  }
+
   static async list({ page, limit } = {}) {
     return await this._get('/api/v1/automations', { page, limit });
   }

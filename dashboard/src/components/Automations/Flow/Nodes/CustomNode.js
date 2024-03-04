@@ -18,7 +18,6 @@ export default memo(({
   id,
   title,
   icon,
-  width = NODE_WIDTH,
   onDelete,
   onEdit,
   includeTopHandle = true,
@@ -39,7 +38,7 @@ export default memo(({
   }, [dialogOpen])
 
   return (
-    <div style={{ width, pointerEvents: 'all' }} className='nodrag nopan card text-left align-top cursor-default'>
+    <div style={{ width: NODE_WIDTH, pointerEvents: 'all' }} className='nodrag nopan card text-left align-top cursor-default'>
       <div className='flex items-center space-x-2'>
         {icon}
         <span className='text-md font-medium'>{title}</span>
