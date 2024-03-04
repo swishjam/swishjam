@@ -34,7 +34,11 @@ export function ButtonEdge({
   });
 
   const onAddNode = (nodeType) => {
-    data.onAddNode({ nodeType, data, edgeId: id, currentNodes: allNodes, currentEdges: allEdges })
+    if (nodeType === 'IfElse') {
+      data.onAddNode({ nodeType, data, edgeId: id, currentNodes: allNodes, currentEdges: allEdges, numEdgesToAdd: 2 })
+    } else {
+      data.onAddNode({ nodeType, data, edgeId: id, currentNodes: allNodes, currentEdges: allEdges })
+    }
   };
 
   return (

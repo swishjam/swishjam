@@ -6,7 +6,7 @@ const SlackIcon = ({ className }) => (<img src={'/logos/slack.svg'} className={c
 
 import CustomNode from './CustomNode';
 
-const SlackNode = memo(({ id, data }) => {
+export default memo(({ id, data }) => {
   return (
     <CustomNode
       id={id}
@@ -28,5 +28,3 @@ const SlackNode = memo(({ id, data }) => {
     </CustomNode>
   )
 });
-
-export default SlackNode;

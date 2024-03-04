@@ -29,7 +29,7 @@ export default function Combobox({ selectedValue, onSelectionChange, options, pl
               variant="outline"
               role="combobox"
               aria-expanded={isOpen}
-              className={`min-w-${minWidth} max-w-[400px] justify-between font-normal text-sm ${buttonClass}`}
+              className={`w-full justify-between font-normal text-sm ${buttonClass}`}
             >
               {selectedValue ? options.find(option => option.value && option.value.toLowerCase() === selectedValue.toLowerCase())?.label : placeholder}
               <CaretSortIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />

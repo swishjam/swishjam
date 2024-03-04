@@ -3,9 +3,49 @@
 import { LuPlus } from 'react-icons/lu';
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
-import { NodeTypesList } from '@/components/Automations/Flow/FlowHelpers';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList, CommandSeparator } from "@/components/ui/command"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { LuSplit, LuBrain, LuMail, LuMegaphone, LuFilter, LuAlarmClock } from 'react-icons/lu';
+
+const SlackIcon = ({ className }) => <img src={'/logos/slack.svg'} className={className} />
+
+const nodeOptions = [
+  {
+    heading: (<span className='flex items-center'><LuBrain size={18} className='mr-2' />Logic</span>),
+    items: [
+      {
+        value: "IfElse",
+        label: "If/Else",
+        icon: LuSplit,
+      },
+      {
+        value: "Filter",
+        label: "Filter",
+        icon: LuFilter,
+      },
+      {
+        value: "Delay",
+        label: "Delay",
+        icon: LuAlarmClock,
+      },
+    ]
+  },
+  {
+    heading: (<span className='flex items-center'><LuMegaphone size={18} className='mr-2' />Messaging</span>),
+    items: [
+      {
+        value: "SlackMessage",
+        label: "Send Slack Message",
+        icon: SlackIcon,
+      },
+      {
+        value: "ResendEmail",
+        label: "Send Email w/Resend",
+        icon: LuMail,
+      },
+    ]
+  },
+]
 
 export function AddNewNodePopover({ onSelection }) {
   const [open, setOpen] = useState(false)
@@ -23,7 +63,7 @@ export function AddNewNodePopover({ onSelection }) {
             <CommandInput placeholder="Search Automation Steps" className="border-0" />
             <CommandList>
               <CommandEmpty>No automation step found.</CommandEmpty>
-              {NodeTypesList.map((group, idx) => (
+              {nodeOptions.map((group, idx) => (
                 <div key={idx}>
                   <CommandGroup heading={group.heading}>
                     {group.items.map((item) => (
@@ -41,7 +81,7 @@ export function AddNewNodePopover({ onSelection }) {
                       </CommandItem>
                     ))}
                   </CommandGroup>
-                  {(idx < NodeTypesList.length - 1) && <CommandSeparator />}
+                  {(idx < nodeOptions.length - 1) && <CommandSeparator />}
                 </div>
               ))}
             </CommandList>

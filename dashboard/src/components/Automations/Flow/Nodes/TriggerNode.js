@@ -1,29 +1,29 @@
 'use client'
-import ReactFlow, {
-  Handle,
-  Position,
-} from 'reactflow';
-import { memo } from 'react';
 
+import { memo, useState } from 'react';
+import CustomNode from './CustomNode';
+import Combobox from '@/components/utils/Combobox';
 import { LuZap } from "react-icons/lu";
-import { ComboboxEvents } from "@/components/ComboboxEvents";
 
-const TriggerNode = memo(({ data }) => {
-  const { content, onChange, width, height } = data;
+export default memo(({ data }) => {
+  const [currentlySelectedEventName, setCurrentlySelectedEventName] = useState(data.selectedEvent)
 
   return (
-    <div style={{ width, pointerEvents: 'all'}} className='nodrag nopan card text-left align-top'>
-      <p className='text-md font-medium leading-none flex items-center mb-1'>
-        <LuZap className='inline mr-2 text-emerald-500' size={16} />
-        Flow Trigger
-      </p>
-      <ComboboxEvents
-        btnClass='mt-4' 
+    <CustomNode
+      id={data.id}
+      width={data.width}
+      icon={<LuZap className='inline mr-2 text-emerald-500' size={16} />}
+      includeTopHandle={false}
+      title='Event Trigger'
+    >
+      <Combobox
+        options={data.eventOptions}
+        selectedValue={currentlySelectedEventName}
+        onSelectionChange={eventName => {
+          setCurrentlySelectedEventName(eventName)
+          data.onUpdate(eventName)
+        }}
       />
-
-      <Handle type="source" position={Position.Bottom} />
-    </div>
+    </CustomNode >
   );
 });
-
-export default TriggerNode;

@@ -1,6 +1,6 @@
 "use client"
 
-import * as React from "react"
+import { useState } from "react"
 import { LuCheck, LuChevronsUpDown } from "react-icons/lu"
 
 import { cn } from "@/lib/utils"
@@ -12,38 +12,11 @@ import {
   CommandInput,
   CommandItem,
 } from "@/components/ui/command"
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 
-const frameworks = [
-  {
-    value: "next.js",
-    label: "Next.js",
-  },
-  {
-    value: "sveltekit",
-    label: "SvelteKit",
-  },
-  {
-    value: "nuxt.js",
-    label: "Nuxt.js",
-  },
-  {
-    value: "remix",
-    label: "Remix",
-  },
-  {
-    value: "astro",
-    label: "Astro",
-  },
-]
-
-export function ComboboxEvents({ btnClass, }) {
-  const [open, setOpen] = React.useState(false)
-  const [value, setValue] = React.useState("")
+export function ComboboxEvents({ btnClass }) {
+  const [open, setOpen] = useState(false)
+  const [value, setValue] = useState("")
 
   return (
     <Popover open={open} onOpenChange={setOpen}>

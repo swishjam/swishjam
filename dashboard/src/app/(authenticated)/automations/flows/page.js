@@ -7,7 +7,7 @@ import { LuArrowLeft } from 'react-icons/lu';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
-  NodeTypes, EdgeTypes, NodeWidth, NodeHeight,
+  NodeTypes, EdgeTypes, NODE_WIDTH, NODE_HEIGHT,
   CreateNewNode, CreateNewEdge
 } from '@/components/Automations/Flow/FlowHelpers';
 
@@ -36,7 +36,7 @@ const getLayoutedElements = (nodes, edges, direction = 'TB') => {
   dagreGraph.setGraph({ rankdir: direction });
 
   nodes.forEach((node) => {
-    dagreGraph.setNode(node.id, { width: NodeWidth, height: NodeHeight });
+    dagreGraph.setNode(node.id, { width: NODE_WIDTH, height: NODE_HEIGHT });
   });
 
   edges.forEach((edge) => {
@@ -55,13 +55,13 @@ const getLayoutedElements = (nodes, edges, direction = 'TB') => {
     if (index === 0) {
       node.position = {
         x: 0, //nodeWithPosition.x,
-        // x: nodeWithPosition.x - NodeWidth / 2,
-        y: nodeWithPosition.y - NodeHeight,
+        // x: nodeWithPosition.x - NODE_WIDTH / 2,
+        y: nodeWithPosition.y - NODE_HEIGHT,
       };
     } else {
       node.position = {
         x: 0, //nodeWithPosition.x,
-        y: nodeWithPosition.y * 1.2 - NodeHeight,
+        y: nodeWithPosition.y * 1.2 - NODE_HEIGHT,
       };
     }
 

@@ -1,8 +1,9 @@
 import DottedUnderline from "@/components/utils/DottedUnderline";
 import CustomNode from "./CustomNode";
 import { LuAlarmClock } from "react-icons/lu";
+import { memo } from "react";
 
-export default function DelayNode({ id, data }) {
+export default memo(({ id, data }) => {
   return (
     <CustomNode
       id={id}
@@ -16,4 +17,4 @@ export default function DelayNode({ id, data }) {
       </p>
     </CustomNode>
   );
-}
+})

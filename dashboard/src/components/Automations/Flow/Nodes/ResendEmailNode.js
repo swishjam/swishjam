@@ -1,8 +1,9 @@
-import { MailIcon } from "lucide-react";
 import CustomNode from "./CustomNode";
 import DottedUnderline from "@/components/utils/DottedUnderline";
+import { MailIcon } from "lucide-react";
+import { memo } from "react";
 
-export default function ResendEmailNode({ id, data }) {
+export default memo(({ id, data }) => {
   return (
     <CustomNode
       id={id}
@@ -16,4 +17,4 @@ export default function ResendEmailNode({ id, data }) {
       </p>
     </CustomNode>
   )
-}
+})

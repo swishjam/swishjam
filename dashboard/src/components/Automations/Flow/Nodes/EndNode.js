@@ -1,25 +1,15 @@
 'use client'
-import ReactFlow, {
-  Handle,
-  Position,
-} from 'reactflow';
+
+import CustomNode from './CustomNode';
+import { LuFlag } from "react-icons/lu";
 import { memo } from 'react';
 
-import { LuFlag } from "react-icons/lu";
-import { ComboboxEvents } from "@/components/ComboboxEvents";
-
-const EndNode = memo(({ data }) => {
-  const { content, onChange, width, height } = data;
-
+export default memo(({ data }) => {
   return (
-    <div style={{ width }} className='!pointer-default bg-white border border-gray-200 shadow-sm p-4 rounded-md overflow-hidden text-center'>
-      <p className='text-md font-medium leading-none flex items-center mb-1 text-center'>
-        <LuFlag className='inline mr-2 text-swishjam' size={16} />
-        End of Automation 
-      </p>
-      <Handle type="target" position={Position.Top} />
-    </div>
-  );
+    <CustomNode
+      icon={<LuFlag className='inline mr-2 text-swishjam' size={16} />}
+      title='End of Automation'
+      includeBottomHandle={false}
+    />
+  )
 });
-
-export default EndNode;

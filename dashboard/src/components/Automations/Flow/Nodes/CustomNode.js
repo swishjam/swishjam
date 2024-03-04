@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Handle, Position } from 'reactflow';
+import { Handle, Position, useEdges, useNodes } from 'reactflow';
 import { memo } from 'react';
 import {
   Dialog,
@@ -12,9 +12,23 @@ import {
 } from "@/components/ui/dialog"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { LuPencil, LuTrash, LuSettings } from "react-icons/lu";
+import { NODE_WIDTH } from '../FlowHelpers';
 
-const CustomNode = memo(({ id, title, icon, width, onDelete, children }) => {
+export default memo(({
+  id,
+  title,
+  icon,
+  width = NODE_WIDTH,
+  onDelete,
+  onEdit,
+  includeTopHandle = true,
+  includeBottomHandle = true,
+  children
+}) => {
   const [dialogOpen, setDialogOpen] = useState(false)
+
+  const allNodes = useNodes();
+  const allEdges = useEdges();
 
   useEffect(() => {
     if (!dialogOpen) {
@@ -30,29 +44,37 @@ const CustomNode = memo(({ id, title, icon, width, onDelete, children }) => {
         {icon}
         <span className='text-md font-medium'>{title}</span>
       </div>
-      <div className='mt-4'>
-        {children}
-      </div>
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <div className='absolute top-4 right-4'>
-            <LuSettings className="text-gray-400 h-5 w-5 hover:text-swishjam cursor-pointer duration-300 transition-all" aria-hidden="true" />
-          </div>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent className="w-fit border-zinc-200 shadow-sm border-sm" align='end'>
-          <DropdownMenuItem className='cursor-pointer hover:bg-accent' onClick={() => setDialogOpen(true)}>
-            <LuPencil className='h-4 w-4 inline-block mr-2' />
-            Edit
-          </DropdownMenuItem>
-          <DropdownMenuGroup>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem className="!text-red-400 cursor-pointer hover:bg-accent" onClick={() => onDelete(id)}>
-              <LuTrash className='h-4 w-4 inline-block mr-2' />
-              Delete
-            </DropdownMenuItem>
-          </DropdownMenuGroup>
-        </DropdownMenuContent>
-      </DropdownMenu>
+      {children && (
+        <div className='mt-4'>
+          {children}
+        </div>
+      )}
+      {(onDelete || onEdit) && (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <div className='absolute top-4 right-4'>
+              <LuSettings className="text-gray-400 h-5 w-5 hover:text-swishjam cursor-pointer duration-300 transition-all" aria-hidden="true" />
+            </div>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent className="w-fit border-zinc-200 shadow-sm border-sm" align='end'>
+            {onEdit && (
+              <DropdownMenuItem className='cursor-pointer hover:bg-accent' onClick={() => setDialogOpen(true)}>
+                <LuPencil className='h-4 w-4 inline-block mr-2' />
+                Edit
+              </DropdownMenuItem>
+            )}
+            {onDelete && (
+              <DropdownMenuGroup>
+                {onEdit && <DropdownMenuSeparator />}
+                <DropdownMenuItem className="!text-red-400 cursor-pointer hover:bg-accent" onClick={() => onDelete(id, allNodes, allEdges)}>
+                  <LuTrash className='h-4 w-4 inline-block mr-2' />
+                  Delete
+                </DropdownMenuItem>
+              </DropdownMenuGroup>
+            )}
+          </DropdownMenuContent>
+        </DropdownMenu>
+      )}
 
       <Dialog open={dialogOpen} onOpenChange={() => setDialogOpen(false)}>
         <DialogContent className="">
@@ -66,10 +88,8 @@ const CustomNode = memo(({ id, title, icon, width, onDelete, children }) => {
         </DialogContent>
       </Dialog>
 
-      <Handle type="target" position={Position.Top} />
-      <Handle type="source" position={Position.Bottom} />
+      {includeTopHandle && <Handle type="target" position={Position.Top} />}
+      {includeBottomHandle && <Handle type="source" position={Position.Bottom} />}
     </div>
   );
 });
-
-export default CustomNode;

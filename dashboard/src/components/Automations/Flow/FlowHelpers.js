@@ -1,77 +1,21 @@
-import TriggerNode from '@/components/Automations/Flow/Nodes/TriggerNode';
-import EndNode from '@/components/Automations/Flow/Nodes/EndNode';
-import SlackNode from '@/components/Automations/Flow/Nodes/SlackNode';
 import { ButtonEdge } from '@/components/Automations/Flow/Edges/ButtonEdge';
-import { LuBrain, LuMail, LuMegaphone, LuFilter, LuAlarmClock } from 'react-icons/lu';
-import ResendEmailNode from './Nodes/ResendEmailNode';
-import DelayNode from './Nodes/DelayNode';
-const SlackIcon = ({ className }) => (<img src={'/logos/slack.svg'} className={className} />)
+import DelayNode from '@/components/Automations/Flow/Nodes/DelayNode';
+import EndNode from '@/components/Automations/Flow/Nodes/EndNode';
+import IfElseNode from '@/components/Automations/Flow/Nodes/IfElseNode';
+import ResendEmailNode from '@/components/Automations/Flow/Nodes/ResendEmailNode';
+import SlackNode from '@/components/Automations/Flow/Nodes/SlackNode';
+import TriggerNode from '@/components/Automations/Flow/Nodes/TriggerNode';
 
-// For Add New Node Popover 
-// we need to provide a nodeTypes object to the ReactFlow component.
-const NodeTypesList = [
-  {
-    heading: (<span className='flex items-center'><LuBrain size={18} className='mr-2' />Logic</span>),
-    items: [
-      // {
-      //   value: "if-else",
-      //   label: "If/Else",
-      //   icon: LuSplit,
-      // },
-      {
-        value: "Filter",
-        label: "Filter",
-        icon: LuFilter,
-      },
-      {
-        value: "Delay",
-        label: "Delay",
-        icon: LuAlarmClock,
-      },
-    ]
-  },
-  {
-    heading: (<span className='flex items-center'><LuMegaphone size={18} className='mr-2' />Messaging</span>),
-    items: [
-      {
-        value: "SlackMessage",
-        label: "Send Slack Message",
-        icon: SlackIcon,
-      },
-      {
-        value: "ResendEmail",
-        label: "Send Email w/Resend",
-        icon: LuMail,
-      },
-      // {
-      //   value: "webhook",
-      //   label: "Send Webhook",
-      //   icon: LuWebhook,
-      // },
-      // {
-      //   value: "update-user",
-      //   label: "Update User Profile",
-      //   icon: LuUser,
-      // },
-      // {
-      //   value: "update-org",
-      //   label: "Update Organization Profile",
-      //   icon: LuBuilding,
-      // },
-    ]
-  },
-]
-
-const NodeWidth = 300;
-const NodeHeight = 125;
+const NODE_WIDTH = 300;
+const NODE_HEIGHT = 125;
 
 const CreateNewNode = (id, type, data, onEdit, onDelete) => {
-  let nid = id || 'new-' + Math.random().toString(36);
+  const nid = id || 'new-' + Math.random().toString(36);
   return {
     id: nid,
     position: { x: 0, y: 0 },
-    data: { ...data, onEdit, onDelete, width: NodeWidth, height: NodeHeight },
-    draggable: false,
+    data: { ...data, onEdit, onDelete, width: NODE_WIDTH, height: NODE_HEIGHT },
+    draggable: true,
     type
   }
 }
@@ -93,8 +37,9 @@ const NodeTypes = {
   Delay: DelayNode,
   SlackMessage: SlackNode,
   ResendEmail: ResendEmailNode,
-  trigger: TriggerNode,
-  end: EndNode,
+  IfElse: IfElseNode,
+  Entry: TriggerNode,
+  End: EndNode,
 }
 
 const EdgeTypes = {
@@ -102,11 +47,10 @@ const EdgeTypes = {
 }
 
 export {
-  NodeTypesList,
   NodeTypes,
   EdgeTypes,
   CreateNewNode,
   CreateNewEdge,
-  NodeWidth,
-  NodeHeight
+  NODE_WIDTH,
+  NODE_HEIGHT
 }
