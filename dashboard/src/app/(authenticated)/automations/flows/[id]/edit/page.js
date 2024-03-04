@@ -23,5 +23,13 @@ export default function EditAutomationPage({ params }) {
     getAutomationDetails();
   }, [automationId])
 
-  return <AutomationBuilder automation={automation} automationSteps={automationSteps} />
+  return (
+    <AutomationBuilder
+      automation={automation}
+      automationSteps={automationSteps}
+      onSave={({ name, nodes, edges }) => {
+        console.log('saving', name, nodes, edges)
+      }}
+    />
+  )
 }

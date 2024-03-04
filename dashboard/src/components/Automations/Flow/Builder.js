@@ -20,8 +20,8 @@ import 'reactflow/dist/style.css';
 import SwishjamAPI from '@/lib/api-client/swishjam-api';
 import LoadingSpinner from '@/components/LoadingSpinner';
 
-export default function AutomationBuilder({ automation, automationSteps }) {
-  if (!automation) {
+export default function AutomationBuilder({ automation: providedAutomation, automationSteps, onSave, title = 'Edit Automation' }) {
+  if (!providedAutomation) {
     return (
       <div className='h-screen w-screen flex items-center justify-center'>
         <LoadingSpinner size={24} />
@@ -31,7 +31,7 @@ export default function AutomationBuilder({ automation, automationSteps }) {
 
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
-  const [automationName, setAutomationName] = useState(automation.name);
+  const [automation, setAutomation] = useState(providedAutomation);
 
   const onNodeEdit = useCallback((nodeId, curNodes, curEdges) => {
     console.log('on node edit')
@@ -89,29 +89,30 @@ export default function AutomationBuilder({ automation, automationSteps }) {
       onUpdate: eventName => setAutomation({ ...automation, entry_point_event_name: eventName }),
     })
 
-    const endNode = CreateNewNode(null, 'End');
-    const initialNodes = [entryNode, ...mappedNodesFromAutomationSteps, endNode];
+    const initialNodes = [entryNode, ...mappedNodesFromAutomationSteps, CreateNewNode(null, 'End')];
 
-    const initialEdges = [
-      CreateNewEdge(entryNode.id, automationSteps[0].id, { onAddNode: onAddNodeInEdge }),
+    let initialEdges = [
+      CreateNewEdge(entryNode.id, initialNodes[1].id, { onAddNode: onAddNodeInEdge }),
       ...mappedEdgesFromNextAutomationStepConditions,
-      // TODO: if a node has no next_automation_step_conditions, create an edge to an end-node
-      CreateNewEdge(automationSteps[automationSteps.length - 1].id, endNode.id, { onAddNode: onAddNodeInEdge }),
-    ];
+    ]
+    if (automationSteps.length > 0) {
+      initialEdges.push(CreateNewEdge(automationSteps[automationSteps.length - 1].id, initialNodes[initialNodes.length - 1].id, { onAddNode: onAddNodeInEdge }))
+    }
     const { nodes: layoutedNodes, edges: layoutedEdges } = autoLayoutNodesAndEdges(initialNodes, initialEdges);
 
     setNodes(layoutedNodes)
     setEdges(layoutedEdges)
   }
 
-  useEffect(() => {
-    renderCanvasFromAutomationSteps();
-  }, [automation?.id])
-
   async function onSubmit() {
     console.log(nodes);
     console.log(edges);
+    onSave({ automation, nodes, edges })
   }
+
+  useEffect(() => {
+    renderCanvasFromAutomationSteps();
+  }, [])
 
   return (
     <ReactFlowProvider>
@@ -140,10 +141,10 @@ export default function AutomationBuilder({ automation, automationSteps }) {
                     <LuArrowLeft className='inline mr-1' size={12} />
                     Back to all Automation Flows
                   </Link>
-                  <h1 className="text-lg font-medium text-gray-700 mb-0">Edit Automation</h1>
+                  <h1 className="text-lg font-medium text-gray-700 mb-0">{title}</h1>
                 </div>
                 <p className='text-sm font-medium leading-none flex items-center mb-1 mt-6'>Automation Name</p>
-                <Input className='w-full' value={automationName} onChange={e => setAutomationName(e.target.value)} />
+                <Input className='w-full' value={automation.name} onChange={e => setAutomation({ ...automation, name: e.target.value })} />
                 <Button onClick={onSubmit} className="mt-4 w-full">Save Flow</Button>
               </div>
             </Panel>
