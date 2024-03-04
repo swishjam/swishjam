@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/dialog"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { LuPencil, LuTrash, LuSettings } from "react-icons/lu";
-import { NODE_WIDTH } from '../FlowHelpers';
+import { NODE_WIDTH } from "@/lib/automations-helpers";
 
 export default memo(({
   id,

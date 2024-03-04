@@ -7,8 +7,7 @@ import { Input } from '@/components/ui/input';
 import Link from 'next/link';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import { LuArrowLeft } from 'react-icons/lu';
-import { NodeTypes, EdgeTypes } from '@/components/Automations/Flow/FlowHelpers';
-import { createNewEdge, createNewNode } from '@/lib/automations-helpers';
+import { NodeTypes, EdgeTypes, createNewEdge, createNewNode } from '@/lib/automations-helpers';
 import { useEffect, useCallback } from 'react';
 
 import ReactFlow, {
@@ -137,7 +136,7 @@ export default function AutomationBuilder({ automation, automationSteps, onAutom
   return (
     <CommonQueriesProvider>
       <ReactFlowProvider>
-        <main className="relative h-screen w-screen overflow-clip">
+        <main className="relative h-screen w-screen overflow-hidden">
           <div className="absolute top-0 right-0 bottom-0 left-0 z-0">
             <ReactFlow
               nodes={nodes}
@@ -163,15 +162,15 @@ export default function AutomationBuilder({ automation, automationSteps, onAutom
                       Back to all Automation Flows
                     </Link>
                     <h1 className="text-lg font-medium text-gray-700 mb-0">{title}</h1>
+                    <p className='text-sm font-medium leading-none flex items-center mb-1 mt-6'>Automation Name</p>
+                    <Input className='w-full' value={automation.name} onChange={e => onAutomationNameUpdated(e.target.value)} />
+                    <Button onClick={onSubmit} className="mt-4 w-full">Save Flow</Button>
                   </div>
-                  <p className='text-sm font-medium leading-none flex items-center mb-1 mt-6'>Automation Name</p>
-                  <Input className='w-full' value={automation.name} onChange={e => onAutomationNameUpdated(e.target.value)} />
-                  <Button onClick={onSubmit} className="mt-4 w-full">Save Flow</Button>
                 </div>
               </Panel>
 
               <Background variant="dots" gap={6} size={0.5} />
-              <Controls />
+              <Controls className="rounded-sm border-gray-200 border bg-white shadow-sm" showInteractive={false} />
             </ReactFlow>
           </div>
 

@@ -1,5 +1,11 @@
+import { ButtonEdge } from '@/components/Automations/Flow/Edges/ButtonEdge';
+import DelayNode from '@/components/Automations/Flow/Nodes/DelayNode';
+import EndNode from '@/components/Automations/Flow/Nodes/EndNode';
+import IfElseNode from '@/components/Automations/Flow/Nodes/IfElseNode';
+import ResendEmailNode from '@/components/Automations/Flow/Nodes/ResendEmailNode';
+import SlackNode from '@/components/Automations/Flow/Nodes/SlackNode';
+import TriggerNode from '@/components/Automations/Flow/Nodes/TriggerNode';
 import dagre from 'dagre';
-import { NODE_WIDTH, NODE_HEIGHT } from '@/components/Automations/Flow/FlowHelpers';
 
 const dagreGraph = new dagre.graphlib.Graph();
 dagreGraph.setDefaultEdgeLabel(() => ({}));
@@ -129,4 +135,23 @@ export const reformatNodesAndEdgesToAutomationsPayload = ({ nodes, edges }) => {
     }
   })
   return { automation_steps, next_automation_step_conditions }
+}
+
+export const NODE_WIDTH = 300;
+export const NODE_HEIGHT = 125;
+
+// For ReactFlow to render the custom nodes,
+// we need to provide a nodeTypes object to the ReactFlow component.
+export const NodeTypes = {
+  Filter: SlackNode,
+  Delay: DelayNode,
+  SlackMessage: SlackNode,
+  ResendEmail: ResendEmailNode,
+  IfElse: IfElseNode,
+  EntryPoint: TriggerNode,
+  Exit: EndNode,
+}
+
+export const EdgeTypes = {
+  buttonedge: ButtonEdge,
 }
