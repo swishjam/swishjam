@@ -116,7 +116,7 @@ export default function AutomationBuilder({ automation: providedAutomation, auto
 
   return (
     <ReactFlowProvider>
-      <main className="relative h-screen w-screen overflow-clip">
+      <main className="relative h-screen w-screen overflow-hidden">
         <div className="absolute top-0 right-0 bottom-0 left-0 z-0">
           <ReactFlow
             nodes={nodes}
@@ -150,7 +150,7 @@ export default function AutomationBuilder({ automation: providedAutomation, auto
             </Panel>
 
             <Background variant="dots" gap={6} size={0.5} />
-            <Controls />
+            <Controls className="rounded-sm border-gray-200 border bg-white shadow-sm" showInteractive={false}/>
           </ReactFlow>
         </div>
 
