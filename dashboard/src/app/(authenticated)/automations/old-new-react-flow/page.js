@@ -7,9 +7,9 @@ import { LuArrowLeft } from 'react-icons/lu';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
-  NodeTypes, EdgeTypes, NodeWidth, NodeHeight,
+  NodeTypes, EdgeTypes, NODE_WIDTH, NODE_HEIGHT,
   CreateNewNode, CreateNewEdge, LayoutedElements
-} from '@/components/Automations/Flow/FlowHelpers';
+} from '@/lib/automations-helpers';
 
 import ReactFlow, {
   useReactFlow,

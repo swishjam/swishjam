@@ -9,26 +9,26 @@ import TriggerNode from '@/components/Automations/Flow/Nodes/TriggerNode';
 const NODE_WIDTH = 300;
 const NODE_HEIGHT = 125;
 
-const CreateNewNode = (id, type, data, onEdit, onDelete) => {
-  const nid = id || 'new-' + Math.random().toString(36);
-  return {
-    id: nid,
-    position: { x: 0, y: 0 },
-    data: { ...data, onEdit, onDelete, width: NODE_WIDTH, height: NODE_HEIGHT },
-    draggable: true,
-    type
-  }
-}
+// const CreateNewNode = ({ id, type, data = {}, onEditClick, onUpdate, onDelete }) => {
+//   const nid = id || 'new-node-' + Math.random().toString(36);
+//   return {
+//     id: nid,
+//     position: { x: 0, y: 0 },
+//     data: { ...data, onEditClick, onDelete, onUpdate },
+//     draggable: true,
+//     type
+//   }
+// }
 
-const CreateNewEdge = (source, target, data, type = 'buttonedge') => {
-  return {
-    id: `e${source}-${target}`,
-    source,
-    target,
-    type,
-    data
-  }
-}
+// const CreateNewEdge = ({ source, target, data = {}, onAddNode, type = 'buttonedge' }) => {
+//   return {
+//     id: `edge-${source}-${target}`,
+//     source,
+//     target,
+//     type,
+//     data: { ...data, onAddNode },
+//   }
+// }
 
 // For ReactFlow to render the custom nodes,
 // we need to provide a nodeTypes object to the ReactFlow component.
@@ -38,8 +38,8 @@ const NodeTypes = {
   SlackMessage: SlackNode,
   ResendEmail: ResendEmailNode,
   IfElse: IfElseNode,
-  Entry: TriggerNode,
-  End: EndNode,
+  EntryPoint: TriggerNode,
+  Exit: EndNode,
 }
 
 const EdgeTypes = {
