@@ -49,12 +49,12 @@ export const autoLayoutNodesAndEdges = (nodes, edges) => {
   return { nodes, edges };
 };
 
-export const createNewNode = ({ id, type, data = {}, onEditClick, onUpdate, onDelete }) => {
+export const createNewNode = ({ id, type, data = {}, onUpdate, onDelete }) => {
   const nid = id || 'new-node-' + Math.random().toString(36);
   return {
     id: nid,
     position: { x: 0, y: 0 },
-    data: { ...data, onEditClick, onDelete, onUpdate },
+    data: { ...data, onDelete, onUpdate },
     draggable: true,
     type
   }
