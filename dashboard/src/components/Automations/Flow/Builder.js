@@ -174,24 +174,14 @@ export default function AutomationBuilder({ automation, automationSteps, onAutom
                   </div>
                 </Panel>
 
-<<<<<<< HEAD
-              <Background variant="dots" gap={6} size={0.5} />
-              <Controls className="rounded-sm border-gray-200 border bg-white shadow-sm overflow-hidden" showInteractive={false} />
-            </ReactFlow>
-          </div>
-        </main>
-      </ReactFlowProvider>
-=======
                 <Background variant="dots" gap={6} size={0.5} />
-                <Controls className="rounded-sm border-gray-200 border bg-white shadow-sm" showInteractive={false} />
+                <Controls className="rounded-md border-gray-200 border bg-white shadow-sm overflow-hidden" showInteractive={false} />
               </ReactFlow>
             </div>
-
 
           </main>
         </ReactFlowProvider>
       </AutomationBuilderProvider>
->>>>>>> 5bd22b7759a97b30f8f5acc81c3059a02ed8ea9c
     </CommonQueriesProvider>
   )
 }
