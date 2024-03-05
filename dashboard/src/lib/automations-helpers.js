@@ -6,6 +6,7 @@ import ResendEmailNode from '@/components/Automations/Flow/Nodes/ResendEmailNode
 import SlackNode from '@/components/Automations/Flow/Nodes/SlackNode';
 import EntryPointNode from '@/components/Automations/Flow/Nodes/EntryPointNode';
 import dagre from 'dagre';
+import FilterNode from '@/components/Automations/Flow/Nodes/FilterNode';
 
 export const NODE_WIDTH = 300;
 export const NODE_HEIGHT = 125;
@@ -143,7 +144,7 @@ export const reformatNodesAndEdgesToAutomationsPayload = ({ nodes, edges }) => {
 // For ReactFlow to render the custom nodes,
 // we need to provide a nodeTypes object to the ReactFlow component.
 export const NodeTypes = {
-  Filter: SlackNode,
+  Filter: FilterNode,
   Delay: DelayNode,
   SlackMessage: SlackNode,
   ResendEmail: ResendEmailNode,

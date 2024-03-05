@@ -88,7 +88,7 @@ export default memo(({
           </div>
         </div>
         {isInvalid && EditComponent && (
-          <div className='text-xs flex items-center space-x-4 mt-4 bg-yellow-100 hover:bg-yellow-200 text-yellow-700 p-2 rounded transition-colors'>
+          <div className='text-xs flex items-center space-x-2 mt-4 bg-yellow-100 hover:bg-yellow-200 text-yellow-700 px-4 py-2 rounded transition-colors'>
             <AlertTriangleIcon className='h-6 w-6' />
             <div>
               <span className='block'>This step is incomplete.</span>
