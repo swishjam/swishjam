@@ -17,6 +17,7 @@ export default memo(({ data }) => {
       title='Event Trigger'
     >
       <Combobox
+        placeholder='Select a trigger' 
         options={data.eventOptions}
         selectedValue={currentlySelectedEventName}
         onSelectionChange={eventName => {
