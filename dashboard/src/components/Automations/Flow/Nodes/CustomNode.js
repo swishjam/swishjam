@@ -10,6 +10,7 @@ import { NODE_WIDTH } from "@/lib/automations-helpers";
 import { Tooltipable } from '@/components/ui/tooltip';
 import { useEffect, useState } from 'react'
 import { toast } from 'sonner';
+import { EllipsisVerticalIcon } from '@heroicons/react/24/outline';
 
 export default memo(({
   id,
@@ -58,8 +59,9 @@ export default memo(({
             {(onDelete || EditComponent) && (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <div className=''>
+                  <div className='rounded hover:bg-gray-100 transition-colors'>
                     <LuSettings className="text-gray-400 h-5 w-5 hover:text-swishjam cursor-pointer duration-300 transition-all" aria-hidden="true" />
+                    {/* <EllipsisVerticalIcon className="text-gray-400 h-5 w-5 hover:text-swishjam cursor-pointer duration-300 transition-all" aria-hidden="true" /> */}
                   </div>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent className="w-fit border-zinc-200 shadow-sm border-sm" align='end'>
@@ -91,7 +93,7 @@ export default memo(({
             <AlertTriangleIcon className='h-6 w-6' />
             <div>
               <span className='block'>This step is incomplete.</span>
-              <span onClick={() => setEditModalIsOpen(true)} className='text-xs cursor-pointer mx-1 hover:underline'>Complete configuration.</span>
+              <span onClick={() => setEditModalIsOpen(true)} className='text-xs cursor-pointer hover:underline'>Complete configuration.</span>
             </div>
           </div>
         )}
