@@ -18,6 +18,7 @@ import ReactFlow, {
   useNodesState,
   useEdgesState,
   Controls,
+  ControlButton,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 
@@ -25,7 +26,7 @@ export default function AutomationBuilder({ automation, automationSteps, onAutom
   if (!automation) {
     return (
       <div className='h-screen w-screen flex items-center justify-center'>
-        <LoadingSpinner size={24} />
+        <LoadingSpinner size={10} />
       </div>
     )
   }
@@ -34,10 +35,26 @@ export default function AutomationBuilder({ automation, automationSteps, onAutom
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
 
   const onNodeDelete = useCallback((nodeId, currentNodes, currentEdges) => {
-    const newNodes = currentNodes.filter(n => n.id !== nodeId);
-    const newEdges = currentEdges.filter(e => e.source !== nodeId);
-    // TODO: figure out how to handle now disconnected nodes
-    const { nodes: layoutedNodes, edges: layoutedEdges } = autoLayoutNodesAndEdges(newNodes, newEdges);
+    const leftoverNodes = currentNodes.filter(n => n.id !== nodeId);
+    const leftoverEdges = currentEdges.filter(e => e.source !== nodeId && e.target !== nodeId);
+    // const removedNode = currentNodes.find(n => n.id === nodeId);
+    const removedEdges = currentEdges.filter(e => e.source == nodeId || e.target == nodeId);
+
+    // console.log('Removed node', removedNode)
+    // console.log('Removed Edges', removedEdges);
+    let newEdgeTarget = null; 
+    let newEdgeSource = null; 
+    removedEdges.forEach(edge => {
+      if(edge.target === nodeId) {
+        newEdgeSource = edge.source;
+      }
+      if(edge.source === nodeId) {
+        newEdgeTarget = edge.target;
+      }
+    })
+    const newEdge = CreateNewEdge(newEdgeSource, newEdgeTarget, { onAddNode: onAddNodeInEdge });
+    // console.log('New Edge', newEdge);
+    const { nodes: layoutedNodes, edges: layoutedEdges } = autoLayoutNodesAndEdges(leftoverNodes, [...leftoverEdges, newEdge]);
     setNodes(layoutedNodes);
     setEdges(layoutedEdges);
   }, [])
@@ -158,10 +175,9 @@ export default function AutomationBuilder({ automation, automationSteps, onAutom
                 </Panel>
 
                 <Background variant="dots" gap={6} size={0.5} />
-                <Controls className="rounded-sm border-gray-200 border bg-white shadow-sm" showInteractive={false} />
+                <Controls className="rounded-md border-gray-200 border bg-white shadow-sm overflow-hidden" showInteractive={false} />
               </ReactFlow>
             </div>
-
 
           </main>
         </ReactFlowProvider>

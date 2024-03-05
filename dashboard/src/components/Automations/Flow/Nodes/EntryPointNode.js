@@ -2,7 +2,7 @@
 
 import { memo } from 'react';
 import CustomNode from './CustomNode';
-import Combobox from '@/components/utils/Combobox';
+import ComboboxEvents from '@/components/utils/ComboboxEvents';
 import { LuZap } from "react-icons/lu";
 import { useNodeId, useNodes } from 'reactflow';
 import useCommonQueries from '@/hooks/useCommonQueries';
@@ -26,7 +26,8 @@ export default memo(({ data }) => {
       requiredData={['event_name']}
       title='Event Trigger'
     >
-      <Combobox
+      <ComboboxEvents
+        placeholder='Select a trigger' 
         options={uniqueEvents}
         selectedValue={selectedEntryPointEventName}
         onSelectionChange={eventName => {
