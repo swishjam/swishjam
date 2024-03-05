@@ -4,7 +4,7 @@ import EndNode from '@/components/Automations/Flow/Nodes/EndNode';
 import IfElseNode from '@/components/Automations/Flow/Nodes/IfElseNode';
 import ResendEmailNode from '@/components/Automations/Flow/Nodes/ResendEmailNode';
 import SlackNode from '@/components/Automations/Flow/Nodes/SlackNode';
-import TriggerNode from '@/components/Automations/Flow/Nodes/TriggerNode';
+import EntryPointNode from '@/components/Automations/Flow/Nodes/EntryPointNode';
 import dagre from 'dagre';
 
 const dagreGraph = new dagre.graphlib.Graph();
@@ -148,7 +148,7 @@ export const NodeTypes = {
   SlackMessage: SlackNode,
   ResendEmail: ResendEmailNode,
   IfElse: IfElseNode,
-  EntryPoint: TriggerNode,
+  EntryPoint: EntryPointNode,
   Exit: EndNode,
 }
 
