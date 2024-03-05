@@ -9,7 +9,6 @@ export default memo(() => {
     <CustomNode
       icon={<LuFlag className='inline mr-2 text-swishjam' size={16} />}
       includeBottomHandle={false}
-      isEditable={false}
       title='End of Automation'
     />
   )

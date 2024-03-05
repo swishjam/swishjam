@@ -19,9 +19,7 @@ export default memo(({ data }) => {
 
   return (
     <CustomNode
-      displayIncompleteMessageInsteadOfChildren={false}
       id={id}
-      isEditable={false}
       data={data}
       icon={<LuZap className='inline mr-2 text-emerald-500' size={16} />}
       includeTopHandle={false}

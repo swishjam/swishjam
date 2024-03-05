@@ -12,14 +12,13 @@ import { useEffect, useState } from 'react'
 import { toast } from 'sonner';
 
 export default memo(({
-  displayIncompleteMessageInsteadOfChildren = true,
   id,
-  isEditable = true,
   EditComponent,
   data = {},
   icon,
   includeTopHandle = true,
   includeBottomHandle = true,
+  onEditClick,
   requiredData = [],
   title,
   children
@@ -49,14 +48,14 @@ export default memo(({
             <span className='text-md font-medium'>{title}</span>
           </div>
           <div className='inline-flex items-center justify-end space-x-2'>
-            {isInvalid && !displayIncompleteMessageInsteadOfChildren && (
+            {isInvalid && !EditComponent && (
               <Tooltipable content='This step is incomplete.'>
                 <div className='p-1 rounded bg-yellow-100 hover:bg-yellow-200 transition-all'>
                   <AlertTriangleIcon className='text-yellow-700 h-4 w-4' />
                 </div>
               </Tooltipable>
             )}
-            {(onDelete || isEditable) && (
+            {(onDelete || EditComponent) && (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <div className=''>
@@ -64,10 +63,10 @@ export default memo(({
                   </div>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent className="w-fit border-zinc-200 shadow-sm border-sm" align='end'>
-                  {isEditable && (
+                  {(EditComponent || onEditClick) && (
                     <DropdownMenuItem
                       className='cursor-pointer hover:bg-accent'
-                      onClick={() => setEditModalIsOpen(true)}
+                      onClick={e => onEditClick ? onEditClick(e) : setEditModalIsOpen(true)}
                     >
                       <LuPencil className='h-4 w-4 inline-block mr-2' />
                       Edit
@@ -75,7 +74,7 @@ export default memo(({
                   )}
                   {onDelete && (
                     <DropdownMenuGroup>
-                      {isEditable && <DropdownMenuSeparator />}
+                      {EditComponent && <DropdownMenuSeparator />}
                       <DropdownMenuItem className="!text-red-400 cursor-pointer hover:bg-accent" onClick={() => onDelete(id, allNodes, allEdges)}>
                         <LuTrash className='h-4 w-4 inline-block mr-2' />
                         Delete
@@ -87,16 +86,16 @@ export default memo(({
             )}
           </div>
         </div>
-        {isInvalid && displayIncompleteMessageInsteadOfChildren && (
-          <div className='text-xs flex items-center space-x-4 mt-4 bg-yellow-100 hover:bg-yellow-200 text-yellow-700 p-2 rounded'>
-            <AlertTriangleIcon className='h-4 w-4' />
+        {isInvalid && EditComponent && (
+          <div className='text-xs flex items-center space-x-4 mt-4 bg-yellow-100 hover:bg-yellow-200 text-yellow-700 p-2 rounded transition-colors'>
+            <AlertTriangleIcon className='h-6 w-6' />
             <div>
               <span className='block'>This step is incomplete.</span>
-              <span onClick={() => setEditModalIsOpen(true)} className='text-xs cursor-pointer hover:underline'>Complete configuration.</span>
+              <span onClick={() => setEditModalIsOpen(true)} className='text-xs cursor-pointer mx-1 hover:underline'>Complete configuration.</span>
             </div>
           </div>
         )}
-        {(!isInvalid || !displayIncompleteMessageInsteadOfChildren) && children && (
+        {(!isInvalid || !EditComponent) && children && (
           <div className='mt-4'>
             {children}
           </div>
@@ -106,26 +105,28 @@ export default memo(({
         {includeBottomHandle && <Handle type="source" position={Position.Bottom} />}
       </div>
 
-      <Dialog open={editModalIsOpen} onOpenChange={() => setEditModalIsOpen(false)}>
-        <DialogContent fullWidth={true}>
-          <DialogHeader>
-            <DialogTitle className='flex items-center space-x-2'>
-              {icon}
-              <span>{title}</span>
-            </DialogTitle>
-          </DialogHeader>
-          <div className='mt-4'>
-            <EditComponent
-              data={data}
-              onSave={newData => {
-                toast.success("Automation Step updated.")
-                onUpdate({ id, data: { ...newData, onDelete, onUpdate }, currentNodes: allNodes })
-                setEditModalIsOpen(false)
-              }}
-            />
-          </div>
-        </DialogContent>
-      </Dialog>
+      {EditComponent && (
+        <Dialog open={editModalIsOpen} onOpenChange={() => setEditModalIsOpen(false)}>
+          <DialogContent fullWidth={true}>
+            <DialogHeader>
+              <DialogTitle className='flex items-center space-x-2'>
+                {icon}
+                <span>{title}</span>
+              </DialogTitle>
+            </DialogHeader>
+            <div className='mt-4'>
+              <EditComponent
+                data={data}
+                onSave={newData => {
+                  toast.success("Automation Step updated.")
+                  onUpdate({ id, data: { ...newData, onDelete, onUpdate }, currentNodes: allNodes })
+                  setEditModalIsOpen(false)
+                }}
+              />
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
     </>
   );
 });
