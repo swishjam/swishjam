@@ -4,7 +4,7 @@ import { AlertTriangleIcon } from 'lucide-react';
 import { Handle, Position, useEdges, useNodes } from 'reactflow';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { LuPencil, LuTrash, LuSettings } from "react-icons/lu";
+import { LuPencil, LuTrash } from "react-icons/lu";
 import { memo } from 'react';
 import { NODE_WIDTH } from "@/lib/automations-helpers";
 import { Tooltipable } from '@/components/ui/tooltip';
@@ -60,8 +60,7 @@ export default memo(({
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <div className='rounded hover:bg-gray-100 transition-colors'>
-                    <LuSettings className="text-gray-400 h-5 w-5 hover:text-swishjam cursor-pointer duration-300 transition-all" aria-hidden="true" />
-                    {/* <EllipsisVerticalIcon className="text-gray-400 h-5 w-5 hover:text-swishjam cursor-pointer duration-300 transition-all" aria-hidden="true" /> */}
+                    <EllipsisVerticalIcon className="text-gray-400 h-5 w-5 hover:text-swishjam cursor-pointer duration-300 transition-all" aria-hidden="true" />
                   </div>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent className="w-fit border-zinc-200 shadow-sm border-sm" align='end'>
