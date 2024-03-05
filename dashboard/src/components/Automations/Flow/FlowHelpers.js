@@ -5,6 +5,7 @@ import IfElseNode from '@/components/Automations/Flow/Nodes/IfElseNode';
 import ResendEmailNode from '@/components/Automations/Flow/Nodes/ResendEmailNode';
 import SlackNode from '@/components/Automations/Flow/Nodes/SlackNode';
 import TriggerNode from '@/components/Automations/Flow/Nodes/EntryPointNode';
+import FilterNode from '@/components/Automations/Flow/Nodes/FilterNode';
 
 const NODE_WIDTH = 300;
 const NODE_HEIGHT = 125;
@@ -12,7 +13,7 @@ const NODE_HEIGHT = 125;
 // For ReactFlow to render the custom nodes,
 // we need to provide a nodeTypes object to the ReactFlow component.
 const NodeTypes = {
-  Filter: SlackNode,
+  Filter: FilterNode,
   Delay: DelayNode,
   SlackMessage: SlackNode,
   ResendEmail: ResendEmailNode,

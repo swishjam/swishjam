@@ -154,7 +154,7 @@ export default function AutomationBuilder({ automation, automationSteps, onAutom
                 defaultViewport={{ x: 600, y: 100, zoom: 1 }}
                 elementsSelectable={false}
                 panOnScroll={true}
-              // panOnScrollMode='vertical'
+                //panOnScrollMode='vertical'
               >
                 <Panel position="top-left">
                   <div className='w-80 p-4 ml-6 mt-6 bg-white border border-gray-200 rounded-md mb-6'>

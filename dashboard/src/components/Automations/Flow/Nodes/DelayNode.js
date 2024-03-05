@@ -9,8 +9,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useNodes } from "reactflow";
 import { useState } from "react";
 import { PopoverAnchor } from "@radix-ui/react-popover";
+import { Button } from "@/components/ui/button";
 
-const EditPopover = ({ id, data, children }) => {
+const EditPopover = ({ id, data, children, open, onOpenChange }) => {
   const { delay_amount, delay_unit, onUpdate } = data;
   const allNodes = useNodes();
 
@@ -22,6 +23,7 @@ const EditPopover = ({ id, data, children }) => {
         {children}
       </PopoverTrigger>
       <PopoverContent>
+        <h3 className='text-sm font-medium leading-none flex items-center mb-2'>Delay Amount</h3> 
         <div className='flex space-x-1'>
           <Input
             min={1}
@@ -44,6 +46,7 @@ const EditPopover = ({ id, data, children }) => {
             </SelectContent>
           </Select>
         </div>
+        <Button variant="swishjam" className="mt-2 w-full" onClick={() => onOpenChange(false)}>Save</Button>
       </PopoverContent>
     </>
   )

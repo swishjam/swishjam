@@ -6,7 +6,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { LuPencil, LuTrash, LuSettings } from "react-icons/lu";
 import { memo } from 'react';
-import { NODE_WIDTH } from "@/lib/automations-helpers";
+import { NODE_WIDTH, NODE_HEIGHT } from "@/lib/automations-helpers";
 import { Tooltipable } from '@/components/ui/tooltip';
 import { useEffect, useState } from 'react'
 import { toast } from 'sonner';
@@ -41,7 +41,7 @@ export default memo(({
 
   return (
     <>
-      <div style={{ width: NODE_WIDTH, pointerEvents: 'all' }} className='nodrag nopan card text-left align-top cursor-default'>
+      <div style={{ width: NODE_WIDTH, maxHeight: NODE_HEIGHT, pointerEvents: 'all' }} className='nodrag nopan card text-left align-top cursor-default'>
         <div className='flex items-center justify-between space-x-2'>
           <div className='inline-flex items-center space-x-2'>
             {icon}
