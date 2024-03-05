@@ -4,12 +4,13 @@ import { AlertTriangleIcon } from 'lucide-react';
 import { Handle, Position, useEdges, useNodes } from 'reactflow';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { LuPencil, LuTrash, LuSettings } from "react-icons/lu";
+import { LuPencil, LuTrash } from "react-icons/lu";
 import { memo } from 'react';
 import { NODE_WIDTH, NODE_HEIGHT } from "@/lib/automations-helpers";
 import { Tooltipable } from '@/components/ui/tooltip';
 import { useEffect, useState } from 'react'
 import { toast } from 'sonner';
+import { EllipsisVerticalIcon } from '@heroicons/react/24/outline';
 
 export default memo(({
   id,
@@ -58,8 +59,8 @@ export default memo(({
             {(onDelete || EditComponent) && (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <div className=''>
-                    <LuSettings className="text-gray-400 h-5 w-5 hover:text-swishjam cursor-pointer duration-300 transition-all" aria-hidden="true" />
+                  <div className='rounded hover:bg-gray-100 transition-colors'>
+                    <EllipsisVerticalIcon className="text-gray-400 h-5 w-5 hover:text-swishjam cursor-pointer duration-300 transition-all" aria-hidden="true" />
                   </div>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent className="w-fit border-zinc-200 shadow-sm border-sm" align='end'>
@@ -87,11 +88,11 @@ export default memo(({
           </div>
         </div>
         {isInvalid && EditComponent && (
-          <div className='text-xs flex items-center space-x-4 mt-4 bg-yellow-100 hover:bg-yellow-200 text-yellow-700 p-2 rounded transition-colors'>
+          <div className='text-xs flex items-center space-x-2 mt-4 bg-yellow-100 hover:bg-yellow-200 text-yellow-700 px-4 py-2 rounded transition-colors'>
             <AlertTriangleIcon className='h-6 w-6' />
             <div>
               <span className='block'>This step is incomplete.</span>
-              <span onClick={() => setEditModalIsOpen(true)} className='text-xs cursor-pointer mx-1 hover:underline'>Complete configuration.</span>
+              <span onClick={() => setEditModalIsOpen(true)} className='text-xs cursor-pointer hover:underline'>Complete configuration.</span>
             </div>
           </div>
         )}

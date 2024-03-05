@@ -37,23 +37,19 @@ export default function AutomationBuilder({ automation, automationSteps, onAutom
   const onNodeDelete = useCallback((nodeId, currentNodes, currentEdges) => {
     const leftoverNodes = currentNodes.filter(n => n.id !== nodeId);
     const leftoverEdges = currentEdges.filter(e => e.source !== nodeId && e.target !== nodeId);
-    // const removedNode = currentNodes.find(n => n.id === nodeId);
     const removedEdges = currentEdges.filter(e => e.source == nodeId || e.target == nodeId);
 
-    // console.log('Removed node', removedNode)
-    // console.log('Removed Edges', removedEdges);
-    let newEdgeTarget = null; 
-    let newEdgeSource = null; 
+    let newEdgeTarget = null;
+    let newEdgeSource = null;
     removedEdges.forEach(edge => {
-      if(edge.target === nodeId) {
+      if (edge.target === nodeId) {
         newEdgeSource = edge.source;
       }
-      if(edge.source === nodeId) {
+      if (edge.source === nodeId) {
         newEdgeTarget = edge.target;
       }
     })
-    const newEdge = CreateNewEdge(newEdgeSource, newEdgeTarget, { onAddNode: onAddNodeInEdge });
-    // console.log('New Edge', newEdge);
+    const newEdge = createNewEdge({ source: newEdgeSource, target: newEdgeTarget, onAddNode: onAddNodeInEdge });
     const { nodes: layoutedNodes, edges: layoutedEdges } = autoLayoutNodesAndEdges(leftoverNodes, [...leftoverEdges, newEdge]);
     setNodes(layoutedNodes);
     setEdges(layoutedEdges);
