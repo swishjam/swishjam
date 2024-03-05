@@ -4,7 +4,7 @@ import EndNode from '@/components/Automations/Flow/Nodes/EndNode';
 import IfElseNode from '@/components/Automations/Flow/Nodes/IfElseNode';
 import ResendEmailNode from '@/components/Automations/Flow/Nodes/ResendEmailNode';
 import SlackNode from '@/components/Automations/Flow/Nodes/SlackNode';
-import TriggerNode from '@/components/Automations/Flow/Nodes/TriggerNode';
+import EntryPointNode from '@/components/Automations/Flow/Nodes/EntryPointNode';
 import dagre from 'dagre';
 
 const dagreGraph = new dagre.graphlib.Graph();
@@ -49,12 +49,12 @@ export const autoLayoutNodesAndEdges = (nodes, edges) => {
   return { nodes, edges };
 };
 
-export const createNewNode = ({ id, type, data = {}, onEditClick, onUpdate, onDelete }) => {
+export const createNewNode = ({ id, type, data = {}, onUpdate, onDelete }) => {
   const nid = id || 'new-node-' + Math.random().toString(36);
   return {
     id: nid,
     position: { x: 0, y: 0 },
-    data: { ...data, onEditClick, onDelete, onUpdate },
+    data: { ...data, onDelete, onUpdate },
     draggable: true,
     type
   }
@@ -148,7 +148,7 @@ export const NodeTypes = {
   SlackMessage: SlackNode,
   ResendEmail: ResendEmailNode,
   IfElse: IfElseNode,
-  EntryPoint: TriggerNode,
+  EntryPoint: EntryPointNode,
   Exit: EndNode,
 }
 

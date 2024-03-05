@@ -1,6 +1,7 @@
 'use client'
 
 import { autoLayoutNodesAndEdges } from '@/lib/automations-helpers';
+import AutomationBuilderProvider from '@/providers/AutomationBuilderProvider';
 import { Button } from '@/components/ui/button';
 import CommonQueriesProvider from '@/providers/CommonQueriesProvider';
 import { Input } from '@/components/ui/input';
@@ -32,11 +33,6 @@ export default function AutomationBuilder({ automation, automationSteps, onAutom
 
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
-
-  const onNodeEdit = useCallback((nodeId, curNodes, curEdges) => {
-    console.log('on node edit')
-    setDialogOpen(true);
-  }, [])
 
   const onNodeDelete = useCallback((nodeId, currentNodes, currentEdges) => {
     const leftoverNodes = currentNodes.filter(n => n.id !== nodeId);
@@ -73,7 +69,6 @@ export default function AutomationBuilder({ automation, automationSteps, onAutom
   const onAddNodeInEdge = useCallback(({ nodeType, data, edgeId, currentNodes, currentEdges, numEdgesToAdd = 1 }) => {
     const newPrimaryNode = createNewNode({
       type: nodeType,
-      onEditClick: onNodeEdit,
       onUpdate: updateNode,
       onDelete: onNodeDelete,
       data,
@@ -105,26 +100,18 @@ export default function AutomationBuilder({ automation, automationSteps, onAutom
     let initialEdges = [];
 
     if (!automation.id) {
-      const entryNode = createNewNode({
-        type: 'EntryPoint',
-        data: { selectedEvent: automation.entry_point_event_name },
-        onUpdate: updateNode
-      })
-
+      const entryNode = createNewNode({ type: 'EntryPoint', onUpdate: updateNode })
       const exitNode = createNewNode({ type: 'Exit' })
-
       initialNodes = [entryNode, exitNode];
       initialEdges = [createNewEdge({ source: entryNode.id, target: exitNode.id, onAddNode: onAddNodeInEdge })]
 
     } else {
       automationSteps.forEach(step => {
-        console.log(step)
         const node = createNewNode({
           id: step.id,
           type: step.type.split('::')[1],
           data: step.config,
           onUpdate: updateNode,
-          onEditClick: onNodeEdit,
           onDelete: onNodeDelete,
         })
         initialNodes.push(node)
@@ -152,46 +139,59 @@ export default function AutomationBuilder({ automation, automationSteps, onAutom
 
   return (
     <CommonQueriesProvider>
-      <ReactFlowProvider>
-        <main className="relative h-screen w-screen overflow-hidden">
-          <div className="absolute top-0 right-0 bottom-0 left-0 z-0">
-            <ReactFlow
-              nodes={nodes}
-              edges={edges}
-              onNodesChange={onNodesChange}
-              onEdgesChange={onEdgesChange}
-              nodeTypes={NodeTypes}
-              edgeTypes={EdgeTypes}
-              snapToGrid={true}
-              defaultViewport={{ x: 600, y: 100, zoom: 1 }}
-              elementsSelectable={false}
-              panOnScroll={true}
-            // panOnScrollMode='vertical'
-            >
-              <Panel position="top-left">
-                <div className='w-80 p-4 ml-6 mt-6 bg-white border border-gray-200 rounded-md mb-6'>
-                  <div>
-                    <Link
-                      className='text-xs text-gray-500 hover:text-gray-600 transition-all hover:underline flex items-center mb-2'
-                      href="/automations"
-                    >
-                      <LuArrowLeft className='inline mr-1' size={12} />
-                      Back to all Automation Flows
-                    </Link>
-                    <h1 className="text-lg font-medium text-gray-700 mb-0">{title}</h1>
-                    <p className='text-sm font-medium leading-none flex items-center mb-1 mt-6'>Automation Name</p>
-                    <Input className='w-full' value={automation.name} onChange={e => onAutomationNameUpdated(e.target.value)} />
-                    <Button onClick={onSubmit} className="mt-4 w-full">Save Flow</Button>
+      <AutomationBuilderProvider>
+        <ReactFlowProvider>
+          <main className="relative h-screen w-screen overflow-hidden">
+            <div className="absolute top-0 right-0 bottom-0 left-0 z-0">
+              <ReactFlow
+                nodes={nodes}
+                edges={edges}
+                onNodesChange={onNodesChange}
+                onEdgesChange={onEdgesChange}
+                nodeTypes={NodeTypes}
+                edgeTypes={EdgeTypes}
+                snapToGrid={true}
+                defaultViewport={{ x: 600, y: 100, zoom: 1 }}
+                elementsSelectable={false}
+                panOnScroll={true}
+              // panOnScrollMode='vertical'
+              >
+                <Panel position="top-left">
+                  <div className='w-80 p-4 ml-6 mt-6 bg-white border border-gray-200 rounded-md mb-6'>
+                    <div>
+                      <Link
+                        className='text-xs text-gray-500 hover:text-gray-600 transition-all hover:underline flex items-center mb-2'
+                        href="/automations"
+                      >
+                        <LuArrowLeft className='inline mr-1' size={12} />
+                        Back to all Automation Flows
+                      </Link>
+                      <h1 className="text-lg font-medium text-gray-700 mb-0">{title}</h1>
+                      <p className='text-sm font-medium leading-none flex items-center mb-1 mt-6'>Automation Name</p>
+                      <Input className='w-full' value={automation.name} onChange={e => onAutomationNameUpdated(e.target.value)} />
+                      <Button onClick={onSubmit} className="mt-4 w-full">Save Flow</Button>
+                    </div>
                   </div>
-                </div>
-              </Panel>
+                </Panel>
 
+<<<<<<< HEAD
               <Background variant="dots" gap={6} size={0.5} />
               <Controls className="rounded-sm border-gray-200 border bg-white shadow-sm overflow-hidden" showInteractive={false} />
             </ReactFlow>
           </div>
         </main>
       </ReactFlowProvider>
+=======
+                <Background variant="dots" gap={6} size={0.5} />
+                <Controls className="rounded-sm border-gray-200 border bg-white shadow-sm" showInteractive={false} />
+              </ReactFlow>
+            </div>
+
+
+          </main>
+        </ReactFlowProvider>
+      </AutomationBuilderProvider>
+>>>>>>> 5bd22b7759a97b30f8f5acc81c3059a02ed8ea9c
     </CommonQueriesProvider>
   )
 }

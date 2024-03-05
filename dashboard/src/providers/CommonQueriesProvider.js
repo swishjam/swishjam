@@ -6,9 +6,10 @@ import { useEffect, useState } from 'react';
 
 const QUERIES_MAP = {
   uniqueEventsAndCounts: SwishjamAPI.Events.listUnique.bind(SwishjamAPI.Events),
+  uniqueUserProperties: SwishjamAPI.Users.uniqueProperties.bind(SwishjamAPI.Users),
 }
 
-const CommonQueriesProvider = ({ queriesToInclude = ['uniqueEventsAndCounts'], children }) => {
+const CommonQueriesProvider = ({ queriesToInclude = ['uniqueEventsAndCounts', 'uniqueUserProperties'], children }) => {
   queriesToInclude.forEach(queryName => {
     if (!QUERIES_MAP[queryName]) {
       throw new Error(`No common query found for ${queryName} in CommonQueriesProvider`);

@@ -4,7 +4,7 @@ import EndNode from '@/components/Automations/Flow/Nodes/EndNode';
 import IfElseNode from '@/components/Automations/Flow/Nodes/IfElseNode';
 import ResendEmailNode from '@/components/Automations/Flow/Nodes/ResendEmailNode';
 import SlackNode from '@/components/Automations/Flow/Nodes/SlackNode';
-import TriggerNode from '@/components/Automations/Flow/Nodes/TriggerNode';
+import TriggerNode from '@/components/Automations/Flow/Nodes/EntryPointNode';
 
 const NODE_WIDTH = 300;
 const NODE_HEIGHT = 125;
