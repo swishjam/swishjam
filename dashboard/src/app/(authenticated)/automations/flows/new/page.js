@@ -1,6 +1,6 @@
 'use client'
 
-import AutomationBuilder from "@/components/Automations/Flow/Builder";
+import AutomationBuilder from "@/components/Automations/Flow/Builder-old";
 import SwishjamAPI from "@/lib/api-client/swishjam-api";
 import { reformatNodesAndEdgesToAutomationsPayload } from "@/lib/automations-helpers";
 import { useState } from "react";

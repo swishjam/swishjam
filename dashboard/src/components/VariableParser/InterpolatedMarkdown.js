@@ -23,8 +23,18 @@ const initializeMarkdownParser = (acceptableHighlightValues, useSlackLinkFormatt
         return true;
       }
 
+      const variableWithBrackets = match[0].trim();
+      if (
+        variableWithBrackets.startsWith('{{') &&
+        !variableWithBrackets.endsWith('}}') &&
+        variableWithBrackets.endsWith('}')
+      ) {
+        // tries to allow for when "{{ VAR }" doesn't throw display an error before finishing the closing second }
+        return false;
+      }
+
       const token = state.push('highlight', '', 0);
-      let resolvedVariable = match[1].trim();
+      const resolvedVariable = match[1].trim();
       token.content = resolvedVariable;
       const isValidHighlight = resolvedVariable.split('||').every(variable => {
         return acceptableHighlightValues.includes(variable.trim()) ||

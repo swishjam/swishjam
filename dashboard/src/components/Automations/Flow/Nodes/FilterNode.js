@@ -28,8 +28,14 @@ export default memo(({ id, data }) => {
       {data.rules && 
       <span className="inline-flex items-center gap-x-1 rounded-md px-2 py-1 text-xs font-medium text-gray-900 ring-1 ring-inset ring-gray-200">
         <LuDot size={24} className='text-swishjam'/> 
-        {data.rules.length} rule{data.rules.length > 1 ? 's' : ''}
+        {data.rules.map(rule => rule.toString()).join(', ')}
       </span>}
+
+      {/* {data.rules && 
+      <span className="inline-flex items-center gap-x-1 rounded-md px-2 py-1 text-xs font-medium text-gray-900 ring-1 ring-inset ring-gray-200">
+        <LuDot size={24} className='text-swishjam'/> 
+        {data.rules.length} rule{data.rules.length > 1 ? 's' : ''}
+      </span>} */}
     </CustomNode >
   )
 });
