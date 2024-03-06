@@ -11,7 +11,7 @@ class ExecutedAutomationSerializer < ActiveModel::Serializer
 
   has_many :executed_automation_steps do
     object.executed_automation_steps
-          .includes(automation_step: { next_automation_step_conditions: :next_automation_step_condition_rules })
+          .includes(:automation_step, :satisfied_next_automation_step_conditions)
           .order(started_at: :ASC)
           .map do |executed_step|
       {
@@ -29,6 +29,7 @@ class ExecutedAutomationSerializer < ActiveModel::Serializer
         },
         satisfied_next_automation_step_conditions: executed_step.satisfied_next_automation_step_conditions.map do |satisfied_condition|
           {
+            created_at: satisfied_condition.created_at,
             executed_automation_step_id: satisfied_condition.executed_automation_step_id,
             next_automation_step_condition_id: satisfied_condition.next_automation_step_condition_id,
           }

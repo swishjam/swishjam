@@ -8,50 +8,92 @@ import { toast } from "sonner";
 import { AccordionOpen } from "@/components/ui/accordion";
 import JsonEditor from "@/components/utils/JsonEditor";
 import DottedUnderline from "@/components/utils/DottedUnderline";
+import useAutomationBuilder from "@/hooks/useAutomationBuilder";
+import { formatAutomationStepsWithExecutionStepResults, reformatNodesAndEdgesToAutomationsPayload } from "@/lib/automations-helpers";
+import ExecutedAutomationDetails from "./Results/ExecutedAutomationDetails";
+import AutomationBuilder from "./Builder";
 
 export default function TestRunnerModal({
   automationId,
   eventName,
+  useSelectedEntryPointEventName,
+  nodes,
+  edges,
   eventProperties = { my_property: 'a value' },
-  userProperties = { a_user_property: 'a value' },
+  // userProperties = { a_user_property: 'a value' },
   isOpen,
   onClose,
   onExecutionComplete = () => { }
 }) {
+  // const [automationStepsForExecutedAutomation, setAutomationStepsForExecutedAutomation] = useState();
+  // const [executedAutomation, setExecutedAutomation] = useState();
+  // const [userPropertiesJson, setUserPropertiesJson] = useState(userProperties);
   const [isExecutingTestRun, setIsExecutingTestRun] = useState(false);
-  const [executedAutomation, setExecutedAutomation] = useState();
-  const [eventPropertiesJson, setEventPropertiesJson] = useState({ my_property: 'a_value' });
-  const [userPropertiesJson, setUserPropertiesJson] = useState({ a_user_property: 'a_value' });
+  const [eventPropertiesJson, setEventPropertiesJson] = useState(eventProperties);
+  const [automationStepsWithExecutionData, setAutomationStepsWithExecutionData] = useState();
+
+  let selectedEventName = eventName;
+  if (useSelectedEntryPointEventName) {
+    const { selectedEntryPointEventName } = useAutomationBuilder();
+    selectedEventName = selectedEntryPointEventName;
+  }
 
   const executeTestRun = async () => {
     setIsExecutingTestRun(true);
-    const { executed_automation, error } = await SwishjamAPI.Automations.testExecution({
-      id: automationId,
-      eventName,
-      eventProperties: eventPropertiesJson,
-      // userProperties: userPropertiesJson, // not used yet
-    });
+    let payload = { eventName: selectedEventName, eventProperties: eventPropertiesJson }
+
+    if (automationId) {
+      payload.id = automationId;
+    } else if (nodes && edges) {
+      const {
+        automation_steps: formattedAutomationSteps,
+        next_automation_step_conditions: formattedNextAutomationStepConditions
+      } = reformatNodesAndEdgesToAutomationsPayload({ nodes, edges })
+      payload.configuration = {
+        automation_steps: formattedAutomationSteps,
+        next_automation_step_conditions: formattedNextAutomationStepConditions
+      }
+    }
+
+    const { executed_automation, automation_steps, error } = await SwishjamAPI.Automations.testExecution(payload);
     if (error) {
       toast.error('Failed to execute test run', { description: error });
     } else {
-      setExecutedAutomation(executed_automation);
+      // setExecutedAutomation(executed_automation);
+      // setAutomationStepsForExecutedAutomation(automation_steps)
       onExecutionComplete(executed_automation);
+      const automationStepsSupplementedWithExecutionData = formatAutomationStepsWithExecutionStepResults({
+        automationSteps: automation_steps,
+        executedAutomation: executed_automation,
+      });
+      setAutomationStepsWithExecutionData(automationStepsSupplementedWithExecutionData);
     }
     setIsExecutingTestRun(false);
   }
 
+  console.log(automationStepsWithExecutionData)
   return (
-    <Modal title='Run Test Execution' onClose={onClose} isOpen={isOpen}>
+    <Modal
+      isOpen={isOpen}
+      title='Run Test Execution'
+      size='x-large'
+      onClose={() => {
+        setAutomationStepsWithExecutionData();
+        onClose()
+      }}
+    >
       <div className='flex flex-col space-y-4 text-sm text-gray-700'>
         {isExecutingTestRun && <p>Executing test run...</p>}
-        {executedAutomation && (
-          <div>
-            <p>Test run has been executed.</p>
-            <p>Results:</p>
-            <pre>{JSON.stringify(executedAutomation, null, 2)}</pre>
-          </div>
+        {automationStepsWithExecutionData && (
+          <AutomationBuilder
+            automationSteps={automationStepsWithExecutionData}
+            canvasWidth='w-full'
+            canvasHeight='h-[80vh]'
+            includeControls={true}
+            includePanel={false}
+          />
         )}
-        {!isExecutingTestRun && !executedAutomation && (
+        {!isExecutingTestRun && !automationStepsWithExecutionData && (
           <>
             <p>Running a test execution will execute the automation with a test user and provide you with the results of the execution.</p>
             <p>Are you sure you want to run a test execution?</p>

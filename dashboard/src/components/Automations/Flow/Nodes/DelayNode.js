@@ -26,7 +26,7 @@ const EditPopover = ({ id, data, children }) => {
           <Input
             min={1}
             noRing={true}
-            onChange={e => update({ delay_amount: e.target.value })}
+            onChange={e => update({ delay_amount: typeof e.target.value === 'string' ? parseInt(e.target.value) : e.target.value })}
             placeholder='Delay Amount'
             type='number'
             value={delay_amount}

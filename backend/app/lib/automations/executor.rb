@@ -16,27 +16,22 @@ module Automations
     end
 
     def execute_automation!
-      execute_automation_steps_recursively!(sorted_automation_steps.first)
+      entry_point_step = automation.automation_steps.find_by(type: AutomationSteps::EntryPoint.to_s)
+      execute_automation_steps_recursively!(entry_point_step)
       executed_automation
     end
 
     private
 
-    def sorted_automation_steps
-      @sorted_automation_steps ||= automation.automation_steps.sort_by(&:sequence_index)
-    end
-
     def execute_automation_steps_recursively!(automation_step, pre_existing_executed_automation_step: nil)
       executed_step = automation_step.execute!(prepared_event, executed_automation, executed_automation_step: pre_existing_executed_automation_step, as_test: as_test)
       if executed_step.completed?
-        satisfied_next_step_conditions = satisfied_next_automation_step_conditions(automation_step, prepared_event)
-        if satisfied_next_step_conditions.empty?
+        satisfied_next_step_condition = first_satisfied_next_automation_step_condition(automation_step, prepared_event)
+        if satisfied_next_step_condition.nil?
           executed_automation.completed!
         else
-          satisfied_next_step_conditions.each do |condition|
-            executed_step.satisfied_next_automation_step_conditions.create!({ next_automation_step_condition_id: condition.id })
-            execute_automation_steps_recursively!(condition.next_automation_step)
-          end
+          executed_step.satisfied_next_automation_step_conditions.create!({ next_automation_step_condition_id: satisfied_next_step_condition.id })
+          execute_automation_steps_recursively!(satisfied_next_step_condition.next_automation_step)
         end
       else
         # execution is still pending
@@ -44,8 +39,8 @@ module Automations
       end
     end
 
-    def satisfied_next_automation_step_conditions(automation_step, prepared_event)
-      automation_step.next_automation_step_conditions.includes(:next_automation_step).select do |condition|
+    def first_satisfied_next_automation_step_condition(automation_step, prepared_event)
+      automation_step.next_automation_step_conditions.includes(:next_automation_step).find do |condition|
         condition.is_satisfied_by_event?(prepared_event)
       end
     end

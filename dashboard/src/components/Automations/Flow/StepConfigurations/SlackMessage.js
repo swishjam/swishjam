@@ -82,7 +82,6 @@ export default function ConfigureSlackAutomationStep({ onSave, data = {} }) {
     const isValid = values.channel_id && (values.message_header || values.message_body)
     if (!isValid) {
       Object.keys(values).forEach(key => {
-        debugger;
         if (!values[key]) {
           if ((key === 'message_header' || key === 'message_body') && !values.message_header && !values.message_body) {
             form.setError(key, { message: 'You must provide either a header or a body value for your slack message.' })
