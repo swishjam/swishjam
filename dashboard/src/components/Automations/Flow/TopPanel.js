@@ -36,7 +36,7 @@ export default function TopPanel({ automationName, onTestExecutionClick, onAutom
               <XIcon className='h-4 w-4' />
             </PopoverClose>
             <form
-              onSave={e => {
+              onSubmit={e => {
                 e.preventDefault();
                 onAutomationNameUpdated(editedAutomationName)
                 setIsPopoverOpen(false)

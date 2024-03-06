@@ -38,7 +38,7 @@ export default function NewAutomationPage() {
             onAutomationNameUpdated={setName}
             isLoading={isSaving}
             onSave={createAutomation}
-            title='New Automation'
+          // title='New Automation'
           />
         </AutomationBuilderProvider>
       </ReactFlowProvider>

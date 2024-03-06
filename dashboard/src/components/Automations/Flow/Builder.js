@@ -1,14 +1,11 @@
 'use client'
 
-import AutomationBuilderProvider from '@/providers/AutomationBuilderProvider';
-import { autoLayoutNodesAndEdges } from '@/lib/automations-helpers';
-import CommonQueriesProvider from '@/providers/CommonQueriesProvider';
 import LoadingSpinner from '@/components/LoadingSpinner';
-import { NodeTypes, EdgeTypes, createNewEdge, createNewNode } from '@/lib/automations-helpers';
+import { NodeTypes, EdgeTypes } from '@/lib/automations-helpers';
 import TestExecutionModal from './TestExecutionModal';
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 
-import ReactFlow, { Background, useNodesState, useEdgesState, Controls, useReactFlow } from 'reactflow';
+import ReactFlow, { Background, Controls } from 'reactflow';
 import 'reactflow/dist/style.css';
 import TopPanel from './TopPanel';
 import useAutomationBuilder from '@/hooks/useAutomationBuilder';
@@ -38,10 +35,6 @@ export default function AutomationBuilder({
   useEffect(() => {
     setNodesAndEdgesFromAutomationSteps(automationSteps);
   }, [automationSteps])
-
-  const onSubmit = async () => {
-    onSave({ nodes, edges })
-  }
 
   return (
     <>
@@ -75,7 +68,7 @@ export default function AutomationBuilder({
                 isLoading={isLoading}
                 onAutomationNameUpdated={onAutomationNameUpdated}
                 onTestExecutionClick={() => setTestExecutionModalIsOpen(true)}
-                onSave={onSubmit}
+                onSave={() => onSave({ nodes, edges })}
               />
             )}
 

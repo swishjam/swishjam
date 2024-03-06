@@ -18,6 +18,7 @@ export default memo(({ id, data }) => {
   return (
     <CustomNode
       id={id}
+      canDelete={false}
       data={data}
       icon={<LuZap className='inline mr-2 text-emerald-500' size={16} />}
       includeTopHandle={false}

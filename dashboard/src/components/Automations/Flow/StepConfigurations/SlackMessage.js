@@ -98,7 +98,7 @@ export default function ConfigureSlackAutomationStep({ onSave, data = {} }) {
       setIsFormSaving(false);
       values.channel_name = slackChannels.find(channel => channel.id === values.channel_id)?.name;
       onSave(values)
-    }, 500)
+    }, 250)
   }
 
   if (hasSlackDestination === false) {
@@ -117,7 +117,8 @@ export default function ConfigureSlackAutomationStep({ onSave, data = {} }) {
                   availableVariables={[
                     ...(propertyOptionsForSelectedEvent || []),
                     ...(propertyOptionsForSelectedEvent || []).map(p => `event.${p}`),
-                    ...(uniqueUserProperties || []).map(p => `user.${p}`)
+                    ...(uniqueUserProperties || []).map(p => `user.${p}`),
+                    'user.email'
                   ]}
                   content={form.watch('message_body')}
                   useSlackLinkFormatting={true}
@@ -133,7 +134,7 @@ export default function ConfigureSlackAutomationStep({ onSave, data = {} }) {
             >
               <VariableSyntaxDocumentation
                 availableEventProperties={propertyOptionsForSelectedEvent}
-                availableUserProperties={(uniqueUserProperties || []).map(p => `user.${p} `)}
+                availableUserProperties={(uniqueUserProperties || []).map(p => `user.${p} `).concat('user.email')}
                 eventName={selectedEntryPointEventName}
                 additionalSections={[
                   <>

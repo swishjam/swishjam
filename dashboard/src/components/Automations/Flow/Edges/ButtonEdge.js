@@ -1,13 +1,7 @@
 import { AddNewNodePopover } from '@/components/Automations/Flow/Edges/AddNewNodePopover';
 import useAutomationBuilder from '@/hooks/useAutomationBuilder';
 import { CheckIcon } from 'lucide-react';
-import {
-  useNodes,
-  useEdges,
-  BaseEdge,
-  EdgeLabelRenderer,
-  getSmoothStepPath,
-} from 'reactflow';
+import { BaseEdge, EdgeLabelRenderer, getSmoothStepPath } from 'reactflow';
 
 export function ButtonEdge({
   id,
@@ -21,8 +15,6 @@ export function ButtonEdge({
   markerEnd,
   data,
 }) {
-  const allNodes = useNodes();
-  const allEdges = useEdges();
   const { addNodeInEdge } = useAutomationBuilder();
 
   const [edgePath, labelX, labelY] = getSmoothStepPath({
@@ -34,13 +26,8 @@ export function ButtonEdge({
     targetPosition,
   });
 
-  const onAddNode = (nodeType) => {
+  const onAddNode = nodeType => {
     addNodeInEdge({ nodeType, data, edgeId: id, numEdgesToAdd: nodeType === 'IfElse' ? 2 : 1 })
-    // if (nodeType === 'IfElse') {
-    //   data.onAddNode({ nodeType, data, edgeId: id, currentNodes: allNodes, currentEdges: allEdges, numEdgesToAdd: 2 })
-    // } else {
-    //   data.onAddNode({ nodeType, data, edgeId: id, currentNodes: allNodes, currentEdges: allEdges })
-    // }
   };
 
   const maybeSatisfiedConditionStyles = data.satisfied_at ? { stroke: 'rgb(34 197 94)', strokeWidth: 2 } : {};

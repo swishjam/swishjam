@@ -12,9 +12,11 @@ import { useEffect, useState } from 'react'
 import { toast } from 'sonner';
 import { EllipsisVerticalIcon } from '@heroicons/react/24/outline';
 import { prettyDateTime } from '@/lib/utils/timeHelpers';
+import useAutomationBuilder from '@/hooks/useAutomationBuilder';
 
 export default memo(({
   id,
+  canDelete = true,
   EditComponent,
   data = {},
   icon,
@@ -25,11 +27,10 @@ export default memo(({
   title,
   children
 }) => {
-  const { onDelete, onUpdate, executionStepResults = {} } = data;
+  const { executionStepResults = {} } = data;
 
-  const allNodes = useNodes();
-  const allEdges = useEdges();
   const [editModalIsOpen, setEditModalIsOpen] = useState(false);
+  const { updateNode, deleteNode } = useAutomationBuilder();
 
   const isInvalid = requiredData.some(key => !data[key]);
   const maybeBorderClasses = executionStepResults.error_message
@@ -87,7 +88,7 @@ export default memo(({
                 </div>
               </Tooltipable>
             )}
-            {(onDelete || EditComponent) && !isExecutionResult && (
+            {(canDelete || EditComponent) && !isExecutionResult && (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <div className='rounded hover:bg-gray-100 transition-colors'>
@@ -104,10 +105,10 @@ export default memo(({
                       Edit
                     </DropdownMenuItem>
                   )}
-                  {onDelete && (
+                  {canDelete && (
                     <DropdownMenuGroup>
-                      {EditComponent && <DropdownMenuSeparator />}
-                      <DropdownMenuItem className="!text-red-400 cursor-pointer hover:bg-accent" onClick={() => onDelete(id, allNodes, allEdges)}>
+                      {(EditComponent || onEditClick) && <DropdownMenuSeparator />}
+                      <DropdownMenuItem className="!text-red-400 cursor-pointer hover:bg-accent" onClick={() => deleteNode(id)}>
                         <LuTrash className='h-4 w-4 inline-block mr-2' />
                         Delete
                       </DropdownMenuItem>
@@ -151,7 +152,7 @@ export default memo(({
                 data={data}
                 onSave={newData => {
                   toast.success("Automation Step updated.")
-                  onUpdate({ id, data: { ...newData, onDelete, onUpdate }, currentNodes: allNodes })
+                  updateNode(id, newData)
                   setEditModalIsOpen(false)
                 }}
               />

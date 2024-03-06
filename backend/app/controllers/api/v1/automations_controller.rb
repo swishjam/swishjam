@@ -27,6 +27,9 @@ module Api
         render json: { error: e.message }, status: :internal_server_error
       end
 
+      def update
+      end
+
       def test_execution
         mock_event = Ingestion::ParsedEventFromIngestion.new(
           uuid: params[:test_event_uuid] || SecureRandom.uuid,
