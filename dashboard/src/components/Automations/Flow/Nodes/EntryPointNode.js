@@ -7,10 +7,11 @@ import { LuZap } from "react-icons/lu";
 import { useNodeId, useNodes } from 'reactflow';
 import useCommonQueries from '@/hooks/useCommonQueries';
 import useAutomationBuilder from '@/hooks/useAutomationBuilder';
+import DottedUnderline from '@/components/utils/DottedUnderline';
 
 export default memo(({ data }) => {
-  const { id, event_name, onUpdate } = data;
-  const { selectedEntryPointEventName, setSelectedEntryPointEventName } = useAutomationBuilder(event_name);
+  const { id, event_name, onUpdate, executionStepResults } = data;
+  const { setSelectedEntryPointEventName } = useAutomationBuilder();
 
   const nodeId = useNodeId();
   const currentNodes = useNodes();
@@ -26,15 +27,20 @@ export default memo(({ data }) => {
       requiredData={['event_name']}
       title='Event Trigger'
     >
-      <ComboboxEvents
-        placeholder='Select a trigger' 
-        options={uniqueEvents}
-        selectedValue={selectedEntryPointEventName}
-        onSelectionChange={eventName => {
-          setSelectedEntryPointEventName(eventName)
-          onUpdate({ id: nodeId, currentNodes, data: { ...data, event_name: eventName } })
-        }}
-      />
+      {executionStepResults
+        ? <DottedUnderline>{event_name}</DottedUnderline>
+        : (
+          <ComboboxEvents
+            placeholder='Select a trigger'
+            options={uniqueEvents}
+            selectedValue={event_name}
+            onSelectionChange={eventName => {
+              setSelectedEntryPointEventName(eventName)
+              onUpdate({ id: nodeId, currentNodes, data: { ...data, event_name: eventName } })
+            }}
+          />
+        )
+      }
     </CustomNode >
   );
 });

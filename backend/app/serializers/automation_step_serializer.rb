@@ -7,7 +7,7 @@ class AutomationStepSerializer < ActiveModel::Serializer
   end
 
   has_many :next_automation_step_conditions do
-    object.next_automation_step_conditions.map do |condition|
+    object.next_automation_step_conditions.includes(:next_automation_step, :next_automation_step_condition_rules).map do |condition|
       {
         id: condition.id,
         next_automation_step: {

@@ -9,7 +9,9 @@ import Link from 'next/link';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import { LuArrowLeft } from 'react-icons/lu';
 import { NodeTypes, EdgeTypes, createNewEdge, createNewNode } from '@/lib/automations-helpers';
-import { useEffect, useCallback } from 'react';
+import { TestTube2Icon } from 'lucide-react';
+import TestRunnerModal from './TestRunnerModal';
+import { useEffect, useCallback, useState } from 'react';
 
 import ReactFlow, {
   ReactFlowProvider,
@@ -18,12 +20,22 @@ import ReactFlow, {
   useNodesState,
   useEdgesState,
   Controls,
-  ControlButton,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 
-export default function AutomationBuilder({ automation, automationSteps, onAutomationNameUpdated, onSave, title = 'Edit Automation' }) {
-  if (!automation) {
+export default function AutomationBuilder({
+  automationName,
+  automationSteps,
+  canvasWidth = 'w-screen',
+  canvasHeight = 'h-screen',
+  isLoading = false,
+  includeControls = true,
+  includePanel = true,
+  onAutomationNameUpdated,
+  onSave,
+  title = 'Edit Automation'
+}) {
+  if (!automationSteps) {
     return (
       <div className='h-screen w-screen flex items-center justify-center'>
         <LoadingSpinner size={10} />
@@ -33,6 +45,7 @@ export default function AutomationBuilder({ automation, automationSteps, onAutom
 
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
+  const [testExecutionModalIsOpen, setTestExecutionModalIsOpen] = useState(false);
 
   const onNodeDelete = useCallback((nodeId, currentNodes, currentEdges) => {
     const leftoverNodes = currentNodes.filter(n => n.id !== nodeId);
@@ -95,12 +108,11 @@ export default function AutomationBuilder({ automation, automationSteps, onAutom
     let initialNodes = [];
     let initialEdges = [];
 
-    if (!automation.id) {
+    if (automationSteps.length === 0) {
       const entryNode = createNewNode({ type: 'EntryPoint', onUpdate: updateNode })
       const exitNode = createNewNode({ type: 'Exit' })
       initialNodes = [entryNode, exitNode];
       initialEdges = [createNewEdge({ source: entryNode.id, target: exitNode.id, onAddNode: onAddNodeInEdge })]
-
     } else {
       automationSteps.forEach(step => {
         const node = createNewNode({
@@ -112,7 +124,7 @@ export default function AutomationBuilder({ automation, automationSteps, onAutom
         })
         initialNodes.push(node)
         step.next_automation_step_conditions.forEach(condition => {
-          const edge = createNewEdge({ source: step.id, target: condition.next_automation_step.id, onAddNode: onAddNodeInEdge, data: { condition } })
+          const edge = createNewEdge({ source: step.id, target: condition.next_automation_step.id, onAddNode: onAddNodeInEdge, data: { ...condition } })
           initialEdges.push(edge)
         })
       })
@@ -123,10 +135,8 @@ export default function AutomationBuilder({ automation, automationSteps, onAutom
     setEdges(layoutedEdges)
   }
 
-  async function onSubmit() {
-    console.log(nodes);
-    console.log(edges);
-    onSave({ automation, nodes, edges })
+  const onSubmit = async () => {
+    onSave({ nodes, edges })
   }
 
   useEffect(() => {
@@ -136,8 +146,15 @@ export default function AutomationBuilder({ automation, automationSteps, onAutom
   return (
     <CommonQueriesProvider>
       <AutomationBuilderProvider>
+        <TestRunnerModal
+          edges={edges}
+          useSelectedEntryPointEventName={true}
+          isOpen={testExecutionModalIsOpen}
+          nodes={nodes}
+          onClose={() => setTestExecutionModalIsOpen(false)}
+        />
         <ReactFlowProvider>
-          <main className="relative h-screen w-screen overflow-hidden">
+          <main className={`relative ${canvasWidth} ${canvasHeight} overflow-hidden`}>
             <div className="absolute top-0 right-0 bottom-0 left-0 z-0">
               <ReactFlow
                 nodes={nodes}
@@ -152,26 +169,45 @@ export default function AutomationBuilder({ automation, automationSteps, onAutom
                 panOnScroll={true}
                 //panOnScrollMode='vertical'
               >
-                <Panel position="top-left">
-                  <div className='w-80 p-4 ml-6 mt-6 bg-white border border-gray-200 rounded-md mb-6'>
-                    <div>
-                      <Link
-                        className='text-xs text-gray-500 hover:text-gray-600 transition-all hover:underline flex items-center mb-2'
-                        href="/automations"
-                      >
-                        <LuArrowLeft className='inline mr-1' size={12} />
-                        Back to all Automation Flows
-                      </Link>
-                      <h1 className="text-lg font-medium text-gray-700 mb-0">{title}</h1>
-                      <p className='text-sm font-medium leading-none flex items-center mb-1 mt-6'>Automation Name</p>
-                      <Input className='w-full' value={automation.name} onChange={e => onAutomationNameUpdated(e.target.value)} />
-                      <Button onClick={onSubmit} className="mt-4 w-full">Save Flow</Button>
+                {includePanel && (
+                  <Panel position="top-left">
+                    <div className='w-80 p-4 ml-6 mt-6 bg-white border border-gray-200 rounded-md mb-6'>
+                      <div>
+                        <Link
+                          className='text-xs text-gray-500 hover:text-gray-600 transition-all hover:underline flex items-center mb-2'
+                          href="/automations"
+                        >
+                          <LuArrowLeft className='inline mr-1' size={12} />
+                          Back to all Automation Flows
+                        </Link>
+                        <h1 className="text-lg font-medium text-gray-700 mb-0">{title}</h1>
+                        <p className='text-sm font-medium leading-none flex items-center mb-1 mt-6'>Automation Name</p>
+                        <Input className='w-full' value={automationName} onChange={e => onAutomationNameUpdated(e.target.value)} />
+                        <Button className="mt-4 w-full" disabled={isLoading} onClick={onSubmit} variant='swishjam'>
+                          {isLoading ? <LoadingSpinner color='white' size={6} /> : 'Save Flow'}
+                        </Button>
+                        <Button
+                          className="mt-2 w-full flex items-center space-x-2"
+                          disabled={isLoading}
+                          onClick={() => setTestExecutionModalIsOpen(true)}
+                          variant='outline'
+                        >
+                          {isLoading
+                            ? <LoadingSpinner size={6} />
+                            : (
+                              <>
+                                <TestTube2Icon className='h-4 w-4' />
+                                <span>Run Test Automation</span>
+                              </>
+                            )}
+                        </Button>
+                      </div>
                     </div>
-                  </div>
-                </Panel>
+                  </Panel>
+                )}
 
                 <Background variant="dots" gap={6} size={0.5} />
-                <Controls className="rounded-md border-gray-200 border bg-white shadow-sm overflow-hidden" showInteractive={false} />
+                {includeControls && <Controls className="rounded-md border-gray-200 border bg-white shadow-sm overflow-hidden" showInteractive={false} />}
               </ReactFlow>
             </div>
 

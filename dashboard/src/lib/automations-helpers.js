@@ -46,8 +46,6 @@ export const autoLayoutNodesAndEdges = (nodes, edges) => {
         y: (nodeWithPosition.y - NODE_HEIGHT / 2) * EDGE_LENGTH_HEIGHT_MULTIPLIER,
       };
     }
-
-    return node;
   });
 
   return { nodes, edges };
@@ -73,7 +71,6 @@ export const createNewEdge = ({ source, target, data = {}, onAddNode, type = 'bu
     data: { ...data, onAddNode },
   }
 }
-
 
 const automationStepConfigForNode = node => {
   switch (node.type) {
@@ -130,7 +127,7 @@ export const reformatNodesAndEdgesToAutomationsPayload = ({ nodes, edges }) => {
       client_id: edge.id,
       automation_step_client_id: edge.source,
       next_automation_step_client_id: edge.target,
-      next_automation_step_condition_rules_attributes: [
+      next_automation_step_condition_rules: [
         {
           type: 'NextAutomationStepConditionRules::AlwaysTrue',
           config: {},
@@ -139,6 +136,32 @@ export const reformatNodesAndEdgesToAutomationsPayload = ({ nodes, edges }) => {
     }
   })
   return { automation_steps, next_automation_step_conditions }
+}
+
+export const formatAutomationStepsWithExecutionStepResults = ({ automationSteps, executedAutomation }) => {
+  return automationSteps.map(step => {
+    const executedStep = executedAutomation.executed_automation_steps.find(ex => ex.automation_step.id === step.id);
+    if (!executedStep) {
+      return step;
+    }
+    return {
+      ...step,
+      config: {
+        ...step.config,
+        executionStepResults: {
+          completed_at: executedStep.completed_at,
+          error_message: executedStep.error_message,
+          status: executedStep.status,
+          execution_data: executedStep.execution_data,
+          is_test_execution: executedAutomation.is_test_execution
+        },
+      },
+      next_automation_step_conditions: step.next_automation_step_conditions.map(condition => {
+        const satisfiedCondition = executedStep.satisfied_next_automation_step_conditions.find(satisfied => satisfied.next_automation_step_condition_id === condition.id);
+        return { ...condition, satisfied_at: satisfiedCondition?.created_at }
+      })
+    }
+  })
 }
 
 // For ReactFlow to render the custom nodes,
