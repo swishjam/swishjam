@@ -1,11 +1,14 @@
 'use client'
 
 import AutomationBuilder from "@/components/Automations/Flow/Builder";
+import AutomationBuilderProvider from "@/providers/AutomationBuilderProvider";
+import CommonQueriesProvider from "@/providers/CommonQueriesProvider";
 import SwishjamAPI from "@/lib/api-client/swishjam-api";
 import { reformatNodesAndEdgesToAutomationsPayload } from "@/lib/automations-helpers";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { ReactFlowProvider } from 'reactflow'
 
 export default function NewAutomationPage() {
   const [name, setName] = useState('New Automation')
@@ -26,15 +29,19 @@ export default function NewAutomationPage() {
   }
 
   return (
-    <div className="overflow-x-hidden">
-      <AutomationBuilder
-        automationName={name}
-        automationSteps={[]}
-        onAutomationNameUpdated={setName}
-        isLoading={isSaving}
-        onSave={createAutomation}
-        title='New Automation'
-      />
-    </div>
+    <CommonQueriesProvider>
+      <ReactFlowProvider>
+        <AutomationBuilderProvider>
+          <AutomationBuilder
+            automationName={name}
+            automationSteps={[]}
+            onAutomationNameUpdated={setName}
+            isLoading={isSaving}
+            onSave={createAutomation}
+            title='New Automation'
+          />
+        </AutomationBuilderProvider>
+      </ReactFlowProvider>
+    </CommonQueriesProvider>
   )
 }

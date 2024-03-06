@@ -7,7 +7,7 @@ import PageWithHeader from "@/components/utils/PageWithHeader";
 import SwishjamAPI from "@/lib/api-client/swishjam-api";
 import { useEffect, useState } from "react";
 import ExecutedAutomationDetails from "@/components/Automations/Flow/Results/ExecutedAutomationDetails";
-import TestRunnerModal from "@/components/Automations/Flow/TestRunnerModal";
+import TestExecutionModal from "@/components/Automations/Flow/TestExecutionModal";
 import LineChartWithValue from "@/components/Dashboards/Components/LineChartWithValue";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -68,7 +68,7 @@ export default function AutomationDetailsPage({ params }) {
         </>
       }
     >
-      <TestRunnerModal
+      <TestExecutionModal
         automationId={automationId}
         eventName={automation?.entry_point_event_name}
         isOpen={testExecutionModalIsOpen}

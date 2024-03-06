@@ -11,9 +11,9 @@ import DottedUnderline from "@/components/utils/DottedUnderline";
 import useAutomationBuilder from "@/hooks/useAutomationBuilder";
 import { formatAutomationStepsWithExecutionStepResults, reformatNodesAndEdgesToAutomationsPayload } from "@/lib/automations-helpers";
 import ExecutedAutomationDetails from "./Results/ExecutedAutomationDetails";
-import AutomationBuilder from "./Builder";
+import AutomationBuilder from "./Builder-old";
 
-export default function TestRunnerModal({
+export default function TestExecutionModal({
   automationId,
   eventName,
   useSelectedEntryPointEventName,
@@ -71,7 +71,6 @@ export default function TestRunnerModal({
     setIsExecutingTestRun(false);
   }
 
-  console.log(automationStepsWithExecutionData)
   return (
     <Modal
       isOpen={isOpen}
