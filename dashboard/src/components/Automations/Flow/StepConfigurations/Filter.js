@@ -38,6 +38,7 @@ export default function FilterConfiguration({ data, onSave }) {
 
   const onSubmit = values => {
     // validate and update the data
+    console.log('values', values) 
     onSave(values)
   }
 
@@ -115,7 +116,6 @@ export default function FilterConfiguration({ data, onSave }) {
                     />
                   </div>
                   <div className="col-span-5">
-                    {form.watch(`rules.${index}.operator`) !== 'is_defined' && (
                       <FormField
                         control={form.control}
                         name={`rules.${index}.value`}
@@ -126,7 +126,7 @@ export default function FilterConfiguration({ data, onSave }) {
                                 className='!rounded-bl-none !rounded-tl-none !ring-0'
                                 type="text"
                                 placeholder="Your property value"
-                                // disabled={propertyOptionsForSelectedEvent === undefined}
+                                disabled={form.watch(`rules.${index}.operator`) === 'is_not_defined' || form.watch(`rules.${index}.operator`) === 'is_defined'}
                                 {...form.register(`rules.${index}.property_value`)}
                               />
                             </FormControl>
@@ -134,7 +134,6 @@ export default function FilterConfiguration({ data, onSave }) {
                           </FormItem>
                         )}
                       />
-                    )}
                   </div>
                 </div>
                 <Button
