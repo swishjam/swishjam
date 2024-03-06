@@ -1,12 +1,12 @@
 import { Button } from "@/components/ui/button"
-import { CaretSortIcon, CheckIcon } from "@radix-ui/react-icons"
+import { LuChevronsUpDown, LuCheck } from "react-icons/lu"
 import { cn } from "@/lib/utils"
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandSeparator } from "@/components/ui/command"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { useState } from "react"
 import { Skeleton } from "@/components/ui/skeleton"
 
-export default function Combobox({ selectedValue, onSelectionChange, options, placeholder = "Select an option", minWidth = '200px', maxHeight = '400px', buttonClass }) {
+export default function Combobox({ selectedValue, onSelectionChange, options, placeholder = "Select an option", minWidth = '200px', maxHeight = '300px', buttonClass, popoverClass, inModal = false}) {
   const [isOpen, setIsOpen] = useState(false)
 
   if (options) {
@@ -23,7 +23,7 @@ export default function Combobox({ selectedValue, onSelectionChange, options, pl
       ? (
         <Skeleton className={`w-${minWidth} h-10`} />
       ) : (
-        <Popover open={isOpen} onOpenChange={setIsOpen}>
+        <Popover open={isOpen} onOpenChange={setIsOpen} modal={inModal}>
           <PopoverTrigger asChild>
             <Button
               variant="outline"
@@ -31,16 +31,16 @@ export default function Combobox({ selectedValue, onSelectionChange, options, pl
               aria-expanded={isOpen}
               className={`w-full justify-between font-normal text-sm ${buttonClass}`}
             >
-              {selectedValue ? options.find(option => option.value && option.value.toLowerCase() === selectedValue.toLowerCase())?.label : placeholder}
-              <CaretSortIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-            </Button >
+              <span className=" truncate overflow-hidden">{selectedValue ? options.find(option => option.value && option.value.toLowerCase() === selectedValue.toLowerCase())?.label : placeholder}</span>
+              <LuChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+            </Button>
           </PopoverTrigger >
-          <PopoverContent className={`max-w-[400px] p-0 ${buttonClass}`}>
+          <PopoverContent className={`max-w-[400px] p-0 ${popoverClass}`}>
             <Command>
-              <CommandInput placeholder="Search..." />
+              <CommandInput className="border-0" placeholder="Search..." />
               <CommandEmpty>No results found for search.</CommandEmpty>
                
-              <CommandGroup className='overflow-y-scroll' style={{ maxHeight }}>
+              <CommandGroup className='max-h-80 overflow-y-scroll' style={{ maxHeight }}>
                 {options.map((option, i) => {
                   if (option.type === "separator") {
                     return <CommandSeparator className='my-1' key={i} />
@@ -66,7 +66,7 @@ export default function Combobox({ selectedValue, onSelectionChange, options, pl
                         }}
                       >
                         {option.label}
-                        <CheckIcon
+                        <LuCheck
                           className={cn(
                             "ml-auto h-4 w-4",
                             selectedValue && selectedValue.toLowerCase() === option.value.toLowerCase() ? "opacity-100" : "opacity-0"

@@ -21,7 +21,7 @@ const DEFAULT_RULES = [
   [{ type: 'NextAutomationStepConditionRules::EventProperty', config: { property: null, operator: 'equals', value: null } }]
 ]
 
-export default function FilterConfiguration({ data, onUpdate }) {
+export default function FilterConfiguration({ data, onSave }) {
   const [propertyOptionsForSelectedEvent, setPropertyOptionsForSelectedEvent] = useState();
 
   const form = useForm();
@@ -38,6 +38,7 @@ export default function FilterConfiguration({ data, onUpdate }) {
 
   const onSubmit = values => {
     // validate and update the data
+    onSave(values)
   }
 
   return (
@@ -46,88 +47,105 @@ export default function FilterConfiguration({ data, onUpdate }) {
         <ul className='grid gap-y-2 mt-2'>
           {filterRulesFieldArray.fields.map((field, index) => {
             return (
-              <li key={index} className='w-full flex items-center gap-x-2'>
-                <span className='text-sm'>
+              <li key={index} className='w-full p-2 relative bg-gray-50 rounded-md border border-gray-200'>
+                <FormLabel className="!mb-8">
                   {filterRulesFieldArray.fields.length > 1 && index > 0 ? 'And if' : 'If'}
-                  {form.watch(`rules.${index}.property`)?.startsWith('user.') ? ' the user\'s' : ' the event\'s'}
-                </span>
-                <FormField
-                  control={field.control}
-                  name={`rules.${index}.property`}
-                  render={({ field }) => (
-                    <FormItem>
-                      <Combobox
-                        minWidth='0'
-                        selectedValue={field.value}
-                        onSelectionChange={val => form.setValue(`rules.${index}.property`, val)}
-                        options={[
-                          { type: "title", label: <div className='flex items-center'><SparkleIcon className='h-4 w-4 mr-1' /> Event Properties</div> },
-                          ...(propertyOptionsForSelectedEvent || []).map(p => ({ label: p, value: `event.${p}` })),
-                          { type: "title", label: <div className='flex items-center'><UserCircleIcon className='h-4 w-4 mr-1' /> User Properties</div> },
-                          ...(uniqueUserProperties || []).map(p => ({ label: p, value: `user.${p}` })),
-                        ]}
-                        placeholder={<span className='text-gray-500 italic'>Property</span>}
-                      />
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={field.control}
-                  name={`rules.${index}.operator`}
-                  render={({ field }) => (
-                    <FormItem>
-                      <Combobox
-                        minWidth='0'
-                        selectedValue={field.value}
-                        onSelectionChange={val => form.setValue(`rules.${index}.condition`, val)}
-                        options={[
-                          { label: 'equals', value: 'equals' },
-                          { label: 'does not equals', value: 'does_not_equal' },
-                          { label: 'contains', value: 'contains' },
-                          { label: 'does not contain', value: 'does_not_contain' },
-                          { label: 'ends with', value: 'ends_with' },
-                          { label: 'does not end with', value: 'does_not_end_with' },
-                          { label: 'is defined', value: 'is_defined' },
-                          { label: 'is not defined', value: 'is_not_defined' },
-                          { label: 'greater than', value: 'greater_than' },
-                          { label: 'less than', value: 'less_than' },
-                          { label: 'greater than or equal to', value: 'greater_than_or_equal_to' },
-                          { label: 'less than or equal to', value: 'less_than_or_equal_to' },
-                        ]}
-                        placeholder={<span className='text-gray-500 italic'>Operator</span>}
-                      />
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                {form.watch(`rules.${index}.operator`) !== 'is_defined' && (
-                  <FormField
-                    control={form.control}
-                    name={`rules.${index}.value`}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormControl>
-                          <Input
-                            type="text"
-                            placeholder="Your property value"
-                            // disabled={propertyOptionsForSelectedEvent === undefined}
-                            {...form.register(`rules.${index}.property_value`)}
+                  {/* {form.watch(`rules.${index}.property`)?.startsWith('user.') ? ' the user\'s' : ' the event\'s'} */}
+                </FormLabel>
+                <div className='w-full flex grid grid-cols-12'>
+                  {/* <span className='text-sm'>
+                  </span> */}
+                  <div className='col-span-4'>
+                    <FormField
+                      control={field.control}
+                      name={`rules.${index}.property`}
+                      render={({ field }) => (
+                        <FormItem>
+                          <Combobox
+                            minWidth='0'
+                            buttonClass='!rounded-br-none !rounded-tr-none overflow-hidden'
+                            selectedValue={field.value}
+                            onSelectionChange={val => form.setValue(`rules.${index}.property`, val)}
+                            isModal={true}
+                            options={[
+                              { type: "title", label: <div className='flex items-center'><SparkleIcon className='h-4 w-4 mr-1' /> Event Properties</div> },
+                              ...(propertyOptionsForSelectedEvent || []).map(p => ({ label: p, value: `event.${p}` })),
+                              { type: "title", label: <div className='flex items-center'><UserCircleIcon className='h-4 w-4 mr-1' /> User Properties</div> },
+                              ...(uniqueUserProperties || []).map(p => ({ label: p, value: `user.${p}` })),
+                            ]}
+                            placeholder={<span className='text-gray-500 italic'>Property</span>}
                           />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                  </div>
+                  <div className='col-span-3'>
+                    <FormField
+                      control={field.control}
+                      name={`rules.${index}.operator`}
+                      render={({ field }) => (
+                        <FormItem>
+                          <Combobox
+                            minWidth='0'
+                            isModal={true}
+                            buttonClass='!rounded-none border-l-0 border-r-0'
+                            selectedValue={field.value}
+                            onSelectionChange={val => form.setValue(`rules.${index}.operator`, val)}
+                            options={[
+                              { label: 'equals', value: 'equals' },
+                              { label: 'does not equals', value: 'does_not_equal' },
+                              { label: 'contains', value: 'contains' },
+                              { label: 'does not contain', value: 'does_not_contain' },
+                              { label: 'ends with', value: 'ends_with' },
+                              { label: 'does not end with', value: 'does_not_end_with' },
+                              { label: 'is defined', value: 'is_defined' },
+                              { label: 'is not defined', value: 'is_not_defined' },
+                              { label: 'greater than', value: 'greater_than' },
+                              { label: 'less than', value: 'less_than' },
+                              { label: 'greater than or equal to', value: 'greater_than_or_equal_to' },
+                              { label: 'less than or equal to', value: 'less_than_or_equal_to' },
+                            ]}
+                            placeholder={<span className='text-gray-500 italic'>Logic</span>}
+                          />
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  <div className="col-span-5">
+                    {form.watch(`rules.${index}.operator`) !== 'is_defined' && (
+                      <FormField
+                        control={form.control}
+                        name={`rules.${index}.value`}
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormControl>
+                              <Input
+                                className='!rounded-bl-none !rounded-tl-none !ring-0'
+                                type="text"
+                                placeholder="Your property value"
+                                // disabled={propertyOptionsForSelectedEvent === undefined}
+                                {...form.register(`rules.${index}.property_value`)}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
                     )}
-                  />
-                )}
+                  </div>
+                </div>
                 <Button
                   onClick={() => filterRulesFieldArray.remove(index)}
                   type='button'
                   variant="ghost"
-                  className='flex-none ml-2 duration-500 hover:text-rose-600'
+                  className='absolute top-2 right-2 flex-none duration-500 hover:text-rose-600 !p-2 h-6'
                 >
-                  <LuTrash size={14} />
+                  <LuTrash size={12} />
                 </Button>
+
               </li>
             )
           })}
@@ -142,6 +160,7 @@ export default function FilterConfiguration({ data, onUpdate }) {
             </Button>
           </li>
         </ul>
+      <Button type="submit" variant="swishjam" className="w-full mt-6">Save</Button>
       </form>
     </Form>
   )
