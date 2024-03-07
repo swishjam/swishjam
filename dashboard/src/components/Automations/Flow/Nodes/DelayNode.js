@@ -24,6 +24,7 @@ const EditPopover = ({ id, data, children, onClose }) => {
         {children}
       </PopoverTrigger>
       <PopoverContent className='pt-10 px-4'>
+        <h3 className='text-sm font-medium leading-none flex items-center mb-2'>Delay Amount</h3> 
         <button
           className='rounded hover:bg-gray-100 transition-colors p-1 absolute top-2 right-2'
           onClick={onClose}

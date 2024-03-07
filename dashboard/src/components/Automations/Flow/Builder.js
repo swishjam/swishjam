@@ -55,12 +55,10 @@ export default function AutomationBuilder({
             nodeTypes={NodeTypes}
             edgeTypes={EdgeTypes}
             snapToGrid={true}
-            // defaultViewport={{ x: 600, y: 100, zoom: 1 }}
             fitView={true}
-            fitViewOptions={{ padding: 1 }}
+            fitViewOptions={{ padding: 1, maxZoom: 1 }}
             elementsSelectable={false}
-            panOnScroll={false}
-          // panOnScrollMode='vertical'
+            panOnScroll={true}
           >
             {includePanel && (
               <TopPanel
@@ -76,7 +74,6 @@ export default function AutomationBuilder({
             {includeControls && <Controls className="rounded-md border-gray-200 border bg-white shadow-sm overflow-hidden" showInteractive={false} />}
           </ReactFlow>
         </div>
-
       </main>
     </>
   )

@@ -6,7 +6,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { LuPencil, LuTrash } from "react-icons/lu";
 import { memo } from 'react';
-import { NODE_WIDTH } from "@/lib/automations-helpers";
+import { NODE_WIDTH, NODE_HEIGHT } from "@/lib/automations-helpers";
 import { Tooltipable } from '@/components/ui/tooltip';
 import { useEffect, useState } from 'react'
 import { toast } from 'sonner';
@@ -91,7 +91,7 @@ export default memo(({
             {(canDelete || EditComponent) && !isExecutionResult && (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <div className='rounded hover:bg-gray-100 transition-colors'>
+                  <div className='rounded hover:bg-gray-100 transition-colors cursor-pointer'>
                     <EllipsisVerticalIcon className="text-gray-400 h-5 w-5 hover:text-swishjam cursor-pointer duration-300 transition-all" aria-hidden="true" />
                   </div>
                 </DropdownMenuTrigger>
@@ -140,7 +140,7 @@ export default memo(({
 
       {EditComponent && !isExecutionResult && (
         <Dialog open={editModalIsOpen} onOpenChange={() => setEditModalIsOpen(false)}>
-          <DialogContent fullWidth={true}>
+          <DialogContent className="overflow-hidden">
             <DialogHeader>
               <DialogTitle className='flex items-center space-x-2'>
                 {icon}
