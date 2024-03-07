@@ -22,23 +22,26 @@ const rowForUser = ({ user, queryFilterGroups }) => {
           {user.fullName() && user.email() ? <span className="text-gray-500">{user.email()}</span> : null}
         </Link>
       </div>
-    </div>,
-    ...[].concat(...(queryFilterGroups || []).map(filterGroup => {
-      return filterGroup.query_filters.map(filter => {
-        if (filter.type === 'QueryFilters::UserProperty') {
-          if (filter.config.property_name === 'email') {
-            return user.email()
-          } else if (filter.config.property_name === 'user_unique_identifier') {
-            return user.uniqueIdentifier()
-          } else {
-            return user.metadata()[filter.config.property_name] ?? '-'
-          }
-        } else {
-          return user.attributes()[`${filter.config.event_name.replace(/\s/g, '_').replace(/\./g, '_')}_count_for_user`]
-        }
-      })
-    })),
+    </div>
   ]
+  let dynamicRows = [];
+  (queryFilterGroups || []).forEach(filterGroup => {
+    filterGroup.query_filters.forEach(filter => {
+      if (filter.type === 'QueryFilters::UserProperty') {
+        const shouldInclude = !['email', 'user_unique_identifier'].includes(filter.config.property_name) && !dynamicRows.includes(filter.config.property_name)
+        if (shouldInclude) {
+          dynamicRows.push(filter.config.property_name)
+          rows.push(user.metadata()[filter.config.property_name] ?? '-')
+        }
+      } else {
+        const attrKey = `${filter.config.event_name.replace(/\s/g, '_').replace(/\./g, '_')}_count_for_user`
+        if (!dynamicRows.includes(attrKey)) {
+          dynamicRows.push(attrKey)
+          rows.push(user.attributes()[attrKey] ?? '-')
+        }
+      }
+    })
+  })
   if (rows.length < 4) {
     rows.push(prettyDateTime(user.createdAt()))
   }
@@ -51,7 +54,7 @@ const tableHeadersForQueryFilterGroups = queryFilterGroups => {
     tableHeaders = ['User']
     queryFilterGroups.forEach(filterGroup => {
       filterGroup.query_filters.forEach(filter => {
-        if (filter.type === 'QueryFilters::UserProperty') {
+        if (filter.type === 'QueryFilters::UserProperty' && !['email', 'user_unique_identifier'].includes(filter.config.property_name)) {
           tableHeaders.push(humanizeVariable(filter.config.property_name))
         } else if (filter.type === 'QueryFilters::EventCountForUserOverTimePeriod') {
           tableHeaders.push(
@@ -62,11 +65,11 @@ const tableHeadersForQueryFilterGroups = queryFilterGroups => {
         }
       })
     })
-    if (queryFilterGroups.reduce((acc, group) => acc + group.query_filters.length, 0) < 3) {
+    if (tableHeaders.length < 4) {
       tableHeaders.push('Created At')
     }
   }
-  return tableHeaders;
+  return tableHeaders.filter((value, index, self) => self.indexOf(value) === index)
 }
 
 export default function UsersTablePreview({ userProfilesCollection, queryFilterGroups, currentPageNum, lastPageNum, onNewPage }) {
@@ -74,7 +77,7 @@ export default function UsersTablePreview({ userProfilesCollection, queryFilterG
     <>
       <Table
         headers={tableHeadersForQueryFilterGroups(queryFilterGroups)}
-        rows={userProfilesCollection.models().map(user => rowForUser({ user, queryFilterGroups }))}
+        rows={userProfilesCollection?.models()?.map(user => rowForUser({ user, queryFilterGroups }))}
         noDataMessage={
           <>
             <UserX2Icon className='h-12 w-12 mx-auto text-gray-400' />
@@ -83,7 +86,7 @@ export default function UsersTablePreview({ userProfilesCollection, queryFilterG
         }
       />
       {
-        userProfilesCollection.models().length > 0 && (
+        lastPageNum && lastPageNum > 1 && (
           <Pagination
             currentPage={currentPageNum}
             lastPageNum={lastPageNum}

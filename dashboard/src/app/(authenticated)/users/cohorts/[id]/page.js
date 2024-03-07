@@ -8,7 +8,7 @@ import SwishjamAPI from "@/lib/api-client/swishjam-api";
 import { useEffect, useState } from "react";
 import UserProfilesCollection from "@/lib/collections/user-profiles";
 import Link from "next/link";
-import { ArrowLeftIcon, UserIcon, UserX2Icon } from "lucide-react";
+import { ArrowLeftIcon, UserIcon } from "lucide-react";
 import FilterGroupsDisplay from "@/components/QueryBuilder/FilterGroupsDisplay";
 import { PencilSquareIcon } from "@heroicons/react/24/outline";
 import UsersTablePreview from "@/components/QueryBuilder/UsersTablePreview";
@@ -23,7 +23,8 @@ export default function UserSegmentDetailsPage({ params }) {
   const [userProfilesCollectionForSegment, setUserProfilesCollectionForSegment] = useState();
 
   const getUsersForSegment = async page => {
-    const { users, total_pages, total_num_records } = await SwishjamAPI.Users.list({ page, userSegmentIds: [id] })
+    setUserProfilesCollectionForSegment()
+    const { users, total_pages, total_num_records } = await SwishjamAPI.Users.list({ limit: 10, page, userSegmentIds: [id] })
     setUserProfilesCollectionForSegment(new UserProfilesCollection(users))
     setLastPageNum(total_pages)
     setTotalNumUsersInSegment(total_num_records)
@@ -98,17 +99,13 @@ export default function UserSegmentDetailsPage({ params }) {
         </div>
       </div>
       <div className='mt-8 bg-white rounded border border-gray-200 p-4'>
-        {userProfilesCollectionForSegment === undefined || userSegment === undefined
-          ? Array.from({ length: 10 }).map((_, i) => <Skeleton key={i} className='h-12 w-full my-1' />)
-          : (
-            <UsersTablePreview
-              userProfilesCollection={userProfilesCollectionForSegment}
-              queryFilterGroups={userSegment?.query_filter_groups}
-              currentPageNum={currentPageNum}
-              lastPageNum={lastPageNum}
-              onNewPage={setCurrentPageNum}
-            />
-          )}
+        <UsersTablePreview
+          userProfilesCollection={userProfilesCollectionForSegment}
+          queryFilterGroups={userSegment?.query_filter_groups}
+          currentPageNum={currentPageNum}
+          lastPageNum={lastPageNum}
+          onNewPage={setCurrentPageNum}
+        />
       </div>
     </main>
   )

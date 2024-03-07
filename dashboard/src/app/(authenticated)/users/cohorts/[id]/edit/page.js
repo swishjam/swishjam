@@ -19,6 +19,7 @@ export default function EditUserSegmentPage({ params }) {
   const router = useRouter();
 
   const [isLoading, setIsLoading] = useState(false)
+  const [isFetchingPreviewData, setIsFetchingPreviewData] = useState(false)
   const [nameAndDescriptionModalIsOpen, setNameAndDescriptionModalIsOpen] = useState(false)
   const [userSegment, setUserSegment] = useState()
 
@@ -49,10 +50,10 @@ export default function EditUserSegmentPage({ params }) {
   }
 
   const previewSegment = (queryFilterGroups, page = 1) => {
-    setIsLoading(true)
+    setIsFetchingPreviewData(true)
     setCurrentPreviewedUsersPageNum(page)
-    SwishjamAPI.UserSegments.preview({ queryFilterGroups, page }).then(({ error, users, total_pages, total_num_records }) => {
-      setIsLoading(false)
+    SwishjamAPI.UserSegments.preview({ queryFilterGroups, page, limit: 10 }).then(({ error, users, total_pages, total_num_records }) => {
+      setIsFetchingPreviewData(false)
       if (error) {
         toast.error('Failed to preview user cohort', {
           description: error,
@@ -114,7 +115,7 @@ export default function EditUserSegmentPage({ params }) {
           defaultSegmentName={userSegment.name}
           defaultSegmentDescription={userSegment.description}
           defaultQueryFilterGroups={userSegment.query_filter_groups}
-          isLoading={isLoading}
+          isLoading={isLoading || isFetchingPreviewData}
           onPreview={previewSegment}
           onSave={({ queryFilterGroups }) => updateSegment(queryFilterGroups)}
           saveButtonText='Update Cohort'
@@ -136,7 +137,7 @@ export default function EditUserSegmentPage({ params }) {
             lastPageNum={previewedUsersTotalPages}
             onNewPage={page => previewSegment(previewedQueryFilterGroups, page)}
             queryFilterGroups={previewedQueryFilterGroups}
-            userProfilesCollection={new UserProfilesCollection(previewedUsers)}
+            userProfilesCollection={isFetchingPreviewData ? null : new UserProfilesCollection(previewedUsers)}
           />
         </div>
       )}

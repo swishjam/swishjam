@@ -12,7 +12,7 @@ class UserSegmentSerializer < ActiveModel::Serializer
   end
 
   def rough_user_count
-    object.profile_tags.count
+    object.profile_tags.active.count
   end
 
   def last_synced_profile_tags_at

@@ -1,7 +1,7 @@
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@/components/ui/table'
 import { Skeleton } from '../ui/skeleton'
 
-export default function TableComponent({ headers, rows, noDataMessage = 'No data.' }) {
+export default function TableComponent({ headers, rows, noDataMessage = 'No data.', numRowsWhileLoading = 10 }) {
   return (
     <Table>
       <TableHeader>
@@ -30,7 +30,7 @@ export default function TableComponent({ headers, rows, noDataMessage = 'No data
               </TableRow>
             )
           : (
-            Array.from({ length: 5 }).map((_, i) => (
+            Array.from({ length: numRowsWhileLoading }).map((_, i) => (
               <TableRow key={i}>
                 {headers.map((_, j) => (
                   <TableCell key={j} className='cursor-default'>

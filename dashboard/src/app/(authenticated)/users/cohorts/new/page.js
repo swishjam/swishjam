@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 export default function NewUserSegmentPage() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false)
+  const [isFetchingPreviewData, setIsFetchingPreviewData] = useState(false)
   const [previewedUsers, setPreviewedUsers] = useState()
   const [currentPreviewedUsersPageNum, setCurrentPreviewedUsersPageNum] = useState()
   const [previewedUsersTotalPages, setPreviewedUsersTotalPages] = useState()
@@ -35,10 +36,10 @@ export default function NewUserSegmentPage() {
   }
 
   const previewSegment = (queryFilterGroups, page = 1) => {
-    setIsLoading(true)
+    setIsFetchingPreviewData(true)
     setCurrentPreviewedUsersPageNum(page)
-    SwishjamAPI.UserSegments.preview({ queryFilterGroups, page }).then(({ error, users, total_pages, total_num_records }) => {
-      setIsLoading(false)
+    SwishjamAPI.UserSegments.preview({ queryFilterGroups, page, limit: 10 }).then(({ error, users, total_pages, total_num_records }) => {
+      setIsFetchingPreviewData(false)
       if (error) {
         toast.error('Failed to preview user cohort', {
           description: error,
@@ -81,7 +82,7 @@ export default function NewUserSegmentPage() {
             lastPageNum={previewedUsersTotalPages}
             onNewPage={page => previewSegment(previewedQueryFilterGroups, page)}
             queryFilterGroups={previewedQueryFilterGroups}
-            userProfilesCollection={new UserProfilesCollection(previewedUsers)}
+            userProfilesCollection={isFetchingPreviewData ? null : new UserProfilesCollection(previewedUsers)}
           />
         </div>
       )}
