@@ -56,7 +56,7 @@ export default function AutomationBuilder({
             edgeTypes={EdgeTypes}
             snapToGrid={true}
             fitView={true}
-            fitViewOptions={{ padding: 1, maxZoom: 1 }}
+            fitViewOptions={{ padding: 1, minZoom: 1, maxZoom: 1 }}
             elementsSelectable={false}
             panOnScroll={true}
           >
