@@ -11,11 +11,7 @@ module Automations
 
       new_or_updated_automation_steps = automation_steps.map do |step_params|
         if step_params[:is_new]
-          step = automation.automation_steps.create!(
-            type: step_params[:type],
-            config: step_params[:config],
-            sequence_index: 0,
-          )
+          step = automation.automation_steps.create!(type: step_params[:type], config: step_params[:config])
           client_id_to_step_id_map[step_params[:client_id]] = step.id
           step
         else

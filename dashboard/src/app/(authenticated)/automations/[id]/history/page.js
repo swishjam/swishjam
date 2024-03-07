@@ -70,7 +70,7 @@ export default function AutomationDetailsPage({ params }) {
     >
       <TestExecutionModal
         automationId={automationId}
-        eventName={automation?.entry_point_event_name}
+        // eventName={automation?.entry_point_event_name}
         isOpen={testExecutionModalIsOpen}
         onClose={() => setTestExecutionModalIsOpen(false)}
       />

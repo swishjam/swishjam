@@ -8,9 +8,6 @@ class AutomationStep < Transactional
 
   before_destroy :destroy_next_automation_step_conditions
   attribute :config, :jsonb, default: {}
-  scope :in_sequence_order, -> { order(sequence_index: :ASC) }
-
-  # validates :sequence_index, presence: true, numericality: { only_integer: true, greater_than_or_equal_to: 0 }, uniqueness: { scope: :automation_id }
 
   def execute!(prepared_event, executed_automation, executed_automation_step: nil, as_test: false)
     executed_step = executed_automation_step || executed_automation_steps.create!(executed_automation: executed_automation, started_at: Time.current)

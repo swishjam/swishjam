@@ -38,7 +38,6 @@ export default function FilterConfiguration({ data, onSave }) {
 
   const onSubmit = values => {
     // validate and update the data
-    console.log('values', values) 
     onSave(values)
   }
 
@@ -116,24 +115,24 @@ export default function FilterConfiguration({ data, onSave }) {
                     />
                   </div>
                   <div className="col-span-5">
-                      <FormField
-                        control={form.control}
-                        name={`rules.${index}.value`}
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormControl>
-                              <Input
-                                className='!rounded-bl-none !rounded-tl-none !ring-0'
-                                type="text"
-                                placeholder="Your property value"
-                                disabled={form.watch(`rules.${index}.operator`) === 'is_not_defined' || form.watch(`rules.${index}.operator`) === 'is_defined'}
-                                {...form.register(`rules.${index}.property_value`)}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
+                    <FormField
+                      control={form.control}
+                      name={`rules.${index}.value`}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormControl>
+                            <Input
+                              className='!rounded-bl-none !rounded-tl-none !ring-0'
+                              type="text"
+                              placeholder="Your property value"
+                              disabled={form.watch(`rules.${index}.operator`) === 'is_not_defined' || form.watch(`rules.${index}.operator`) === 'is_defined'}
+                              {...form.register(`rules.${index}.property_value`)}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
                   </div>
                 </div>
                 <Button
@@ -159,7 +158,7 @@ export default function FilterConfiguration({ data, onSave }) {
             </Button>
           </li>
         </ul>
-      <Button type="submit" variant="swishjam" className="w-full mt-6">Save</Button>
+        <Button type="submit" variant="swishjam" className="w-full mt-6">Save</Button>
       </form>
     </Form>
   )
