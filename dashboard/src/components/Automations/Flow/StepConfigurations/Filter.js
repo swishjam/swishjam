@@ -23,18 +23,22 @@ const DEFAULT_RULES = [
 
 export default function FilterConfiguration({ data, onSave }) {
   const [propertyOptionsForSelectedEvent, setPropertyOptionsForSelectedEvent] = useState();
-
   const form = useForm();
   const filterRulesFieldArray = useFieldArray({ control: form.control, name: "rules", defaultValues: data.rules || DEFAULT_RULES });
-
   const { uniqueUserProperties } = useCommonQueries();
   const { selectedEntryPointEventName } = useAutomationBuilder();
+
+  console.log('filter data', data)
 
   useEffect(() => {
     if (selectedEntryPointEventName) {
       SwishjamAPI.Events.Properties.listUnique(selectedEntryPointEventName).then(setPropertyOptionsForSelectedEvent)
     }
   }, [selectedEntryPointEventName])
+
+  useEffect(() => {
+    form.reset({ rules: data.rules || DEFAULT_RULES })
+  }, [data.rules])
 
   const onSubmit = values => {
     // validate and update the data

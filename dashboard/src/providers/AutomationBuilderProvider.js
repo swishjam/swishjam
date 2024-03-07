@@ -14,7 +14,7 @@ const AutomationBuilderProvider = ({ children }) => {
   const { setCenter } = useReactFlow();
 
   const zoomToNode = node => {
-    setCenter(node.position.x + (NODE_WIDTH / 2), node.position.y + (NODE_HEIGHT / 2), { duration: 800, zoom: 1.25 })
+    setCenter(node.position.x + (NODE_WIDTH / 2), node.position.y + (NODE_HEIGHT / 2), { duration: 800, zoom: 1 })
   };
 
   const updateCanvasWithAutoLayout = (nodes, edges) => {
