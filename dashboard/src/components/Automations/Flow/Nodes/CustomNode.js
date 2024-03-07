@@ -25,6 +25,7 @@ export default memo(({
   onEditClick,
   requiredData = [],
   title,
+  dialogFullWidth = false,
   children
 }) => {
   const { executionStepResults = {} } = data;
@@ -140,7 +141,7 @@ export default memo(({
 
       {EditComponent && !isExecutionResult && (
         <Dialog open={editModalIsOpen} onOpenChange={() => setEditModalIsOpen(false)}>
-          <DialogContent className="overflow-hidden">
+          <DialogContent className="overflow-hidden" fullWidth={dialogFullWidth}>
             <DialogHeader>
               <DialogTitle className='flex items-center space-x-2'>
                 {icon}
