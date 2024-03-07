@@ -27,6 +27,7 @@ export function ButtonEdge({
   });
 
   const onAddNode = nodeType => {
+    console.log(nodeType)
     addNodeInEdge({ nodeType, data, edgeId: id, numEdgesToAdd: nodeType === 'IfElse' ? 2 : 1 })
   };
 

@@ -59,7 +59,7 @@ export default function AutomationBuilder({
             fitView={true}
             fitViewOptions={{ padding: 1 }}
             elementsSelectable={false}
-            panOnScroll={true}
+            panOnScroll={false}
           // panOnScrollMode='vertical'
           >
             {includePanel && (

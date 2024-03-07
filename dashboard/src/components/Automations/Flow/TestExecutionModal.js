@@ -1,17 +1,17 @@
-import Modal from "@/components/utils/Modal"
-import { Button } from "@/components/ui/button"
-import { FlaskConicalIcon } from "lucide-react"
-import { useState } from "react";
-import SwishjamAPI from "@/lib/api-client/swishjam-api";
-import LoadingSpinner from "@/components/LoadingSpinner";
-import { toast } from "sonner";
 import { AccordionOpen } from "@/components/ui/accordion";
-import JsonEditor from "@/components/utils/JsonEditor";
+
+import AutomationBuilder from "./Builder";
+import { Button } from "@/components/ui/button"
+import { CheckCircleIcon, FlaskConicalIcon } from "lucide-react"
 import DottedUnderline from "@/components/utils/DottedUnderline";
-import useAutomationBuilder from "@/hooks/useAutomationBuilder";
 import { formatAutomationStepsWithExecutionStepResults, reformatNodesAndEdgesToAutomationsPayload } from "@/lib/automations-helpers";
-import ExecutedAutomationDetails from "./Results/ExecutedAutomationDetails";
-import AutomationBuilder from "./Builder-old";
+import JsonEditor from "@/components/utils/JsonEditor";
+import LoadingSpinner from "@/components/LoadingSpinner";
+import Modal from "@/components/utils/Modal"
+import SwishjamAPI from "@/lib/api-client/swishjam-api";
+import { toast } from "sonner";
+import useAutomationBuilder from "@/hooks/useAutomationBuilder";
+import { useState } from "react";
 
 export default function TestExecutionModal({
   automationId,
@@ -82,19 +82,34 @@ export default function TestExecutionModal({
       }}
     >
       <div className='flex flex-col space-y-4 text-sm text-gray-700'>
-        {isExecutingTestRun && <p>Executing test run...</p>}
+        {isExecutingTestRun && (
+          <div className='flex items-center justify-center py-10'>
+            <div>
+              <LoadingSpinner size={8} center={true} />
+              <p className='text-md font-semibold text-gray-700 mt-2'>Executing test run...</p>
+            </div>
+          </div>
+        )}
         {automationStepsWithExecutionData && (
-          <AutomationBuilder
-            automationSteps={automationStepsWithExecutionData}
-            canvasWidth='w-full'
-            canvasHeight='h-[80vh]'
-            includeControls={true}
-            includePanel={false}
-          />
+          <>
+            <div className='w-full flex items-center bg-green-100 text-green-600 py-2 px-4 space-x-2'>
+              <div className='flex-shrink-0'>
+                <CheckCircleIcon className='h-6 w-6' />
+              </div>
+              <p className='text-sm font-semibold'>Test execution completed successfully. {(automationStepsWithExecutionData || [{ config: {} }]).filter(step => step.config.executionStepResults).length} out of {(automationStepsWithExecutionData || []).length} automation steps would have been executed.</p>
+            </div>
+            <AutomationBuilder
+              automationSteps={automationStepsWithExecutionData}
+              canvasWidth='w-full'
+              canvasHeight='h-[60vh]'
+              includeControls={true}
+              includePanel={false}
+            />
+          </>
         )}
         {!isExecutingTestRun && !automationStepsWithExecutionData && (
           <>
-            <p>Running a test execution will execute the automation with a test user and provide you with the results of the execution.</p>
+            <p>Running a test execution will simulate the automation with a test user and provide you with the results of the execution.</p>
             <p>Are you sure you want to run a test execution?</p>
             <AccordionOpen trigger={<>Set the properties for the <DottedUnderline className='mx-1'>{eventName}</DottedUnderline> test event.</>}>
               <JsonEditor json={eventPropertiesJson} onChange={setEventPropertiesJson} />

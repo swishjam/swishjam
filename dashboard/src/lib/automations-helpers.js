@@ -10,10 +10,12 @@ import FilterNode from '@/components/Automations/Flow/Nodes/FilterNode';
 
 export const NODE_WIDTH = 300;
 export const NODE_HEIGHT = 125;
+const NEW_NODE_ID_PREFIX = 'new-node-';
+const NEW_EDGE_ID_PREFIX = 'new-edge-';
 
 const dagreGraph = new dagre.graphlib.Graph();
 dagreGraph.setDefaultEdgeLabel(() => ({}));
-const EDGE_LENGTH_HEIGHT_MULTIPLIER = 1.5;
+const EDGE_LENGTH_HEIGHT_MULTIPLIER = 2;
 
 export const autoLayoutNodesAndEdges = (nodes, edges) => {
   dagreGraph.setGraph({ rankdir: 'TB' });
@@ -28,47 +30,97 @@ export const autoLayoutNodesAndEdges = (nodes, edges) => {
 
   dagre.layout(dagreGraph);
 
-  nodes.forEach((node, i) => {
+  nodes.forEach((node) => {
     const nodeWithPosition = dagreGraph.node(node.id);
     node.targetPosition = 'top';
     node.sourcePosition = 'bottom';
 
+    const parentNode = nodes.find(n => edges.find(e => e.target === node.id && e.source === n.id));
+    const parentNodeXCoordinate = (parentNode || { position: { x: 0 } }).position.x
+
     // We are shifting the dagre node position (anchor=center center) to the top left
     // so it matches the React Flow node anchor point (top left).
-    if (i === 0) {
-      node.position = {
-        x: 0,
-        y: nodeWithPosition.y - NODE_HEIGHT,
-      };
-    } else {
-      node.position = {
-        x: 0,
-        y: (nodeWithPosition.y - NODE_HEIGHT / 2) * EDGE_LENGTH_HEIGHT_MULTIPLIER,
-      };
-    }
+    node.position = {
+      x: parentNodeXCoordinate,
+      y: (nodeWithPosition.y - NODE_HEIGHT / 2) * EDGE_LENGTH_HEIGHT_MULTIPLIER,
+    };
+
+    return node;
   });
 
   return { nodes, edges };
-};
+}
 
-export const createNewNode = ({ id, type, data = {}, onUpdate, onDelete }) => {
-  const nid = id || 'new-node-' + Math.random().toString(36);
+
+// TODO: this almost supports if/else statements, but gets wonky after a few nodes
+// export const autoLayoutNodesAndEdges = (nodes, edges) => {
+//   dagreGraph.setGraph({ rankdir: 'TB' });
+
+//   nodes.forEach((node) => {
+//     dagreGraph.setNode(node.id, { width: NODE_WIDTH, height: NODE_HEIGHT });
+//   });
+
+//   edges.forEach((edge) => {
+//     dagreGraph.setEdge(edge.source, edge.target);
+//   });
+
+//   dagre.layout(dagreGraph);
+
+//   // Group nodes by their y-coordinate (rank)
+//   const nodesByRank = nodes.reduce((groups, node) => {
+//     const nodeWithPosition = dagreGraph.node(node.id);
+//     const rank = Math.round(nodeWithPosition.y);
+//     if (!groups[rank]) {
+//       groups[rank] = [];
+//     }
+//     groups[rank].push(node);
+//     return groups;
+//   }, {});
+
+//   // For each group, distribute the nodes evenly along the x-axis
+//   Object.values(nodesByRank).forEach((group) => {
+//     group.forEach((node, index) => {
+//       const nodeWithPosition = dagreGraph.node(node.id);
+//       node.targetPosition = 'top';
+//       node.sourcePosition = 'bottom';
+//       let startX;
+//       if (group.length === 1) {
+//         // If there's only one node in the group, set the starting x-coordinate to the parent node's x-coordinate
+//         const parentNode = nodes.find(n => edges.find(e => e.target === node.id && e.source === n.id));
+//         startX = (parentNode || { position: { x: 0 } }).position.x
+//       } else {
+//         const totalWidthOfNodesInRow = (NODE_WIDTH + (NODE_X_PADDING / 2)) * group.length;
+//         startX = (NODE_WIDTH - totalWidthOfNodesInRow) / 2;
+//       }
+//       node.position = {
+//         x: startX + (NODE_WIDTH + NODE_X_PADDING) * index,
+//         y: (nodeWithPosition.y - NODE_HEIGHT / 2) * 2,
+//       };
+//     });
+//   });
+
+//   return { nodes, edges };
+// };
+
+export const createNewNode = ({ id, type, data = {} }) => {
+  const nid = id || NEW_NODE_ID_PREFIX + Math.random().toString(36);
   return {
     id: nid,
     position: { x: 0, y: 0 },
-    data: { ...data, onDelete, onUpdate },
+    data,
     draggable: true,
     type
   }
 }
 
-export const createNewEdge = ({ source, target, data = {}, onAddNode, type = 'buttonedge' }) => {
+export const createNewEdge = ({ id, source, target, data = {}, type = 'buttonedge' }) => {
+  const eid = id || NEW_EDGE_ID_PREFIX + source + target;
   return {
-    id: `edge-${source}-${target}`,
+    id: eid,
     source,
     target,
     type,
-    data: { ...data, onAddNode },
+    data,
   }
 }
 
@@ -117,14 +169,18 @@ const automationStepConfigForNode = node => {
 export const reformatNodesAndEdgesToAutomationsPayload = ({ nodes, edges }) => {
   const automation_steps = nodes.map(node => {
     return {
+      id: node.id,
       client_id: node.id,
+      is_new: node.id.startsWith(NEW_NODE_ID_PREFIX),
       type: `AutomationSteps::${node.type}`,
       config: automationStepConfigForNode(node),
     }
   })
   const next_automation_step_conditions = edges.map(edge => {
     return {
+      id: edge.id,
       client_id: edge.id,
+      is_new: edge.id.startsWith(NEW_EDGE_ID_PREFIX),
       automation_step_client_id: edge.source,
       next_automation_step_client_id: edge.target,
       next_automation_step_condition_rules: [

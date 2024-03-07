@@ -1,6 +1,6 @@
 'use client'
 
-import { memo } from 'react';
+import { memo, useEffect } from 'react';
 import CustomNode from './CustomNode';
 import ComboboxEvents from '@/components/utils/ComboboxEvents';
 import { LuZap } from "react-icons/lu";
@@ -14,6 +14,10 @@ export default memo(({ id, data }) => {
 
   const { uniqueEventsAndCounts } = useCommonQueries();
   const uniqueEvents = (uniqueEventsAndCounts || []).map(e => e.name).sort()
+
+  useEffect(() => {
+    setSelectedEntryPointEventName(event_name)
+  }, [id])
 
   return (
     <CustomNode
