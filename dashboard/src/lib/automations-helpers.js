@@ -141,6 +141,10 @@ const automationStepConfigForNode = node => {
       return {
         condition: node.data.condition,
       }
+    case 'Filter':
+      return {
+        rules: node.data.rules,
+      }
     case 'SlackMessage':
       return {
         channel_id: node.data.channel_id,
