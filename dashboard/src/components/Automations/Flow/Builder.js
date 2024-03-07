@@ -74,7 +74,6 @@ export default function AutomationBuilder({
             {includeControls && <Controls className="rounded-md border-gray-200 border bg-white shadow-sm overflow-hidden" showInteractive={false} />}
           </ReactFlow>
         </div>
-
       </main>
     </>
   )

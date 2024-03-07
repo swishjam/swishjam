@@ -10,7 +10,7 @@ export class Automations extends Base {
     return await this._post('/api/v1/automations', { name, automation_steps, next_automation_step_conditions });
   }
 
-  static async update({ name, automation_steps, next_automation_step_conditions }) {
+  static async update(id, { name, automation_steps, next_automation_step_conditions }) {
     return await this._patch(`/api/v1/automations/${id}`, { name, automation_steps, next_automation_step_conditions });
   }
 

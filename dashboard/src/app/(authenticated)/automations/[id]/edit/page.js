@@ -7,6 +7,7 @@ import { ReactFlowProvider } from 'reactflow'
 import SwishjamAPI from "@/lib/api-client/swishjam-api"
 import { useEffect, useState } from "react"
 import { reformatNodesAndEdgesToAutomationsPayload } from "@/lib/automations-helpers";
+import { toast } from "sonner";
 
 export default function EditAutomationPage({ params }) {
   const { id: automationId } = params;
@@ -27,11 +28,12 @@ export default function EditAutomationPage({ params }) {
   const updateAutomation = async ({ nodes, edges }) => {
     setIsLoading(true);
     const { automation_steps, next_automation_step_conditions } = reformatNodesAndEdgesToAutomationsPayload({ nodes, edges })
-    const { automation, error } = await SwishjamAPI.Automations.update(automationId, { name: automation.name, automation_steps, next_automation_step_conditions })
+    const { error } = await SwishjamAPI.Automations.update(automationId, { name: automation.name, automation_steps, next_automation_step_conditions })
     setIsLoading(false);
     if (error) {
       toast.error('Failed to update automation', { description: error })
     } else {
+      // setAutomation(automationResponse);
       toast.success('Automation updated.')
     }
   }

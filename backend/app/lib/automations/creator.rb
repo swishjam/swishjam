@@ -10,7 +10,6 @@ module Automations
       )
       automation_steps = automation_steps.map do |step_params|
         step = automation.automation_steps.create!(
-          automation: automation,
           type: step_params[:type],
           config: step_params[:config],
           sequence_index: 0,
