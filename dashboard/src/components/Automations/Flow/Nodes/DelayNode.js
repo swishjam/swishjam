@@ -1,4 +1,4 @@
-import { AlertTriangleIcon, XIcon } from "lucide-react";
+import { XIcon } from "lucide-react";
 import CustomNode from "./CustomNode";
 import DottedUnderline from "@/components/utils/DottedUnderline";
 import { LuAlarmClock } from "react-icons/lu";
@@ -10,6 +10,7 @@ import { useState } from "react";
 import { PopoverAnchor } from "@radix-ui/react-popover";
 import useAutomationBuilder from "@/hooks/useAutomationBuilder";
 import { Button } from "@/components/ui/button";
+import WarningBanner from "../WarningBanner";
 
 const EditPopover = ({ id, data, children, onClose }) => {
   const { delay_amount, delay_unit } = data;
@@ -24,7 +25,7 @@ const EditPopover = ({ id, data, children, onClose }) => {
         {children}
       </PopoverTrigger>
       <PopoverContent className='pt-10 px-4'>
-        <h3 className='text-sm font-medium leading-none flex items-center mb-2'>Delay Amount</h3> 
+        <h3 className='text-sm font-medium leading-none flex items-center mb-2'>Delay Amount</h3>
         <button
           className='rounded hover:bg-gray-100 transition-colors p-1 absolute top-2 right-2'
           onClick={onClose}
@@ -104,15 +105,14 @@ export default memo(({ id, data }) => {
                 before running the next step.
               </p>
             ) : (
-              <div className='text-xs flex items-center space-x-4 mt-4 bg-yellow-100 hover:bg-yellow-200 text-yellow-700 p-2 rounded transition-colors'>
-                <AlertTriangleIcon className='h-6 w-6' />
-                <div>
+              <WarningBanner>
+                <>
                   <span className='block'>This step is incomplete.</span>
                   <EditPopover id={id} data={data} onClose={() => setEditPopoverIsOpen(false)}>
                     <span className='text-xs cursor-pointer hover:underline'>Complete configuration.</span>
                   </EditPopover>
-                </div>
-              </div>
+                </>
+              </WarningBanner>
             )}
         </CustomNode>
       </PopoverAnchor>

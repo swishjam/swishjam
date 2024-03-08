@@ -28,7 +28,7 @@ const FormInputOrLoadingState = ({ children, className, isLoading }) => {
   }
 }
 
-export default function ResendEmail({ data = { to: '{{ user.email }}' }, onSave }) {
+export default function ResendEmail({ data = { to: '{{ user.email }}', send_once_per_user: true }, onSave }) {
   const { email: currentUserEmail } = useAuthData();
   const form = useForm({ defaultValues: data });
 
@@ -97,7 +97,7 @@ export default function ResendEmail({ data = { to: '{{ user.email }}' }, onSave 
   }
 
   return (
-    <div className='grid grid-cols-2 gap-8 mt-8'>
+    <div className='grid grid-cols-2 gap-8'>
       <div>
         <FormInputOrLoadingState isLoading={isFetchingData || (selectedEntryPointEventName && propertyOptionsForSelectedEvent === undefined)} className='h-44'>
           <EmailPreview
@@ -426,35 +426,7 @@ export default function ResendEmail({ data = { to: '{{ user.email }}' }, onSave 
               )}
             />
 
-            {/* <FormField
-              control={form.control}
-              name='delay_delivery_by_minutes'
-              render={({ field }) => (
-                <FormInputOrLoadingState isLoading={isFetchingData}>
-                  <FormItem className='flex flex-row items-center space-x-3 space-y-0 bg-white rounded-md border border-gray-200 p-4 shadow-sm'>
-                    <FormControl>
-                      <Input
-                        className='flex-shrink-0 w-20 text-center'
-                        type="number"
-                        placeholder="10"
-                        min="0"
-                        autoComplete="off"
-                        {...form.register('delay_delivery_by_minutes')}
-                      />
-                    </FormControl>
-                    <FormLabel className="flex">
-                      Delivery delay (in minutes)
-                      <Tooltipable content="Delay the email deilvery by x minutes after the event occurs. If left blank it will be delivered immediately.">
-                        <div><LuInfo className='text-gray-500 ml-1' size={16} /></div>
-                      </Tooltipable>
-                    </FormLabel>
-                    <FormMessage />
-                  </FormItem>
-                </FormInputOrLoadingState>
-              )}
-            /> */}
-
-            {/* <FormField
+            <FormField
               control={form.control}
               name='send_once_per_user'
               render={({ field }) => (
@@ -468,10 +440,14 @@ export default function ResendEmail({ data = { to: '{{ user.email }}' }, onSave 
                       />
                     </FormControl>
                     <FormLabel className="flex">
-                      Only ever send this email to a user once
+                      Send Once Per User
                       <Tooltipable
                         className=""
-                        content="If checked, this email will not be sent on subsequent events for the same email address."
+                        content={
+                          <>
+                            If enabled, a user will only receive this email once. If the user triggers the automation again, the email will not be sent and this automation step will be skipped.
+                          </>
+                        }
                       >
                         <div><LuInfo className='text-gray-500 ml-1' size={16} /></div>
                       </Tooltipable>
@@ -480,9 +456,9 @@ export default function ResendEmail({ data = { to: '{{ user.email }}' }, onSave 
                   </FormItem>
                 </FormInputOrLoadingState>
               )}
-            /> */}
+            />
 
-            <FormField
+            {/* <FormField
               control={form.control}
               name='un_resolved_variable_safety_net'
               render={({ field }) => (
@@ -513,7 +489,7 @@ export default function ResendEmail({ data = { to: '{{ user.email }}' }, onSave 
                   </FormItem>
                 </FormInputOrLoadingState>
               )}
-            />
+            /> */}
 
             <div className='flex gap-x-2'>
               <Button

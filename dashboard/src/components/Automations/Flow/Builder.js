@@ -29,7 +29,7 @@ export default function AutomationBuilder({
     )
   }
 
-  const { nodes, edges, onNodesChange, onEdgesChange, setNodesAndEdgesFromAutomationSteps } = useAutomationBuilder();
+  const { nodes, edges, onNodesChange, onEdgesChange, setNodesAndEdgesFromAutomationSteps, customFitView } = useAutomationBuilder();
   const [testExecutionModalIsOpen, setTestExecutionModalIsOpen] = useState(false);
 
   useEffect(() => {
@@ -71,7 +71,12 @@ export default function AutomationBuilder({
             )}
 
             <Background variant="dots" gap={6} size={0.5} />
-            {includeControls && <Controls className="rounded-md border-gray-200 border bg-white shadow-sm overflow-hidden" showInteractive={false} />}
+            {includeControls && (
+              <Controls
+                className="rounded-md border-gray-200 border bg-white shadow-sm overflow-hidden"
+                showInteractive={false}
+              />
+            )}
           </ReactFlow>
         </div>
       </main>

@@ -16,7 +16,6 @@ export default memo(({ id, data }) => {
       icon={< SlackIcon className="h-5 w-5" />}
       requiredData={['message_header', 'channel_id', 'channel_name', 'message_body']}
       title="Send Slack Message"
-      dialogFullWidth={true} 
     >
       <h2 className="text-sm font-semibold leading-6 text-gray-600 min-w-0 flex-auto mt-5 w-full truncate text-ellipsis">
         {data?.message_header}

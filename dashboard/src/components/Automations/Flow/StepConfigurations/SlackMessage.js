@@ -70,7 +70,12 @@ export default function ConfigureSlackAutomationStep({ onSave, data = {} }) {
   }
 
   useEffect(() => {
-    getUniqueEventPropertiesForEntryPointEvent();
+    if (selectedEntryPointEventName) {
+      getUniqueEventPropertiesForEntryPointEvent();
+    } else {
+      form.setValue('message_header', '')
+      setPropertyOptionsForSelectedEvent([]);
+    }
   }, [selectedEntryPointEventName])
 
   useEffect(() => {
