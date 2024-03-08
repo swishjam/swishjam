@@ -5,7 +5,7 @@ import EmptyState from '@/components/utils/PageEmptyState';
 import { SwishjamAPI } from "@/lib/api-client/swishjam-api";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
-import EventTriggerRow from "@/components/Automations/EventTriggers/EventTriggerRow";
+import AutomationRow from "@/components/Automations/AutomationRow";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { cn } from "src/lib/utils"
 import Link from "next/link";
@@ -87,10 +87,10 @@ export default function () {
               automations.length > 0 ? (
                 <div>
                   <ul role="list" className="w-full space-y-2 mt-8">
-                    {automations.sort((a, b) => new Date(a.created_at) - new Date(b.created_at)).map(trigger => (
-                      <EventTriggerRow
-                        key={trigger.id}
-                        trigger={trigger}
+                    {automations.sort((a, b) => new Date(a.created_at) - new Date(b.created_at)).map(automation => (
+                      <AutomationRow
+                        key={automation.id}
+                        automation={automation}
                         onPause={pauseTrigger}
                         onResume={resumeTrigger}
                         onDelete={deleteTrigger}

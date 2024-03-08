@@ -22,7 +22,7 @@ const appNav = [
   { name: 'Home', href: '/', icon: LuHome },
   { name: 'Visualize', href: '/dashboards', icon: LuBarChart },
   // { name: 'Analyze', href: '/events', icon: LuFlaskConical }, // HIDING FROM NAV FOR NOW
-  { name: 'Automations', href: '/automations/event-triggers', icon: PiMagicWand },
+  { name: 'Automations', href: '/automations', icon: PiMagicWand },
   { name: 'Reports', href: '/reports', icon: LuPresentation },
   { name: 'Users', href: '/users', icon: LuUser },
   { name: 'Organizations', href: '/organizations', icon: LuHotel },
