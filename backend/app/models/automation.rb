@@ -10,8 +10,4 @@ class Automation < Transactional
   def execute!(prepared_event, as_test: false)
     Automations::Executor.new(automation: self, prepared_event: prepared_event, as_test: as_test).execute_automation!
   end
-
-  def first_automation_step
-    automation_steps.in_sequence_order.first
-  end
 end

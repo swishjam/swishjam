@@ -5,6 +5,7 @@ class AddQueriableJsonbTable < ActiveRecord::Migration[6.1]
 
     create_table :indexed_jsonb_keys, id: :uuid do |t|
       t.references :parent, type: :uuid, polymorphic: true, null: false
+      t.string :column, null: false, index: true
       t.string :key, null: false, index: true
       t.string :value, null: false, index: true
       t.timestamps

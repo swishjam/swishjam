@@ -4,7 +4,7 @@ module Api
       before_action :get_automation
       
       def index
-        render json: @automation.automation_steps.in_sequence_order, each_serializer: AutomationStepSerializer, status: :ok
+        render json: @automation.automation_steps, each_serializer: AutomationStepSerializer, status: :ok
       end
 
       private

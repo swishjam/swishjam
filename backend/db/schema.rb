@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2024_02_29_025350) do
+ActiveRecord::Schema.define(version: 2024_03_07_214708) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
@@ -99,7 +99,6 @@ ActiveRecord::Schema.define(version: 2024_02_29_025350) do
   create_table "automation_steps", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.uuid "automation_id", null: false
     t.string "type", null: false
-    t.integer "sequence_index", null: false
     t.jsonb "config", default: {}, null: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
@@ -111,7 +110,6 @@ ActiveRecord::Schema.define(version: 2024_02_29_025350) do
     t.uuid "created_by_user_id"
     t.string "name", null: false
     t.text "description"
-    t.string "entry_point_event_name", null: false
     t.boolean "enabled"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
@@ -272,6 +270,20 @@ ActiveRecord::Schema.define(version: 2024_02_29_025350) do
     t.index ["retried_from_executed_automation_id"], name: "idx_executed_automations_on_retried_from_executed_automation_id"
   end
 
+  create_table "indexed_jsonb_keys", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.string "parent_type", null: false
+    t.uuid "parent_id", null: false
+    t.string "column", null: false
+    t.string "key", null: false
+    t.string "value", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["column"], name: "index_indexed_jsonb_keys_on_column"
+    t.index ["key"], name: "index_indexed_jsonb_keys_on_key"
+    t.index ["parent_type", "parent_id"], name: "index_indexed_jsonb_keys_on_parent"
+    t.index ["value"], name: "index_indexed_jsonb_keys_on_value"
+  end
+
   create_table "ingestion_batches", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.string "event_type"
     t.float "num_seconds_to_complete"
@@ -305,8 +317,6 @@ ActiveRecord::Schema.define(version: 2024_02_29_025350) do
   create_table "next_automation_step_conditions", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.uuid "automation_step_id", null: false
     t.uuid "next_automation_step_id", null: false
-    t.string "type", null: false
-    t.jsonb "config", default: {}, null: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.index ["automation_step_id"], name: "index_next_automation_step_conditions_on_automation_step_id"
@@ -481,7 +491,7 @@ ActiveRecord::Schema.define(version: 2024_02_29_025350) do
 
   create_table "user_segments", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.uuid "workspace_id", null: false
-    t.uuid "created_by_user_id", null: false
+    t.uuid "created_by_user_id"
     t.string "name", null: false
     t.string "description"
     t.datetime "created_at", precision: 6, null: false
