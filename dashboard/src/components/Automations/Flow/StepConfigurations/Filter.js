@@ -18,17 +18,15 @@ import { useEffect, useState } from "react";
 import SwishjamAPI from "@/lib/api-client/swishjam-api";
 
 const DEFAULT_RULES = [
-  [{ type: 'NextAutomationStepConditionRules::EventProperty', config: { property: null, operator: 'equals', value: null } }]
+  { property: null, operator: 'equals', value: null }
 ]
 
 export default function FilterConfiguration({ data, onSave }) {
   const [propertyOptionsForSelectedEvent, setPropertyOptionsForSelectedEvent] = useState();
   const form = useForm();
-  const filterRulesFieldArray = useFieldArray({ control: form.control, name: "rules", defaultValues: data.rules || DEFAULT_RULES });
+  const filterRulesFieldArray = useFieldArray({ control: form.control, name: "next_automation_step_condition_rules", defaultValues: data.next_automation_step_condition_rules || DEFAULT_RULES });
   const { uniqueUserProperties } = useCommonQueries();
   const { selectedEntryPointEventName } = useAutomationBuilder();
-
-  console.log('filter data', data)
 
   useEffect(() => {
     if (selectedEntryPointEventName) {
@@ -37,12 +35,11 @@ export default function FilterConfiguration({ data, onSave }) {
   }, [selectedEntryPointEventName])
 
   useEffect(() => {
-    form.reset({ rules: data.rules || DEFAULT_RULES })
-  }, [data.rules])
+    form.reset({ next_automation_step_condition_rules: data.next_automation_step_condition_rules || DEFAULT_RULES })
+  }, [data.next_automation_step_condition_rules])
 
   const onSubmit = values => {
     // validate and update the data
-    console.log('values', values) 
     onSave(values)
   }
 
@@ -55,28 +52,25 @@ export default function FilterConfiguration({ data, onSave }) {
               <li key={index} className='w-full p-2 relative bg-gray-50 rounded-md border border-gray-200'>
                 <FormLabel className="!mb-8">
                   {filterRulesFieldArray.fields.length > 1 && index > 0 ? 'And if' : 'If'}
-                  {/* {form.watch(`rules.${index}.property`)?.startsWith('user.') ? ' the user\'s' : ' the event\'s'} */}
                 </FormLabel>
-                <div className='w-full flex grid grid-cols-12'>
-                  {/* <span className='text-sm'>
-                  </span> */}
+                <div className='w-full grid grid-cols-12'>
                   <div className='col-span-4'>
                     <FormField
                       control={field.control}
-                      name={`rules.${index}.property`}
+                      name={`next_automation_step_condition_rules.${index}.property`}
                       render={({ field }) => (
                         <FormItem>
                           <Combobox
                             minWidth='0'
                             buttonClass='!rounded-br-none !rounded-tr-none overflow-hidden'
                             selectedValue={field.value}
-                            onSelectionChange={val => form.setValue(`rules.${index}.property`, val)}
+                            onSelectionChange={val => form.setValue(`next_automation_step_condition_rules.${index}.property`, val)}
                             isModal={true}
                             options={[
                               { type: "title", label: <div className='flex items-center'><SparkleIcon className='h-4 w-4 mr-1' /> Event Properties</div> },
-                              ...(propertyOptionsForSelectedEvent || []).map(p => ({ label: p, value: `event.${p}` })),
+                              ...(propertyOptionsForSelectedEvent || []).sort().map(p => ({ label: p, value: `event.${p}` })),
                               { type: "title", label: <div className='flex items-center'><UserCircleIcon className='h-4 w-4 mr-1' /> User Properties</div> },
-                              ...(uniqueUserProperties || []).map(p => ({ label: p, value: `user.${p}` })),
+                              ...(uniqueUserProperties || []).sort().map(p => ({ label: p, value: `user.${p}` })),
                             ]}
                             placeholder={<span className='text-gray-500 italic'>Property</span>}
                           />
@@ -89,7 +83,7 @@ export default function FilterConfiguration({ data, onSave }) {
                   <div className='col-span-3'>
                     <FormField
                       control={field.control}
-                      name={`rules.${index}.operator`}
+                      name={`next_automation_step_condition_rules.${index}.operator`}
                       render={({ field }) => (
                         <FormItem>
                           <Combobox
@@ -97,7 +91,7 @@ export default function FilterConfiguration({ data, onSave }) {
                             isModal={true}
                             buttonClass='!rounded-none border-l-0 border-r-0'
                             selectedValue={field.value}
-                            onSelectionChange={val => form.setValue(`rules.${index}.operator`, val)}
+                            onSelectionChange={val => form.setValue(`next_automation_step_condition_rules.${index}.operator`, val)}
                             options={[
                               { label: 'equals', value: 'equals' },
                               { label: 'does not equals', value: 'does_not_equal' },
@@ -120,24 +114,24 @@ export default function FilterConfiguration({ data, onSave }) {
                     />
                   </div>
                   <div className="col-span-5">
-                      <FormField
-                        control={form.control}
-                        name={`rules.${index}.value`}
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormControl>
-                              <Input
-                                className='!rounded-bl-none !rounded-tl-none !ring-0'
-                                type="text"
-                                placeholder="Your property value"
-                                disabled={form.watch(`rules.${index}.operator`) === 'is_not_defined' || form.watch(`rules.${index}.operator`) === 'is_defined'}
-                                {...form.register(`rules.${index}.property_value`)}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
+                    <FormField
+                      control={form.control}
+                      name={`next_automation_step_condition_rules.${index}.value`}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormControl>
+                            <Input
+                              className='!rounded-bl-none !rounded-tl-none !ring-0'
+                              type="text"
+                              placeholder="Your property value"
+                              disabled={form.watch(`next_automation_step_condition_rules.${index}.operator`) === 'is_not_defined' || form.watch(`next_automation_step_condition_rules.${index}.operator`) === 'is_defined'}
+                              {...form.register(`next_automation_step_condition_rules.${index}.value`)}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
                   </div>
                 </div>
                 <Button
@@ -163,7 +157,7 @@ export default function FilterConfiguration({ data, onSave }) {
             </Button>
           </li>
         </ul>
-      <Button type="submit" variant="swishjam" className="w-full mt-6">Save</Button>
+        <Button type="submit" variant="swishjam" className="w-full mt-6">Save</Button>
       </form>
     </Form>
   )

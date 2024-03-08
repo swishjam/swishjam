@@ -1,5 +1,5 @@
 class AutomationStepSerializer < ActiveModel::Serializer
-  attributes :id, :sequence_index, :type, :config, :created_at, :updated_at
+  attributes :id, :type, :config, :created_at, :updated_at
 
   # for some reason returns an empty Hash without explicitly defining it here
   def config
@@ -12,7 +12,6 @@ class AutomationStepSerializer < ActiveModel::Serializer
         id: condition.id,
         next_automation_step: {
           id: condition.next_automation_step.id,
-          sequence_index: condition.next_automation_step.sequence_index,
           type: condition.next_automation_step.type,
           config: condition.next_automation_step.config,
         },

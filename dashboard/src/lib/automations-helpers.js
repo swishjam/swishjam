@@ -143,7 +143,7 @@ const automationStepConfigForNode = node => {
       }
     case 'Filter':
       return {
-        rules: node.data.rules,
+        next_automation_step_condition_rules: node.data.next_automation_step_condition_rules,
       }
     case 'SlackMessage':
       return {
@@ -181,19 +181,29 @@ export const reformatNodesAndEdgesToAutomationsPayload = ({ nodes, edges }) => {
     }
   })
   const next_automation_step_conditions = edges.map(edge => {
-    return {
+    const sourceNode = nodes.find(node => node.id === edge.source);
+    const edgePayload = {
       id: edge.id,
       client_id: edge.id,
       is_new: edge.id.startsWith(NEW_EDGE_ID_PREFIX),
       automation_step_client_id: edge.source,
       next_automation_step_client_id: edge.target,
-      next_automation_step_condition_rules: [
-        {
-          type: 'NextAutomationStepConditionRules::AlwaysTrue',
-          config: {},
-        }
-      ]
     }
+    if (sourceNode.type === 'Filter') {
+      edgePayload.next_automation_step_condition_rules = sourceNode.data.next_automation_step_condition_rules.map(rule => {
+        const ruleType = rule.property.startsWith('user.') ? 'UserProperty' : 'EventProperty';
+        return {
+          type: `NextAutomationStepConditionRules::${ruleType}`,
+          config: rule,
+        }
+      })
+    } else {
+      edgePayload.next_automation_step_condition_rules = [{
+        type: 'NextAutomationStepConditionRules::AlwaysTrue',
+        config: {},
+      }]
+    }
+    return edgePayload;
   })
   return { automation_steps, next_automation_step_conditions }
 }

@@ -23,7 +23,6 @@ class ExecutedAutomationSerializer < ActiveModel::Serializer
         status: executed_step.status,
         automation_step: {
           id: executed_step.automation_step_id,
-          sequence_index: executed_step.automation_step.sequence_index,
           type: executed_step.automation_step.type,
           config: executed_step.automation_step.config,
         },
