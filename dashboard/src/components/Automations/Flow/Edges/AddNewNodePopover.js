@@ -13,11 +13,11 @@ const nodeOptions = [
   {
     heading: (<span className='flex items-center'><LuBrain size={18} className='mr-2' />Logic</span>),
     items: [
-      {
-        value: "IfElse",
-        label: "If/Else",
-        icon: LuSplit,
-      },
+      // {
+      //   value: "IfElse",
+      //   label: "If/Else",
+      //   icon: LuSplit,
+      // },
       {
         value: "Filter",
         label: "Filter",

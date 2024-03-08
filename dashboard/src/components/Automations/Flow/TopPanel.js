@@ -27,9 +27,9 @@ export default function TopPanel({ automationName, onTestExecutionClick, onAutom
       <div className='flex items-center m-auto'>
         <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
           <PopoverTrigger>
-            <DottedUnderline cursor='pointer' className='text-md font-medium'>
+            <div className='cursor-pointer  font-medium p-2 px-4 hover:bg-gray-100 transition-all duration-500 rounded-md'>
               {automationName}
-            </DottedUnderline>
+            </div>
           </PopoverTrigger>
           <PopoverContent className='relative px-4 pt-8'>
             <PopoverClose className='absolute top-2 right-2 rounded hover:bg-gray-100 transition-all cursor-pointer p-1 flex items-center justify-center'>

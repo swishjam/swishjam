@@ -13,6 +13,7 @@ export default memo(({ id, data }) => {
       icon={<MailIcon className="h-5 w-5" />}
       requiredData={['to', 'subject', 'from', 'body']}
       title="Send Email"
+      dialogFullWidth={true}
     >
       <p className="text-sm text-gray-700">
         Send <DottedUnderline>{data.subject}</DottedUnderline> email to <DottedUnderline>{data.to}</DottedUnderline>.
