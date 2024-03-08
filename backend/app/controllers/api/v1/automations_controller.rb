@@ -61,6 +61,7 @@ module Api
           render json: { 
             executed_automation: ExecutedAutomationSerializer.new(executed_automation).as_json,
             automation: AutomationSerializer.new(automation).as_json,
+            automation_steps: automation.automation_steps.map { |step| AutomationStepSerializer.new(step).as_json },
           }, status: :ok
         elsif params[:configuration]
           mock_event = Ingestion::ParsedEventFromIngestion.new(

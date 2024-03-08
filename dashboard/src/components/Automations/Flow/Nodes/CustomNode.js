@@ -1,37 +1,40 @@
 'use client'
 
-import { AlertTriangleIcon, CheckCircleIcon, CheckIcon, LoaderIcon } from 'lucide-react';
-import { Handle, Position, useEdges, useNodes } from 'reactflow';
+import { AlertTriangleIcon, CheckIcon, LoaderIcon } from 'lucide-react';
+import { Handle, Position } from 'reactflow';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { LuPencil, LuTrash } from "react-icons/lu";
 import { memo } from 'react';
-import { NODE_WIDTH, NODE_HEIGHT } from "@/lib/automations-helpers";
+import { NODE_WIDTH } from "@/lib/automations-helpers";
 import { Tooltipable } from '@/components/ui/tooltip';
 import { useEffect, useState } from 'react'
 import { toast } from 'sonner';
 import { EllipsisVerticalIcon } from '@heroicons/react/24/outline';
 import { prettyDateTime } from '@/lib/utils/timeHelpers';
 import useAutomationBuilder from '@/hooks/useAutomationBuilder';
+import WarningBanner from '../WarningBanner';
 
 export default memo(({
   id,
   canDelete = true,
   EditComponent,
   data = {},
+  dialogFullWidth = true,
   icon,
   includeTopHandle = true,
   includeBottomHandle = true,
   onEditClick,
   requiredData = [],
+  showWarningWhenNoEntryPointEvent = true,
   title,
-  dialogFullWidth = false,
   children
 }) => {
   const { executionStepResults = {} } = data;
 
   const [editModalIsOpen, setEditModalIsOpen] = useState(false);
   const { updateNode, deleteNode } = useAutomationBuilder();
+  const { selectedEntryPointEventName, zoomToEntryPoint } = useAutomationBuilder();
 
   const isInvalid = requiredData.some(key => !data[key]);
   const maybeBorderClasses = executionStepResults.error_message
@@ -121,13 +124,12 @@ export default memo(({
           </div>
         </div>
         {isInvalid && EditComponent && !isExecutionResult && (
-          <div className='text-xs flex items-center space-x-2 mt-4 bg-yellow-100 hover:bg-yellow-200 text-yellow-700 px-4 py-2 rounded transition-colors'>
-            <AlertTriangleIcon className='h-6 w-6' />
+          <WarningBanner>
             <div>
               <span className='block'>This step is incomplete.</span>
               <span onClick={() => setEditModalIsOpen(true)} className='text-xs cursor-pointer hover:underline'>Complete configuration.</span>
             </div>
-          </div>
+          </WarningBanner>
         )}
         {(!isInvalid || !EditComponent) && children && (
           <div className='mt-4'>
@@ -141,7 +143,7 @@ export default memo(({
 
       {EditComponent && !isExecutionResult && (
         <Dialog open={editModalIsOpen} onOpenChange={() => setEditModalIsOpen(false)}>
-          <DialogContent className="overflow-hidden" fullWidth={dialogFullWidth}>
+          <DialogContent fullWidth={dialogFullWidth}>
             <DialogHeader>
               <DialogTitle className='flex items-center space-x-2'>
                 {icon}
@@ -149,6 +151,24 @@ export default memo(({
               </DialogTitle>
             </DialogHeader>
             <div className='mt-4'>
+              {showWarningWhenNoEntryPointEvent && !selectedEntryPointEventName && (
+                <WarningBanner>
+                  <div className='ml-4 text-sm'>
+                    <span className='block'>You have not selected the event which triggers this automation.</span>
+                    <span
+                      className='cursor-pointer hover:underline'
+                      onClick={() => {
+                        setEditModalIsOpen(false)
+                        setTimeout(() => {
+                          zoomToEntryPoint()
+                        }, 250)
+                      }}
+                    >
+                      Select an entry point event.
+                    </span>
+                  </div>
+                </WarningBanner>
+              )}
               <EditComponent
                 data={data}
                 onSave={newData => {

@@ -134,14 +134,16 @@ export default function FilterConfiguration({ data, onSave }) {
                     />
                   </div>
                 </div>
-                <Button
-                  onClick={() => filterRulesFieldArray.remove(index)}
-                  type='button'
-                  variant="ghost"
-                  className='absolute top-2 right-2 flex-none duration-500 hover:text-rose-600 !p-2 h-6'
-                >
-                  <LuTrash size={12} />
-                </Button>
+                {index > 0 && (
+                  <Button
+                    onClick={() => filterRulesFieldArray.remove(index)}
+                    type='button'
+                    variant="ghost"
+                    className='absolute top-2 right-2 flex-none duration-500 hover:text-rose-600 !p-2 h-6'
+                  >
+                    <LuTrash size={12} />
+                  </Button>
+                )}
 
               </li>
             )

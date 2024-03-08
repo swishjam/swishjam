@@ -59,8 +59,6 @@ export default function TestExecutionModal({
     if (error) {
       toast.error('Failed to execute test run', { description: error });
     } else {
-      // setExecutedAutomation(executed_automation);
-      // setAutomationStepsForExecutedAutomation(automation_steps)
       onExecutionComplete(executed_automation);
       const automationStepsSupplementedWithExecutionData = formatAutomationStepsWithExecutionStepResults({
         automationSteps: automation_steps,

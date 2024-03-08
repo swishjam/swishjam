@@ -5,7 +5,7 @@ module Api
       before_action :get_automation
 
       def index
-        render json: @automation.executed_automations, each_serializer: ExecutedAutomationSerializer, status: :ok
+        render json: @automation.executed_automations.order(started_at: :DESC), each_serializer: ExecutedAutomationSerializer, status: :ok
       end
 
       def timeseries

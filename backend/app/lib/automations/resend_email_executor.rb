@@ -17,7 +17,8 @@ module Automations
         return executed_automation_step
       end
 
-      if automation_step.prevent_from_email_being_sent_with_unresolved_variables? && has_any_un_resolved_variables?
+      # if automation_step.prevent_from_email_being_sent_with_unresolved_variables? && has_any_un_resolved_variables?
+      if has_any_un_resolved_variables?
         executed_automation_step.completed!(error_message: "Prevented email from being sent with unresolved variables.")
         return executed_automation_step
       end

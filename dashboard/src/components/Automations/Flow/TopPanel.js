@@ -67,14 +67,8 @@ export default function TopPanel({ automationName, onTestExecutionClick, onAutom
           onClick={onTestExecutionClick}
           variant='outline'
         >
-          {isLoading
-            ? <LoadingSpinner size={6} />
-            : (
-              <>
-                <TestTube2Icon className='h-4 w-4' />
-                <span>Run Test Automation</span>
-              </>
-            )}
+          {isLoading ? <LoadingSpinner size={4} /> : <TestTube2Icon className='h-4 w-4' />}
+          <span>Run Test Automation</span>
         </Button>
         <Button
           className="flex items-center space-x-2"
@@ -82,15 +76,8 @@ export default function TopPanel({ automationName, onTestExecutionClick, onAutom
           onClick={onSave}
           variant='swishjam'
         >
-          {isLoading
-            ? <LoadingSpinner color='white' size={6} />
-            : (
-              <>
-                <SaveIcon className='h-4 w-4' />
-                <span>Save Automation</span>
-              </>
-            )
-          }
+          {isLoading ? <LoadingSpinner color='white' size={4} /> : <SaveIcon className='h-4 w-4' />}
+          <span>Save Automation</span>
         </Button>
       </div>
     </div>
