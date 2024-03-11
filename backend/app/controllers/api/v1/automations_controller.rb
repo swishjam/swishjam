@@ -59,6 +59,12 @@ module Api
         render json: { automation: AutomationSerializer.new(automation) }, status: :ok
       end
 
+      def destroy
+        automation = current_workspace.automations.find(params[:id])
+        automation.destroy!
+        render json: { deleted: true }, status: :ok
+      end
+
       def test_execution
         # execute in web request?
         if params[:id]

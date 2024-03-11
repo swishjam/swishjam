@@ -26,6 +26,18 @@ export class Automations extends Base {
     });
   }
 
+  static async delete(id) {
+    return await this._delete(`/api/v1/automations/${id}`);
+  }
+
+  static async enable(id) {
+    return await this._patch(`/api/v1/automations/${id}/enable`);
+  }
+
+  static async disable(id) {
+    return await this._patch(`/api/v1/automations/${id}/disable`);
+  }
+
   static async testExecution({ id, configuration, eventName, eventProperties, userProperties }) {
     return await this._post(`/api/v1/automations/test_execution`, {
       id,

@@ -6,7 +6,7 @@ import { SwishjamAPI } from "@/lib/api-client/swishjam-api";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
 import AutomationRow from "@/components/Automations/AutomationRow";
-import { Button, buttonVariants } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 import { cn } from "src/lib/utils"
 import Link from "next/link";
 import { LuPlus } from "react-icons/lu";
@@ -17,10 +17,11 @@ export default function () {
   const pauseAuto = async (automationId) => {
     SwishjamAPI.Automations.disable(automationId).then(({ automation, error }) => {
       if (error) {
-        toast.message("Uh oh! Something went wrong.", {
+        toast.error("Uh oh! Something went wrong.", {
           description: "Contact founders@swishjam.com for help",
         })
       } else {
+        toast.success('Automation paused')
         setAutomations([...automations.filter((a) => a.id !== automationId), automation])
       }
     })
@@ -29,22 +30,24 @@ export default function () {
   const resumeAuto = async (automationId) => {
     SwishjamAPI.Automations.enable(automationId).then(({ automation, error }) => {
       if (error) {
-        toast.message("Uh oh! Something went wrong.", {
-        description: "Contact founders@swishjam.com for help",
-      })
-    } else {
-      setAutomations([...automations.filter((a) => a.id !== automationId), automation])
-    }
-  })
-}
+        toast.error("Uh oh! Something went wrong.", {
+          description: "Contact founders@swishjam.com for help",
+        })
+      } else {
+        toast.success('Automation resumed')
+        setAutomations([...automations.filter((a) => a.id !== automationId), automation])
+      }
+    })
+  }
 
   const deleteAuto = async (automationId) => {
-    SwishjamAPI.Automations.delete(automationId).then(({ automation, error }) => {
+    SwishjamAPI.Automations.delete(automationId).then(({ error }) => {
       if (error) {
-        toast("Uh oh! Something went wrong.", {
+        toast.error("Uh oh! Something went wrong.", {
         description: "Contact founders@swishjam.com for help",
       })
     } else {
+      toast.success('Automation deleted')
       setAutomations([...automations.filter((a) => a.id !== automationId)])
     }
   })
