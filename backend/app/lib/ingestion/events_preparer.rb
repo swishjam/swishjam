@@ -47,9 +47,11 @@ module Ingestion
       event_preparer_klass = event_preparer_klass_for_event(event.name)
       prepared_event = event_preparer_klass.new(event).handle_and_return_prepared_events!
       prepared_events = prepared_event.is_a?(Array) ? prepared_event : [prepared_event]
+      byebug
       prepared_events.each do |prepared_event|
         next if EVENT_NAMES_NOT_ELIGIBLE_FOR_EVENT_TRIGGER_EVALUATION.include?(prepared_event.name)
         event_trigger_evaluator.enqueue_event_trigger_jobs_that_match_event(prepared_event)
+        Automations::Triggerer.enqueue_automation_execution_jobs_that_match_event(prepared_event)
       end
       prepared_events.each do |prepared_event|
         next if EVENT_NAMES_TO_NOT_WRITE_TO_EVENTS_TABLE.include?(prepared_event.name)

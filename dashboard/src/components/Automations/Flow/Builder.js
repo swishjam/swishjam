@@ -21,21 +21,20 @@ export default function AutomationBuilder({
   onAutomationNameUpdated,
   onSave,
 }) {
-  
-  // if (!automationSteps) {
-  //   return (
-  //     <div className='h-screen w-screen flex items-center justify-center'>
-  //       <LoadingSpinner size={10} />
-  //     </div>
-  //   )
-  // }
-
   const { nodes, edges, onNodesChange, onEdgesChange, setNodesAndEdgesFromAutomationSteps, customFitView } = useAutomationBuilder();
   const [testExecutionModalIsOpen, setTestExecutionModalIsOpen] = useState(false);
 
   useEffect(() => {
     setNodesAndEdgesFromAutomationSteps(automationSteps);
   }, [automationSteps])
+
+  if (!automationSteps) {
+    return (
+      <div className='h-screen w-screen flex items-center justify-center'>
+        <LoadingSpinner size={10} />
+      </div>
+    )
+  }
   
   return (
     <>

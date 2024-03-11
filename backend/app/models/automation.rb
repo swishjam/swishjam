@@ -2,6 +2,7 @@ class Automation < Transactional
   belongs_to :workspace
   belongs_to :created_by_user, class_name: User.to_s
   has_many :automation_steps, dependent: :destroy
+  has_many :entry_point_automation_steps, -> { where(type: AutomationSteps::EntryPoint.to_s) }, class_name: AutomationSteps::EntryPoint.to_s
   has_many :next_automation_step_conditions, through: :automation_steps
   has_many :executed_automations, dependent: :destroy
   has_many :executed_automation_steps, through: :executed_automations

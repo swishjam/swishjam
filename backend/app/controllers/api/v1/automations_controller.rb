@@ -2,7 +2,9 @@ module Api
   module V1
     class AutomationsController < BaseController
       def index
-        render json: current_workspace.automations.page(params[:page] || 1).per(params[:per_page] || 20), status: :ok
+        # automations = current_workspace.automations
+        automations = current_workspace.automations.page(params[:page] || 1).per(params[:per_page] || 20)
+        render json: automations, status: :ok
       end
 
       def show
