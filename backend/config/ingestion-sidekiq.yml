@@ -1,6 +1,6 @@
 ---
 :concurrency: <%= ENV.fetch('INGESTION_SIDEKIQ_CONCURRENCY', 5) %>
-# TODO: should we use weights instead here? (ie: [[event_triggers_queue, 2], [click_house_writer_queue, 1], [format_events_queue, 1]])
+# TODO: should we use weights instead here? (ie: [[automations_queue, 2], [click_house_writer_queue, 1], [format_events_queue, 1]])
 :queues:
   - automations_queue
   - event_triggers_queue

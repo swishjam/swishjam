@@ -3,7 +3,7 @@ module AutomationJobs
     include Sidekiq::Worker
     # this is the highest priority queue, does that make sense to use here?
     # also old naming convention but oh well
-    queue_as :event_triggers_queue
+    queue_as :automations_queue
 
     def perform(prepared_event, executed_automation_step_id)
       executed_automation_step = AutomationStep.find(executed_automation_step_id)

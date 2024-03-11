@@ -3,6 +3,7 @@
 import AutomationBuilder from "@/components/Automations/Flow/Builder";
 import AutomationBuilderProvider from "@/providers/AutomationBuilderProvider";
 import CommonQueriesProvider from "@/providers/CommonQueriesProvider";
+import LoadingSpinner from "@/components/LoadingSpinner";
 import { ReactFlowProvider } from 'reactflow'
 import SwishjamAPI from "@/lib/api-client/swishjam-api"
 import { useEffect, useState } from "react"

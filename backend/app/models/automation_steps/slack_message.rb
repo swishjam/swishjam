@@ -1,7 +1,6 @@
 module AutomationSteps
   class SlackMessage < AutomationStep
-    # TODO: temporary for testing until we have a UI to set these!
-    # self.required_jsonb_fields :config, :channel_id, :channel_name, :message_header, :message_body
+    self.required_jsonb_fields :config, :channel_id, :channel_name
     self.define_jsonb_methods :config, :channel_id, :channel_name, :message_header, :message_body
 
     def execute_automation!(prepared_event, executed_automation_step, as_test: false)

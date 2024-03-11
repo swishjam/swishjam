@@ -29,16 +29,12 @@ export default function AutomationDetailsPage({ params }) {
     setExecutedAutomationsTimeseries();
     setExecutedAutomations();
     const [
-      { automation },
+      automation,
       automationSteps,
       executedAutomations,
       { timeseries },
     ] = await Promise.all([
-      SwishjamAPI.Automations.retrieve(automationId, {
-        includeExecutionHistory: false,
-        includeAutomationStepExecutionHistory: false,
-        groupConditionsWithSteps: false,
-      }),
+      SwishjamAPI.Automations.retrieve(automationId),
       SwishjamAPI.Automations.AutomationSteps.list(automationId),
       SwishjamAPI.Automations.ExecutedAutomations.list(automationId),
       SwishjamAPI.Automations.ExecutedAutomations.timeseries(automationId),
