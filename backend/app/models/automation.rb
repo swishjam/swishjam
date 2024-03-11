@@ -8,7 +8,28 @@ class Automation < Transactional
   has_many :executed_automation_steps, through: :executed_automations
   accepts_nested_attributes_for :automation_steps, allow_destroy: true
 
+  scope :enabled, -> { where(enabled: true) }
+  scope :disabled, -> { where(enabled: false) }
+
   def execute!(prepared_event, as_test: false)
     Automations::Executor.new(automation: self, prepared_event: prepared_event, as_test: as_test).execute_automation!
+  end
+
+  def enable!
+    return if enabled?
+    update!(enabled: true)
+  end
+
+  def disable!
+    return if disabled?
+    update!(enabled: false)
+  end
+
+  def enabled?
+    enabled
+  end
+
+  def disabled?
+    !enabled?
   end
 end

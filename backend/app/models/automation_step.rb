@@ -9,6 +9,8 @@ class AutomationStep < Transactional
   before_destroy :destroy_next_automation_step_conditions
   attribute :config, :jsonb, default: {}
 
+  scope :with_enabled_automation, -> { joins(:automation).merge(Automation.enabled) }
+
   def execute!(prepared_event, executed_automation, executed_automation_step: nil, as_test: false)
     executed_step = executed_automation_step || executed_automation_steps.create!(executed_automation: executed_automation, started_at: Time.current)
     execute_automation!(prepared_event, executed_step, as_test: as_test)

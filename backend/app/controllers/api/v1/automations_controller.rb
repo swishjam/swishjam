@@ -47,6 +47,18 @@ module Api
         render json: { error: e.message }, status: :internal_server_error
       end
 
+      def enable
+        automation = current_workspace.automations.find(params[:id])
+        automation.enable!
+        render json: { automation: AutomationSerializer.new(automation) }, status: :ok
+      end
+
+      def disable
+        automation = current_workspace.automations.find(params[:id])
+        automation.disable!
+        render json: { automation: AutomationSerializer.new(automation) }, status: :ok
+      end
+
       def test_execution
         # execute in web request?
         if params[:id]

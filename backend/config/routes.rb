@@ -200,6 +200,10 @@ Rails.application.routes.draw do
         collection do
           post :test_execution
         end
+        member do
+          patch :enable
+          patch :disable
+        end
         resources :automation_steps, only: [:index]
         resources :executed_automations, only: [:index] do
           collection do
