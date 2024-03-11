@@ -14,41 +14,41 @@ import { LuPlus } from "react-icons/lu";
 export default function () {
   const [automations, setAutomations] = useState();
 
-  const pauseTrigger = async (triggerId) => {
-    SwishjamAPI.EventTriggers.disable(triggerId).then(({ trigger, error }) => {
+  const pauseAuto = async (automationId) => {
+    SwishjamAPI.Automations.disable(automationId).then(({ automation, error }) => {
       if (error) {
         toast.message("Uh oh! Something went wrong.", {
           description: "Contact founders@swishjam.com for help",
         })
       } else {
-        setTriggers([...triggers.filter((t) => t.id !== triggerId), trigger])
+        setAutomations([...automations.filter((a) => a.id !== automationId), automation])
       }
     })
   }
 
-  const resumeTrigger = async (triggerId) => {
-    SwishjamAPI.EventTriggers.enable(triggerId).then(({ trigger, error }) => {
+  const resumeAuto = async (automationId) => {
+    SwishjamAPI.Automations.enable(automationId).then(({ automation, error }) => {
       if (error) {
         toast.message("Uh oh! Something went wrong.", {
-          description: "Contact founders@swishjam.com for help",
-        })
-      } else {
-        setTriggers([...triggers.filter((t) => t.id !== triggerId), trigger])
-      }
-    })
-  }
+        description: "Contact founders@swishjam.com for help",
+      })
+    } else {
+      setAutomations([...automations.filter((a) => a.id !== automationId), automation])
+    }
+  })
+}
 
-  const deleteTrigger = async (triggerId) => {
-    SwishjamAPI.EventTriggers.delete(triggerId).then(({ trigger, error }) => {
+  const deleteAuto = async (automationId) => {
+    SwishjamAPI.Automations.delete(automationId).then(({ automation, error }) => {
       if (error) {
         toast("Uh oh! Something went wrong.", {
-          description: "Contact founders@swishjam.com for help",
-        })
-      } else {
-        setTriggers([...triggers.filter((t) => t.id !== triggerId)])
-      }
-    })
-  }
+        description: "Contact founders@swishjam.com for help",
+      })
+    } else {
+      setAutomations([...automations.filter((a) => a.id !== automationId)])
+    }
+  })
+}
 
   const load = async () => {
     const automations = await SwishjamAPI.Automations.list()
@@ -91,9 +91,9 @@ export default function () {
                       <AutomationRow
                         key={automation.id}
                         automation={automation}
-                        onPause={pauseTrigger}
-                        onResume={resumeTrigger}
-                        onDelete={deleteTrigger}
+                        onPause={pauseAuto}
+                        onResume={resumeAuto}
+                        onDelete={deleteAuto}
                       />
                     ))}
                   </ul>
