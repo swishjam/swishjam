@@ -110,6 +110,12 @@ module Ingestion
           ts = event_json['occurred_at'].to_f
           ts_in_seconds = ts.to_i.to_s.length === 10 ? ts : ts / 1000.0
           Time.at(ts_in_seconds).in_time_zone('UTC')
+        when String.to_s
+          begin
+            Time.parse(event_json['occurred_at']).in_time_zone('UTC')
+          rescue ArgumentError => e
+            raise InvalidEventFormatError, "Invalid `occurred_at` provided, unable to convert String #{event_json['occurred_at']} to time."
+          end
         else
           raise InvalidEventFormatError, "Invalid `occurred_at` provided, don't know how to parse a #{event_json['occurred_at'].class} class. Provided `occurred_at`: #{event_json['occurred_at']}"
         end
