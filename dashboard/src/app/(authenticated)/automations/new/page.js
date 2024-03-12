@@ -18,12 +18,8 @@ export default function NewAutomationPage() {
 
   const createAutomation = async ({ nodes, edges }) => {
     setIsSaving(true)
-    console.log('1')
     const { automation_steps, next_automation_step_conditions } = reformatNodesAndEdgesToAutomationsPayload({ nodes, edges })
-    console.log('2')
-    console.log({ name, automation_steps, next_automation_step_conditions })
     const { automation, error } = await SwishjamAPI.Automations.create({ name, automation_steps, next_automation_step_conditions })
-    console.log('3')
     if (error) {
       console.log(error)
       setIsSaving(false)
