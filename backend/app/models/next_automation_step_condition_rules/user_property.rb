@@ -3,7 +3,7 @@ module NextAutomationStepConditionRules
     self.required_jsonb_fields %w[property operator]
     self.define_jsonb_methods :config, :property, :operator, :value
 
-    SUPPORTED_OPERATORS = %w[equals does_not_equal is_defined is_not_defined ends_with does_not_end_with starts_with does_not_start_with greater_than less_than greater_than_or_equal_to less_than_or_equal_to]
+    SUPPORTED_OPERATORS = %w[equals does_not_equal contains does_not_contain is_defined is_not_defined ends_with does_not_end_with starts_with does_not_start_with greater_than less_than greater_than_or_equal_to less_than_or_equal_to]
     OPERATORS_REQUIRING_VALUE = SUPPORTED_OPERATORS.reject { |op| %w[is_defined is_not_defined].include?(op) }
 
     validates :operator, inclusion: { in: SUPPORTED_OPERATORS }
@@ -16,6 +16,12 @@ module NextAutomationStepConditionRules
         user_property_value(prepared_event) == expected_value
       when 'does_not_equal'
         user_property_value(prepared_event) != expected_value
+      when 'contains'
+        return false if user_property_value(prepared_event).nil?
+        user_property_value(prepared_event).include?(expected_value)
+      when 'does_not_contain'
+        return true if user_property_value(prepared_event).nil?
+        !user_property_value(prepared_event).include?(expected_value)
       when 'is_defined'
         has_property?(prepared_event)
       when 'is_not_defined'
