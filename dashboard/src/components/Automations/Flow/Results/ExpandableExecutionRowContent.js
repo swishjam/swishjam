@@ -16,7 +16,7 @@ export default function ExpandableExecutionRowContent({ executedAutomation, user
                 </Avatar>
               </div>
               <div className="ml-4 flex flex-col items-start transition-colors">
-                {user.fullName()
+                {user.fullName() || user.email()
                   ? <span className="font-medium text-gray-700">{user.fullName() || user.email()}</span>
                   : <span className='text-gray-700 italic'>{!user.uniqueIdentifier() && !user.email() ? `Anonymous User ${user.id().slice(0, 4)}` : 'Name Unknown'}</span>}
                 {user.fullName() && user.email() && (
@@ -35,7 +35,7 @@ export default function ExpandableExecutionRowContent({ executedAutomation, user
               </div>
               <div className="ml-4 flex flex-col items-start transition-colors">
                 <span className="font-medium text-gray-700">
-                  Test Execution
+                    {executedAutomation.is_test_run ? 'Test Run' : <>Automation <span className='italic'>{executedAutomation.id.slice(0, 6)}</span></>}
                 </span>
               </div>
             </>

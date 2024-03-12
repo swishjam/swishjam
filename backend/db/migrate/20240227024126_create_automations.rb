@@ -15,7 +15,7 @@ class CreateAutomations < ActiveRecord::Migration[6.1]
       t.references :retried_from_executed_automation, type: :uuid, foreign_key: { to_table: :executed_automations }, index: { name: 'idx_executed_automations_on_retried_from_executed_automation_id' }
       t.references :executed_on_user_profile, type: :uuid, foreign_key: { to_table: :analytics_user_profiles }
       t.jsonb :event_json, null: false, default: {}
-      t.string :event_uuid, null: false, index: { unique: true }
+      t.string :event_uuid, null: false, index: true
       t.float :seconds_from_occurred_at_to_executed
       t.datetime :started_at
       t.datetime :completed_at

@@ -219,6 +219,7 @@ export const formatAutomationStepsWithExecutionStepResults = ({ automationSteps,
       config: {
         ...step.config,
         executionStepResults: {
+          started_at: executedStep.started_at,
           completed_at: executedStep.completed_at,
           error_message: executedStep.error_message,
           status: executedStep.status,

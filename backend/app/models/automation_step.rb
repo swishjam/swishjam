@@ -13,7 +13,12 @@ class AutomationStep < Transactional
 
   def execute!(prepared_event, executed_automation, executed_automation_step: nil, as_test: false)
     executed_step = executed_automation_step || executed_automation_steps.create!(executed_automation: executed_automation, started_at: Time.current)
-    execute_automation!(prepared_event, executed_step, as_test: as_test)
+    begin
+      execute_automation!(prepared_event, executed_step, as_test: as_test)
+    rescue => e
+      Sentry.capture_exception(e)
+      executed_step.completed!(error_message: e.message)
+    end
     executed_step
   end
 

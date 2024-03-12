@@ -30,7 +30,7 @@ export default memo(({ id, data }) => {
       title='Event Trigger'
     >
       {executionStepResults
-        ? <DottedUnderline>{event_name}</DottedUnderline>
+        ? <><DottedUnderline>{event_name}</DottedUnderline> event was triggered.</>
         : (
           <ComboboxEvents
             placeholder='Select a trigger'

@@ -11,6 +11,7 @@ import { PopoverAnchor } from "@radix-ui/react-popover";
 import useAutomationBuilder from "@/hooks/useAutomationBuilder";
 import { Button } from "@/components/ui/button";
 import WarningBanner from "../WarningBanner";
+import { prettyDateTime } from "@/lib/utils/timeHelpers";
 
 const EditPopover = ({ id, data, children, onClose }) => {
   const { delay_amount, delay_unit } = data;
@@ -77,8 +78,10 @@ const EditPopover = ({ id, data, children, onClose }) => {
 }
 
 export default memo(({ id, data }) => {
-  const { delay_amount, delay_unit } = data;
+  const { delay_amount, delay_unit, executionStepResults = {} } = data;
   const [editPopoverIsOpen, setEditPopoverIsOpen] = useState(false);
+
+  const displayExecutionResult = Object.keys(executionStepResults).length > 0;
 
   return (
     <Popover open={editPopoverIsOpen} onOpenChange={setEditPopoverIsOpen}>
@@ -95,25 +98,37 @@ export default memo(({ id, data }) => {
           requiredData={['delay_amount', 'delay_unit']}
           title='Delay'
         >
-          {delay_amount && delay_unit
-            ? (
-              <p className='text-sm text-gray-700'>
-                Wait
-                <EditPopover id={id} data={data} onClose={() => setEditPopoverIsOpen(false)}>
-                  <DottedUnderline cursor='pointer' className='mx-1'>{delay_amount} {delay_amount === '1' ? delay_unit.slice(0, delay_unit.length - 1) : delay_unit}</DottedUnderline>
-                </EditPopover>
-                before running the next step.
-              </p>
-            ) : (
-              <WarningBanner>
-                <>
-                  <span className='block'>This step is incomplete.</span>
+          {displayExecutionResult ? (
+          executionStepResults.execution_data?.executed_delayed_execution_at ? (
+            <p className='text-sm text-gray-700 italic mb-2'>
+              Resumed automation on <DottedUnderline>{prettyDateTime(executionStepResults.execution_data.executed_delayed_execution_at)}</DottedUnderline>.
+            </p>
+          ) : (
+            <p className='text-sm text-gray-700 italic mb-2'>
+              Currently delaying next step, scheduled to resume on <DottedUnderline>{prettyDateTime(executionStepResults.execution_data.scheduled_to_be_executed_at)}</DottedUnderline>.
+            </p>
+          )
+          ) : (
+            delay_amount && delay_unit
+              ? (
+                <p className='text-sm text-gray-700'>
+                  Wait
                   <EditPopover id={id} data={data} onClose={() => setEditPopoverIsOpen(false)}>
-                    <span className='text-xs cursor-pointer hover:underline'>Complete configuration.</span>
+                    <DottedUnderline cursor='pointer' className='mx-1'>{delay_amount} {delay_amount === '1' ? delay_unit.slice(0, delay_unit.length - 1) : delay_unit}</DottedUnderline>
                   </EditPopover>
-                </>
-              </WarningBanner>
-            )}
+                  before running the next step.
+                </p>
+              ) : (
+                <WarningBanner>
+                  <>
+                    <span className='block'>This step is incomplete.</span>
+                    <EditPopover id={id} data={data} onClose={() => setEditPopoverIsOpen(false)}>
+                      <span className='text-xs cursor-pointer hover:underline'>Complete configuration.</span>
+                    </EditPopover>
+                  </>
+                </WarningBanner>
+              )
+          )}
         </CustomNode>
       </PopoverAnchor>
     </Popover>

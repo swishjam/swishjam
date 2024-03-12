@@ -265,7 +265,7 @@ ActiveRecord::Schema.define(version: 2024_03_07_214708) do
     t.datetime "completed_at"
     t.boolean "is_test_execution", default: false, null: false
     t.index ["automation_id"], name: "index_executed_automations_on_automation_id"
-    t.index ["event_uuid"], name: "index_executed_automations_on_event_uuid", unique: true
+    t.index ["event_uuid"], name: "index_executed_automations_on_event_uuid"
     t.index ["executed_on_user_profile_id"], name: "index_executed_automations_on_executed_on_user_profile_id"
     t.index ["retried_from_executed_automation_id"], name: "idx_executed_automations_on_retried_from_executed_automation_id"
   end
