@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { ReactFlowProvider } from 'reactflow'
+import LoadingSpinner from "@/components/LoadingSpinner";
 
 export default function NewAutomationPage() {
   const [name, setName] = useState('New Automation')
@@ -17,14 +18,19 @@ export default function NewAutomationPage() {
 
   const createAutomation = async ({ nodes, edges }) => {
     setIsSaving(true)
+    console.log('1')
     const { automation_steps, next_automation_step_conditions } = reformatNodesAndEdgesToAutomationsPayload({ nodes, edges })
+    console.log('2')
+    console.log({ name, automation_steps, next_automation_step_conditions })
     const { automation, error } = await SwishjamAPI.Automations.create({ name, automation_steps, next_automation_step_conditions })
+    console.log('3')
     if (error) {
+      console.log(error)
       setIsSaving(false)
       toast.error('Failed to create automation', { description: error })
     } else {
       toast.success('Automation created')
-      router.push(`/automations/${automation.id}/edit`)
+      router.replace(`/automations/${automation.id}/edit`)
     }
   }
 
@@ -32,6 +38,7 @@ export default function NewAutomationPage() {
     <CommonQueriesProvider>
       <ReactFlowProvider>
         <AutomationBuilderProvider>
+          {isSaving && <div className='h-screen w-screen flex items-center justify-center'><LoadingSpinner size={10} /></div>}
           <AutomationBuilder
             automationName={name}
             automationSteps={[]}
