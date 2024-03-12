@@ -1,12 +1,11 @@
 import { Button } from "@/components/ui/button"
-import DottedUnderline from "@/components/utils/DottedUnderline"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import Link from "next/link"
 import LoadingSpinner from "@/components/LoadingSpinner"
 import { LuArrowLeft } from "react-icons/lu"
 import { Popover, PopoverClose, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { SaveIcon, TestTube2Icon, XIcon } from "lucide-react"
+import { FlaskConical, SaveIcon, XIcon } from "lucide-react"
 import { useState } from "react"
 
 export default function TopPanel({ automationName, onTestExecutionClick, onAutomationNameUpdated, isLoading, onSave }) {
@@ -62,12 +61,12 @@ export default function TopPanel({ automationName, onTestExecutionClick, onAutom
       </div>
       <div className='flex items-center justify-end space-x-2'>
         <Button
-          className="flex items-center space-x-2"
+          className="flex items-center space-x-2 group"
           disabled={isLoading}
           onClick={onTestExecutionClick}
           variant='outline'
         >
-          {isLoading ? <LoadingSpinner size={4} /> : <TestTube2Icon className='h-4 w-4' />}
+          {isLoading ? <LoadingSpinner size={4} /> : <FlaskConical className='h-4 w-4 transition-all group-hover:rotate-45' />}
           <span>Run Test Automation</span>
         </Button>
         <Button

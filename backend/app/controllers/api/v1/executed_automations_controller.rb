@@ -5,7 +5,11 @@ module Api
       before_action :get_automation
 
       def index
-        render json: @automation.executed_automations.order(started_at: :DESC), each_serializer: ExecutedAutomationSerializer, status: :ok
+        executed_automations = @automation.executed_automations.order(started_at: :DESC).page(params[:page] || 1).per(params[:per_page] || params[:limit] || 20)
+        render json: { 
+          executed_automations: executed_automations.map{ |ea| ExecutedAutomationSerializer.new(ea) }, 
+          total_num_pages: executed_automations.total_pages,
+        }, status: :ok
       end
 
       def timeseries

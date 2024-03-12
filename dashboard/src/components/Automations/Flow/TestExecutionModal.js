@@ -107,9 +107,9 @@ export default function TestExecutionModal({
         )}
         {!isExecutingTestRun && !automationStepsWithExecutionData && (
           <>
-            <p>Running a test execution will simulate the automation with a test user and provide you with the results of the execution.</p>
-            <p>Are you sure you want to run a test execution?</p>
-            <AccordionOpen trigger={<>Set the properties for the <DottedUnderline className='mx-1'>{eventName}</DottedUnderline> test event.</>}>
+            <p>Running a test execution will simulate the automation with a test user and provide you with the results of the execution as if it occurred in production.</p>
+            <p>Would you like to run a test execution?</p>
+            <AccordionOpen trigger={<>Set the properties for the {eventName} test event.</>}>
               <JsonEditor json={eventPropertiesJson} onChange={setEventPropertiesJson} />
             </AccordionOpen>
             {/* <AccordionOpen trigger={<>Set the user properties for the <DottedUnderline className='mx-1'>{eventName}</DottedUnderline> test event.</>}>

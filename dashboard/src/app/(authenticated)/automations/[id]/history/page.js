@@ -13,49 +13,71 @@ import TestExecutionModal from "@/components/Automations/Flow/TestExecutionModal
 import LineChartWithValue from "@/components/Dashboards/Components/LineChartWithValue";
 import { ReactFlowProvider } from "reactflow";
 import { Skeleton } from "@/components/ui/skeleton";
+import Pagination from "@/components/Pagination/Pagination";
 
 export default function AutomationDetailsPage({ params }) {
   const { id: automationId } = params;
   const [automation, setAutomation] = useState();
   const [automationSteps, setAutomationSteps] = useState();
+  const [currentPageNum, setCurrentPageNum] = useState(1);
   const [executedAutomations, setExecutedAutomations] = useState();
   const [executedAutomationsTimeseries, setExecutedAutomationsTimeseries] = useState();
   const [isExecutingTestRun, setIsExecutingTestRun] = useState(false);
   const [isFetchingData, setIsFetchingData] = useState(false);
   const [testExecutionModalIsOpen, setTestExecutionModalIsOpen] = useState(false);
+  const [totalNumPages, setTotalNumPages] = useState();
 
-  const fetchAutomationData = async () => {
-    setIsFetchingData(true);
-    setExecutedAutomationsTimeseries();
+  const getAndSetExecutedAutomationsList = async page => {
     setExecutedAutomations();
-    const [
-      automation,
-      automationSteps,
-      executedAutomations,
-      { timeseries },
-    ] = await Promise.all([
+    const { executed_automations, total_num_pages } = await SwishjamAPI.Automations.ExecutedAutomations.list(automationId, { page, limit: 10 });
+    setExecutedAutomations(executed_automations);
+    setTotalNumPages(total_num_pages);
+    return { executed_automations, total_num_pages }
+  }
+
+  const getAndSetTimeseriesData = async () => {
+    setExecutedAutomationsTimeseries();
+    const { timeseries } = await SwishjamAPI.Automations.ExecutedAutomations.timeseries(automationId);
+    setExecutedAutomationsTimeseries(timeseries);
+    return { timeseries }
+  }
+
+  const getAutomationDetailsData = async () => {
+    setAutomation();
+    setAutomationSteps();
+    const [automation, automationSteps] = await Promise.all([
       SwishjamAPI.Automations.retrieve(automationId),
       SwishjamAPI.Automations.AutomationSteps.list(automationId),
-      SwishjamAPI.Automations.ExecutedAutomations.list(automationId),
-      SwishjamAPI.Automations.ExecutedAutomations.timeseries(automationId),
     ]);
-    setExecutedAutomationsTimeseries(timeseries);
-    setAutomation(automation)
+    setAutomation(automation);
     setAutomationSteps(automationSteps);
-    setExecutedAutomations(executedAutomations);
+    return { automation, automationSteps }
+  }
+
+  const fetchAllPageData = async () => {
+    setIsFetchingData(true);
+    await Promise.all([
+      getAutomationDetailsData(),
+      getAndSetExecutedAutomationsList(currentPageNum),
+      getAndSetTimeseriesData(),
+    ]);
     setIsFetchingData(false);
   }
 
   useEffect(() => {
-    fetchAutomationData();
+    fetchAllPageData();
   }, [automationId])
+
+  useEffect(() => {
+    getAndSetExecutedAutomationsList(currentPageNum);
+  }, [currentPageNum])
 
   return (
     <PageWithHeader
       title={`Automation: ${automation?.name}`}
       buttons={
         <>
-          <Button onClick={fetchAutomationData} variant='outline' disabled={isFetchingData}>
+          <Button onClick={fetchAllPageData} variant='outline' disabled={isFetchingData}>
             <RefreshCcw className={`h-4 w-4 ${isFetchingData ? 'animate-spin' : ''}`} />
           </Button>
           <Button onClick={() => setTestExecutionModalIsOpen(true)} variant='swishjam' disabled={isExecutingTestRun}>
@@ -88,15 +110,23 @@ export default function AutomationDetailsPage({ params }) {
                 <h2 className='text-sm font-medium'>Execution Log</h2>
               </div>
               <div className='flex flex-col divide-y border-t border-gray-200'>
-                {executedAutomations
+                {executedAutomations && automationSteps
                   ? (
-                    executedAutomations.map((executionAutomation, i) => (
-                      <ExecutedAutomationDetails
-                        key={i}
-                        automationSteps={automationSteps}
-                        executedAutomation={executionAutomation}
+                    <>
+                      {executedAutomations.map((executionAutomation, i) => (
+                        <ExecutedAutomationDetails
+                          key={i}
+                          automationSteps={automationSteps}
+                          executedAutomation={executionAutomation}
+                        />
+                      ))}
+                      <Pagination
+                        className='pb-4'
+                        currentPage={currentPageNum}
+                        lastPageNum={totalNumPages}
+                        onNewPageSelected={setCurrentPageNum}
                       />
-                    ))
+                    </>
                   ) : Array.from({ length: 10 }).map((_, i) => <Skeleton className='h-20 bg-gray-200 mt-0.5' />)
                 }
               </div>
