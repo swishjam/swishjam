@@ -80,7 +80,9 @@ export default function ResendEmail({ data = { to: '{{ user.email }}', send_once
   }, [selectedEntryPointEventName])
 
   useEffect(() => {
-    form.setValue('from', `Your name <${currentUserEmail}>`)
+    if (currentUserEmail && !data.from) {
+      form.setValue('from', `Your name <${currentUserEmail}>`)
+    }
   }, [currentUserEmail])
 
   if (hasResendDestinationEnabled === false) {
