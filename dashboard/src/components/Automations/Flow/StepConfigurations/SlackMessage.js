@@ -108,7 +108,7 @@ export default function ConfigureSlackAutomationStep({ onSave, data = {} }) {
   }
 
   if (hasSlackDestination === false) {
-    return <EmptyState title={<><Link className='text-blue-700 underline' href='/integrations/destinations'>Connect Slack</Link> to begin creating Slack triggers.</>} />
+    return <EmptyState title={<><Link className='text-blue-700 underline' href='/integrations/destinations'>Connect Slack</Link> to begin creating Slack triggers</>} />
   }
 
   return (
