@@ -1,10 +1,10 @@
 'use client';
 
 import AutomationBuilderContext from '@/contexts/AutomationBuilderContext';
-import { autoLayoutNodesAndEdges, createNewEdge, createNewNode } from '@/lib/automations-helpers';
-import { useCallback, useState } from 'react';
+import { autoLayoutNodesAndEdges, createNewEdge, createNewNode, errorForNode } from '@/lib/automations-helpers';
+import { useState } from 'react';
 import { useEdgesState, useNodesState, useReactFlow } from 'reactflow';
-import { NODE_WIDTH, NODE_HEIGHT } from '@/lib/automations-helpers';
+import { NODE_WIDTH, NODE_HEIGHT, errorsForNode } from '@/lib/automations-helpers';
 
 const AutomationBuilderProvider = ({ children }) => {
   const [selectedEntryPointEventName, setSelectedEntryPointEventName] = useState();
@@ -95,19 +95,36 @@ const AutomationBuilderProvider = ({ children }) => {
     setNodes(newNodes)
   }
 
+  const validateConfig = ({ zoomOnFirstError = true } = {}) => {
+    let errors = [];
+    let zoomed = false;
+    nodes.forEach(node => {
+      const error = errorForNode(node);
+      if (error) {
+        errors.push(error);
+        if (zoomOnFirstError && !zoomed) {
+          zoomToNode(node);
+          zoomed = true;
+        }
+      }
+    })
+    return errors;
+  }
+
   return (
     <AutomationBuilderContext.Provider
       value={{
-        setSelectedEntryPointEventName,
-        selectedEntryPointEventName,
         addNodeInEdge,
         deleteNode,
-        updateNode,
-        setNodesAndEdgesFromAutomationSteps,
-        nodes,
         edges,
         onNodesChange,
         onEdgesChange,
+        nodes,
+        setNodesAndEdgesFromAutomationSteps,
+        setSelectedEntryPointEventName,
+        selectedEntryPointEventName,
+        updateNode,
+        validateConfig,
         zoomToEntryPoint,
         zoomToNode,
       }}

@@ -235,6 +235,36 @@ export const formatAutomationStepsWithExecutionStepResults = ({ automationSteps,
   })
 }
 
+export const errorForNode = node => {
+  switch(node.type) {
+    case 'EntryPoint':
+      if (!node.data.event_name) {
+        return 'Event Trigger node must have an event name defined';
+      }
+      break;
+    case 'Delay':
+      if (!node.data.delay_amount || !node.data.delay_unit) {
+        return 'Delay node must have a delay amount and unit defined';
+      }
+      break;
+    case 'Filter':
+      if (!node.data.next_automation_step_condition_rules || node.data.next_automation_step_condition_rules.length === 0) {
+        return 'Filter node must have at least one condition defined';
+      }
+      break;
+    case 'SlackMessage':
+      if (!node.data.channel_id || !node.data.message_header || !node.data.message_body) {
+        return 'Slack Message node must have a channel, and a message header or body defined';
+      }
+      break;
+    case 'ResendEmail':
+      if (!node.data.to || !node.data.from || !node.data.subject || !node.data.body) {
+        return 'Resend Email node must have an email template, recipient, subject, and body defined';
+      }
+      break;
+  }
+}
+
 // For ReactFlow to render the custom nodes,
 // we need to provide a nodeTypes object to the ReactFlow component.
 export const NodeTypes = {

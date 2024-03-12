@@ -3,12 +3,12 @@
 import LoadingSpinner from '@/components/LoadingSpinner';
 import { NodeTypes, EdgeTypes } from '@/lib/automations-helpers';
 import TestExecutionModal from './TestExecutionModal';
-import { useEffect, useState } from 'react';
-
 import ReactFlow, { Background, Controls } from 'reactflow';
-import 'reactflow/dist/style.css';
+import { toast } from 'sonner';
 import TopPanel from './TopPanel';
 import useAutomationBuilder from '@/hooks/useAutomationBuilder';
+import { useEffect, useState } from 'react';
+import 'reactflow/dist/style.css';
 
 export default function AutomationBuilder({
   automationName,
@@ -21,7 +21,7 @@ export default function AutomationBuilder({
   onAutomationNameUpdated,
   onSave,
 }) {
-  const { nodes, edges, onNodesChange, onEdgesChange, setNodesAndEdgesFromAutomationSteps, customFitView } = useAutomationBuilder();
+  const { nodes, edges, onNodesChange, onEdgesChange, setNodesAndEdgesFromAutomationSteps, validateConfig } = useAutomationBuilder();
   const [testExecutionModalIsOpen, setTestExecutionModalIsOpen] = useState(false);
 
   useEffect(() => {
@@ -66,7 +66,14 @@ export default function AutomationBuilder({
                 isLoading={isLoading}
                 onAutomationNameUpdated={onAutomationNameUpdated}
                 onTestExecutionClick={() => setTestExecutionModalIsOpen(true)}
-                onSave={() => onSave({ nodes, edges })}
+                onSave={() => {
+                  const errors = validateConfig();
+                  if (errors.length > 0) {
+                    toast.error(errors.join(', '), { duration: 15_000 })
+                  } else {
+                    onSave({ nodes, edges })
+                  }
+                }}
               />
             )}
 

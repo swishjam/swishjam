@@ -21,7 +21,6 @@ export default function NewAutomationPage() {
     const { automation_steps, next_automation_step_conditions } = reformatNodesAndEdgesToAutomationsPayload({ nodes, edges })
     const { automation, error } = await SwishjamAPI.Automations.create({ name, automation_steps, next_automation_step_conditions })
     if (error) {
-      console.log(error)
       setIsSaving(false)
       toast.error('Failed to create automation', { description: error })
     } else {
