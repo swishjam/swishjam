@@ -71,6 +71,7 @@ export default function FilterConfiguration({ data, onSave }) {
                               ...(propertyOptionsForSelectedEvent || []).sort().map(p => ({ label: p, value: `event.${p}` })),
                               { type: "title", label: <div className='flex items-center'><UserCircleIcon className='h-4 w-4 mr-1' /> User Properties</div> },
                               ...(uniqueUserProperties || []).sort().map(p => ({ label: p, value: `user.${p}` })),
+                              { label: 'email', value: 'user.email' },
                             ]}
                             placeholder={<span className='text-gray-500 italic'>Property</span>}
                           />
