@@ -5,16 +5,16 @@ import { PiMagicWand } from "react-icons/pi";
 import { motion } from 'framer-motion'
 import { Card, CardContent } from "@/components/ui/card"
 
-export default function EmptyState({ title }) {
-  const [ animate1, setAnimate1 ] = useState()
-  const [ animate2, setAnimate2 ] = useState()
-  const [ animate3, setAnimate3 ] = useState()
+export default function EmptyState({ title, ...props }) {
+  const [animate1, setAnimate1] = useState()
+  const [animate2, setAnimate2] = useState()
+  const [animate3, setAnimate3] = useState()
 
   const inOut = (inoutState) => {
-    if(inoutState) {
-      setAnimate1({y: -5})
-      setAnimate2({y: -5, rotate: -5})
-      setAnimate3({y: -5, rotate: 5})
+    if (inoutState) {
+      setAnimate1({ y: -5 })
+      setAnimate2({ y: -5, rotate: -5 })
+      setAnimate3({ y: -5, rotate: 5 })
     } else {
       setAnimate1({})
       setAnimate2({})
@@ -23,7 +23,9 @@ export default function EmptyState({ title }) {
   }
 
   return (
-    <div className=" mt-6 py-40 relative group"
+    <div
+      {...props}
+      className={`mt-6 py-40 relative group ${props.className}`}
       onMouseEnter={() => inOut(true)}
       onMouseLeave={() => inOut(false)}
     >
@@ -39,7 +41,7 @@ export default function EmptyState({ title }) {
           className="absolute -left-2 top-6">
           <Card>
             <CardContent className="p-6">
-              <LuWorkflow  size={40} className='opacity-50 group-hover:text-rose-400 group-hover:opacity-100 duration-700 transition-all'/> 
+              <LuWorkflow size={40} className='opacity-50 group-hover:text-rose-400 group-hover:opacity-100 duration-700 transition-all' />
             </CardContent>
           </Card>
         </motion.div>

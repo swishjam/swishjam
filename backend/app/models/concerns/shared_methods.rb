@@ -1,7 +1,8 @@
 module SharedMethods
   extend ActiveSupport::Concern
+  class MissingConfigValueError < StandardError; end
 
-  included do
+  included do |base|
     scope :most_recent_first, -> (column = :created_at) { order(column => :desc) }
     scope :most_recent_last, -> (column = :created_at) { order(column => :asc) }
     # scope :most_recent, -> (column = :created_at) { most_recent_first(column).limit(1).first }

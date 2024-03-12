@@ -39,11 +39,17 @@ class EventTrigger < Transactional
         event_json: prepared_event.as_json,
         event_uuid: prepared_event.uuid,
       )
-      event_trigger_steps.each{ |step| step.trigger!(prepared_event, triggered_event_trigger, as_test: as_test) }
+      first_step.trigger!(prepared_event, triggered_event_trigger, as_test: as_test)
+      # event_trigger_steps.each{ |step| step.trigger!(prepared_event, triggered_event_trigger, as_test: as_test) }
       triggered_event_trigger
     else
       false
     end
+  end
+
+  def first_step
+    # TODO: this should probably be a has_one relationship
+    event_trigger_steps.first
   end
 
   private

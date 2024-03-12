@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2024_02_22_205000) do
+ActiveRecord::Schema.define(version: 2024_03_07_214708) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
@@ -94,6 +94,27 @@ ActiveRecord::Schema.define(version: 2024_02_22_205000) do
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.index ["user_id"], name: "index_auth_sessions_on_user_id"
+  end
+
+  create_table "automation_steps", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "automation_id", null: false
+    t.string "type", null: false
+    t.jsonb "config", default: {}, null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["automation_id"], name: "index_automation_steps_on_automation_id"
+  end
+
+  create_table "automations", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "workspace_id", null: false
+    t.uuid "created_by_user_id"
+    t.string "name", null: false
+    t.text "description"
+    t.boolean "enabled"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["created_by_user_id"], name: "index_automations_on_created_by_user_id"
+    t.index ["workspace_id"], name: "index_automations_on_workspace_id"
   end
 
   create_table "customer_subscription_items", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -222,6 +243,47 @@ ActiveRecord::Schema.define(version: 2024_02_22_205000) do
     t.index ["workspace_id"], name: "index_event_triggers_on_workspace_id"
   end
 
+  create_table "executed_automation_steps", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "executed_automation_id", null: false
+    t.uuid "automation_step_id", null: false
+    t.jsonb "execution_data", default: {}, null: false
+    t.string "error_message"
+    t.datetime "started_at"
+    t.datetime "completed_at"
+    t.index ["automation_step_id"], name: "index_executed_automation_steps_on_automation_step_id"
+    t.index ["executed_automation_id"], name: "index_executed_automation_steps_on_executed_automation_id"
+  end
+
+  create_table "executed_automations", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "automation_id", null: false
+    t.uuid "retried_from_executed_automation_id"
+    t.uuid "executed_on_user_profile_id"
+    t.jsonb "event_json", default: {}, null: false
+    t.string "event_uuid", null: false
+    t.float "seconds_from_occurred_at_to_executed"
+    t.datetime "started_at"
+    t.datetime "completed_at"
+    t.boolean "is_test_execution", default: false, null: false
+    t.index ["automation_id"], name: "index_executed_automations_on_automation_id"
+    t.index ["event_uuid"], name: "index_executed_automations_on_event_uuid"
+    t.index ["executed_on_user_profile_id"], name: "index_executed_automations_on_executed_on_user_profile_id"
+    t.index ["retried_from_executed_automation_id"], name: "idx_executed_automations_on_retried_from_executed_automation_id"
+  end
+
+  create_table "indexed_jsonb_keys", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.string "parent_type", null: false
+    t.uuid "parent_id", null: false
+    t.string "column", null: false
+    t.string "key", null: false
+    t.string "value", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["column"], name: "index_indexed_jsonb_keys_on_column"
+    t.index ["key"], name: "index_indexed_jsonb_keys_on_key"
+    t.index ["parent_type", "parent_id"], name: "index_indexed_jsonb_keys_on_parent"
+    t.index ["value"], name: "index_indexed_jsonb_keys_on_value"
+  end
+
   create_table "ingestion_batches", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.string "event_type"
     t.float "num_seconds_to_complete"
@@ -241,6 +303,24 @@ ActiveRecord::Schema.define(version: 2024_02_22_205000) do
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.index ["workspace_id"], name: "index_integrations_on_workspace_id"
+  end
+
+  create_table "next_automation_step_condition_rules", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "next_automation_step_condition_id", null: false
+    t.string "type"
+    t.jsonb "config", default: {}
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["next_automation_step_condition_id"], name: "idx_nasc_rules_on_next_automation_step_condition_id "
+  end
+
+  create_table "next_automation_step_conditions", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "automation_step_id", null: false
+    t.uuid "next_automation_step_id", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["automation_step_id"], name: "index_next_automation_step_conditions_on_automation_step_id"
+    t.index ["next_automation_step_id"], name: "idx_next_automation_step_conditions_on_next_automation_step_id"
   end
 
   create_table "profile_tags", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -313,6 +393,15 @@ ActiveRecord::Schema.define(version: 2024_02_22_205000) do
     t.index ["time_granularity"], name: "index_retention_cohorts_on_time_granularity"
     t.index ["time_period"], name: "index_retention_cohorts_on_time_period"
     t.index ["workspace_id"], name: "index_retention_cohorts_on_workspace_id"
+  end
+
+  create_table "satisfied_next_automation_step_conditions", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "executed_automation_step_id", null: false
+    t.uuid "next_automation_step_condition_id", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["executed_automation_step_id"], name: "idx_satisfied_next_automation_step_conditions_on_eas_id"
+    t.index ["next_automation_step_condition_id"], name: "idx_satisfied_next_automation_step_conditions_on_nasc_id"
   end
 
   create_table "slack_connections", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -402,7 +491,7 @@ ActiveRecord::Schema.define(version: 2024_02_22_205000) do
 
   create_table "user_segments", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.uuid "workspace_id", null: false
-    t.uuid "created_by_user_id"
+    t.uuid "created_by_user_id", null: false
     t.string "name", null: false
     t.string "description"
     t.datetime "created_at", precision: 6, null: false
@@ -449,9 +538,9 @@ ActiveRecord::Schema.define(version: 2024_02_22_205000) do
     t.datetime "updated_at", precision: 6, null: false
     t.boolean "combine_marketing_and_product_data_sources"
     t.boolean "should_enrich_user_profile_data"
+    t.boolean "revenue_analytics_enabled", default: true, null: false
     t.string "enrichment_provider"
     t.boolean "should_enrich_organization_profile_data", default: false
-    t.boolean "revenue_analytics_enabled", default: true, null: false
     t.index ["workspace_id"], name: "index_workspace_settings_on_workspace_id"
   end
 
@@ -471,8 +560,19 @@ ActiveRecord::Schema.define(version: 2024_02_22_205000) do
   add_foreign_key "analytics_user_profiles", "workspaces"
   add_foreign_key "api_keys", "workspaces"
   add_foreign_key "auth_sessions", "users"
+  add_foreign_key "automation_steps", "automations"
+  add_foreign_key "automations", "users", column: "created_by_user_id"
+  add_foreign_key "automations", "workspaces"
   add_foreign_key "data_syncs", "workspaces"
+  add_foreign_key "executed_automation_steps", "automation_steps"
+  add_foreign_key "executed_automation_steps", "executed_automations"
+  add_foreign_key "executed_automations", "analytics_user_profiles", column: "executed_on_user_profile_id"
+  add_foreign_key "executed_automations", "automations"
+  add_foreign_key "executed_automations", "executed_automations", column: "retried_from_executed_automation_id"
   add_foreign_key "integrations", "workspaces"
+  add_foreign_key "next_automation_step_condition_rules", "next_automation_step_conditions"
+  add_foreign_key "next_automation_step_conditions", "automation_steps"
+  add_foreign_key "next_automation_step_conditions", "automation_steps", column: "next_automation_step_id"
   add_foreign_key "profile_tags", "user_segments"
   add_foreign_key "profile_tags", "users", column: "applied_by_user_id"
   add_foreign_key "profile_tags", "workspaces"
@@ -481,6 +581,8 @@ ActiveRecord::Schema.define(version: 2024_02_22_205000) do
   add_foreign_key "retention_cohort_activity_periods", "retention_cohorts"
   add_foreign_key "retention_cohort_activity_periods", "workspaces"
   add_foreign_key "retention_cohorts", "workspaces"
+  add_foreign_key "satisfied_next_automation_step_conditions", "executed_automation_steps"
+  add_foreign_key "satisfied_next_automation_step_conditions", "next_automation_step_conditions"
   add_foreign_key "triggered_event_trigger_steps", "event_trigger_steps"
   add_foreign_key "triggered_event_trigger_steps", "triggered_event_triggers"
   add_foreign_key "triggered_event_triggers", "triggered_event_triggers", column: "retried_triggered_event_trigger_id"

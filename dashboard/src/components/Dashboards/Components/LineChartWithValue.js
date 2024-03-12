@@ -7,44 +7,55 @@ import ConditionalCardWrapper from './ConditionalCardWrapper';
 import CustomTooltip from './LineChart/CustomTooltip';
 import { dateFormatterForGrouping } from '@/lib/utils/timeseriesHelpers';
 import { Skeleton } from "@/components/ui/skeleton"
-import { useCallback, useState, useEffect } from 'react';
+import { useCallback, useState, useEffect, useRef } from 'react';
 import ValueDisplay from './LineChart/ValueDisplay';
 
-const LoadingState = ({ title, includeCard = true }) => (
-  includeCard ? (
-    <Card>
-      <CardHeader className="space-y-0 pb-2">
-        <CardTitle className="text-sm font-medium cursor-default">
-          <div className='flex justify-between items-center'>
-            <div className='flex items-center gap-x-1'>
-              {title}
+const LoadingState = ({ title, includeCard = true }) => {
+  const cardRef = useRef();
+  const [loadingStateHeight, setLoadingStateHeight] = useState(0);
+
+  useEffect(() => {
+    if (cardRef.current) {
+      setLoadingStateHeight(cardRef.current.offsetWidth * 0.33)
+    }
+  }, [cardRef.current])
+
+  return (
+    includeCard ? (
+      <Card ref={cardRef}>
+        <CardHeader className="space-y-0 pb-2">
+          <CardTitle className="text-sm font-medium cursor-default">
+            <div className='flex justify-between items-center'>
+              <div className='flex items-center gap-x-1'>
+                {title}
+              </div>
             </div>
-          </div>
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        <Skeleton className="w-[100px] h-[30px] rounded-sm" />
-        <Skeleton className="w-full h-20 rounded-sm mt-1" />
-      </CardContent>
-    </Card >
-  ) : (
-    <>
-      <CardHeader className="space-y-0 pb-2">
-        <CardTitle className="text-sm font-medium cursor-default">
-          <div className='flex justify-between items-center'>
-            <div className='flex items-center gap-x-1'>
-              {title}
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Skeleton className="w-[100px] h-[30px] rounded-sm" />
+          <Skeleton className="w-full rounded-sm mt-1" style={{ height: `${loadingStateHeight}px` }} />
+        </CardContent>
+      </Card >
+    ) : (
+      <div ref={cardRef}>
+        <CardHeader className="space-y-0 pb-2">
+          <CardTitle className="text-sm font-medium cursor-default">
+            <div className='flex justify-between items-center'>
+              <div className='flex items-center gap-x-1'>
+                {title}
+              </div>
             </div>
-          </div>
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        <Skeleton className="w-[100px] h-[30px] rounded-sm" />
-        <Skeleton className="w-full h-20 rounded-sm mt-1" />
-      </CardContent>
-    </>
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Skeleton className="w-[100px] h-[30px] rounded-sm" />
+          <Skeleton className="w-full rounded-sm mt-1" style={{ height: `${loadingStateHeight}px` }} />
+        </CardContent>
+      </div>
+    )
   )
-)
+}
 
 export default function LineChartWithValue({
   additionalTooltipDataFormatter,
@@ -106,6 +117,7 @@ export default function LineChartWithValue({
         className={className}
         DocumentationContent={DocumentationContent}
         includeCard={includeCard}
+        includeSettingsDropdown={includeSettingsDropdown}
         isEnlargable={isEnlargable}
         settings={[
           { onChange: setShowXAxis, enabled: showXAxis, label: 'Show X-Axis' },

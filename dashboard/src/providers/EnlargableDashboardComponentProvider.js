@@ -113,7 +113,7 @@ const EnlargableDashboardComponentProvider = ({ children }) => {
                   <ArrowsPointingInIcon className='outline-0 ring-0 h-5 w-5 text-gray-500 cursor-pointer' />
                 </button>
                 {componentDetailsToEnlarge?.AdditionalHeaderActions}
-                {componentDetailsToEnlarge?.settings && <SettingsDropdown options={componentDetailsToEnlarge?.settings} />}
+                {componentDetailsToEnlarge?.includeSettingsDropdown && componentDetailsToEnlarge?.settings && <SettingsDropdown options={componentDetailsToEnlarge?.settings} />}
               </div>
             </div>
           </CardTitle>

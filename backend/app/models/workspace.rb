@@ -3,6 +3,9 @@ class Workspace < Transactional
   has_many :analytics_user_profile_devices, dependent: :destroy
   has_many :analytics_organization_profiles, dependent: :destroy
   has_many :api_keys, dependent: :destroy
+  has_many :automations, dependent: :destroy
+  has_many :automation_steps, through: :automations
+  has_many :entry_point_automation_steps, through: :automations
   has_many :customer_subscriptions, dependent: :destroy
   has_many :customer_subscription_items, through: :customer_subscriptions
   has_many :dashboards, dependent: :destroy

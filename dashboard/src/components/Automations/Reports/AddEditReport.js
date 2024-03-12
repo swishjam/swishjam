@@ -23,7 +23,7 @@ import { useForm, useFieldArray } from "react-hook-form"
 import { toast } from 'sonner'
 import LoadingSpinner from '@components/LoadingSpinner'
 import SlackMessagePreview from '@/components/Slack/SlackMessagePreview'
-import MessageBodyMarkdownRenderer from '@/components/Slack/MessageBodyMarkdownRenderer'
+import MessageBodyMarkdownRenderer from '@/components/utils/MarkdownRenderer'
 import { Skeleton } from '@/components/ui/skeleton';
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { swishjam } from '@swishjam/react'
@@ -173,7 +173,7 @@ export default function AddEditReport({
           <ScrollArea className="border border-gray-200 rounded-md bg-white">
             <SlackMessagePreview
               header={form.getValues('cadence') + ' Update'}
-              body={<MessageBodyMarkdownRenderer body={mkdPreview} />}
+              body={<MessageBodyMarkdownRenderer markdown={mkdPreview} />}
               className={'border-0'}
             />
           </ScrollArea>

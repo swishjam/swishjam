@@ -30,8 +30,6 @@ export default function EnrichmentSettings({
     setDoNotEnrichEmailDomainInputValue('')
   }
 
-  console.log(enrichmentProvider)
-
   return (
     <>
       <CardSection

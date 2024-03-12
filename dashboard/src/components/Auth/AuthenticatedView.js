@@ -57,7 +57,8 @@ export default function AuthenticatedView({ children, LoadingView }) {
               {process.env.NEXT_PUBLIC_GLOBAL_BANNER_NOTIFICATION_MESSAGE}
             </div>
           )}
-          <div className="pr-4 sm:pr-6 lg:pr-8">{children}</div>
+          {/* <div className="pr-4 sm:pr-6 lg:pr-8">{children}</div> */}
+          <div className="">{children}</div>
         </main>
       </>
     );

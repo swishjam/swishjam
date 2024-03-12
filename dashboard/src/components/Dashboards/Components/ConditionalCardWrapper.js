@@ -25,7 +25,7 @@ export default function ConditionalCardWrapper({
   useEffect(() => {
     const enlargedComponentIsThisComponent = componentDetailsToEnlarge && componentDetailsToEnlarge.el === containerEl.current;
     if (enlargedComponentIsThisComponent) {
-      updateComponent({ title, DocumentationContent, AdditionalHeaderActions, settings, onSettingChange, children, el: containerEl.current })
+      updateComponent({ title, DocumentationContent, AdditionalHeaderActions, settings, includeSettingsDropdown, onSettingChange, children, el: containerEl.current })
     }
   }, [children])
 
@@ -54,7 +54,7 @@ export default function ConditionalCardWrapper({
               </button>
             )}
             {AdditionalHeaderActions}
-            {settings && <SettingsDropdown options={settings} />}
+            {includeSettingsDropdown && settings && <SettingsDropdown options={settings} />}
           </div>
         </div>
       </CardTitle>

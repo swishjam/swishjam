@@ -20,6 +20,8 @@ export class UserProfile {
   attributes = () => this._attributes;
   anonymousUserIdDisplay = () => this.id().slice(0, 6)
 
+  displayName = () => this.fullName() || this.email() || this.uniqueIdentifier() || this.anonymousUserIdDisplay()
+
   enrichmentData = () => {
     if (this.attributes().enrichment_data) {
       return this.attributes().enrichment_data;

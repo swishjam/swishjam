@@ -14,6 +14,7 @@ class AnalyticsUserProfile < Transactional
       end
     end
   end
+  include JsonbMethods
 
   belongs_to :workspace
   has_one :enriched_data, as: :enrichable, dependent: :destroy
@@ -25,10 +26,12 @@ class AnalyticsUserProfile < Transactional
   alias_attribute :organizations, :analytics_organization_profiles
   has_many :customer_subscriptions, as: :parent_profile, dependent: :destroy
   has_many :enrichment_attempts, as: :enrichable, dependent: :destroy
+  has_many :executed_automations, dependent: :nullify # we don't want to destroy the executed automations if the user is deleted
   has_many :profile_tags, as: :profile, dependent: :destroy
   alias_attribute :tags, :profile_tags
 
   attribute :metadata, :jsonb, default: {}
+  self.define_jsonb_methods :metadata, ReservedMetadataProperties.all
 
   validates :user_unique_identifier, uniqueness: { scope: :workspace_id }, if: -> { user_unique_identifier.present? }
 

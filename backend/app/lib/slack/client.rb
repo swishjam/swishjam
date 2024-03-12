@@ -31,7 +31,7 @@ module Slack
         payload[:unfurl_links] = unfurl_links
         payload[:unfurl_media] = unfurl_media
         payload[:blocks] = blocks.to_json if blocks.present?
-        response = post('chat.postMessage', payload)
+        post('chat.postMessage', payload)
       end
     end
 
