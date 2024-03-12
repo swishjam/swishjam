@@ -16,7 +16,7 @@ module AutomationSteps
         executed_automation_step.execution_data.delete('execute_immediately_on_next_execution')
         executed_automation_step.completed!
       else
-        perform_job_in = delay_amount.send(delay_unit)
+        perform_job_in = delay_amount.to_i.send(delay_unit)
         executed_automation_step.execution_data['scheduled_to_be_executed_at'] = Time.current + perform_job_in
         executed_automation_step.save!
         AutomationJobs::EnqueueDelayedAutomationStepToBeExecutedLater.perform_in(perform_job_in, prepared_event.as_json, executed_automation_step.id)

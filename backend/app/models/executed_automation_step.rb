@@ -7,6 +7,7 @@ class ExecutedAutomationStep < Transactional
   scope :completed, -> { where.not(completed_at: nil) }
   scope :failed, -> { where.not(error_message: nil) }
   scope :completed_successfully, -> { completed.where(error_message: nil) }
+  scope :succeeded, -> { completed_successfully }
 
   attribute :execution_data, :jsonb, default: {}
 

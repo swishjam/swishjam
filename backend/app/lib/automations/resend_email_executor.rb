@@ -31,7 +31,7 @@ module Automations
     private
 
     def has_already_executed_for_user?
-      automation_step.triggered_automation_steps.succeeded.where("execution_data -> 'resend_request_body' ->> 'to' = ?", request_body[:to]).any?
+      automation_step.executed_automation_steps.succeeded.where("execution_data -> 'resend_request_body' ->> 'to' = ?", request_body[:to]).any?
     end
 
     def has_any_un_resolved_variables?
