@@ -35,7 +35,7 @@ export default function AutomationBuilder({
       </div>
     )
   }
-  
+
   return (
     <>
       <TestExecutionModal

@@ -34,7 +34,7 @@ export default function EditReportPage({ params }) {
         <div>
           <Link
             className='text-xs text-gray-500 hover:text-gray-600 transition-all hover:underline flex items-center mb-2'
-            href="/automations/reports"
+            href="/reports"
           >
             <LuArrowLeft className='inline mr-1' size={12} />
             Back to all Reports

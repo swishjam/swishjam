@@ -64,7 +64,8 @@ export default function ConfigureSlackAutomationStep({ onSave, data = {} }) {
   }
 
   const getUniqueEventPropertiesForEntryPointEvent = async () => {
-    form.setValue('message_header', `✨ ${selectedEntryPointEventName} ✨`)
+    // disabling for now because it overwrites the header value on initial load
+    // form.setValue('message_header', `✨ ${selectedEntryPointEventName} ✨`)
     const properties = await SwishjamAPI.Events.Properties.listUnique(selectedEntryPointEventName)
     setPropertyOptionsForSelectedEvent(properties.sort());
   }

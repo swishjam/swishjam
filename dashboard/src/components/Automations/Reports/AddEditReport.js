@@ -81,7 +81,7 @@ export default function AddEditReport({
       toast.success(`${values.name} ${reportId ? 'edited successfully' : 'report created. Redirecting to all Reports'} `)
       if (!reportId) {
         form.reset();
-        router.push('/automations/reports')
+        router.push('/reports')
       }
     }
   }
