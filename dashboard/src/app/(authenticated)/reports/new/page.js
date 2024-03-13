@@ -1,6 +1,6 @@
 'use client';
 
-import AddEditReport from "@/components/Automations/Reports/AddEditReport";
+import AddEditReport from "@/components/Reports/AddEditReport";
 import Link from "next/link";
 import { SwishjamAPI } from "@/lib/api-client/swishjam-api";
 // Icons

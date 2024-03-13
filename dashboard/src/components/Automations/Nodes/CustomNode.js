@@ -14,6 +14,7 @@ import { EllipsisVerticalIcon } from '@heroicons/react/24/outline';
 import { prettyDateTime } from '@/lib/utils/timeHelpers';
 import useAutomationBuilder from '@/hooks/useAutomationBuilder';
 import WarningBanner from '../WarningBanner';
+import Logo from '@/components/Logo';
 
 export default memo(({
   id,
@@ -34,7 +35,7 @@ export default memo(({
 
   const [editModalIsOpen, setEditModalIsOpen] = useState(false);
   const { updateNode, deleteNode } = useAutomationBuilder();
-  const { selectedEntryPointEventName, zoomToEntryPoint } = useAutomationBuilder();
+  const { selectedEntryPointEventName, zoomToEntryPoint, isLoading } = useAutomationBuilder();
 
   const isInvalid = requiredData.some(key => !data[key]);
   const maybeBorderClasses = executionStepResults.error_message
@@ -57,6 +58,12 @@ export default memo(({
   return (
     <>
       <div style={{ width: NODE_WIDTH, pointerEvents: 'all' }} className={`nodrag nopan card text-left align-top cursor-default ${maybeBorderClasses}`}>
+        {isLoading &&
+          <div className='absolute top-0 right-0 left-0 bottom-0 cursor-wait rounded-md'>
+            <div className='w-full h-full bg-gray-200 animate-pulse opacity-70 cursor-wait' />
+            <Logo className='h-6 w-6 animate-bounce bottom-0 right-0 top-0 left-0 m-auto absolute' />
+          </div>
+        }
         <div className='flex items-center justify-between space-x-2'>
           <div className='inline-flex items-center space-x-2'>
             {icon}

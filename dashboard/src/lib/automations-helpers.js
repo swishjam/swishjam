@@ -1,12 +1,12 @@
-import { ButtonEdge } from '@/components/Automations/Flow/Edges/ButtonEdge';
-import DelayNode from '@/components/Automations/Flow/Nodes/DelayNode';
-import EndNode from '@/components/Automations/Flow/Nodes/EndNode';
-import IfElseNode from '@/components/Automations/Flow/Nodes/IfElseNode';
-import ResendEmailNode from '@/components/Automations/Flow/Nodes/ResendEmailNode';
-import SlackNode from '@/components/Automations/Flow/Nodes/SlackNode';
-import EntryPointNode from '@/components/Automations/Flow/Nodes/EntryPointNode';
+import { ButtonEdge } from '@/components/Automations/Edges/ButtonEdge';
+import DelayNode from '@/components/Automations/Nodes/DelayNode';
+import EndNode from '@/components/Automations/Nodes/EndNode';
+import IfElseNode from '@/components/Automations/Nodes/IfElseNode';
+import ResendEmailNode from '@/components/Automations/Nodes/ResendEmailNode';
+import SlackNode from '@/components/Automations/Nodes/SlackNode';
+import EntryPointNode from '@/components/Automations/Nodes/EntryPointNode';
 import dagre from 'dagre';
-import FilterNode from '@/components/Automations/Flow/Nodes/FilterNode';
+import FilterNode from '@/components/Automations/Nodes/FilterNode';
 
 export const NODE_WIDTH = 300;
 export const NODE_HEIGHT = 125;
@@ -236,7 +236,7 @@ export const formatAutomationStepsWithExecutionStepResults = ({ automationSteps,
 }
 
 export const errorForNode = node => {
-  switch(node.type) {
+  switch (node.type) {
     case 'EntryPoint':
       if (!node.data.event_name) {
         return 'Event Trigger node must have an event name defined';

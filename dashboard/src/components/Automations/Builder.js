@@ -15,7 +15,6 @@ export default function AutomationBuilder({
   automationSteps,
   canvasWidth = 'w-full',
   canvasHeight = 'h-screen',
-  isLoading = false,
   includeControls = true,
   includePanel = true,
   onAutomationNameUpdated,
@@ -25,7 +24,9 @@ export default function AutomationBuilder({
   const [testExecutionModalIsOpen, setTestExecutionModalIsOpen] = useState(false);
 
   useEffect(() => {
-    setNodesAndEdgesFromAutomationSteps(automationSteps);
+    if (automationSteps) {
+      setNodesAndEdgesFromAutomationSteps(automationSteps);
+    }
   }, automationSteps)
 
   if (!automationSteps) {
@@ -60,15 +61,9 @@ export default function AutomationBuilder({
             elementsSelectable={false}
             panOnScroll={true}
           >
-            {isLoading && (
-              <div className='z-10 absolute top-0 right-0 bottom-0 left-0 flex items-center justify-center bg-black bg-opacity-20'>
-                <LoadingSpinner size={10} />
-              </div>
-            )}
             {includePanel && (
               <TopPanel
                 automationName={automationName}
-                isLoading={isLoading}
                 onAutomationNameUpdated={onAutomationNameUpdated}
                 onTestExecutionClick={() => setTestExecutionModalIsOpen(true)}
                 onSave={() => {

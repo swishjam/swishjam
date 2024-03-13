@@ -1,6 +1,6 @@
 'use client'
 
-import AutomationBuilder from "@/components/Automations/Flow/Builder";
+import AutomationBuilder from "@/components/Automations/Builder";
 import AutomationBuilderProvider from "@/providers/AutomationBuilderProvider";
 import CommonQueriesProvider from "@/providers/CommonQueriesProvider";
 import SwishjamAPI from "@/lib/api-client/swishjam-api";
@@ -31,12 +31,11 @@ export default function NewAutomationPage() {
   return (
     <CommonQueriesProvider>
       <ReactFlowProvider>
-        <AutomationBuilderProvider>
+        <AutomationBuilderProvider isLoading={isSaving}>
           <AutomationBuilder
             automationName={name}
             automationSteps={[]}
             onAutomationNameUpdated={setName}
-            isLoading={isSaving}
             onSave={createAutomation}
           />
         </AutomationBuilderProvider>

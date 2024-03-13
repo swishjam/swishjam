@@ -1,6 +1,6 @@
 'use client'
 
-import AutomationBuilder from "@/components/Automations/Flow/Builder";
+import AutomationBuilder from "@/components/Automations/Builder";
 import AutomationBuilderProvider from "@/providers/AutomationBuilderProvider";
 import CommonQueriesProvider from "@/providers/CommonQueriesProvider";
 import { ReactFlowProvider } from 'reactflow'
@@ -45,16 +45,13 @@ export default function EditAutomationPage({ params }) {
   return (
     <CommonQueriesProvider>
       <ReactFlowProvider>
-        <AutomationBuilderProvider>
-          {automation && automationSteps && (
-            <AutomationBuilder
-              automationName={automation?.name}
-              automationSteps={automationSteps}
-              onAutomationNameUpdated={name => setAutomation({ ...automation, name })}
-              isLoading={isLoading}
-              onSave={updateAutomation}
-            />
-          )}
+        <AutomationBuilderProvider isLoading={isLoading}>
+          <AutomationBuilder
+            automationName={automation?.name}
+            automationSteps={automationSteps}
+            onAutomationNameUpdated={name => setAutomation({ ...automation, name })}
+            onSave={updateAutomation}
+          />
         </AutomationBuilderProvider>
       </ReactFlowProvider>
     </CommonQueriesProvider>

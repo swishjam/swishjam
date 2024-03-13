@@ -16,7 +16,7 @@ import { toast } from 'sonner'
 import { Textarea } from "@/components/ui/textarea"
 import { Tooltipable } from '@/components/ui/tooltip';
 import { useEffect, useState } from 'react';
-import VariableSyntaxDocumentation from "@/components/Automations/Flow/VariableSyntaxDocumentation";
+import VariableSyntaxDocumentation from "@/components/Automations/VariableSyntaxDocumentation";
 import InterpolatedMarkdown from "@/components/VariableParser/InterpolatedMarkdown";
 import useCommonQueries from "@/hooks/useCommonQueries";
 import useAutomationBuilder from "@/hooks/useAutomationBuilder";

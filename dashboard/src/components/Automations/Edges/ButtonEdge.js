@@ -1,4 +1,4 @@
-import { AddNewNodePopover } from '@/components/Automations/Flow/Edges/AddNewNodePopover';
+import { AddNewNodePopover } from '@/components/Automations/Edges/AddNewNodePopover';
 import useAutomationBuilder from '@/hooks/useAutomationBuilder';
 import { CheckIcon } from 'lucide-react';
 import { BaseEdge, EdgeLabelRenderer, getSmoothStepPath } from 'reactflow';
@@ -15,7 +15,7 @@ export function ButtonEdge({
   markerEnd,
   data,
 }) {
-  const { addNodeInEdge } = useAutomationBuilder();
+  const { addNodeInEdge, isLoading } = useAutomationBuilder();
 
   const [edgePath, labelX, labelY] = getSmoothStepPath({
     sourceX,
@@ -51,7 +51,7 @@ export function ButtonEdge({
               <div className='p-1 rounded-full bg-green-100 hover:bg-green-200 transition-all'>
                 <CheckIcon className='h-4 w-4 text-gray-700' />
               </div>
-            ) : <AddNewNodePopover onSelection={onAddNode} />
+            ) : <AddNewNodePopover disabled={isLoading} onSelection={onAddNode} />
           }
         </div>
       </EdgeLabelRenderer>

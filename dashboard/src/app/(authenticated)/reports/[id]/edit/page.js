@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react';
-import AddEditReport from "@/components/Automations/Reports/AddEditReport";
+import AddEditReport from "@/components/Reports/AddEditReport";
 import Link from "next/link";
 import { toast } from "sonner";
 import { SwishjamAPI } from "@/lib/api-client/swishjam-api";

@@ -7,8 +7,12 @@ import { LuArrowLeft } from "react-icons/lu"
 import { Popover, PopoverClose, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { FlaskConical, SaveIcon, XIcon } from "lucide-react"
 import { useState } from "react"
+import useAutomationBuilder from "@/hooks/useAutomationBuilder"
 
-export default function TopPanel({ automationName, onTestExecutionClick, onAutomationNameUpdated, isLoading, onSave }) {
+export default function TopPanel({ automationName, onTestExecutionClick, onAutomationNameUpdated, onSave }) {
+  const { isLoading } = useAutomationBuilder();
+  console.log('isLoading', isLoading)
+
   const [editedAutomationName, setEditedAutomationName] = useState(automationName)
   const [isPopoverOpen, setIsPopoverOpen] = useState(false)
 

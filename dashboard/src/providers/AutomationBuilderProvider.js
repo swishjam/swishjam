@@ -6,7 +6,7 @@ import { NODE_WIDTH, NODE_HEIGHT } from '@/lib/automations-helpers';
 import { useState } from 'react';
 import { useEdgesState, useNodesState, useReactFlow } from 'reactflow';
 
-const AutomationBuilderProvider = ({ children }) => {
+const AutomationBuilderProvider = ({ isLoading = false, children }) => {
   const [selectedEntryPointEventName, setSelectedEntryPointEventName] = useState();
 
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
@@ -117,6 +117,7 @@ const AutomationBuilderProvider = ({ children }) => {
         addNodeInEdge,
         deleteNode,
         edges,
+        isLoading,
         onNodesChange,
         onEdgesChange,
         nodes,

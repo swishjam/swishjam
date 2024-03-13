@@ -47,14 +47,14 @@ const nodeOptions = [
   },
 ]
 
-export function AddNewNodePopover({ onSelection }) {
+export function AddNewNodePopover({ onSelection, disabled = false }) {
   const [open, setOpen] = useState(false)
 
   return (
     <div className="flex items-center space-x-4">
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
-          <Button variant="outline" className="justify-start hover:border-gray-900">
+          <Button variant="outline" className={`justify-start ${disabled ? 'bg-gray-100 !opacity-100 cursor-disabled' : 'hover:border-gray-900'}`} disabled={disabled}>
             <LuPlus className="h-5 w-5" />
           </Button>
         </PopoverTrigger>
