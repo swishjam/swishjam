@@ -9,15 +9,14 @@ import { FlaskConical, SaveIcon, XIcon } from "lucide-react"
 import { useState } from "react"
 import useAutomationBuilder from "@/hooks/useAutomationBuilder"
 
-export default function TopPanel({ automationName, onTestExecutionClick, onAutomationNameUpdated, onSave }) {
+export default function TopPanel({ automationName, onTestExecutionClick, onSave, onAutomationNameSave, height = '75px' }) {
   const { isLoading } = useAutomationBuilder();
-  console.log('isLoading', isLoading)
 
   const [editedAutomationName, setEditedAutomationName] = useState(automationName)
   const [isPopoverOpen, setIsPopoverOpen] = useState(false)
 
   return (
-    <div className="absolute -translate-x-1/2 z-10 top-5 w-[95%] left-1/2 right-1/2 mx-auto grid grid-cols-3 items-center bg-white rounded-md border border-zinc-200 py-2 px-4">
+    <div className="w-full grid grid-cols-3 items-center bg-white border-b border-zinc-200 py-2 px-4" style={{ height }}>
       <div>
         <Link
           className='text-xs text-gray-500 hover:text-gray-600 transition-all hover:underline flex items-center'
@@ -41,8 +40,10 @@ export default function TopPanel({ automationName, onTestExecutionClick, onAutom
             <form
               onSubmit={e => {
                 e.preventDefault();
-                onAutomationNameUpdated(editedAutomationName)
-                setIsPopoverOpen(false)
+                if (!isLoading) {
+                  onAutomationNameSave(editedAutomationName)
+                  setIsPopoverOpen(false)
+                }
               }}
             >
               <Label className='text-xs font-medium leading-none flex items-center mb-1'>Automation Name</Label>
@@ -54,6 +55,7 @@ export default function TopPanel({ automationName, onTestExecutionClick, onAutom
               />
               <Button
                 className="mt-4 w-full flex items-center space-x-2"
+                disabled={isLoading}
                 variant='swishjam'
                 type='submit'
               >

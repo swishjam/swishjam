@@ -6,12 +6,12 @@ import { NODE_WIDTH, NODE_HEIGHT } from '@/lib/automations-helpers';
 import { useState } from 'react';
 import { useEdgesState, useNodesState, useReactFlow } from 'reactflow';
 
-const AutomationBuilderProvider = ({ isLoading = false, children }) => {
+const AutomationBuilderProvider = ({ isLoading = false, children, defaultNodes = [], defaultEdges = [] }) => {
   const [selectedEntryPointEventName, setSelectedEntryPointEventName] = useState();
 
-  const [nodes, setNodes, onNodesChange] = useNodesState([]);
-  const [edges, setEdges, onEdgesChange] = useEdgesState([]);
-  const { setCenter } = useReactFlow();
+  const [nodes, setNodes, onNodesChange] = useNodesState(defaultNodes);
+  const [edges, setEdges, onEdgesChange] = useEdgesState(defaultEdges);
+  const { setCenter, fitView } = useReactFlow();
 
   const zoomToNode = node => {
     setCenter(node.position.x + (NODE_WIDTH / 2), node.position.y + (NODE_HEIGHT / 2), { duration: 800, zoom: 1 })
@@ -117,6 +117,7 @@ const AutomationBuilderProvider = ({ isLoading = false, children }) => {
         addNodeInEdge,
         deleteNode,
         edges,
+        fitView,
         isLoading,
         onNodesChange,
         onEdgesChange,

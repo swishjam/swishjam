@@ -98,8 +98,7 @@ export default function TestExecutionModal({
             </div>
             <AutomationBuilder
               automationSteps={automationStepsWithExecutionData}
-              canvasWidth='w-full'
-              canvasHeight='h-[60vh]'
+              canvasHeight='60vh'
               includeControls={true}
               includePanel={false}
             />

@@ -4,7 +4,7 @@ import AutomationBuilderProvider from "@/providers/AutomationBuilderProvider";
 import { Button } from "@/components/ui/button";
 import CommonQueriesProvider from "@/providers/CommonQueriesProvider";
 import ExecutedAutomationDetails from "@/components/Automations/Results/ExecutedAutomationDetails";
-import { FlaskConicalIcon, RefreshCcw } from "lucide-react";
+import { Cog, FlaskConicalIcon, RefreshCcw } from "lucide-react";
 import LineChartWithValue from "@/components/Dashboards/Components/LineChartWithValue";
 import Link from "next/link";
 import { LuArrowLeft } from "react-icons/lu";
@@ -88,12 +88,18 @@ export default function AutomationDetailsPage({ params }) {
       }
       buttons={
         <>
-          <Button onClick={fetchAllPageData} variant='outline' disabled={isFetchingData}>
-            <RefreshCcw className={`h-4 w-4 ${isFetchingData ? 'animate-spin' : ''}`} />
-          </Button>
+          <Link href={`/automations/${automationId}/edit`}>
+            <Button variant='outline' className='group'>
+              <Cog className='h-4 w-4 mr-2 duration-500 transition-all group-hover:rotate-180' />
+              Edit Automation
+            </Button>
+          </Link>
           <Button onClick={() => setTestExecutionModalIsOpen(true)} variant='swishjam' className='group'>
             <FlaskConicalIcon className='h-4 w-4 mr-2 transition-all group-hover:rotate-45' />
             Test Run
+          </Button>
+          <Button onClick={fetchAllPageData} variant='ghost' disabled={isFetchingData} className='group'>
+            <RefreshCcw className={`h-4 w-4 duration-1000 transition-all group-hover:rotate-180 ${isFetchingData ? 'animate-spin' : ''}`} />
           </Button>
         </>
       }

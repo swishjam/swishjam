@@ -31,15 +31,23 @@ module Api
 
       def update
         automation = current_workspace.automations.find(params[:id])
-        ActiveRecord::Base.transaction do
-          automation = Automations::Updater.update_automation!(
-            automation,
-            name: params[:name],
-            automation_steps: params[:automation_steps],
-            next_automation_step_conditions: params[:next_automation_step_conditions],
-            enabled: true,
-          )
-          render json: { automation: AutomationSerializer.new(automation) }, status: :created
+        if params[:name_only]
+          if automation.update(name: params[:name])
+            render json: { automation: AutomationSerializer.new(automation) }, status: :ok
+          else
+            render json: { automation: automation, error: automation.errors.full_messages.join(', ') }, status: :unprocessable_entity
+          end
+        else
+          ActiveRecord::Base.transaction do
+            automation = Automations::Updater.update_automation!(
+              automation,
+              name: params[:name],
+              automation_steps: params[:automation_steps],
+              next_automation_step_conditions: params[:next_automation_step_conditions],
+              enabled: true,
+            )
+            render json: { automation: AutomationSerializer.new(automation) }, status: :created
+          end
         end
       rescue ActiveRecord::RecordInvalid, ActiveRecord::NotNullViolation => e
         render json: { error: e.message }, status: :unprocessable_entity

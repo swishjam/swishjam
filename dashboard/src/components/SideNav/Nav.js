@@ -9,14 +9,9 @@ import useCommandBar from '@/hooks/useCommandBar';
 import { SwishjamMemory } from '@/lib/swishjam-memory';
 import { Tooltipable } from '../ui/tooltip';
 
-// import { LuFlaskConical } from "react-icons/lu";
-import {
-  LuHome, LuBarChart, LuUser, 
-  LuHotel, LuDatabase, LuCircuitBoard,
-  LuSettings, LuMoreVertical, LuSearch,
-  LuChevronLeft, LuChevronRight, LuPresentation,
-} from 'react-icons/lu'
+import { LuHome, LuBarChart, LuUser, LuHotel, LuCircuitBoard, LuSettings, LuMoreVertical, LuSearch, LuPresentation } from 'react-icons/lu'
 import { PiMagicWand } from "react-icons/pi";
+import { ChevronsLeftIcon, ChevronsRightIcon } from 'lucide-react';
 
 const appNav = [
   { name: 'Home', href: '/', icon: LuHome },
@@ -120,6 +115,18 @@ export default function Sidebar({ onCollapse, onExpand, email }) {
                     <ProfileFlyout userEmail={email} />
                   </li>
                 )}
+                {isCollapsed && (
+                  <li
+                    className={`mt-auto text-gray-700 w-full py-4 bottom-1 cursor-pointer bg-white border-gray-200 hover:text-swishjam hover:bg-gray-50`}
+                    onClick={() => {
+                      setIsCollapsed(false);
+                      onExpand();
+                      SwishjamMemory.set('isNavCollapsed', false);
+                    }}
+                  >
+                    <ChevronsRightIcon className="h-4 w-4 mx-auto hover:scale-110" />
+                  </li>
+                )}
               </ul>
             </nav>
           </div>
@@ -132,16 +139,19 @@ export default function Sidebar({ onCollapse, onExpand, email }) {
           </button>
         </div>
       </div>
-      <div
-        className={`transition-left duration-300 ease-in-out fixed text-gray-700 p-1 top-0 cursor-pointer border-b rounded-br-lg border-r z-30 bg-white -ml-[1px] border-gray-200 hover:text-swishjam hover:bg-gray-50 ${isCollapsed ? 'left-12' : 'left-64'}`}
-        onClick={() => {
-          setIsCollapsed(!isCollapsed);
-          isCollapsed ? onExpand() : onCollapse();
-          SwishjamMemory.set('isNavCollapsed', !isCollapsed);
-        }}
-      >
-        {isCollapsed ? <LuChevronRight className="h-4 w-4 hover:scale-110" /> : <LuChevronLeft className="h-4 w-4 hover:scale-110" />}
-      </div>
+      {!isCollapsed && (
+        <div
+          className='fixed text-gray-700 p-1 bottom-1 cursor-pointer border border-l-0 rounded-r-lg z-30 bg-white -ml-[1px] border-gray-200 hover:text-swishjam hover:bg-gray-50 left-64'
+          onClick={() => {
+            setIsCollapsed(true);
+            onCollapse();
+            SwishjamMemory.set('isNavCollapsed', true);
+          }}
+        >
+          <ChevronsLeftIcon className="h-4 w-4 mx-auto hover:scale-110" />
+          {/* {isCollapsed ? <LuChevronRight className="h-4 w-4 hover:scale-110" /> : <LuChevronLeft className="h-4 w-4 hover:scale-110" />} */}
+        </div>
+      )}
     </>
   );
 }

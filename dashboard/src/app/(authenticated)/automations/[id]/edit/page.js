@@ -25,6 +25,19 @@ export default function EditAutomationPage({ params }) {
     setAutomationSteps(automationStepsResponse);
   }
 
+  const updateAutomationName = async name => {
+    setIsLoading(true);
+    setAutomation({ ...automation, name })
+    const { error, automation: automationResult } = await SwishjamAPI.Automations.update(automationId, { name, nameOnly: true })
+    setIsLoading(false);
+    if (error) {
+      setAutomation(automationResult);
+      toast.error('Failed to update automation name', { description: error })
+    } else {
+      toast.success('Automation name updated.')
+    }
+  }
+
   const updateAutomation = async ({ nodes, edges }) => {
     setIsLoading(true);
     const { automation_steps, next_automation_step_conditions } = reformatNodesAndEdgesToAutomationsPayload({ nodes, edges })
@@ -33,7 +46,6 @@ export default function EditAutomationPage({ params }) {
     if (error) {
       toast.error('Failed to update automation', { description: error })
     } else {
-      // setAutomation(automationResponse);
       toast.success('Automation updated.')
     }
   }
@@ -49,7 +61,7 @@ export default function EditAutomationPage({ params }) {
           <AutomationBuilder
             automationName={automation?.name}
             automationSteps={automationSteps}
-            onAutomationNameUpdated={name => setAutomation({ ...automation, name })}
+            onAutomationNameUpdated={updateAutomationName}
             onSave={updateAutomation}
           />
         </AutomationBuilderProvider>

@@ -13,19 +13,20 @@ import 'reactflow/dist/style.css';
 export default function AutomationBuilder({
   automationName,
   automationSteps,
-  canvasWidth = 'w-full',
-  canvasHeight = 'h-screen',
+  canvasWidth = '100%',
+  canvasHeight = '100vh',
   includeControls = true,
   includePanel = true,
   onAutomationNameUpdated,
   onSave,
 }) {
-  const { nodes, edges, onNodesChange, onEdgesChange, setNodesAndEdgesFromAutomationSteps, validateConfig } = useAutomationBuilder();
+  const { nodes, edges, onNodesChange, onEdgesChange, setNodesAndEdgesFromAutomationSteps, validateConfig, fitView } = useAutomationBuilder();
   const [testExecutionModalIsOpen, setTestExecutionModalIsOpen] = useState(false);
 
   useEffect(() => {
     if (automationSteps) {
       setNodesAndEdgesFromAutomationSteps(automationSteps);
+      fitView();
     }
   }, automationSteps)
 
@@ -46,7 +47,23 @@ export default function AutomationBuilder({
         nodes={nodes}
         onClose={() => setTestExecutionModalIsOpen(false)}
       />
-      <main className={`relative ${canvasWidth} ${canvasHeight} overflow-hidden`}>
+      {includePanel && (
+        <TopPanel
+          automationName={automationName}
+          height='75px'
+          onAutomationNameSave={onAutomationNameUpdated}
+          onTestExecutionClick={() => setTestExecutionModalIsOpen(true)}
+          onSave={() => {
+            const errors = validateConfig();
+            if (errors.length > 0) {
+              toast.error(errors.join(', '), { duration: 15_000 })
+            } else {
+              onSave({ nodes, edges })
+            }
+          }}
+        />
+      )}
+      <main className='relative overflow-hidden' style={{ width: canvasWidth, height: `calc(${canvasHeight} - ${includePanel ? '75px' : '0px'})` }}>
         <div className="absolute top-0 right-0 bottom-0 left-0 z-0">
           <ReactFlow
             nodes={nodes}
@@ -57,26 +74,11 @@ export default function AutomationBuilder({
             edgeTypes={EdgeTypes}
             snapToGrid={true}
             fitView={true}
-            fitViewOptions={{ padding: 1, minZoom: 1, maxZoom: 1 }}
+            // fitViewOptions={{ padding: 1, minZoom: 1, maxZoom: 1 }}
+            fitViewOptions={{ minZoom: 1, maxZoom: 1 }}
             elementsSelectable={false}
             panOnScroll={true}
           >
-            {includePanel && (
-              <TopPanel
-                automationName={automationName}
-                onAutomationNameUpdated={onAutomationNameUpdated}
-                onTestExecutionClick={() => setTestExecutionModalIsOpen(true)}
-                onSave={() => {
-                  const errors = validateConfig();
-                  if (errors.length > 0) {
-                    toast.error(errors.join(', '), { duration: 15_000 })
-                  } else {
-                    onSave({ nodes, edges })
-                  }
-                }}
-              />
-            )}
-
             <Background variant="dots" gap={6} size={0.5} />
             {includeControls && (
               <Controls

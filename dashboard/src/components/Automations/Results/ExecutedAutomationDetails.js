@@ -27,7 +27,11 @@ export default function ExecutedAutomationDetails({ automationSteps, executedAut
           </div>
         </div>
       </div>
-      <AutomationBuilder automationSteps={automationStepsWithExecutionResults} includePanel={false} />
+      <AutomationBuilder
+        automationSteps={automationStepsWithExecutionResults}
+        canvasHeight="60vh"
+        includePanel={false}
+      />
     </AccordionOpen>
   )
 }
