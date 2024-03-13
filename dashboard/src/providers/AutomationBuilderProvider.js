@@ -1,16 +1,17 @@
 'use client';
 
 import AutomationBuilderContext from '@/contexts/AutomationBuilderContext';
-import { autoLayoutNodesAndEdges, createNewEdge, createNewNode, errorForNode } from '@/lib/automations-helpers';
+import { autoLayoutNodesAndEdges, buildNodesAndEdgesFromAutomationSteps, createNewEdge, createNewNode, errorForNode, generateEmptyStateMockedAutomationSteps } from '@/lib/automations-helpers';
 import { NODE_WIDTH, NODE_HEIGHT } from '@/lib/automations-helpers';
 import { useState } from 'react';
 import { useEdgesState, useNodesState, useReactFlow } from 'reactflow';
 
-const AutomationBuilderProvider = ({ isLoading = false, children, defaultNodes = [], defaultEdges = [] }) => {
+const AutomationBuilderProvider = ({ isLoading = false, children, initialAutomationSteps }) => {
   const [selectedEntryPointEventName, setSelectedEntryPointEventName] = useState();
 
-  const [nodes, setNodes, onNodesChange] = useNodesState(defaultNodes);
-  const [edges, setEdges, onEdgesChange] = useEdgesState(defaultEdges);
+  const { nodes: initialNodes, edges: initialEdges } = buildNodesAndEdgesFromAutomationSteps(initialAutomationSteps);
+  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
+  const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
   const { setCenter, fitView } = useReactFlow();
 
   const zoomToNode = node => {
@@ -31,25 +32,8 @@ const AutomationBuilderProvider = ({ isLoading = false, children, defaultNodes =
   }
 
   const setNodesAndEdgesFromAutomationSteps = automationSteps => {
-    let initialNodes = [];
-    let initialEdges = [];
-
-    if (automationSteps.length === 0) {
-      const entryNode = createNewNode({ type: 'EntryPoint' })
-      const exitNode = createNewNode({ type: 'Exit' })
-      initialNodes = [entryNode, exitNode];
-      initialEdges = [createNewEdge({ source: entryNode.id, target: exitNode.id })]
-    } else {
-      automationSteps.forEach(step => {
-        const node = createNewNode({ id: step.id, type: step.type.split('::')[1], data: step.config })
-        initialNodes.push(node)
-        step.next_automation_step_conditions.forEach(condition => {
-          const edge = createNewEdge({ id: condition.id, source: step.id, target: condition.next_automation_step.id, data: { ...condition } })
-          initialEdges.push(edge)
-        })
-      })
-    }
-    updateCanvasWithAutoLayout(initialNodes, initialEdges);
+    const { nodes: nodesFromAutomationSteps, edges: edgesFromAutomationSteps } = buildNodesAndEdgesFromAutomationSteps(automationSteps);
+    updateCanvasWithAutoLayout(nodesFromAutomationSteps, edgesFromAutomationSteps);
   }
 
   const addNodeInEdge = ({ nodeType, data, edgeId, numEdgesToAdd = 1 }) => {

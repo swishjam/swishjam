@@ -9,34 +9,38 @@ import TopPanel from './TopPanel';
 import useAutomationBuilder from '@/hooks/useAutomationBuilder';
 import { useEffect, useState } from 'react';
 import 'reactflow/dist/style.css';
+import useUnsavedChanges from '@/hooks/useUnsavedChanges';
 
 export default function AutomationBuilder({
   automationName,
   automationSteps,
   canvasWidth = '100%',
   canvasHeight = '100vh',
+  displayUnsavedChangesIndicator = true,
   includeControls = true,
   includePanel = true,
   onAutomationNameUpdated,
   onSave,
 }) {
   const { nodes, edges, onNodesChange, onEdgesChange, setNodesAndEdgesFromAutomationSteps, validateConfig, fitView } = useAutomationBuilder();
+  const { hasUnsavedChanges, guardFromUnsavedChanges } = useUnsavedChanges();
   const [testExecutionModalIsOpen, setTestExecutionModalIsOpen] = useState(false);
+  const [initialNodes] = useState(nodes);
+  const [initialEdges] = useState(edges);
+
+  if (displayUnsavedChangesIndicator) {
+    guardFromUnsavedChanges(
+      [...initialNodes.map(n => n.data), ...initialEdges.map(e => e.data)],
+      [...nodes.map(n => n.data), ...edges.map(e => e.data)]
+    );
+  }
 
   useEffect(() => {
     if (automationSteps) {
       setNodesAndEdgesFromAutomationSteps(automationSteps);
       fitView();
     }
-  }, automationSteps)
-
-  if (!automationSteps) {
-    return (
-      <div className='h-screen w-screen flex items-center justify-center'>
-        <LoadingSpinner size={10} />
-      </div>
-    )
-  }
+  }, [...automationSteps])
 
   return (
     <>
@@ -50,6 +54,8 @@ export default function AutomationBuilder({
       {includePanel && (
         <TopPanel
           automationName={automationName}
+          canSave={hasUnsavedChanges}
+          displayUnsavedChangesIndicator={displayUnsavedChangesIndicator}
           height='75px'
           onAutomationNameSave={onAutomationNameUpdated}
           onTestExecutionClick={() => setTestExecutionModalIsOpen(true)}
@@ -74,8 +80,8 @@ export default function AutomationBuilder({
             edgeTypes={EdgeTypes}
             snapToGrid={true}
             fitView={true}
-            // fitViewOptions={{ padding: 1, minZoom: 1, maxZoom: 1 }}
-            fitViewOptions={{ minZoom: 1, maxZoom: 1 }}
+            fitViewOptions={{ padding: 1, minZoom: 1, maxZoom: 1 }}
+            // fitViewOptions={{ minZoom: 1, maxZoom: 1 }}
             elementsSelectable={false}
             panOnScroll={true}
           >

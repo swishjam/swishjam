@@ -5,15 +5,25 @@ import Link from "next/link"
 import LoadingSpinner from "@/components/LoadingSpinner"
 import { LuArrowLeft } from "react-icons/lu"
 import { Popover, PopoverClose, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { FlaskConical, SaveIcon, XIcon } from "lucide-react"
-import { useState } from "react"
+import { AlertTriangleIcon, FlaskConical, SaveIcon, XIcon } from "lucide-react"
+import { useEffect, useState } from "react"
 import useAutomationBuilder from "@/hooks/useAutomationBuilder"
 
-export default function TopPanel({ automationName, onTestExecutionClick, onSave, onAutomationNameSave, height = '75px' }) {
+export default function TopPanel({ automationName: currentAutomationName, canSave, displayUnsavedChangesIndicator, onTestExecutionClick, onSave, onAutomationNameSave, height = '75px' }) {
   const { isLoading } = useAutomationBuilder();
 
-  const [editedAutomationName, setEditedAutomationName] = useState(automationName)
+  const [editedAutomationName, setEditedAutomationName] = useState(currentAutomationName)
   const [isPopoverOpen, setIsPopoverOpen] = useState(false)
+  const [unsavedChangesIndicatorIsExpanded, setUnsavedChangesIndicatorIsExpanded] = useState(false)
+
+  useEffect(() => {
+    if (canSave) {
+      setUnsavedChangesIndicatorIsExpanded(true)
+      setTimeout(() => {
+        setUnsavedChangesIndicatorIsExpanded(false)
+      }, 3_000)
+    }
+  }, [canSave])
 
   return (
     <div className="w-full grid grid-cols-3 items-center bg-white border-b border-zinc-200 py-2 px-4" style={{ height }}>
@@ -30,7 +40,7 @@ export default function TopPanel({ automationName, onTestExecutionClick, onSave,
         <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
           <PopoverTrigger>
             <div className='cursor-pointer  font-medium p-2 px-4 hover:bg-gray-100 transition-all duration-500 rounded-md'>
-              {automationName}
+              {currentAutomationName}
             </div>
           </PopoverTrigger>
           <PopoverContent className='relative px-4 pt-8'>
@@ -40,7 +50,7 @@ export default function TopPanel({ automationName, onTestExecutionClick, onSave,
             <form
               onSubmit={e => {
                 e.preventDefault();
-                if (!isLoading) {
+                if (!isLoading && currentAutomationName !== editedAutomationName) {
                   onAutomationNameSave(editedAutomationName)
                   setIsPopoverOpen(false)
                 }
@@ -54,12 +64,14 @@ export default function TopPanel({ automationName, onTestExecutionClick, onSave,
                 onChange={e => setEditedAutomationName(e.target.value)}
               />
               <Button
-                className="mt-4 w-full flex items-center space-x-2"
-                disabled={isLoading}
+                className='mt-4 w-full flex items-center space-x-2'
+                disabled={isLoading || currentAutomationName === editedAutomationName}
                 variant='swishjam'
                 type='submit'
               >
-                Save
+                {isLoading && <LoadingSpinner color='white' size={4} />}
+                {!isLoading && <SaveIcon className='h-4 w-4' />}
+                <span>Save</span>
               </Button>
             </form>
           </PopoverContent>
@@ -76,12 +88,28 @@ export default function TopPanel({ automationName, onTestExecutionClick, onSave,
           <span>Run Test Automation</span>
         </Button>
         <Button
-          className="flex items-center space-x-2"
-          disabled={isLoading}
+          className={`flex items-center space-x-2 group ${(!canSave && displayUnsavedChangesIndicator) ? 'cursor-not-allowed' : ''}`}
+          disabled={isLoading || (!canSave && displayUnsavedChangesIndicator)}
           onClick={onSave}
           variant='swishjam'
         >
-          {isLoading ? <LoadingSpinner color='white' size={4} /> : <SaveIcon className='h-4 w-4' />}
+          {isLoading && <LoadingSpinner color='white' size={4} />}
+          {!isLoading && (
+            <div className='relative'>
+              <SaveIcon className='h-4 w-4' />
+              {canSave && displayUnsavedChangesIndicator && (
+                <div className={`absolute -top-1 -left-1 rounded-full bg-red-600 transition-all ${unsavedChangesIndicatorIsExpanded ? '-translate-x-[115%] w-fit h-fit' : 'w-2 h-2 group-hover:-translate-x-[115%] group-hover:w-fit group-hover:h-fit'}`}>
+                  <span
+                    className={`flex items-center text-white px-2 py-0.5 ${unsavedChangesIndicatorIsExpanded ? 'inline-block' : 'hidden group-hover:inline-block'}`}
+                    style={{ fontSize: '0.6rem' }}
+                  >
+                    <AlertTriangleIcon className="h-3 w-3 mr-1 inline-block" />
+                    Unsaved Changes
+                  </span>
+                </div>
+              )}
+            </div>
+          )}
           <span>Save Automation</span>
         </Button>
       </div>

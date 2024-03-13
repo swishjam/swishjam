@@ -4,16 +4,19 @@ import AutomationBuilder from "@/components/Automations/Builder";
 import AutomationBuilderProvider from "@/providers/AutomationBuilderProvider";
 import CommonQueriesProvider from "@/providers/CommonQueriesProvider";
 import SwishjamAPI from "@/lib/api-client/swishjam-api";
-import { reformatNodesAndEdgesToAutomationsPayload } from "@/lib/automations-helpers";
+import { generateEmptyStateMockedAutomationSteps, reformatNodesAndEdgesToAutomationsPayload } from "@/lib/automations-helpers";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { ReactFlowProvider } from 'reactflow'
+import UnsavedChangesProvider from "@/providers/UnsavedChangesProvider";
 
 export default function NewAutomationPage() {
   const [name, setName] = useState('New Automation')
   const [isSaving, setIsSaving] = useState(false)
   const router = useRouter();
+
+  const emptyStateMockedAutomationSteps = generateEmptyStateMockedAutomationSteps();
 
   const createAutomation = async ({ nodes, edges }) => {
     setIsSaving(true)
@@ -29,17 +32,20 @@ export default function NewAutomationPage() {
   }
 
   return (
-    <CommonQueriesProvider>
-      <ReactFlowProvider>
-        <AutomationBuilderProvider isLoading={isSaving}>
-          <AutomationBuilder
-            automationName={name}
-            automationSteps={[]}
-            onAutomationNameUpdated={setName}
-            onSave={createAutomation}
-          />
-        </AutomationBuilderProvider>
-      </ReactFlowProvider>
-    </CommonQueriesProvider>
+    <UnsavedChangesProvider>
+      <CommonQueriesProvider>
+        <ReactFlowProvider>
+          <AutomationBuilderProvider isLoading={isSaving} initialAutomationSteps={emptyStateMockedAutomationSteps}>
+            <AutomationBuilder
+              automationName={name}
+              automationSteps={emptyStateMockedAutomationSteps}
+              displayUnsavedChangesIndicator={false}
+              onAutomationNameUpdated={setName}
+              onSave={createAutomation}
+            />
+          </AutomationBuilderProvider>
+        </ReactFlowProvider>
+      </CommonQueriesProvider>
+    </UnsavedChangesProvider>
   )
 }
