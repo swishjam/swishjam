@@ -20,7 +20,6 @@ module Ingestion
       @raw_events_to_prepare = raw_events_to_prepare
       @prepared_events_formatted_for_ingestion = []
       @failed_events = []
-      # @event_trigger_evaluator = EventTriggers::Evaluator.new
       @update_ingestion_batch_every_n_iterations = update_ingestion_batch_every_n_iterations
     end
 
@@ -49,7 +48,6 @@ module Ingestion
       prepared_events = prepared_event.is_a?(Array) ? prepared_event : [prepared_event]
       prepared_events.each do |prepared_event|
         next if EVENT_NAMES_NOT_ELIGIBLE_FOR_EVENT_TRIGGER_EVALUATION.include?(prepared_event.name)
-        # event_trigger_evaluator.enqueue_event_trigger_jobs_that_match_event(prepared_event)
         Automations::Triggerer.enqueue_automation_execution_jobs_that_match_event(prepared_event)
       end
       prepared_events.each do |prepared_event|

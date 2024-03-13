@@ -10,6 +10,7 @@ class TriggeredEventTrigger < Transactional
   attribute :event_json, :jsonb, default: {}
 
   def retry!(as_test: false, override_only_failed_rule: false)
+    raise "DEPRECATED: WE ARE NOW ON AUTOMATIONS, WHY WOULD THIS TRIGGER?"
     if can_retry? || override_only_failed_rule
       retried_triggered_event_trigger = event_trigger.trigger_if_conditions_are_met!(Ingestion::ParsedEventFromIngestion.new(event_json), as_test: as_test, is_retry: true)
       return false unless retried_triggered_event_trigger

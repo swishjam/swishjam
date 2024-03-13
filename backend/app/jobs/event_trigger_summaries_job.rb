@@ -3,6 +3,7 @@ class EventTriggerSummariesJob
   queue_as :default
 
   def perform
+    raise "DEPRECATED: WE ARE NOW ON AUTOMATIONS, WHY WOULD THIS TRIGGER?"
     Workspace.all.each do |workspace|
       slack_connection = Integrations::Destinations::Slack.for_workspace(workspace)
       next if slack_connection.nil?

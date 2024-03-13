@@ -20,6 +20,7 @@ class EventTrigger < Transactional
   after_create :send_new_trigger_notification_to_slack_if_necessary
 
   def trigger_if_conditions_are_met!(prepared_event, as_test: false, is_retry: false)
+    raise "DEPRECATED: WE ARE NOW ON AUTOMATIONS, WHY WOULD THIS TRIGGER?"
     if !is_retry && triggered_event_triggers.find_by(event_uuid: prepared_event.uuid).present?
       Sentry.capture_message("Duplicate EventTrigger prevented. EventTrigger #{id} already triggered for event #{prepared_event.uuid} (#{prepared_event.name} event for #{workspace.name} workspace).")
       false

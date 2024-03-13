@@ -21,6 +21,6 @@
     data_cleanup:
       cron: "0 7 * * *" # every day @ 12am PST
       class: DataCleanupJob
-    event_trigger_summaries:
-      cron: "0 16 * * MON" # every week on Monday @ 8am PST
-      class: EventTriggerSummariesJob
+    # event_trigger_summaries:
+    #   cron: "0 16 * * MON" # every week on Monday @ 8am PST
+    #   class: EventTriggerSummariesJob
