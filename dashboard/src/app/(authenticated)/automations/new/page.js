@@ -9,7 +9,6 @@ import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { ReactFlowProvider } from 'reactflow'
-import LoadingSpinner from "@/components/LoadingSpinner";
 
 export default function NewAutomationPage() {
   const [name, setName] = useState('New Automation')
@@ -33,14 +32,12 @@ export default function NewAutomationPage() {
     <CommonQueriesProvider>
       <ReactFlowProvider>
         <AutomationBuilderProvider>
-          {isSaving && <div className='h-screen w-screen flex items-center justify-center'><LoadingSpinner size={10} /></div>}
           <AutomationBuilder
             automationName={name}
             automationSteps={[]}
             onAutomationNameUpdated={setName}
             isLoading={isSaving}
             onSave={createAutomation}
-          // title='New Automation'
           />
         </AutomationBuilderProvider>
       </ReactFlowProvider>

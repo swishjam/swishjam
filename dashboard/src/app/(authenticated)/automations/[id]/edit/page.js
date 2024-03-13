@@ -3,7 +3,6 @@
 import AutomationBuilder from "@/components/Automations/Flow/Builder";
 import AutomationBuilderProvider from "@/providers/AutomationBuilderProvider";
 import CommonQueriesProvider from "@/providers/CommonQueriesProvider";
-import LoadingSpinner from "@/components/LoadingSpinner";
 import { ReactFlowProvider } from 'reactflow'
 import SwishjamAPI from "@/lib/api-client/swishjam-api"
 import { useEffect, useState } from "react"
@@ -47,15 +46,15 @@ export default function EditAutomationPage({ params }) {
     <CommonQueriesProvider>
       <ReactFlowProvider>
         <AutomationBuilderProvider>
-          {isLoading && <div className='h-screen w-screen flex items-center justify-center'><LoadingSpinner size={10} /></div>}
-          {automation && automationSteps &&
-          <AutomationBuilder
-            automationName={automation?.name}
-            automationSteps={automationSteps}
-            onAutomationNameUpdated={name => setAutomation({ ...automation, name })}
-            isLoading={isLoading}
-            onSave={updateAutomation}
-          />}
+          {automation && automationSteps && (
+            <AutomationBuilder
+              automationName={automation?.name}
+              automationSteps={automationSteps}
+              onAutomationNameUpdated={name => setAutomation({ ...automation, name })}
+              isLoading={isLoading}
+              onSave={updateAutomation}
+            />
+          )}
         </AutomationBuilderProvider>
       </ReactFlowProvider>
     </CommonQueriesProvider>

@@ -2,9 +2,9 @@
 
 import AutomationBuilderContext from '@/contexts/AutomationBuilderContext';
 import { autoLayoutNodesAndEdges, createNewEdge, createNewNode, errorForNode } from '@/lib/automations-helpers';
+import { NODE_WIDTH, NODE_HEIGHT } from '@/lib/automations-helpers';
 import { useState } from 'react';
 import { useEdgesState, useNodesState, useReactFlow } from 'reactflow';
-import { NODE_WIDTH, NODE_HEIGHT, errorsForNode } from '@/lib/automations-helpers';
 
 const AutomationBuilderProvider = ({ children }) => {
   const [selectedEntryPointEventName, setSelectedEntryPointEventName] = useState();

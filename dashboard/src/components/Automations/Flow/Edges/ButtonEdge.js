@@ -27,7 +27,7 @@ export function ButtonEdge({
   });
 
   const onAddNode = nodeType => {
-    addNodeInEdge({ nodeType, data, edgeId: id, numEdgesToAdd: nodeType === 'IfElse' ? 2 : 1 })
+    addNodeInEdge({ nodeType, data: {}, edgeId: id, numEdgesToAdd: nodeType === 'IfElse' ? 2 : 1 })
   };
 
   const maybeSatisfiedConditionStyles = data.satisfied_at ? { stroke: 'rgb(34 197 94)', strokeWidth: 2 } : {};

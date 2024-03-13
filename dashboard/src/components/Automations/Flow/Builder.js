@@ -26,7 +26,7 @@ export default function AutomationBuilder({
 
   useEffect(() => {
     setNodesAndEdgesFromAutomationSteps(automationSteps);
-  }, [automationSteps])
+  }, automationSteps)
 
   if (!automationSteps) {
     return (
@@ -60,6 +60,11 @@ export default function AutomationBuilder({
             elementsSelectable={false}
             panOnScroll={true}
           >
+            {isLoading && (
+              <div className='z-10 absolute top-0 right-0 bottom-0 left-0 flex items-center justify-center bg-black bg-opacity-20'>
+                <LoadingSpinner size={10} />
+              </div>
+            )}
             {includePanel && (
               <TopPanel
                 automationName={automationName}
