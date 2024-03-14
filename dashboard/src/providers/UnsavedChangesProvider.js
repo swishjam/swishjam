@@ -7,6 +7,11 @@ import { useState } from 'react';
 
 const UnsavedChangesProvider = ({ children }) => {
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+
+  const guardFromUnsavedChanges = (initialState, currentState) => {
+    setHasUnsavedChanges(JSON.stringify(initialState) !== JSON.stringify(currentState));
+  };
+
   // const [confirmationDialogOpen, setConfirmationDialogOpen] = useState(false);
   // const [confirmationDialogCallback, setConfirmationDialogCallback] = useState();
 
@@ -14,10 +19,6 @@ const UnsavedChangesProvider = ({ children }) => {
   //   setConfirmationDialogOpen(false);
   //   setConfirmationDialogCallback();
   // }
-
-  const guardFromUnsavedChanges = (initialState, currentState) => {
-    setHasUnsavedChanges(JSON.stringify(initialState) !== JSON.stringify(currentState));
-  };
 
   return (
     <UnsavedChangesContext.Provider value={{ hasUnsavedChanges, guardFromUnsavedChanges }}>

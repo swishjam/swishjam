@@ -1,6 +1,5 @@
 'use client'
 
-import LoadingSpinner from '@/components/LoadingSpinner';
 import { NodeTypes, EdgeTypes } from '@/lib/automations-helpers';
 import TestExecutionModal from './TestExecutionModal';
 import ReactFlow, { Background, Controls } from 'reactflow';
@@ -9,11 +8,9 @@ import TopPanel from './TopPanel';
 import useAutomationBuilder from '@/hooks/useAutomationBuilder';
 import { useEffect, useState } from 'react';
 import 'reactflow/dist/style.css';
-import useUnsavedChanges from '@/hooks/useUnsavedChanges';
 
 export default function AutomationBuilder({
   automationName,
-  automationSteps,
   canvasWidth = '100%',
   canvasHeight = '100vh',
   displayUnsavedChangesIndicator = true,
@@ -23,17 +20,36 @@ export default function AutomationBuilder({
   onSave,
 }) {
   const { nodes, edges, onNodesChange, onEdgesChange, validateConfig } = useAutomationBuilder();
-  const { hasUnsavedChanges, guardFromUnsavedChanges } = useUnsavedChanges();
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [testExecutionModalIsOpen, setTestExecutionModalIsOpen] = useState(false);
-  const [initialNodes] = useState(nodes);
-  const [initialEdges] = useState(edges);
+  const [nodesForUnsavedChanges, setNodesForUnsavedChanges] = useState(nodes);
+  const [edgesForUnsavedChanges, setEdgesForUnsavedChanges] = useState(edges);
 
-  if (displayUnsavedChangesIndicator) {
-    guardFromUnsavedChanges(
-      [...initialNodes.map(n => n.data), ...initialEdges.map(e => e.data)],
-      [...nodes.map(n => n.data), ...edges.map(e => e.data)]
-    );
+  const tryToSaveChanges = () => {
+    const errors = validateConfig();
+    if (errors.length > 0) {
+      toast.error(errors.join(', '), { duration: 15_000 })
+    } else {
+      onSave({ nodes, edges }).then(({ error }) => {
+        if (!error) {
+          setNodesForUnsavedChanges(nodes);
+          setEdgesForUnsavedChanges(edges);
+          setHasUnsavedChanges(false);
+        }
+      })
+    }
   }
+
+  useEffect(() => {
+    if (displayUnsavedChangesIndicator) {
+      const stringifiedStateOfOriginalNodesAndEdges = JSON.stringify([...nodesForUnsavedChanges.map(n => n.data), ...edgesForUnsavedChanges.map(e => e.data)]);
+      const stringifiedStateOfCurrentNodesAndEdges = JSON.stringify([...nodes.map(n => n.data), ...edges.map(e => e.data)]);
+      debugger
+      setHasUnsavedChanges(
+        stringifiedStateOfCurrentNodesAndEdges !== stringifiedStateOfOriginalNodesAndEdges
+      );
+    }
+  }, [displayUnsavedChangesIndicator, ...nodes.map(n => n.data), ...edges.map(e => e.data), ...nodesForUnsavedChanges.map(n => n.data), ...edgesForUnsavedChanges.map(e => e.data)]);
 
   return (
     <>
@@ -52,14 +68,7 @@ export default function AutomationBuilder({
           height='75px'
           onAutomationNameSave={onAutomationNameUpdated}
           onTestExecutionClick={() => setTestExecutionModalIsOpen(true)}
-          onSave={() => {
-            const errors = validateConfig();
-            if (errors.length > 0) {
-              toast.error(errors.join(', '), { duration: 15_000 })
-            } else {
-              onSave({ nodes, edges })
-            }
-          }}
+          onSave={tryToSaveChanges}
         />
       )}
       <main className='relative overflow-hidden' style={{ width: canvasWidth, height: `calc(${canvasHeight} - ${includePanel ? '75px' : '0px'})` }}>
@@ -73,7 +82,6 @@ export default function AutomationBuilder({
             edgeTypes={EdgeTypes}
             snapToGrid={true}
             fitView={true}
-            // fitViewOptions={{ duration: 800 }}
             elementsSelectable={false}
             panOnScroll={true}
             proOptions={{ hideAttribution: true }}

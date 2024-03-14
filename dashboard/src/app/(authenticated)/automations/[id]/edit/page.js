@@ -51,6 +51,7 @@ export default function EditAutomationPage({ params }) {
     } else {
       toast.success('Automation updated.')
     }
+    return { error }
   }
 
   useEffect(() => {
