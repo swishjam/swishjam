@@ -1,6 +1,7 @@
 module Automations
   class Executor
     class InvalidExecutionError < StandardError; end
+    class DelayedExecutionError < StandardError; end
     attr_reader :automation, :prepared_event, :executed_automation, :as_test
 
     def initialize(automation:, prepared_event:, executed_automation: nil, as_test: false)
@@ -51,9 +52,9 @@ module Automations
       if seconds_since_occurred_at > (ENV['AUTOMATION_EXECUTION_LAG_WARNING_THRESHOLD_IN_SECONDS'] || 10.minutes).to_i
         msg = "Automation #{automation.id} took #{seconds_since_occurred_at} seconds to reach execution logic."
         Sentry.capture_message(msg)
-        raise InvalidExecutionError, msg if ENV['DISABLE_AUTOMATION_WHEN_LAGGING']
+        raise DelayedExecutionError, msg if ENV['DISABLE_AUTOMATION_WHEN_LAGGING']
         if seconds_since_occurred_at > 6.hours.to_i
-          raise InvalidExecutionError, "Automation #{automation.id} took #{seconds_since_occurred_at} seconds to reach execution logic, HAULTING EXECUTION."
+          raise DelayedExecutionError, "Automation #{automation.id} took #{seconds_since_occurred_at} seconds to reach execution logic, HAULTING EXECUTION."
         end
       end
       @executed_automation = automation.executed_automations.create!(
