@@ -44,8 +44,6 @@ export const autoLayoutNodesAndEdges = (nodes, edges) => {
       x: parentNodeXCoordinate,
       y: (nodeWithPosition.y - NODE_HEIGHT / 2) * EDGE_LENGTH_HEIGHT_MULTIPLIER,
     };
-
-    return node;
   });
 
   return { nodes, edges };

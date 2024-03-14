@@ -22,7 +22,7 @@ export default function AutomationBuilder({
   onAutomationNameUpdated,
   onSave,
 }) {
-  const { nodes, edges, onNodesChange, onEdgesChange, setNodesAndEdgesFromAutomationSteps, validateConfig, fitView } = useAutomationBuilder();
+  const { nodes, edges, onNodesChange, onEdgesChange, validateConfig } = useAutomationBuilder();
   const { hasUnsavedChanges, guardFromUnsavedChanges } = useUnsavedChanges();
   const [testExecutionModalIsOpen, setTestExecutionModalIsOpen] = useState(false);
   const [initialNodes] = useState(nodes);
@@ -34,13 +34,6 @@ export default function AutomationBuilder({
       [...nodes.map(n => n.data), ...edges.map(e => e.data)]
     );
   }
-
-  useEffect(() => {
-    if (automationSteps) {
-      setNodesAndEdgesFromAutomationSteps(automationSteps);
-      fitView();
-    }
-  }, [...automationSteps])
 
   return (
     <>
@@ -80,15 +73,16 @@ export default function AutomationBuilder({
             edgeTypes={EdgeTypes}
             snapToGrid={true}
             fitView={true}
-            fitViewOptions={{ padding: 1, minZoom: 1, maxZoom: 1 }}
-            // fitViewOptions={{ minZoom: 1, maxZoom: 1 }}
+            // fitViewOptions={{ duration: 800 }}
             elementsSelectable={false}
             panOnScroll={true}
+            proOptions={{ hideAttribution: true }}
           >
             <Background variant="dots" gap={6} size={0.5} />
             {includeControls && (
               <Controls
                 className="rounded-md border-gray-200 border bg-white shadow-sm overflow-hidden"
+                fitViewOptions={{ duration: 800 }}
                 showInteractive={false}
               />
             )}

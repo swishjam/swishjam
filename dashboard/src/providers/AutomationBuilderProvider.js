@@ -10,13 +10,21 @@ const AutomationBuilderProvider = ({ isLoading = false, children, initialAutomat
   const [selectedEntryPointEventName, setSelectedEntryPointEventName] = useState();
 
   const { nodes: initialNodes, edges: initialEdges } = buildNodesAndEdgesFromAutomationSteps(initialAutomationSteps);
-  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
-  const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
+  const { nodes: autoLayoutedInitialNodes, edges: autoLayoutedInitialEdges } = autoLayoutNodesAndEdges(initialNodes, initialEdges);
+  const [nodes, setNodes, onNodesChange] = useNodesState(autoLayoutedInitialNodes);
+  const [edges, setEdges, onEdgesChange] = useEdgesState(autoLayoutedInitialEdges);
   const { setCenter, fitView } = useReactFlow();
 
-  const zoomToNode = node => {
-    setCenter(node.position.x + (NODE_WIDTH / 2), node.position.y + (NODE_HEIGHT / 2), { duration: 800, zoom: 1 })
+  const zoomToNode = (node, options = {}) => {
+    setCenter(node.position.x + (NODE_WIDTH / 2), node.position.y + (NODE_HEIGHT / 2), { duration: options.duration || 800, zoom: options.zoom || 1.5 })
   };
+
+  const zoomToNodeId = nodeId => {
+    const node = nodes.find(n => n.id === nodeId);
+    if (node) {
+      zoomToNode(node);
+    }
+  }
 
   const zoomToEntryPoint = () => {
     const entryPointNode = nodes.find(node => node.type === 'EntryPoint');
@@ -25,18 +33,20 @@ const AutomationBuilderProvider = ({ isLoading = false, children, initialAutomat
     }
   }
 
-  const updateCanvasWithAutoLayout = (nodes, edges) => {
+  const updateCanvasWithAutoLayout = async (nodes, edges) => {
     const { nodes: newNodes, edges: newEdges } = autoLayoutNodesAndEdges(nodes, edges);
-    setNodes(newNodes);
-    setEdges(newEdges);
+    await Promise.all([
+      setNodes(newNodes),
+      setEdges(newEdges),
+    ]);
   }
 
-  const setNodesAndEdgesFromAutomationSteps = automationSteps => {
+  const setNodesAndEdgesFromAutomationSteps = async automationSteps => {
     const { nodes: nodesFromAutomationSteps, edges: edgesFromAutomationSteps } = buildNodesAndEdgesFromAutomationSteps(automationSteps);
-    updateCanvasWithAutoLayout(nodesFromAutomationSteps, edgesFromAutomationSteps);
+    await updateCanvasWithAutoLayout(nodesFromAutomationSteps, edgesFromAutomationSteps);
   }
 
-  const addNodeInEdge = ({ nodeType, data, edgeId, numEdgesToAdd = 1 }) => {
+  const addNodeInEdge = async ({ nodeType, data, edgeId, numEdgesToAdd = 1 }) => {
     const newPrimaryNode = createNewNode({ type: nodeType, data })
     let newNodes = [newPrimaryNode]
 
@@ -55,18 +65,18 @@ const AutomationBuilderProvider = ({ isLoading = false, children, initialAutomat
     }
     const remainingEdges = edges.filter(edge => edge.id !== edgeId)
 
-    updateCanvasWithAutoLayout([...nodes, ...newNodes], [...remainingEdges, ...newEdges])
+    await updateCanvasWithAutoLayout([...nodes, ...newNodes], [...remainingEdges, ...newEdges])
     zoomToNode(newPrimaryNode);
   }
 
-  const deleteNode = nodeId => {
+  const deleteNode = async nodeId => {
     const newNodes = nodes.filter(n => n.id !== nodeId);
     const leftoverEdges = edges.filter(e => e.source !== nodeId && e.target !== nodeId);
     const removedEdges = edges.filter(e => e.source == nodeId || e.target == nodeId);
     const newEdgeSource = removedEdges.find(edge => edge.target === nodeId).source;
     const newEdgeTarget = removedEdges.find(edge => edge.source === nodeId).target;
     const newEdge = createNewEdge({ source: newEdgeSource, target: newEdgeTarget });
-    updateCanvasWithAutoLayout(newNodes, [...leftoverEdges, newEdge]);
+    await updateCanvasWithAutoLayout(newNodes, [...leftoverEdges, newEdge]);
   }
 
   const updateNode = (nodeId, data) => {
@@ -113,6 +123,7 @@ const AutomationBuilderProvider = ({ isLoading = false, children, initialAutomat
         validateConfig,
         zoomToEntryPoint,
         zoomToNode,
+        zoomToNodeId,
       }}
     >
       {children}

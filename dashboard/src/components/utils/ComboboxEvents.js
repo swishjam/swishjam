@@ -54,7 +54,7 @@ export default function ComboboxEvents({ selectedValue, onSelectionChange, optio
                     {(idx < formattedOptions.length - 1) && <CommandSeparator />}
                   </div>
                 ))}
-              </div> 
+              </div>
               {/* <CommandGroup className='overflow-y-scroll' style={{ maxHeight }}>
                 {options.map((option, i) => {
                   if (option.type === "separator") {
