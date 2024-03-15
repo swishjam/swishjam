@@ -9,7 +9,6 @@ import SwishjamAPI from "@/lib/api-client/swishjam-api"
 import { useEffect, useState } from "react"
 import { reformatNodesAndEdgesToAutomationsPayload } from "@/lib/automations-helpers";
 import { toast } from "sonner";
-import UnsavedChangesProvider from "@/providers/UnsavedChangesProvider";
 import { LuArrowLeft } from "react-icons/lu";
 
 export default function EditAutomationPage({ params }) {
@@ -88,20 +87,18 @@ export default function EditAutomationPage({ params }) {
           </div>
         </>
       ) : (
-        <UnsavedChangesProvider>
-          <CommonQueriesProvider>
-            <ReactFlowProvider>
-              <AutomationBuilderProvider isLoading={isLoading} initialAutomationSteps={automationSteps}>
-                <AutomationBuilder
-                  automationName={automation?.name}
-                  automationSteps={automationSteps}
-                  onAutomationNameUpdated={updateAutomationName}
-                  onSave={updateAutomation}
-                />
-              </AutomationBuilderProvider>
-            </ReactFlowProvider>
-          </CommonQueriesProvider>
-        </UnsavedChangesProvider>
+        <CommonQueriesProvider>
+          <ReactFlowProvider>
+            <AutomationBuilderProvider isLoading={isLoading} initialAutomationSteps={automationSteps}>
+              <AutomationBuilder
+                automationName={automation?.name}
+                automationSteps={automationSteps}
+                onAutomationNameUpdated={updateAutomationName}
+                onSave={updateAutomation}
+              />
+            </AutomationBuilderProvider>
+          </ReactFlowProvider>
+        </CommonQueriesProvider>
       )
   )
 }

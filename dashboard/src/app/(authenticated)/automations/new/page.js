@@ -9,7 +9,6 @@ import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { ReactFlowProvider } from 'reactflow'
-import UnsavedChangesProvider from "@/providers/UnsavedChangesProvider";
 
 export default function NewAutomationPage() {
   const [name, setName] = useState('New Automation')
@@ -32,20 +31,18 @@ export default function NewAutomationPage() {
   }
 
   return (
-    <UnsavedChangesProvider>
-      <CommonQueriesProvider>
-        <ReactFlowProvider>
-          <AutomationBuilderProvider isLoading={isSaving} initialAutomationSteps={emptyStateMockedAutomationSteps}>
-            <AutomationBuilder
-              automationName={name}
-              automationSteps={emptyStateMockedAutomationSteps}
-              displayUnsavedChangesIndicator={false}
-              onAutomationNameUpdated={setName}
-              onSave={createAutomation}
-            />
-          </AutomationBuilderProvider>
-        </ReactFlowProvider>
-      </CommonQueriesProvider>
-    </UnsavedChangesProvider>
+    <CommonQueriesProvider>
+      <ReactFlowProvider>
+        <AutomationBuilderProvider isLoading={isSaving} initialAutomationSteps={emptyStateMockedAutomationSteps}>
+          <AutomationBuilder
+            automationName={name}
+            automationSteps={emptyStateMockedAutomationSteps}
+            displayUnsavedChangesIndicator={false}
+            onAutomationNameUpdated={setName}
+            onSave={createAutomation}
+          />
+        </AutomationBuilderProvider>
+      </ReactFlowProvider>
+    </CommonQueriesProvider>
   )
 }

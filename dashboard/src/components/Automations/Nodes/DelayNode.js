@@ -22,7 +22,7 @@ const EditPopover = ({ id, data, children, onClose }) => {
 
   return (
     <>
-      <PopoverTrigger asChild>
+      <PopoverTrigger className='active:scale-[98%]'>
         {children}
       </PopoverTrigger>
       <PopoverContent className='pt-10 px-4'>
@@ -114,7 +114,9 @@ export default memo(({ id, data }) => {
                 <p className='text-sm text-gray-700'>
                   Wait
                   <EditPopover id={id} data={data} onClose={() => setEditPopoverIsOpen(false)}>
-                    <DottedUnderline cursor='pointer' className='mx-1 active:text-gray-900 active:scale-[98%]'>{delay_amount} {delay_amount === '1' ? delay_unit.slice(0, delay_unit.length - 1) : delay_unit}</DottedUnderline>
+                    <DottedUnderline cursor='pointer' className='mx-1 active:text-gray-900 active:scale-[98%]'>
+                      {delay_amount} {delay_amount === '1' ? delay_unit.slice(0, delay_unit.length - 1) : delay_unit}
+                    </DottedUnderline>
                   </EditPopover>
                   before running the next step.
                 </p>
