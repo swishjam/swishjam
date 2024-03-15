@@ -17,7 +17,14 @@ export default function ComboboxEvents({ selectedValue, onSelectionChange, optio
         <Skeleton className={`w-${minWidth} h-10`} />
       ) : (
         <Popover open={isOpen} onOpenChange={setIsOpen}>
-          <PopoverTrigger asChild>
+          <PopoverTrigger
+            onClick={e => {
+              e.preventDefault()
+              e.stopPropagation()
+              setIsOpen(!isOpen)
+            }}
+            asChild
+          >
             <Button
               variant="outline"
               role="combobox"
@@ -54,7 +61,7 @@ export default function ComboboxEvents({ selectedValue, onSelectionChange, optio
                     {(idx < formattedOptions.length - 1) && <CommandSeparator />}
                   </div>
                 ))}
-              </div> 
+              </div>
               {/* <CommandGroup className='overflow-y-scroll' style={{ maxHeight }}>
                 {options.map((option, i) => {
                   if (option.type === "separator") {

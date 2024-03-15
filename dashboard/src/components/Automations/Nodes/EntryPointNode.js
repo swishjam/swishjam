@@ -40,6 +40,10 @@ export default memo(({ id, data }) => {
               setSelectedEntryPointEventName(eventName)
               updateNode(id, { ...data, event_name: eventName })
             }}
+            onClick={e => {
+              e.stopPropagation()
+              e.preventDefault()
+            }}
           />
         )
       }

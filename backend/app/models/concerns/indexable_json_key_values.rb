@@ -19,7 +19,7 @@ module IndexableJsonKeyValues
         if self.saved_change_to_attribute?(jsonb_column)
           keys.each do |key|
             next unless self.saved_changes[jsonb_column].try(:[], 0).try(:[], key) || self.saved_changes[jsonb_column].try(:[], 1).try(:[], key)
-            self.find_all_by_indexed_key_value(column: jsonb_column, key: key).update_all(value: self.send(jsonb_column).try(:[], key))
+            self.indexed_jsonb_keys.where(column: jsonb_column, key: key).update_all(value: self.send(jsonb_column).try(:[], key))
           end
         end
       end

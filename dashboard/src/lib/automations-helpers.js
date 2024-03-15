@@ -44,8 +44,6 @@ export const autoLayoutNodesAndEdges = (nodes, edges) => {
       x: parentNodeXCoordinate,
       y: (nodeWithPosition.y - NODE_HEIGHT / 2) * EDGE_LENGTH_HEIGHT_MULTIPLIER,
     };
-
-    return node;
   });
 
   return { nodes, edges };
@@ -101,6 +99,52 @@ export const autoLayoutNodesAndEdges = (nodes, edges) => {
 
 //   return { nodes, edges };
 // };
+
+export const buildNodesAndEdgesFromAutomationSteps = automationSteps => {
+  let nodesFromAutomationSteps = [];
+  let edgesFromAutomationSteps = [];
+
+  if (automationSteps.length === 0) {
+    automationSteps = generateEmptyStateMockedAutomationSteps();
+  }
+  automationSteps.forEach(step => {
+    const node = createNewNode({ id: step.id, type: step.type.split('::')[1], data: step.config })
+    nodesFromAutomationSteps.push(node)
+    step.next_automation_step_conditions.forEach(condition => {
+      const edge = createNewEdge({ id: condition.id, source: step.id, target: condition.next_automation_step.id, data: { ...condition } })
+      edgesFromAutomationSteps.push(edge)
+    })
+  })
+  return { nodes: nodesFromAutomationSteps, edges: edgesFromAutomationSteps }
+}
+
+export const generateEmptyStateMockedAutomationSteps = () => {
+  const entryNodeId = `new-node-${Math.random().toString(36)}`;
+  const exitNodeId = `new-node-${Math.random().toString(36)}`;
+  return (
+    [
+      {
+        id: entryNodeId,
+        type: 'AutomationSteps::EntryPoint',
+        config: {},
+        next_automation_step_conditions: [
+          {
+            id: `new-edge-${Math.random().toString(36)}`,
+            automation_step: { id: entryNodeId },
+            next_automation_step: { id: exitNodeId },
+            type: 'NextAutomationStepConditionRules::AlwaysTrue', // is this necessary?
+          }
+        ]
+      },
+      {
+        id: exitNodeId,
+        type: 'AutomationSteps::Exit',
+        config: {},
+        next_automation_step_conditions: []
+      },
+    ]
+  )
+}
 
 export const createNewNode = ({ id, type, data = {} }) => {
   const nid = id || NEW_NODE_ID_PREFIX + Math.random().toString(36);

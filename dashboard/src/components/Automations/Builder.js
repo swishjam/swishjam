@@ -1,6 +1,5 @@
 'use client'
 
-import LoadingSpinner from '@/components/LoadingSpinner';
 import { NodeTypes, EdgeTypes } from '@/lib/automations-helpers';
 import TestExecutionModal from './TestExecutionModal';
 import ReactFlow, { Background, Controls } from 'reactflow';
@@ -10,33 +9,60 @@ import useAutomationBuilder from '@/hooks/useAutomationBuilder';
 import { useEffect, useState } from 'react';
 import 'reactflow/dist/style.css';
 
+const stringifySorted = obj => {
+  if (Array.isArray(obj)) {
+    return JSON.stringify(obj.map(stringifySorted));
+  } else if (obj !== null && typeof obj === 'object') {
+    return JSON.stringify(
+      Object.keys(obj)
+        .sort()
+        .reduce((result, key) => {
+          result[key] = stringifySorted(obj[key]);
+          return result;
+        }, {})
+    );
+  }
+  return JSON.stringify(obj);
+}
+
 export default function AutomationBuilder({
   automationName,
-  automationSteps,
   canvasWidth = '100%',
   canvasHeight = '100vh',
+  displayUnsavedChangesIndicator = true,
   includeControls = true,
   includePanel = true,
   onAutomationNameUpdated,
   onSave,
 }) {
-  const { nodes, edges, onNodesChange, onEdgesChange, setNodesAndEdgesFromAutomationSteps, validateConfig, fitView } = useAutomationBuilder();
+  const { nodes, edges, onNodesChange, onEdgesChange, validateConfig } = useAutomationBuilder();
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [testExecutionModalIsOpen, setTestExecutionModalIsOpen] = useState(false);
+  const [stringifiedLastSavedNodesData, setStringifiedLastSavedNodesData] = useState(stringifySorted(nodes.map(n => n.data)));
+  const [lastSavedNumEdges, setLastSavedNumEdges] = useState(edges.length);
+  const stringifiedNodesData = stringifySorted(nodes.map(n => n.data));
+
+  const tryToSaveChanges = () => {
+    const errors = validateConfig();
+    if (errors.length > 0) {
+      toast.error(errors.join(', '), { duration: 15_000 })
+    } else {
+      onSave({ nodes, edges }).then(({ error }) => {
+        if (!error) {
+          setStringifiedLastSavedNodesData(stringifySorted(nodes.map(n => n.data)));
+          setLastSavedNumEdges(edges.length);
+          setHasUnsavedChanges(false);
+        }
+      })
+    }
+  }
 
   useEffect(() => {
-    if (automationSteps) {
-      setNodesAndEdgesFromAutomationSteps(automationSteps);
-      fitView();
+    if (displayUnsavedChangesIndicator) {
+      const hasChanges = stringifiedLastSavedNodesData !== stringifiedNodesData || lastSavedNumEdges !== edges.length;
+      setHasUnsavedChanges(hasChanges);
     }
-  }, automationSteps)
-
-  if (!automationSteps) {
-    return (
-      <div className='h-screen w-screen flex items-center justify-center'>
-        <LoadingSpinner size={10} />
-      </div>
-    )
-  }
+  }, [stringifiedNodesData, edges.length]);
 
   return (
     <>
@@ -50,17 +76,12 @@ export default function AutomationBuilder({
       {includePanel && (
         <TopPanel
           automationName={automationName}
+          canSave={hasUnsavedChanges}
+          displayUnsavedChangesIndicator={displayUnsavedChangesIndicator}
           height='75px'
           onAutomationNameSave={onAutomationNameUpdated}
           onTestExecutionClick={() => setTestExecutionModalIsOpen(true)}
-          onSave={() => {
-            const errors = validateConfig();
-            if (errors.length > 0) {
-              toast.error(errors.join(', '), { duration: 15_000 })
-            } else {
-              onSave({ nodes, edges })
-            }
-          }}
+          onSave={tryToSaveChanges}
         />
       )}
       <main className='relative overflow-hidden' style={{ width: canvasWidth, height: `calc(${canvasHeight} - ${includePanel ? '75px' : '0px'})` }}>
@@ -74,15 +95,15 @@ export default function AutomationBuilder({
             edgeTypes={EdgeTypes}
             snapToGrid={true}
             fitView={true}
-            // fitViewOptions={{ padding: 1, minZoom: 1, maxZoom: 1 }}
-            fitViewOptions={{ minZoom: 1, maxZoom: 1 }}
             elementsSelectable={false}
             panOnScroll={true}
+            proOptions={{ hideAttribution: true }}
           >
             <Background variant="dots" gap={6} size={0.5} />
             {includeControls && (
               <Controls
                 className="rounded-md border-gray-200 border bg-white shadow-sm overflow-hidden"
+                fitViewOptions={{ duration: 800 }}
                 showInteractive={false}
               />
             )}
