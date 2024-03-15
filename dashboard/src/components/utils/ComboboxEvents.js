@@ -17,7 +17,14 @@ export default function ComboboxEvents({ selectedValue, onSelectionChange, optio
         <Skeleton className={`w-${minWidth} h-10`} />
       ) : (
         <Popover open={isOpen} onOpenChange={setIsOpen}>
-          <PopoverTrigger asChild>
+          <PopoverTrigger
+            onClick={e => {
+              e.preventDefault()
+              e.stopPropagation()
+              setIsOpen(!isOpen)
+            }}
+            asChild
+          >
             <Button
               variant="outline"
               role="combobox"

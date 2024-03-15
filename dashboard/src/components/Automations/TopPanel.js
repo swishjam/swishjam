@@ -18,10 +18,12 @@ export default function TopPanel({ automationName: currentAutomationName, canSav
 
   useEffect(() => {
     if (canSave) {
-      setUnsavedChangesIndicatorIsExpanded(true)
       setTimeout(() => {
-        setUnsavedChangesIndicatorIsExpanded(false)
-      }, 3_000)
+        setUnsavedChangesIndicatorIsExpanded(true)
+        setTimeout(() => {
+          setUnsavedChangesIndicatorIsExpanded(false)
+        }, 3_000)
+      }, 1_000)
     }
   }, [canSave])
 
@@ -98,9 +100,9 @@ export default function TopPanel({ automationName: currentAutomationName, canSav
             <div className='relative'>
               <SaveIcon className='h-4 w-4' />
               {canSave && displayUnsavedChangesIndicator && (
-                <div className={`absolute -top-1 -left-1 rounded-full bg-red-600 transition-all ${unsavedChangesIndicatorIsExpanded ? '-translate-x-[115%] w-fit h-fit' : 'w-2 h-2 group-hover:-translate-x-[115%] group-hover:w-fit group-hover:h-fit'}`}>
+                <div className={`absolute -top-1 -left-1 rounded-full bg-red-600 transition-all duration-700 flex items-center justify-center overflow-hidden ${unsavedChangesIndicatorIsExpanded ? '-translate-x-[115%] w-32 h-5' : 'w-2 h-2 group-hover:-translate-x-[115%] group-hover:w-32 group-hover:h-5'}`}>
                   <span
-                    className={`flex items-center text-white px-2 py-0.5 ${unsavedChangesIndicatorIsExpanded ? 'inline-block' : 'hidden group-hover:inline-block'}`}
+                    className={`flex items-center text-white px-2 py-0.5 transition-opacity duration-700 ${unsavedChangesIndicatorIsExpanded ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}
                     style={{ fontSize: '0.6rem' }}
                   >
                     <AlertTriangleIcon className="h-3 w-3 mr-1 inline-block" />

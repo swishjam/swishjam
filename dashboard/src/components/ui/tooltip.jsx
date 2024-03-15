@@ -28,16 +28,18 @@ TooltipContent.displayName = TooltipPrimitive.Content.displayName;
 
 const TooltipArrow = TooltipPrimitive.Arrow;
 
-const Tooltipable = ({ children, content, delay = 200, direction = "top", offset }) => (
-  <TooltipProvider>
-    <Tooltip delayDuration={delay}>
-      <TooltipTrigger asChild>{children}</TooltipTrigger>
-      <TooltipContent side={direction} className='max-w-[500px]' sideOffset={offset}>
-        <span className='text-sm text-gray-700'>{content}</span>
-      </TooltipContent>
-    </Tooltip>
-  </TooltipProvider>
-);
+const Tooltipable = ({ children, content, delay = 200, direction = "top", offset }) => {
+  return (
+    <TooltipProvider>
+      <Tooltip delayDuration={delay}>
+        <TooltipTrigger asChild>{children}</TooltipTrigger>
+        <TooltipContent side={direction} className='max-w-[500px]' sideOffset={offset}>
+          <span className='text-sm text-gray-700'>{content}</span>
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
+  );
+}
 
 export {
   Tooltipable,

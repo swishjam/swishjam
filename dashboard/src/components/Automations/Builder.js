@@ -9,6 +9,22 @@ import useAutomationBuilder from '@/hooks/useAutomationBuilder';
 import { useEffect, useState } from 'react';
 import 'reactflow/dist/style.css';
 
+const stringifySorted = obj => {
+  if (Array.isArray(obj)) {
+    return JSON.stringify(obj.map(stringifySorted));
+  } else if (obj !== null && typeof obj === 'object') {
+    return JSON.stringify(
+      Object.keys(obj)
+        .sort()
+        .reduce((result, key) => {
+          result[key] = stringifySorted(obj[key]);
+          return result;
+        }, {})
+    );
+  }
+  return JSON.stringify(obj);
+}
+
 export default function AutomationBuilder({
   automationName,
   canvasWidth = '100%',
@@ -22,8 +38,9 @@ export default function AutomationBuilder({
   const { nodes, edges, onNodesChange, onEdgesChange, validateConfig } = useAutomationBuilder();
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [testExecutionModalIsOpen, setTestExecutionModalIsOpen] = useState(false);
-  const [nodesForUnsavedChanges, setNodesForUnsavedChanges] = useState(nodes);
-  const [edgesForUnsavedChanges, setEdgesForUnsavedChanges] = useState(edges);
+  const [stringifiedLastSavedNodesData, setStringifiedLastSavedNodesData] = useState(stringifySorted(nodes.map(n => n.data)));
+  const [lastSavedNumEdges, setLastSavedNumEdges] = useState(edges.length);
+  const stringifiedNodesData = stringifySorted(nodes.map(n => n.data));
 
   const tryToSaveChanges = () => {
     const errors = validateConfig();
@@ -32,8 +49,8 @@ export default function AutomationBuilder({
     } else {
       onSave({ nodes, edges }).then(({ error }) => {
         if (!error) {
-          setNodesForUnsavedChanges(nodes);
-          setEdgesForUnsavedChanges(edges);
+          setStringifiedLastSavedNodesData(stringifySorted(nodes.map(n => n.data)));
+          setLastSavedNumEdges(edges.length);
           setHasUnsavedChanges(false);
         }
       })
@@ -42,14 +59,10 @@ export default function AutomationBuilder({
 
   useEffect(() => {
     if (displayUnsavedChangesIndicator) {
-      const stringifiedStateOfOriginalNodesAndEdges = JSON.stringify([...nodesForUnsavedChanges.map(n => n.data), ...edgesForUnsavedChanges.map(e => e.data)]);
-      const stringifiedStateOfCurrentNodesAndEdges = JSON.stringify([...nodes.map(n => n.data), ...edges.map(e => e.data)]);
-      debugger
-      setHasUnsavedChanges(
-        stringifiedStateOfCurrentNodesAndEdges !== stringifiedStateOfOriginalNodesAndEdges
-      );
+      const hasChanges = stringifiedLastSavedNodesData !== stringifiedNodesData || lastSavedNumEdges !== edges.length;
+      setHasUnsavedChanges(hasChanges);
     }
-  }, [displayUnsavedChangesIndicator, ...nodes.map(n => n.data), ...edges.map(e => e.data), ...nodesForUnsavedChanges.map(n => n.data), ...edgesForUnsavedChanges.map(e => e.data)]);
+  }, [stringifiedNodesData, edges.length]);
 
   return (
     <>

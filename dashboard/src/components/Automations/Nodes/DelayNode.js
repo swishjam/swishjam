@@ -22,7 +22,7 @@ const EditPopover = ({ id, data, children, onClose }) => {
 
   return (
     <>
-      <PopoverTrigger>
+      <PopoverTrigger asChild>
         {children}
       </PopoverTrigger>
       <PopoverContent className='pt-10 px-4'>
@@ -99,22 +99,22 @@ export default memo(({ id, data }) => {
           title='Delay'
         >
           {displayExecutionResult ? (
-          executionStepResults.execution_data?.executed_delayed_execution_at ? (
-            <p className='text-sm text-gray-700 italic mb-2'>
-              Resumed automation on <DottedUnderline>{prettyDateTime(executionStepResults.execution_data.executed_delayed_execution_at)}</DottedUnderline>.
-            </p>
-          ) : (
-            <p className='text-sm text-gray-700 italic mb-2'>
-              Currently delaying next step, scheduled to resume on <DottedUnderline>{prettyDateTime(executionStepResults.execution_data.scheduled_to_be_executed_at)}</DottedUnderline>.
-            </p>
-          )
+            executionStepResults.execution_data?.executed_delayed_execution_at ? (
+              <p className='text-sm text-gray-700 italic mb-2'>
+                Resumed automation on <DottedUnderline>{prettyDateTime(executionStepResults.execution_data.executed_delayed_execution_at)}</DottedUnderline>.
+              </p>
+            ) : (
+              <p className='text-sm text-gray-700 italic mb-2'>
+                Currently delaying next step, scheduled to resume on <DottedUnderline>{prettyDateTime(executionStepResults.execution_data.scheduled_to_be_executed_at)}</DottedUnderline>.
+              </p>
+            )
           ) : (
             delay_amount && delay_unit
               ? (
                 <p className='text-sm text-gray-700'>
                   Wait
                   <EditPopover id={id} data={data} onClose={() => setEditPopoverIsOpen(false)}>
-                    <DottedUnderline cursor='pointer' className='mx-1'>{delay_amount} {delay_amount === '1' ? delay_unit.slice(0, delay_unit.length - 1) : delay_unit}</DottedUnderline>
+                    <DottedUnderline cursor='pointer' className='mx-1 active:text-gray-900 active:scale-[98%]'>{delay_amount} {delay_amount === '1' ? delay_unit.slice(0, delay_unit.length - 1) : delay_unit}</DottedUnderline>
                   </EditPopover>
                   before running the next step.
                 </p>

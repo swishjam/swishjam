@@ -51,7 +51,8 @@ export default memo(({
 
   const contextMenuItems = []
   if (EditComponent || onEditClick) {
-    contextMenuItems.push({ label: 'Edit', icon: LuPencil, onClick: onEditClick || (() => setEditModalIsOpen(true)) })
+    const onClick = onEditClick ? e => setTimeout(() => onEditClick(e), 100) : () => setEditModalIsOpen(true)
+    contextMenuItems.push({ label: 'Edit', icon: LuPencil, onClick })
   }
   if (canDelete) {
     if (EditComponent || onEditClick) contextMenuItems.push('seperator')
@@ -70,11 +71,11 @@ export default memo(({
     <>
       <ContextMenuable items={contextMenuItems}>
         <div
-          className={`nodrag nopan card text-left align-top cursor-pointer hover:border-swishjam hover:shadow-sm transition-all ${isActive ? 'bg-gray-50 scale-[99%] shadow-md' : ''} ${maybeBorderClasses}`}
+          className={`nodrag nopan card text-left align-top cursor-pointer hover:border-swishjam hover:shadow-sm transition-all ${false ? 'bg-gray-50 scale-[99%] shadow-md' : ''} ${maybeBorderClasses}`}
           onMouseDown={() => setIsActive(true)}
           onMouseUp={() => setIsActive(false)}
           onClick={() => zoomToNodeId(id)}
-          onDoubleClick={() => setEditModalIsOpen(true)}
+          onDoubleClick={e => onEditClick ? setTimeout(() => onEditClick(e), 100) : setEditModalIsOpen(true)}
           style={{ width: NODE_WIDTH, pointerEvents: 'all' }}
         >
           {isLoading &&
@@ -127,13 +128,7 @@ export default memo(({
                     }}
                     asChild
                   >
-                    <div
-                      className='rounded hover:bg-gray-100 transition-colors cursor-pointer'
-                      onClick={e => {
-                        e.stopPropagation()
-                        e.preventDefault()
-                      }}
-                    >
+                    <div className='rounded hover:bg-gray-100 transition-colors cursor-pointer'>
                       <EllipsisVerticalIcon className="text-gray-400 h-5 w-5 hover:text-swishjam cursor-pointer duration-300 transition-all" aria-hidden="true" />
                     </div>
                   </DropdownMenuTrigger>
