@@ -6,6 +6,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import EmptyState from "@/components/utils/PageEmptyState";
 import { InfoIcon } from 'lucide-react';
 import { Input } from '@/components/ui/input';
+import InterpolatedMarkdown from "@/components/VariableParser/InterpolatedMarkdown";
 import LoadingSpinner from '@components/LoadingSpinner';
 import Link from "next/link"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -17,7 +18,6 @@ import { Textarea } from "@/components/ui/textarea"
 import { Tooltipable } from '@/components/ui/tooltip';
 import { useEffect, useState } from 'react';
 import VariableSyntaxDocumentation from "@/components/Automations/VariableSyntaxDocumentation";
-import InterpolatedMarkdown from "@/components/VariableParser/InterpolatedMarkdown";
 import useCommonQueries from "@/hooks/useCommonQueries";
 import useAutomationBuilder from "@/hooks/useAutomationBuilder";
 import { useForm } from "react-hook-form";

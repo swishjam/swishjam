@@ -16,6 +16,7 @@ import useAutomationBuilder from "@/hooks/useAutomationBuilder";
 import useCommonQueries from "@/hooks/useCommonQueries";
 import { useEffect, useState } from "react";
 import SwishjamAPI from "@/lib/api-client/swishjam-api";
+import FormInputOrLoadingState from "@/components/utils/FormInputOrLoadingState";
 
 const DEFAULT_RULES = [
   { property: null, operator: 'equals', value: null }
@@ -55,84 +56,91 @@ export default function FilterConfiguration({ data, onSave }) {
                 </FormLabel>
                 <div className='w-full grid grid-cols-12'>
                   <div className='col-span-4'>
-                    <FormField
-                      control={field.control}
-                      name={`next_automation_step_condition_rules.${index}.property`}
-                      render={({ field }) => (
-                        <FormItem>
-                          <Combobox
-                            minWidth='0'
-                            buttonClass='!rounded-br-none !rounded-tr-none overflow-hidden'
-                            selectedValue={field.value}
-                            onSelectionChange={val => form.setValue(`next_automation_step_condition_rules.${index}.property`, val)}
-                            isModal={true}
-                            options={[
-                              { type: "title", label: <div className='flex items-center'><SparkleIcon className='h-4 w-4 mr-1' /> Event Properties</div> },
-                              ...(propertyOptionsForSelectedEvent || []).sort().map(p => ({ label: p, value: `event.${p}` })),
-                              { type: "title", label: <div className='flex items-center'><UserCircleIcon className='h-4 w-4 mr-1' /> User Properties</div> },
-                              ...(uniqueUserProperties || []).sort().map(p => ({ label: p, value: `user.${p}` })),
-                              { label: 'email', value: 'user.email' },
-                            ]}
-                            placeholder={<span className='text-gray-500 italic'>Property</span>}
-                          />
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+                    <FormInputOrLoadingState className='mx-1 bg-gray-200' isLoading={!propertyOptionsForSelectedEvent}>
+                      <FormField
+                        control={field.control}
+                        name={`next_automation_step_condition_rules.${index}.property`}
+                        render={({ field }) => (
+                          <FormItem>
+                            <Combobox
+                              minWidth='0'
+                              buttonClass='!rounded-br-none !rounded-tr-none overflow-hidden'
+                              selectedValue={field.value}
+                              onSelectionChange={val => form.setValue(`next_automation_step_condition_rules.${index}.property`, val)}
+                              isModal={true}
+                              disabled={true}
+                              options={[
+                                { type: "title", label: <div className='flex items-center'><SparkleIcon className='h-4 w-4 mr-1' /> Event Properties</div> },
+                                ...(propertyOptionsForSelectedEvent || []).sort().map(p => ({ label: p, value: `event.${p}` })),
+                                { type: "title", label: <div className='flex items-center'><UserCircleIcon className='h-4 w-4 mr-1' /> User Properties</div> },
+                                ...(uniqueUserProperties || []).sort().map(p => ({ label: p, value: `user.${p}` })),
+                                { label: 'email', value: 'user.email' },
+                              ]}
+                              placeholder={<span className='text-gray-500 italic'>Property</span>}
+                            />
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </FormInputOrLoadingState>
 
                   </div>
                   <div className='col-span-3'>
-                    <FormField
-                      control={field.control}
-                      name={`next_automation_step_condition_rules.${index}.operator`}
-                      render={({ field }) => (
-                        <FormItem>
-                          <Combobox
-                            minWidth='0'
-                            isModal={true}
-                            buttonClass='!rounded-none border-l-0 border-r-0'
-                            selectedValue={field.value}
-                            onSelectionChange={val => form.setValue(`next_automation_step_condition_rules.${index}.operator`, val)}
-                            options={[
-                              { label: 'equals', value: 'equals' },
-                              { label: 'does not equals', value: 'does_not_equal' },
-                              { label: 'contains', value: 'contains' },
-                              { label: 'does not contain', value: 'does_not_contain' },
-                              { label: 'ends with', value: 'ends_with' },
-                              { label: 'does not end with', value: 'does_not_end_with' },
-                              { label: 'is defined', value: 'is_defined' },
-                              { label: 'is not defined', value: 'is_not_defined' },
-                              { label: 'greater than', value: 'greater_than' },
-                              { label: 'less than', value: 'less_than' },
-                              { label: 'greater than or equal to', value: 'greater_than_or_equal_to' },
-                              { label: 'less than or equal to', value: 'less_than_or_equal_to' },
-                            ]}
-                            placeholder={<span className='text-gray-500 italic'>Logic</span>}
-                          />
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+                    <FormInputOrLoadingState className='mx-1 bg-gray-200' isLoading={!propertyOptionsForSelectedEvent}>
+                      <FormField
+                        control={field.control}
+                        name={`next_automation_step_condition_rules.${index}.operator`}
+                        render={({ field }) => (
+                          <FormItem>
+                            <Combobox
+                              minWidth='0'
+                              isModal={true}
+                              buttonClass='!rounded-none border-l-0 border-r-0'
+                              selectedValue={field.value}
+                              onSelectionChange={val => form.setValue(`next_automation_step_condition_rules.${index}.operator`, val)}
+                              options={[
+                                { label: 'equals', value: 'equals' },
+                                { label: 'does not equals', value: 'does_not_equal' },
+                                { label: 'contains', value: 'contains' },
+                                { label: 'does not contain', value: 'does_not_contain' },
+                                { label: 'ends with', value: 'ends_with' },
+                                { label: 'does not end with', value: 'does_not_end_with' },
+                                { label: 'is defined', value: 'is_defined' },
+                                { label: 'is not defined', value: 'is_not_defined' },
+                                { label: 'greater than', value: 'greater_than' },
+                                { label: 'less than', value: 'less_than' },
+                                { label: 'greater than or equal to', value: 'greater_than_or_equal_to' },
+                                { label: 'less than or equal to', value: 'less_than_or_equal_to' },
+                              ]}
+                              placeholder={<span className='text-gray-500 italic'>Logic</span>}
+                            />
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </FormInputOrLoadingState>
                   </div>
                   <div className="col-span-5">
-                    <FormField
-                      control={form.control}
-                      name={`next_automation_step_condition_rules.${index}.value`}
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormControl>
-                            <Input
-                              className='!rounded-bl-none !rounded-tl-none !ring-0'
-                              type="text"
-                              placeholder="Your property value"
-                              disabled={form.watch(`next_automation_step_condition_rules.${index}.operator`) === 'is_not_defined' || form.watch(`next_automation_step_condition_rules.${index}.operator`) === 'is_defined'}
-                              {...form.register(`next_automation_step_condition_rules.${index}.value`)}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+                    <FormInputOrLoadingState className='mx-1 bg-gray-200' isLoading={!propertyOptionsForSelectedEvent}>
+                      <FormField
+                        control={form.control}
+                        name={`next_automation_step_condition_rules.${index}.value`}
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormControl>
+                              <Input
+                                className='!rounded-bl-none !rounded-tl-none !ring-0'
+                                type="text"
+                                placeholder="Your property value"
+                                disabled={form.watch(`next_automation_step_condition_rules.${index}.operator`) === 'is_not_defined' || form.watch(`next_automation_step_condition_rules.${index}.operator`) === 'is_defined'}
+                                {...form.register(`next_automation_step_condition_rules.${index}.value`)}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </FormInputOrLoadingState>
                   </div>
                 </div>
                 {index > 0 && (
@@ -149,18 +157,22 @@ export default function FilterConfiguration({ data, onSave }) {
               </li>
             )
           })}
-          <li key="add-more-button">
-            <Button
-              onClick={() => filterRulesFieldArray.append()}
-              type='button'
-              variant="outline"
-              className='!mt-2 w-full'
-            >
-              Add Condition
-            </Button>
+          <li>
+            <FormInputOrLoadingState isLoading={!propertyOptionsForSelectedEvent}>
+              <Button
+                onClick={() => filterRulesFieldArray.append()}
+                type='button'
+                variant="outline"
+                className='!mt-2 w-full'
+              >
+                Add Condition
+              </Button>
+            </FormInputOrLoadingState>
           </li>
         </ul>
-        <Button type="submit" variant="swishjam" className="w-full mt-6">Save</Button>
+        <FormInputOrLoadingState isLoading={!propertyOptionsForSelectedEvent}>
+          <Button type="submit" variant="swishjam" className="w-full mt-6">Save</Button>
+        </FormInputOrLoadingState>
       </form>
     </Form>
   )
