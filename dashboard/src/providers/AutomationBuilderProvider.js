@@ -13,23 +13,64 @@ const AutomationBuilderProvider = ({ isLoading = false, children, initialAutomat
   const { nodes: autoLayoutedInitialNodes, edges: autoLayoutedInitialEdges } = autoLayoutNodesAndEdges(initialNodes, initialEdges);
   const [nodes, setNodes, onNodesChange] = useNodesState(autoLayoutedInitialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(autoLayoutedInitialEdges);
-  const { setCenter, fitView } = useReactFlow();
+  const { setCenter, fitView, getZoom, zoomTo, getViewport, setViewport } = useReactFlow();
+
+  const getZoomPercent = () => (
+    `${(getZoom() * 100).toFixed(0)}%`
+  )
+
+  const zoomIn = ({ increment = 0.1 } = {}) => {
+    const newZoom = getZoom() + increment;
+    zoomTo(newZoom);
+    return newZoom;
+  }
+
+  const zoomOut = ({ increment = 0.1 } = {}) => {
+    const newZoom = getZoom() - increment;
+    zoomTo(newZoom);
+    return newZoom;
+  }
 
   const zoomToNode = (node, options = {}) => {
-    setCenter(node.position.x + (NODE_WIDTH / 2), node.position.y + (NODE_HEIGHT / 2), { duration: options.duration || 800, zoom: options.zoom || 1.5 })
+    const position = options.position || 'center'
+    if (position === 'center') {
+      setCenter(node.position.x + (NODE_WIDTH / 2), node.position.y + (NODE_HEIGHT / 2), {
+        duration: options.duration ?? 800,
+        zoom: options.zoom || 1
+      })
+    } else if (position === 'top') {
+      const { width: viewportWidth } = document.querySelector('.react-flow__pane').getBoundingClientRect();
+      const zoom = options.zoom || 1;
+      const x = node.position.x + (viewportWidth / 2) - (NODE_WIDTH * zoom / 2);
+      const y = node.position.y + 50;
+      setViewport({ x, y, zoom }, { duration: options.duration ?? 800 })
+    }
   };
 
-  const zoomToNodeId = nodeId => {
+  const zoomToNodeId = (nodeId, opts = {}) => {
     const node = nodes.find(n => n.id === nodeId);
     if (node) {
-      zoomToNode(node);
+      zoomToNode(node, opts);
     }
   }
 
-  const zoomToEntryPoint = () => {
+  const zoomToEntryPoint = (opts = {}) => {
     const entryPointNode = nodes.find(node => node.type === 'EntryPoint');
     if (entryPointNode) {
-      zoomToNode(entryPointNode);
+      zoomToNode(entryPointNode, opts);
+    }
+  }
+
+  const intelligentlyFitView = (options = {}) => {
+    const topMostNode = nodes.reduce((node, current) => current.position.y < node.position.y ? current : node);
+    const bottomMostNode = nodes.reduce((node, current) => current.position.y > node.position.y ? current : node);
+    const distanceFromTopNodeToBottomNode = bottomMostNode.position.y + NODE_HEIGHT - topMostNode.position.y;
+    const { height: viewportHeight } = document.querySelector('.react-flow__pane').getBoundingClientRect();
+    const nodesExceedViewportAt50Zoom = distanceFromTopNodeToBottomNode * 0.5 > viewportHeight;
+    if (nodesExceedViewportAt50Zoom) {
+      zoomToEntryPoint({ position: 'top', zoom: 0.5, ...options })
+    } else {
+      fitView({ duration: 800, ...options });
     }
   }
 
@@ -112,6 +153,9 @@ const AutomationBuilderProvider = ({ isLoading = false, children, initialAutomat
         deleteNode,
         edges,
         fitView,
+        getViewport,
+        getZoomPercent,
+        intelligentlyFitView,
         isLoading,
         onNodesChange,
         onEdgesChange,
@@ -121,6 +165,8 @@ const AutomationBuilderProvider = ({ isLoading = false, children, initialAutomat
         selectedEntryPointEventName,
         updateNode,
         validateConfig,
+        zoomIn,
+        zoomOut,
         zoomToEntryPoint,
         zoomToNode,
         zoomToNodeId,

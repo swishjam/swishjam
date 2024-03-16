@@ -152,7 +152,7 @@ export const createNewNode = ({ id, type, data = {} }) => {
     id: nid,
     position: { x: 0, y: 0 },
     data,
-    draggable: true,
+    // draggable: true,
     type
   }
 }

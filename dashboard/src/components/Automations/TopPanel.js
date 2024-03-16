@@ -9,6 +9,21 @@ import { AlertTriangleIcon, FlaskConical, SaveIcon, XIcon } from "lucide-react"
 import { useEffect, useState } from "react"
 import useAutomationBuilder from "@/hooks/useAutomationBuilder"
 
+const UnsavedChangesIndicator = ({ displayed, expanded }) => {
+  if (!displayed) return <></>
+  return (
+    <div className={`absolute -top-1 -left-1 rounded-full bg-red-600 transition-all duration-700 flex items-center justify-center overflow-hidden ${expanded ? '-translate-x-[115%] w-32 h-5' : 'w-2 h-2 group-hover:-translate-x-[115%] group-hover:w-32 group-hover:h-5'}`}>
+      <span
+        className={`flex items-center text-white px-2 py-0.5 transition-opacity duration-700 ${expanded ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}
+        style={{ fontSize: '0.6rem' }}
+      >
+        <AlertTriangleIcon className="h-3 w-3 mr-1 inline-block" />
+        Unsaved Changes
+      </span>
+    </div>
+  )
+}
+
 export default function TopPanel({ automationName: currentAutomationName, canSave, displayUnsavedChangesIndicator, onTestExecutionClick, onSave, onAutomationNameSave, height = '75px' }) {
   const { isLoading } = useAutomationBuilder();
 
@@ -66,7 +81,7 @@ export default function TopPanel({ automationName: currentAutomationName, canSav
                 onChange={e => setEditedAutomationName(e.target.value)}
               />
               <Button
-                className='mt-4 w-full flex items-center space-x-2'
+                className={`mt-4 w-full flex items-center space-x-2`}
                 disabled={isLoading || currentAutomationName === editedAutomationName}
                 variant='swishjam'
                 type='submit'
@@ -99,17 +114,7 @@ export default function TopPanel({ automationName: currentAutomationName, canSav
           {!isLoading && (
             <div className='relative'>
               <SaveIcon className='h-4 w-4' />
-              {canSave && displayUnsavedChangesIndicator && (
-                <div className={`absolute -top-1 -left-1 rounded-full bg-red-600 transition-all duration-700 flex items-center justify-center overflow-hidden ${unsavedChangesIndicatorIsExpanded ? '-translate-x-[115%] w-32 h-5' : 'w-2 h-2 group-hover:-translate-x-[115%] group-hover:w-32 group-hover:h-5'}`}>
-                  <span
-                    className={`flex items-center text-white px-2 py-0.5 transition-opacity duration-700 ${unsavedChangesIndicatorIsExpanded ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}
-                    style={{ fontSize: '0.6rem' }}
-                  >
-                    <AlertTriangleIcon className="h-3 w-3 mr-1 inline-block" />
-                    Unsaved Changes
-                  </span>
-                </div>
-              )}
+              <UnsavedChangesIndicator displayed={canSave && displayUnsavedChangesIndicator} expanded={unsavedChangesIndicatorIsExpanded} />
             </div>
           )}
           <span>Save Automation</span>

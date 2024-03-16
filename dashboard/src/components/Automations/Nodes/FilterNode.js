@@ -23,7 +23,7 @@ export default memo(({ id, data }) => {
           content={
             <div className='cursor-default flex flex-col space-y-1'>
               {data.next_automation_step_condition_rules.map((rule, i) => (
-                <span className='block'>
+                <span className='block' key={i}>
                   <FormattedSwishjamVariable includeBrackets={false} copiable={false}>
                     {rule.property}
                   </FormattedSwishjamVariable>
@@ -49,28 +49,3 @@ export default memo(({ id, data }) => {
     </CustomNode >
   )
 });
-
-
-{/* <span className='text-sm text-gray-700'>
-  If {data.next_automation_step_condition_rules[0].property} {data.next_automation_step_condition_rules[0].operator} {data.next_automation_step_condition_rules[0].value}
-</span>
-{
-  data.next_automation_step_condition_rules.length > 1 &&
-    <span className='text-sm text-gray-700 ml-1'>
-      and
-      <TooltipProvider>
-        <Tooltip>
-          <TooltipTrigger>
-            <DottedUnderline className='ml-1'>
-              {data.next_automation_step_condition_rules.length - 1} more.
-            </DottedUnderline>
-          </TooltipTrigger>
-          <TooltipContent>
-            <span className='truncate w-full'>
-              {data.next_automation_step_condition_rules && data.next_automation_step_condition_rules.slice(1).map(rule => `${rule.property} ${rule.operator} ${rule.value}`).join(' and ')}
-            </span>
-          </TooltipContent>
-        </Tooltip>
-      </TooltipProvider>
-    </span>
-} */}

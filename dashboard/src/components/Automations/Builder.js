@@ -1,13 +1,15 @@
 'use client'
 
+import CanvasControls from './CanvasControls';
 import { NodeTypes, EdgeTypes } from '@/lib/automations-helpers';
+import ReactFlow, { Background } from 'reactflow';
 import TestExecutionModal from './TestExecutionModal';
-import ReactFlow, { Background, Controls } from 'reactflow';
 import { toast } from 'sonner';
 import TopPanel from './TopPanel';
 import useAutomationBuilder from '@/hooks/useAutomationBuilder';
 import { useEffect, useState } from 'react';
 import 'reactflow/dist/style.css';
+import CustomMiniMap from './MiniMap';
 
 const stringifySorted = obj => {
   if (Array.isArray(obj)) {
@@ -31,15 +33,17 @@ export default function AutomationBuilder({
   canvasHeight = '100vh',
   displayUnsavedChangesIndicator = true,
   includeControls = true,
+  includeMiniMap = true,
   includePanel = true,
   onAutomationNameUpdated,
   onSave,
 }) {
-  const { nodes, edges, onNodesChange, onEdgesChange, validateConfig } = useAutomationBuilder();
+  const { nodes, edges, onNodesChange, onEdgesChange, validateConfig, getZoomPercent, intelligentlyFitView } = useAutomationBuilder();
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [testExecutionModalIsOpen, setTestExecutionModalIsOpen] = useState(false);
   const [stringifiedLastSavedNodesData, setStringifiedLastSavedNodesData] = useState(stringifySorted(nodes.map(n => n.data)));
   const [lastSavedNumEdges, setLastSavedNumEdges] = useState(edges.length);
+  const [zoomLevel, setZoomLevel] = useState(getZoomPercent());
   const stringifiedNodesData = stringifySorted(nodes.map(n => n.data));
 
   const tryToSaveChanges = () => {
@@ -87,26 +91,23 @@ export default function AutomationBuilder({
       <main className='relative overflow-hidden' style={{ width: canvasWidth, height: `calc(${canvasHeight} - ${includePanel ? '75px' : '0px'})` }}>
         <div className="absolute top-0 right-0 bottom-0 left-0 z-0">
           <ReactFlow
-            nodes={nodes}
             edges={edges}
-            onNodesChange={onNodesChange}
-            onEdgesChange={onEdgesChange}
-            nodeTypes={NodeTypes}
             edgeTypes={EdgeTypes}
-            snapToGrid={true}
-            fitView={true}
             elementsSelectable={false}
+            maxZoom={1}
+            minZoom={0.5}
+            onEdgesChange={onEdgesChange}
+            onInit={() => intelligentlyFitView({ duration: 0 })}
+            onMove={() => setZoomLevel(getZoomPercent())}
+            onNodesChange={onNodesChange}
+            nodes={nodes}
+            nodeTypes={NodeTypes}
             panOnScroll={true}
             proOptions={{ hideAttribution: true }}
           >
             <Background variant="dots" gap={6} size={0.5} />
-            {includeControls && (
-              <Controls
-                className="rounded-md border-gray-200 border bg-white shadow-sm overflow-hidden"
-                fitViewOptions={{ duration: 800 }}
-                showInteractive={false}
-              />
-            )}
+            {includeControls && <CanvasControls currentZoomLevel={zoomLevel} />}
+            {includeMiniMap && <CustomMiniMap />}
           </ReactFlow>
         </div>
       </main>

@@ -48,7 +48,7 @@
     "fast-xml-parser": "^4.2.2",
     "formik": "^2.2.9",
     "framer-motion": "^10.16.12",
-    "lucide-react": "^0.265.0",
+    "lucide-react": "^0.358.0",
     "luxon": "^3.3.0",
     "markdown-it": "^13.0.2",
     "md5": "^2.3.0",
