@@ -21,6 +21,14 @@ class ExecutedAutomationSerializer < ActiveModel::Serializer
         started_at: executed_step.started_at,
         completed_at: executed_step.completed_at,
         status: executed_step.status,
+        logs: executed_step.logs.order(timestamp: :ASC).map do |log|
+          {
+            id: log.id,
+            level: log.level,
+            message: log.message,
+            timestamp: log.timestamp,
+          }
+        end,
         automation_step: {
           id: executed_step.automation_step_id,
           type: executed_step.automation_step.type,

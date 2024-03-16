@@ -57,9 +57,9 @@ module NextAutomationStepConditionRules
 
     def plain_english_description
       if operator.starts_with?('greater_than') || operator.starts_with?('less_than')
-        "If the event's #{property} property is #{operator.gsub('_', ' ')} #{value}."
+        "If the event's #{property} property is #{operator.gsub('_', ' ')} #{value}"
       else
-        "If the event's #{property} property #{operator.gsub('_', ' ')} #{value}."
+        "If the event's #{property} property #{operator.gsub('_', ' ')} #{value}"
       end
     end
 

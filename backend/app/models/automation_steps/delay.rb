@@ -8,12 +8,15 @@ module AutomationSteps
 
     def execute_automation!(prepared_event, executed_automation_step, as_test: false)
       if as_test
+        executed_automation_step.logs << Log.new(level: 'info', message: "Simulating delayed execution because this is a test, in production this step would pause execution for #{delay_amount} #{delay_unit}.")
         executed_automation_step.execution_data['simulated_delayed_execution'] = true
+        executed_automation_step.response_data['simulated_delayed_execution'] = true
         executed_automation_step.completed!
       elsif should_execute_immediately?(executed_automation_step)
         # this step is being picked back up after being delayed, complete the step so the rest of the automation can continue
         executed_automation_step.execution_data['executed_delayed_execution_at'] = Time.current
         executed_automation_step.execution_data.delete('execute_immediately_on_next_execution')
+        executed_automation_step.response_data['executed_delayed_execution_at'] = Time.current
         executed_automation_step.completed!
       else
         perform_job_in = delay_amount.to_i.send(delay_unit)

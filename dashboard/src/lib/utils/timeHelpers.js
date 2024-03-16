@@ -24,9 +24,17 @@ const prettyDateTime = (date, opts = {}) => {
     if (year === 'none') {
       const dateString = d.toLocaleDateString('en-US', { month, day });
       const dateWithoutYear = dateString.replace(d.getFullYear(), '');
-      return `${dateWithoutYear} at ${d.toLocaleTimeString('en-US', { hour, minute, seconds })}`
+      if (seconds === 'none') {
+        return `${dateWithoutYear} at ${d.toLocaleTimeString('en-US', { hour, minute })}`
+      } else {
+        return `${dateWithoutYear} at ${d.toLocaleTimeString('en-US', { hour, minute, second: seconds })}`
+      }
     } else {
-      return `${d.toLocaleDateString('en-US', { month, day, year })} at ${d.toLocaleTimeString('en-US', { hour, minute, seconds })}`
+      if (seconds === 'none') {
+        return `${d.toLocaleDateString('en-US', { month, day, year })} at ${d.toLocaleTimeString('en-US', { hour, minute })}`
+      } else {
+        return `${d.toLocaleDateString('en-US', { month, day, year })} at ${d.toLocaleTimeString('en-US', { hour, minute, second: seconds })}`
+      }
     }
   }
 }

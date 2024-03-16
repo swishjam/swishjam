@@ -7,7 +7,7 @@ module AutomationSteps
 
     def execute_automation!(prepared_event, executed_automation_step, as_test: false)
       # will immediately progress to the satisfied next_automation_step_condition
-      executed_automation_step.completed!
+      executed_automation_step.completed!(include_logs: false)
     end
   end
 end

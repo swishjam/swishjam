@@ -105,49 +105,45 @@ export default function AutomationDetailsPage({ params }) {
       }
     >
       <CommonQueriesProvider>
-        <ReactFlowProvider>
-          <AutomationBuilderProvider>
-            <TestExecutionModal
-              automationId={automationId}
-              // eventName={automation?.entry_point_event_name}
-              isOpen={testExecutionModalIsOpen}
-              onClose={() => setTestExecutionModalIsOpen(false)}
-            />
-            <LineChartWithValue
-              includeSettingsDropdown={false}
-              showAxis={true}
-              timeseries={executedAutomationsTimeseries}
-              title='Execution History'
-              valueKey='count'
-            />
-            <div className='mt-8 bg-white rounded-md border border-gray-200'>
-              <div className='px-4 py-8'>
-                <h2 className='text-sm font-medium'>Execution Log</h2>
-              </div>
-              <div className='flex flex-col divide-y border-t border-gray-200'>
-                {executedAutomations && automationSteps
-                  ? (
-                    <>
-                      {executedAutomations.map((executionAutomation, i) => (
-                        <ExecutedAutomationDetails
-                          key={i}
-                          automationSteps={automationSteps}
-                          executedAutomation={executionAutomation}
-                        />
-                      ))}
-                      <Pagination
-                        className='pb-4'
-                        currentPage={currentPageNum}
-                        lastPageNum={totalNumPages}
-                        onNewPageSelected={setCurrentPageNum}
-                      />
-                    </>
-                  ) : Array.from({ length: 10 }).map((_, i) => <Skeleton className='h-20 bg-gray-200 mt-0.5' />)
-                }
-              </div>
-            </div>
-          </AutomationBuilderProvider>
-        </ReactFlowProvider>
+        <TestExecutionModal
+          automationId={automationId}
+          // eventName={automation?.entry_point_event_name}
+          isOpen={testExecutionModalIsOpen}
+          onClose={() => setTestExecutionModalIsOpen(false)}
+        />
+        <LineChartWithValue
+          includeSettingsDropdown={false}
+          showAxis={true}
+          timeseries={executedAutomationsTimeseries}
+          title='Execution History'
+          valueKey='count'
+        />
+        <div className='mt-8 bg-white rounded-md border border-gray-200'>
+          <div className='px-4 py-8'>
+            <h2 className='text-sm font-medium'>Execution Log</h2>
+          </div>
+          <div className='flex flex-col divide-y border-t border-gray-200'>
+            {executedAutomations && automationSteps
+              ? (
+                <>
+                  {executedAutomations.map((executionAutomation, i) => (
+                    <ExecutedAutomationDetails
+                      key={i}
+                      automationSteps={automationSteps}
+                      executedAutomation={executionAutomation}
+                    />
+                  ))}
+                  <Pagination
+                    className='pb-4'
+                    currentPage={currentPageNum}
+                    lastPageNum={totalNumPages}
+                    onNewPageSelected={setCurrentPageNum}
+                  />
+                </>
+              ) : Array.from({ length: 10 }).map((_, i) => <Skeleton className='h-20 bg-gray-200 mt-0.5' />)
+            }
+          </div>
+        </div>
       </CommonQueriesProvider>
     </PageWithHeader>
   )

@@ -1,6 +1,7 @@
 class ExecutedAutomationStep < Transactional
   belongs_to :executed_automation
   belongs_to :automation_step
+  has_many :logs, as: :parent, dependent: :destroy
   has_many :satisfied_next_automation_step_conditions, dependent: :destroy
 
   scope :pending, -> { where(completed_at: nil) }
@@ -10,14 +11,14 @@ class ExecutedAutomationStep < Transactional
   scope :succeeded, -> { completed_successfully }
 
   attribute :execution_data, :jsonb, default: {}
+  attribute :response_data, :jsonb, default: {}
 
   def automation
     automation_step.automation
   end
 
-  def completed!(error_message: nil)
+  def completed!(include_logs: true)
     self.completed_at = Time.current
-    self.error_message = error_message
     self.save!
     self
   end

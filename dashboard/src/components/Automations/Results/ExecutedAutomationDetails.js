@@ -4,6 +4,8 @@ import ExpandableExecutionRowContent from "./ExpandableExecutionRowContent";
 import AutomationBuilder from "../Builder";
 import { formatAutomationStepsWithExecutionStepResults } from "@/lib/automations-helpers";
 import { CheckCircleIcon, CheckIcon } from "lucide-react";
+import { prettyDateTime } from "@/lib/utils/timeHelpers";
+import LogRow from "./LogRow";
 
 export default function ExecutedAutomationDetails({ automationSteps, executedAutomation }) {
   const user = executedAutomation.executed_on_user_profile.id ? new UserProfile(executedAutomation.executed_on_user_profile) : null;
@@ -26,12 +28,20 @@ export default function ExecutedAutomationDetails({ automationSteps, executedAut
             </p>
           </div>
         </div>
+        <div className='w-full rounded-md max-h-96 overflow-y-scroll overflow-x-hidden bg-gray-700 mt-4 p-2'>
+          {executedAutomation.executed_automation_steps.map(executedStep => {
+            return executedStep.logs.map((log, i) => <LogRow key={i} log={log} />)
+          })}
+          {executedAutomation.completed_at && (
+            <LogRow log={{ level: 'success', message: 'Automation completed', timestamp: executedAutomation.completed_at }} />
+          )}
+        </div>
       </div>
-      <AutomationBuilder
+      {/* <AutomationBuilder
         automationSteps={automationStepsWithExecutionResults}
         canvasHeight="60vh"
         includePanel={false}
-      />
+      /> */}
     </AccordionOpen>
   )
 }

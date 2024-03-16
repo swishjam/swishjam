@@ -95,12 +95,12 @@ export default function TestExecutionModal({
               </div>
               <p className='text-sm font-semibold'>Test execution completed successfully. {(automationStepsWithExecutionData || [{ config: {} }]).filter(step => step.config.executionStepResults).length} out of {(automationStepsWithExecutionData || []).length} automation steps would have been executed.</p>
             </div>
-            <AutomationBuilder
+            {/* <AutomationBuilder
               automationSteps={automationStepsWithExecutionData}
               canvasHeight='60vh'
               includeControls={true}
               includePanel={false}
-            />
+            /> */}
           </>
         )}
         {!isExecutingTestRun && !automationStepsWithExecutionData && (
