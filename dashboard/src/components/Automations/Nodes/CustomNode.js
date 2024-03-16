@@ -35,7 +35,6 @@ export default memo(({
   const { executionStepResults = {} } = data;
 
   const [editModalIsOpen, setEditModalIsOpen] = useState(false);
-  const [isActive, setIsActive] = useState(false);
   const { updateNode, deleteNode } = useAutomationBuilder();
   const { selectedEntryPointEventName, zoomToEntryPoint, zoomToNodeId, isLoading } = useAutomationBuilder();
 
@@ -71,9 +70,7 @@ export default memo(({
     <>
       <ContextMenuable items={contextMenuItems}>
         <div
-          className={`nodrag nopan card text-left align-top cursor-pointer hover:border-swishjam hover:shadow-sm transition-all ${false ? 'bg-gray-50 scale-[99%] shadow-md' : ''} ${maybeBorderClasses}`}
-          onMouseDown={() => setIsActive(true)}
-          onMouseUp={() => setIsActive(false)}
+          className={`nodrag nopan card text-left align-top cursor-pointer hover:border-swishjam hover:shadow-sm transition-all ${maybeBorderClasses}`}
           onClick={() => zoomToNodeId(id)}
           onDoubleClick={e => onEditClick ? setTimeout(() => onEditClick(e), 100) : setEditModalIsOpen(true)}
           style={{ width: NODE_WIDTH, pointerEvents: 'all' }}
@@ -173,6 +170,7 @@ export default memo(({
           {includeTopHandle && (
             <Handle
               type="target"
+              isConnectable={false}
               position={Position.Top}
               style={{ background: '#b1b1b7' }}
             />
@@ -180,6 +178,7 @@ export default memo(({
           {includeBottomHandle && (
             <Handle
               type="source"
+              isConnectable={false}
               position={Position.Bottom}
               style={{ background: '#b1b1b7' }}
             />

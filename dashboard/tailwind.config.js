@@ -127,6 +127,9 @@ module.exports = {
         sans: ['Inter', ...defaultTheme.fontFamily.sans],
         display: ['Lexend', ...defaultTheme.fontFamily.sans],
       },
+      fontSize: {
+        'xxs': '.625rem',
+      },
       maxWidth: {
         '2xl': '40rem',
       },

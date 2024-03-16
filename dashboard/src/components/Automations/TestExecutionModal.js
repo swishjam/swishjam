@@ -3,7 +3,6 @@ import { AccordionOpen } from "@/components/ui/accordion";
 import AutomationBuilder from "./Builder";
 import { Button } from "@/components/ui/button"
 import { CheckCircleIcon, FlaskConicalIcon } from "lucide-react"
-import DottedUnderline from "@/components/utils/DottedUnderline";
 import { formatAutomationStepsWithExecutionStepResults, reformatNodesAndEdgesToAutomationsPayload } from "@/lib/automations-helpers";
 import JsonEditor from "@/components/utils/JsonEditor";
 import LoadingSpinner from "@/components/LoadingSpinner";
