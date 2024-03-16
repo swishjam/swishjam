@@ -61,12 +61,16 @@ const AutomationBuilderProvider = ({ isLoading = false, children, initialAutomat
     }
   }
 
-  const intelligentlyFitView = (options = {}) => {
+  const nodesExceedViewport = ({ zoom = 1 } = {}) => {
     const topMostNode = nodes.reduce((node, current) => current.position.y < node.position.y ? current : node);
     const bottomMostNode = nodes.reduce((node, current) => current.position.y > node.position.y ? current : node);
     const distanceFromTopNodeToBottomNode = bottomMostNode.position.y + NODE_HEIGHT - topMostNode.position.y;
     const { height: viewportHeight } = document.querySelector('.react-flow__pane').getBoundingClientRect();
-    const nodesExceedViewportAt50Zoom = distanceFromTopNodeToBottomNode * 0.5 > viewportHeight;
+    return (distanceFromTopNodeToBottomNode * zoom) > viewportHeight;
+  }
+
+  const intelligentlyFitView = (options = {}) => {
+    const nodesExceedViewportAt50Zoom = nodesExceedViewport({ zoom: 0.5 });
     if (nodesExceedViewportAt50Zoom) {
       zoomToEntryPoint({ position: 'top', zoom: 0.5, ...options })
     } else {
