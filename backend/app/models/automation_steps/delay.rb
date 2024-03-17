@@ -8,7 +8,7 @@ module AutomationSteps
 
     def execute_automation!(prepared_event, executed_automation_step, as_test: false)
       if as_test
-        executed_automation_step.logs << Log.new(level: 'info', message: "Simulating delayed execution because this is a test, in production this step would pause execution for #{delay_amount} #{delay_unit}.")
+        executed_automation_step.logs << Log.info("Simulating delayed execution because this is a test, in production this step would pause execution for #{delay_amount} #{delay_unit}.")
         executed_automation_step.execution_data['simulated_delayed_execution'] = true
         executed_automation_step.response_data['simulated_delayed_execution'] = true
         executed_automation_step.completed!

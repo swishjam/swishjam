@@ -1,5 +1,5 @@
 class AutomationStepSerializer < ActiveModel::Serializer
-  attributes :id, :type, :config, :created_at, :updated_at
+  attributes :id, :type, :config, :friendly_type
 
   # for some reason returns an empty Hash without explicitly defining it here
   def config

@@ -29,11 +29,7 @@ class ExecutedAutomationSerializer < ActiveModel::Serializer
             timestamp: log.timestamp,
           }
         end,
-        automation_step: {
-          id: executed_step.automation_step_id,
-          type: executed_step.automation_step.type,
-          config: executed_step.automation_step.config,
-        },
+        automation_step: AutomationStepSerializer.new(executed_step.automation_step),
         satisfied_next_automation_step_conditions: executed_step.satisfied_next_automation_step_conditions.map do |satisfied_condition|
           {
             created_at: satisfied_condition.created_at,

@@ -18,7 +18,7 @@ export default function ExecutedAutomationDetails({ automationSteps, executedAut
           numExecutedSteps={executedAutomation.executed_automation_steps.length}
           numSteps={automationSteps.length}
         />
-        <ExecutedAutomationLogs executedAutomation={executedAutomation} />
+        <ExecutedAutomationLogs className='mt-4' executedAutomation={executedAutomation} />
       </div>
     </AccordionOpen>
   )
