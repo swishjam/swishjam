@@ -17,7 +17,7 @@ class ExecutedAutomationStep < Transactional
     automation_step.automation
   end
 
-  def completed!(include_logs: true)
+  def completed!
     self.completed_at = Time.current
     self.save!
     self
