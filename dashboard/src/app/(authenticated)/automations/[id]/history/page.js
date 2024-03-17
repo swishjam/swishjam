@@ -1,6 +1,5 @@
 'use client'
 
-import AutomationBuilderProvider from "@/providers/AutomationBuilderProvider";
 import { Button } from "@/components/ui/button";
 import CommonQueriesProvider from "@/providers/CommonQueriesProvider";
 import ExecutedAutomationDetails from "@/components/Automations/Results/ExecutedAutomationDetails";
@@ -10,7 +9,6 @@ import Link from "next/link";
 import { LuArrowLeft } from "react-icons/lu";
 import PageWithHeader from "@/components/utils/PageWithHeader";
 import Pagination from "@/components/Pagination/Pagination";
-import { ReactFlowProvider } from "reactflow";
 import { Skeleton } from "@/components/ui/skeleton";
 import SwishjamAPI from "@/lib/api-client/swishjam-api";
 import TestExecutionModal from "@/components/Automations/TestExecutionModal";

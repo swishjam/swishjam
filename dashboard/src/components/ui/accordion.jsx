@@ -45,7 +45,7 @@ const AccordionContent = React.forwardRef(({ className, children, ...props }, re
 
 AccordionContent.displayName = AccordionPrimitive.Content.displayName
 
-const AccordionOpen = ({ trigger, children, onOpen = () => {}, onClose = () => {}, open = false, rememberState = false, className }) => {
+const AccordionOpen = ({ trigger, children, onOpen = () => {}, onClose = () => {}, open = false, rememberState = false, className, contentClassName }) => {
   const memoryId = `accordion-open-${Object.values(trigger.props).join('_').replace(/\s/g, '-')}`
   const isOpen = SwishjamMemory.get(memoryId) ?? open;
   
@@ -69,10 +69,10 @@ const AccordionOpen = ({ trigger, children, onOpen = () => {}, onClose = () => {
       collapsible 
       >
       <AccordionItem value='1' className="border-none">
-        <AccordionTrigger className={`cursor-pointer active:scale-[98%] ${className}`} chevronFirst={true} underline={false}>
+        <AccordionTrigger className={`cursor-pointer transition-all active:scale-[98%] ${className}`} chevronFirst={true} underline={false}>
           {trigger}
         </AccordionTrigger>
-        <AccordionContent>
+        <AccordionContent className={contentClassName}>
           {children}
         </AccordionContent>
       </AccordionItem>

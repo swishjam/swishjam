@@ -91,6 +91,7 @@ export default function EditAutomationPage({ params }) {
           <ReactFlowProvider>
             <AutomationBuilderProvider isLoading={isLoading} initialAutomationSteps={automationSteps}>
               <AutomationBuilder
+                automationId={automationId}
                 automationName={automation?.name}
                 automationSteps={automationSteps}
                 onAutomationNameUpdated={updateAutomationName}
