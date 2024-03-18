@@ -16,13 +16,14 @@ export default function ExecutedAutomationLogs({ executedAutomation, className =
     executedAutomation.started_at && {
       level: 'start',
       icon: PlayCircleIcon,
+      color: 'green',
       message: '~~ Beginning automation ~~',
-      timestamp: executedAutomation.started_at
+      timestamp: executedAutomation.started_at,
     },
     executedAutomation.completed_at && {
       level: 'success',
       message: '~~ Automation completed ~~',
-      timestamp: executedAutomation.completed_at
+      timestamp: executedAutomation.completed_at,
     },
     ...executedAutomation.executed_automation_steps.map(executedStep => {
       return [
@@ -30,40 +31,36 @@ export default function ExecutedAutomationLogs({ executedAutomation, className =
         includeStartedAndCompletedLogs(executedStep.automation_step.type) && {
           level: 'start',
           icon: ICONS_DICT[executedStep.automation_step.type],
-          textColor: 'text-yellow-500',
-          message: `-- Beginning ${executedStep.automation_step.friendly_type} automation step --`,
-          timestamp: executedStep.started_at
+          color: 'yellow',
+          message: `Beginning ${executedStep.automation_step.friendly_type} automation step`,
+          timestamp: executedStep.started_at,
         },
         includeStartedAndCompletedLogs(executedStep.automation_step.type) && executedStep.completed_at && !executedStep.error_message && {
           level: 'success',
           icon: ICONS_DICT[executedStep.automation_step.type],
-          message: `-- Completed ${executedStep.automation_step.friendly_type} automation step --`,
-          timestamp: executedStep.completed_at
+          message: `Completed ${executedStep.automation_step.friendly_type} automation step`,
+          metadata: executedStep.response_data,
+          timestamp: executedStep.completed_at,
         },
         includeStartedAndCompletedLogs(executedStep.automation_step.type) && executedStep.error_message && {
           level: 'error',
           icon: ICONS_DICT[executedStep.automation_step.type],
           message: `Error in ${executedStep.automation_step.friendly_type} automation step: ${executedStep.error_message}`,
-          timestamp: executedStep.completed_at
+          metadata: executedStep.response_data,
+          timestamp: executedStep.completed_at,
         },
-        includeStartedAndCompletedLogs(executedStep.automation_step.type) && executedStep.response_data && executedStep.response_data !== '{}' && {
-          level: 'json',
-          icon: ICONS_DICT[executedStep.automation_step.type],
-          message: executedStep.response_data,
-          timestamp: executedStep.completed_at
-        }
       ]
     })
   ].flat().filter(Boolean).sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp))
 
   return (
-    <div className={`w-full rounded-md max-h-96 overflow-y-scroll overflow-x-hidden bg-gray-700 p-2 ${className}`}>
+    <div className={`w-full rounded-md max-h-96 overflow-y-scroll overflow-x-hidden bg-white border border-gray-200 p-2 ${className}`}>
       {supplementedExecutionLogs.map((log, i) => (
         <LogRow
           key={i}
           log={log}
           icon={log.icon}
-          textColor={log.textColor}
+          color={log.color}
           timestampFormatterOptions={timestampFormatterOptions}
         />
       ))}

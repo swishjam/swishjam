@@ -30,17 +30,16 @@ module Automations
         if automation_step.next_automation_step_conditions.any?
           satisfied_next_step_condition = first_satisfied_next_automation_step_condition(automation_step, prepared_event)
           if satisfied_next_step_condition.nil?
-            executed_step.logs << Log.info("No automation step satisfies the specified conditions, exiting automation...")
             json_rules = automation_step.next_automation_step_conditions.map do |condition|
               condition.next_automation_step_condition_rules.map(&:plain_english_description).join(' AND ')
             end
-            executed_step.logs << Log.json(json_rules)
+            executed_step.logs << Log.info("No automation step satisfies the specified conditions, exiting automation...", json_rules)
             executed_automation.completed!
           else
             satisfied_rules_to_log = satisfied_next_step_condition.next_automation_step_condition_rules.find_all { |rule| !rule.is_a?(NextAutomationStepConditionRules::AlwaysTrue) }
             satisfied_rules_to_log.each do |rule|
-              satisified_json_rules = satisfied_next_step_condition.next_automation_step_condition_rules.map(&:plain_english_description).join(' AND ')
-              executed_step.logs << Log.info("Satisfied conditions: #{satisified_json_rules}")
+              satisified_json_rules = satisfied_next_step_condition.next_automation_step_condition_rules.map(&:plain_english_description)
+              executed_step.logs << Log.info("Satisfied conditions:", satisified_json_rules)
             end
             unless satisfied_rules_to_log.empty? && automation_step.is_a?(AutomationSteps::EntryPoint)
               executed_step.logs << Log.info("Continuing to #{satisfied_next_step_condition.next_automation_step.friendly_type} automation step.")

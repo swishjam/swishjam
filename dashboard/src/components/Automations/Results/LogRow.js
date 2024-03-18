@@ -1,60 +1,44 @@
 import { prettyDateTime } from "@/lib/utils/timeHelpers";
-import { CheckCircleIcon, ChevronRightIcon, CircleAlertIcon, InfoIcon, TriangleIcon, XCircleIcon } from "lucide-react";
+import { CheckCircleIcon, ChevronRightIcon, CircleAlertIcon, InfoIcon, XCircleIcon } from "lucide-react";
 import { useState } from "react";
 
-const ExpandableJsonRow = ({ log, timestampFormatterOptions }) => {
+export default function LogRow({ log, icon, color, timestampFormatterOptions = { seconds: 'numeric', milliseconds: true } }) {
   const [isExpanded, setIsExpanded] = useState(false);
-  const parsedJSON = JSON.parse(log.message);
-  return (
-    <div
-      className='grid grid-cols-4 items-center justify-between text-sm px-2 py-0.5 hover:bg-gray-500 transition-colors cursor-pointer text-white'
-      onClick={() => setIsExpanded(!isExpanded)}
-    >
-      <>
-        <span className='flex items-center col-span-3'>
-          <ChevronRightIcon className={`h-3 w-3 mr-2 transition-all ${isExpanded ? 'rotate-90' : ''}`} />
-          JSON {'{}'}
-        </span>
-        <span className='font-mono text-end'>
-          {prettyDateTime(log.timestamp, timestampFormatterOptions)}
-        </span>
-      </>
-      <div className={`col-span-4 transition-all overflow-hidden ${isExpanded ? 'h-fit px-4 py-0.5' : 'h-0'}`}>
-        {Object.keys(parsedJSON).map((key, i) => (
-          <div key={i} className='flex items-center space-x-1 text-white'>
-            <span className='text-gray-300 mr-1'>{key}:</span>
-            <pre className='whitespace-pre-wrap inline-block truncate'>{JSON.stringify(parsedJSON[key], null, 2)}</pre>
-          </div>
-        ))}
-      </div>
-    </div>
-  )
-}
-
-export default function LogRow({ log, icon, textColor, timestampFormatterOptions = { seconds: 'numeric', milliseconds: true } }) {
+  const isExpandable = log.metadata && (Array.isArray(log.metadata) ? log.metadata : Object.keys(log.metadata)).length > 0
   const IconForLog = icon || {
     success: CheckCircleIcon,
     error: XCircleIcon,
     info: InfoIcon,
     warning: CircleAlertIcon,
   }[log.level]
-  const textClass = textColor || { success: 'text-green-500', error: 'text-red-600' }[log.level] || 'text-white';
+  const textColorClass = color ? `text-${color}-500` : { success: 'text-green-600', error: 'text-red-600', warning: 'text-yellow-700' }[log.level] || 'text-black';
+  const bgColorClass = color ? `bg-${color}-100 hover:bg-${color}-200` : { success: 'bg-green-100 hover:bg-green-200', error: 'bg-red-100 hover:bg-red-200', warning: 'bg-yellow-100 hover:bg-yellow-200' }[log.level] || 'bg-white hover:bg-gray-100'
 
-  if (log.level === 'json') {
-    return <ExpandableJsonRow log={log} timestampFormatterOptions={timestampFormatterOptions} />
-  } else {
-    return (
-      <div className={`grid grid-cols-4 items-center justify-between text-sm px-2 py-0.5 hover:bg-gray-500 transition-colors cursor-default ${textClass}`}>
-        <>
-          <span className='flex items-center col-span-3'>
-            {IconForLog && <IconForLog className='h-3 w-3 mr-2' />}
-            {log.message}
-          </span>
-          <span className='font-mono text-end'>
-            {prettyDateTime(log.timestamp, timestampFormatterOptions)}
-          </span>
-        </>
-      </div>
-    )
-  }
+  return (
+    <div
+      className={`grid grid-cols-4 items-center justify-between text-sm px-2 py-1 transition-colors ${isExpandable ? 'cursor-pointer' : 'cursor-default'} ${bgColorClass} ${textColorClass}`}
+      onClick={() => isExpandable && setIsExpanded(!isExpanded)}
+    >
+      <>
+        <span className='flex items-center col-span-3'>
+          {IconForLog && <IconForLog className='h-3 w-3 mr-2' />}
+          {isExpandable && <ChevronRightIcon className={`h-3 w-3 mr-2 transition-all ${isExpanded ? 'rotate-90' : ''}`} />}
+          {log.message}
+        </span>
+        <span className='font-mono text-end'>
+          {prettyDateTime(log.timestamp, timestampFormatterOptions)}
+        </span>
+        {isExpandable && (
+          <div className={`col-span-4 transition-all overflow-hidden ${isExpanded ? 'h-fit px-4 py-0.5' : 'h-0'}`}>
+            {Object.keys(log.metadata).map((key, i) => (
+              <div key={i} className={`flex items-center space-x-1 text-xs font-mono ${textColorClass}`}>
+                <span className='whitespace-pre-wrap truncate mr-1'>{key}:</span>
+                <span className='whitespace-pre-wrap truncate'>{JSON.stringify(log.metadata[key], null, 2)}</span>
+              </div>
+            ))}
+          </div>
+        )}
+      </>
+    </div>
+  )
 }

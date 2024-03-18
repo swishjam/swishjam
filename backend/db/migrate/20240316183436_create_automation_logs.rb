@@ -4,6 +4,7 @@ class CreateAutomationLogs < ActiveRecord::Migration[6.1]
       t.references :parent, polymorphic: true, type: :uuid
       t.string :level
       t.text :message
+      t.jsonb :metadata, default: {}
       t.timestamp :timestamp
     end
 

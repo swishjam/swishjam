@@ -11,7 +11,7 @@ class ExecutedAutomationSerializer < ActiveModel::Serializer
 
   has_many :executed_automation_steps do
     object.executed_automation_steps
-          .includes(:automation_step, :satisfied_next_automation_step_conditions)
+          .includes(:logs, :automation_step, :satisfied_next_automation_step_conditions)
           .order(started_at: :ASC)
           .map do |executed_step|
       {
@@ -26,6 +26,7 @@ class ExecutedAutomationSerializer < ActiveModel::Serializer
             id: log.id,
             level: log.level,
             message: log.message,
+            metadata: log.metadata,
             timestamp: log.timestamp,
           }
         end,

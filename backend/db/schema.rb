@@ -311,6 +311,7 @@ ActiveRecord::Schema.define(version: 2024_03_16_183436) do
     t.uuid "parent_id"
     t.string "level"
     t.text "message"
+    t.jsonb "metadata", default: {}
     t.datetime "timestamp"
     t.index ["parent_type", "parent_id"], name: "index_logs_on_parent"
   end
