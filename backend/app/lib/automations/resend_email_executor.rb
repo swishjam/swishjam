@@ -14,12 +14,20 @@ module Automations
         msg = "Prevented multiple Resend Email automations for user #{request_body[:to]}."
         Sentry.capture_message(msg, level: :info, extra: { automation_step_id: automation_step.id, event_uuid: prepared_event.uuid })
         executed_automation_step.error_message = msg
+        executed_automation_step.response_data = { 
+          error: msg,
+          attempted_payload: request_body,
+        }
         executed_automation_step.completed!
         return executed_automation_step
       end
 
       if has_any_un_resolved_variables?
         executed_automation_step.error_message = "Prevented email from being sent with unresolved variables."
+        executed_automation_step.response_data = {
+          error: "Prevented email from being sent with unresolved variables.",
+          attempted_payload: request_body,
+        }
         executed_automation_step.completed!
         return executed_automation_step
       end
