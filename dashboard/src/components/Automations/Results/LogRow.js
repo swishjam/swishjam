@@ -16,16 +16,16 @@ export default function LogRow({ log, icon, color, timestampFormatterOptions = {
 
   return (
     <div
-      className={`grid grid-cols-4 items-center justify-between text-sm px-2 py-1 transition-colors ${isExpandable ? 'cursor-pointer' : 'cursor-default'} ${bgColorClass} ${textColorClass}`}
+      className={`grid grid-cols-4 items-center justify-between px-2 py-1 transition-colors ${isExpandable ? 'cursor-pointer' : 'cursor-default'} ${bgColorClass} ${textColorClass}`}
       onClick={() => isExpandable && setIsExpanded(!isExpanded)}
     >
       <>
-        <span className='flex items-center col-span-3'>
+        <span className='flex items-center col-span-3 text-sm'>
           {IconForLog && <IconForLog className='h-3 w-3 mr-2' />}
           {isExpandable && <ChevronRightIcon className={`h-3 w-3 mr-2 transition-all ${isExpanded ? 'rotate-90' : ''}`} />}
           {log.message}
         </span>
-        <span className='font-mono text-end'>
+        <span className='font-mono text-end text-xs'>
           {prettyDateTime(log.timestamp, timestampFormatterOptions)}
         </span>
         {isExpandable && (
