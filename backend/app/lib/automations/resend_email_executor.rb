@@ -13,13 +13,14 @@ module Automations
       if automation_step.prevent_from_email_being_sent_to_user_multiple_times? && has_already_executed_for_user?
         msg = "Prevented multiple Resend Email automations for user #{request_body[:to]}."
         Sentry.capture_message(msg, level: :info, extra: { automation_step_id: automation_step.id, event_uuid: prepared_event.uuid })
-        executed_automation_step.completed!(error_message: msg)
+        executed_automation_step.error_message = msg
+        executed_automation_step.completed!
         return executed_automation_step
       end
 
-      # if automation_step.prevent_from_email_being_sent_with_unresolved_variables? && has_any_un_resolved_variables?
       if has_any_un_resolved_variables?
-        executed_automation_step.completed!(error_message: "Prevented email from being sent with unresolved variables.")
+        executed_automation_step.error_message = "Prevented email from being sent with unresolved variables."
+        executed_automation_step.completed!
         return executed_automation_step
       end
 
@@ -41,6 +42,7 @@ module Automations
     def deliver_email!
       if !Rails.env.production? && ENV['SEND_RESEND_EVENT_TRIGGERS_IN_DEVELOPMENT'] != 'true'
         executed_automation_step.execution_data['resend_response'] = { 'id' => 'stubbed!' }
+        executed_automation_step.response_data = { 'id' => 'stubbed!', status: 200, message: 'Stubbed Resend API call.' }
       else
         resp = HTTParty.post('https://api.resend.com/emails', body: request_body, headers: { 'Authorization' => "Bearer #{resend_api_key}" })
         if resp.code != 200
@@ -48,6 +50,7 @@ module Automations
           executed_automation_step.error_message = "Resend #{resp['name']} API error: #{resp.body}."
         end
         executed_automation_step.execution_data['resend_response'] = resp.as_json
+        executed_automation_step.response_data = resp.as_json.merge(status: resp.code)
       end
     end
 

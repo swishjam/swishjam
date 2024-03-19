@@ -11,6 +11,8 @@ import SwishjamAPI from "@/lib/api-client/swishjam-api";
 import { toast } from "sonner";
 import useAutomationBuilder from "@/hooks/useAutomationBuilder";
 import { useState } from "react";
+import ExecutedAutomationResultsBanner from "./Results/ExecutedAutomationResultsBanner";
+import ExecutedAutomationLogs from "./Results/ExecutedAutomationLogs";
 
 export default function TestExecutionModal({
   automationId,
@@ -24,12 +26,11 @@ export default function TestExecutionModal({
   onClose,
   onExecutionComplete = () => { }
 }) {
-  // const [automationStepsForExecutedAutomation, setAutomationStepsForExecutedAutomation] = useState();
-  // const [executedAutomation, setExecutedAutomation] = useState();
+  const [automationStepsForExecutedAutomation, setAutomationStepsForExecutedAutomation] = useState();
+  const [executedAutomation, setExecutedAutomation] = useState();
   // const [userPropertiesJson, setUserPropertiesJson] = useState(userProperties);
   const [isExecutingTestRun, setIsExecutingTestRun] = useState(false);
   const [eventPropertiesJson, setEventPropertiesJson] = useState(eventProperties);
-  const [automationStepsWithExecutionData, setAutomationStepsWithExecutionData] = useState();
 
   let selectedEventName = eventName;
   if (useSelectedEntryPointEventName) {
@@ -59,13 +60,18 @@ export default function TestExecutionModal({
       toast.error('Failed to execute test run', { description: error });
     } else {
       onExecutionComplete(executed_automation);
-      const automationStepsSupplementedWithExecutionData = formatAutomationStepsWithExecutionStepResults({
-        automationSteps: automation_steps,
-        executedAutomation: executed_automation,
-      });
-      setAutomationStepsWithExecutionData(automationStepsSupplementedWithExecutionData);
+      setExecutedAutomation(executed_automation);
+      setAutomationStepsForExecutedAutomation(automation_steps);
     }
     setIsExecutingTestRun(false);
+  }
+
+  const closeModal = () => {
+    onClose()
+    setTimeout(() => {
+      setExecutedAutomation();
+      setAutomationStepsForExecutedAutomation();
+    }, 500)
   }
 
   return (
@@ -73,10 +79,7 @@ export default function TestExecutionModal({
       isOpen={isOpen}
       title='Run Test Execution'
       size='x-large'
-      onClose={() => {
-        setAutomationStepsWithExecutionData();
-        onClose()
-      }}
+      onClose={closeModal}
     >
       <div className='flex flex-col space-y-4 text-sm text-gray-700'>
         {isExecutingTestRun && (
@@ -87,23 +90,19 @@ export default function TestExecutionModal({
             </div>
           </div>
         )}
-        {automationStepsWithExecutionData && (
+        {executedAutomation && automationStepsForExecutedAutomation && (
           <>
-            <div className='w-full flex items-center bg-green-100 text-green-600 py-2 px-4 space-x-2'>
-              <div className='flex-shrink-0'>
-                <CheckCircleIcon className='h-6 w-6' />
-              </div>
-              <p className='text-sm font-semibold'>Test execution completed successfully. {(automationStepsWithExecutionData || [{ config: {} }]).filter(step => step.config.executionStepResults).length} out of {(automationStepsWithExecutionData || []).length} automation steps would have been executed.</p>
-            </div>
-            <AutomationBuilder
-              automationSteps={automationStepsWithExecutionData}
-              canvasHeight='60vh'
-              includeControls={true}
-              includePanel={false}
+            <ExecutedAutomationResultsBanner
+              numExecutedSteps={executedAutomation.executed_automation_steps.length}
+              numSteps={automationStepsForExecutedAutomation.length}
+            />
+            <ExecutedAutomationLogs
+              executedAutomation={executedAutomation}
+              timestampFormatterOptions={{ day: 'none', month: 'none', year: 'none', seconds: 'numeric', milliseconds: true }}
             />
           </>
         )}
-        {!isExecutingTestRun && !automationStepsWithExecutionData && (
+        {!isExecutingTestRun && !executedAutomation && (
           <>
             <p>Running a test execution will simulate the automation with a test user and provide you with the results of the execution as if it occurred in production.</p>
             <p>Would you like to run a test execution?</p>
@@ -117,24 +116,25 @@ export default function TestExecutionModal({
         )}
       </div>
       <div className='flex justify-end space-x-4 mt-6'>
-        <Button
-          disabled={isExecutingTestRun}
-          onClick={onClose}
-          variant='outline'
-        >
-          Cancel
-        </Button>
-        <Button
-          disabled={isExecutingTestRun}
-          onClick={executeTestRun}
-          variant='swishjam'
-        >
-          {isExecutingTestRun
-            ? <LoadingSpinner size={4} color='white' className='mr-2' />
-            : <FlaskConicalIcon className='h-4 w-4 mr-2' />}
-          Execute Test Run
-        </Button>
+        {executedAutomation && (
+          <Button onClick={closeModal} variant='swishjam'>
+            Done
+          </Button>
+        )}
+        {!executedAutomation && (
+          <>
+            <Button disabled={isExecutingTestRun} onClick={closeModal} variant='outline'>
+              Cancel
+            </Button>
+            <Button disabled={isExecutingTestRun} onClick={executeTestRun} variant='swishjam'>
+              {isExecutingTestRun
+                ? <LoadingSpinner size={4} color='white' className='mr-2' />
+                : <FlaskConicalIcon className='h-4 w-4 mr-2' />}
+              Execute Test Run
+            </Button>
+          </>
+        )}
       </div>
-    </Modal>
+    </Modal >
   )
 }

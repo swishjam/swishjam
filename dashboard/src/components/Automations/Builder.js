@@ -1,6 +1,7 @@
 'use client'
 
 import CanvasControls from './CanvasControls';
+import CustomMiniMap from './MiniMap';
 import { NodeTypes, EdgeTypes } from '@/lib/automations-helpers';
 import ReactFlow, { Background } from 'reactflow';
 import TestExecutionModal from './TestExecutionModal';
@@ -9,7 +10,7 @@ import TopPanel from './TopPanel';
 import useAutomationBuilder from '@/hooks/useAutomationBuilder';
 import { useEffect, useState } from 'react';
 import 'reactflow/dist/style.css';
-import CustomMiniMap from './MiniMap';
+import ExecutionsDrawer from './ExecutionsDrawer';
 
 const stringifySorted = obj => {
   if (Array.isArray(obj)) {
@@ -28,6 +29,7 @@ const stringifySorted = obj => {
 }
 
 export default function AutomationBuilder({
+  automationId,
   automationName,
   canvasWidth = '100%',
   canvasHeight = '100vh',
@@ -35,6 +37,7 @@ export default function AutomationBuilder({
   includeControls = true,
   includeMiniMap = true,
   includePanel = true,
+  includeExecutionDrawer = false,
   onAutomationNameUpdated,
   onSave,
 }) {
@@ -88,7 +91,12 @@ export default function AutomationBuilder({
           onSave={tryToSaveChanges}
         />
       )}
-      <main className='relative overflow-hidden' style={{ width: canvasWidth, height: `calc(${canvasHeight} - ${includePanel ? '75px' : '0px'})` }}>
+      <main
+        className='relative overflow-hidden'
+        style={{
+          width: canvasWidth, height: `calc(${canvasHeight} - ${includePanel ? '75px' : '0px'} - ${includeExecutionDrawer ? '30px' : '0px'})`
+        }}
+      >
         <div className="absolute top-0 right-0 bottom-0 left-0 z-0">
           <ReactFlow
             edges={edges}
@@ -111,6 +119,7 @@ export default function AutomationBuilder({
           </ReactFlow>
         </div>
       </main>
+      {includeExecutionDrawer && <ExecutionsDrawer automationId={automationId} height='30px' />}
     </>
   )
 }

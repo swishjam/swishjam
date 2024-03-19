@@ -17,16 +17,44 @@ const prettyDateTime = (date, opts = {}) => {
   const hour = opts.hour || 'numeric';
   const minute = opts.minute || 'numeric';
   const seconds = opts.seconds || 'none';
+  const milliseconds = opts.milliseconds || 'none';
   const d = new Date(date);
   if (hour === 'none' && minute === 'none' && seconds === 'none') {
     return `${d.toLocaleDateString('en-US', { month, day, year })}`
   } else {
-    if (year === 'none') {
+    if (month === 'none' && day === 'none' && year === 'none') {
+      if (seconds === 'none') {
+        return `${d.toLocaleTimeString('en-US', { hour, minute })}`
+      } else {
+        if (milliseconds !== 'none') {
+          return `${d.toLocaleTimeString('en-US', { hour, minute, second: seconds, fractionalSecondDigits: 3 })}`
+        } else {
+          return `${d.toLocaleTimeString('en-US', { hour, minute, second: seconds })}`
+        }
+      }
+    }
+    else if (year === 'none') {
       const dateString = d.toLocaleDateString('en-US', { month, day });
       const dateWithoutYear = dateString.replace(d.getFullYear(), '');
-      return `${dateWithoutYear} at ${d.toLocaleTimeString('en-US', { hour, minute, seconds })}`
+      if (seconds === 'none') {
+        return `${dateWithoutYear} at ${d.toLocaleTimeString('en-US', { hour, minute })}`
+      } else {
+        if (milliseconds !== 'none') {
+          return `${dateWithoutYear} at ${d.toLocaleTimeString('en-US', { hour, minute, second: seconds, fractionalSecondDigits: 3 })}`
+        } else {
+          return `${dateWithoutYear} at ${d.toLocaleTimeString('en-US', { hour, minute, second: seconds })}`
+        }
+      }
     } else {
-      return `${d.toLocaleDateString('en-US', { month, day, year })} at ${d.toLocaleTimeString('en-US', { hour, minute, seconds })}`
+      if (seconds === 'none') {
+        return `${d.toLocaleDateString('en-US', { month, day, year })} at ${d.toLocaleTimeString('en-US', { hour, minute })}`
+      } else {
+        if (milliseconds !== 'none') {
+          return `${d.toLocaleDateString('en-US', { month, day, year })} at ${d.toLocaleTimeString('en-US', { hour, minute, second: seconds, fractionalSecondDigits: 3 })}`
+        } else {
+          return `${d.toLocaleDateString('en-US', { month, day, year })} at ${d.toLocaleTimeString('en-US', { hour, minute, second: seconds })}`
+        }
+      }
     }
   }
 }

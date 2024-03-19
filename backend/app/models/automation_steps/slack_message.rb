@@ -37,6 +37,12 @@ module AutomationSteps
           }
         ]
       )
+      executed_automation_step.response_data = {
+        delivered_message_body: interpolated_message_body,
+        delivered_message_header: message_header,
+        delivered_to_channel_name: channel_name,
+        delivered_to_channel_id: channel_id
+      }
       executed_automation_step.completed!
     end
   end

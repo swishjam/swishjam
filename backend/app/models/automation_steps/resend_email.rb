@@ -14,7 +14,6 @@ module AutomationSteps
         executed_automation_step: executed_automation_step, 
         as_test: as_test
       ).deliver_email_if_necessary!
-      executed_automation_step.completed!
     end
   end
 end

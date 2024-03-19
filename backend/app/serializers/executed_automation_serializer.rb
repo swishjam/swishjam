@@ -11,21 +11,27 @@ class ExecutedAutomationSerializer < ActiveModel::Serializer
 
   has_many :executed_automation_steps do
     object.executed_automation_steps
-          .includes(:automation_step, :satisfied_next_automation_step_conditions)
+          .includes(:logs, :automation_step, :satisfied_next_automation_step_conditions)
           .order(started_at: :ASC)
           .map do |executed_step|
       {
         id: executed_step.id,
         execution_data: executed_step.execution_data,
+        response_data: executed_step.response_data,
         error_message: executed_step.error_message,
         started_at: executed_step.started_at,
         completed_at: executed_step.completed_at,
         status: executed_step.status,
-        automation_step: {
-          id: executed_step.automation_step_id,
-          type: executed_step.automation_step.type,
-          config: executed_step.automation_step.config,
-        },
+        logs: executed_step.logs.order(timestamp: :ASC).map do |log|
+          {
+            id: log.id,
+            level: log.level,
+            message: log.message,
+            metadata: log.metadata,
+            timestamp: log.timestamp,
+          }
+        end,
+        automation_step: AutomationStepSerializer.new(executed_step.automation_step),
         satisfied_next_automation_step_conditions: executed_step.satisfied_next_automation_step_conditions.map do |satisfied_condition|
           {
             created_at: satisfied_condition.created_at,
