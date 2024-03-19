@@ -9,7 +9,7 @@ const ICONS_DICT = {
   'AutomationSteps::Filter': LuFilter,
 }
 
-const includeStartedAndCompletedLogs = (executedStepType) => !['AutomationSteps::EntryPoint', 'AutomationSteps::Exit'].includes(executedStepType)
+const includeStartedAndCompletedLogs = (executedStepType) => !['AutomationSteps::EntryPoint', 'AutomationSteps::Exit', 'AutomationSteps::Filter'].includes(executedStepType)
 
 export default function ExecutedAutomationLogs({ executedAutomation, className = '', timestampFormatterOptions = { seconds: 'numeric', milliseconds: true } }) {
   const supplementedExecutionLogs = [
@@ -42,7 +42,7 @@ export default function ExecutedAutomationLogs({ executedAutomation, className =
           metadata: executedStep.response_data,
           timestamp: executedStep.completed_at,
         },
-        includeStartedAndCompletedLogs(executedStep.automation_step.type) && executedStep.error_message && {
+        executedStep.error_message && {
           level: 'error',
           icon: ICONS_DICT[executedStep.automation_step.type],
           message: `Error in ${executedStep.automation_step.friendly_type} automation step: ${executedStep.error_message}`,

@@ -66,18 +66,20 @@ export default function TestExecutionModal({
     setIsExecutingTestRun(false);
   }
 
+  const closeModal = () => {
+    onClose()
+    setTimeout(() => {
+      setExecutedAutomation();
+      setAutomationStepsForExecutedAutomation();
+    }, 500)
+  }
+
   return (
     <Modal
       isOpen={isOpen}
       title='Run Test Execution'
       size='x-large'
-      onClose={() => {
-        onClose()
-        setTimeout(() => {
-          setExecutedAutomation();
-          setAutomationStepsForExecutedAutomation();
-        }, 500)
-      }}
+      onClose={closeModal}
     >
       <div className='flex flex-col space-y-4 text-sm text-gray-700'>
         {isExecutingTestRun && (
@@ -115,13 +117,13 @@ export default function TestExecutionModal({
       </div>
       <div className='flex justify-end space-x-4 mt-6'>
         {executedAutomation && (
-          <Button onClick={onClose} variant='swishjam'>
+          <Button onClick={closeModal} variant='swishjam'>
             Done
           </Button>
         )}
         {!executedAutomation && (
           <>
-            <Button disabled={isExecutingTestRun} onClick={onClose} variant='outline'>
+            <Button disabled={isExecutingTestRun} onClick={closeModal} variant='outline'>
               Cancel
             </Button>
             <Button disabled={isExecutingTestRun} onClick={executeTestRun} variant='swishjam'>
@@ -133,6 +135,6 @@ export default function TestExecutionModal({
           </>
         )}
       </div>
-    </Modal>
+    </Modal >
   )
 }

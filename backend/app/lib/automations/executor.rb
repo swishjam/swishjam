@@ -41,13 +41,19 @@ module Automations
 
     def append_logs_to_executed_step_based_on_resolved_next_step_condition(executed_step, resolved_next_step_condition)
       if resolved_next_step_condition.nil?
-        json_rules = executed_step.automation_step.next_automation_step_conditions.map do |condition|
-          condition.next_automation_step_condition_rules.map(&:plain_english_description).join(' AND ')
+        if executed_step.automation_step.is_a?(AutomationSteps::Exit)
+          executed_step.logs << Log.info("Exiting automation...")
+        elsif executed_step.automation_step.next_automation_step_conditions.none?
+          executed_step.logs << Log.warn("No next automation step conditions specified, exiting automation...")
+        else
+          json_rules = executed_step.automation_step.next_automation_step_conditions.map do |condition|
+            condition.next_automation_step_condition_rules.map(&:plain_english_description).join(' AND ')
+          end
+          executed_step.logs << Log.warn("No automation step satisfies the specified conditions, exiting automation...", json_rules)
         end
-        executed_step.logs << Log.warn("No automation step satisfies the specified conditions, exiting automation...", json_rules)
       elsif !executed_step.automation_step.is_a?(AutomationSteps::EntryPoint)
         satisfied_rules_to_log = resolved_next_step_condition.next_automation_step_condition_rules.find_all { |rule| !rule.is_a?(NextAutomationStepConditionRules::AlwaysTrue) }.map(&:plain_english_description)
-        executed_step.logs << Log.info("Continuing to #{resolved_next_step_condition.next_automation_step.friendly_type} automation step.#{satisfied_rules_to_log.count > 0 ? " Satisfied conditions:" : ''}", satisfied_rules_to_log)
+        executed_step.logs << Log.success("Progressing to #{resolved_next_step_condition.next_automation_step.friendly_type} automation step.#{satisfied_rules_to_log.count > 0 ? " Satisfied conditions:" : ''}", satisfied_rules_to_log)
       end
     end
 

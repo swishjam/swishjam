@@ -17,6 +17,7 @@ class ExecutedAutomationSerializer < ActiveModel::Serializer
       {
         id: executed_step.id,
         execution_data: executed_step.execution_data,
+        response_data: executed_step.response_data,
         error_message: executed_step.error_message,
         started_at: executed_step.started_at,
         completed_at: executed_step.completed_at,
