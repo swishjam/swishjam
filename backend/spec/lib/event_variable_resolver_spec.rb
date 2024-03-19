@@ -75,11 +75,24 @@ describe EventVariableResolver do
         uuid: '1',
         swishjam_api_key: 'xyz',
         name: 'page_view',
-        properties: { nilProperty: nil,singleBracketVariable: 'resolved!', double_bracky: 'yessir' },
+        properties: { nilProperty: nil, singleBracketVariable: 'resolved!', double_bracky: 'yessir' },
         occurred_at: Time.current,
       )
       resolved_test = EventVariableResolver.interpolated_text(un_resolved_test, prepared_event)
       expect(resolved_test).to eq("Hello there, yessir resolved!")
+    end
+
+    it 'should return the text with unresolved variables if there are no matching event or user properties' do
+      un_resolved_test = "Hello {event.no_property || 'there'} {{ event.is_there }}, my name is {{ event.not_here }} and I am {user.not_here}!"
+      prepared_event = Ingestion::ParsedEventFromIngestion.new(
+        uuid: '1',
+        swishjam_api_key: 'xyz',
+        name: 'page_view',
+        properties: { is_there: 'foo' },
+        occurred_at: Time.current,
+      )
+      resolved_test = EventVariableResolver.interpolated_text(un_resolved_test, prepared_event)
+      expect(resolved_test).to eq("Hello there foo, my name is {{ event.not_here }} and I am {{ user.not_here }}!")
     end
   end
 end
