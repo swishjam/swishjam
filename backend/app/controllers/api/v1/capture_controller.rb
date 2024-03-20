@@ -25,6 +25,13 @@ module Api
           return
         end
 
+        if payload.length > (ENV['MAX_EVENTS_IN_CAPTURE_REQUEST'] || 100).to_i
+          msg = "Invalid payload format. Cannot send more than #{ENV['MAX_EVENTS_IN_CAPTURE_REQUEST'] || 100} events in one request."
+          Sentry.capture_message(msg)
+          render json: { error: msg }, status: :bad_request
+          return
+        end
+
         if !ENV['BYPASS_API_KEY_CHECKS_DURING_INGESTION'].present? && !ApiKey.enabled.where(public_key: api_key).exists?
           msg = "Invalid Swishjam API Key provided to capture endpoint: #{api_key}."
           Sentry.capture_message(msg)
@@ -40,13 +47,6 @@ module Api
             occurred_at: e['timestamp'] || Time.current.to_f,
             properties: e['attributes'] || e['properties'] || e.except('uuid', 'event', 'event_name', 'name', 'timestamp', 'source'),
           )
-        end
-
-        if events.length > (ENV['MAX_EVENTS_IN_CAPTURE_REQUEST'] || 100).to_i
-          msg = "Invalid payload format. Cannot send more than #{ENV['MAX_EVENTS_IN_CAPTURE_REQUEST'] || 100} events in one request."
-          Sentry.capture_message(msg)
-          render json: { error: msg }, status: :bad_request
-          return
         end
         
         if events.any? { |e| e[:name].blank? }

@@ -1,5 +1,6 @@
 module Ingestion
   class EventsPreparer
+    class InvalidEventError < StandardError; end
     attr_accessor :ingestion_batch, :raw_events_to_prepare
 
     EVENT_NAMES_TO_NOT_WRITE_TO_EVENTS_TABLE = %w[*update_user].freeze
@@ -58,6 +59,7 @@ module Ingestion
       ingestion_batch.num_successful_records += prepared_events.count
       ingestion_batch.save! if (@update_ingestion_batch_every_n_iterations || 0) > 0 && (ingestion_batch.num_successful_records + ingestion_batch.num_failed_records) % @update_ingestion_batch_every_n_iterations == 0
     rescue => e
+      byebug
       Sentry.capture_exception(e)
       Sentry.capture_message("Error preparing event into ingestion format during events ingestion, continuing with the rest of the events in the queue and pushing this one to the DLQ.\nerror: #{e.message}", extra: { event_json: event_json })
       event_json['dlq_data'] = { error_message: e.message, errored_at: Time.current }
@@ -79,6 +81,16 @@ module Ingestion
         Ingestion::EventPreparers::GithubEventHandler
       elsif event_name.starts_with?('cal.')
         Ingestion::EventPreparers::CalComEventHandler
+      elsif event_name.starts_with?('segment.')
+        if event_name == 'segment.identify'
+          Ingestion::EventPreparers::Segment::IdentifyHandler
+        elsif event_name == 'segment.group'
+          Ingestion::EventPreparers::Segment::GroupHandler
+        elsif event_name == 'segment.track' || event_name == 'segment.page_view'
+          Ingestion::EventPreparers::Segment::EventHandler
+        else
+          raise InvalidEventError, "Unknown Segment event name: #{event_name}"
+        end
       else
         Ingestion::EventPreparers::BasicEventHandler
       end
