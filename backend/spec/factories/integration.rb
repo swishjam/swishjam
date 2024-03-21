@@ -22,4 +22,8 @@ FactoryBot.define do
   factory :slack_destination, class: Integrations::Destinations::Slack, parent: :integration do
     config {{ access_token: 'stubbed' }}
   end
+
+  factory :segment_integration, class: Integrations::Segment, parent: :integration do
+    config {{ for_data_source: 'product' }}
+  end
 end

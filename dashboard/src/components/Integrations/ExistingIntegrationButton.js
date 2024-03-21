@@ -2,17 +2,11 @@ import Image from 'next/image';
 import { Cog6ToothIcon } from '@heroicons/react/20/solid';
 import { PauseCircleIcon, TrashIcon, PlayCircleIcon } from '@heroicons/react/24/outline'
 import { Button } from '@/components/ui/button';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import useConfirmationModal from '@/hooks/useConfirmationModal';
 
 export default function ExistingConnectionItem({ img, integration, enabled, onRemoveClick, onDisableClick, onEnableClick, canEdit = true, borderImage = false }) {
+  const { displayConfirmation } = useConfirmationModal();
 
   return (
     <li key={integration.id} className={`border-b border-gray-200`}>
@@ -41,8 +35,6 @@ export default function ExistingConnectionItem({ img, integration, enabled, onRe
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-36" align={'end'}>
-              <DropdownMenuLabel>Edit Connection</DropdownMenuLabel>
-              <DropdownMenuSeparator />
               <DropdownMenuGroup>
                 {enabled ?
                   <DropdownMenuItem onClick={() => onDisableClick(integration.id)} className="cursor-pointer">
@@ -54,7 +46,16 @@ export default function ExistingConnectionItem({ img, integration, enabled, onRe
                     Resume
                   </DropdownMenuItem>
                 }
-                <DropdownMenuItem className="!text-red-400 cursor-pointer" onClick={() => onRemoveClick(integration.id)}>
+                <DropdownMenuItem
+                  className="!text-red-400 cursor-pointer"
+                  onClick={() => {
+                    displayConfirmation({
+                      title: 'Delete Integration',
+                      body: `Are you sure you want to delete the ${integration.name} integration? This will prevent future data from being captured.`,
+                      callback: () => onRemoveClick(integration.id)
+                    })
+                  }}
+                >
                   <TrashIcon className='h-4 w-4 inline-block mr-2' />
                   Delete
                 </DropdownMenuItem>

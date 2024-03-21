@@ -16,7 +16,11 @@ module Ingestion
       end
 
       def data_source
-        @data_source ||= workspace.api_keys.find_by(public_key: parsed_event.swishjam_api_key)&.data_source
+        @data_source ||= swishjam_api_key_record&.data_source
+      end
+
+      def swishjam_api_key_record
+        @api_record ||= workspace.api_keys.find_by(public_key: parsed_event.swishjam_api_key)
       end
 
       def provided_unique_user_identifier

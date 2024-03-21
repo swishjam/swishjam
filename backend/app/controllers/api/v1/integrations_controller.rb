@@ -36,7 +36,11 @@ module Api
           enabled: params[:enabled]
         )
         if integration.save
-          render json: { integration: integration }, status: :ok
+          json = { integration: integration }
+          if params[:return_private_key]
+            json[:private_key] = current_workspace.api_keys.for_data_source!(integration.class.data_source).private_key
+          end
+          render json: json, status: :ok
         else
           render json: { error: integration.errors.full_messages.join(' ') }, status: :unprocessable_entity
         end

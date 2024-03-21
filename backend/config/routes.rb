@@ -304,7 +304,7 @@ Rails.application.routes.draw do
         post :'resend/:workspace_id', to: 'resend#receive'
         post :stripe, to: 'stripe#receive'
         post :github, to: 'github#receive'
-        post :segment, to: 'segment#receive'
+        post :'segment/:integration_id', to: 'segment#receive'
       end
     end
   end

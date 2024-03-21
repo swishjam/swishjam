@@ -1,10 +1,11 @@
 class Integration < Transactional  
+  include JsonbMethods
   belongs_to :workspace
+  has_one :swishjam_api_key, class_name: ApiKey.to_s, foreign_key: :integration_id, dependent: :destroy
 
   scope :enabled, -> { where(enabled: true) }
   scope :disabled, -> { where(enabled: false) }
   scope :by_type, -> (type) { where(type: type.to_s) }
-
   scope :data_sources, -> { where(type: self.DATA_SOURCE_TYPES.map(&:to_s)) }
   scope :destinations, -> { where(type: self.DESTINATION_TYPES.map(&:to_s)) }
 
@@ -22,7 +23,7 @@ class Integration < Transactional
 
   def self.TYPES
     # Integrations::GoogleSearchConsole - waiting until Google app approval process.
-    [Integrations::Stripe, Integrations::Resend, Integrations::CalCom, Integrations::Intercom, Integrations::Github]
+    [Integrations::Stripe, Integrations::Resend, Integrations::CalCom, Integrations::Intercom, Integrations::Github, Integrations::Segment]
   end
 
   def self.DATA_SOURCE_TYPES
@@ -79,9 +80,12 @@ class Integration < Transactional
   private
 
   def create_api_key_for_data_source_if_necessary
-    if !ApiKey.exists?(workspace: workspace, data_source: self.class.data_source)
-      ApiKey.create!(workspace: workspace, data_source: self.class.data_source)
+    if !swishjam_api_key.present?
+      ApiKey.create!(workspace: workspace, data_source: self.class.data_source, integration: self)
     end
+    # if !ApiKey.exists?(workspace: workspace, data_source: self.class.data_source)
+    #   ApiKey.create!(workspace: workspace, data_source: self.class.data_source)
+    # end
   end
 
   # intended to be overrode

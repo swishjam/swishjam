@@ -1,10 +1,10 @@
 import AddIntegrationButton from './AddIntegrationButton';
 import { AllDataSources, AllDestinations } from './AllIntegrations';
+import { Dialog, DialogContent } from "@/components/ui/dialog"
 import ExistingIntegrationButton from './ExistingIntegrationButton';
 import EmptyView from './EmptyView';
 import Image from 'next/image';
 import LoadingView from './LoadingView';
-import Modal from '@/components/utils/Modal';
 import { SwishjamAPI } from '@/lib/api-client/swishjam-api';
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
@@ -98,31 +98,33 @@ export default function IntegrationsList({ title, subTitle, type = 'data_source'
         ? <LoadingView title={title} subTitle={subTitle} />
         : (
           <>
-            {integrationForModal && (
-              <Modal size='large' isOpen={true} onClose={() => setIntegrationForModal(null)}>
-                <div className='flex flex-col items-center justify-center'>
-                  <div className='flex flex-col gap-6 xl:flex-row mb-8'>
-                    <div className='w-20'>
-                      <Image
-                        src={integrationsMap[integrationForModal.name].img}
-                        alt={integrationForModal.name}
-                        className="w-20 rounded-lg bg-white object-cover ring-1 ring-gray-900/10"
-                      />
+            <Dialog open={integrationForModal} onOpenChange={() => setIntegrationForModal(null)}>
+              {integrationForModal && (
+                <DialogContent className='max-w-2xl'>
+                  <div className='flex flex-col items-center justify-center'>
+                    <div className='flex flex-col gap-6 xl:flex-row mb-8'>
+                      <div className='w-20'>
+                        <Image
+                          src={integrationsMap[integrationForModal.name].img}
+                          alt={integrationForModal.name}
+                          className={`w-20 rounded-lg bg-white object-cover ${integrationsMap[integrationForModal.name].borderImage ? 'bg-white ring-1 ring-gray-900/10' : ''}`}
+                        />
+                      </div>
+                      <div>
+                        <h1 className='text-2xl font-medium'>Connect your {integrationForModal.name} account</h1>
+                        <p className='text-md text-gray-600'>{integrationsMap[integrationForModal.name].description}</p>
+                      </div>
                     </div>
-                    <div>
-                      <h1 className='text-2xl font-medium'>Connect your {integrationForModal.name} account</h1>
-                      <p className='text-gray-600'>{integrationsMap[integrationForModal.name].description}</p>
-                    </div>
+                    {integrationsMap[integrationForModal.name].connectComponent(setIntegrationAsConnected, () => setIntegrationForModal(null))}
                   </div>
-                  {integrationsMap[integrationForModal.name].connectComponent(setIntegrationAsConnected)}
-                </div>
-              </Modal>
-            )}
+                </DialogContent>
+              )}
+            </Dialog>
             <div className=''>
               <ul role="list" className="grid grid-cols-1 mt-6 border-t border-gray-200">
-                {enabledIntegrations.map(integration => (
+                {enabledIntegrations.map((integration, i) => (
                   <ExistingIntegrationButton
-                    key={integration.id}
+                    key={i}
                     canEdit={integration.cannot_manage !== true}
                     img={integrationsMap[integration.name].img}
                     integration={integration}
@@ -134,9 +136,9 @@ export default function IntegrationsList({ title, subTitle, type = 'data_source'
                 ))}
               </ul>
               <ul role="list" className="grid grid-cols-1">
-                {disabledIntegrations.map(integration => (
+                {disabledIntegrations.map((integration, i) => (
                   <ExistingIntegrationButton
-                    key={integration.id}
+                    key={i}
                     img={integrationsMap[integration.name].img}
                     integration={integration}
                     onRemoveClick={deleteIntegration}
@@ -156,10 +158,10 @@ export default function IntegrationsList({ title, subTitle, type = 'data_source'
                       description="Reach out to founders@swishjam.com if you need more"
                     />
                   ) : (
-                    availableIntegrations.map((integration) => (
+                    availableIntegrations.map((integration, i) => (
                       <AddIntegrationButton
+                        key={i}
                         img={integrationsMap[integration.name].img}
-                        key={integration.name}
                         integration={integration}
                         onIntegrationClick={() => {
                           swishjam.event('add_integration_clicked', { integration_name: integration.name })

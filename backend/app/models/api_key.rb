@@ -1,6 +1,6 @@
 class ApiKey < Transactional
   class ReservedDataSources
-    SOURCES = %i[product marketing stripe resend cal_com google_search_console intercom github].freeze
+    SOURCES = %i[product marketing stripe resend cal_com google_search_console intercom github segment].freeze
     
     class << self
       SOURCES.each do |source|
@@ -14,8 +14,8 @@ class ApiKey < Transactional
       end
     end
   end
-
   belongs_to :workspace
+  belongs_to :integration, optional: true
   
   validates :data_source, presence: true
   validates :public_key, presence: true, uniqueness: true
@@ -58,7 +58,7 @@ class ApiKey < Transactional
   def self.generate_key(prefix, type)
     key = [prefix, SecureRandom.hex(8)].join('-')
     return key unless ApiKey.exists?("#{type}": key)
-    generate_key(prefix)
+    generate_key(prefix, type)
   end
 
   def enabled?

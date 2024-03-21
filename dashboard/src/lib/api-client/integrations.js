@@ -1,8 +1,8 @@
 import Base from "./base";
 
 export class Integrations extends Base {
-  static async create({ type, config, enabled }) {
-    return await this._post('/api/v1/integrations', { type, config, enabled });
+  static async create({ type, config, enabled, returnPrivateKey = false }) {
+    return await this._post('/api/v1/integrations', { type, config, enabled, return_private_key: returnPrivateKey });
   }
 
   static async list({ destinations = null } = {}) {

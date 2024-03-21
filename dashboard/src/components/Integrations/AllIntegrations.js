@@ -3,17 +3,19 @@ import ConnectStripeView from '@/components/Integrations/ConnectViews/Stripe';
 import ConnectSlackView from '@/components/Integrations/ConnectViews/Slack';
 import GithubConnectionView from '@/components/Integrations/ConnectViews/Github';
 import GoogleSearchConsole from '@/components/Integrations/ConnectViews/GoogleSearchConsole';
-import ResendConnectView from '@/components/Integrations/ConnectViews/Resend';
 import IntercomConnectionView from '@/components/Integrations/ConnectViews/Intercom';
+import ResendConnectView from '@/components/Integrations/ConnectViews/Resend';
+import SegmentConnectionView from './ConnectViews/Segment';
 
 import CalComLogo from '@public/logos/calcom.png'
 import GithubLogo from '@public/logos/github.png'
 import GoogleSearchConsoleLogo from '@public/logos/Google-Search-Console.png'
 import IntercomLogo from '@public/logos/intercom.png'
 import ResendLogo from '@public/logos/resend.png'
+import ResendDestination from './ConnectViews/ResendDestination';
+import SegmentLogo from '@public/logos/segment.svg'
 import SlackLogo from '@public/logos/slack.svg'
 import StripeLogo from '@public/logos/stripe.jpeg'
-import ResendDestination from './ConnectViews/ResendDestination';
 import SwishjamLogo from '@public/logos/swishjam.png'
 
 const AllDataSources = {
@@ -49,6 +51,12 @@ const AllDataSources = {
     img: GithubLogo,
     description: 'Connect your Github account to Swishjam to automatically import your Github data.',
     connectComponent: onNewIntegration => <GithubConnectionView onNewIntegration={onNewIntegration} />,
+  },
+  Segment: {
+    img: SegmentLogo,
+    description: 'Connect your Segment account to Swishjam to start sending your Segment events into Swishjam.',
+    connectComponent: (onNewIntegration, onClose) => <SegmentConnectionView onNewIntegration={onNewIntegration} onClose={onClose} />,
+    borderImage: false,
   },
   'Swishjam - Product Analytics': {
     img: SwishjamLogo,

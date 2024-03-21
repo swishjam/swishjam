@@ -44,10 +44,18 @@ module Ingestion
       event_json['swishjam_api_key']
     end
 
+    def override_swishjam_api_key!(new_swishjam_api_key)
+      event_json['swishjam_api_key'] = new_swishjam_api_key
+    end 
+
     def name
       event_json['name']
     end
     alias event_name name
+
+    def override_name!(new_name)
+      event_json['name'] = new_name
+    end
 
     def user_profile_id
       event_json['user_profile_id']

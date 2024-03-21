@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2024_03_16_183436) do
+ActiveRecord::Schema.define(version: 2024_03_20_224347) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
@@ -82,7 +82,9 @@ ActiveRecord::Schema.define(version: 2024_03_16_183436) do
     t.boolean "enabled"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.uuid "integration_id"
     t.index ["data_source"], name: "index_api_keys_on_data_source"
+    t.index ["integration_id"], name: "index_api_keys_on_integration_id"
     t.index ["private_key"], name: "index_api_keys_on_private_key", unique: true
     t.index ["public_key"], name: "index_api_keys_on_public_key", unique: true
     t.index ["workspace_id"], name: "index_api_keys_on_workspace_id"
@@ -549,9 +551,9 @@ ActiveRecord::Schema.define(version: 2024_03_16_183436) do
     t.datetime "updated_at", precision: 6, null: false
     t.boolean "combine_marketing_and_product_data_sources"
     t.boolean "should_enrich_user_profile_data"
-    t.boolean "revenue_analytics_enabled", default: true, null: false
     t.string "enrichment_provider"
     t.boolean "should_enrich_organization_profile_data", default: false
+    t.boolean "revenue_analytics_enabled", default: true, null: false
     t.index ["workspace_id"], name: "index_workspace_settings_on_workspace_id"
   end
 
@@ -569,6 +571,7 @@ ActiveRecord::Schema.define(version: 2024_03_16_183436) do
   add_foreign_key "analytics_user_profile_devices", "analytics_user_profiles"
   add_foreign_key "analytics_user_profile_devices", "workspaces"
   add_foreign_key "analytics_user_profiles", "workspaces"
+  add_foreign_key "api_keys", "integrations"
   add_foreign_key "api_keys", "workspaces"
   add_foreign_key "auth_sessions", "users"
   add_foreign_key "automation_steps", "automations"
