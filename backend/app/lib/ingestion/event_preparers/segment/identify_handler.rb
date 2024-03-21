@@ -3,7 +3,6 @@ module Ingestion
     module Segment
       class IdentifyHandler < Base
         def handle_and_return_prepared_events!
-          byebug
           user_profile = create_or_update_user_profile!
           parsed_event.set_user_profile(user_profile)
           merge_anonymous_user_into_identified_user!(user_profile)

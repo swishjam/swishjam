@@ -36,7 +36,7 @@ module Ingestion
           user_profile.metadata ||= {}
           user_profile.metadata[AnalyticsUserProfile::ReservedMetadataProperties.INITIAL_LANDING_PAGE_URL] ||= page_url
           user_profile.metadata[AnalyticsUserProfile::ReservedMetadataProperties.INITIAL_REFERRER_URL] ||= page_referrer
-          user_profile.metadata = user_profile.metadata.merge(user_traits)
+          user_profile.metadata = user_profile.metadata.merge(user_traits.except('email'))
           user_profile.last_seen_at_in_web_app = Time.current
           user_profile.first_seen_at_in_web_app ||= Time.current
           user_profile.save!
