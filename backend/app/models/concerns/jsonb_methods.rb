@@ -52,8 +52,4 @@ module JsonbMethods
       alias_method :"#{jsonb_column}_#{method_to_define}_present?", :"#{method_to_define}_present?"
     end
   end
-
-  instance_methods do
-    # nothing?
-  end
 end

@@ -1,4 +1,4 @@
-class Integration < Transactional  
+class Integration < Transactional 
   belongs_to :workspace
 
   scope :enabled, -> { where(enabled: true) }

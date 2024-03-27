@@ -232,6 +232,8 @@ Rails.application.routes.draw do
       resources :slack, only: [] do
         collection do
           get :channels
+          post :'bot/action', to: 'slack_bot#action'
+          post :'bot/slash_command', to: 'slack_bot#slash_command'
         end
       end
 
