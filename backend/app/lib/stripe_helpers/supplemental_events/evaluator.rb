@@ -39,12 +39,20 @@ module StripeHelpers
       end
 
       def is_churned_subscription_event?
-        return false if @stripe_event.type != 'customer.subscription.updated' || stripe_object.canceled_at.nil?
-        just_became_canceled = previous_attributes['status'] == 'active' && stripe_object.status == 'canceled'
+        is_potential_churn_event = @stripe_event.type == 'customer.subscription.updated' && stripe_object.canceled_at.present?
+        return false if !is_potential_churn_event
+        
+        was_or_is_active = stripe_object.status === 'active' || previous_attributes['status'] == 'active'
+        return false if !was_or_is_active
+
         just_canceled_at = previous_attributes.keys.include?(:canceled_at) && previous_attributes['canceled_at'].nil? && stripe_object.canceled_at.present?
+        return false if !just_canceled_at
+
         is_paid_subscription = stripe_object.items.data.any?{ |item| item.price.unit_amount.positive? }
-        wasnt_during_free_trial = stripe_object.trial_end.nil? || stripe_object.canceled_at > stripe_object.trial_end
-        (just_became_canceled || just_canceled_at) && is_paid_subscription
+        return false if !is_paid_subscription
+        # wasnt_during_free_trial = stripe_object.trial_end.nil? || stripe_object.canceled_at > stripe_object.trial_end
+        
+        true
       end
 
       def is_new_free_trial_event?
