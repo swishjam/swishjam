@@ -26,7 +26,9 @@ module Api
         when '/swishjam-whois'
           blocks = ::Slack::SwishjamBot::SlashCommandHandlers::WhoIs.new(@workspace, params).return_slash_response
         else
-          raise InvalidSlashCommandError, "Received invalid Slack bot command: #{@payload[:command]}"
+          Sentry.capture_message("Received invalid Slack bot command: #{params[:command]}")
+          render json: { "response_type": "ephemeral", "text": "Unrecognized Slash command #{params[:command]}, how'd you get here?" }, status: :ok
+          return
         end
         render json: { blocks: blocks }, status: :ok
       end
@@ -77,7 +79,7 @@ module Api
           integrations = integrations.where("config->>'webhook_channel_id' = ?", channel_id)
           if integrations.empty? || integrations.length > 1
             Sentry.capture_message("Could not find a single Slack integration for team_id: #{team_id} and channel_id: #{channel_id} in Slack Bot request")
-            render json: { error: "Unauthorized" }, status: :unauthorized
+            render json: { "response_type": "ephemeral", "text": "Cannot execute Swishjam Slack bot commands in this channel." }, status: :ok
             return
           end
         end
