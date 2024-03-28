@@ -85,11 +85,11 @@ module Api
             if filter_class == QueryFilters::EventCountForUserOverTimePeriod
               update_config_errors << "Invalid event_count_operator" unless %w[less_than less_than_or_equal_to greater_than greater_than_or_equal_to].include?(filter[:config]['event_count_operator'])
             elsif filter_class == QueryFilters::UserProperty
-              if !%w[is_defined is_not_defined is_not_generic_email is_generic_email].include?(filter[:config]['operator']) && filter[:config][:property_value].blank?
+              if !%w[is_defined is_not_defined is_not_generic_email is_generic_email].include?(filter[:config]['operator']) && !filter[:config].key?('property_value')
                 update_config_errors << "`property_value` query filter option is required for operator: #{filter[:config]['operator']}"
               end
               if %w[is_generic_email is_not_generic_email].include?(filter[:config]['operator'])  && filter[:config]['property_name'] != 'email'
-                update_config_errors << "`property_name` must be 'email' when using the `is/is not generic` operator."
+                update_config_errors << "`property_name` must equal 'email' when using the `is/is not generic` operator."
               end
             end
           end
