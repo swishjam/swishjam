@@ -46,41 +46,42 @@ module Api
         computed_signature = OpenSSL::HMAC.hexdigest('SHA256', ENV['SLACK_SIGNING_SECRET'], signature_base)
         is_valid_signature = Rack::Utils.secure_compare(request.headers['X-Slack-Signature'], "#{version}=#{computed_signature}")
         if !is_valid_signature
+          Sentry.capture_message("Invalid Slack signature received")
           render json: { error: "Unauthorized" }, status: :unauthorized
           return
         end
 
         team_id = params[:team_id] || JSON.parse(params[:payload] || '{}').dig('team', 'id')
         if team_id.nil?
+          Sentry.capture_message("No team_id found in Slack Bot request")
           render json: { error: "Unauthorized" }, status: :unauthorized
           return
         end
 
         integrations = Integrations::Destinations::Slack.enabled.find_all_by_team_id(team_id)
         if integrations.empty?
+          Sentry.capture_message("No Slack integrations found for team_id: #{team_id} in Slack Bot request")
           render json: { error: "Unauthorized" }, status: :unauthorized
           return
         end
 
         if integrations.length > 1
-          Sentry.capture_message("Multiple Slack integrations found for team_id: #{team_id}, trying to find one for matching Channel...")
+          Sentry.capture_message("Multiple Slack integrations found for team_id: #{team_id} in Slack Bot request, trying to find one for matching Channel...")
           channel_id = params[:channel_id] || JSON.parse(params[:payload] || '{}').dig('channel', 'id') || JSON.parse(JSON.parse(params[:payload] || '{}').dig('view', 'private_metadata') || '{}')['channel_id']
           if channel_id.nil?
+            Sentry.capture_message("No channel_id found in Slack Bot request")
             render json: { error: "Unauthorized" }, status: :unauthorized
             return
           end
           integrations = integrations.where("config->>'webhook_channel_id' = ?", channel_id)
           if integrations.empty? || integrations.length > 1
+            Sentry.capture_message("Could not find a single Slack integration for team_id: #{team_id} and channel_id: #{channel_id} in Slack Bot request")
             render json: { error: "Unauthorized" }, status: :unauthorized
             return
           end
         end
         @integration = integrations.first
         @workspace = @integration.workspace
-      end
-
-      def swishjam_integration
-        @swishjam_integration ||= Integrations::Destinations::Slack.find_by_team_id(params[:team_id])
       end
 
     end
