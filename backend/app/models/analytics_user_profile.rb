@@ -15,8 +15,6 @@ class AnalyticsUserProfile < Transactional
     end
   end
   include JsonbMethods
-  include IndexableJsonKeyValues
-  self.index_key_values! :metadata, :first_name, :last_name, :name
 
   belongs_to :workspace
   has_one :enriched_data, as: :enrichable, dependent: :destroy
