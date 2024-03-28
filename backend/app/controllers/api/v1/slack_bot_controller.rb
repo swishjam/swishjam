@@ -61,30 +61,35 @@ module Api
           return
         end
 
-        integrations = Integrations::Destinations::Slack.enabled.find_all_by_team_id(team_id)
-        if integrations.empty?
-          Sentry.capture_message("No Slack integrations found for team_id: #{team_id} in Slack Bot request")
-          render json: { error: "Unauthorized" }, status: :unauthorized
-          return
-        end
-
-        if integrations.length > 1
-          Sentry.capture_message("Multiple Slack integrations found for team_id: #{team_id} in Slack Bot request, trying to find one for matching Channel...")
-          channel_id = params[:channel_id] || JSON.parse(params[:payload] || '{}').dig('channel', 'id') || JSON.parse(JSON.parse(params[:payload] || '{}').dig('view', 'private_metadata') || '{}')['channel_id']
-          if channel_id.nil?
-            Sentry.capture_message("No channel_id found in Slack Bot request")
+        # so magic patterns can continue to use our workspace for automations, but their workspace for bot commands :/
+        if team_id == 'T052XJNDL2X'
+          @workspace = Workspace.find('f638b4ad-d0e9-4079-96c5-37d0aa38e3f8')
+        else
+          integrations = Integrations::Destinations::Slack.enabled.find_all_by_team_id(team_id)
+          if integrations.empty?
+            Sentry.capture_message("No Slack integrations found for team_id: #{team_id} in Slack Bot request")
             render json: { error: "Unauthorized" }, status: :unauthorized
             return
           end
-          integrations = integrations.where("config->>'webhook_channel_id' = ?", channel_id)
-          if integrations.empty? || integrations.length > 1
-            Sentry.capture_message("Could not find a single Slack integration for team_id: #{team_id} and channel_id: #{channel_id} in Slack Bot request")
-            render json: { "response_type": "ephemeral", "text": "Cannot execute Swishjam Slack bot commands in this channel." }, status: :ok
-            return
+          if integrations.length > 1
+            Sentry.capture_message("Multiple Slack integrations found for team_id: #{team_id} in Slack Bot request, trying to find one for matching Channel...")
+            channel_id = params[:channel_id] || JSON.parse(params[:payload] || '{}').dig('channel', 'id') || JSON.parse(JSON.parse(params[:payload] || '{}').dig('view', 'private_metadata') || '{}')['channel_id']
+            if channel_id.nil?
+              Sentry.capture_message("No channel_id found in Slack Bot request")
+              render json: { error: "Unauthorized" }, status: :unauthorized
+              return
+            end
+            integrations = integrations.where("config->>'webhook_channel_id' = ?", channel_id)
+            if integrations.empty? || integrations.length > 1
+              Sentry.capture_message("Could not find a single Slack integration for team_id: #{team_id} and channel_id: #{channel_id} in Slack Bot request")
+              render json: { "response_type": "ephemeral", "text": "Cannot execute Swishjam Slack bot commands in this channel." }, status: :ok
+              return
+            end
           end
+          @integration = integrations.first
+          @workspace = @integration.workspace
         end
-        @integration = integrations.first
-        @workspace = @integration.workspace
+
       end
 
     end
