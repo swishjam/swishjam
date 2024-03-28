@@ -23,7 +23,7 @@ module Api
       def slash_command
         blocks = []
         case params[:command]
-        when '/swishjam-whois'
+        when '/swishjam-whois', '/swishjam-dev-whois'
           blocks = ::Slack::SwishjamBot::SlashCommandHandlers::WhoIs.new(@workspace, params).return_slash_response
         else
           Sentry.capture_message("Received invalid Slack bot command: #{params[:command]}")

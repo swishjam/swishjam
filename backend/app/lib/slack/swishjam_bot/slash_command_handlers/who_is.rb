@@ -56,7 +56,7 @@ module Slack
             },
           ]
           user.metadata.each do |key, value|
-            next if key.in?(%w[firstName lastName first_name last_name email fullName name full_name])
+            next if key.in?(%w[firstName lastName first_name last_name email fullName name full_name]) || value.blank?
             properties_arr << { "type": "mrkdwn", "text": "*#{key.titleize}:*\n#{value}" }
           end
           properties_arr.each_slice(10).each do |sliced_properties_arr|
