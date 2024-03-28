@@ -58,22 +58,12 @@ module Slack
                 thread_ts: private_metadata['message_ts'],
                 blocks: [
                   {
-                    "type": "rich_text_section",
-                    "elements": [
-                      {
-                        "type": "text",
-                        "text": "Email delivered to #{to_email}."
-                      }
-                    ]
-                  },
-                  {
-                    "type": "rich_text_quote",
-                    "elements": [
-                      {
-                        "type": "text",
-                        "text": "I am a basic quote block following preformatted text"
-                      }
-                    ]
+                    "type": "section",
+                    "text": {
+                      "type": "plain_text",
+                      "text": ":white_check_mark: Email delivered to #{to_email}.",
+                      "emoji": true,
+                    }
                   },
                 ],
                 __bypass_dev_flag: true,
@@ -85,7 +75,6 @@ module Slack
                   emoji: 'inbox_tray'
                 )
               rescue Slack::Client::BadRequestError => e
-                byebug
                 Sentry.capture_exception(e)
               end
             end

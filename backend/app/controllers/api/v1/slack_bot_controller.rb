@@ -14,7 +14,6 @@ module Api
         when 'message_action'
           results = ::Slack::SwishjamBot::ActionHandlers::MessageAction.new(@integration, payload).handle_action
         else
-          byebug
           render json: { error: "Invalid action type" }, status: :bad_request
           return
         end
@@ -37,7 +36,6 @@ module Api
       def authenticate_bot!
         timestamp = request.headers['X-Slack-Request-Timestamp']
         if timestamp.nil? || Time.now.to_i - timestamp.to_i > 5.minutes
-          byebug
           render json: { error: "Unauthorized" }, status: :unauthorized
           return
         end
@@ -48,24 +46,36 @@ module Api
         computed_signature = OpenSSL::HMAC.hexdigest('SHA256', ENV['SLACK_SIGNING_SECRET'], signature_base)
         is_valid_signature = Rack::Utils.secure_compare(request.headers['X-Slack-Signature'], "#{version}=#{computed_signature}")
         if !is_valid_signature
-          byebug
           render json: { error: "Unauthorized" }, status: :unauthorized
           return
         end
 
         team_id = params[:team_id] || JSON.parse(params[:payload] || '{}').dig('team', 'id')
         if team_id.nil?
-          byebug
           render json: { error: "Unauthorized" }, status: :unauthorized
           return
         end
 
-        @integration = Integrations::Destinations::Slack.find_by_team_id(team_id)
-        if @integration.nil?
-          byebug
+        integrations = Integrations::Destinations::Slack.enabled.find_all_by_team_id(team_id)
+        if integrations.empty?
           render json: { error: "Unauthorized" }, status: :unauthorized
           return
         end
+
+        if integrations.length > 1
+          Sentry.capture_message("Multiple Slack integrations found for team_id: #{team_id}, trying to find one for matching Channel...")
+          channel_id = params[:channel_id] || JSON.parse(params[:payload] || '{}').dig('channel', 'id') || JSON.parse(JSON.parse(params[:payload] || '{}').dig('view', 'private_metadata') || '{}')['channel_id']
+          if channel_id.nil?
+            render json: { error: "Unauthorized" }, status: :unauthorized
+            return
+          end
+          integrations = integrations.where("config->>'webhook_channel_id' = ?", channel_id)
+          if integrations.empty? || integrations.length > 1
+            render json: { error: "Unauthorized" }, status: :unauthorized
+            return
+          end
+        end
+        @integration = integrations.first
         @workspace = @integration.workspace
       end
 

@@ -6,15 +6,17 @@ import { SwishjamAPI } from "@/lib/api-client/swishjam-api";
 import { toast } from "sonner";
 import { useState, useEffect } from "react";
 import WorkspaceSettingsToggles from "@/components/Settings/WorkspaceSettingsToggles";
+import CardSection from "@/components/Settings/CardSection";
+import CopiableText from "@/components/utils/CopiableText";
 
 export default function SettingsPage() {
   const [apiKeys, setApiKeys] = useState();
   const [workspaceSettings, setWorkspaceSettings] = useState();
 
   useEffect(() => {
-    SwishjamAPI.Config.retrieve().then(({ api_keys, settings }) => {
+    SwishjamAPI.Config.retrieve().then(({ workspace, api_keys, settings }) => {
       setApiKeys(api_keys);
-      setWorkspaceSettings(settings);
+      setWorkspaceSettings({ workspace, ...settings });
     });
   }, []);
 
@@ -119,6 +121,13 @@ export default function SettingsPage() {
 
       <div className='mt-8 space-x-4 space-y-4'>
         <ApiKeysTable apiKeys={apiKeys} />
+      </div>
+
+      <div className='mt-8'>
+        <CardSection
+          title='Miscellaneous'
+          sections={[{ title: 'Workspace ID', body: <CopiableText value={workspaceSettings?.workspace?.id} className='text-sm text-gray-600' /> }]}
+        />
       </div>
     </>
   )

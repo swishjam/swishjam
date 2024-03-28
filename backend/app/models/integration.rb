@@ -43,7 +43,11 @@ class Integration < Transactional
   end
 
   def self.find_by_config_attribute(config_attr, val)
-    where("config->>'#{config_attr}' = ?", val).first
+    find_all_by_config_attribute(config_attr, val).limit(1).first
+  end
+
+  def self.find_all_by_config_attribute(config_attr, val)
+    where("config->>'#{config_attr}' = ?", val)
   end
 
   def is_data_source?

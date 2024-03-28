@@ -4,6 +4,7 @@ import Toggle from '@/components/utils/Toggle'
 import { useState } from 'react'
 import WorkspaceForm from './WorkspaceForm';
 import { toast } from 'sonner';
+import CopiableText from '@/components/utils/CopiableText';
 
 export default function WorkspaceSettingsToggles({ settings }) {
   const [combineMarketingAndProductDataSources, setCombineMarketingAndProductDataSources] = useState(settings?.combine_marketing_and_product_data_sources);

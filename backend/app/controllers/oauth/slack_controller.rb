@@ -10,12 +10,24 @@ module Oauth
       auth_data = JSON.parse(response.body)
       if auth_data['error'] || !auth_data['access_token']
         Sentry.capture_message("Slack oauth error: #{auth_data['error'] || 'No access token: ' + auth_data.to_s}")
-        redirect_to "#{ENV['FRONTEND_URL'] || 'https://app.swishjam.com'}/integrations/destinations?success=false&error=#{auth_data['error']}"
+        redirect_to "#{ENV['FRONTEND_URL'] || 'https://app.swishjam.com'}/integrations/destinations?error=#{auth_data['error']}"
       else
         workspace_id = validate_token_and_return_workspace_id
-        Integrations::Destinations::Slack.create!(workspace_id: workspace_id, enabled: true, config: { access_token: auth_data['access_token'] })
+        Integrations::Destinations::Slack.create!(
+          workspace_id: workspace_id, 
+          enabled: true, 
+          config: { 
+            access_token: auth_data['access_token'],
+            bot_user_id: auth_data['bot_user_id'],
+            team_id: auth_data.dig('team', 'id'),
+            team_name: auth_data.dig('team', 'name'),
+            webhook_channel_name: auth_data.dig('incoming_webhook', 'channel'),
+            webhook_channel_id: auth_data.dig('incoming_webhook', 'channel_id'),
+            configuration_url: auth_data.dig('incoming_webhook', 'configuration_url'),
+            scope: auth_data['scope'],
+          })
         # SlackConnection.create!(workspace_id: workspace_id, access_token: auth_data['access_token'])
-        redirect_to "#{ENV['FRONTEND_URL'] || 'https://app.swishjam.com'}/integrations/destinations?success=true&integration=slack"
+        redirect_to "#{ENV['FRONTEND_URL'] || 'https://app.swishjam.com'}/integrations/destinations?success=#{'Successfully connected your Slack instance.'}"
       end
     end
 
