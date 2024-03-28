@@ -1,6 +1,10 @@
 module IndexableJsonKeyValues
   extend ActiveSupport::Concern
 
+  def create_indexed_key_value!(jsonb_column, key, value)
+    self.indexed_jsonb_keys.create!(column: jsonb_column, key: key, value: value)
+  end
+
   class_methods do
     def find_all_by_indexed_key_value(jsonb_column, key, value)
       self.joins(:indexed_jsonb_keys).where(indexed_jsonb_keys: { column: jsonb_column, key: key, value: value })
@@ -11,7 +15,9 @@ module IndexableJsonKeyValues
 
       after_create do
         keys.each do |key|
-          self.indexed_jsonb_keys.create!(column: jsonb_column, key: key, value: self.send(jsonb_column).try(:[], key))
+          value = self.send(jsonb_column).try(:[], key.to_s)
+          next if value.nil?
+          self.create_indexed_key_value!(jsonb_column, key, value)
         end
       end
 
@@ -39,7 +45,6 @@ module IndexableJsonKeyValues
           self.send(:"find_all_where_#{key}_is_present", jsonb_column)
         end
       end
-    end
-
+    end  
   end
 end

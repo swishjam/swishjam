@@ -147,12 +147,12 @@ export default function IntegrationsList({ title, subTitle, type = 'data_source'
                 ))}
               </ul>
 
-              <h5 className='pt-8 pb-2'>Available Data Sources</h5>
+              <h5 className='pt-8 pb-2'>Available {title}</h5>
               <ul role="list" className="grid grid-cols-1 mt-4 border-t border-gray-200">
                 {availableIntegrations.length === 0
                   ? (
                     <EmptyView
-                      title="All Sources Connected"
+                      title={`All ${title} Connected`}
                       description="Reach out to founders@swishjam.com if you need more"
                     />
                   ) : (

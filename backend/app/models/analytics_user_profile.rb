@@ -26,7 +26,6 @@ class AnalyticsUserProfile < Transactional
   alias_attribute :organizations, :analytics_organization_profiles
   has_many :customer_subscriptions, as: :parent_profile, dependent: :destroy
   has_many :enrichment_attempts, as: :enrichable, dependent: :destroy
-  has_many :executed_automations, dependent: :nullify # we don't want to destroy the executed automations if the user is deleted
   has_many :profile_tags, as: :profile, dependent: :destroy
   alias_attribute :tags, :profile_tags
 
