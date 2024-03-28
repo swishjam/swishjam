@@ -4,13 +4,29 @@ class UserSegment < Transactional
   has_many :data_syncs, as: :synced_object, dependent: :destroy
   has_many :profile_tags, dependent: :destroy
   has_many :query_filter_groups, as: :filterable, dependent: :destroy
+  has_many :query_filters, through: :query_filter_groups
   accepts_nested_attributes_for :query_filter_groups, allow_destroy: true
 
   validates :workspace_id, presence: true
   validate :only_one_active_user_segment, on: :create
 
+  attr_accessor :query_filter_group_attrs_before_update, :query_filter_attrs_before_update
+  before_save if: :persisted? do
+    self.query_filter_group_attrs_before_update = query_filter_groups.map(&:as_json)
+    self.query_filter_attrs_before_update = query_filters.map(&:as_json)
+  end
+
+  after_update do
+    query_filter_groups_changed = query_filter_groups.reload.map(&:as_json).sort_by(&:to_s) != query_filter_group_attrs_before_update.sort_by(&:to_s)
+    query_filters_changed = query_filters.reload.map(&:as_json).sort_by(&:to_s) != query_filter_attrs_before_update.sort_by(&:to_s)
+    if query_filter_groups_changed || query_filters_changed
+      profile_tags.delete_all
+      self.enqueue_user_segment_sync_job
+    end
+    self.query_filter_group_attrs_before_update = nil
+    self.query_filter_attrs_before_update = nil
+  end
   after_create :enqueue_user_segment_sync_job
-  after_update :enqueue_user_segment_sync_job
 
   ACTIVE_USERS_SEGMENT_NAME = "Active Users".freeze
   

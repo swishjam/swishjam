@@ -180,6 +180,9 @@ Rails.application.routes.draw do
       resources :dashboards_dashboard_components, only: [:destroy]
 
       resources :user_segments do
+        member do
+          get :sql
+        end
         collection do
           patch :preview
         end

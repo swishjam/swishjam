@@ -15,7 +15,7 @@ export default function QueryBuilder({
   onPreview,
   saveButtonText = 'Create Cohort',
 }) {
-  const [errorMessage, setErrorMessage] = useState()
+  const [errorMessages, setErrorMessages] = useState([])
   const [nameAndDescriptionModalIsOpen, setNameAndDescriptionModalIsOpen] = useState(false)
   const [queryFilterGroups, setQueryFilterGroups] = useState(defaultQueryFilterGroups)
   const [segmentName, setSegmentName] = useState(defaultSegmentName)
@@ -39,17 +39,40 @@ export default function QueryBuilder({
     })
   }, [])
 
-  const allFiltersComplete = queryFilterGroups.every(group => {
-    return group.query_filters.every(filter => {
-      if (filter.type === 'QueryFilters::UserProperty') {
-        return filter.config.property_name && filter.config.operator && (['is_defined', 'is_not_defined', 'is_generic_email', 'is_not_generic_email'].includes(filter.config.operator) || filter.config.user_property_operator === "is_not_defined" || filter.config.property_value)
-      } else if (filter.type === 'QueryFilters::EventCountForUserOverTimePeriod') {
-        return filter.config.event_name && filter.config.num_occurrences && filter.config.num_lookback_days;
-      } else {
-        return false;
-      }
+  const errorsForQueryFilterGroups = groups => {
+    let errorMessagess = []
+    groups.forEach((group, groupIndex) => {
+      return group.query_filters.forEach((filter, filterIndex) => {
+        if (filter.type === 'QueryFilters::UserProperty') {
+          if (!filter.config.property_name) {
+            errorMessagess.push(`Please select a property value for filter #${filterIndex + 1}${groups.length > 1 ? ` in group #${groupIndex + 1}` : ''}.`)
+          }
+          if (!filter.config.operator) {
+            errorMessagess.push(`Please select an operator for filter #${filterIndex + 1}${groups.length > 1 ? ` in group #${groupIndex + 1}` : ''}.`)
+          }
+          if (!['is_defined', 'is_not_defined', 'is_generic_email', 'is_not_generic_email'].includes(filter.config.operator) && !filter.config.property_value) {
+            errorMessagess.push(`Please enter an expected value for filter #${filterIndex + 1}${groups.length > 1 ? ` in group #${groupIndex + 1}` : ''}.`)
+          }
+        } else if (filter.type === 'QueryFilters::EventCountForUserOverTimePeriod') {
+          if (!filter.config.event_name) {
+            errorMessagess.push(`Please select an event for filter #${filterIndex + 1}${groups.length > 1 ? ` in group #${groupIndex + 1}` : ''}.`)
+          }
+          if (filter.config.num_occurrences === undefined) {
+            errorMessagess.push(`Please enter the number of occurrences for filter #${filterIndex + 1}${groups.length > 1 ? ` in group #${groupIndex + 1}` : ''}.`)
+          }
+          if (filter.config.num_lookback_days === undefined) {
+            errorMessagess.push(`Please enter the number of lookback days for filter #${filterIndex + 1}${groups.length > 1 ? ` in group #${groupIndex + 1}` : ''}.`)
+          }
+          if (!filter.config.event_count_operator) {
+            errorMessagess.push(`Please select an event count operator for filter #${filterIndex + 1}${groups.length > 1 ? ` in group #${groupIndex + 1}` : ''}.`)
+          }
+        } else {
+          throw new Error(`Unknown filter type: ${filter.type}`)
+        }
+      })
     })
-  })
+    return errorMessagess;
+  }
 
   return (
     <>
@@ -77,7 +100,7 @@ export default function QueryBuilder({
               const newQueryFilterGroups = [...queryFilterGroups]
               newQueryFilterGroups[i].query_filters = updatedQueryFiltersForGroup
               setQueryFilterGroups(newQueryFilterGroups)
-              if (allFiltersComplete) setErrorMessage(null)
+              setErrorMessages([])
             }}
             previousQueryFilterGroupRelationshipOperator={filter.previous_query_filter_group_relationship_operator}
             showDeleteButton={i > 0}
@@ -89,16 +112,17 @@ export default function QueryBuilder({
       ))
       }
       <div className='mt-4'>
-        {errorMessage && <p className='text-red-500 text-sm text-center'>{errorMessage}</p>}
+        {errorMessages.map(e => <p className='text-red-500 text-sm text-center'>{e}</p>)}
         <div className='flex items-center justify-end space-x-4'>
           <Button
             variant='outline'
             disabled={isLoading}
             onClick={() => {
-              if (!allFiltersComplete) {
-                setErrorMessage('Please complete all filters before previewing.')
+              const errors = errorsForQueryFilterGroups(queryFilterGroups)
+              if (errors.length > 0) {
+                setErrorMessages(errors)
               } else {
-                setErrorMessage(null)
+                setErrorMessages([])
                 onPreview(queryFilterGroups)
               }
             }}
@@ -109,10 +133,11 @@ export default function QueryBuilder({
             variant='swishjam'
             disabled={isLoading}
             onClick={() => {
-              if (!allFiltersComplete) {
-                setErrorMessage('Please complete all filters before saving.')
+              const errors = errorsForQueryFilterGroups(queryFilterGroups)
+              if (errors.length > 0) {
+                setErrorMessages(errors)
               } else {
-                setErrorMessage(null)
+                setErrorMessages([])
                 if ((!segmentName || segmentName === '') && (!segmentDescription || segmentDescription === '')) {
                   setNameAndDescriptionModalIsOpen(true)
                 } else {

@@ -41,7 +41,7 @@ module ClickHouseQueries
       private
 
       def self.where_clause_statements_for_event_count_for_user_filter(filter)
-        "#{LeftJoinStatementsForEventCountByUserFilters.join_table_alias_for_event_count_for_user_filter(filter)}.event_count_for_user_within_lookback_period >= #{filter.num_occurrences}"
+        "#{LeftJoinStatementsForEventCountByUserFilters.join_table_alias_for_event_count_for_user_filter(filter)}.event_count_for_user_within_lookback_period #{filter.sql_event_count_operator} #{filter.num_occurrences}"
       end
 
       def self.where_clause_statements_for_user_property_filter(filter, users_table_alias: 'user_profiles')

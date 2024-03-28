@@ -52,11 +52,15 @@ export default function UserSegmentFilterConfiguration({
       delete updatedFilterData.config.property_name
       delete updatedFilterData.config.operator
       delete updatedFilterData.config.property_value
+      if (!updatedFilterData.config.event_count_operator) {
+        updatedFilterData.config.event_count_operator = 'greater_than_or_equal_to'
+      }
       updatedFilterData.config.event_name = selectedValue.split('.').slice(1).join('.')
     } else if (objectType === "QueryFilters::UserProperty") {
       delete updatedFilterData.config.event_name
       delete updatedFilterData.config.num_occurrences
       delete updatedFilterData.config.num_lookback_days
+      delete updatedFilterData.config.event_count_operator
       if (!updatedFilterData.config.operator) {
         updatedFilterData.config.operator = 'equals'
       }
@@ -92,12 +96,12 @@ export default function UserSegmentFilterConfiguration({
 
   const isComplete = filter.type === 'QueryFilters::UserProperty'
     ? filter.config.property_name && filter.config.operator && (['is_defined', 'is_not_defined', 'is_generic_email', 'is_not_generic_email'].includes(filter.config.operator) || filter.config.property_value)
-    : filter.config.event_name && filter.config.num_occurrences && filter.config.num_lookback_days;
+    : filter.config.event_name && filter.config.num_occurrences !== undefined && filter.config.num_lookback_days !== undefined;
 
   return (
     <div className={`flex items-center space-x-4 ${className}`}>
-      <div className={`flex text-sm items-center space-x-2`}>
-        <span>
+      <div className={`flex text-sm items-center space-x-2 flex-nowrap`}>
+        <div className='whitespace-nowrap flex items-center'>
           {operator && (
             <div className='inline-flex relative mr-2 group'>
               <span className="absolute w-0.5 bg-gray-200 group-hover:bg-gray-300 left-0 right-0 mx-auto z-0" style={{ height: '150%', top: '-80%' }} />
@@ -106,10 +110,12 @@ export default function UserSegmentFilterConfiguration({
               </Badge>
             </div>
           )}
-          {!filter.type && 'Users who '}
-          {filter.type === "QueryFilters::UserProperty" && 'Users whose '}
-          {filter.type === "QueryFilters::EventCountForUserOverTimePeriod" && 'Users who have triggered the'}
-        </span>
+          <span>
+            {!filter.type && 'Users who '}
+            {filter.type === "QueryFilters::UserProperty" && 'Users whose '}
+            {filter.type === "QueryFilters::EventCountForUserOverTimePeriod" && 'Users who have triggered the'}
+          </span>
+        </div>
         <Combobox
           selectedValue={filter.config.property_name ? `user.${filter.config.property_name}` : filter.config.event_name ? `event.${filter.config.event_name}` : null}
           onSelectionChange={updateSelectedUserPropertyOrEventName}
@@ -163,11 +169,25 @@ export default function UserSegmentFilterConfiguration({
             <span>
               event
             </span>
+            <Combobox
+              selectedValue={filter.config.event_count_operator || 'greater_than_or_equal_to'}
+              onSelectionChange={selectedValue => {
+                const newFilterData = { ...filter, config: { ...filter.config, event_count_operator: selectedValue } }
+                setFilter(newFilterData)
+                onUpdate(newFilterData)
+              }}
+              options={[
+                { label: '>', value: 'greater_than' },
+                { label: '<', value: 'less_than' },
+                { label: '>=', value: 'greater_than_or_equal_to' },
+                { label: '<=', value: 'less_than_or_equal_to' },
+              ]}
+            />
             <Input
               className='w-20'
-              min={1}
+              min={0}
               onChange={e => {
-                const newFilterData = { ...filter, config: { ...filter.config, num_occurrences: parseInt(e.target.value) } }
+                const newFilterData = { ...filter, config: { ...filter.config, num_occurrences: e.target.value === '' ? undefined : parseInt(e.target.value) } }
                 setFilter(newFilterData)
                 onUpdate(newFilterData)
               }}
@@ -175,14 +195,14 @@ export default function UserSegmentFilterConfiguration({
               type='number'
               value={filter.config.num_occurrences}
             />
-            <span>
-              or more times in the last
+            <span className='whitespace-nowrap'>
+              times in the last
             </span>
             <Input
               className='w-20'
               min={1}
               onChange={e => {
-                const newFilterData = { ...filter, config: { ...filter.config, num_lookback_days: parseInt(e.target.value) } }
+                const newFilterData = { ...filter, config: { ...filter.config, num_lookback_days: e.target.value === '' ? undefined : parseInt(e.target.value) } }
                 setFilter(newFilterData)
                 onUpdate(newFilterData)
               }}
@@ -196,8 +216,8 @@ export default function UserSegmentFilterConfiguration({
           </>
         )}
       </div>
-      <div className='flex items-center space-x-2'>
-        {isComplete && displayAndOrButtons && (
+      <div className='flex-shrink flex items-center space-x-2'>
+        {isComplete && displayAndOrButtons ? (
           <div className='flex items-center space-x-2 ml-2'>
             <Button className='text-xs py-2 px-4' variant='ghost' onClick={() => onNewFilterClick('and')}>
               + AND
@@ -206,7 +226,7 @@ export default function UserSegmentFilterConfiguration({
               + OR
             </Button>
           </div>
-        )}
+        ) : <></>}
         {displayDeleteButton && (
           <Button className='py-2 px-4 hover:text-red-400' variant='ghost' onClick={onDelete}>
             <LuTrash className='h-4 w-4' />

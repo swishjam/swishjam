@@ -5,7 +5,8 @@ class QueryFilterGroup < Transactional
   has_many :query_filters, dependent: :destroy
   accepts_nested_attributes_for :query_filters, allow_destroy: true
 
-  validates :sequence_index, presence: true, numericality: { only_integer: true, greater_than_or_equal_to: 0 }, uniqueness: { scope: :filterable }
+  # TODO: I don't think we actually need sequence_index, the queries should technically work no matter what order they are in
+  # validates :sequence_index, presence: true, numericality: { only_integer: true, greater_than_or_equal_to: 0 }, uniqueness: { scope: :filterable }
   validate :has_valid_operator
   # validate :has_at_least_one_query_filter
 

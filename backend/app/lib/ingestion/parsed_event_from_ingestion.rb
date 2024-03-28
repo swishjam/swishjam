@@ -138,6 +138,7 @@ module Ingestion
       event_json['user_properties'] = user_profile.metadata.merge(
         email: user_profile.email,
         unique_identifier: user_profile.user_unique_identifier,
+        id: user_profile.id,
       )
     end
 
@@ -147,6 +148,7 @@ module Ingestion
         name: organization_profile.name,
         domain: organization_profile.domain,
         unique_identifier: organization_profile.organization_unique_identifier,
+        id: organization_profile.id,
       )
     end
 
