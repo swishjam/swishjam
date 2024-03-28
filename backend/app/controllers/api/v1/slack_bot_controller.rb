@@ -36,6 +36,7 @@ module Api
       def authenticate_bot!
         timestamp = request.headers['X-Slack-Request-Timestamp']
         if timestamp.nil? || Time.now.to_i - timestamp.to_i > 5.minutes
+          Sentry.capture_message("Invalid Slack request timestamp received in Slack Bot request")
           render json: { error: "Unauthorized" }, status: :unauthorized
           return
         end

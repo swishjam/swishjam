@@ -33,14 +33,14 @@ export default function ProfileInformationSideBar({ userData, hasStripeIntegrati
           <div>
             <CardTitle className='text-2xl flex items-center'>
               {userData.full_name || userData.email || userData.user_unique_identifier || (<>Anonymous User <span className='italic'>{userData.id.slice(0, 6)}</span></>)}
-              {!userData.full_name && userData.email && <CopiableText value={userData.email} className='ml-2' />}
+              {!userData.full_name && userData.email && <CopiableText value={userData.email} className='ml-2' iconOnly={true} />}
             </CardTitle>
             {userData.full_name && (
               <div className='flex items-center'>
                 <CardDescription className='text-base text-gray-500'>
                   {userData.email}
                 </CardDescription>
-                <CopiableText value={userData.email} className='ml-2' copyIconClassName='h-3 w-3 text-gray-500' />
+                <CopiableText value={userData.email} className='ml-2' copyIconClassName='h-3 w-3 text-gray-500' iconOnly={true} />
               </div>
             )}
             {userData.tags.length > 0 && (
@@ -95,7 +95,13 @@ export default function ProfileInformationSideBar({ userData, hasStripeIntegrati
                   title='Initial Referrer'
                   enrichmentData={{ initial_referrer: userData.metadata.initial_referrer_url }}
                   enrichmentKey='initial_referrer'
-                  formatter={referrer => referrer === '' ? 'Direct' : referrer}
+                  formatter={referrer => (
+                    <Tooltipable content={referrer}>
+                      <span className="flex items-center justify-end max-w-full truncate">
+                        {referrer === '' ? 'Direct' : referrer}
+                      </span>
+                    </Tooltipable>
+                  )}
                 />
                 <EnrichedDataItem
                   title='Initial Landing Page'
@@ -121,7 +127,7 @@ export default function ProfileInformationSideBar({ userData, hasStripeIntegrati
                   <div className="px-4 py-2 col-span-1 grid grid-cols-2 sm:px-0">
                     <dt className="text-sm font-medium leading-6 text-gray-900">{humanizeVariable(key)}</dt>
                     <dd className="text-sm leading-6 text-gray-700 text-right flex flex-col">
-                      {humanizeVariable(userData.metadata[key])}
+                      {key.endsWith('_id') ? userData.metadata[key] : humanizeVariable(userData.metadata[key])}
                     </dd>
                   </div>
                 ))}
