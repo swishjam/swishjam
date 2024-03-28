@@ -85,14 +85,13 @@ export default function UsersTablePreview({ userProfilesCollection, queryFilterG
           </>
         }
       />
-      {
-        lastPageNum && lastPageNum > 1 && (
-          <Pagination
-            currentPage={currentPageNum}
-            lastPageNum={lastPageNum}
-            onNewPageSelected={onNewPage}
-          />
-        )}
+      {lastPageNum && lastPageNum > 1 ? (
+        <Pagination
+          currentPage={currentPageNum}
+          lastPageNum={lastPageNum}
+          onNewPageSelected={onNewPage}
+        />
+      ) : <></>}
     </>
   )
 }

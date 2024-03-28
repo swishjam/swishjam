@@ -29,7 +29,7 @@ const FilterItem = ({ filter, operator, className }) => {
             )}
             {filter.type === "QueryFilters::EventCountForUserOverTimePeriod" && (
               <>
-                Users who have triggered the <DottedUnderline>{filter.config.event_name}</DottedUnderline> event <DottedUnderline>{filter.config.num_occurrences} or more times</DottedUnderline> in the last <DottedUnderline>{filter.config.num_lookback_days} days</DottedUnderline>
+                Users who have triggered the <DottedUnderline>{filter.config.event_name}</DottedUnderline> event <DottedUnderline>{filter.config.event_count_operator.replace(/_/g, ' ')} {filter.config.num_occurrences} times</DottedUnderline> in the last <DottedUnderline>{filter.config.num_lookback_days} days</DottedUnderline>
               </>
             )}
           </div>
@@ -111,7 +111,7 @@ export default function FilterGroupsDisplay({ filterGroups }) {
                       )}
                       {filterGroups[0].query_filters[0].type === "QueryFilters::EventCountForUserOverTimePeriod" && (
                         <>
-                          Users who have triggered the <DottedUnderline>{filterGroups[0].query_filters[0].config.event_name}</DottedUnderline> event <DottedUnderline>{filterGroups[0].query_filters[0].config.num_occurrences} or more times</DottedUnderline> in the last <DottedUnderline>{filterGroups[0].query_filters[0].config.num_lookback_days} days</DottedUnderline>
+                          Users who have triggered the <DottedUnderline>{filterGroups[0].query_filters[0].config.event_name}</DottedUnderline> event <DottedUnderline> {filterGroups[0].query_filters[0].config.event_count_operator.replace(/_/g, ' ')} {filterGroups[0].query_filters[0].config.num_occurrences} times</DottedUnderline> in the last <DottedUnderline>{filterGroups[0].query_filters[0].config.num_lookback_days} days</DottedUnderline>
                         </>
                       )}
                     </div>

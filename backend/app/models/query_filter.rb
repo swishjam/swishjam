@@ -5,8 +5,9 @@ class QueryFilter < Transactional
 
   belongs_to :query_filter_group
 
+  # TODO: I don't think we actually need sequence_index, the queries should technically work no matter what order they are in
+  # validates :sequence_index, presence: true, numericality: { only_integer: true, greater_than_or_equal_to: 0 }, uniqueness: { scope: :query_filter_group }
   validate :has_valid_config
-  validates :sequence_index, presence: true, numericality: { only_integer: true, greater_than_or_equal_to: 0 }, uniqueness: { scope: :query_filter_group }
   validate :has_valid_operator
 
   scope :in_sequence_order, -> { order(sequence_index: :ASC) }

@@ -11,6 +11,12 @@ module Api
         render json: { user_segment: UserSegmentSerializer.new(user_segment) }, status: :ok
       end
 
+      def sql
+        user_segment = current_workspace.user_segments.find(params[:id])
+        sql = ClickHouseQueries::Users::List.new(current_workspace, filter_groups: user_segment.query_filter_groups.in_sequence_order).sql
+        render json: { user_segment: UserSegmentSerializer.new(user_segment), sql: sql }, status: :ok
+      end
+
       def destroy
         user_segment = current_workspace.user_segments.find(params[:id])
         if user_segment.destroy
@@ -54,12 +60,12 @@ module Api
           description: params[:description],
           query_filter_groups_attributes: params[:query_filter_groups].map do |filter_group|
             {
-              id: filter_group[:id],
+              # id: filter_group[:id],
               sequence_index: filter_group[:sequence_index],
               previous_query_filter_group_relationship_operator: filter_group[:previous_query_filter_group_relationship_operator],
               query_filters_attributes: filter_group[:query_filters].map do |filter|
                 {
-                  id: filter[:id],
+                  # id: filter[:id],
                   sequence_index: filter[:sequence_index],
                   previous_query_filter_relationship_operator: filter[:previous_query_filter_relationship_operator],
                   type: filter[:type],
@@ -69,23 +75,34 @@ module Api
             }
           end
         }
-        query_filter_groups_attrs_to_destroy = user_segment.query_filter_groups.map(&:id) - attrs[:query_filter_groups_attributes].map { |fg| fg[:id] }
-        query_filter_attrs_to_destroy = user_segment.query_filter_groups.flat_map{ |group| group.query_filters.map(&:id) } - attrs[:query_filter_groups_attributes].flat_map { |group| group[:query_filters_attributes].map { |f| f[:id] } }
-        query_filter_groups_attrs_to_destroy.each do |id|
-          attrs[:query_filter_groups_attributes] << { id: id, _destroy: true }
-        end
-        query_filter_attrs_to_destroy.each do |id|
-          query_filter_group_for_filter = user_segment.query_filter_groups.joins(:query_filters).find_by(query_filters: { id: id })
-          attrs[:query_filter_groups_attributes].each do |group|
-            # if group[:query_filters_attributes] = nil, then the entire group will be deleted anyway
-            if group[:id] == query_filter_group_for_filter.id && group[:_destroy].nil?
-              group[:query_filters_attributes] << { id: id, _destroy: true }
+        update_config_errors = []
+        attrs[:query_filter_groups_attributes].each do |group|
+          group[:query_filters_attributes].each do |filter|
+            filter_class = filter[:type].constantize
+            filter_class.required_config_keys.each do |key|
+              update_config_errors << "Missing required config key: #{key}" unless filter[:config].key?(key.to_s)
+            end
+            if filter_class == QueryFilters::EventCountForUserOverTimePeriod
+              update_config_errors << "Invalid event_count_operator" unless %w[less_than less_than_or_equal_to greater_than greater_than_or_equal_to].include?(filter[:config]['event_count_operator'])
+            elsif filter_class == QueryFilters::UserProperty
+              if !%w[is_defined is_not_defined is_not_generic_email is_generic_email].include?(filter[:config]['operator']) && filter[:config][:property_value].blank?
+                update_config_errors << "`property_value` query filter option is required for operator: #{filter[:config]['operator']}"
+              end
+              if %w[is_generic_email is_not_generic_email].include?(filter[:config]['operator'])  && filter[:config]['property_name'] != 'email'
+                update_config_errors << "`property_name` must be 'email' when using the `is/is not generic` operator."
+              end
             end
           end
         end
+        if update_config_errors.any?
+          render json: { error: update_config_errors.join(" ") }, status: :unprocessable_entity
+          return
+        end
+        user_segment.query_filter_groups.destroy_all
         if user_segment.update(attrs)
           render json: { user_segment: UserSegmentSerializer.new(user_segment) }, status: :ok
         else
+          Sentry.capture_message("Failed to update user segment, this shouldnt happen cause we assume its always valid.")
           render json: { error: user_segment.errors.full_messages.join(" ") }, status: :unprocessable_entity
         end
       end

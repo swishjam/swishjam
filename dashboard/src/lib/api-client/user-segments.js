@@ -24,6 +24,10 @@ export class UserSegments extends Base {
   static async preview({ queryFilterGroups, page, limit }) {
     return await this._patch('/api/v1/user_segments/preview', { query_filter_groups: queryFilterGroups, page, limit })
   }
+
+  static async sql(id) {
+    return await this._get(`/api/v1/user_segments/${id}/sql`)
+  }
 }
 
 Object.assign(UserSegments, Base);
