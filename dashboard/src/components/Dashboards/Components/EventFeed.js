@@ -75,6 +75,7 @@ const iconForEvent = event => {
 }
 
 const RecursivePropertiesDisplay = ({ properties }) => {
+  if (!properties) return <></>
   return (
     <>
       {Object.keys(properties).map((key, i) => {
