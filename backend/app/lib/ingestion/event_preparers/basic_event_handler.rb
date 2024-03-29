@@ -110,7 +110,7 @@ module Ingestion
       def metadata_for_new_user_profile
         user_metadata = {}
         user_metadata[AnalyticsUserProfile::ReservedMetadataProperties.INITIAL_LANDING_PAGE_URL] = parsed_event.properties['url'] if parsed_event.properties['url'].present?
-        user_metadata[AnalyticsUserProfile::ReservedMetadataProperties.INITIAL_REFERRER_URL] = parsed_event.properties['referrer'] if parsed_event.properties['referrer'].present?
+        user_metadata[AnalyticsUserProfile::ReservedMetadataProperties.INITIAL_REFERRER_URL] = parsed_event.properties['referrer'] if !parsed_event.properties['referrer'].nil?
         user_metadata.merge!(parsed_event.properties['user']&.except('id', 'email') || {})
         user_metadata
       end
