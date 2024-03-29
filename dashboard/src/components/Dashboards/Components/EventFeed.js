@@ -74,6 +74,33 @@ const iconForEvent = event => {
   }
 }
 
+const RecursivePropertiesDisplay = ({ properties }) => {
+  return (
+    <>
+      {Object.keys(properties).map((key, i) => {
+        const value = properties[key];
+        if (typeof value === 'object') {
+          return (
+            <div key={i} className="pt-1">
+              <div className="text-gray-500">{key}:</div>
+              <div className="ml-4 flex">
+                <RecursivePropertiesDisplay properties={value} />
+              </div>
+            </div>
+          )
+        } else {
+          return (
+            <div key={i} className="flex space-x-2 pt-1">
+              <div className="text-gray-500">{key}:</div>
+              <div className="text-gray-900">{value}</div>
+            </div>
+          )
+        }
+      })}
+    </>
+  )
+}
+
 const EventFeedItem = ({ event, isExpandable, leftItemHeaderKey, rightItemKey, rightItemKeyFormatter, leftItemSubHeaderFormatter, isLastItem = false }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const properties = JSON.parse(event.properties);
@@ -85,7 +112,7 @@ const EventFeedItem = ({ event, isExpandable, leftItemHeaderKey, rightItemKey, r
       onClick={() => isExpandable && setIsExpanded(!isExpanded)}
     >
       <div className="flex gap-x-4">
-        <div className={classNames(isLastItem ? 'h-6' : '-bottom-6', 'absolute left-0 top-0 flex w-6 justify-center')}>
+        <div className={classNames(isLastItem ? 'h-10' : '-bottom-6', 'absolute left-0 top-0 flex w-6 justify-center')}>
           <div className="w-px bg-gray-200" />
         </div>
         <div className="relative flex h-6 w-6 flex-none items-center justify-center">
@@ -104,12 +131,8 @@ const EventFeedItem = ({ event, isExpandable, leftItemHeaderKey, rightItemKey, r
       </div>
       <div className={`px-12 py-2 ${isExpanded ? '' : 'hidden'}`}>
         <pre className="text-xs text-gray-500 whitespace-pre-wrap">
-          {Object.keys(properties).map(key => (
-            <div key={key} className="flex gap-x-2">
-              <span className="font-medium text-gray-900">{key}:</span>
-              <span className="text-gray-500">{properties[key]}</span>
-            </div>
-          ))}</pre>
+          <RecursivePropertiesDisplay properties={properties} />
+        </pre>
       </div>
     </li>
   )
@@ -172,6 +195,7 @@ const EventFeed = ({
                 const thisEventsDay = new Date(event.occurred_at).toLocaleDateString('en-us', { month: "long", day: "numeric", year: "numeric" });
                 const showDayHeader = includeDateSeparators && thisEventsDay !== currentDay;
                 currentDay = thisEventsDay;
+                const isLastItem = eventIdx === events.length - 1 || thisEventsDay !== new Date(events[eventIdx + 1].occurred_at).toLocaleDateString('en-us', { month: "long", day: "numeric", year: "numeric" });
                 return (
                   <>
                     {showDayHeader && (
@@ -183,7 +207,7 @@ const EventFeed = ({
                     )}
                     <EventFeedItem
                       event={event}
-                      isLastItem={eventIdx === events.length - 1}
+                      isLastItem={isLastItem}
                       isExpandable={isExpandable}
                       leftItemHeaderKey={leftItemHeaderKey}
                       rightItemKey={rightItemKey}
