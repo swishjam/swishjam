@@ -84,7 +84,7 @@ const RecursivePropertiesDisplay = ({ properties }) => {
           return (
             <div key={i} className="pt-1">
               <div className="text-gray-500">{key}:</div>
-              <div className="ml-4 flex">
+              <div className="ml-4">
                 <RecursivePropertiesDisplay properties={value} />
               </div>
             </div>
