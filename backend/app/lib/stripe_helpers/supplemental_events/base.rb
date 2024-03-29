@@ -3,9 +3,10 @@ module StripeHelpers
     class Base
       attr_accessor :stripe_record, :user_profile_id, :public_key
 
-      def initialize(stripe_record, public_key:, stripe_customer: nil, user_profile_id: nil)
+      def initialize(stripe_record, public_key:, stripe_event: nil, stripe_customer: nil, user_profile_id: nil)
         @stripe_record = stripe_record
         @public_key = public_key
+        @stripe_event = stripe_event
         @stripe_customer = stripe_customer
         @user_profile_id = user_profile_id
       end
@@ -42,6 +43,7 @@ module StripeHelpers
         props[:stripe_customer_email] = stripe_customer.email if stripe_customer && stripe_customer.respond_to?(:email)
         props[:stripe_object_id] = stripe_record.id
         props[:user_profile_id] = user_profile_id if user_profile_id
+        props[:stripe_event_id] = @stripe_event.id if @stripe_event && @stripe_event.respond_to?(:id)
         Ingestion::ParsedEventFromIngestion.new(
           uuid: uuid,
           swishjam_api_key: public_key,

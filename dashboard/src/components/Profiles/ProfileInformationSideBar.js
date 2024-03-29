@@ -56,19 +56,25 @@ export default function ProfileInformationSideBar({ userData, hasStripeIntegrati
         <div>
           <div className="mt-4">
             <dl className="grid grid-cols-1">
-              <div className="px-4 py-2 col-span-1 sm:px-0 grid grid-cols-2">
+              <div className="px-4 py-2 col-span-1 sm:px-0 grid grid-cols-2 cursor-default">
                 <dt className="text-sm font-medium leading-6 text-gray-900">Full name</dt>
                 <dd className="text-sm leading-6 text-gray-700 text-right">
                   {userData.full_name || (userData.enrichment_data.first_name || '') + (userData.enrichment_data.last_name || '') || '-'}
                 </dd>
               </div>
-              <div className="px-4 py-2 col-span-1 grid grid-cols-2 sm:px-0">
-                <dt className="text-sm font-medium leading-6 text-gray-900">First Identified</dt>
+              <div className="px-4 py-2 col-span-1 grid grid-cols-2 sm:px-0 cursor-default">
+                <dt className="text-sm font-medium leading-6 text-gray-900">First seen</dt>
                 <dd className="text-sm leading-6 text-gray-700 text-right">
                   {(userData.first_seen_at_in_web_app || userData.created_at)
                     ? prettyDateTime(userData.first_seen_at_in_web_app || userData.created_at, { month: 'short' })
                     : '-'
                   }
+                </dd>
+              </div>
+              <div className="px-4 py-2 col-span-1 grid grid-cols-2 sm:px-0 cursor-default">
+                <dt className="text-sm font-medium leading-6 text-gray-900">Last seen</dt>
+                <dd className="text-sm leading-6 text-gray-700 text-right">
+                  {userData.last_seen_at_in_web_app ? prettyDateTime(userData.last_seen_at_in_web_app, { month: 'short' }) : '-'}
                 </dd>
               </div>
               <div className="px-4 py-2 col-span-1 grid grid-cols-2 sm:px-0">
@@ -97,8 +103,8 @@ export default function ProfileInformationSideBar({ userData, hasStripeIntegrati
                   enrichmentKey='initial_referrer'
                   formatter={referrer => (
                     <Tooltipable content={referrer}>
-                      <span className="flex items-center justify-end max-w-full truncate">
-                        {referrer === '' ? 'Direct' : referrer}
+                      <span className="flex items-center justify-end max-w-full">
+                        <span className='truncate'>{referrer === '' ? 'Direct' : referrer}</span>
                       </span>
                     </Tooltipable>
                   )}

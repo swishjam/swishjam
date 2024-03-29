@@ -3,7 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import EmptyState from "@components/EmptyState"
 import { HiCursorArrowRays } from 'react-icons/hi2'
 import Image from "next/image"
-import { useState } from "react"
+import { useEffect, useRef, useState } from "react"
 
 import {
   BanIcon,
@@ -20,6 +20,7 @@ import {
   PanelTopIcon,
   PointerIcon,
   ZapIcon,
+  ChevronRightIcon,
 } from "lucide-react";
 
 import CalComLogo from '@public/logos/calcom.png'
@@ -29,6 +30,7 @@ import StripeLogo from '@public/logos/stripe.jpeg'
 // import SwishjamLogo from '@public/logos/swishjam.png'
 import { useRouter } from "next/navigation"
 import { Skeleton } from "@/components/ui/skeleton"
+import { AccordionOpen } from "@/components/ui/accordion"
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(' ')
@@ -72,9 +74,50 @@ const iconForEvent = event => {
   }
 }
 
+const EventFeedItem = ({ event, isExpandable, leftItemHeaderKey, rightItemKey, rightItemKeyFormatter, leftItemSubHeaderFormatter, isLastItem = false }) => {
+  const [isExpanded, setIsExpanded] = useState(false);
+  const properties = JSON.parse(event.properties);
+
+  return (
+    <li
+      key={event.id}
+      className={`relative ${isExpandable ? 'hover:bg-gray-50 rounded-md py-2 pr-2 cursor-pointer' : ''}`}
+      onClick={() => isExpandable && setIsExpanded(!isExpanded)}
+    >
+      <div className="flex gap-x-4">
+        <div className={classNames(isLastItem ? 'h-6' : '-bottom-6', 'absolute left-0 top-0 flex w-6 justify-center')}>
+          <div className="w-px bg-gray-200" />
+        </div>
+        <div className="relative flex h-6 w-6 flex-none items-center justify-center">
+          {iconForEvent(event) || <div className="h-1.5 w-1.5 rounded-full bg-gray-100 ring-1 ring-gray-300" />}
+        </div>
+        <div className="flex flex-auto py-0.5 text-xs leading-5 items-center space-x-1">
+          <ChevronRightIcon className={classNames('h-3 w-3 text-gray-900 transition-transform', isExpanded ? 'rotate-90' : '')} />
+          <span className='font-medium text-gray-900'>{event[leftItemHeaderKey]}</span>
+          {leftItemSubHeaderFormatter && (
+            <span className="ml-2 text-gray-400">{leftItemSubHeaderFormatter(event)}</span>
+          )}
+        </div>
+        <span className="flex-none py-0.5 text-xs leading-5 text-gray-500">
+          {rightItemKeyFormatter(event[rightItemKey])}
+        </span>
+      </div>
+      <div className={`px-12 py-2 ${isExpanded ? '' : 'hidden'}`}>
+        <pre className="text-xs text-gray-500 whitespace-pre-wrap">
+          {Object.keys(properties).map(key => (
+            <div key={key} className="flex gap-x-2">
+              <span className="font-medium text-gray-900">{key}:</span>
+              <span className="text-gray-500">{properties[key]}</span>
+            </div>
+          ))}</pre>
+      </div>
+    </li>
+  )
+}
+
 const EventFeed = ({
   className,
-  expandedContentFormatter,
+  isExpandable = true,
   events,
   includeDateSeparators = false,
   initialLimit = 5,
@@ -124,7 +167,7 @@ const EventFeed = ({
             {events && events.length === 0 && (
               <EmptyState msg={noDataMsg} border={true} icon={<HiCursorArrowRays className="mx-auto h-12 w-12 text-gray-300 group-hover:animate-pulse" />} />
             )}
-            <ul role="list" className={expandedContentFormatter ? '' : "space-y-6"}>
+            <ul role="list" className={isExpandable ? '' : "space-y-6"}>
               {events && events.slice(0, eventCount).map((event, eventIdx) => {
                 const thisEventsDay = new Date(event.occurred_at).toLocaleDateString('en-us', { month: "long", day: "numeric", year: "numeric" });
                 const showDayHeader = includeDateSeparators && thisEventsDay !== currentDay;
@@ -138,28 +181,15 @@ const EventFeed = ({
                         </p>
                       </li>
                     )}
-                    <li key={event.id} className={`relative flex gap-x-4 ${expandedContentFormatter ? 'hover:bg-gray-50 rounded-md py-2 pr-2' : ''}`}>
-                      <div
-                        className={classNames(
-                          eventIdx === events.length - 1 ? 'h-6' : '-bottom-6',
-                          'absolute left-0 top-0 flex w-6 justify-center'
-                        )}
-                      >
-                        <div className="w-px bg-gray-200" />
-                      </div>
-                      <div className="relative flex h-6 w-6 flex-none items-center justify-center">
-                        {iconForEvent(event) || <div className="h-1.5 w-1.5 rounded-full bg-gray-100 ring-1 ring-gray-300" />}
-                      </div>
-                      <p className="flex-auto py-0.5 text-xs leading-5 text-gray-500">
-                        <span className="font-medium text-gray-900">{event[leftItemHeaderKey]}</span>
-                        {leftItemSubHeaderFormatter && (
-                          <span className="ml-2 text-gray-400">{leftItemSubHeaderFormatter(event)}</span>
-                        )}
-                      </p>
-                      <span className="flex-none py-0.5 text-xs leading-5 text-gray-500">
-                        {rightItemKeyFormatter(event[rightItemKey])}
-                      </span>
-                    </li>
+                    <EventFeedItem
+                      event={event}
+                      isLastItem={eventIdx === events.length - 1}
+                      isExpandable={isExpandable}
+                      leftItemHeaderKey={leftItemHeaderKey}
+                      rightItemKey={rightItemKey}
+                      rightItemKeyFormatter={rightItemKeyFormatter}
+                      leftItemSubHeaderFormatter={leftItemSubHeaderFormatter}
+                    />
                   </>
                 )
               })}

@@ -26,6 +26,7 @@ module StripeHelpers
       def formatted_supplemental_event(event_class)
         event_class.new(
           stripe_object,
+          stripe_event: @stripe_event,
           user_profile_id: @maybe_user_profile_id,
           stripe_customer: @stripe_customer,
           public_key: @public_key,

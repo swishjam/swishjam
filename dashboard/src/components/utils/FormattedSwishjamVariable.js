@@ -18,7 +18,7 @@ export default function FormattedSwishjamVariable({ children, includeBrackets = 
   )
   if (copiable) {
     return (
-      <CopiableText value={`{{ ${children} }}`}>
+      <CopiableText value={`{{ ${children} }}`} includeIcon={false}>
         {content}
       </CopiableText>
     )

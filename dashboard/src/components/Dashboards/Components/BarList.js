@@ -51,7 +51,7 @@ export default function BarList({ title, items, color, includeCard = true, ...pr
                         {item.name}
                       </Link>
                     ) : (
-                      <p className="whitespace-nowrap truncate text-sm font-medium leading-none">
+                      <p className="whitespace-nowrap truncate text-sm font-medium leading-none cursor-default">
                         {item.name}
                       </p>
                     )
@@ -66,7 +66,7 @@ export default function BarList({ title, items, color, includeCard = true, ...pr
                 key={item.name}
                 className="flex justify-end items-center h-9 mb-2"
               >
-                <p className="whitespace-nowrap truncate text-sm text-muted-foreground">
+                <p className="whitespace-nowrap truncate text-sm text-muted-foreground cursor-default">
                   {item.value}
                 </p>
               </div>

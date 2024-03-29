@@ -2,7 +2,7 @@ import CopiableText from "@/components/utils/CopiableText";
 
 const Variable = ({ children }) => {
   return (
-    <CopiableText value={`{{ ${children} }}`}>
+    <CopiableText value={`{{ ${children} }}`} includeIcon={false}>
       <span className="text-sm group text-emerald-500 bg-emerald-50 transition-colors hover:bg-emerald-100 italic px-1 py-0.5 rounded-md whitespace-nowrap">
         {'{{ '}
         {children.split('||').map((variable, i) => {
