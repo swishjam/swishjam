@@ -44,7 +44,7 @@ module Ingestion
           if user_profile.nil?
             supplemented_user_properties = sanitized_user_properties
             supplemented_user_properties[AnalyticsUserProfile::ReservedMetadataProperties.INITIAL_LANDING_PAGE_URL] = parsed_event.properties['url'] if parsed_event.properties['url'].present?
-            supplemented_user_properties[AnalyticsUserProfile::ReservedMetadataProperties.INITIAL_REFERRER_URL] = parsed_event.properties['referrer'] if parsed_event.properties['referrer'].present?
+            supplemented_user_properties[AnalyticsUserProfile::ReservedMetadataProperties.INITIAL_REFERRER_URL] = parsed_event.properties['referrer'] if !parsed_event.properties['referrer'].nil?
             user_profile = workspace.analytics_user_profiles.new(
               user_unique_identifier: provided_unique_user_identifier,
               email: provided_email,
