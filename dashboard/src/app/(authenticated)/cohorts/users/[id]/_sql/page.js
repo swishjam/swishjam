@@ -12,7 +12,7 @@ export default function EditUserSegmentPage({ params }) {
   const [userSegment, setUserSegment] = useState()
 
   useEffect(() => {
-    SwishjamAPI.UserSegments.sql(id).then(({ user_segment, sql }) => {
+    SwishjamAPI.Cohorts.sql(id).then(({ user_segment, sql }) => {
       setUserSegment({ ...user_segment, sql })
     })
   }, [id])

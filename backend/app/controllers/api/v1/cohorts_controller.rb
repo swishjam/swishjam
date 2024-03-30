@@ -1,33 +1,38 @@
 module Api
   module V1
-    class UserSegmentsController < BaseController
+    class CohortsController < BaseController
       def index
-        user_segments = current_workspace.user_segments.includes(query_filter_groups: :query_filters).order(created_at: :desc)
-        render json: user_segments, each_serializer: UserSegmentSerializer, status: :ok
+        if params[:type]
+          cohorts = current_workspace.cohorts.includes(query_filter_groups: :query_filters).where(type: params[:type]).order(created_at: :desc)
+          render json: cohorts, each_serializer: CohortSerializer, status: :ok
+        else
+          cohorts = current_workspace.cohorts.includes(query_filter_groups: :query_filters).order(created_at: :desc)
+          render json: cohorts, each_serializer: CohortSerializer, status: :ok
+        end
       end
 
       def show
-        user_segment = current_workspace.user_segments.find(params[:id])
-        render json: { user_segment: UserSegmentSerializer.new(user_segment) }, status: :ok
+        cohort = current_workspace.cohorts.find(params[:id])
+        render json: { cohort: CohortSerializer.new(cohort) }, status: :ok
       end
 
       def sql
-        user_segment = current_workspace.user_segments.find(params[:id])
-        sql = ClickHouseQueries::Users::List.new(current_workspace, filter_groups: user_segment.query_filter_groups.in_sequence_order).sql
-        render json: { user_segment: UserSegmentSerializer.new(user_segment), sql: sql }, status: :ok
+        cohort = current_workspace.cohorts.find(params[:id])
+        sql = ClickHouseQueries::Users::List.new(current_workspace, filter_groups: cohort.query_filter_groups.in_sequence_order).sql
+        render json: { cohort: CohortSerializer.new(cohort), sql: sql }, status: :ok
       end
 
       def destroy
-        user_segment = current_workspace.user_segments.find(params[:id])
-        if user_segment.destroy
-          render json: { deleted: true, user_segment: UserSegmentSerializer.new(user_segment) }, status: :ok
+        cohort = current_workspace.cohorts.find(params[:id])
+        if cohort.destroy
+          render json: { deleted: true, cohort: CohortSerializer.new(cohort) }, status: :ok
         else
-          render json: { error: user_segment.errors.full_messages.join(" ") }, status: :unprocessable_entity
+          render json: { error: cohort.errors.full_messages.join(" ") }, status: :unprocessable_entity
         end
       end
 
       def create
-        user_segment = current_workspace.user_segments.new({
+        cohort = current_workspace.cohorts.new({
           name: params[:name],
           description: params[:description],
           created_by_user: current_user,
@@ -46,15 +51,15 @@ module Api
             }
           end
         })
-        if user_segment.save
-          render json: { user_segment: UserSegmentSerializer.new(user_segment) }, status: :ok
+        if cohort.save
+          render json: { cohort: CohortSerializer.new(cohort) }, status: :ok
         else
-          render json: { error: user_segment.errors.full_messages.join(" ") }, status: :unprocessable_entity
+          render json: { error: cohort.errors.full_messages.join(" ") }, status: :unprocessable_entity
         end
       end
 
       def update
-        user_segment = current_workspace.user_segments.find(params[:id])
+        cohort = current_workspace.cohorts.find(params[:id])
         attrs = {
           name: params[:name],
           description: params[:description],
@@ -98,12 +103,12 @@ module Api
           render json: { error: update_config_errors.join(" ") }, status: :unprocessable_entity
           return
         end
-        user_segment.query_filter_groups.destroy_all
-        if user_segment.update(attrs)
-          render json: { user_segment: UserSegmentSerializer.new(user_segment) }, status: :ok
+        cohort.query_filter_groups.destroy_all
+        if cohort.update(attrs)
+          render json: { cohort: CohortSerializer.new(cohort) }, status: :ok
         else
-          Sentry.capture_message("Failed to update user segment, this shouldnt happen cause we assume its always valid.")
-          render json: { error: user_segment.errors.full_messages.join(" ") }, status: :unprocessable_entity
+          Sentry.capture_message("Failed to update cohort, this shouldnt happen cause we assume its always valid.")
+          render json: { error: cohort.errors.full_messages.join(" ") }, status: :unprocessable_entity
         end
       end
 

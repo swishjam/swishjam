@@ -2,12 +2,13 @@ class ProfileTag < Transactional
   belongs_to :workspace
   belongs_to :profile, polymorphic: true
   belongs_to :applied_by_user, class_name: User.to_s, optional: true
-  belongs_to :user_segment, optional: true
+  # belongs_to :user_segment, optional: true
+  belongs_to :cohort, optional: true, foreign_key: :user_segment_id
 
   validates :name, presence: true
   validate :only_one_active_tag_per_profile
 
-  scope :applied_by_user_segment, -> { where.not(user_segment_id: nil) }
+  scope :applied_by_cohort, -> { where.not(user_segment_id: nil) }
   scope :applied_by_swishjam_bot, -> { where(applied_by_user_id: nil) }
   scope :still_applied, -> { where(removed_at: nil) }
   scope :active, -> { still_applied }

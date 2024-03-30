@@ -49,6 +49,9 @@ module Api
         render json: events, status: :ok  
       end
 
+      def unique_properties
+      end
+
       private
 
       def get_organization

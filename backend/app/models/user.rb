@@ -2,6 +2,7 @@ class User < Transactional
   has_secure_password
 
   has_many :auth_sessions, dependent: :destroy
+  has_many :created_cohorts, class_name: Cohort.to_s, foreign_key: :created_by_user_id, dependent: :destroy
   has_many :workspace_members, dependent: :destroy
   has_many :workspaces, through: :workspace_members, dependent: :destroy
 

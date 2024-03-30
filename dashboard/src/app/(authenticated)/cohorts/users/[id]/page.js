@@ -31,7 +31,7 @@ export default function UserSegmentDetailsPage({ params }) {
   }
 
   useEffect(() => {
-    SwishjamAPI.UserSegments.retrieve(id).then(({ user_segment }) => setUserSegment(user_segment))
+    SwishjamAPI.Cohorts.retrieve(id).then(({ user_segment }) => setUserSegment(user_segment))
     SwishjamAPI.Users.count().then(setTotalUserCounts)
   }, [id])
 

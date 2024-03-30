@@ -36,6 +36,7 @@ export default function UserSegmentFilterConfiguration({
   operator,
   uniqueUserProperties,
   uniqueEvents,
+  uniqueOrganizationProperties,
 }) {
   const [filter, setFilter] = useState(defaultFilter)
   const { openSheetWithContent } = useSheet();

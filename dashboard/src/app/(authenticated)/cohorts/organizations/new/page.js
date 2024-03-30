@@ -22,7 +22,7 @@ export default function NewUserSegmentPage() {
 
   const saveSegment = ({ name, description, queryFilterGroups }) => {
     setIsLoading(true)
-    SwishjamAPI.UserSegments.create({ name, description, queryFilterGroups }).then(({ user_segment, error }) => {
+    SwishjamAPI.Cohorts.create({ name, description, queryFilterGroups }).then(({ user_segment, error }) => {
       if (error) {
         setIsLoading(false)
         toast.error('Failed to create user cohort', {
@@ -38,7 +38,7 @@ export default function NewUserSegmentPage() {
   const previewSegment = (queryFilterGroups, page = 1) => {
     setIsFetchingPreviewData(true)
     setCurrentPreviewedUsersPageNum(page)
-    SwishjamAPI.UserSegments.preview({ queryFilterGroups, page, limit: 10 }).then(({ error, users, total_pages, total_num_records }) => {
+    SwishjamAPI.Cohorts.preview({ queryFilterGroups, page, limit: 10 }).then(({ error, users, total_pages, total_num_records }) => {
       setIsFetchingPreviewData(false)
       if (error) {
         toast.error('Failed to preview user cohort', {

@@ -30,12 +30,12 @@ export default function EditUserSegmentPage({ params }) {
   const [totalNumUsersInPreview, setTotalNumUsersInPreview] = useState()
 
   useEffect(() => {
-    SwishjamAPI.UserSegments.retrieve(id).then(({ user_segment }) => setUserSegment(user_segment))
+    SwishjamAPI.Cohorts.retrieve(id).then(({ user_segment }) => setUserSegment(user_segment))
   }, [id])
 
   const updateSegment = queryFilterGroups => {
     setIsLoading(true)
-    SwishjamAPI.UserSegments.update(id, { name: userSegment.name, description: userSegment.description, queryFilterGroups }).then(({ user_segment, error }) => {
+    SwishjamAPI.Cohorts.update(id, { name: userSegment.name, description: userSegment.description, queryFilterGroups }).then(({ user_segment, error }) => {
       if (error) {
         setIsLoading(false)
         toast.error('Failed to update user cohort', {
@@ -52,7 +52,7 @@ export default function EditUserSegmentPage({ params }) {
   const previewSegment = (queryFilterGroups, page = 1) => {
     setIsFetchingPreviewData(true)
     setCurrentPreviewedUsersPageNum(page)
-    SwishjamAPI.UserSegments.preview({ queryFilterGroups, page, limit: 10 }).then(({ error, users, total_pages, total_num_records }) => {
+    SwishjamAPI.Cohorts.preview({ queryFilterGroups, page, limit: 10 }).then(({ error, users, total_pages, total_num_records }) => {
       setIsFetchingPreviewData(false)
       if (error) {
         toast.error('Failed to preview user cohort', {

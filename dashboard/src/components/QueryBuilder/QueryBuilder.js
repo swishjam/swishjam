@@ -22,6 +22,7 @@ export default function QueryBuilder({
   const [segmentDescription, setSegmentDescription] = useState(defaultSegmentDescription)
   const [uniqueUserProperties, setUniqueUserProperties] = useState()
   const [uniqueEvents, setUniqueEvents] = useState()
+  const [uniqueOrganizationProperties, setUniqueOrganizationProperties] = useState()
 
   if (defaultQueryFilterGroups === undefined || uniqueUserProperties === undefined || uniqueEvents === undefined) {
     <div className='relative bg-white rounded-md border border-gray-200 px-4 py-8'>
@@ -32,6 +33,7 @@ export default function QueryBuilder({
   }
 
   useEffect(() => {
+    SwishjamAPI.Organizations.uniqueProperties().then(orgProperties => setUniqueOrganizationProperties(orgProperties.sort()))
     SwishjamAPI.Users.uniqueProperties().then(userProperties => setUniqueUserProperties([...userProperties, 'email'].sort()))
     SwishjamAPI.Events.listUnique().then(eventsAndCounts => {
       const names = eventsAndCounts.map(event => event.name)
@@ -106,6 +108,7 @@ export default function QueryBuilder({
             showDeleteButton={i > 0}
             showNewGroupButtons={i === queryFilterGroups.length - 1}
             uniqueUserProperties={uniqueUserProperties}
+            uniqueOrganizationProperties={uniqueOrganizationProperties}
             uniqueEvents={uniqueEvents}
           />
         </div >

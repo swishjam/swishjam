@@ -11,7 +11,7 @@ export class Users extends Base {
   static Sessions = Sessions;
 
   static async list({ page, limit, userSegmentIds } = {}) {
-    return await this._get('/api/v1/users', { page, per_page: limit, user_segment_ids: userSegmentIds })
+    return await this._get('/api/v1/users', { page, per_page: limit, cohort_ids: userSegmentIds })
   }
 
   static async count() {

@@ -1,20 +1,20 @@
 module ProfileTags
-  class UserSegmentApplier
-    attr_reader :user_segment, :workspace
+  class CohortApplier
+    attr_reader :user_cohort, :workspace
 
-    def initialize(user_segment, emit_events: true)
-      @user_segment = user_segment
-      @workspace = user_segment.workspace
+    def initialize(user_cohort, emit_events: true)
+      @user_cohort = user_cohort
+      @workspace = user_cohort.workspace
       @emit_events = emit_events
-      @data_sync = @user_segment.data_syncs.create!(workspace: @workspace, provider: "user_cohort_profile_tags", started_at: Time.current)
+      @data_sync = @user_cohort.data_syncs.create!(workspace: @workspace, provider: "user_cohort_profile_tags", started_at: Time.current)
     end
 
-    def update_user_segment_profile_tags!
-      user_ids_in_segment = recursively_get_user_ids_for_user_segment
-      current_user_ids_with_user_segment_profile_tag = workspace.analytics_user_profiles.joins(:profile_tags).where(profile_tags: { user_segment_id: user_segment.id, removed_at: nil }).pluck(:id)
-      user_ids_to_add_profile_tag = user_ids_in_segment - current_user_ids_with_user_segment_profile_tag
-      user_ids_to_remove_profile_tag = current_user_ids_with_user_segment_profile_tag - user_ids_in_segment
-      update_user_segment_profile_tags_and_enqueue_events!(user_ids_to_add_profile_tag, user_ids_to_remove_profile_tag)
+    def update_user_cohort_profile_tags!
+      user_ids_in_cohort = recursively_get_user_ids_for_user_cohort
+      current_user_ids_with_user_cohort_profile_tag = workspace.analytics_user_profiles.joins(:profile_tags).where(profile_tags: { user_cohort_id: user_cohort.id, removed_at: nil }).pluck(:id)
+      user_ids_to_add_profile_tag = user_ids_in_cohort - current_user_ids_with_user_cohort_profile_tag
+      user_ids_to_remove_profile_tag = current_user_ids_with_user_cohort_profile_tag - user_ids_in_cohort
+      update_user_cohort_profile_tags_and_enqueue_events!(user_ids_to_add_profile_tag, user_ids_to_remove_profile_tag)
       @data_sync.completed!
       {
         user_ids_added: user_ids_to_add_profile_tag,
@@ -27,15 +27,15 @@ module ProfileTags
 
     private
 
-    def update_user_segment_profile_tags_and_enqueue_events!(user_ids_to_add_profile_tag, user_ids_to_remove_profile_tag)      
+    def update_user_cohort_profile_tags_and_enqueue_events!(user_ids_to_add_profile_tag, user_ids_to_remove_profile_tag)      
       users_to_add_profile_tag = workspace.analytics_user_profiles.where(id: user_ids_to_add_profile_tag)
       profile_tags_to_create = users_to_add_profile_tag.map do |user|
-        { workspace_id: workspace.id, name: user_segment.profile_tag_name, user_segment_id: user_segment.id, profile_type: AnalyticsUserProfile.to_s, profile_id: user.id, applied_at: Time.current }
+        { workspace_id: workspace.id, name: user_cohort.profile_tag_name, user_cohort_id: user_cohort.id, profile_type: AnalyticsUserProfile.to_s, profile_id: user.id, applied_at: Time.current }
       end
       ProfileTag.insert_all!(profile_tags_to_create) if profile_tags_to_create.any?
 
       users_to_remove_profile_tag = workspace.analytics_user_profiles.where(id: user_ids_to_remove_profile_tag)
-      profile_tags_to_remove = user_segment.profile_tags.where(profile: users_to_remove_profile_tag, removed_at: nil)
+      profile_tags_to_remove = user_cohort.profile_tags.where(profile: users_to_remove_profile_tag, removed_at: nil)
       profile_tags_to_remove.update_all(removed_at: Time.current) if profile_tags_to_remove.any?
       
       return if !@emit_events
@@ -61,9 +61,9 @@ module ProfileTags
           profile_id: user.id,
           profile_name: user.full_name,
           profile_email: user.email,
-          cohort_name: user_segment.name,
-          tag_name: user_segment.profile_tag_name,
-          cohort_id: user_segment.id,
+          cohort_name: user_cohort.name,
+          tag_name: user_cohort.profile_tag_name,
+          cohort_id: user_cohort.id,
         },
       )
     end
@@ -72,17 +72,17 @@ module ProfileTags
       @swishjam_api_key ||= (workspace.api_keys.for_data_source(ApiKey::ReservedDataSources.PRODUCT) || workspace.api_keys.for_data_source!(ApiKey::ReservedDataSources.MARKETING)).public_key
     end
 
-    def recursively_get_user_ids_for_user_segment(user_ids: [], page: 1)
-      results = get_user_ids_for_user_segment_page(page)
+    def recursively_get_user_ids_for_user_cohort(user_ids: [], page: 1)
+      results = get_user_ids_for_user_cohort_page(page)
       user_ids.concat(results[:users].map { |u| u['swishjam_user_id'] })
       return user_ids if page >= results[:total_num_pages]
-      recursively_get_user_ids_for_user_segment(user_ids: user_ids, page: page + 1)
+      recursively_get_user_ids_for_user_cohort(user_ids: user_ids, page: page + 1)
     end
 
-    def get_user_ids_for_user_segment_page(page)
+    def get_user_ids_for_user_cohort_page(page)
       ClickHouseQueries::Users::List.new(
-        user_segment.workspace_id, 
-        filter_groups: user_segment.query_filter_groups.in_sequence_order.to_a,
+        user_cohort.workspace_id, 
+        filter_groups: user_cohort.query_filter_groups.in_sequence_order.to_a,
         columns: ['swishjam_user_id'], 
         return_event_count_for_user_filter_counts: false,
         page: page, 

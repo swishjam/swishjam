@@ -13,6 +13,11 @@ export class Organizations extends Base {
   static async retrieve(id) {
     return await this._get(`/api/v1/organizations/${id}`)
   }
+
+  static async uniqueProperties() {
+    return await this._get('/api/v1/organizations/unique_properties');
+  }
+
 }
 
 Object.assign(Organizations, Base);

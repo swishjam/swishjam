@@ -17,6 +17,7 @@ export default function QueryFilterGroupBuilder({
   showNewGroupButtons,
   uniqueEvents,
   uniqueUserProperties,
+  uniqueOrganizationProperties,
 }) {
   const [queryFilters, setQueryFilters] = useState(defaultFilters)
 
@@ -74,6 +75,7 @@ export default function QueryFilterGroupBuilder({
               operator={filter.previous_query_filter_relationship_operator}
               uniqueUserProperties={uniqueUserProperties}
               uniqueEvents={uniqueEvents}
+              uniqueOrganizationProperties={uniqueOrganizationProperties}
             />
           )
         })}
