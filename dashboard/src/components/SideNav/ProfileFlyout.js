@@ -80,8 +80,8 @@ export default function UserFlyout() {
                 Change workspaces
               </DropdownMenuSubTrigger>
               <DropdownMenuPortal>
-                <DropdownMenuSubContent>
-                  {workspaces.map(workspace => {
+                <DropdownMenuSubContent className='max-h-[80vh] overflow-y-scroll'>
+                  {workspaces.sort().map(workspace => {
                     if (workspace.id === currentWorkspaceId) {
                       return (
                         <DropdownMenuItem key={workspace.id} className='flex text-swishjam px-8 py-4 hover:text-swishjam'>
