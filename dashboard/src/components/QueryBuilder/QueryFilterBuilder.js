@@ -2,10 +2,12 @@ import { Badge } from "../ui/badge"
 import { Button } from "@/components/ui/button"
 import Combobox from "@/components/utils/Combobox"
 import { Input } from "@/components/ui/input"
-import { InfoIcon, SparklesIcon, UserCircleIcon } from "lucide-react"
-import { useEffect, useState } from "react"
+import { InfoIcon } from "lucide-react"
+import { useState } from "react"
 import { LuTrash } from "react-icons/lu"
 import useSheet from "@/hooks/useSheet"
+import ComboboxEvents from "../utils/ComboboxEvents"
+import { Tooltipable } from "../ui/tooltip"
 
 const GenericEmailsDocumentation = () => {
   const domains = ['aol', 'fastmail', 'gmx', 'gmail', 'hotmail', 'hushmail', 'icloud', 'inbox', 'list', 'live', 'mail', 'outlook',
@@ -25,7 +27,7 @@ const GenericEmailsDocumentation = () => {
   )
 }
 
-export default function UserSegmentFilterConfiguration({
+export default function QueryFilterBuilder({
   className,
   defaultFilter = { config: {} },
   displayAndOrButtons,
@@ -34,22 +36,24 @@ export default function UserSegmentFilterConfiguration({
   onDelete,
   onUpdate,
   operator,
-  uniqueUserProperties,
+  profileType = 'user',
+  uniquePropertiesForProfileType,
   uniqueEvents,
-  uniqueOrganizationProperties,
+  // uniqueOrganizationProperties,
 }) {
   const [filter, setFilter] = useState(defaultFilter)
   const { openSheetWithContent } = useSheet();
 
-  const updateSelectedUserPropertyOrEventName = selectedValue => {
-    const updatedFilterData = { ...filter }
+  const updateSelectedProfilePropertyOrEventName = selectedValue => {
+    const updatedFilterData = { ...filter, config: { ...filter.config || {}, profile_type: profileType } }
     const selectedObject = selectedValue.split('.')[0]
-    const objectType = {
-      user: 'QueryFilters::UserProperty',
-      event: 'QueryFilters::EventCountForUserOverTimePeriod'
-    }[selectedObject]
-    updatedFilterData.type = objectType
-    if (objectType === "QueryFilters::EventCountForUserOverTimePeriod") {
+    const filterType = {
+      user: 'QueryFilters::ProfileProperty',
+      organization: 'QueryFilters::ProfileProperty',
+      event: 'QueryFilters::EventCountForProfileOverTimePeriod'
+    }[selectedObject] || 'QueryFilters::EventCountForProfileOverTimePeriod';
+    updatedFilterData.type = filterType
+    if (filterType === "QueryFilters::EventCountForProfileOverTimePeriod") {
       delete updatedFilterData.config.property_name
       delete updatedFilterData.config.operator
       delete updatedFilterData.config.property_value
@@ -57,7 +61,7 @@ export default function UserSegmentFilterConfiguration({
         updatedFilterData.config.event_count_operator = 'greater_than_or_equal_to'
       }
       updatedFilterData.config.event_name = selectedValue.split('.').slice(1).join('.')
-    } else if (objectType === "QueryFilters::UserProperty") {
+    } else if (filterType === "QueryFilters::ProfileProperty") {
       delete updatedFilterData.config.event_name
       delete updatedFilterData.config.num_occurrences
       delete updatedFilterData.config.num_lookback_days
@@ -66,15 +70,10 @@ export default function UserSegmentFilterConfiguration({
         updatedFilterData.config.operator = 'equals'
       }
       updatedFilterData.config.property_name = selectedValue.split('.').slice(1).join('.')
-    } else {
-      throw new Error('Unexpected object type, expected either `user` or `event`, got:', selectedObject)
     }
     setFilter(updatedFilterData)
     onUpdate(updatedFilterData)
   }
-
-  const formattedUserPropertyOptions = uniqueUserProperties.map(option => ({ label: option, value: `user.${option}` }))
-  const formattedEventPropertyOptions = uniqueEvents.map(option => ({ label: option, value: `event.${option}` }))
 
   let operatorOptions = [
     { label: "equals", value: "equals" },
@@ -84,7 +83,7 @@ export default function UserSegmentFilterConfiguration({
     { label: 'is defined', value: 'is_defined' },
     { label: 'is not defined', value: 'is_not_defined' },
   ];
-  if (filter.type === "QueryFilters::UserProperty" && filter.config.property_name === 'email') {
+  if (filter.type === "QueryFilters::ProfileProperty" && filter.config.property_name === 'email') {
     operatorOptions = operatorOptions.concat([{ label: 'is not a generic email', value: 'is_not_generic_email' }, { label: 'is a generic email', value: 'is_generic_email' }])
   } else {
     operatorOptions = operatorOptions.concat([
@@ -95,7 +94,8 @@ export default function UserSegmentFilterConfiguration({
     ])
   }
 
-  const isComplete = filter.type === 'QueryFilters::UserProperty'
+  const humanizedProfileType = profileType === 'user' ? 'User' : 'Organization'
+  const isComplete = filter.type === 'QueryFilters::ProfileProperty'
     ? filter.config.property_name && filter.config.operator && (['is_defined', 'is_not_defined', 'is_generic_email', 'is_not_generic_email'].includes(filter.config.operator) || filter.config.property_value)
     : filter.config.event_name && filter.config.num_occurrences !== undefined && filter.config.num_lookback_days !== undefined;
 
@@ -112,23 +112,22 @@ export default function UserSegmentFilterConfiguration({
             </div>
           )}
           <span>
-            {!filter.type && 'Users who '}
-            {filter.type === "QueryFilters::UserProperty" && 'Users whose '}
-            {filter.type === "QueryFilters::EventCountForUserOverTimePeriod" && 'Users who have triggered the'}
+            {humanizedProfileType}s
+            {!filter.type && ' who '}
+            {filter.type === "QueryFilters::ProfileProperty" && ' whose '}
+            {filter.type === "QueryFilters::EventCountForProfileOverTimePeriod" && ' who have triggered the'}
           </span>
         </div>
-        <Combobox
-          selectedValue={filter.config.property_name ? `user.${filter.config.property_name}` : filter.config.event_name ? `event.${filter.config.event_name}` : null}
-          onSelectionChange={updateSelectedUserPropertyOrEventName}
+        <ComboboxEvents
+          selectedValue={filter.config.property_name ? `${profileType}.${filter.config.property_name}` : filter.config.event_name ? `event.${filter.config.event_name}` : null}
+          onSelectionChange={updateSelectedProfilePropertyOrEventName}
           options={[
-            { type: "title", label: <div className='flex items-center'><UserCircleIcon className='h-4 w-4 mr-1' /> User Properties</div> },
-            ...formattedUserPropertyOptions,
-            { type: "title", label: <div className='flex items-center'><SparklesIcon className='h-4 w-4 mr-1' /> Events</div> },
-            ...formattedEventPropertyOptions,
+            ...(uniquePropertiesForProfileType.map(property => `${profileType}.${property}`)),
+            ...(uniqueEvents).map(event => `event.${event}`),
           ]}
           placeholder="Select a property"
         />
-        {filter.type === "QueryFilters::UserProperty" && (
+        {filter.type === "QueryFilters::ProfileProperty" && (
           <>
             <span>
               property
@@ -165,7 +164,7 @@ export default function UserSegmentFilterConfiguration({
             )}
           </>
         )}
-        {filter.type === "QueryFilters::EventCountForUserOverTimePeriod" && (
+        {filter.type === "QueryFilters::EventCountForProfileOverTimePeriod" && (
           <>
             <span>
               event

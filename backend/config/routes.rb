@@ -54,8 +54,8 @@ Rails.application.routes.draw do
       ################################
       resources :organizations, only: [:index, :show] do
         collection do
+          get :count
           get :unique_properties
-          # get :count
           # get :timeseries
         end
         resources :users, only: [:index], controller: :'organizations/users' do

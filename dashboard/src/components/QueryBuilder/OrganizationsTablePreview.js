@@ -7,19 +7,17 @@ import Pagination from "@/components/Pagination/Pagination";
 import Table from "@/components/utils/Table";
 import { UserX2Icon } from "lucide-react";
 
-const rowForUser = ({ user, queryFilterGroups }) => {
+const rowForOrganization = ({ organization, queryFilterGroups }) => {
   let rows = [
     <div className="flex items-center">
       <div className="flex-shrink-0">
         <Avatar className="border border-slate-200">
-          <AvatarImage src={user.gravatarUrl()} />
-          <AvatarFallback>{user.initials() || user.id().slice(0, 2)}</AvatarFallback>
+          <AvatarFallback>{organization.initials() || organization.id().slice(0, 2)}</AvatarFallback>
         </Avatar>
       </div>
       <div className="ml-4">
-        <Link href={`/users/${user.id()}`} className='hover:underline'>
-          <span className="block font-medium text-gray-900">{user.fullName() || user.email() || `Anonymous User ${user.anonymousUserIdDisplay()}`}</span>
-          {user.fullName() && user.email() ? <span className="text-gray-500">{user.email()}</span> : null}
+        <Link href={`/organizations/${organization.id()}`} className='hover:underline'>
+          <span className="block font-medium text-gray-900">{organization.name()}</span>
         </Link>
       </div>
     </div>
@@ -28,22 +26,22 @@ const rowForUser = ({ user, queryFilterGroups }) => {
   (queryFilterGroups || []).forEach(filterGroup => {
     filterGroup.query_filters.forEach(filter => {
       if (filter.type === 'QueryFilters::ProfileProperty') {
-        const shouldInclude = !['email', 'user_unique_identifier'].includes(filter.config.property_name) && !dynamicRows.includes(filter.config.property_name)
+        const shouldInclude = !['name', 'organization_unique_identifier'].includes(filter.config.property_name) && !dynamicRows.includes(filter.config.property_name)
         if (shouldInclude) {
           dynamicRows.push(filter.config.property_name)
-          rows.push(user.metadata()[filter.config.property_name] ?? '-')
+          rows.push(organization.metadata()[filter.config.property_name] ?? '-')
         }
       } else {
-        const attrKey = `${filter.config.event_name.replace(/\s/g, '_').replace(/\./g, '_')}_count_for_user`
+        const attrKey = `${filter.config.event_name.replace(/\s/g, '_').replace(/\./g, '_')}_count_for_organization`
         if (!dynamicRows.includes(attrKey)) {
           dynamicRows.push(attrKey)
-          rows.push(user.attributes()[attrKey] ?? '-')
+          rows.push(organization.attributes()[attrKey] ?? '-')
         }
       }
     })
   })
   if (rows.length < 4) {
-    rows.push(prettyDateTime(user.createdAt()))
+    rows.push(prettyDateTime(organization.createdAt()))
   }
   return rows;
 }
@@ -51,10 +49,10 @@ const rowForUser = ({ user, queryFilterGroups }) => {
 const tableHeadersForQueryFilterGroups = queryFilterGroups => {
   let tableHeaders = [];
   if (queryFilterGroups) {
-    tableHeaders = ['User']
+    tableHeaders = ['Organization']
     queryFilterGroups.forEach(filterGroup => {
       filterGroup.query_filters.forEach(filter => {
-        if (filter.type === 'QueryFilters::ProfileProperty' && !['email', 'user_unique_identifier'].includes(filter.config.property_name)) {
+        if (filter.type === 'QueryFilters::ProfileProperty' && !['name', 'organization_unique_identifier'].includes(filter.config.property_name)) {
           tableHeaders.push(humanizeVariable(filter.config.property_name))
         } else if (filter.type === 'QueryFilters::EventCountForProfileOverTimePeriod') {
           tableHeaders.push(
@@ -72,16 +70,16 @@ const tableHeadersForQueryFilterGroups = queryFilterGroups => {
   return tableHeaders.filter((value, index, self) => self.indexOf(value) === index)
 }
 
-export default function UsersTablePreview({ userProfilesCollection, queryFilterGroups, currentPageNum, lastPageNum, onNewPage }) {
+export default function OrganizationsTablePreview({ organizationProfilesCollection, queryFilterGroups, currentPageNum, lastPageNum, onNewPage }) {
   return (
     <>
       <Table
         headers={tableHeadersForQueryFilterGroups(queryFilterGroups)}
-        rows={userProfilesCollection?.models()?.map(user => rowForUser({ user, queryFilterGroups }))}
+        rows={organizationProfilesCollection?.models()?.map(organization => rowForOrganization({ organization, queryFilterGroups }))}
         noDataMessage={
           <>
             <UserX2Icon className='h-12 w-12 mx-auto text-gray-400' />
-            <p className='text-sm text-gray-700 text-center my-4'>No users currently match this cohort.</p>
+            <p className='text-sm text-gray-700 text-center my-4'>No organizations currently match this cohort.</p>
           </>
         }
       />

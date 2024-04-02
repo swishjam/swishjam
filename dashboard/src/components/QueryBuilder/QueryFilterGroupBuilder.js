@@ -15,13 +15,15 @@ export default function QueryFilterGroupBuilder({
   previousQueryFilterGroupRelationshipOperator,
   showDeleteButton,
   showNewGroupButtons,
+  profileType,
   uniqueEvents,
-  uniqueUserProperties,
-  uniqueOrganizationProperties,
+  uniquePropertiesForProfileType,
+  // uniqueUserProperties,
+  // uniqueOrganizationProperties,
 }) {
   const [queryFilters, setQueryFilters] = useState(defaultFilters)
 
-  if (!uniqueUserProperties || !uniqueEvents) {
+  if (!uniquePropertiesForProfileType || !uniqueEvents) {
     return (
       <>
         <Skeleton className='rounded-md w-full h-40 bg-gray-200' />
@@ -53,6 +55,7 @@ export default function QueryFilterGroupBuilder({
             <QueryFilterBuilder
               key={i}
               className={className}
+              profileType={profileType}
               defaultFilter={filter}
               displayAndOrButtons={i === queryFilters.length - 1}
               displayDeleteButton={i > 0}
@@ -73,9 +76,10 @@ export default function QueryFilterGroupBuilder({
                 onUpdate(newFilters);
               }}
               operator={filter.previous_query_filter_relationship_operator}
-              uniqueUserProperties={uniqueUserProperties}
+              uniquePropertiesForProfileType={uniquePropertiesForProfileType}
               uniqueEvents={uniqueEvents}
-              uniqueOrganizationProperties={uniqueOrganizationProperties}
+            // uniqueUserProperties={uniqueUserProperties}
+            // uniqueOrganizationProperties={uniqueOrganizationProperties}
             />
           )
         })}

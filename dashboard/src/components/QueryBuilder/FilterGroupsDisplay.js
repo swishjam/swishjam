@@ -17,9 +17,9 @@ const FilterItem = ({ filter, operator, className }) => {
       <div>
         <div className="flex min-w-0 flex-1 justify-between space-x-4 pt-1.5">
           <div className='text-sm my-2'>
-            {filter.type === "QueryFilters::UserProperty" && (
+            {filter.type === "QueryFilters::ProfileProperty" && (
               <>
-                Users who's <DottedUnderline>{filter.config.property_name}</DottedUnderline> property <DottedUnderline>{filter.config.operator}</DottedUnderline>
+                {filter.config.profile_type === 'user' ? 'Users' : 'Organizations'} whose <DottedUnderline>{filter.config.property_name}</DottedUnderline> property <DottedUnderline>{filter.config.operator}</DottedUnderline>
                 {filter.config.operator !== "is_defined" && filter.config.operator !== "is_not_defined" && (
                   <>
                     {' '}<DottedUnderline>{filter.config.property_value}</DottedUnderline>
@@ -27,9 +27,9 @@ const FilterItem = ({ filter, operator, className }) => {
                 )}
               </>
             )}
-            {filter.type === "QueryFilters::EventCountForUserOverTimePeriod" && (
+            {filter.type === "QueryFilters::EventCountForProfileOverTimePeriod" && (
               <>
-                Users who have triggered the <DottedUnderline>{filter.config.event_name}</DottedUnderline> event <DottedUnderline>{filter.config.event_count_operator.replace(/_/g, ' ')} {filter.config.num_occurrences} times</DottedUnderline> in the last <DottedUnderline>{filter.config.num_lookback_days} days</DottedUnderline>
+                {filter.config.profile_type === 'user' ? 'Users' : 'Organizations'} who have triggered the <DottedUnderline>{filter.config.event_name}</DottedUnderline> event <DottedUnderline>{filter.config.event_count_operator.replace(/_/g, ' ')} {filter.config.num_occurrences} times</DottedUnderline> in the last <DottedUnderline>{filter.config.num_lookback_days} days</DottedUnderline>
               </>
             )}
           </div>
@@ -70,6 +70,7 @@ const FilterGroupItem = ({ filterGroup }) => {
 }
 
 export default function FilterGroupsDisplay({ filterGroups }) {
+  console.log(filterGroups)
   return (
     <div className="flow-root">
       <ul role="list" className="-mb-8">
@@ -99,9 +100,9 @@ export default function FilterGroupsDisplay({ filterGroups }) {
                       1.
                     </span>
                     <div className='text-sm my-2'>
-                      {filterGroups[0].query_filters[0].type === "QueryFilters::UserProperty" && (
+                      {filterGroups[0].query_filters[0].type === "QueryFilters::ProfileProperty" && (
                         <>
-                          Users who's <DottedUnderline>{filterGroups[0].query_filters[0].config.property_name}</DottedUnderline> property <DottedUnderline>{filterGroups[0].query_filters[0].config.operator}</DottedUnderline>
+                          {filterGroups[0].query_filters[0].config.profile_type === 'user' ? 'Users' : 'Organizations'} whose <DottedUnderline>{filterGroups[0].query_filters[0].config.property_name}</DottedUnderline> property <DottedUnderline>{filterGroups[0].query_filters[0].config.operator}</DottedUnderline>
                           {filterGroups[0].query_filters[0].config.operator !== "is_defined" && filterGroups[0].query_filters[0].config.operator !== "is_not_defined" && (
                             <>
                               {' '}<DottedUnderline>{filterGroups[0].query_filters[0].config.property_value}</DottedUnderline>
@@ -109,9 +110,9 @@ export default function FilterGroupsDisplay({ filterGroups }) {
                           )}
                         </>
                       )}
-                      {filterGroups[0].query_filters[0].type === "QueryFilters::EventCountForUserOverTimePeriod" && (
+                      {filterGroups[0].query_filters[0].type === "QueryFilters::EventCountForProfileOverTimePeriod" && (
                         <>
-                          Users who have triggered the <DottedUnderline>{filterGroups[0].query_filters[0].config.event_name}</DottedUnderline> event <DottedUnderline> {filterGroups[0].query_filters[0].config.event_count_operator.replace(/_/g, ' ')} {filterGroups[0].query_filters[0].config.num_occurrences} times</DottedUnderline> in the last <DottedUnderline>{filterGroups[0].query_filters[0].config.num_lookback_days} days</DottedUnderline>
+                          {filterGroups[0].query_filters[0].config.profile_type === 'user' ? 'Users' : 'Organizations'} who have triggered the <DottedUnderline>{filterGroups[0].query_filters[0].config.event_name}</DottedUnderline> event <DottedUnderline> {filterGroups[0].query_filters[0].config.event_count_operator.replace(/_/g, ' ')} {filterGroups[0].query_filters[0].config.num_occurrences} times</DottedUnderline> in the last <DottedUnderline>{filterGroups[0].query_filters[0].config.num_lookback_days} days</DottedUnderline>
                         </>
                       )}
                     </div>

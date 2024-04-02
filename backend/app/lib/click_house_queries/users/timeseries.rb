@@ -46,7 +46,7 @@ module ClickHouseQueries
       end
 
       def maybe_event_counts_left_join_statements
-        ClickHouseQueries::FilterHelpers::LeftJoinStatementsForEventCountByUserFilters.left_join_statements(@cohorts, workspace_id: @workspace_id, as_timeseries: true)
+        ClickHouseQueries::FilterHelpers::LeftJoinStatementsForEventCountByProfileFilters.left_join_statements(@cohorts, workspace_id: @workspace_id, as_timeseries: true)
       end
 
       def users_query_for_user_property_filters_if_any
@@ -66,7 +66,7 @@ module ClickHouseQueries
         #       columns: ['email', 'metadata'], 
         #       table_alias: 'finalized_user_profiles', 
         #       # what happens if there's multiple cohorts...?
-        #       event_table_alias: ClickHouseQueries::FilterHelpers::LeftJoinStatementsForEventCountByUserFilters.join_table_alias_for_event_count_for_user_filter(filter.config)
+        #       event_table_alias: ClickHouseQueries::FilterHelpers::LeftJoinStatementsForEventCountByProfileFilters.join_table_alias_for_event_count_for_profile_filter(filter.config)
         #     )
         #   end
         # end

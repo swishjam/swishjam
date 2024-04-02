@@ -27,3 +27,7 @@ export const humanizeVariable = variableName => {
     return variableName;
   }
 }
+
+export const caseInsensitiveSortedArray = array => {
+  return array.sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()))
+}

@@ -21,7 +21,6 @@ export default function CohortsList({ type }) {
     SwishjamAPI.Cohorts.list({ type }).then(setCohorts)
   }, [])
 
-  console.log(cohorts)
   return (
     <div className='flex space-y-2 flex-col'>
       {cohorts === undefined
@@ -50,7 +49,11 @@ export default function CohortsList({ type }) {
               cohorts.map(cohort => (
                 <div key={cohort.id} className='bg-white relative px-8 py-4 border border-zinc-200 shadow-sm rounded-sm'>
                   <div className="flex items-center space-x-2">
-                    <h2 className="text-sm font-semibold leading-6 text-gray-600 min-w-0 flex-auto">{cohort.name}</h2>
+                    <h2 className="text-sm font-semibold leading-6 text-gray-600 min-w-0 flex-auto">
+                      <Link href={`/cohorts/${cohort.id}`}>
+                        {cohort.name}
+                      </Link>
+                    </h2>
                     {cohort.last_synced_profile_tags_at && (
                       <Tooltipable content={<span className='text-xs'>Cohort has {cohort.rough_user_count} users (as of {prettyDateTime(cohort.last_synced_profile_tags_at)}).</span>}>
                         <span className="text-xs inline-flex items-center gap-x-1.5 rounded-sm bg-green-100 px-1.5 py-0.5 font-medium text-green-700 cursor-default">
@@ -77,13 +80,13 @@ export default function CohortsList({ type }) {
                         </div>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent className="w-fit border-zinc-200 shadow-sm border-sm" align='end'>
-                        <Link href={`/users/cohorts/${cohort.id}`}>
+                        <Link href={`/cohorts/${cohort.id}`}>
                           <DropdownMenuItem className='cursor-pointer hover:bg-accent'>
                             <LuReceipt className='h-4 w-4 inline-block mr-2' />
                             View Details
                           </DropdownMenuItem>
                         </Link>
-                        <Link href={`/users/cohorts/${cohort.id}/edit`}>
+                        <Link href={`/cohorts/${cohort.id}/edit`}>
                           <DropdownMenuItem className='cursor-pointer hover:bg-accent'>
                             <LuPencil className='h-4 w-4 inline-block mr-2' />
                             Edit

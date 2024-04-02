@@ -1,52 +1,83 @@
 
 import Logo from '@components/Logo'
 const SlackIcon = ({ className }) => <img src={'/logos/slack.svg'} className={className} />
-import { LuCode, LuMail } from 'react-icons/lu';
+import { LuCode, LuHotel, LuMail, LuUserCircle } from 'react-icons/lu';
 import { SiIntercom } from 'react-icons/si'
 import { BsStripe } from 'react-icons/bs'
 
 const createHeading = (icon, label) => <span className='flex items-center capitalize'>{icon} {label}</span>
-const createCustomEvent = ({ value, label, icon }) => ({ value, label: label || string, icon })
-const integrationPrefixes = [
-  { val: 'intercom.', icon: SiIntercom },
-  { val: 'stripe.', icon: BsStripe },
-  { val: 'resend.', icon: LuMail },
-  { val: 'github.', icon: null },
-  { val: 'slack.', icon: SlackIcon },
-  { val: 'cal.', icon: null }
-]
-
-export function FormatSelectedValue(option) {
-  let prefix = integrationPrefixes.find(prefix => option.startsWith(prefix.val))
-  if (prefix) {
-    return (<span className='flex items-center capitalize'>{prefix.icon && <prefix.icon size={14} className='h-4 mr-2 ' />} {option.replace(prefix.val, "").replaceAll('.', ' ')}</span>);
-  } else {
-    return (<span className='flex items-center capitalize'><Logo className='h-4 mr-2' /> {option.replaceAll('_', ' ')}</span>);
-  }
+const createCustomEvent = ({ value, label, icon }) => ({ value, label: label, icon })
+const integrationPrefixes = {
+  user: { icon: LuUserCircle, title: 'User Properties' },
+  organization: { icon: LuHotel, title: 'Organization Properties' },
+  intercom: { icon: SiIntercom },
+  stripe: { icon: BsStripe },
+  resend: { icon: LuMail },
+  github: { icon: null },
+  slack: { icon: SlackIcon },
+  cal: { icon: null },
 }
 
-export function FormatEventData(eventData) {
-  // This is garbage code, Linus forgive me
+export function formatSelectedValueForCombobox(option) {
+  const sanitizedOption = option.startsWith('event.') ? option.replace('event.', '') : option;
+  const prefix = sanitizedOption.split('.')[0]
+  const { icon: Icon } = integrationPrefixes[prefix] || {};
+  return (
+    <span className='flex items-center capitalize'>
+      {Icon ? <Icon className='w-4 h-4 mr-2 ' /> : <Logo className='w-4 h-4 mr-2' />}
+      <span className='truncate'>{sanitizedOption.replace(integrationPrefixes[prefix] ? prefix : '', '').replaceAll('.', ' ').replaceAll('_', ' ')}</span>
+    </span>
+  );
+}
+
+export function formatEventDataForCombobox(eventData) {
   let formattedEventData = []
 
-  let customEventStrings = eventData.filter(event => !event.startsWith("intercom.") && !event.startsWith("resend.") && !event.startsWith("stripe.") && !event.startsWith("github.") && !event.startsWith("cal."));
-  if (customEventStrings.length > 0) {
-    let customEvents = { heading: createHeading(<Logo className='h-4 mr-2' />, "Swishjam SDK Events"), items: [] }
-    customEventStrings.forEach(event => {
-      customEvents.items.push(createCustomEvent({ value: event, label: event.replaceAll('_', ' '), icon: LuCode }))
+  const nonIntegrationEvents = eventData.filter(event => {
+    if (event.startsWith('event.')) {
+      const sanitizedEvent = event.replace('event.', '');
+      return !integrationPrefixes[sanitizedEvent.split('.')[0]]
+    } else {
+      return !integrationPrefixes[event.split('.')[0]]
+    }
+  });
+  if (nonIntegrationEvents.length > 0) {
+    formattedEventData.push({
+      heading: createHeading(<Logo className='h-4 mr-2' />, "Swishjam Events"),
+      items: nonIntegrationEvents.map(event => {
+        let label = event.replaceAll('swishjam_bot.', ' Swishjam Bot - ').replaceAll('event.', '').replaceAll('_', ' ');
+        if (label.startsWith('event.')) label = label.replace('event.', '');
+        return createCustomEvent({ value: event, icon: LuCode, label, })
+      })
     })
-    formattedEventData.push(customEvents)
   }
 
-  integrationPrefixes.forEach(prefix => {
-    let filteredEventStrings = eventData.filter(event => event.startsWith(prefix.val));
-    if (filteredEventStrings.length > 0) {
-      let customEvents = { heading: createHeading((prefix.icon && <prefix.icon size={14} className='h-4 mr-2 ' />), `${prefix.val.replace('.', ' ')} events`), items: [] }
-      filteredEventStrings.forEach(event => {
-        customEvents.items.push(createCustomEvent({ value: event, label: event.replace(prefix.val, "").replaceAll('.', ' ').replaceAll('_', ' '), icon: prefix.icon }))
-      })
-      formattedEventData.push(customEvents)
+  const integrationEvents = eventData.filter(event => {
+    if (event.startsWith('event.')) {
+      const sanitizedEvent = event.replace('event.', '');
+      return integrationPrefixes[sanitizedEvent.split('.')[0]]
+    } else {
+      return integrationPrefixes[event.split('.')[0]]
     }
+  });
+  const integrationEventsByPrefix = {};
+
+  integrationEvents.forEach(event => {
+    const sanitizedEvent = event.startsWith('event.') ? event.replace('event.', '') : event;
+    const prefix = sanitizedEvent.split('.')[0];
+    integrationEventsByPrefix[prefix] = integrationEventsByPrefix[prefix] || [];
+    integrationEventsByPrefix[prefix].push(event);
+  })
+
+  Object.keys(integrationEventsByPrefix).forEach(prefix => {
+    const { icon: Icon, title } = integrationPrefixes[prefix] || {};
+    formattedEventData.push({
+      heading: createHeading(Icon && <Icon className='w-4 h-4 mr-2' />, title || `${prefix.replace('.', ' ')} events`),
+      items: integrationEventsByPrefix[prefix].map(event => {
+        const label = (event.startsWith('event.') ? event.replace('event.', '') : event).replace(prefix, '').replaceAll('.', ' ').replaceAll('_', ' ');
+        return createCustomEvent({ value: event, icon: Icon, label })
+      })
+    })
   })
 
   return formattedEventData;

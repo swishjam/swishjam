@@ -1,5 +1,5 @@
 class CohortSerializer < ActiveModel::Serializer
-  attributes :id, :name, :description, :created_at, :updated_at, :created_by_user, :query_filter_groups, :rough_user_count, :last_synced_profile_tags_at
+  attributes :id, :type, :name, :description, :created_at, :updated_at, :created_by_user, :query_filter_groups, :rough_user_count, :last_synced_profile_tags_at
 
   def created_by_user
     object.created_by_user.as_json(only: %i[id name email])

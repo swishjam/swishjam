@@ -18,6 +18,8 @@ export default function Combobox({ selectedValue, onSelectionChange, options, pl
     })
   }
 
+  const optionForValue = value => options.find(option => option.value && option.value.toLowerCase() === value.toLowerCase())
+
   return (
     options === undefined
       ? (
@@ -31,7 +33,9 @@ export default function Combobox({ selectedValue, onSelectionChange, options, pl
               aria-expanded={isOpen}
               className={`w-full justify-between font-normal text-sm ${buttonClass}`}
             >
-              <span className=" truncate overflow-hidden">{selectedValue ? options.find(option => option.value && option.value.toLowerCase() === selectedValue.toLowerCase())?.label : placeholder}</span>
+              <span className="truncate overflow-hidden">
+                {selectedValue ? optionForValue(selectedValue)?.label : placeholder}
+              </span>
               <LuChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
             </Button>
           </PopoverTrigger >
@@ -62,7 +66,7 @@ export default function Combobox({ selectedValue, onSelectionChange, options, pl
                         value={option.value}
                         onSelect={newValue => {
                           setIsOpen(false)
-                          onSelectionChange(newValue)
+                          onSelectionChange(optionForValue(newValue)?.value)
                         }}
                       >
                         {option.label}
