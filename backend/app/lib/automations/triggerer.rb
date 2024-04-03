@@ -6,6 +6,7 @@ module Automations
                                                 .entry_point_automation_steps
                                                 .find_all_where_event_name_equals(prepared_event.name)
                                                 .with_enabled_automation
+      byebug
       matching_entry_point_automation_steps.uniq(&:automation_id).each do |entry_point_automation_step|
         AutomationJobs::ExecuteAutomation.perform_async(entry_point_automation_step.automation_id, prepared_event.as_json)
       end

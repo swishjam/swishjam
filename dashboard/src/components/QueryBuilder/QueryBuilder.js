@@ -132,7 +132,6 @@ export default function QueryBuilder({
             disabled={isLoading}
             onClick={() => {
               const errors = errorsForQueryFilterGroups(queryFilterGroups)
-              debugger;
               if (errors.length > 0) {
                 setErrorMessages(errors)
               } else {

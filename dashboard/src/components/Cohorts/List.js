@@ -17,6 +17,8 @@ export default function CohortsList({ type }) {
   const { displayConfirmation } = useConfirmationModal();
   const [cohorts, setCohorts] = useState()
 
+  const humanizedProfileType = type === 'Cohorts::UserCohort' ? 'user' : 'organization';
+
   useEffect(() => {
     SwishjamAPI.Cohorts.list({ type }).then(setCohorts)
   }, [])
@@ -44,24 +46,22 @@ export default function CohortsList({ type }) {
           ))
         ) : (
           cohorts.length === 0
-            ? <EmptyState title={`You haven't defined any ${type === 'Cohorts::UserCohort' ? 'user' : 'organization'} cohorts yet.`} />
+            ? <EmptyState title={`You haven't defined any ${humanizedProfileType} Cohorts yet.`} />
             : (
               cohorts.map(cohort => (
                 <div key={cohort.id} className='bg-white relative px-8 py-4 border border-zinc-200 shadow-sm rounded-sm'>
                   <div className="flex items-center space-x-2">
-                    <h2 className="text-sm font-semibold leading-6 text-gray-600 min-w-0 flex-auto">
-                      <Link href={`/cohorts/${cohort.id}`}>
-                        {cohort.name}
-                      </Link>
-                    </h2>
+                    <Link href={`/cohorts/${cohort.id}`} className="text-sm font-semibold leading-6 text-gray-600 min-w-0 flex-auto hover:underline">
+                      {cohort.name}
+                    </Link>
                     {cohort.last_synced_profile_tags_at && (
-                      <Tooltipable content={<span className='text-xs'>Cohort has {cohort.rough_user_count} users (as of {prettyDateTime(cohort.last_synced_profile_tags_at)}).</span>}>
+                      <Tooltipable content={<span className='text-xs'>{cohort.rough_profile_count} {humanizedProfileType}{cohort.rough_profile_count === 1 ? '' : 's'} belongs to this Cohort (as of {prettyDateTime(cohort.last_synced_profile_tags_at)}).</span>}>
                         <span className="text-xs inline-flex items-center gap-x-1.5 rounded-sm bg-green-100 px-1.5 py-0.5 font-medium text-green-700 cursor-default">
-                          {cohort.rough_user_count} <UserIcon className='h-3 w-3 inline-block' />
+                          {cohort.rough_profile_count} <UserIcon className='h-3 w-3 inline-block' />
                         </span>
                       </Tooltipable>
                     )}
-                    {cohort?.query_filter_groups?.length > 0 && (
+                    {cohort.query_filter_groups.length > 0 && (
                       <Tooltipable content={<span className='text-xs'>Cohort has {cohort.query_filter_groups.reduce((acc, group) => acc + group.query_filters.length, 0)} filters defined across {cohort.query_filter_groups.length} filter groups.</span>}>
                         <span className="text-xs inline-flex items-center gap-x-1.5 rounded-sm bg-accent px-1.5 py-0.5 font-medium text-gray-600 cursor-default">
                           {cohort.query_filter_groups.reduce((acc, group) => acc + group.query_filters.length, 0)} <FilterIcon className='h-3 w-3 inline-block' />
@@ -98,18 +98,18 @@ export default function CohortsList({ type }) {
                             className="!text-red-400 cursor-pointer hover:bg-accent"
                             onClick={() => {
                               displayConfirmation({
-                                title: <>Delete the '{cohort.name}' cohort?</>,
-                                body: <>This action cannot be undone. Are you sure you want to delete this cohort?</>,
+                                title: <>Delete the '{cohort.name}' Cohort?</>,
+                                body: <>This action cannot be undone. Are you sure you want to delete this Cohort?</>,
                                 callback: () => {
                                   SwishjamAPI.Cohorts.delete(cohort.id).then(({ error }) => {
                                     if (error) {
-                                      toast.error('Failed to delete user cohort', {
+                                      toast.error('Failed to delete Cohort', {
                                         description: error,
                                         duration: 10_000,
                                       })
                                     } else {
                                       setCohorts(cohorts.filter(s => s.id !== cohort.id))
-                                      toast.success(`Successfully deleted the '${cohort.name}' cohort.`)
+                                      toast.success(`Successfully deleted the '${cohort.name}' Cohort.`)
                                     }
                                   })
                                 },

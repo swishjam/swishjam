@@ -38,7 +38,7 @@ export default function ResendEmail({ data = { to: '{{ user.email }}', send_once
   const [loading, setLoading] = useState(false);
   const [propertyOptionsForSelectedEvent, setPropertyOptionsForSelectedEvent] = useState();
   const [replyToSectionIsExpanded, setReplyToSectionIsExpanded] = useState(data.reply_to ? true : false);
-  const { uniqueUserProperties } = useCommonQueries();
+  const { uniqueUserProperties, uniqueOrganizationProperties } = useCommonQueries();
   const { selectedEntryPointEventName } = useAutomationBuilder();
 
   const isFetchingData = hasResendDestinationEnabled === undefined || uniqueUserProperties === undefined;
@@ -110,7 +110,9 @@ export default function ResendEmail({ data = { to: '{{ user.email }}', send_once
                   ...[...(propertyOptionsForSelectedEvent || []),
                   ...(propertyOptionsForSelectedEvent || []).map(e => `event.${e}`)],
                   ...(uniqueUserProperties || []).map(e => `user.${e}`),
-                  'user.email'
+                  ...(uniqueOrganizationProperties || []).map(e => `organization.${e}`),
+                  'organization.name',
+                  'user.email',
                 ]}
               />
             }
@@ -121,7 +123,9 @@ export default function ResendEmail({ data = { to: '{{ user.email }}', send_once
                   ...[...(propertyOptionsForSelectedEvent || []),
                   ...(propertyOptionsForSelectedEvent || []).map(e => `event.${e}`)],
                   ...(uniqueUserProperties || []).map(e => `user.${e}`),
-                  'user.email'
+                  ...(uniqueOrganizationProperties || []).map(e => `organization.${e}`),
+                  'organization.name',
+                  'user.email',
                 ]}
               />
             }
@@ -132,7 +136,9 @@ export default function ResendEmail({ data = { to: '{{ user.email }}', send_once
                   ...[...(propertyOptionsForSelectedEvent || []),
                   ...(propertyOptionsForSelectedEvent || []).map(e => `event.${e}`)],
                   ...(uniqueUserProperties || []).map(e => `user.${e}`),
-                  'user.email'
+                  ...(uniqueOrganizationProperties || []).map(e => `organization.${e}`),
+                  'organization.name',
+                  'user.email',
                 ]}
               />
             }
@@ -143,7 +149,9 @@ export default function ResendEmail({ data = { to: '{{ user.email }}', send_once
                   ...[...(propertyOptionsForSelectedEvent || []),
                   ...(propertyOptionsForSelectedEvent || []).map(e => `event.${e}`)],
                   ...(uniqueUserProperties || []).map(e => `user.${e}`),
-                  'user.email'
+                  ...(uniqueOrganizationProperties || []).map(e => `organization.${e}`),
+                  'organization.name',
+                  'user.email',
                 ]}
               />
             }
@@ -154,7 +162,9 @@ export default function ResendEmail({ data = { to: '{{ user.email }}', send_once
                   ...[...(propertyOptionsForSelectedEvent || []),
                   ...(propertyOptionsForSelectedEvent || []).map(e => `event.${e}`)],
                   ...(uniqueUserProperties || []).map(e => `user.${e}`),
-                  'user.email'
+                  ...(uniqueOrganizationProperties || []).map(e => `organization.${e}`),
+                  'organization.name',
+                  'user.email',
                 ]}
               />
             }
@@ -165,7 +175,9 @@ export default function ResendEmail({ data = { to: '{{ user.email }}', send_once
                   ...[...(propertyOptionsForSelectedEvent || []),
                   ...(propertyOptionsForSelectedEvent || []).map(e => `event.${e}`)],
                   ...(uniqueUserProperties || []).map(e => `user.${e}`),
-                  'user.email'
+                  ...(uniqueOrganizationProperties || []).map(e => `organization.${e}`),
+                  'organization.name',
+                  'user.email',
                 ]}
               />
             }
@@ -176,7 +188,9 @@ export default function ResendEmail({ data = { to: '{{ user.email }}', send_once
                   ...[...(propertyOptionsForSelectedEvent || []),
                   ...(propertyOptionsForSelectedEvent || []).map(e => `event.${e}`)],
                   ...(uniqueUserProperties || []).map(e => `user.${e}`),
-                  'user.email'
+                  ...(uniqueOrganizationProperties || []).map(e => `organization.${e}`),
+                  'organization.name',
+                  'user.email',
                 ]}
               />
             }
@@ -190,6 +204,7 @@ export default function ResendEmail({ data = { to: '{{ user.email }}', send_once
               <VariableSyntaxDocumentation
                 availableEventProperties={propertyOptionsForSelectedEvent}
                 availableUserProperties={['user.email', ...(uniqueUserProperties || []).map(e => `user.${e}`)]}
+                availableOrganizationProperties={['organization.name', (uniqueOrganizationProperties || []).map(e => `organization.${e}`)]}
                 eventName={selectedEntryPointEventName}
               />
             </AccordionOpen>

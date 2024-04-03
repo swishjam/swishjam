@@ -38,7 +38,7 @@ export default function ConfigureSlackAutomationStep({ onSave, data = {} }) {
   const [propertyOptionsForSelectedEvent, setPropertyOptionsForSelectedEvent] = useState();
   const [slackChannels, setSlackChannels] = useState();
 
-  const { uniqueUserProperties } = useCommonQueries();
+  const { uniqueUserProperties, uniqueOrganizationProperties } = useCommonQueries();
   const { selectedEntryPointEventName } = useAutomationBuilder();
 
   const getAndSetSlackChannels = async () => {
@@ -124,7 +124,9 @@ export default function ConfigureSlackAutomationStep({ onSave, data = {} }) {
                     ...(propertyOptionsForSelectedEvent || []),
                     ...(propertyOptionsForSelectedEvent || []).map(p => `event.${p}`),
                     ...(uniqueUserProperties || []).map(p => `user.${p}`),
-                    'user.email'
+                    ...(uniqueOrganizationProperties || []).map(p => `organization.${p}`),
+                    'organization.name',
+                    'user.email',
                   ]}
                   content={form.watch('message_body')}
                   useSlackLinkFormatting={true}
@@ -141,6 +143,7 @@ export default function ConfigureSlackAutomationStep({ onSave, data = {} }) {
               <VariableSyntaxDocumentation
                 availableEventProperties={propertyOptionsForSelectedEvent}
                 availableUserProperties={(uniqueUserProperties || []).map(p => `user.${p} `).concat('user.email')}
+                availableOrganizationProperties={(uniqueOrganizationProperties || []).map(p => `organization.${p}`).concat('organization.name')}
                 eventName={selectedEntryPointEventName}
                 additionalSections={[
                   <>

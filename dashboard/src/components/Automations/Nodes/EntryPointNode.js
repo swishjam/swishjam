@@ -33,6 +33,7 @@ export default memo(({ id, data }) => {
         ? <><DottedUnderline>{event_name}</DottedUnderline> event was triggered.</>
         : (
           <ComboboxEvents
+            buttonClass='w-full'
             placeholder='Select a trigger'
             options={uniqueEvents}
             selectedValue={event_name}

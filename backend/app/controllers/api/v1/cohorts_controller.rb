@@ -136,7 +136,6 @@ module Api
             end
           )
         end
-        byebug
         if params[:profile_type] == 'user'
           users_results = ClickHouseQueries::Users::List.new(
             current_workspace.id, 
@@ -145,13 +144,11 @@ module Api
             limit: (params[:limit] || 10).to_i
           ).get
           render json: {
-            users: users_results['users'],
-            previous_page: params[:page].to_i > 1 ? params[:page].to_i - 1 : nil,
-            next_page: params[:page].to_i < users_results['total_num_pages'] ? params[:page].to_i + 1 : nil,
+            profiles: users_results['users'],
             total_pages: users_results['total_num_pages'],
             total_num_records: users_results['total_num_users'],
           }, status: :ok
-        else
+        elsif params[:profile_type] == 'organization'
           organization_results = ClickHouseQueries::Organizations::List.new(
             current_workspace.id, 
             filter_groups: query_filter_groups, 
@@ -159,12 +156,12 @@ module Api
             limit: (params[:limit] || 10).to_i
           ).get
           render json: {
-            users: users_results['users'],
-            previous_page: params[:page].to_i > 1 ? params[:page].to_i - 1 : nil,
-            next_page: params[:page].to_i < users_results['total_num_pages'] ? params[:page].to_i + 1 : nil,
-            total_pages: users_results['total_num_pages'],
-            total_num_records: users_results['total_num_users'],
+            profiles: organization_results['organizations'],
+            total_pages: organization_results['total_num_pages'],
+            total_num_records: organization_results['total_num_organizations'],
           }, status: :ok
+        else
+          render json: { error: "profile_type must be 'user' or 'organization', received: #{params[:profile_type] || 'UNDEFINED'}" }, status: :unprocessable_entity
         end
       end
     end

@@ -7,7 +7,7 @@ class UpdateCohortProfileTagsJob
       cohort = Cohort.find(cohort_id)
       ProfileTags::CohortApplier.new(cohort, emit_events: emit_events).update_cohort_profile_tags!
     else
-      Segment.all.each{ |cohort| ProfileTags::CohortApplier.new(cohort, emit_events: emit_events).update_cohort_profile_tags! }
+      Cohort.all.each{ |cohort| ProfileTags::CohortApplier.new(cohort, emit_events: emit_events).update_cohort_profile_tags! }
     end
   end
 end

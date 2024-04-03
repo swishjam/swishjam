@@ -28,11 +28,14 @@ module EventVariableResolver
 
   def self.get_resolved_variable_value_for_variable_name(variable_name, prepared_event)
     if variable_name.starts_with?('"') && variable_name.ends_with?('"') || variable_name.starts_with?("'") && variable_name.ends_with?("'")
-      # '"there"' -> 'there'
+      # for string variables (ie: {{ user.first_name || 'there' }}) '"there"' -> 'there'
       variable_name[1..-2]
     elsif variable_name.starts_with?('user.')
       user_property_name = variable_name.split('.').slice(1..-1).join('.')
       prepared_event.user_properties[user_property_name]
+    elsif varaible_name.starts_with?('organization.')
+      organization_property_name = variable_name.split('.').slice(1..-1).join('.')
+      prepared_event.organization_properties[organization_property_name]
     else
       if variable_name.starts_with?('event.')
         variable_name = variable_name.split('.').slice(1..-1).join('.')

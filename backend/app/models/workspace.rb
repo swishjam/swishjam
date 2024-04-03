@@ -25,7 +25,7 @@ class Workspace < Transactional
 
   after_create_commit { ApiKey.generate_default_keys_for(self) }
   after_create_commit { WorkspaceSetting.generate_default_for(self) }
-  after_create_commit { Segment.create_default_for_workspace(self) }
+  after_create_commit { Cohort.create_default_for_workspace(self) }
   attribute :public_key, :string, default: "DEPRECATED"
 
   attribute :should_enrich_user_profile_data, :boolean, default: false

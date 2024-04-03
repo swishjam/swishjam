@@ -1,16 +1,36 @@
 import { Button } from "@/components/ui/button"
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandSeparator } from "@/components/ui/command"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { Skeleton } from "@/components/ui/skeleton"
-import { formatEventDataForCombobox, formatSelectedValueForCombobox } from "@/lib/utils/eventComboboxFormatter"
+import { formatEventOptionsForCombobox, formatSelectedValueForCombobox } from "@/lib/utils/eventComboboxFormatter"
 import { LuChevronsUpDown } from "react-icons/lu";
 
-export default function ComboboxEvents({ selectedValue, onSelectionChange, options, placeholder = "Select an option", minWidth = '200px', maxHeight = '400px', buttonClass }) {
+export default function ComboboxEvents({
+  selectedValue,
+  onSelectionChange,
+  options,
+  buttonClass,
+  placeholder = "Select an option",
+  minWidth = '200px',
+  maxHeight = '400px',
+  scrollSelectedOptionIntoView = true,
+}) {
   const [isOpen, setIsOpen] = useState(false)
-  const formattedOptions = formatEventDataForCombobox(options)
+  const formattedOptions = formatEventOptionsForCombobox(options)
+  const popoverContentRef = useRef();
 
-  // const optionForValue = value => options.find(option => option.value && option.value.toLowerCase() === value.toLowerCase())
+  useEffect(() => {
+    if (scrollSelectedOptionIntoView && isOpen && selectedValue) {
+      const timeoutFunc = setTimeout(() => {
+        const selectedOption = popoverContentRef.current.querySelector(`[data-value="${selectedValue.toLowerCase()}"]`)
+        if (selectedOption) {
+          selectedOption.scrollIntoView({ block: 'start', behavior: 'smooth' })
+        }
+      }, 250)
+      return () => clearTimeout(timeoutFunc)
+    }
+  }, [scrollSelectedOptionIntoView, isOpen, popoverContentRef.current, selectedValue])
 
   return (
     options === undefined
@@ -30,19 +50,21 @@ export default function ComboboxEvents({ selectedValue, onSelectionChange, optio
               variant="outline"
               role="combobox"
               aria-expanded={isOpen}
-              className={`w-full font-normal text-sm truncate ${buttonClass}`}
+              className={`font-normal text-sm truncate ${buttonClass || ''}`}
             >
               <div className='flex items-center justify-between w-full'>
-                <span className='flex-grow truncate'>{selectedValue ? formatSelectedValueForCombobox(selectedValue) : placeholder}</span>
+                <span className={`text-left flex-grow truncate ${selectedValue ? '' : 'italic text-gray-500'}`}>
+                  {selectedValue ? formatSelectedValueForCombobox(selectedValue) : placeholder}
+                </span>
                 <LuChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
               </div>
             </Button >
           </PopoverTrigger >
-          <PopoverContent className={`max-w-[400px] p-0 ${buttonClass}`}>
+          <PopoverContent className={`max-w-[400px] p-0 ${buttonClass}`} ref={popoverContentRef}>
             <Command>
               <CommandInput className="border-0" placeholder="Search..." />
               <CommandEmpty>No results found for search.</CommandEmpty>
-              <div style={{ maxHeight }} className="overflow-y-scroll overflow-x-hidden">
+              <div className="overflow-y-scroll overflow-x-hidden" style={{ maxHeight }}>
                 {formattedOptions.map((group, idx) => (
                   <div key={idx}>
                     <CommandGroup heading={group.heading}>

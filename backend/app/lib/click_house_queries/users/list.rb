@@ -7,6 +7,7 @@ module ClickHouseQueries
         @workspace_id = workspace_id.is_a?(Workspace) ? workspace_id.id : workspace_id
         @filter_groups = filter_groups
         @columns = columns || ['email', 'metadata', 'created_at']
+        @columns << 'metadata' if !@columns.include?('metadata') && @filter_groups.any?{ |fg| fg.query_filters.any?{ |f| f.is_a?(QueryFilters::ProfileProperty) }}
         @return_event_count_for_profile_filter_counts = return_event_count_for_profile_filter_counts
         @sort_by = sort_by
         @page = page.to_i

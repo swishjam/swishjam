@@ -22,12 +22,13 @@ export default function EditCohortPage({ params }) {
   const [isFetchingPreviewData, setIsFetchingPreviewData] = useState(false)
   const [nameAndDescriptionModalIsOpen, setNameAndDescriptionModalIsOpen] = useState(false)
   const [cohort, setCohort] = useState()
-
   const [previewedUsers, setPreviewedUsers] = useState()
   const [currentPreviewedUsersPageNum, setCurrentPreviewedUsersPageNum] = useState()
   const [previewedUsersTotalPages, setPreviewedUsersTotalPages] = useState()
   const [previewedQueryFilterGroups, setPreviewedQueryFilterGroups] = useState()
   const [totalNumUsersInPreview, setTotalNumUsersInPreview] = useState()
+
+  const humanizedProfileType = cohort?.type === 'Cohorts::UserCohort' ? 'user' : 'organization'
 
   useEffect(() => {
     SwishjamAPI.Cohorts.retrieve(id).then(({ cohort }) => setCohort(cohort))
@@ -52,7 +53,7 @@ export default function EditCohortPage({ params }) {
   const previewCohort = (queryFilterGroups, page = 1) => {
     setIsFetchingPreviewData(true)
     setCurrentPreviewedUsersPageNum(page)
-    SwishjamAPI.Cohorts.preview({ queryFilterGroups, page, limit: 10 }).then(({ error, users, total_pages, total_num_records }) => {
+    SwishjamAPI.Cohorts.preview({ profileType: humanizedProfileType, queryFilterGroups, page, limit: 10 }).then(({ error, users, total_pages, total_num_records }) => {
       setIsFetchingPreviewData(false)
       if (error) {
         toast.error('Failed to preview user cohort', {
@@ -118,7 +119,7 @@ export default function EditCohortPage({ params }) {
           isLoading={isLoading || isFetchingPreviewData}
           onPreview={previewCohort}
           onSave={({ queryFilterGroups }) => updateCohort(queryFilterGroups)}
-          profileType={cohort.type === 'Cohorts::UserCohort' ? 'user' : 'organization'}
+          profileType={humanizedProfileType}
           saveButtonText='Update Cohort'
         />
       ) : (

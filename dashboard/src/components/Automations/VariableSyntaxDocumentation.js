@@ -20,7 +20,7 @@ const Variable = ({ children }) => {
   )
 }
 
-export default function VariableSyntaxDocumentation({ eventName, availableUserProperties, availableEventProperties, additionalSections = [], ...props }) {
+export default function VariableSyntaxDocumentation({ eventName, availableUserProperties, availableEventProperties, availableOrganizationProperties, additionalSections = [], ...props }) {
   return (
     <div className="border border-zinc-200 shadow-sm bg-white rounded-md p-4" {...props}>
       <p className="text-sm font-medium">Using Variables</p>
@@ -59,10 +59,20 @@ export default function VariableSyntaxDocumentation({ eventName, availableUserPr
       <p className="text-sm mt-1">
         User variables are a combination of the attributes Swishjam automatically applies to a user and any custom attributes you pass to Swishjam during events/identify calls.
       </p>
-      <p className="text-sm mt-1">The following user variables are available to you:</p>
+      <p className="text-sm mt-1">The following user variables are available to you based on the events sent to Swishjam thus far:</p>
       {availableUserProperties && (
         <div className='flex flex-wrap gap-1 mt-1'>
           {availableUserProperties.map((property, i) => <Variable key={i}>{property}</Variable>)}
+        </div>
+      )}
+      <p className="text-sm font-medium mt-4">Organization Variables</p>
+      <p className="text-sm mt-1">
+        Organization variables are a combination of the attributes Swishjam automatically applies to an organization and any custom attributes you pass to Swishjam during events/organization calls.
+      </p>
+      <p className="text-sm mt-1">The following organization variables are available to you based on the events sent to Swishjam thus far:</p>
+      {availableOrganizationProperties && (
+        <div className='flex flex-wrap gap-1 mt-1'>
+          {availableOrganizationProperties.map((property, i) => <Variable key={i}>{property}</Variable>)}
         </div>
       )}
       {additionalSections.map((section, i) => <div key={i} className="mt-4">{section}</div>)}
