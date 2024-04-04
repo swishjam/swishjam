@@ -2,7 +2,6 @@ class ProfileTag < Transactional
   belongs_to :workspace
   belongs_to :profile, polymorphic: true
   belongs_to :applied_by_user, class_name: User.to_s, optional: true
-  # belongs_to :user_segment, optional: true
   belongs_to :cohort, optional: true, foreign_key: :user_segment_id
 
   validates :name, presence: true

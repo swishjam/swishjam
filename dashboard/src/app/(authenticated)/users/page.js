@@ -101,7 +101,6 @@ export default function Users() {
   const [currentPageNum, setCurrentPageNum] = useState(1);
   const [hasNoUsers, setHasNoUsers] = useState(false);
   const [lastPageNum, setLastPageNum] = useState();
-  const [segmentBuilderModalIsOpen, setSegmentBuilderModalIsOpen] = useState(false);
 
   return (
     <main className="mx-auto max-w-7xl px-4 mt-8 sm:px-6 lg:px-8 mb-8">
