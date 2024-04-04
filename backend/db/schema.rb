@@ -10,11 +10,17 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2024_03_30_181518) do
+ActiveRecord::Schema.define(version: 2024_04_01_151729) do
 
   # These are extensions that must be enabled in order to support this database
+  enable_extension "pg_graphql"
+  enable_extension "pg_stat_statements"
   enable_extension "pgcrypto"
+  enable_extension "pgjwt"
+  enable_extension "pgsodium"
   enable_extension "plpgsql"
+  enable_extension "supabase_vault"
+  enable_extension "uuid-ossp"
 
   create_table "analytics_organization_members", force: :cascade do |t|
     t.uuid "analytics_organization_profile_id", null: false
@@ -524,6 +530,7 @@ ActiveRecord::Schema.define(version: 2024_03_30_181518) do
     t.datetime "updated_at", precision: 6, null: false
     t.index ["email"], name: "index_users_on_email"
     t.index ["jwt_secret_key"], name: "index_users_on_jwt_secret_key"
+    t.check_constraint "(email_change_confirm_status >= 0) AND (email_change_confirm_status <= 2)", name: "users_email_change_confirm_status_check"
   end
 
   create_table "workspace_invitations", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -542,6 +549,7 @@ ActiveRecord::Schema.define(version: 2024_03_30_181518) do
     t.uuid "user_id", null: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.boolean "is_hidden", default: false
     t.index ["user_id"], name: "index_workspace_members_on_user_id"
     t.index ["workspace_id"], name: "index_workspace_members_on_workspace_id"
   end

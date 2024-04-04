@@ -2,7 +2,7 @@ module Api
   module V1
     class TeamController < BaseController
       def users
-        render json: current_workspace.users, status: :ok
+        render json: current_workspace.non_hidden_users, status: :ok
       end
 
       def workspace_members
