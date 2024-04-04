@@ -13,6 +13,10 @@ import { useEffect, useState } from "react";
 import UserProfilesCollection from "@/lib/collections/user-profiles";
 import UsersTablePreview from "@/components/QueryBuilder/UsersTablePreview";
 import { XIcon } from "lucide-react";
+import Collection from "@/lib/models/collection";
+import OrganizationProfile from "@/lib/models/organization";
+import UserProfile from "@/lib/models/user-profile";
+import OrganizationsTablePreview from "@/components/QueryBuilder/OrganizationsTablePreview";
 
 export default function EditCohortPage({ params }) {
   const { id } = params;
@@ -22,13 +26,13 @@ export default function EditCohortPage({ params }) {
   const [isFetchingPreviewData, setIsFetchingPreviewData] = useState(false)
   const [nameAndDescriptionModalIsOpen, setNameAndDescriptionModalIsOpen] = useState(false)
   const [cohort, setCohort] = useState()
-  const [previewedUsers, setPreviewedUsers] = useState()
-  const [currentPreviewedUsersPageNum, setCurrentPreviewedUsersPageNum] = useState()
-  const [previewedUsersTotalPages, setPreviewedUsersTotalPages] = useState()
+  const [previewedProfiles, setPreviewedProfiles] = useState()
+  const [currentPreviewedProfilesPageNum, setCurrentPreviewedProfilesPageNum] = useState()
+  const [previewedProfilesTotalPages, setPreviewedProfilesTotalPages] = useState()
   const [previewedQueryFilterGroups, setPreviewedQueryFilterGroups] = useState()
-  const [totalNumUsersInPreview, setTotalNumUsersInPreview] = useState()
+  const [totalNumProfilesInPreview, setTotalNumProfilesInPreview] = useState()
 
-  const humanizedProfileType = cohort?.type === 'Cohorts::UserCohort' ? 'user' : 'organization'
+  const profileType = cohort?.type === 'Cohorts::UserCohort' ? 'user' : 'organization'
 
   useEffect(() => {
     SwishjamAPI.Cohorts.retrieve(id).then(({ cohort }) => setCohort(cohort))
@@ -52,8 +56,8 @@ export default function EditCohortPage({ params }) {
 
   const previewCohort = (queryFilterGroups, page = 1) => {
     setIsFetchingPreviewData(true)
-    setCurrentPreviewedUsersPageNum(page)
-    SwishjamAPI.Cohorts.preview({ profileType: humanizedProfileType, queryFilterGroups, page, limit: 10 }).then(({ error, users, total_pages, total_num_records }) => {
+    setCurrentPreviewedProfilesPageNum(page)
+    SwishjamAPI.Cohorts.preview({ profileType, queryFilterGroups, page, limit: 10 }).then(({ error, profiles, total_pages, total_num_records }) => {
       setIsFetchingPreviewData(false)
       if (error) {
         toast.error('Failed to preview user cohort', {
@@ -63,9 +67,9 @@ export default function EditCohortPage({ params }) {
       } else {
         setIsLoading(false)
         setPreviewedQueryFilterGroups(queryFilterGroups)
-        setPreviewedUsers(users)
-        setPreviewedUsersTotalPages(total_pages)
-        setTotalNumUsersInPreview(total_num_records)
+        setPreviewedProfiles(profiles)
+        setPreviewedProfilesTotalPages(total_pages)
+        setTotalNumProfilesInPreview(total_num_records)
         setIsLoading(false)
       }
     })
@@ -119,7 +123,7 @@ export default function EditCohortPage({ params }) {
           isLoading={isLoading || isFetchingPreviewData}
           onPreview={previewCohort}
           onSave={({ queryFilterGroups }) => updateCohort(queryFilterGroups)}
-          profileType={humanizedProfileType}
+          profileType={profileType}
           saveButtonText='Update Cohort'
         />
       ) : (
@@ -128,19 +132,32 @@ export default function EditCohortPage({ params }) {
           <Skeleton className='rounded-md w-full h-40 bg-gray-200 mt-4' />
         </>
       )}
-      {previewedUsers && (
+      {(previewedProfiles || isFetchingPreviewData) && (
         <div className='relative bg-white rounded-md border border-gray-200 p-8 mt-8'>
-          <h2 className='text-md font-medium text-gray-700 mb-2'>{totalNumUsersInPreview} users would fall into this cohort.</h2>
-          <Button className='absolute top-2 right-2' variant='ghost' onClick={() => setPreviewedUsers()}>
+          <h2 className='text-md font-medium text-gray-700 mb-2 flex items-center'>
+            {isFetchingPreviewData ? <Skeleton className='h-6 w-8 inline-block bg-gray-200 mr-2' /> : totalNumProfilesInPreview} {profileType}s would fall into this cohort.
+          </h2>
+          <Button className='absolute top-2 right-2' variant='ghost' onClick={() => setPreviewedProfiles()}>
             <XIcon className='h-4 w-4 text-gray-500' />
           </Button>
-          <UsersTablePreview
-            currentPageNum={currentPreviewedUsersPageNum}
-            lastPageNum={previewedUsersTotalPages}
-            onNewPage={page => previewCohort(previewedQueryFilterGroups, page)}
-            queryFilterGroups={previewedQueryFilterGroups}
-            userProfilesCollection={isFetchingPreviewData ? null : new UserProfilesCollection(previewedUsers)}
-          />
+          {profileType === 'user'
+            ? (
+              <UsersTablePreview
+                currentPageNum={currentPreviewedProfilesPageNum}
+                lastPageNum={previewedProfilesTotalPages}
+                onNewPage={page => previewCohort(previewedQueryFilterGroups, page)}
+                queryFilterGroups={previewedQueryFilterGroups}
+                userProfilesCollection={isFetchingPreviewData ? null : new Collection(UserProfile, previewedProfiles)}
+              />
+            ) : (
+              <OrganizationsTablePreview
+                currentPageNum={currentPreviewedProfilesPageNum}
+                lastPageNum={previewedProfilesTotalPages}
+                onNewPage={page => previewCohort(previewedQueryFilterGroups, page)}
+                queryFilterGroups={previewedQueryFilterGroups}
+                organizationProfilesCollection={isFetchingPreviewData ? null : new Collection(OrganizationProfile, previewedProfiles)}
+              />
+            )}
         </div>
       )}
     </main>

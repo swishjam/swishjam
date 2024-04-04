@@ -14,10 +14,11 @@ module ClickHouseQueries
         private
 
         def sql
+          # because the last_updated_from_transactional_db_at column is nullable (even though it should never be), we need to use assumeNotNull
           <<~SQL
             SELECT DISTINCT property_name
             FROM (#{ClickHouseQueries::Common::DeDupedUserProfilesQuery.sql(workspace_id: @workspace_id, columns: ['metadata'])})
-            ARRAY JOIN JSONExtractKeys(metadata) AS property_name
+            ARRAY JOIN JSONExtractKeys(assumeNotNull(metadata)) AS property_name
             LIMIT #{@limit}
           SQL
         end
