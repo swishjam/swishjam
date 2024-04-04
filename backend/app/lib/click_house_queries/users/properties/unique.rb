@@ -8,6 +8,7 @@ module ClickHouseQueries
         end
 
         def get
+          byebug
           Analytics::ClickHouseRecord.execute_sql(sql.squish!).collect{ |u| u['property_name'] }
         end
 
@@ -18,6 +19,7 @@ module ClickHouseQueries
             SELECT DISTINCT property_name
             FROM (#{ClickHouseQueries::Common::DeDupedUserProfilesQuery.sql(workspace_id: @workspace_id, columns: ['metadata'])})
             ARRAY JOIN JSONExtractKeys(metadata) AS property_name
+            WHERE isValidJSON(metadata) = 1
             LIMIT #{@limit}
           SQL
         end

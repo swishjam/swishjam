@@ -107,14 +107,6 @@ module Api
 
       def unique_property_values
         raise NotImplementedError, 'Endpoint deprecated.'
-        properties = JSON.parse((params[:properties] || %w[metadata]).to_s)
-        results = properties.map do |property|
-          {
-            column: property,
-            values: ClickHouseQueries::Users::Attributes::UniqueValues.new(current_workspace, column: property).get
-          }
-        end
-        render json: results, status: :ok
       end
     end
   end

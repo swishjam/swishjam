@@ -7,7 +7,6 @@ module ClickHouseQueries
         @workspace_id = workspace_id.is_a?(Workspace) ? workspace_id.id : workspace_id
         @filter_groups = filter_groups
         @columns = columns || ['email', 'metadata', 'created_at']
-        @columns << 'metadata' if !@columns.include?('metadata') && @filter_groups.any?{ |fg| fg.query_filters.any?{ |f| f.is_a?(QueryFilters::ProfileProperty) }}
         @return_event_count_for_profile_filter_counts = return_event_count_for_profile_filter_counts
         @sort_by = sort_by
         @page = page.to_i
@@ -69,19 +68,20 @@ module ClickHouseQueries
       end
 
       def sort_by_column
-        return @sort_by if @sort_by
-        flattened_query_filters = @filter_groups.map{ |fg| fg.query_filters }.flatten
-        first_event_count_filter = flattened_query_filters.find{ |f| f.is_a?(QueryFilters::EventCountForUserOverTimePeriod) }
-        return "#{ClickHouseQueries::FilterHelpers::LeftJoinStatementsForEventCountByProfileFilters.join_table_alias_for_event_count_for_profile_filter(first_event_count_filter)}.event_count_for_profile_within_lookback_period" if first_event_count_filter
-        'user_profiles.created_at'
+        @sort_by ||= begin
+          flattened_query_filters = @filter_groups.map{ |fg| fg.query_filters }.flatten
+          first_event_count_filter = flattened_query_filters.find{ |f| f.is_a?(QueryFilters::EventCountForUserOverTimePeriod) }
+          return "#{ClickHouseQueries::FilterHelpers::LeftJoinStatementsForEventCountByProfileFilters.join_table_alias_for_event_count_for_profile_filter(first_event_count_filter)}.event_count_for_profile_within_lookback_period" if first_event_count_filter
+          'user_profiles.created_at'
+        end
       end
 
       def add_required_columns_if_necessary!
         @columns << 'swishjam_user_id' if !@columns.include?('swishjam_user_id')
-        @columns << 'created_at' if !@columns.include?('created_at') # needed for ordering
-        @columns << 'metadata' if !@columns.include?('metadata') && @filter_groups.any?{ |fg| fg.query_filters.any?{ |f| f.is_a?(QueryFilters::UserProperty) }}
-        @columns << 'email' if !@columns.include?('email') && @filter_groups.any?{ |fg| fg.query_filters.any?{ |f| f.is_a?(QueryFilters::UserProperty) && f.property_name == 'email' }}
-        @columns << 'user_unique_identifier' if !@columns.include?('user_unique_identifier') && @filter_groups.any?{ |fg| fg.query_filters.any?{ |f| f.is_a?(QueryFilters::UserProperty) && f.property_name == 'user_unique_identifier' }}
+        @columns << 'created_at' if !@columns.include?('created_at') && sort_by_column == 'user_profiles.created_at'
+        @columns << 'metadata' if !@columns.include?('metadata') && @filter_groups.any?{ |fg| fg.query_filters.any?{ |f| f.is_a?(QueryFilters::ProfileProperty) && f.property_name != 'email' && f.property_name != 'user_unique_identifier' }}
+        @columns << 'email' if !@columns.include?('email') && @filter_groups.any?{ |fg| fg.query_filters.any?{ |f| f.is_a?(QueryFilters::ProfileProperty) && f.property_name == 'email' }}
+        @columns << 'user_unique_identifier' if !@columns.include?('user_unique_identifier') && @filter_groups.any?{ |fg| fg.query_filters.any?{ |f| f.is_a?(QueryFilters::ProfileProperty) && f.property_name == 'user_unique_identifier' }}
       end
     end
   end

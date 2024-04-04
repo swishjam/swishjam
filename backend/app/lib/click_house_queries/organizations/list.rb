@@ -37,12 +37,10 @@ module ClickHouseQueries
       def sql
         <<~SQL
           SELECT #{select_statement_for_columns_and_filter_groups}
-          FROM swishjam_organization_profiles AS organization_profiles
+          FROM (#{ClickHouseQueries::Common::DeDupedOrganizationProfilesQuery.sql(workspace_id: @workspace_id, columns: @columns)}) AS organization_profiles
           #{maybe_organization_members_join_statement}
           #{ClickHouseQueries::FilterHelpers::LeftJoinStatementsForEventCountByProfileFilters.left_join_statements(@filter_groups, workspace_id: @workspace_id, organizations_table_alias: 'organization_profiles')}
-          WHERE 
-            organization_profiles.workspace_id = '#{@workspace_id}' AND
-            (#{ClickHouseQueries::FilterHelpers::WhereClauseForFilterGroups.where_clause_statements(@filter_groups)})
+          WHERE #{ClickHouseQueries::FilterHelpers::WhereClauseForFilterGroups.where_clause_statements(@filter_groups)}
           #{maybe_group_by_statement}
           ORDER BY #{sort_by_column} DESC
           LIMIT #{@limit} OFFSET #{(@page - 1) * @limit}

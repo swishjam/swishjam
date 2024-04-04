@@ -22,7 +22,7 @@ namespace :data_migrations do
       profile_property_query_filters = QueryFilter.where(type: 'QueryFilters::UserProperty').map do |query_filter|
         puts ".".colorize(:yellow)
         query_filter.config['profile_type'] = 'user'
-        query_filter.type = QueryFilters::EventCountForProfileOverTimePeriod.to_s
+        query_filter.type = QueryFilters::ProfileProperty.to_s
         query_filter.save!
       end
       puts "Updated #{profile_property_query_filters.count} QueryFilters::UserProperty to QueryFilters::ProfileProperty".colorize(:green)
