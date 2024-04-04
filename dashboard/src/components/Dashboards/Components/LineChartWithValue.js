@@ -218,7 +218,7 @@ export default function LineChartWithValue({
               </ResponsiveContainer>
             </div>
           ) : (
-            <div className='h-20 my-8 text-sm text-gray-500'>
+            <div className='h-20 my-8 text-sm text-gray-500 flex items-center justify-center'>
               {noDataMessage}
             </div>
           )

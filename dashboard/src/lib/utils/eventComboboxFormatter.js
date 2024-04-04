@@ -12,7 +12,8 @@ const createCustomEvent = value => ({
   icon: INTEGRATION_PREFIXES[value.replace(/^event\./, '').split('.')[0]]?.icon || SwishjamLogo
 })
 const eventDisplayValue = event => (
-  event.replace(/^(event\.|user\.|organization\.|intercom\.|stripe\.|resend\.|github\.|slack\.|cal\.)/, '')
+  event.replace(/^(event\.)/, '')
+    .replace(/^(user\.|organization\.|intercom\.|stripe\.|resend\.|github\.|slack\.|cal\.)/, '')
     .replaceAll('swishjam_bot.', ' Swishjam Bot - ')
     .replaceAll('.', ' ')
     .replaceAll('_', ' ')

@@ -26,6 +26,7 @@ import WorkspaceMembers from './workspace-members';
 import WorkspaceSettings from './workspace-settings';
 import Reports from './reports';
 import Cohorts from './cohorts';
+import ExecutedAutomations from './automations/executed-automations';
 
 
 export class SwishjamAPI {

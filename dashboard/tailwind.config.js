@@ -133,6 +133,10 @@ module.exports = {
       maxWidth: {
         '2xl': '40rem',
       },
+      backgroundImage: theme => ({
+        'striped': "repeating-linear-gradient(45deg, rgb(229 231 235), rgb(229 231 235) 5px, rgba(255,255,255,0.5) 5px, rgba(255,255,255,0.5) 12px)",
+        ...theme.backgroundImage,
+      }),
     },
   },
   plugins: [

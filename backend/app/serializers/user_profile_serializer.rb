@@ -16,9 +16,9 @@ class UserProfileSerializer < ActiveModel::Serializer
         name: tag.name,
         applied_at: tag.applied_at,
         applied_by_user_email: tag.applied_by_user&.email,
-        user_cohort_id: tag.cohort&.id,
-        user_cohort_name: tag.cohort&.name,
-        user_cohort_description: tag.cohort&.description,
+        cohort_id: tag.cohort&.id,
+        cohort_name: tag.cohort&.name,
+        cohort_description: tag.cohort&.description,
         removed_at: tag.removed_at,
       }
     end

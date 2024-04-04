@@ -1,9 +1,13 @@
 import Base from "./base";
+import Events from "./organizations/events";
 import PageViews from "./organizations/page-views";
+import Sessions from "./organizations/sessions";
 import Users from "./organizations/users";
 
 export class Organizations extends Base {
+  static Events = Events;
   static PageViews = PageViews;
+  static Sessions = Sessions;
   static Users = Users;
 
   static async list({ page, limit, cohortIds } = {}) {

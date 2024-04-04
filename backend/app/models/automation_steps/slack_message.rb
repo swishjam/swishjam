@@ -47,4 +47,3 @@ module AutomationSteps
     end
   end
 end
-

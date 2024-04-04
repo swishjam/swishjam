@@ -27,7 +27,7 @@ module ProfileTags
 
     private
 
-    def update_cohort_profile_tags_and_enqueue_events!(profile_ids_to_add_profile_tag, profile_ids_to_remove_profile_tag)      
+    def update_cohort_profile_tags_and_enqueue_events!(profile_ids_to_add_profile_tag, profile_ids_to_remove_profile_tag)
       profiles_to_add_profile_tag = workspace.send(is_user_cohort? ? :analytics_user_profiles : :analytics_organization_profiles).where(id: profile_ids_to_add_profile_tag)
       profile_tags_to_create = profiles_to_add_profile_tag.map do |profile|
         { 
@@ -57,7 +57,6 @@ module ProfileTags
         events << event_for_ingestion(profile, "removed_from_cohort")
         events << event_for_ingestion(profile, "removed_from_#{cohort.name.downcase.gsub(' ', '_').gsub('.', '_')}_cohort")
       end
-      byebug
       return if events.empty?
 
       IngestionJobs::PrepareEventsAndEnqueueIntoClickHouseWriter.perform_async(events)

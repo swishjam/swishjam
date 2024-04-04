@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Skeleton } from "@/components/ui/skeleton";
 import ConditionalCardWrapper from "./ConditionalCardWrapper";
+import EmptyState from "@/components/EmptyState";
 
 const LoadingState = () => (
   <div>
@@ -16,7 +17,7 @@ const LoadingState = () => (
   </div>
 )
 
-export default function BarList({ title, items, color, includeCard = true, ...props }) {
+export default function BarList({ title, items, color, includeCard = true, noDataMessage = 'No data', ...props }) {
   if (!items) {
     return (
       <ConditionalCardWrapper title={title} includeCard={includeCard} {...props}>
@@ -30,6 +31,7 @@ export default function BarList({ title, items, color, includeCard = true, ...pr
 
   return (
     <ConditionalCardWrapper title={title} includeCard={includeCard} {...props}>
+      {sortedItems.length === 0 && <EmptyState msg={noDataMessage} />}
       <div>
         <div className="flex justify-between space-x-6">
           <div className="relative w-full">

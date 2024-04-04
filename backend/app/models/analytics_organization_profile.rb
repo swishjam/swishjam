@@ -8,6 +8,7 @@ class AnalyticsOrganizationProfile < Transactional
   alias_attribute :users, :analytics_user_profiles
   has_many :enrichment_attempts, as: :enrichable, dependent: :destroy
   has_many :profile_tags, as: :profile, dependent: :destroy
+  alias_attribute :tags, :profile_tags
 
   after_create :enrich_profile!
   after_create :enqueue_replication_to_clickhouse

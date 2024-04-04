@@ -97,7 +97,7 @@ export default function Organizations() {
                               </div>
                             </div>
                           </td>
-                          <td className="whitespace-nowrap px-3 py-3 text-sm text-gray-500">{organization.analytics_user_profiles.length} users</td>
+                          <td className="whitespace-nowrap px-3 py-3 text-sm text-gray-500">{organization.num_users} users</td>
                           <td className="relative whitespace-nowrap py-3 pl-3 pr-4 text-right text-sm font-medium sm:pr-6 lg:pr-8">
                             <Link href={`/organizations/${organization.id}`} className="text-swishjam hover:text-swishjam-dark duration-300 transition">
                               View<span className="sr-only">, {organization.name}</span>

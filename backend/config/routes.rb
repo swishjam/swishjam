@@ -69,6 +69,7 @@ Rails.application.routes.draw do
             get :timeseries
           end
         end
+        resources :events, only: [:index], controller: :'organizations/events' 
         resources :page_views, only: [:index], controller: :'organizations/page_views'
         resources :billing, only: [:index], controller: :'organizations/billing'
       end
@@ -209,7 +210,7 @@ Rails.application.routes.draw do
           patch :disable
         end
         resources :automation_steps, only: [:index]
-        resources :executed_automations, only: [:index] do
+        resources :executed_automations, only: [:index, :show] do
           collection do
             get :timeseries
           end

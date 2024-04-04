@@ -1,6 +1,5 @@
 'use client';
 
-import { usePathname } from 'next/navigation'
 import CopyToClipboard from 'react-copy-to-clipboard';
 import InviteModal from '@/components/TeamManagement/NewInvitationModal';
 import RemoveWorkspaceMemberModal from '@/components/TeamManagement/RemoveWorkspaceMemberModal';
@@ -8,14 +7,12 @@ import { Menu, Transition } from '@headlessui/react';
 import { SwishjamAPI } from "@/lib/api-client/swishjam-api";
 import { useAuthData } from '@/hooks/useAuthData'
 import { useState, useEffect, Fragment } from 'react';
-import Tabs from '@/components/Settings/Tabs';
 
 import { LuTrash, LuMoreVertical, LuPlus, LuClipboardCheck } from 'react-icons/lu'
 
 const classNames = (...classes) => classes.filter(Boolean).join(' ')
 
 export default function Team() {
-  const pathname = usePathname();
   const { userId: currentUserId } = useAuthData()
   const [inviteModalIsOpen, setInviteModalIsOpen] = useState(false);
   const [workspaceMembers, setWorkspaceMembers] = useState();

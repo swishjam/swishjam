@@ -10,9 +10,10 @@ import Modal from "@/components/utils/Modal"
 import SwishjamAPI from "@/lib/api-client/swishjam-api";
 import { toast } from "sonner";
 import useAutomationBuilder from "@/hooks/useAutomationBuilder";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import ExecutedAutomationResultsBanner from "./Results/ExecutedAutomationResultsBanner";
 import ExecutedAutomationLogs from "./Results/ExecutedAutomationLogs";
+import useAuthData from "@/hooks/useAuthData";
 
 export default function TestExecutionModal({
   automationId,
@@ -21,16 +22,29 @@ export default function TestExecutionModal({
   nodes,
   edges,
   eventProperties = { my_property: 'a value' },
-  // userProperties = { a_user_property: 'a value' },
+  userProperties = { email: 'a value' },
+  organizationProperties = { an_organization_property: 'a value' },
   isOpen,
   onClose,
   onExecutionComplete = () => { }
 }) {
   const [automationStepsForExecutedAutomation, setAutomationStepsForExecutedAutomation] = useState();
   const [executedAutomation, setExecutedAutomation] = useState();
-  // const [userPropertiesJson, setUserPropertiesJson] = useState(userProperties);
   const [isExecutingTestRun, setIsExecutingTestRun] = useState(false);
-  const [eventPropertiesJson, setEventPropertiesJson] = useState(eventProperties);
+  const [eventPropertiesJson, setEventPropertiesJson] = useState({
+    event_properties: eventProperties,
+    user_properties: userProperties,
+    organization_properties: organizationProperties,
+  });
+  const { email, workspaceName } = useAuthData();
+
+  useEffect(() => {
+    setEventPropertiesJson({
+      ...eventPropertiesJson,
+      user_properties: { email },
+      organization_properties: { name: workspaceName },
+    })
+  }, [email, workspaceName])
 
   let selectedEventName = eventName;
   if (useSelectedEntryPointEventName) {
@@ -93,7 +107,7 @@ export default function TestExecutionModal({
         {executedAutomation && automationStepsForExecutedAutomation && (
           <>
             <ExecutedAutomationResultsBanner
-              numExecutedSteps={executedAutomation.executed_automation_steps.length}
+              executedAutomationSteps={executedAutomation.executed_automation_steps}
               numSteps={automationStepsForExecutedAutomation.length}
             />
             <ExecutedAutomationLogs
@@ -105,13 +119,9 @@ export default function TestExecutionModal({
         {!isExecutingTestRun && !executedAutomation && (
           <>
             <p>Running a test execution will simulate the automation with a test user and provide you with the results of the execution as if it occurred in production.</p>
-            <p>Would you like to run a test execution?</p>
             <AccordionOpen trigger={<>Set the properties for the {eventName} test event.</>}>
               <JsonEditor json={eventPropertiesJson} onChange={setEventPropertiesJson} />
             </AccordionOpen>
-            {/* <AccordionOpen trigger={<>Set the user properties for the <DottedUnderline className='mx-1'>{eventName}</DottedUnderline> test event.</>}>
-              <JsonEditor json={userPropertiesJson} onChange={setUserPropertiesJson} />
-            </AccordionOpen> */}
           </>
         )}
       </div>

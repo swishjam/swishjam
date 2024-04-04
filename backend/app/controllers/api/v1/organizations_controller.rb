@@ -33,7 +33,13 @@ module Api
               end
             end
           end
-          query_results = ClickHouseQueries::Organizations::List.new(current_workspace.id, page: page, limit: per_page, filter_groups: filter_groups).get
+          query_results = ClickHouseQueries::Organizations::List.new(
+            current_workspace.id, 
+            filter_groups: filter_groups, 
+            include_user_count: true,
+            page: page, 
+            limit: per_page,
+          ).get
           render json: {
             organizations: query_results['organizations'],
             total_pages: query_results['total_num_pages'],

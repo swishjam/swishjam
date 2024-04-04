@@ -33,7 +33,7 @@ module EventVariableResolver
     elsif variable_name.starts_with?('user.')
       user_property_name = variable_name.split('.').slice(1..-1).join('.')
       prepared_event.user_properties[user_property_name]
-    elsif varaible_name.starts_with?('organization.')
+    elsif variable_name.starts_with?('organization.')
       organization_property_name = variable_name.split('.').slice(1..-1).join('.')
       prepared_event.organization_properties[organization_property_name]
     else

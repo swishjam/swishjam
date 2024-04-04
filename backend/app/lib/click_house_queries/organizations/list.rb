@@ -3,11 +3,21 @@ module ClickHouseQueries
     class List
       include ClickHouseQueries::Helpers
 
-      def initialize(workspace_id, filter_groups: [], columns: nil, return_event_count_for_profile_filter_counts: true, sort_by: nil, page: 1, limit: 25)
+      def initialize(
+        workspace_id, 
+        filter_groups: [], 
+        columns: nil, 
+        return_event_count_for_profile_filter_counts: true, 
+        include_user_count: false,
+        sort_by: nil, 
+        page: 1, 
+        limit: 25
+      )
         @workspace_id = workspace_id.is_a?(Workspace) ? workspace_id.id : workspace_id
         @filter_groups = filter_groups
         @columns = columns || ['name', 'metadata', 'created_at']
         @return_event_count_for_profile_filter_counts = return_event_count_for_profile_filter_counts
+        @include_user_count = include_user_count
         @sort_by = sort_by
         @page = page.to_i
         @limit = limit.to_i
@@ -28,10 +38,12 @@ module ClickHouseQueries
         <<~SQL
           SELECT #{select_statement_for_columns_and_filter_groups}
           FROM swishjam_organization_profiles AS organization_profiles
+          #{maybe_organization_members_join_statement}
           #{ClickHouseQueries::FilterHelpers::LeftJoinStatementsForEventCountByProfileFilters.left_join_statements(@filter_groups, workspace_id: @workspace_id, organizations_table_alias: 'organization_profiles')}
           WHERE 
-            workspace_id = '#{@workspace_id}' AND
+            organization_profiles.workspace_id = '#{@workspace_id}' AND
             (#{ClickHouseQueries::FilterHelpers::WhereClauseForFilterGroups.where_clause_statements(@filter_groups)})
+          #{maybe_group_by_statement}
           ORDER BY #{sort_by_column} DESC
           LIMIT #{@limit} OFFSET #{(@page - 1) * @limit}
         SQL
@@ -42,6 +54,9 @@ module ClickHouseQueries
       def select_statement_for_columns_and_filter_groups
         sql = ''
         @columns.each_with_index do |column, i|
+          if column == 'swishjam_organization_id'
+            sql << "organization_profiles.swishjam_organization_id AS id, "
+          end
           if column == 'created_at'
             sql << "#{select_clickhouse_timestamp_with_timezone('organization_profiles.created_at')} AS created_at"
           else
@@ -49,6 +64,7 @@ module ClickHouseQueries
           end
           sql << ", " if i < @columns.length - 1
         end
+        sql << ", COUNT(DISTINCT members.swishjam_user_id) AS num_users" if @include_user_count
         sql << maybe_event_count_select_statements
         sql
       end
@@ -67,12 +83,28 @@ module ClickHouseQueries
         sql
       end
 
+      def maybe_organization_members_join_statement
+        return '' if !@include_user_count
+        <<~SQL
+          LEFT JOIN swishjam_organization_members AS members ON members.swishjam_organization_id = organization_profiles.swishjam_organization_id
+        SQL
+      end
+
+      def maybe_group_by_statement
+        return '' if !@include_user_count
+        select_aliases_besides_user_count = select_statement_for_columns_and_filter_groups.scan(/AS (\w+)/).flatten.filter{ |alias_| alias_ != 'num_users' }
+        <<~SQL
+          GROUP BY #{sort_by_column}, #{select_aliases_besides_user_count.join(', ')}
+        SQL
+      end
+
       def sort_by_column
-        return @sort_by if @sort_by
-        flattened_query_filters = @filter_groups.map{ |fg| fg.query_filters }.flatten
-        first_event_count_filter = flattened_query_filters.find{ |f| f.is_a?(QueryFilters::EventCountForUserOverTimePeriod) }
-        return "#{ClickHouseQueries::FilterHelpers::LeftJoinStatementsForEventCountByProfileFilters.join_table_alias_for_event_count_for_profile_filter(first_event_count_filter)}.event_count_for_profile_within_lookback_period" if first_event_count_filter
-        'organization_profiles.created_at'
+        @sort_by ||= begin
+          flattened_query_filters = @filter_groups.map{ |fg| fg.query_filters }.flatten
+          first_event_count_filter = flattened_query_filters.find{ |f| f.is_a?(QueryFilters::EventCountForUserOverTimePeriod) }
+          return "#{ClickHouseQueries::FilterHelpers::LeftJoinStatementsForEventCountByProfileFilters.join_table_alias_for_event_count_for_profile_filter(first_event_count_filter)}.event_count_for_profile_within_lookback_period" if first_event_count_filter
+          'organization_profiles.created_at'
+        end
       end
 
       def add_required_columns_if_necessary!
