@@ -72,7 +72,7 @@ module ProfileTags
       }
       if is_user_cohort?
         # important so the event gets associated with the user
-        properties[:user_id] = user.user_unique_identifier
+        properties[:user_id] = profile.user_unique_identifier
         properties[:user_full_name] = profile.full_name if profile.full_name.present?
         properties[:user_email] = profile.email
         properties[:user_unique_identifier] = profile.user_unique_identifier
