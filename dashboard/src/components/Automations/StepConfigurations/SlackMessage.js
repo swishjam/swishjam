@@ -40,6 +40,9 @@ export default function ConfigureSlackAutomationStep({ onSave, data = {} }) {
 
   const { uniqueUserProperties, uniqueOrganizationProperties } = useCommonQueries();
   const { selectedEntryPointEventName } = useAutomationBuilder();
+  const formattedUniqueUserPropertyOptions = ['id', 'email', ...(uniqueUserProperties || [])].map(p => `user.${p}`);
+  const formattedUniqueOrganizationPropertyOptions = ['id', 'name', ...(uniqueOrganizationProperties || [])].map(p => `organization.${p}`)
+  const formattedPropertyOptionsForSelectedEvent = (propertyOptionsForSelectedEvent || []).map(p => `event.${p}`);
 
   const getAndSetSlackChannels = async () => {
     const resp = await SwishjamAPI.Slack.getChannels()
@@ -122,11 +125,9 @@ export default function ConfigureSlackAutomationStep({ onSave, data = {} }) {
                 <InterpolatedMarkdown
                   availableVariables={[
                     ...(propertyOptionsForSelectedEvent || []),
-                    ...(propertyOptionsForSelectedEvent || []).map(p => `event.${p}`),
-                    ...(uniqueUserProperties || []).map(p => `user.${p}`),
-                    ...(uniqueOrganizationProperties || []).map(p => `organization.${p}`),
-                    'organization.name',
-                    'user.email',
+                    ...formattedPropertyOptionsForSelectedEvent,
+                    ...formattedUniqueUserPropertyOptions,
+                    ...formattedUniqueOrganizationPropertyOptions,
                   ]}
                   content={form.watch('message_body')}
                   useSlackLinkFormatting={true}
@@ -141,9 +142,9 @@ export default function ConfigureSlackAutomationStep({ onSave, data = {} }) {
               rememberState={true}
             >
               <VariableSyntaxDocumentation
-                availableEventProperties={propertyOptionsForSelectedEvent}
-                availableUserProperties={(uniqueUserProperties || []).map(p => `user.${p} `).concat('user.email')}
-                availableOrganizationProperties={(uniqueOrganizationProperties || []).map(p => `organization.${p}`).concat('organization.name')}
+                availableEventProperties={formattedPropertyOptionsForSelectedEvent}
+                availableUserProperties={formattedUniqueUserPropertyOptions}
+                availableOrganizationProperties={formattedUniqueOrganizationPropertyOptions}
                 eventName={selectedEntryPointEventName}
                 additionalSections={[
                   <>
@@ -194,7 +195,7 @@ export default function ConfigureSlackAutomationStep({ onSave, data = {} }) {
                       <Tooltipable
                         content={
                           <>
-                            Within the body of the Slack message you can use markdown syntax, as well as reference event properties by wrapping the property in {"{}"} (ie: if you want to include the `url` property in the body of the message, you can reference it as <span className='bg-gray-200 italic text-emerald-400 px-1 py-0.5 rounded-md'>{'{url}'}</span>).
+                            Within the body of the Slack message you can use markdown syntax, as well as reference event properties by wrapping the property in {"{{}}"} (ie: if you want to include the `url` property in the body of the message, you can reference it as <span className='bg-gray-200 italic text-emerald-400 px-1 py-0.5 rounded-md'>{'{{ event.url }}'}</span>).
                           </>
                         }
                       >

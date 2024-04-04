@@ -41,6 +41,10 @@ export default function ResendEmail({ data = { to: '{{ user.email }}', send_once
   const { uniqueUserProperties, uniqueOrganizationProperties } = useCommonQueries();
   const { selectedEntryPointEventName } = useAutomationBuilder();
 
+  const formattedUniqueOrganizationProperties = ['id', 'name', ...(uniqueOrganizationProperties || [])].map(e => `organization.${e}`);
+  const formattedUniqueUserProperties = ['id', 'email', ...(uniqueUserProperties || [])].map(e => `user.${e}`);
+  const formattedPropertyOptionsForSelectedEvent = (propertyOptionsForSelectedEvent || []).map(e => `event.${e}`);
+
   const isFetchingData = hasResendDestinationEnabled === undefined || uniqueUserProperties === undefined;
 
   async function verifyAndSubmitForm(values) {
@@ -107,12 +111,10 @@ export default function ResendEmail({ data = { to: '{{ user.email }}', send_once
               <InterpolatedMarkdown
                 content={form.watch('to')}
                 availableVariables={[
-                  ...[...(propertyOptionsForSelectedEvent || []),
-                  ...(propertyOptionsForSelectedEvent || []).map(e => `event.${e}`)],
-                  ...(uniqueUserProperties || []).map(e => `user.${e}`),
-                  ...(uniqueOrganizationProperties || []).map(e => `organization.${e}`),
-                  'organization.name',
-                  'user.email',
+                  ...(propertyOptionsForSelectedEvent || []),
+                  ...formattedPropertyOptionsForSelectedEvent,
+                  ...formattedUniqueUserProperties,
+                  ...formattedUniqueOrganizationProperties,
                 ]}
               />
             }
@@ -120,12 +122,10 @@ export default function ResendEmail({ data = { to: '{{ user.email }}', send_once
               <InterpolatedMarkdown
                 content={(form.watch('cc') || '').replace(/</g, '&lt;').replace(/>/g, '&gt;')}
                 availableVariables={[
-                  ...[...(propertyOptionsForSelectedEvent || []),
-                  ...(propertyOptionsForSelectedEvent || []).map(e => `event.${e}`)],
-                  ...(uniqueUserProperties || []).map(e => `user.${e}`),
-                  ...(uniqueOrganizationProperties || []).map(e => `organization.${e}`),
-                  'organization.name',
-                  'user.email',
+                  ...(propertyOptionsForSelectedEvent || []),
+                  ...formattedPropertyOptionsForSelectedEvent,
+                  ...formattedUniqueUserProperties,
+                  ...formattedUniqueOrganizationProperties,
                 ]}
               />
             }
@@ -133,12 +133,10 @@ export default function ResendEmail({ data = { to: '{{ user.email }}', send_once
               <InterpolatedMarkdown
                 content={(form.watch('bcc') || '').replace(/</g, '&lt;').replace(/>/g, '&gt;')}
                 availableVariables={[
-                  ...[...(propertyOptionsForSelectedEvent || []),
-                  ...(propertyOptionsForSelectedEvent || []).map(e => `event.${e}`)],
-                  ...(uniqueUserProperties || []).map(e => `user.${e}`),
-                  ...(uniqueOrganizationProperties || []).map(e => `organization.${e}`),
-                  'organization.name',
-                  'user.email',
+                  ...(propertyOptionsForSelectedEvent || []),
+                  ...formattedPropertyOptionsForSelectedEvent,
+                  ...formattedUniqueUserProperties,
+                  ...formattedUniqueOrganizationProperties,
                 ]}
               />
             }
@@ -146,12 +144,10 @@ export default function ResendEmail({ data = { to: '{{ user.email }}', send_once
               <InterpolatedMarkdown
                 content={(form.watch('from') || '').replace(/</g, '&lt;').replace(/>/g, '&gt;')}
                 availableVariables={[
-                  ...[...(propertyOptionsForSelectedEvent || []),
-                  ...(propertyOptionsForSelectedEvent || []).map(e => `event.${e}`)],
-                  ...(uniqueUserProperties || []).map(e => `user.${e}`),
-                  ...(uniqueOrganizationProperties || []).map(e => `organization.${e}`),
-                  'organization.name',
-                  'user.email',
+                  ...(propertyOptionsForSelectedEvent || []),
+                  ...formattedPropertyOptionsForSelectedEvent,
+                  ...formattedUniqueUserProperties,
+                  ...formattedUniqueOrganizationProperties,
                 ]}
               />
             }
@@ -159,12 +155,10 @@ export default function ResendEmail({ data = { to: '{{ user.email }}', send_once
               <InterpolatedMarkdown
                 content={(form.watch('reply_to') || '').replace(/</g, '&lt;').replace(/>/g, '&gt;')}
                 availableVariables={[
-                  ...[...(propertyOptionsForSelectedEvent || []),
-                  ...(propertyOptionsForSelectedEvent || []).map(e => `event.${e}`)],
-                  ...(uniqueUserProperties || []).map(e => `user.${e}`),
-                  ...(uniqueOrganizationProperties || []).map(e => `organization.${e}`),
-                  'organization.name',
-                  'user.email',
+                  ...(propertyOptionsForSelectedEvent || []),
+                  ...formattedPropertyOptionsForSelectedEvent,
+                  ...formattedUniqueUserProperties,
+                  ...formattedUniqueOrganizationProperties,
                 ]}
               />
             }
@@ -172,12 +166,10 @@ export default function ResendEmail({ data = { to: '{{ user.email }}', send_once
               <InterpolatedMarkdown
                 content={form.watch('subject')}
                 availableVariables={[
-                  ...[...(propertyOptionsForSelectedEvent || []),
-                  ...(propertyOptionsForSelectedEvent || []).map(e => `event.${e}`)],
-                  ...(uniqueUserProperties || []).map(e => `user.${e}`),
-                  ...(uniqueOrganizationProperties || []).map(e => `organization.${e}`),
-                  'organization.name',
-                  'user.email',
+                  ...(propertyOptionsForSelectedEvent || []),
+                  ...formattedPropertyOptionsForSelectedEvent,
+                  ...formattedUniqueUserProperties,
+                  ...formattedUniqueOrganizationProperties,
                 ]}
               />
             }
@@ -185,12 +177,10 @@ export default function ResendEmail({ data = { to: '{{ user.email }}', send_once
               <InterpolatedMarkdown
                 content={form.watch('body')}
                 availableVariables={[
-                  ...[...(propertyOptionsForSelectedEvent || []),
-                  ...(propertyOptionsForSelectedEvent || []).map(e => `event.${e}`)],
-                  ...(uniqueUserProperties || []).map(e => `user.${e}`),
-                  ...(uniqueOrganizationProperties || []).map(e => `organization.${e}`),
-                  'organization.name',
-                  'user.email',
+                  ...(propertyOptionsForSelectedEvent || []),
+                  ...formattedPropertyOptionsForSelectedEvent,
+                  ...formattedUniqueUserProperties,
+                  ...formattedUniqueOrganizationProperties,
                 ]}
               />
             }
@@ -202,9 +192,9 @@ export default function ResendEmail({ data = { to: '{{ user.email }}', send_once
               rememberState={true}
             >
               <VariableSyntaxDocumentation
-                availableEventProperties={propertyOptionsForSelectedEvent}
-                availableUserProperties={['user.email', ...(uniqueUserProperties || []).map(e => `user.${e}`)]}
-                availableOrganizationProperties={['organization.name', (uniqueOrganizationProperties || []).map(e => `organization.${e}`)]}
+                availableEventProperties={formattedPropertyOptionsForSelectedEvent}
+                availableUserProperties={formattedUniqueUserProperties}
+                availableOrganizationProperties={formattedUniqueOrganizationProperties}
                 eventName={selectedEntryPointEventName}
               />
             </AccordionOpen>

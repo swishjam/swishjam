@@ -40,7 +40,7 @@ const nodeOptions = [
       },
       {
         value: "ResendEmail",
-        label: "Send Email w/Resend",
+        label: "Send Email",
         icon: LuMail,
       },
     ]

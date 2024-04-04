@@ -94,7 +94,7 @@ export default function SearchResults({ organizations, users, dashboards, events
                 <div className="flex-shrink-0 text-gray-700">
                   <Avatar>
                     <AvatarImage src={user.gravatar_url} />
-                    <AvatarFallback>{user.full_name ? user.full_name.split(' ').map(w => w[0].toUpperCase()).join('') : '?'}</AvatarFallback>
+                    <AvatarFallback>{(user.full_name || user.email || '?').split(/\s|_/).map(w => w[0].toUpperCase()).join('')}</AvatarFallback>
                   </Avatar>
                 </div>
                 <div className="ml-4">

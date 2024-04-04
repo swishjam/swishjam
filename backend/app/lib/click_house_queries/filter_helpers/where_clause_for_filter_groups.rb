@@ -50,7 +50,6 @@ module ClickHouseQueries
         "#{LeftJoinStatementsForEventCountByProfileFilters.join_table_alias_for_event_count_for_profile_filter(filter)}.event_count_for_profile_within_lookback_period #{filter.sql_event_count_operator} #{filter.num_occurrences}"
       end
 
-      # TODO: make users_table_alias dynamic based on if the filter is for a user or organization
       def self.where_clause_statements_for_profile_property_filter(filter, profile_table_alias: nil)
         if ['email', 'user_unique_identifier'].include?(filter.property_name) && filter.profile_type == 'user'
           column_name = profile_table_alias.nil? ? filter.property_name : [profile_table_alias, filter.property_name].join(".")

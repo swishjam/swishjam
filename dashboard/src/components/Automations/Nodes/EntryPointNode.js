@@ -13,7 +13,7 @@ export default memo(({ id, data }) => {
   const { setSelectedEntryPointEventName, updateNode } = useAutomationBuilder();
 
   const { uniqueEventsAndCounts } = useCommonQueries();
-  const uniqueEvents = ['swishjam_bot.added_to_active_accounts_cohort', ...(uniqueEventsAndCounts || []).map(e => e.name)].sort()
+  const uniqueEvents = (uniqueEventsAndCounts || []).map(e => e.name).sort()
 
   useEffect(() => {
     setSelectedEntryPointEventName(event_name)

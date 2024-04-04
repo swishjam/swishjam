@@ -51,7 +51,7 @@ export default function VariableSyntaxDocumentation({ eventName, availableUserPr
             The <span className="ml-1 text-sm px-1.5 py-0.5 border border-zinc-200 bg-accent rounded-sm transition-colors cursor-default hover:bg-gray-200">{eventName}</span> event has the following properties:
           </p>
           <div className='flex flex-wrap gap-1 mt-1'>
-            {availableEventProperties.map((property, i) => <Variable key={i}>{`event.${property}`}</Variable>)}
+            {availableEventProperties.map((property, i) => <Variable key={i}>{property}</Variable>)}
           </div>
         </>
       )}
