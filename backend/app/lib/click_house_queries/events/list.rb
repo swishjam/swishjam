@@ -2,11 +2,22 @@ module ClickHouseQueries
   module Events
     class List
       # returns either:
-      # - a list of events with when it occurred and its properties when no event or property is specified
+      # - a list of all events and when they occurred with its properties when no event or property is specified
       # - a list of all the values and how many times it occured for a specified event and property
       include ClickHouseQueries::Helpers
 
-      def initialize(public_keys, start_time:, end_time:, workspace_id: nil, event: nil, events: nil, property: nil, user_profile_id: nil, limit: 10)
+      def initialize(
+        public_keys, 
+        start_time:, 
+        end_time:, 
+        workspace_id: nil, 
+        event: nil, 
+        events: nil, 
+        property: nil, 
+        user_profile_id: nil, 
+        organization_profile_id: nil, 
+        limit: 10
+      )
         @public_keys = public_keys.is_a?(Array) ? public_keys : [public_keys]
         @start_time = start_time
         @end_time = end_time
@@ -14,6 +25,7 @@ module ClickHouseQueries
         @workspace_id = workspace_id
         @property = property
         @user_profile_id = user_profile_id
+        @organization_profile_id = organization_profile_id
         @limit = limit
         validate!
       end
@@ -25,28 +37,25 @@ module ClickHouseQueries
       def sql
         <<~SQL
           SELECT #{select_clause}
-          FROM (#{from_clause}) AS e
-          #{join_statements}
-          WHERE
-            #{event_where_clause}
-            #{maybe_user_profile_id_where_clause} 
-          #{group_by_clause.blank? ? '' : "GROUP BY #{group_by_clause}"}
+          FROM (#{de_duped_events_query}) AS e
+          #{maybe_user_profile_join_statement}
+          WHERE #{maybe_user_profile_id_where_clause} 
+          #{maybe_group_by_clause}
           ORDER BY #{order_by_clause}
           #{@limit.nil? ? '' : "LIMIT #{@limit}"}
         SQL
       end
 
-      def from_clause
+      def de_duped_events_query
+        needed_columns = ['name', 'occurred_at', 'properties']
+        needed_columns << 'user_profile_id' if @user_profile_id
+        needed_columns << 'organization_profile_id' if @organization_profile_id
         <<~SQL
-          SELECT 
-            uuid, 
-            argMax(name, ingested_at) AS name, 
-            argMax(occurred_at, ingested_at) AS occurred_at, 
-            argMax(properties, ingested_at) AS properties, 
-            argMax(user_properties, ingested_at) AS user_properties,
-            argMax(user_profile_id, ingested_at) AS user_profile_id
+          SELECT uuid, #{needed_columns.map{ |column| "argMax(#{column}, ingested_at) AS #{column}" }.join(', ')}
           FROM events AS e
           WHERE 
+            #{event_name_where_clause} AND
+            #{maybe_organization_profile_id_where_clause} AND
             e.swishjam_api_key IN #{formatted_in_clause(@public_keys)} AND
             e.occurred_at BETWEEN '#{formatted_time(@start_time)}' AND '#{formatted_time(@end_time)}'
           GROUP BY e.uuid
@@ -62,13 +71,13 @@ module ClickHouseQueries
         else
           <<~SQL
             e.name AS name, 
-            e.occurred_at AS occurred_at, 
+            e.occurred_at AS occurred_at,
             e.properties AS properties
           SQL
         end
       end
 
-      def join_statements
+      def maybe_user_profile_join_statement
         return '' unless @user_profile_id
         <<~SQL
           LEFT JOIN (
@@ -82,7 +91,7 @@ module ClickHouseQueries
         SQL
       end
 
-      def event_where_clause
+      def event_name_where_clause
         if @event.nil?
           '1 = 1'
         elsif @event.is_a?(Array)
@@ -93,23 +102,30 @@ module ClickHouseQueries
       end
 
       def maybe_user_profile_id_where_clause
-        return '' unless @user_profile_id.present?
+        return '1 = 1' unless @user_profile_id.present?
         <<~SQL
-           AND (
+          (
             user_profiles.swishjam_user_id = '#{@user_profile_id}' OR 
             user_profiles.merged_into_swishjam_user_id = '#{@user_profile_id}'
           )
         SQL
       end
 
-      def group_by_clause
+      def maybe_organization_profile_id_where_clause
+        return '1 = 1' unless @organization_profile_id.present?
+        <<~SQL
+          e.organization_profile_id = '#{@organization_profile_id}'
+        SQL
+      end
+
+      def maybe_group_by_clause
         return '' unless @event && @property
-        @property
+        "GROUP BY #{@property}"
       end
 
       def order_by_clause
-        return 'occurred_at DESC' unless @event && @property
-        'count DESC'
+        return 'count DESC' if @event && @property
+        'occurred_at DESC'
       end
 
       def validate!

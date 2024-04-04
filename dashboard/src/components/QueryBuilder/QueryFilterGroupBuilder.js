@@ -15,12 +15,13 @@ export default function QueryFilterGroupBuilder({
   previousQueryFilterGroupRelationshipOperator,
   showDeleteButton,
   showNewGroupButtons,
+  profileType,
   uniqueEvents,
-  uniqueUserProperties,
+  uniquePropertiesForProfileType,
 }) {
   const [queryFilters, setQueryFilters] = useState(defaultFilters)
 
-  if (!uniqueUserProperties || !uniqueEvents) {
+  if (!uniquePropertiesForProfileType || !uniqueEvents) {
     return (
       <>
         <Skeleton className='rounded-md w-full h-40 bg-gray-200' />
@@ -49,32 +50,33 @@ export default function QueryFilterGroupBuilder({
             className = 'mt-4 ml-8'
           }
           return (
-            <QueryFilterBuilder
-              key={i}
-              className={className}
-              defaultFilter={filter}
-              displayAndOrButtons={i === queryFilters.length - 1}
-              displayDeleteButton={i > 0}
-              onNewFilterClick={operator => {
-                const updatedFilters = [...queryFilters, { sequence_index: i + 1, previous_query_filter_relationship_operator: operator, config: {} }]
-                setQueryFilters(updatedFilters)
-                onUpdate(updatedFilters);
-              }}
-              onDelete={() => {
-                const updatedFilters = queryFilters.filter((_, index) => index !== i)
-                setQueryFilters(updatedFilters)
-                onUpdate(updatedFilters);
-              }}
-              onUpdate={updatedFilter => {
-                const newFilters = [...queryFilters]
-                newFilters[i] = { ...newFilters[i], ...updatedFilter }
-                setQueryFilters(newFilters)
-                onUpdate(newFilters);
-              }}
-              operator={filter.previous_query_filter_relationship_operator}
-              uniqueUserProperties={uniqueUserProperties}
-              uniqueEvents={uniqueEvents}
-            />
+            <div className={className} key={i}>
+              <QueryFilterBuilder
+                profileType={profileType}
+                defaultFilter={filter}
+                displayAndOrButtons={i === queryFilters.length - 1}
+                displayDeleteButton={i > 0}
+                onNewFilterClick={operator => {
+                  const updatedFilters = [...queryFilters, { sequence_index: i + 1, previous_query_filter_relationship_operator: operator, config: {} }]
+                  setQueryFilters(updatedFilters)
+                  onUpdate(updatedFilters);
+                }}
+                onDelete={() => {
+                  const updatedFilters = queryFilters.filter((_, index) => index !== i)
+                  setQueryFilters(updatedFilters)
+                  onUpdate(updatedFilters);
+                }}
+                onUpdate={updatedFilter => {
+                  const newFilters = [...queryFilters]
+                  newFilters[i] = { ...newFilters[i], ...updatedFilter }
+                  setQueryFilters(newFilters)
+                  onUpdate(newFilters);
+                }}
+                operator={filter.previous_query_filter_relationship_operator}
+                uniquePropertiesForProfileType={uniquePropertiesForProfileType}
+                uniqueEvents={uniqueEvents}
+              />
+            </div>
           )
         })}
         {hasGroupAfter && <div className='absolute -bottom-1 left-0 right-0 mx-auto z-10 rounded-full w-1.5 h-1.5 bg-gray-200' />}

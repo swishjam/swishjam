@@ -27,7 +27,7 @@ const rowForUser = ({ user, queryFilterGroups }) => {
   let dynamicRows = [];
   (queryFilterGroups || []).forEach(filterGroup => {
     filterGroup.query_filters.forEach(filter => {
-      if (filter.type === 'QueryFilters::UserProperty') {
+      if (filter.type === 'QueryFilters::ProfileProperty') {
         const shouldInclude = !['email', 'user_unique_identifier'].includes(filter.config.property_name) && !dynamicRows.includes(filter.config.property_name)
         if (shouldInclude) {
           dynamicRows.push(filter.config.property_name)
@@ -54,9 +54,9 @@ const tableHeadersForQueryFilterGroups = queryFilterGroups => {
     tableHeaders = ['User']
     queryFilterGroups.forEach(filterGroup => {
       filterGroup.query_filters.forEach(filter => {
-        if (filter.type === 'QueryFilters::UserProperty' && !['email', 'user_unique_identifier'].includes(filter.config.property_name)) {
+        if (filter.type === 'QueryFilters::ProfileProperty' && !['email', 'user_unique_identifier'].includes(filter.config.property_name)) {
           tableHeaders.push(humanizeVariable(filter.config.property_name))
-        } else if (filter.type === 'QueryFilters::EventCountForUserOverTimePeriod') {
+        } else if (filter.type === 'QueryFilters::EventCountForProfileOverTimePeriod') {
           tableHeaders.push(
             <>
               # of <DottedUnderline className='text-zinc-500 hover:text-zinc-700'>{filter.config.event_name}</DottedUnderline> events last <DottedUnderline className='text-zinc-500 hover:text-zinc-700'>{filter.config.num_lookback_days} days</DottedUnderline>

@@ -3,7 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import EmptyState from "@components/EmptyState"
 import { HiCursorArrowRays } from 'react-icons/hi2'
 import Image from "next/image"
-import { useEffect, useRef, useState } from "react"
+import { useState } from "react"
 
 import {
   BanIcon,
@@ -21,16 +21,15 @@ import {
   PointerIcon,
   ZapIcon,
   ChevronRightIcon,
+  BotIcon,
 } from "lucide-react";
 
 import CalComLogo from '@public/logos/calcom.png'
 import IntercomLogo from '@public/logos/intercom.png'
 import ResendLogo from '@public/logos/resend.png'
 import StripeLogo from '@public/logos/stripe.jpeg'
-// import SwishjamLogo from '@public/logos/swishjam.png'
 import { useRouter } from "next/navigation"
 import { Skeleton } from "@/components/ui/skeleton"
-import { AccordionOpen } from "@/components/ui/accordion"
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(' ')
@@ -41,6 +40,7 @@ const EVENT_ICON_DICT = {
   'page_view': <GlobeIcon className='h-4 w-4 text-swishjam' />,
   'click': <PointerIcon className='h-4 w-4 text-swishjam' />,
   'form_submit': <FormInputIcon className='h-4 w-4 text-swishjam' />,
+  'swishjam_bot': <BotIcon className='h-4 w-4 text-swishjam' />,
   'intercom': <MessageSquareIcon className='h-4 w-4 text-gray-400' />,
   'resend.email.sent': <MailIcon className="h-4 w-4 text-gray-400" />,
   'resend.email.bounced': <MailWarningIcon className="h-4 w-4 text-red-400" />,
@@ -229,7 +229,7 @@ const EventFeed = ({
                 >
                   Show More Events
                 </Button>
-              ) : viewAllLink && (
+              ) : viewAllLink && events.length > 0 && (
                 <Button
                   onClick={() => router.push(viewAllLink)}
                   variant="outline"

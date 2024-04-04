@@ -27,7 +27,7 @@ const UserProfile = ({ params }) => {
   }
 
   const getPageViews = async () => {
-    return await SwishjamAPI.Users.PageViews.list(userId).then(pageViews => {
+    return await SwishjamAPI.Users.PageViews.list(userId, { timeframe: '30_days' }).then(pageViews => {
       setPageViewsData(pageViews.map(({ url, count }) => ({ name: url, value: count })));
     });
   }
@@ -102,7 +102,7 @@ const UserProfile = ({ params }) => {
               timeseries={sessionTimeseriesData?.timeseries}
               valueFormatter={numSessions => numSessions.toLocaleString('en-US')}
             />
-            <BarList className="mt-4" title='Page Views' items={pageViewsData} />
+            <BarList className="mt-4" title='Page Views' items={pageViewsData} noDataMessage="No page views in the last 30 days." />
             <EventFeed
               className="col-span-6 mt-4"
               events={recentEvents}
@@ -119,6 +119,7 @@ const UserProfile = ({ params }) => {
                 }
               }}
               loadMoreEventsIncrement={5}
+              noDataMsg="No events triggered in the last 30 days."
               rightItemKey='occurred_at'
               rightItemKeyFormatter={date => new Date(date).toLocaleTimeString('en-us', { hour: 'numeric', minute: "2-digit", second: "2-digit" })}
               title='Recent Events'

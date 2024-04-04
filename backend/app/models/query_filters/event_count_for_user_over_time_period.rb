@@ -1,3 +1,5 @@
+# TODO: this is now deprecated in favor of EventCountForProfileOverTimePeriod
+# we can destroy this basically as soon as we deploy/migrate
 module QueryFilters
   class EventCountForUserOverTimePeriod < QueryFilter
     self.required_config_keys = %i[event_name num_lookback_days num_occurrences event_count_operator]

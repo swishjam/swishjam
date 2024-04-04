@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe ProfileTags::UserSegmentApplier do
+describe ProfileTags::CohortApplier do
   before do
     @workspace = FactoryBot.create(:workspace)
     @swishjam_api_key = @workspace.api_keys.for_data_source!(ApiKey::ReservedDataSources.PRODUCT).public_key
@@ -13,7 +13,7 @@ describe ProfileTags::UserSegmentApplier do
     insert_analytics_user_profiles_into_clickhouse!([@user_profile_1, @user_profile_2, @user_profile_3])
   end
 
-  describe "#update_user_segment_profile_tags!" do
+  describe "#update_cohort_profile_tags!" do
     it 'applies the "Active User" profile tag to users in the segment who dont already have the tag associated with their profile' do
       insert_events_into_click_house!(swishjam_api_key: @swishjam_api_key) do
         [
@@ -40,7 +40,7 @@ describe ProfileTags::UserSegmentApplier do
         ),
       ]).exactly(1).times
       
-      results = described_class.new(@user_segment).update_user_segment_profile_tags!
+      results = described_class.new(@user_segment).update_cohort_profile_tags!
       
       expect(ProfileTag.count).to be(1)
       expect(results[:user_ids_added]).to match_array([@user_profile_1.id])
@@ -52,7 +52,7 @@ describe ProfileTags::UserSegmentApplier do
       expect(@user_profile_1.profile_tags.first.user_segment).to eq(@user_segment)
 
       # if we call it again, it should not add the tag again because user_1 already has it
-      results_2 = described_class.new(@user_segment).update_user_segment_profile_tags!
+      results_2 = described_class.new(@user_segment).update_cohort_profile_tags!
 
       expect(ProfileTag.count).to be(1)
       expect(results_2[:user_ids_added]).to match_array([])
@@ -112,7 +112,7 @@ describe ProfileTags::UserSegmentApplier do
         ]
       ).exactly(1).times
       
-      results = described_class.new(@user_segment).update_user_segment_profile_tags!
+      results = described_class.new(@user_segment).update_cohort_profile_tags!
       
       expect(ProfileTag.count).to be(2)
       expect(ProfileTag.active.count).to be(1)
@@ -132,7 +132,7 @@ describe ProfileTags::UserSegmentApplier do
       expect(@user_profile_2.profile_tags.first.user_segment).to eq(@user_segment)
 
       # if we call it again, it should not try to remove the tag again because its already been removed
-      results_2 = described_class.new(@user_segment).update_user_segment_profile_tags!
+      results_2 = described_class.new(@user_segment).update_cohort_profile_tags!
 
       expect(ProfileTag.count).to be(2)
       expect(ProfileTag.active.count).to be(1)
@@ -157,7 +157,7 @@ describe ProfileTags::UserSegmentApplier do
       expect(ProfileTag.count).to be(0)
       expect(IngestionJobs::PrepareEventsAndEnqueueIntoClickHouseWriter).to_not receive(:perform_async)
       
-      results = described_class.new(@user_segment, emit_events: false).update_user_segment_profile_tags!
+      results = described_class.new(@user_segment, emit_events: false).update_cohort_profile_tags!
       
       expect(ProfileTag.count).to be(1)
       expect(results[:user_ids_added]).to match_array([@user_profile_1.id])
@@ -169,7 +169,7 @@ describe ProfileTags::UserSegmentApplier do
       expect(@user_profile_1.profile_tags.first.user_segment).to eq(@user_segment)
 
       # if we call it again, it should not add the tag again because user_1 already has it
-      results_2 = described_class.new(@user_segment).update_user_segment_profile_tags!
+      results_2 = described_class.new(@user_segment).update_cohort_profile_tags!
 
       expect(ProfileTag.count).to be(1)
       expect(results_2[:user_ids_added]).to match_array([])

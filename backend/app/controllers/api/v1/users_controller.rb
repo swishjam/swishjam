@@ -12,10 +12,10 @@ module Api
           render json: { users: users }, status: :ok
         else
           filter_groups = []
-          if params[:user_segment_ids].present?
-            user_segments = current_workspace.user_segments.includes(:query_filter_groups).where(id: params[:user_segment_ids])
-            user_segments.each do |user_segment|
-              user_segment.query_filter_groups.in_sequence_order.each do |filter_group|
+          if params[:cohort_ids].present?
+            cohorts = current_workspace.cohorts.includes(:query_filter_groups).where(id: params[:cohort_ids])
+            cohorts.each do |cohort|
+              cohort.query_filter_groups.in_sequence_order.each do |filter_group|
                 filter_groups << filter_group
               end
             end

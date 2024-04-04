@@ -15,13 +15,6 @@ module Api
             user_profile_id: @user.id,
             limit: limit
           ).get
-          # querier = ClickHouseQueries::Users::PageViews::MostVisited::List.new(
-          #   public_keys_for_requested_data_source,
-          #   user_profile_id: @user.id, 
-          #   start_time: start_timestamp,
-          #   end_time: end_timestamp,
-          #   limit: limit
-          # )
           render json: list, status: :ok
         end
       end

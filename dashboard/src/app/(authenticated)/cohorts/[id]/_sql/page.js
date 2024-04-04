@@ -12,8 +12,8 @@ export default function EditUserSegmentPage({ params }) {
   const [userSegment, setUserSegment] = useState()
 
   useEffect(() => {
-    SwishjamAPI.UserSegments.sql(id).then(({ user_segment, sql }) => {
-      setUserSegment({ ...user_segment, sql })
+    SwishjamAPI.Cohorts.sql(id).then(({ cohort, sql }) => {
+      setUserSegment({ ...cohort, sql })
     })
   }, [id])
 
@@ -21,7 +21,7 @@ export default function EditUserSegmentPage({ params }) {
     <main className="mx-auto max-w-7xl px-4 mt-8 sm:px-6 lg:px-8 mb-8">
       <div className='grid grid-cols-2 my-8 items-center'>
         <div>
-          <Link href='/users/cohorts' className="flex items-center space-x-1 mb-1 text-xs font-medium text-gray-500 hover:text-swishjam transition duration-300 hover:underline">
+          <Link href='/cohorts' className="flex items-center space-x-1 mb-1 text-xs font-medium text-gray-500 hover:text-swishjam transition duration-300 hover:underline">
             <ArrowLeftIcon className='w-3 h-3' /> All Cohorts
           </Link>
           <div>

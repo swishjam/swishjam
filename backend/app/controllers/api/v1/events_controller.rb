@@ -5,7 +5,7 @@ module Api
 
       def unique
         params[:data_source] ||= 'all'
-        limit = (params[:limit] || 50).to_i
+        limit = (params[:limit] || 200).to_i
         events_and_counts = ClickHouseQueries::Events::Unique::List.new(public_keys_for_requested_data_source, limit: limit, start_time: 6.months.ago, end_time: Time.current).get
         render json: events_and_counts, status: :ok
       end

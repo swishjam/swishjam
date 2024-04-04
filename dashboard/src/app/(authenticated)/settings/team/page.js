@@ -1,6 +1,5 @@
 'use client';
 
-import { usePathname } from 'next/navigation'
 import CopyToClipboard from 'react-copy-to-clipboard';
 import InviteModal from '@/components/TeamManagement/NewInvitationModal';
 import RemoveWorkspaceMemberModal from '@/components/TeamManagement/RemoveWorkspaceMemberModal';

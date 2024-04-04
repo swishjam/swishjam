@@ -8,6 +8,12 @@ class ExecutedAutomation < Transactional
   scope :pending, -> { where(completed_at: nil) }
   scope :test_executions, -> { where(is_test_execution: true) }
   scope :non_test_executions, -> { where(is_test_execution: false) }
+  scope :that_executed_all_automation_steps, ->(automation_step_ids) { 
+    joins(:executed_automation_steps)
+    .where(executed_automation_steps: { automation_step_id: automation_step_ids })
+    .group('executed_automations.id')
+    .having('COUNT(DISTINCT executed_automation_steps.automation_step_id) = ?', automation_step_ids.count)
+  }
 
   attribute :event_json, :jsonb, default: {}
 

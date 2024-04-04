@@ -88,7 +88,9 @@ ActiveRecord::Schema.define(version: 2024_04_01_151729) do
     t.boolean "enabled"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.uuid "integration_id"
     t.index ["data_source"], name: "index_api_keys_on_data_source"
+    t.index ["integration_id"], name: "index_api_keys_on_integration_id"
     t.index ["private_key"], name: "index_api_keys_on_private_key", unique: true
     t.index ["public_key"], name: "index_api_keys_on_public_key", unique: true
     t.index ["workspace_id"], name: "index_api_keys_on_workspace_id"
@@ -513,6 +515,7 @@ ActiveRecord::Schema.define(version: 2024_04_01_151729) do
     t.string "description"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.string "type"
     t.index ["created_by_user_id"], name: "index_user_segments_on_created_by_user_id"
     t.index ["workspace_id"], name: "index_user_segments_on_workspace_id"
   end
@@ -577,6 +580,7 @@ ActiveRecord::Schema.define(version: 2024_04_01_151729) do
   add_foreign_key "analytics_user_profile_devices", "analytics_user_profiles"
   add_foreign_key "analytics_user_profile_devices", "workspaces"
   add_foreign_key "analytics_user_profiles", "workspaces"
+  add_foreign_key "api_keys", "integrations"
   add_foreign_key "api_keys", "workspaces"
   add_foreign_key "auth_sessions", "users"
   add_foreign_key "automation_steps", "automations"

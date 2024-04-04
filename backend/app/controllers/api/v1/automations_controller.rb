@@ -83,7 +83,9 @@ module Api
             name: entry_point_step.event_name,
             swishjam_api_key: current_workspace.api_keys.for_data_source!(ApiKey::ReservedDataSources.PRODUCT).public_key,
             occurred_at: Time.current,
-            properties: (params[:test_event_properties] || { test_property: 'test_value' }).as_json,
+            properties: (params[:test_event_properties] || { 'event_properties' => { 'my_property' => 'test_value' }}).dig('event_properties').as_json,
+            user_properties: (params[:test_event_properties] || { 'user_properties' => { 'email' => current_user.email }}).dig('user_properties').as_json, 
+            organization_properties: (params[:test_event_properties] || { 'organization_properties' => { 'name' => current_workspace.name }}).dig('organization_properties').as_json,
           )
           executed_automation = automation.execute!(mock_event, as_test: true)
           render json: { 
@@ -97,7 +99,9 @@ module Api
             name: params[:test_event_name],
             swishjam_api_key: current_workspace.api_keys.for_data_source!(ApiKey::ReservedDataSources.PRODUCT).public_key,
             occurred_at: Time.current,
-            properties: (params[:test_event_properties] || { test_property: 'test_value' }).as_json,
+            properties: (params[:test_event_properties] || { 'event_properties' => { 'my_property' => 'test_value' }}).dig('event_properties').as_json,
+            user_properties: (params[:test_event_properties] || { 'user_properties' => { 'email' => current_user.email }}).dig('user_properties').as_json, 
+            organization_properties: (params[:test_event_properties] || { 'organization_properties' => { 'name' => current_workspace.name }}).dig('organization_properties').as_json,
           )
           automation = Automations::Creator.create_automation!(
             workspace: current_workspace,

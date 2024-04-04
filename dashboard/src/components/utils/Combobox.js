@@ -6,7 +6,17 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { useState } from "react"
 import { Skeleton } from "@/components/ui/skeleton"
 
-export default function Combobox({ selectedValue, onSelectionChange, options, placeholder = "Select an option", minWidth = '200px', maxHeight = '300px', buttonClass, popoverClass, inModal = false }) {
+export default function Combobox({
+  selectedValue,
+  onSelectionChange,
+  options,
+  placeholder = "Select an option",
+  minWidth = '200px',
+  maxHeight = '300px',
+  buttonClass = '',
+  popoverClass = '',
+  inModal = false,
+}) {
   const [isOpen, setIsOpen] = useState(false)
 
   if (options) {
@@ -17,6 +27,8 @@ export default function Combobox({ selectedValue, onSelectionChange, options, pl
       return option
     })
   }
+
+  const optionForValue = value => options.find(option => option.value && option.value.toLowerCase() === value.toLowerCase())
 
   return (
     options === undefined
@@ -29,9 +41,11 @@ export default function Combobox({ selectedValue, onSelectionChange, options, pl
               variant="outline"
               role="combobox"
               aria-expanded={isOpen}
-              className={`w-full justify-between font-normal text-sm ${buttonClass}`}
+              className={`w-full justify-between font-normal text-sm ${buttonClass || ''}`}
             >
-              <span className=" truncate overflow-hidden">{selectedValue ? options.find(option => option.value && option.value.toLowerCase() === selectedValue.toLowerCase())?.label : placeholder}</span>
+              <span className="truncate overflow-hidden">
+                {selectedValue ? optionForValue(selectedValue)?.label : placeholder}
+              </span>
               <LuChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
             </Button>
           </PopoverTrigger >
@@ -62,7 +76,7 @@ export default function Combobox({ selectedValue, onSelectionChange, options, pl
                         value={option.value}
                         onSelect={newValue => {
                           setIsOpen(false)
-                          onSelectionChange(newValue)
+                          onSelectionChange(optionForValue(newValue)?.value)
                         }}
                       >
                         {option.label}

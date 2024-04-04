@@ -4,12 +4,12 @@ module ClickHouseQueries
       include ClickHouseQueries::Helpers
       include TimeseriesHelper
 
-      def initialize(workspace_id, start_time:, end_time:, group_by: nil, user_segments: [], public_keys: nil)
+      def initialize(workspace_id, start_time:, end_time:, group_by: nil, cohorts: [], public_keys: nil)
         raise NotImplementedError, '`ClickHouseQueries::Users::Timeseries` is not yet implemented.'
         @workspace_id = workspace_id
         @group_by = group_by || derived_group_by(start_ts: start_time, end_ts: end_time)
         @start_time, @end_time = rounded_timestamps(start_ts: start_time, end_ts: end_time, group_by: @group_by, round_up: true)
-        @user_segments = user_segments
+        @cohorts = cohorts
         @public_keys = public_keys
       end
 
@@ -32,7 +32,7 @@ module ClickHouseQueries
         <<~SQL
           dates.date AS time_period,
           SUM(
-            IF (#{ClickHouseQueries::FilterHelpers::WhereClauseForFilterGroups.where_clause_statements(@user_segments, users_table_alias: 'finalized_user_profiles')}, 1, 0)
+            IF (#{ClickHouseQueries::FilterHelpers::WhereClauseForFilterGroups.where_clause_statements(@cohorts, users_table_alias: 'finalized_user_profiles')}, 1, 0)
           ) AS user_count
         SQL
       end
@@ -46,7 +46,7 @@ module ClickHouseQueries
       end
 
       def maybe_event_counts_left_join_statements
-        ClickHouseQueries::FilterHelpers::LeftJoinStatementsForEventCountByUserFilters.left_join_statements(@user_segments, workspace_id: @workspace_id, as_timeseries: true)
+        ClickHouseQueries::FilterHelpers::LeftJoinStatementsForEventCountByProfileFilters.left_join_statements(@cohorts, workspace_id: @workspace_id, as_timeseries: true)
       end
 
       def users_query_for_user_property_filters_if_any
@@ -59,14 +59,14 @@ module ClickHouseQueries
       def maybe_finalized_user_profiles_to_events_join_statement
         # TODO - I think we need to do a right join maybe? we don't want to tie it to the events, we just need all users?
         # idk it feels weird to have a timeseries filtered by a user property cause it's stateful, not event-based
-        # @user_segments.map do |user_segment|
-        #   user_segment.query_filter_groups.in_sequence_order.map do |filter|
+        # @cohorts.map do |cohort|
+        #   cohort.query_filter_groups.in_sequence_order.map do |filter|
         #     ClickHouseQueries::Common::FinalizedUserProfilesToEventsJoinQuery.sql(
         #       @workspace_id, 
         #       columns: ['email', 'metadata'], 
         #       table_alias: 'finalized_user_profiles', 
-        #       # what happens if there's multiple user segments...?
-        #       event_table_alias: ClickHouseQueries::FilterHelpers::LeftJoinStatementsForEventCountByUserFilters.join_table_alias_for_event_count_for_user_filter(filter.config)
+        #       # what happens if there's multiple cohorts...?
+        #       event_table_alias: ClickHouseQueries::FilterHelpers::LeftJoinStatementsForEventCountByProfileFilters.join_table_alias_for_event_count_for_profile_filter(filter.config)
         #     )
         #   end
         # end

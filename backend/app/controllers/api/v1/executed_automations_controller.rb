@@ -5,11 +5,30 @@ module Api
       before_action :get_automation
 
       def index
-        executed_automations = @automation.executed_automations.order(started_at: :DESC).page(params[:page] || 1).per(params[:per_page] || params[:limit] || 20)
+        executed_automations = nil
+        if params[:automation_step_ids].present?
+          executed_automations = @automation.executed_automations
+                                              .includes(:executed_on_user_profile)
+                                              .that_executed_all_automation_steps(params[:automation_step_ids].split(','))
+                                              .order(started_at: :DESC)
+                                              .page(params[:page] || 1)
+                                              .per(params[:per_page] || params[:limit] || 20)
+        else
+          executed_automations = @automation.executed_automations
+                                              .includes(:executed_on_user_profile)
+                                              .order(started_at: :DESC)
+                                              .page(params[:page] || 1)
+                                              .per(params[:per_page] || params[:limit] || 20)
+        end
         render json: { 
-          executed_automations: executed_automations.map{ |ea| ExecutedAutomationSerializer.new(ea) }, 
+          executed_automations: executed_automations.map{ |ea| ExecutedAutomationListItemSerializer.new(ea) },
           total_num_pages: executed_automations.total_pages,
         }, status: :ok
+      end
+      
+      def show
+        executed_automation = @automation.executed_automations.find(params[:id])
+        render json: { executed_automation: ExecutedAutomationSerializer.new(executed_automation) }, status: :ok
       end
 
       def timeseries

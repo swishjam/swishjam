@@ -18,9 +18,9 @@ const ICONS_BY_TAG_NAME = {
 
 const classesForTag = tag => {
   if (tag.removed_at) {
-    return 'bg-gray-50 hover:bg-gray-100 text-gray-700 ring-gray-600/20'
+    return 'bg-gray-50 hover:bg-gray-100 text-gray-700 ring-gray-600/20 bg-striped'
   }
-  return CLASSES_BY_TAG_NAME[tag.name] || 'bg-swishjam-light hover:bg-swishjam-medium text-gray-700 ring-swishjam-medium-600/20'
+  return CLASSES_BY_TAG_NAME[tag.name] || 'bg-gray-50 hover:bg-gray-100 text-gray-700 ring-gray-600/20'
 }
 
 const iconForTag = tag => {
@@ -56,14 +56,14 @@ export default function ProfileTags({ profileTags }) {
               </div>
             </Tooltipable>
           )
-        } else if (tag.user_segment_description || tag.user_segment_name) {
+        } else if (tag.cohort_description || tag.cohort_name) {
           return (
             <Tooltipable
               key={tag.id}
               content={
                 <div className='text-xs'>
-                  <span className='block'>Automatically applied by the <strong>{tag.user_segment_name}</strong> cohort on <strong>{prettyDateTime(tag.applied_at)}</strong>.</span>
-                  {tag.user_segment_description && <span className='block mt-2 text-gray-600'>{tag.user_segment_description}</span>}
+                  <span className='block'>Automatically applied by the <strong>{tag.cohort_name}</strong> cohort on <strong>{prettyDateTime(tag.applied_at)}</strong>.</span>
+                  {tag.cohort_description && <span className='block mt-2 text-gray-600'>{tag.cohort_description}</span>}
                 </div>
               }
             >

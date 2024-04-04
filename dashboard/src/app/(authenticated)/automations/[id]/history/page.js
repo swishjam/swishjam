@@ -3,6 +3,7 @@
 import { Button } from "@/components/ui/button";
 import CommonQueriesProvider from "@/providers/CommonQueriesProvider";
 import ExecutedAutomationDetails from "@/components/Automations/Results/ExecutedAutomationDetails";
+import ExecutedAutomationsFilter from "@/components/Automations/Results/ExecutedAutomationsFilter";
 import { Cog, FlaskConicalIcon, RefreshCcw } from "lucide-react";
 import LineChartWithValue from "@/components/Dashboards/Components/LineChartWithValue";
 import Link from "next/link";
@@ -18,6 +19,7 @@ export default function AutomationDetailsPage({ params }) {
   const { id: automationId } = params;
   const [automation, setAutomation] = useState();
   const [automationSteps, setAutomationSteps] = useState();
+  const [automationStepFilterIdsAndName, setAutomationStepFilterIdsAndName] = useState([]);
   const [currentPageNum, setCurrentPageNum] = useState(1);
   const [executedAutomations, setExecutedAutomations] = useState();
   const [executedAutomationsTimeseries, setExecutedAutomationsTimeseries] = useState();
@@ -25,9 +27,9 @@ export default function AutomationDetailsPage({ params }) {
   const [testExecutionModalIsOpen, setTestExecutionModalIsOpen] = useState(false);
   const [totalNumPages, setTotalNumPages] = useState();
 
-  const getAndSetExecutedAutomationsList = async page => {
+  const getAndSetExecutedAutomationsList = async ({ page, automationStepIds = [] } = {}) => {
     setExecutedAutomations();
-    const { executed_automations, total_num_pages } = await SwishjamAPI.Automations.ExecutedAutomations.list(automationId, { page, limit: 10 });
+    const { executed_automations, total_num_pages } = await SwishjamAPI.Automations.ExecutedAutomations.list(automationId, { page, limit: 10, automationStepIds });
     setExecutedAutomations(executed_automations);
     setTotalNumPages(total_num_pages);
     return { executed_automations, total_num_pages }
@@ -56,7 +58,7 @@ export default function AutomationDetailsPage({ params }) {
     setIsFetchingData(true);
     await Promise.all([
       getAutomationDetailsData(),
-      getAndSetExecutedAutomationsList(currentPageNum),
+      getAndSetExecutedAutomationsList({ page: currentPageNum, automationStepIds: automationStepFilterIdsAndName.map(step => step.id) }),
       getAndSetTimeseriesData(),
     ]);
     setIsFetchingData(false);
@@ -67,8 +69,8 @@ export default function AutomationDetailsPage({ params }) {
   }, [automationId])
 
   useEffect(() => {
-    getAndSetExecutedAutomationsList(currentPageNum);
-  }, [currentPageNum])
+    getAndSetExecutedAutomationsList({ page: currentPageNum, automationStepIds: automationStepFilterIdsAndName.map(step => step.id) });
+  }, [currentPageNum, automationStepFilterIdsAndName])
 
   return (
     <PageWithHeader
@@ -117,28 +119,55 @@ export default function AutomationDetailsPage({ params }) {
           valueKey='count'
         />
         <div className='mt-8 bg-white rounded-md border border-gray-200'>
-          <div className='px-4 py-8'>
+          <div className='px-4 py-8 flex items-center justify-between'>
             <h2 className='text-sm font-medium'>Execution Log</h2>
+            {automationSteps && automationSteps.length > 0 && (
+              <ExecutedAutomationsFilter
+                automationSteps={automationSteps}
+                onFilterChange={({ stepId, isChecked, stepName }) => {
+                  if (isChecked) {
+                    setAutomationStepFilterIdsAndName([...automationStepFilterIdsAndName, { id: stepId, name: stepName }]);
+                  } else {
+                    setAutomationStepFilterIdsAndName(automationStepFilterIdsAndName.filter(({ id }) => id !== stepId));
+                  }
+                }}
+              />
+            )}
           </div>
           <div className='flex flex-col divide-y border-t border-gray-200'>
             {executedAutomations && automationSteps
-              ? (
-                <>
-                  {executedAutomations.map((executionAutomation, i) => (
-                    <ExecutedAutomationDetails
-                      key={i}
-                      automationSteps={automationSteps}
-                      executedAutomation={executionAutomation}
+              ? executedAutomations.length > 0
+                ? (
+                  <>
+                    {executedAutomations.map((executionAutomation, i) => (
+                      <ExecutedAutomationDetails
+                        key={i}
+                        automationSteps={automationSteps}
+                        executedAutomation={executionAutomation}
+                      />
+                    ))}
+                    <Pagination
+                      className='pb-4'
+                      currentPage={currentPageNum}
+                      lastPageNum={totalNumPages}
+                      onNewPageSelected={setCurrentPageNum}
                     />
-                  ))}
-                  <Pagination
-                    className='pb-4'
-                    currentPage={currentPageNum}
-                    lastPageNum={totalNumPages}
-                    onNewPageSelected={setCurrentPageNum}
-                  />
-                </>
-              ) : Array.from({ length: 10 }).map((_, i) => <Skeleton className='h-20 bg-gray-200 mt-0.5' />)
+                  </>
+                ) : (
+                  <div className='p-4 text-gray-500 text-center text-md py-8'>
+                    The "{automation.name}" automation has not yet been executed{automationStepFilterIdsAndName.length > 0 && (
+                      <>
+                        {' '}with the{' '}
+                        {automationStepFilterIdsAndName.slice(0, -1).map(step => <span className='italic'>"{step.name}",</span>)}
+                        {automationStepFilterIdsAndName.length > 1
+                          ? <>{' '}and <span className='italic'>"{automationStepFilterIdsAndName[automationStepFilterIdsAndName.length - 1].name}"</span></>
+                          : <span className='italic'>"{automationStepFilterIdsAndName[0]?.name}"</span>
+                        }
+                        {' '}automation step{automationStepFilterIdsAndName.length === 1 ? '' : 's'}
+                      </>
+                    )}.
+                  </div>
+                ) : Array.from({ length: 10 }).map((_, i) => <Skeleton className='h-20 bg-gray-200 mt-0.5' />)
             }
           </div>
         </div>

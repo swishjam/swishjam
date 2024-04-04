@@ -5,11 +5,13 @@ import QueryFilterGroupBuilder from "./QueryFilterGroupBuilder";
 import { Skeleton } from "@/components/ui/skeleton";
 import SwishjamAPI from "@/lib/api-client/swishjam-api";
 import { useEffect, useState } from "react";
+import { caseInsensitiveSortedArray } from "@/lib/utils/misc";
 
 export default function QueryBuilder({
-  defaultSegmentName = '',
-  defaultSegmentDescription = '',
+  defaultCohortName = '',
+  defaultCohortDescription = '',
   defaultQueryFilterGroups = [{ sequence_index: 0, previous_query_filter_group_relationship_operator: null, query_filters: [] }],
+  profileType,
   isLoading = false,
   onSave,
   onPreview,
@@ -18,12 +20,10 @@ export default function QueryBuilder({
   const [errorMessages, setErrorMessages] = useState([])
   const [nameAndDescriptionModalIsOpen, setNameAndDescriptionModalIsOpen] = useState(false)
   const [queryFilterGroups, setQueryFilterGroups] = useState(defaultQueryFilterGroups)
-  const [segmentName, setSegmentName] = useState(defaultSegmentName)
-  const [segmentDescription, setSegmentDescription] = useState(defaultSegmentDescription)
-  const [uniqueUserProperties, setUniqueUserProperties] = useState()
   const [uniqueEvents, setUniqueEvents] = useState()
+  const [uniquePropertiesForProfileType, setUniquePropertiesForProfileType] = useState()
 
-  if (defaultQueryFilterGroups === undefined || uniqueUserProperties === undefined || uniqueEvents === undefined) {
+  if (defaultQueryFilterGroups === undefined || uniquePropertiesForProfileType === undefined || uniqueEvents === undefined) {
     <div className='relative bg-white rounded-md border border-gray-200 px-4 py-8'>
       <Skeleton className='h-10 w-20' />
       <Skeleton className='h-10 w-20' />
@@ -32,18 +32,27 @@ export default function QueryBuilder({
   }
 
   useEffect(() => {
-    SwishjamAPI.Users.uniqueProperties().then(userProperties => setUniqueUserProperties([...userProperties, 'email'].sort()))
-    SwishjamAPI.Events.listUnique().then(eventsAndCounts => {
-      const names = eventsAndCounts.map(event => event.name)
-      setUniqueEvents(names.sort())
-    })
+    if (profileType === 'user') {
+      SwishjamAPI.Users.uniqueProperties().then(userProperties => (
+        setUniquePropertiesForProfileType(caseInsensitiveSortedArray([...userProperties, 'email']))
+      ))
+    } else if (profileType === 'organization') {
+      SwishjamAPI.Organizations.uniqueProperties().then(orgProperties => (
+        setUniquePropertiesForProfileType(caseInsensitiveSortedArray(orgProperties))
+      ))
+    } else {
+      throw new Error(`QueryBuilder received unknown profileType: ${profileType}`)
+    }
+    SwishjamAPI.Events.listUnique().then(eventsAndCounts => (
+      setUniqueEvents(caseInsensitiveSortedArray(eventsAndCounts.map(event => event.name)))
+    ))
   }, [])
 
   const errorsForQueryFilterGroups = groups => {
     let errorMessagess = []
     groups.forEach((group, groupIndex) => {
       return group.query_filters.forEach((filter, filterIndex) => {
-        if (filter.type === 'QueryFilters::UserProperty') {
+        if (filter.type === 'QueryFilters::ProfileProperty') {
           if (!filter.config.property_name) {
             errorMessagess.push(`Please select a property value for filter #${filterIndex + 1}${groups.length > 1 ? ` in group #${groupIndex + 1}` : ''}.`)
           }
@@ -53,7 +62,7 @@ export default function QueryBuilder({
           if (!['is_defined', 'is_not_defined', 'is_generic_email', 'is_not_generic_email'].includes(filter.config.operator) && !filter.config.property_value) {
             errorMessagess.push(`Please enter an expected value for filter #${filterIndex + 1}${groups.length > 1 ? ` in group #${groupIndex + 1}` : ''}.`)
           }
-        } else if (filter.type === 'QueryFilters::EventCountForUserOverTimePeriod') {
+        } else if (filter.type === 'QueryFilters::EventCountForProfileOverTimePeriod') {
           if (!filter.config.event_name) {
             errorMessagess.push(`Please select an event for filter #${filterIndex + 1}${groups.length > 1 ? ` in group #${groupIndex + 1}` : ''}.`)
           }
@@ -77,8 +86,9 @@ export default function QueryBuilder({
   return (
     <>
       <NameAndDescriptionModal
-        defaultName={segmentName}
-        defaultDescription={segmentDescription}
+        defaultName={defaultCohortName}
+        defaultDescription={defaultCohortDescription}
+        profileType={profileType}
         isOpen={nameAndDescriptionModalIsOpen}
         onClose={() => setNameAndDescriptionModalIsOpen(false)}
         onSave={({ name, description }) => {
@@ -105,7 +115,10 @@ export default function QueryBuilder({
             previousQueryFilterGroupRelationshipOperator={filter.previous_query_filter_group_relationship_operator}
             showDeleteButton={i > 0}
             showNewGroupButtons={i === queryFilterGroups.length - 1}
-            uniqueUserProperties={uniqueUserProperties}
+            // uniqueUserProperties={uniqueUserProperties}
+            // uniqueOrganizationProperties={uniqueOrganizationProperties}
+            profileType={profileType}
+            uniquePropertiesForProfileType={uniquePropertiesForProfileType}
             uniqueEvents={uniqueEvents}
           />
         </div >
@@ -138,10 +151,10 @@ export default function QueryBuilder({
                 setErrorMessages(errors)
               } else {
                 setErrorMessages([])
-                if ((!segmentName || segmentName === '') && (!segmentDescription || segmentDescription === '')) {
+                if ((!defaultCohortName || defaultCohortName === '') && (!defaultCohortDescription || defaultCohortDescription === '')) {
                   setNameAndDescriptionModalIsOpen(true)
                 } else {
-                  onSave({ name: segmentName, description: segmentDescription, queryFilterGroups })
+                  onSave({ name: defaultCohortName, description: defaultCohortDescription, queryFilterGroups })
                 }
               }
             }}

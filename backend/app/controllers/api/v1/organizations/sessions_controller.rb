@@ -2,18 +2,19 @@ module Api
   module V1
     module Organizations
       class SessionsController < BaseController
+        include TimeseriesHelper
+        
         def timeseries
-          raise "Not implemented"
-          url_hosts = current_workspace.url_segments.pluck(:url_host)
-          querier = ClickHouseQueries::Organizations::Sessions::Timeseries.new(
-            # current_workspace.public_key, 
-            @organization.id, 
-            url_hosts: url_hosts, 
-            # start_time: start_timestamp, 
-            start_time: 3.months.ago,
-            end_time: end_timestamp
-          )
-          render json: { timeseries: querier.timeseries }, status: :ok
+          params[:data_source] ||= 'all'
+          timeseries = ClickHouseQueries::Events::Timeseries.new(
+            public_keys_for_requested_data_source,
+            event: ClickHouseQueries::Events::Timeseries.ANY_EVENT,
+            start_time: start_timestamp,
+            end_time: end_timestamp,
+            organization_profile_id: @organization.id,
+            distinct_count_property: Analytics::Event::ReservedPropertyNames.SESSION_IDENTIFIER,
+          ).get
+          render json: render_timeseries_json(timeseries), status: :ok
         end
       end
     end

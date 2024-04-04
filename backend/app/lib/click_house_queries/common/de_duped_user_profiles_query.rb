@@ -8,7 +8,7 @@ module ClickHouseQueries
         <<~SQL
           SELECT
             swishjam_user_id,
-            #{columns.map { |column| "argMax(#{column}, updated_at) AS #{column}" }.join(', ')}
+            #{columns.map { |column| "argMax(swishjam_user_profiles.#{column}, updated_at) AS #{column}" }.join(', ')}
           FROM swishjam_user_profiles
           WHERE
             workspace_id = '#{workspace_id}'

@@ -21,11 +21,11 @@ class Workspace < Transactional
   has_many :workspace_invitations, dependent: :destroy
   has_many :workspace_members, dependent: :destroy
   has_many :users, through: :workspace_members
-  has_many :user_segments, dependent: :destroy
+  has_many :cohorts, dependent: :destroy
 
   after_create_commit { ApiKey.generate_default_keys_for(self) }
   after_create_commit { WorkspaceSetting.generate_default_for(self) }
-  after_create_commit { UserSegment.create_default_for_workspace(self) }
+  after_create_commit { Cohort.create_default_for_workspace(self) }
   after_create :add_swishjam_admin_to_workspace
   attribute :public_key, :string, default: "DEPRECATED"
 

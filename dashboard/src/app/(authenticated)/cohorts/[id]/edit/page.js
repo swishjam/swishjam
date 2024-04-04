@@ -14,45 +14,46 @@ import UserProfilesCollection from "@/lib/collections/user-profiles";
 import UsersTablePreview from "@/components/QueryBuilder/UsersTablePreview";
 import { XIcon } from "lucide-react";
 
-export default function EditUserSegmentPage({ params }) {
+export default function EditCohortPage({ params }) {
   const { id } = params;
   const router = useRouter();
 
   const [isLoading, setIsLoading] = useState(false)
   const [isFetchingPreviewData, setIsFetchingPreviewData] = useState(false)
   const [nameAndDescriptionModalIsOpen, setNameAndDescriptionModalIsOpen] = useState(false)
-  const [userSegment, setUserSegment] = useState()
-
+  const [cohort, setCohort] = useState()
   const [previewedUsers, setPreviewedUsers] = useState()
   const [currentPreviewedUsersPageNum, setCurrentPreviewedUsersPageNum] = useState()
   const [previewedUsersTotalPages, setPreviewedUsersTotalPages] = useState()
   const [previewedQueryFilterGroups, setPreviewedQueryFilterGroups] = useState()
   const [totalNumUsersInPreview, setTotalNumUsersInPreview] = useState()
 
+  const humanizedProfileType = cohort?.type === 'Cohorts::UserCohort' ? 'user' : 'organization'
+
   useEffect(() => {
-    SwishjamAPI.UserSegments.retrieve(id).then(({ user_segment }) => setUserSegment(user_segment))
+    SwishjamAPI.Cohorts.retrieve(id).then(({ cohort }) => setCohort(cohort))
   }, [id])
 
-  const updateSegment = queryFilterGroups => {
+  const updateCohort = queryFilterGroups => {
     setIsLoading(true)
-    SwishjamAPI.UserSegments.update(id, { name: userSegment.name, description: userSegment.description, queryFilterGroups }).then(({ user_segment, error }) => {
+    SwishjamAPI.Cohorts.update(id, { name: cohort.name, description: cohort.description, queryFilterGroups }).then(({ cohort, error }) => {
       if (error) {
         setIsLoading(false)
-        toast.error('Failed to update user cohort', {
+        toast.error('Failed to update cohort', {
           description: error,
           duration: 10_000,
         })
       } else {
-        toast.success('User cohort updated successfully.')
-        router.push(`/users/cohorts/${user_segment.id}`)
+        toast.success('Cohort updated successfully.')
+        router.push(`/cohorts/${cohort.id}`)
       }
     })
   }
 
-  const previewSegment = (queryFilterGroups, page = 1) => {
+  const previewCohort = (queryFilterGroups, page = 1) => {
     setIsFetchingPreviewData(true)
     setCurrentPreviewedUsersPageNum(page)
-    SwishjamAPI.UserSegments.preview({ queryFilterGroups, page, limit: 10 }).then(({ error, users, total_pages, total_num_records }) => {
+    SwishjamAPI.Cohorts.preview({ profileType: humanizedProfileType, queryFilterGroups, page, limit: 10 }).then(({ error, users, total_pages, total_num_records }) => {
       setIsFetchingPreviewData(false)
       if (error) {
         toast.error('Failed to preview user cohort', {
@@ -72,14 +73,14 @@ export default function EditUserSegmentPage({ params }) {
 
   return (
     <main className="mx-auto max-w-7xl px-4 mt-8 sm:px-6 lg:px-8 mb-8">
-      {userSegment && (
+      {cohort && (
         <NameAndDescriptionModal
-          defaultDescription={userSegment.description}
-          defaultName={userSegment.name}
+          defaultDescription={cohort.description}
+          defaultName={cohort.name}
           isOpen={nameAndDescriptionModalIsOpen}
           onClose={() => setNameAndDescriptionModalIsOpen(false)}
           onSave={({ name, description }) => {
-            setUserSegment({ ...userSegment, name, description })
+            setCohort({ ...cohort, name, description })
             setNameAndDescriptionModalIsOpen(false)
           }}
           saveText='Update Cohort'
@@ -93,7 +94,7 @@ export default function EditUserSegmentPage({ params }) {
           <div>
             <div>
               <h1 className="text-lg font-medium text-gray-700 mb-0 flex items-center">
-                {userSegment?.name || <Skeleton className='h-8 w-16 mx-1 inline-block bg-gray-200' />}
+                {cohort?.name || <Skeleton className='h-8 w-16 mx-1 inline-block bg-gray-200' />}
                 <div
                   className='group px-2 py-1 cursor-pointer ml-1 rounded-md transition-colors hover:bg-gray-200'
                   onClick={() => setNameAndDescriptionModalIsOpen(true)}
@@ -101,8 +102,8 @@ export default function EditUserSegmentPage({ params }) {
                   <PencilIcon className='w-4 h-4 text-gray-700' />
                 </div>
               </h1>
-              {userSegment
-                ? <h2 className='text-sm text-gray-500'>{userSegment.description}</h2>
+              {cohort
+                ? <h2 className='text-sm text-gray-500'>{cohort.description}</h2>
                 : <Skeleton className='h-6 w-72 mt-1 bg-gray-200' />
               }
             </div>
@@ -110,14 +111,15 @@ export default function EditUserSegmentPage({ params }) {
         </div>
 
       </div>
-      {userSegment ? (
+      {cohort ? (
         <QueryBuilder
-          defaultSegmentName={userSegment.name}
-          defaultSegmentDescription={userSegment.description}
-          defaultQueryFilterGroups={userSegment.query_filter_groups}
+          defaultCohortName={cohort.name}
+          defaultCohortDescription={cohort.description}
+          defaultQueryFilterGroups={cohort.query_filter_groups}
           isLoading={isLoading || isFetchingPreviewData}
-          onPreview={previewSegment}
-          onSave={({ queryFilterGroups }) => updateSegment(queryFilterGroups)}
+          onPreview={previewCohort}
+          onSave={({ queryFilterGroups }) => updateCohort(queryFilterGroups)}
+          profileType={humanizedProfileType}
           saveButtonText='Update Cohort'
         />
       ) : (
@@ -135,7 +137,7 @@ export default function EditUserSegmentPage({ params }) {
           <UsersTablePreview
             currentPageNum={currentPreviewedUsersPageNum}
             lastPageNum={previewedUsersTotalPages}
-            onNewPage={page => previewSegment(previewedQueryFilterGroups, page)}
+            onNewPage={page => previewCohort(previewedQueryFilterGroups, page)}
             queryFilterGroups={previewedQueryFilterGroups}
             userProfilesCollection={isFetchingPreviewData ? null : new UserProfilesCollection(previewedUsers)}
           />

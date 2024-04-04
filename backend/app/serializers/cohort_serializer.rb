@@ -1,5 +1,5 @@
-class UserSegmentSerializer < ActiveModel::Serializer
-  attributes :id, :name, :description, :created_at, :updated_at, :created_by_user, :query_filter_groups, :rough_user_count, :last_synced_profile_tags_at
+class CohortSerializer < ActiveModel::Serializer
+  attributes :id, :type, :name, :description, :created_at, :updated_at, :created_by_user, :query_filter_groups, :rough_profile_count, :last_synced_profile_tags_at
 
   def created_by_user
     object.created_by_user.as_json(only: %i[id name email])
@@ -11,7 +11,7 @@ class UserSegmentSerializer < ActiveModel::Serializer
     end
   end
 
-  def rough_user_count
+  def rough_profile_count
     object.profile_tags.active.count
   end
 

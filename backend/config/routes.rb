@@ -53,10 +53,11 @@ Rails.application.routes.draw do
       ## BEGIN ORGANIZATIONS ROUTES ##
       ################################
       resources :organizations, only: [:index, :show] do
-        # collection do
-        #   get :count
-        #   get :timeseries
-        # end
+        collection do
+          get :count
+          get :unique_properties
+          # get :timeseries
+        end
         resources :users, only: [:index], controller: :'organizations/users' do
           collection do
             get :top
@@ -68,6 +69,7 @@ Rails.application.routes.draw do
             get :timeseries
           end
         end
+        resources :events, only: [:index], controller: :'organizations/events' 
         resources :page_views, only: [:index], controller: :'organizations/page_views'
         resources :billing, only: [:index], controller: :'organizations/billing'
       end
@@ -179,7 +181,7 @@ Rails.application.routes.draw do
       end
       resources :dashboards_dashboard_components, only: [:destroy]
 
-      resources :user_segments do
+      resources :cohorts do
         member do
           get :sql
         end
@@ -208,7 +210,7 @@ Rails.application.routes.draw do
           patch :disable
         end
         resources :automation_steps, only: [:index]
-        resources :executed_automations, only: [:index] do
+        resources :executed_automations, only: [:index, :show] do
           collection do
             get :timeseries
           end
