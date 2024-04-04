@@ -32,7 +32,6 @@ export default function ProfilePropertyConfiguration({
     ])
   }
 
-  console.log('SLECTED?', property ? `${profileType}.${property}` : null)
   return (
     <div className='flex items-center space-x-2 text-sm'>
       {precedingContent}

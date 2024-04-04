@@ -70,7 +70,6 @@ const FilterGroupItem = ({ filterGroup }) => {
 }
 
 export default function FilterGroupsDisplay({ filterGroups }) {
-  console.log(filterGroups)
   return (
     <div className="flow-root">
       <ul role="list" className="-mb-8">
