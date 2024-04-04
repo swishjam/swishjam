@@ -6,9 +6,10 @@ export default function TableComponent({ headers, rows, noDataMessage = 'No data
     <Table>
       <TableHeader>
         <TableRow className='hover:bg-white'>
-          {headers.map((header, i) => (
-            <TableHead key={i} className='cursor-default'>{header}</TableHead>
-          ))}
+          {headers?.length > 0
+            ? headers.map((header, i) => <TableHead key={i} className='cursor-default'>{header}</TableHead>)
+            : Array.from({ length: 4 }).map((_, i) => <TableHead key={i} className='cursor-default'><Skeleton className='h-6 w-18' /></TableHead>)
+          }
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -32,7 +33,7 @@ export default function TableComponent({ headers, rows, noDataMessage = 'No data
           : (
             Array.from({ length: numRowsWhileLoading }).map((_, i) => (
               <TableRow key={i}>
-                {headers.map((_, j) => (
+                {(headers?.length > 0 ? headers : Array.from({ length: 4 })).map((_, j) => (
                   <TableCell key={j} className='cursor-default'>
                     <Skeleton className='h-6 w-18' />
                   </TableCell>
