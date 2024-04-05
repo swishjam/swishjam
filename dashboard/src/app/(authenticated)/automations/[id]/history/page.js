@@ -121,7 +121,7 @@ export default function AutomationDetailsPage({ params }) {
         <div className='mt-8 bg-white rounded-md border border-gray-200'>
           <div className='px-4 py-8 grid grid-cols-2 items-center justify-between'>
             <h2 className='text-sm font-medium'>Execution Log</h2>
-            {(automationSteps || []).length > 0 && (
+            {(automationSteps || []).length > 3 && (
               <ExecutedAutomationsFilter
                 automationSteps={automationSteps}
                 onFilterChange={({ stepId, isChecked, stepName }) => {
