@@ -39,7 +39,7 @@ module Api
       private
 
       def get_automation
-        @automation ||= Automation.find(params[:automation_id])
+        @automation ||= current_workspace.automations.find(params[:automation_id])
       end
     end
   end
