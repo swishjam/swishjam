@@ -53,7 +53,7 @@ module ProfileTags
         events << event_for_ingestion(profile, "added_to_cohort")
         events << event_for_ingestion(profile, "added_to_#{cohort.name.downcase.gsub(' ', '_').gsub('.', '_')}_cohort")
       end
-      profiles_to_remove_profile_tag.each do |profile| 
+      profiles_to_remove_profile_tag.each do |profile|
         events << event_for_ingestion(profile, "removed_from_cohort")
         events << event_for_ingestion(profile, "removed_from_#{cohort.name.downcase.gsub(' ', '_').gsub('.', '_')}_cohort")
       end
@@ -77,6 +77,7 @@ module ProfileTags
         properties[:user_email] = profile.email
         properties[:user_unique_identifier] = profile.user_unique_identifier
         properties[:profile_name] = profile.full_name if profile.full_name.present?
+        properties[:profile_email] = profile.email
       else
         # important so the event gets associated with the organization
         properties[:organization_id] = profile.organization_unique_identifier
