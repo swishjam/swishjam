@@ -119,9 +119,9 @@ export default function AutomationDetailsPage({ params }) {
           valueKey='count'
         />
         <div className='mt-8 bg-white rounded-md border border-gray-200'>
-          <div className='px-4 py-8 flex items-center justify-between'>
+          <div className='px-4 py-8 grid grid-cols-2 items-center justify-between'>
             <h2 className='text-sm font-medium'>Execution Log</h2>
-            {automationSteps && automationSteps.length > 0 && (
+            {(automationSteps || []).length > 0 && (
               <ExecutedAutomationsFilter
                 automationSteps={automationSteps}
                 onFilterChange={({ stepId, isChecked, stepName }) => {
@@ -158,7 +158,7 @@ export default function AutomationDetailsPage({ params }) {
                     The "{automation.name}" automation has not yet been executed{automationStepFilterIdsAndName.length > 0 && (
                       <>
                         {' '}with the{' '}
-                        {automationStepFilterIdsAndName.slice(0, -1).map(step => <span className='italic'>"{step.name}",</span>)}
+                        {automationStepFilterIdsAndName.slice(0, -1).map((step, i) => <span key={i} className='italic'>"{step.name}",</span>)}
                         {automationStepFilterIdsAndName.length > 1
                           ? <>{' '}and <span className='italic'>"{automationStepFilterIdsAndName[automationStepFilterIdsAndName.length - 1].name}"</span></>
                           : <span className='italic'>"{automationStepFilterIdsAndName[0]?.name}"</span>
@@ -167,7 +167,7 @@ export default function AutomationDetailsPage({ params }) {
                       </>
                     )}.
                   </div>
-                ) : Array.from({ length: 10 }).map((_, i) => <Skeleton className='h-20 bg-gray-200 mt-0.5' />)
+                ) : Array.from({ length: 10 }).map((_, i) => <Skeleton key={i} className='h-20 bg-gray-200 mt-0.5 mx-1' />)
             }
           </div>
         </div>

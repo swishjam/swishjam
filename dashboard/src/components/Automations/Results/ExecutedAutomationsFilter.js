@@ -1,6 +1,22 @@
 import { Checkbox } from "@/components/ui/checkbox";
 import { Tooltipable } from "@/components/ui/tooltip";
 import { InfoIcon } from "lucide-react";
+import { LuClock, LuFilter, LuMail } from "react-icons/lu";
+const SlackIcon = ({ ...props }) => <img src={'/logos/slack.svg'} {...props} />
+
+const BORDER_COLORS_MAP = {
+  'AutomationSteps::Delay': 'border-blue-500',
+  'AutomationSteps::SlackMessage': 'border-purple-500',
+  'AutomationSteps::ResendEmail': 'border-green-500',
+  'AutomationSteps::Filter': 'border-yellow-500',
+};
+
+const ICONS_MAP = {
+  'AutomationSteps::Delay': LuClock,
+  'AutomationSteps::SlackMessage': SlackIcon,
+  'AutomationSteps::ResendEmail': LuMail,
+  'AutomationSteps::Filter': LuFilter,
+}
 
 export default function ExecutedAutomationsFilter({ automationSteps, onFilterChange }) {
   return (
@@ -13,7 +29,7 @@ export default function ExecutedAutomationsFilter({ automationSteps, onFilterCha
           </div>
         </Tooltipable>
       </div>
-      <div className='flex items-center space-x-2 flex-wrap justify-self-end mt-1'>
+      <div className='flex items-center justify-end flex-wrap justify-self-end space-x-2 mt-1'>
         {automationSteps?.map((step, i) => {
           if (['AutomationSteps::EntryPoint', 'AutomationSteps::Exit'].includes(step.type)) return;
           const hasMultipleStepTypes = automationSteps.filter(s => s.friendly_type === step.friendly_type).length > 0;
@@ -34,12 +50,22 @@ export default function ExecutedAutomationsFilter({ automationSteps, onFilterCha
                 break;
             }
           }
+          const Icon = ICONS_MAP[step.type];
           return (
-            <div key={i} className='text-xs text-gray-500 flex items-center space-x-1'>
+            <div key={i} className={`text-xs text-gray-500 flex items-center space-x-1 pr-2 border-r-4 mt-2 ${BORDER_COLORS_MAP[step.type]}`}>
               <Checkbox
                 id={`step-${i}`}
                 size={3}
-                label={label}
+                label={
+                  <Tooltipable content={label}>
+                    <div className='flex items-center space-x-1'>
+                      <Icon className='w-3 h-3' />
+                      <div className='truncate' style={{ maxWidth: '6rem' }}>
+                        {label}
+                      </div>
+                    </div>
+                  </Tooltipable>
+                }
                 onCheckedChange={isChecked => onFilterChange({ stepId: step.id, stepName: label, isChecked })}
               />
             </div>

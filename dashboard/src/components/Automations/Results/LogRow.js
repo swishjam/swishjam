@@ -2,6 +2,34 @@ import { prettyDateTime } from "@/lib/utils/timeHelpers";
 import { CheckCircleIcon, ChevronRightIcon, CircleAlertIcon, InfoIcon, XCircleIcon } from "lucide-react";
 import { useState } from "react";
 
+const RecursiveMetadataDisplay = ({ metadata, className = '' }) => {
+  if (!metadata) return <></>
+  return (
+    <div className={`pl-2 text-xs font-mono ${className}`}>
+      {Object.keys(metadata).map((key, i) => {
+        const value = metadata[key];
+        if (typeof value === 'object') {
+          return (
+            <div key={i} className="pt-1">
+              <div>{key}:</div>
+              <div className="ml-4">
+                <RecursiveMetadataDisplay metadata={value} />
+              </div>
+            </div>
+          )
+        } else {
+          return (
+            <div key={i} className="flex space-x-2 pt-1">
+              <div>{key}:</div>
+              <div className="font-medium">{value}</div>
+            </div>
+          )
+        }
+      })}
+    </div>
+  )
+}
+
 export default function LogRow({ log, icon, color, timestampFormatterOptions = { seconds: 'numeric', milliseconds: true } }) {
   const [isExpanded, setIsExpanded] = useState(false);
   const isExpandable = log.metadata && (Array.isArray(log.metadata) ? log.metadata : Object.keys(log.metadata)).length > 0
@@ -31,14 +59,9 @@ export default function LogRow({ log, icon, color, timestampFormatterOptions = {
         {isExpandable && (
           <div className={`col-span-4 transition-all overflow-hidden ${isExpanded ? 'h-fit pl-12 py-2' : 'h-0'}`}>
             <span className='text-xs font-semibold'>
-              {/no automation step satisfies the specified conditions|satisfied conditions:/i.test(log.message) ? 'Conditions:' : 'Response:'}
+              {log.metadataTitle || (/no automation step satisfies the specified conditions|satisfied conditions:/i.test(log.message) ? 'Conditions' : 'Response')}:
             </span>
-            {Object.keys(log.metadata).map((key, i) => (
-              <div key={i} className={`flex items-center space-x-1 mt-1 pl-2 text-xs font-mono ${textColorClass}`}>
-                <span className='whitespace-pre-wrap truncate mr-1'>{key}:</span>
-                <span className='whitespace-pre-wrap truncate'>{JSON.stringify(log.metadata[key], null, 2)}</span>
-              </div>
-            ))}
+            <RecursiveMetadataDisplay className={textColorClass} metadata={log.metadata} />
           </div>
         )}
       </>

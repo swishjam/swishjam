@@ -17,7 +17,9 @@ export default function ExecutedAutomationLogs({ executedAutomation, className =
       level: 'start',
       icon: PlayCircleIcon,
       color: 'green',
-      message: '~~ Beginning automation ~~',
+      message: `~~ Beginning automation from "${executedAutomation.event_json.name}" event ~~`,
+      metadata: executedAutomation.event_json,
+      metadataTitle: 'Event Payload',
       timestamp: executedAutomation.started_at,
     },
     executedAutomation.completed_at && {
