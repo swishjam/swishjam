@@ -4,77 +4,30 @@ import { useState, useEffect } from "react";
 import EmptyState from '@/components/utils/PageEmptyState';
 import { SwishjamAPI } from "@/lib/api-client/swishjam-api";
 import { Skeleton } from "@/components/ui/skeleton";
-import { toast } from "sonner";
 import AutomationRow from "@/components/Automations/AutomationRow";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "src/lib/utils"
 import Link from "next/link";
 import { LuPlus } from "react-icons/lu";
+import PageWithHeader from "@/components/utils/PageWithHeader";
 
-export default function () {
+export default function AutomationsListPage() {
   const [automations, setAutomations] = useState();
 
-  const pauseAuto = async (automationId) => {
-    SwishjamAPI.Automations.disable(automationId).then(({ automation, error }) => {
-      if (error) {
-        toast.error("Uh oh! Something went wrong.", {
-          description: "Contact founders@swishjam.com for help",
-        })
-      } else {
-        toast.success('Automation paused')
-        setAutomations([...automations.filter((a) => a.id !== automationId), automation])
-      }
-    })
-  }
-
-  const resumeAuto = async (automationId) => {
-    SwishjamAPI.Automations.enable(automationId).then(({ automation, error }) => {
-      if (error) {
-        toast.error("Uh oh! Something went wrong.", {
-          description: "Contact founders@swishjam.com for help",
-        })
-      } else {
-        toast.success('Automation resumed')
-        setAutomations([...automations.filter((a) => a.id !== automationId), automation])
-      }
-    })
-  }
-
-  const deleteAuto = async (automationId) => {
-    SwishjamAPI.Automations.delete(automationId).then(({ error }) => {
-      if (error) {
-        toast.error("Uh oh! Something went wrong.", {
-        description: "Contact founders@swishjam.com for help",
-      })
-    } else {
-      toast.success('Automation deleted')
-      setAutomations([...automations.filter((a) => a.id !== automationId)])
-    }
-  })
-}
-
-  const load = async () => {
-    const automations = await SwishjamAPI.Automations.list()
-    setAutomations(automations)
-  }
-
   useEffect(() => {
-    load()
+    SwishjamAPI.Automations.list().then(setAutomations)
   }, []);
 
   return (
-    <main className="mx-auto max-w-7xl px-4 mt-8 sm:px-6 lg:px-8 mb-8">
-      <div className='grid grid-cols-2'>
-        <div>
-          <h1 className="text-lg font-medium text-gray-700 mb-0">Automations</h1>
-        </div>
-        <div className="w-full flex items-center justify-end">
-          <Link href="/automations/new" className={cn(buttonVariants({ variant: "swishjam" }))}>
-            <LuPlus className="h-5 w-5" />   
-            New Automation
-          </Link> 
-        </div>
-      </div>
+    <PageWithHeader
+      title="Automations"
+      buttons={[
+        <Link href="/automations/new" className={cn(buttonVariants({ variant: "swishjam" }))}>
+          <LuPlus className="h-5 w-5" />
+          New Automation
+        </Link>
+      ]}
+    >
       <div className="flex flex-col space-y-8 lg:flex-row lg:space-x-12 lg:space-y-0 mt-8">
         <div className="flex-1">
           <div>
@@ -94,21 +47,21 @@ export default function () {
                       <AutomationRow
                         key={automation.id}
                         automation={automation}
-                        onPause={pauseAuto}
-                        onResume={resumeAuto}
-                        onDelete={deleteAuto}
+                        onPause={newAutomation => setAutomations([...automations.filter(a => a.id !== automation.id), newAutomation])}
+                        onResume={newAutomation => setAutomations([...automations.filter(a => a.id !== automation.id), newAutomation])}
+                        onDelete={() => setAutomations(automations.filter(a => a.id !== automation.id))}
                       />
                     ))}
                   </ul>
                 </div>
-              ) : <EmptyState title={"No Automations"} />
+              ) : <EmptyState title="No Automations" />
             )
             }
           </div>
 
         </div>
       </div>
-    </main>
+    </PageWithHeader>
   )
 }
 

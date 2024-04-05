@@ -11,6 +11,8 @@ class Automation < Transactional
   scope :enabled, -> { where(enabled: true) }
   scope :disabled, -> { where(enabled: false) }
 
+  self.destroy_in_background_job = true
+
   def execute!(prepared_event, as_test: false)
     Automations::Executor.new(automation: self, prepared_event: prepared_event, as_test: as_test).execute_automation!
   end

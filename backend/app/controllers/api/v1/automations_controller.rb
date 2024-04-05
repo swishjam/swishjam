@@ -70,7 +70,7 @@ module Api
       def destroy
         automation = current_workspace.automations.find(params[:id])
         automation.destroy!
-        render json: { deleted: true }, status: :ok
+        render json: { enqueued: true }, status: :ok
       end
 
       def test_execution
