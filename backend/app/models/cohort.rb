@@ -51,9 +51,9 @@ class Cohort < Transactional
             sequence_index: 0,
             query_filters_attributes: [
               {
-                type: QueryFilters::UserProperty.to_s,
+                type: QueryFilters::ProfileProperty.to_s,
                 sequence_index: 0,
-                config: { property_name: "user_unique_identifier", operator: cohort_attrs[:operator] }
+                config: { property_name: "user_unique_identifier", operator: cohort_attrs[:operator], profile_type: 'user' }
               }
             ]
           }
