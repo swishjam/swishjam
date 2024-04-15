@@ -56,8 +56,13 @@ export default function TopPanel({ automationName: currentAutomationName, canSav
       <div className='flex items-center m-auto'>
         <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
           <PopoverTrigger>
-            <div className='cursor-pointer  font-medium p-2 px-4 hover:bg-gray-100 transition-all duration-500 rounded-md'>
-              {currentAutomationName}
+            <div className='flex items-center space-x-2 cursor-pointer font-medium p-2 px-4 hover:bg-gray-100 transition-all duration-500 rounded-md'>
+              {currentAutomationName === 'New Automation' && (
+                <div className='p-1 rounded bg-yellow-100 hover:bg-yellow-200 transition-all'>
+                  <AlertTriangleIcon className='text-yellow-700 h-4 w-4' />
+                </div>
+              )}
+              <span>{currentAutomationName}</span>
             </div>
           </PopoverTrigger>
           <PopoverContent className='relative px-4 pt-8'>
