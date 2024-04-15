@@ -1,9 +1,11 @@
 export class InteractionHandler {
   constructor({
+    autoIdentify = true,
+    clickElementTypes = ['A', 'BUTTON'],
     recordClicks = true,
     recordFormSubmits = true,
-    clickElementTypes = ['A', 'BUTTON'],
   }) {
+    this.autoIdentify = autoIdentify;
     this.recordClicks = recordClicks;
     this.recordFormSubmits = recordFormSubmits;
     this.clickElementTypes = clickElementTypes.map(type => type.toUpperCase());
@@ -34,8 +36,10 @@ export class InteractionHandler {
   }
 
   _initFormListeners = () => {
+    debugger
     if (!this.recordFormSubmits) return;
     document.addEventListener('submit', e => {
+      this._maybeAutoIdentifyFormSubmit(e);
       this.onInteractionCallbacks.forEach(callback => (
         callback({
           type: 'form_submit',
@@ -44,6 +48,7 @@ export class InteractionHandler {
             form_class: e.target.className,
             form_method: e.target.method,
             form_action: e.target.action,
+            form_name: e.target.name,
           }
         })
       ));
@@ -60,6 +65,18 @@ export class InteractionHandler {
       return ['submit', 'button'].includes(inputType)
     } else {
       return false;
+    }
+  }
+
+  _maybeAutoIdentifyFormSubmit = submitEvent => {
+    const emailInputs = submitEvent.target.querySelectorAll('input[type="email"]');
+    const emailValues = Array.from(emailInputs).map(input => input.value);
+    const uniqueEmailValues = [...new Set(emailValues)];
+    // pretty basic way of making sure it's a legit email
+    if (uniqueEmailValues.length === 1 && uniqueEmailValues[0].length > 3) {
+      this.onInteractionCallbacks.forEach(callback => (
+        callback({ type: 'setUser', attributes: { email: emailValues[0], auto_identified: true } })
+      ));
     }
   }
 }

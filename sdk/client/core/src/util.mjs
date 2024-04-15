@@ -7,6 +7,11 @@ export class Util {
     });
   }
 
+  static getUrlParam(name) {
+    const urlParams = new URLSearchParams(window.location.search);
+    return urlParams.get(name);
+  }
+
   static smartCookieDomain() {
     const hostname = window.location.hostname;
     const parts = hostname.split('.').reverse();

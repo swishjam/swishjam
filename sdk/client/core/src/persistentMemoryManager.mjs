@@ -2,19 +2,20 @@ import CookieHelper from "./cookieHelper.mjs";
 import LZString from "lz-string";
 import { SWISHJAM_PERSISTENT_USER_DATA_COOKIE_NAME } from "./constants.mjs";
 
-export class PersistentUserDataManager {
-  static setUserAttributes = ({ userIdentifier, email, firstName, lastName, ...metadata }) => {
-    if (userIdentifier) this.set('user_unique_identifier', userIdentifier);
-    if (email) this.set('user_email', email);
-    if (firstName) this.set('user_first_name', firstName);
-    if (lastName) this.set('user_last_name', lastName);
-    if (metadata) this.set('user_metadata', metadata);
+export class PersistentMemoryManager {
+  static setOrganizationData = (uniqueIdentifier, attributes = {}) => {
+    this.set('organization_data', { ...attributes, id: uniqueIdentifier })
   }
 
-  static setOrganizationAttributes = ({ organizationIdentifier, organizationName, ...metadata }) => {
-    if (organizationIdentifier) this.set('organization_identifier', organizationIdentifier);
-    if (organizationName) this.set('organization_name', organizationName);
-    if (metadata) this.set('organization_metadata', metadata);
+  static getOrganizationData = () => {
+    let orgData = this.get('organization_data');
+    if (!orgData) {
+      orgData = JSON.parse(this.get('organization_metadata') || '{}');
+      orgData.id = this.get('organization_identifier');
+      orgData.name = this.get('organization_name');
+      orgData = JSON.stringify(orgData);
+    }
+    return JSON.parse(orgData || '{}')
   }
 
   static getAll = ({ except = [] } = {}) => {
@@ -44,16 +45,16 @@ export class PersistentUserDataManager {
     return CookieHelper.setCookie({ name: SWISHJAM_PERSISTENT_USER_DATA_COOKIE_NAME, value: compressedValue, expiresIn: oneYear });
   }
 
-  static setIfNull = (key, value) => {
-    const existingValue = this.get(key);
-    if (!existingValue) {
-      return this.set(key, value);
-    }
-  }
+  // static setIfNull = (key, value) => {
+  //   const existingValue = this.get(key);
+  //   if (!existingValue) {
+  //     return this.set(key, value);
+  //   }
+  // }
 
   static reset = () => {
     CookieHelper.deleteCookie(SWISHJAM_PERSISTENT_USER_DATA_COOKIE_NAME);
   }
 }
 
-export default PersistentUserDataManager;
+export default PersistentMemoryManager;

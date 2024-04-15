@@ -26,7 +26,7 @@ module Ingestion
                                       provided_org_attributes['organization_identifier']
           if organization_identifier.present?
             org = workspace.analytics_organization_profiles.find_by(organization_unique_identifier: organization_identifier)
-            maybe_org_name = provided_org_attributes['organization_name'] || provided_org_attributes['name']
+            maybe_org_name = provided_org_attributes['organization_name'] || provided_org_attributes['name'] || provided_org_attributes['organizationName'] || provided_org_attributes['org_name'] || provided_org_attributes['orgName']
             sanitized_provided_org_metadata = (provided_org_attributes['metadata'] || provided_org_attributes || {}).except('id', 'organization_identifier', 'name', 'organization_name', 'domain', 'org_id', 'organization_id', 'orgIdentifier', 'organizationIdentifier', 'organization_identifier')
             if org.present?
               org.name = maybe_org_name if maybe_org_name.present?
@@ -78,7 +78,7 @@ module Ingestion
           workspace.analytics_user_profiles.create!(
             user_unique_identifier: provided_unique_user_identifier,
             email: parsed_event.properties.dig('user', 'email'),
-            metadata: metadata_for_new_user_profile,
+            metadata: supplemented_metadata_for_new_user_profile,
             last_seen_at_in_web_app: Time.current,
             first_seen_at_in_web_app: Time.current,
             created_by_data_source: data_source,
@@ -88,31 +88,40 @@ module Ingestion
 
       def handle_user_profile_handling_from_instrumentation_event!
         existing_device = workspace.analytics_user_profile_devices.find_by(swishjam_cookie_value: parsed_event.device_identifier)
+        byebug
         if existing_device.present?
-          existing_device.owner.update!(last_seen_at_in_web_app: Time.current)
+          existing_device.owner.last_seen_at_in_web_app = Time.current
+          existing_device.owner.email = provided_user_data['email'] if !provided_user_data['email'].blank?
+          existing_device.owner.metadata = existing_device.owner.metadata.merge!(provided_user_data.except('id', 'email'))
+          existing_device.save!
           existing_device.owner
         else
           anonymous_user = workspace.analytics_user_profiles.create!(
             first_seen_at_in_web_app: Time.current, 
             last_seen_at_in_web_app: Time.current,
-            metadata: metadata_for_new_user_profile,
+            email: provided_user_data['email'],
+            metadata: supplemented_metadata_for_new_user_profile,
             created_by_data_source: data_source,
           )
           workspace.analytics_user_profile_devices.create!(
             swishjam_cookie_value: parsed_event.device_identifier, 
             device_fingerprint: parsed_event.device_fingerprint,
-            analytics_user_profile_id: anonymous_user.id
+            analytics_user_profile_id: anonymous_user.id,
           )
           anonymous_user
         end
       end
 
-      def metadata_for_new_user_profile
+      def supplemented_metadata_for_new_user_profile
         user_metadata = {}
         user_metadata[AnalyticsUserProfile::ReservedMetadataProperties.INITIAL_LANDING_PAGE_URL] = parsed_event.properties['url'] if parsed_event.properties['url'].present?
         user_metadata[AnalyticsUserProfile::ReservedMetadataProperties.INITIAL_REFERRER_URL] = parsed_event.properties['referrer'] if !parsed_event.properties['referrer'].nil?
-        user_metadata.merge!(parsed_event.properties['user']&.except('id', 'email') || {})
+        user_metadata.merge!(provided_user_data.except('id', 'email'))
         user_metadata
+      end
+
+      def provided_user_data
+        parsed_event.properties['user'] || {}
       end
     end
   end

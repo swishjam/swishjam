@@ -1,7 +1,7 @@
 const { JSDOM } = require('jsdom');
 import { SessionPersistance } from '../src/sessionPersistance.mjs';
 import { DeviceIdentifiers } from '../src/deviceIdentifiers.mjs';
-import { PersistentUserDataManager } from '../src/persistentUserDataManager.mjs';
+import { PersistentMemoryManager } from '../src/PersistentMemoryManager.mjs';
 
 const dom = new JSDOM('', { url: 'https://swishjam.com' });
 global.window = dom.window;
@@ -22,5 +22,5 @@ afterEach(() => {
 
   SessionPersistance.clear();
   DeviceIdentifiers.resetUserDeviceIdentifierValue();
-  PersistentUserDataManager.reset();
+  PersistentMemoryManager.reset();
 });

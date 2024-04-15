@@ -1,11 +1,10 @@
 import CookieHelper from "./cookieHelper.mjs";
-import { DeviceDetails } from "./deviceDetails.mjs";
 import { DeviceIdentifiers } from "./deviceIdentifiers.mjs";
 import { ErrorHandler } from './errorHandler.mjs';
 import { EventQueueManager } from "./eventQueueManager.mjs";
 import { InteractionHandler } from "./interactionHandler.mjs";
 import { PageViewManager } from "./pageViewManager.mjs";
-import { PersistentUserDataManager } from "./persistentUserDataManager.mjs";
+import { PersistentMemoryManager } from "./PersistentMemoryManager.mjs";
 import { Requester } from "./requester.mjs";
 import { SessionPersistance } from "./sessionPersistance.mjs";
 import { Util } from "./util.mjs";
@@ -13,7 +12,8 @@ import { Util } from "./util.mjs";
 import {
   SDK_VERSION,
   SWISHJAM_SESSION_IDENTIFIER_COOKIE_NAME,
-  SWISHJAM_PAGE_VIEW_IDENTIFIER_SESSION_STORAGE_KEY
+  SWISHJAM_PAGE_VIEW_IDENTIFIER_SESSION_STORAGE_KEY,
+  SWISHJAM_SESSION_ATTRIBUTES_SESSION_STORAGE_KEY,
 } from './constants.mjs'
 
 export class Client {
@@ -28,13 +28,17 @@ export class Client {
       maxSize: this.config.maxEventsInMemory,
     });
     this.pageViewManager = new PageViewManager;
-    this.deviceDetails = new DeviceDetails;
     this.interactionHandler = new InteractionHandler({
+      autoIdentify: this.config.autoIdentify,
       recordClicks: this.config.recordClicks,
       recordFormSubmits: this.config.recordFormSubmits,
     });
+
     // the order here is important, we want to make sure we have a session before we start register the page views in the _initPageViewListeners
-    if (!this.getSession()) this.newSession({ registerPageView: false });
+    if (!this.getSession()) {
+      this._setSessionAttributesInMemory();
+      this.newSession({ registerPageView: false });
+    }
     this._initPageViewListeners();
     this._initInteractionListeners();
     this._recordInMemoryEvents();
@@ -50,47 +54,40 @@ export class Client {
   }
 
   identify = (userIdentifier, traits = {}) => {
-    return this.errorHandler.executeWithErrorHandling(() => {
-      // set the persistent user data first so the event is created with the correct user data
-      const userTraits = Object.keys(traits).reduce((acc, key) => {
-        if (!['organization', 'org'].includes(key)) {
-          acc[key] = traits[key];
+    if (!userIdentifier || userIdentifier === 'undefined' || userIdentifier === 'null') {
+      console.error(`SwishjamJS: \`identify\` requires a unique identifier to be provided, received: ${userIdentifier}`);
+    } else {
+      return this.errorHandler.executeWithErrorHandling(() => {
+        const { organization, org, ...userTraits } = traits;
+        const identifyEvent = this.eventQueueManager.recordEvent('identify', { userIdentifier, auto_identified: false, ...userTraits })
+        if (organization || org) {
+          const { id, identifier, ...orgTraits } = organization || org || {};
+          if (id || identifier) {
+            this.setOrganization(id || identifier, orgTraits);
+          }
         }
-        return acc;
-      }, {})
-      PersistentUserDataManager.setUserAttributes({ userIdentifier, ...userTraits });
-      const identifyEvent = this.eventQueueManager.recordEvent('identify', { userIdentifier, ...userTraits })
-      const extractedOrgData = this._extractOrganizationFromIdentifyCall(traits);
-      if (extractedOrgData) {
-        const [maybeOrganizationIdentifier, maybeOrganizationTraits] = extractedOrgData;
-        this.setOrganization(maybeOrganizationIdentifier, maybeOrganizationTraits);
-      }
-      return identifyEvent;
+        return identifyEvent;
+      })
+    }
+  }
+
+  setUser = (traits = {}) => {
+    return this.errorHandler.executeWithErrorHandling(() => {
+      this.eventQueueManager.recordEvent('set_user', { user: traits })
     })
   }
 
   setOrganization = (organizationIdentifier, traits = {}) => {
-    return this.errorHandler.executeWithErrorHandling(() => {
-      const previouslySetOrganization = PersistentUserDataManager.get('organization_identifier');
-      // set the new organization so the potential new session has the correct organization
-      const maybeOrgName = traits.name || traits.organizationName || traits.organization_name || traits.orgName || traits.org_name;
-      const filteredTraits = Object.keys(traits).reduce((acc, key) => {
-        if (!['name', 'organizationName', 'organization_name', 'orgName', 'org_name'].includes(key)) {
-          acc[key] = traits[key];
-        }
-        return acc;
-      }, {})
-      // we store all setOrganization calls to persistent storage so it will be included in all future events/sessions
-      // we may eventually want to make this configurable (ie: only make it session based), but for now we will always store it
-      PersistentUserDataManager.setOrganizationAttributes({
-        organizationIdentifier,
-        organizationName: maybeOrgName,
-        ...filteredTraits
+    if (!organizationIdentifier || organizationIdentifier === 'undefined' || organizationIdentifier === 'null') {
+      console.error(`SwishjamJS: \`setOrganization\` requires a unique identifier to be provided, received: ${organizationIdentifier}`);
+    } else {
+      return this.errorHandler.executeWithErrorHandling(() => {
+        const { organization_identifier: previouslySetOrganizationIdentifier } = PersistentMemoryManager.getOrganizationData();
+        PersistentMemoryManager.setOrganizationData(organizationIdentifier, traits);
+        if (previouslySetOrganizationIdentifier && previouslySetOrganizationIdentifier !== organizationIdentifier) this.newSession();
+        return this.eventQueueManager.recordEvent('organization', { organizationIdentifier, ...traits }, { includeOrganizationData: false });
       });
-      // we assume anytime setOrganization is called with a new org, we want a new session
-      if (previouslySetOrganization && previouslySetOrganization !== organizationIdentifier) this.newSession();
-      return this.eventQueueManager.recordEvent('organization', { organizationIdentifier, ...traits }, { includeOrganizationData: false });
-    });
+    }
   }
 
   getSession = () => {
@@ -103,30 +100,7 @@ export class Client {
     return this.errorHandler.executeWithErrorHandling(() => {
       // important to set this first because new events will be created with this value
       CookieHelper.setCookie({ name: SWISHJAM_SESSION_IDENTIFIER_COOKIE_NAME, value: Util.generateUUID('s') });
-
-      // no longer necessary because these are derived from the event payload the first time seeing a user
-      PersistentUserDataManager.setIfNull('initial_url', window.location.href);
-      PersistentUserDataManager.setIfNull('initial_referrer', document.referrer);
-
-      const previousSessionStartedAt = PersistentUserDataManager.get('previous_session_started_at');
-      PersistentUserDataManager.set('previous_session_started_at', new Date());
-
-      let userVisitStatus = 'new';
-      if (previousSessionStartedAt) {
-        const msSinceLastSession = new Date() - new Date(previousSessionStartedAt);
-        const oneDayInMs = 24 * 60 * 60 * 1000;
-        if (msSinceLastSession > oneDayInMs * 30) {
-          userVisitStatus = 'resurrecting';
-        } else {
-          userVisitStatus = 'returning';
-        }
-      }
-      SessionPersistance.set('userVisitStatus', userVisitStatus)
-
-      this.eventQueueManager.recordEvent('new_session', {
-        referrer: document.referrer,
-        ...this.deviceDetails.all()
-      });
+      this.eventQueueManager.recordEvent('new_session');
       if (registerPageView) this.pageViewManager.recordPageView();
       return this.getSession();
     });
@@ -135,33 +109,22 @@ export class Client {
   logout = () => {
     return this.errorHandler.executeWithErrorHandling(() => {
       DeviceIdentifiers.resetUserDeviceIdentifierValue();
-      PersistentUserDataManager.reset();
+      PersistentMemoryManager.reset();
       return this.newSession();
     });
   }
 
-  _extractOrganizationFromIdentifyCall = identifyTraits => {
-    const { organization, org } = identifyTraits;
-    if (organization || org) {
-      const extractedOrganizationData = organization || org;
-      if (typeof extractedOrganizationData === 'string') {
-        return [extractedOrganizationData, {}];
-      } else {
-        const { id, identifier, orgIdentifier, org_identifier, organizationId, ogranization_id, orgId, org_id } = extractedOrganizationData;
-        const organizationIdentifier = id || identifier || orgIdentifier || org_identifier || organizationId || ogranization_id || orgId || org_id;
-        if (organizationIdentifier) {
-          let orgTraits = {};
-          Object.keys(extractedOrganizationData).forEach(key => {
-            if (!['id', 'identifier', 'orgIdentifier', 'org_identifier', 'organizationId', 'organization_id', 'orgId', 'org_id'].includes(key)) {
-              orgTraits[key] = extractedOrganizationData[key];
-            }
-          });
-          return [organizationIdentifier, orgTraits];
-        } else {
-          console.warn('SwishjamJS: identify call included an organization object but did not include an organizationIdentifier. Organization object was ignored.')
-        }
+  _setSessionAttributesInMemory = () => {
+    return this.errorHandler.executeWithErrorHandling(() => {
+      let sessionAttributes = {
+        session_referrer: document.referrer,
+        session_landing_page_url: window.location.href,
       }
-    }
+      this.config.includedUrlParams.forEach(param => {
+        sessionAttributes[`session_${param}`] = Util.getUrlParam(param);
+      });
+      SessionPersistance.set(SWISHJAM_SESSION_ATTRIBUTES_SESSION_STORAGE_KEY, sessionAttributes);
+    });
   }
 
   _initPageViewListeners = () => {
@@ -189,7 +152,11 @@ export class Client {
     return this.errorHandler.executeWithErrorHandling(() => {
       this.interactionHandler.onInteraction(({ type, attributes }) => {
         return this.errorHandler.executeWithErrorHandling(() => {
-          this.eventQueueManager.recordEvent(type, attributes);
+          if (type === 'setUser') {
+            this.setUser(attributes);
+          } else {
+            this.eventQueueManager.recordEvent(type, attributes);
+          }
         });
       })
     })
@@ -197,21 +164,25 @@ export class Client {
 
   _setConfig = options => {
     if (!options.apiKey) throw new Error('Swishjam `apiKey` is required');
-    const validOptions = ['apiKey', 'apiEndpoint', 'maxEventsInMemory', 'reportingHeartbeatMs', 'debug', 'disabledUrls', 'disabled'];
+    const validOptions = [
+      'apiKey', 'apiEndpoint', 'apiHost', 'apiPath', 'autoIdentify', 'disabled', 'disabledUrls', 'includedUrlParams',
+      'maxEventsInMemory', 'recordClicks', 'recordFormSubmits', 'reportingHeartbeatMs'
+    ];
     Object.keys(options).forEach(key => {
       if (!validOptions.includes(key)) console.warn(`SwishjamJS received unrecognized config: ${key}`);
     });
     return {
-      version: SDK_VERSION,
       apiKey: options.apiKey,
-      apiEndpoint: options.apiEndpoint || 'https://capture.swishjam.com/api/v1/capture',
-      maxEventsInMemory: options.maxEventsInMemory || 20,
-      reportingHeartbeatMs: options.reportingHeartbeatMs || 2_500,
+      apiEndpoint: options.apiEndpoint || `${(options.apiHost || '').includes('localhost:') ? 'http' : 'https'}://${options.apiHost || 'capture.swishjam.com'}${options.apiPath || '/api/v1/capture'}`,
+      autoIdentify: options.autoIdentify ?? true,
+      disabled: options.disabled ?? false,
       disabledUrls: options.disabledUrls || ['http://localhost'],
-      disabled: typeof options.disabled === 'boolean' ? options.disabled : false,
-      debug: typeof options.debug === 'boolean' ? options.debug : false,
-      recordClicks: typeof options.recordClicks === 'boolean' ? options.recordClicks : true,
-      recordFormSubmits: typeof options.recordFormSubmits === 'boolean' ? options.recordFormSubmits : true,
+      includedUrlParams: [...(options.includedUrlParams || []), 'utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content', 'gclid'],
+      maxEventsInMemory: options.maxEventsInMemory || 20,
+      recordClicks: options.recordClicks ?? true,
+      recordFormSubmits: options.recordFormSubmits ?? true,
+      reportingHeartbeatMs: options.reportingHeartbeatMs || 2_500,
+      version: SDK_VERSION,
     }
   }
 
