@@ -132,11 +132,11 @@ const OrganizationProfile = ({ params }) => {
     const [org, users, pageViews, events, sessionsTimeseries] = await Promise.all([
       SwishjamAPI.Organizations.retrieve(id),
       SwishjamAPI.Organizations.Users.list(id),
-      SwishjamAPI.Organizations.PageViews.list(id),
-      SwishjamAPI.Organizations.Events.list(id, { limit: 5 }),
+      SwishjamAPI.Organizations.PageViews.list(id, { timeframe: '90_days', limit: 10 }),
+      SwishjamAPI.Organizations.Events.list(id, { timeframe: '90_days', limit: 5 }),
       SwishjamAPI.Organizations.Sessions.timeseries(id),
     ]);
-    const formattedPageViewData = pageViews.map(pageView => ({ name: pageView.url, value: pageView.count }));
+    const formattedPageViewData = pageViews.map(pageView => ({ name: pageView.url, value: pageView.count, href: pageView.url }));
     setOrganizationData(org);
     setPageViewData(formattedPageViewData);
     setTopUsers(users);

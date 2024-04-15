@@ -23,12 +23,12 @@ const UserProfile = ({ params }) => {
   const [userData, setUserData] = useState();
 
   const getEvents = async () => {
-    return await SwishjamAPI.Users.Events.list(userId, { limit: 5 }).then(setRecentEvents);
+    return await SwishjamAPI.Users.Events.list(userId, { timeframe: '90_days', limit: 5 }).then(setRecentEvents);
   }
 
   const getPageViews = async () => {
-    return await SwishjamAPI.Users.PageViews.list(userId, { timeframe: '30_days' }).then(pageViews => {
-      setPageViewsData(pageViews.map(({ url, count }) => ({ name: url, value: count })));
+    return await SwishjamAPI.Users.PageViews.list(userId, { timeframe: '90_days' }).then(pageViews => {
+      setPageViewsData(pageViews.map(({ url, count }) => ({ name: url, value: count, href: url })));
     });
   }
 
@@ -102,7 +102,7 @@ const UserProfile = ({ params }) => {
               timeseries={sessionTimeseriesData?.timeseries}
               valueFormatter={numSessions => numSessions.toLocaleString('en-US')}
             />
-            <BarList className="mt-4" title='Page Views' items={pageViewsData} noDataMessage="No page views in the last 30 days." />
+            <BarList className="mt-4" title='Page Views' items={pageViewsData} noDataMessage="No page views in the last 90 days." />
             <EventFeed
               className="col-span-6 mt-4"
               events={recentEvents}
@@ -119,7 +119,7 @@ const UserProfile = ({ params }) => {
                 }
               }}
               loadMoreEventsIncrement={5}
-              noDataMsg="No events triggered in the last 30 days."
+              noDataMsg="No events triggered in the last 90 days."
               rightItemKey='occurred_at'
               rightItemKeyFormatter={date => new Date(date).toLocaleTimeString('en-us', { hour: 'numeric', minute: "2-digit", second: "2-digit" })}
               title='Recent Events'

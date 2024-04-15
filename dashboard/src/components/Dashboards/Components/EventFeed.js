@@ -22,6 +22,7 @@ import {
   ZapIcon,
   ChevronRightIcon,
   BotIcon,
+  ExternalLinkIcon,
 } from "lucide-react";
 
 import CalComLogo from '@public/logos/calcom.png'
@@ -30,6 +31,7 @@ import ResendLogo from '@public/logos/resend.png'
 import StripeLogo from '@public/logos/stripe.jpeg'
 import { useRouter } from "next/navigation"
 import { Skeleton } from "@/components/ui/skeleton"
+import Link from "next/link"
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(' ')
@@ -74,7 +76,7 @@ const iconForEvent = event => {
   }
 }
 
-const RecursivePropertiesDisplay = ({ properties }) => {
+const RecursivePropertiesDisplay = ({ properties, linkToUrls = true }) => {
   if (!properties) return <></>
   return (
     <>
@@ -93,7 +95,18 @@ const RecursivePropertiesDisplay = ({ properties }) => {
           return (
             <div key={i} className="flex space-x-2 pt-1">
               <div className="text-gray-500">{key}:</div>
-              <div className="text-gray-900">{value}</div>
+              <div className="text-gray-900">
+                {linkToUrls && key === 'url'
+                  ? <Link
+                    href={value}
+                    target='_blank'
+                    className='text-blue-600 flex items-center space-x-1 hover:underline'
+                    onClick={e => e.stopPropagation()}
+                  >
+                    {value} <ExternalLinkIcon className='h-3 w-3' />
+                  </Link>
+                  : value}
+              </div>
             </div>
           )
         }
