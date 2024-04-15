@@ -19,11 +19,12 @@ export default function AcceptForm({ userInvite }) {
     e.preventDefault();
     setLoading(true);
     setErrorMsg();
-    const { error, auth_token } = await SwishjamAPI.WorkspaceInvitations.accept(userInvite.invite_token, { acceptance_method: 'existing' });
+    const { user, error, auth_token } = await SwishjamAPI.WorkspaceInvitations.accept(userInvite.invite_token, { acceptance_method: 'existing' });
     if (error) {
       setLoading(false);
       setErrorMsg(error);
     } else {
+      swishjam.identify(user.id, { email: user.email })
       swishjam.event('workspace_invitation_accepted', {
         workspace_id: userInvite?.workspace?.id,
         workspace_name: userInvite?.workspace?.name,
@@ -40,11 +41,12 @@ export default function AcceptForm({ userInvite }) {
     e.preventDefault();
     setLoading(true);
     setErrorMsg();
-    const { error, auth_token } = await SwishjamAPI.WorkspaceInvitations.accept(userInvite.invite_token, { email, password, acceptance_method: currentView });
+    const { user, error, auth_token } = await SwishjamAPI.WorkspaceInvitations.accept(userInvite.invite_token, { email, password, acceptance_method: currentView });
     if (error) {
       setLoading(false);
       setErrorMsg(error);
     } else {
+      swishjam.identify(user.id, { email: user.email })
       swishjam.event('workspace_invitation_accepted', {
         workspace_id: userInvite?.workspace?.id,
         workspace_name: userInvite?.workspace?.name,

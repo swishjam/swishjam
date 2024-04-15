@@ -53,7 +53,7 @@ module Api
         if workspace_member.save
           if invitation.accept!
             auth_token = log_user_in(user, invitation.workspace)
-            render json: { auth_token: auth_token }, status: :ok
+            render json: { user: user.attributes.except('password_digest', 'jwt_secret_key'), auth_token: auth_token }, status: :ok
           else
             render json: { error: invitation.errors.full_messages.join(' ') }, status: :unprocessable_entity
           end
