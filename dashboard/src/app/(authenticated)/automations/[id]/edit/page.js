@@ -10,6 +10,7 @@ import { useEffect, useState } from "react"
 import { reformatNodesAndEdgesToAutomationsPayload } from "@/lib/automations-helpers";
 import { toast } from "sonner";
 import { LuArrowLeft } from "react-icons/lu";
+import { swishjam } from "@swishjam/react";
 
 export default function EditAutomationPage({ params }) {
   const { id: automationId } = params;
@@ -46,8 +47,10 @@ export default function EditAutomationPage({ params }) {
     const { error } = await SwishjamAPI.Automations.update(automationId, { name: automation.name, automation_steps, next_automation_step_conditions })
     setIsLoading(false);
     if (error) {
+      swishjam.event('automation_error', { error, automation_name: automation.name })
       toast.error('Failed to update automation', { description: error })
     } else {
+      swishjam.event('automation_updated', { automation_id: automationId, automation_name: automation.name })
       toast.success('Automation updated.')
     }
     return { error }

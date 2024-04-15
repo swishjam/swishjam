@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { ReactFlowProvider } from 'reactflow'
+import { swishjam } from "@swishjam/react";
 
 export default function NewAutomationPage() {
   const [name, setName] = useState('New Automation')
@@ -23,8 +24,10 @@ export default function NewAutomationPage() {
     const { automation, error } = await SwishjamAPI.Automations.create({ name, automation_steps, next_automation_step_conditions })
     if (error) {
       setIsSaving(false)
+      swishjam.event('automation_error', { error, automation_name: name })
       toast.error('Failed to create automation', { description: error })
     } else {
+      swishjam.event('automation_created', { automation_id: automation.id, automation_name: automation.name })
       toast.success('Automation created')
       router.replace(`/automations/${automation.id}/edit`)
     }
