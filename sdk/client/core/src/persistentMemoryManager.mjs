@@ -45,13 +45,6 @@ export class PersistentMemoryManager {
     return CookieHelper.setCookie({ name: SWISHJAM_PERSISTENT_USER_DATA_COOKIE_NAME, value: compressedValue, expiresIn: oneYear });
   }
 
-  // static setIfNull = (key, value) => {
-  //   const existingValue = this.get(key);
-  //   if (!existingValue) {
-  //     return this.set(key, value);
-  //   }
-  // }
-
   static reset = () => {
     CookieHelper.deleteCookie(SWISHJAM_PERSISTENT_USER_DATA_COOKIE_NAME);
   }

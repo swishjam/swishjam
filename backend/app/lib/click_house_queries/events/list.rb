@@ -16,6 +16,7 @@ module ClickHouseQueries
         property: nil, 
         user_profile_id: nil, 
         organization_profile_id: nil, 
+        columns: nil,
         limit: 10
       )
         @public_keys = public_keys.is_a?(Array) ? public_keys : [public_keys]
@@ -27,6 +28,7 @@ module ClickHouseQueries
         @user_profile_id = user_profile_id
         @organization_profile_id = organization_profile_id
         @limit = limit
+        @additional_columns = columns || []
         validate!
       end
 
@@ -50,6 +52,8 @@ module ClickHouseQueries
         needed_columns = ['name', 'occurred_at', 'properties']
         needed_columns << 'user_profile_id' if @user_profile_id
         needed_columns << 'organization_profile_id' if @organization_profile_id
+        needed_columns << 'user_properties' if @additional_columns.include?('user_properties')
+        needed_columns << 'organization_properties' if @additional_columns.include?('organization_properties')
         <<~SQL
           SELECT uuid, #{needed_columns.map{ |column| "argMax(#{column}, ingested_at) AS #{column}" }.join(', ')}
           FROM events AS e
@@ -69,11 +73,11 @@ module ClickHouseQueries
             CAST(COUNT(DISTINCT e.uuid) AS INT) AS count
           SQL
         else
-          <<~SQL
-            e.name AS name, 
-            e.occurred_at AS occurred_at,
-            e.properties AS properties
-          SQL
+          columns = ['name', 'occurred_at', 'properties']
+          columns << 'user_properties' if @additional_columns.include?('user_properties')
+          columns << 'organization_properties' if @additional_columns.include?('organization_properties')
+          columns << 'uuid' if @additional_columns.include?('uuid')
+          columns.map{ |column| "#{column} AS #{column}" }.join(', ')
         end
       end
 

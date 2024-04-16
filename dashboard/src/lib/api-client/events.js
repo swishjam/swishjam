@@ -6,6 +6,10 @@ export class Events extends Base {
   static Properties = Properties;
   static Users = Users;
 
+  static async list(options = {}) {
+    return await this._get('/api/v1/events', options)
+  }
+
   static async listUnique(options = {}) {
     return await this._get('/api/v1/events/unique', options)
   }

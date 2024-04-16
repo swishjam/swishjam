@@ -1,6 +1,10 @@
 module Api
   module V1
     class WorkspacesController < BaseController
+      def index
+        render json: current_user.workspaces, status: :ok
+      end
+
       def update
         workspace = current_workspace
         if workspace.update(workspace_params)

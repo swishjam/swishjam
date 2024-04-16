@@ -3,6 +3,20 @@ module Api
     class EventsController < BaseController
       include TimeseriesHelper
 
+      # global events list for workspace
+      def index
+        params[:data_source] ||= 'all'
+        limit = (params[:limit] || 100).to_i
+        events = ClickHouseQueries::Events::List.new(
+          public_keys_for_requested_data_source,
+          start_time: start_timestamp,
+          end_time: end_timestamp,
+          limit: limit,
+          columns: ['uuid'],
+        ).get
+        render json: events, status: :ok
+      end
+
       def unique
         params[:data_source] ||= 'all'
         limit = (params[:limit] || 200).to_i

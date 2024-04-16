@@ -69,6 +69,7 @@ export class InteractionHandler {
   }
 
   _maybeAutoIdentifyFormSubmit = submitEvent => {
+    if (!this.autoIdentify) return;
     const emailInputs = submitEvent.target.querySelectorAll('input[type="email"]');
     const emailValues = Array.from(emailInputs).map(input => input.value);
     const uniqueEmailValues = [...new Set(emailValues)];
