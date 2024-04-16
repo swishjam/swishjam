@@ -88,7 +88,6 @@ module Ingestion
 
       def handle_user_profile_handling_from_instrumentation_event!
         existing_device = workspace.analytics_user_profile_devices.find_by(swishjam_cookie_value: parsed_event.device_identifier)
-        byebug
         if existing_device.present?
           existing_device.owner.last_seen_at_in_web_app = Time.current
           existing_device.owner.email = provided_user_data['email'] if !provided_user_data['email'].blank?

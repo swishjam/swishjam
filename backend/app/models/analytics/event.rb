@@ -48,5 +48,20 @@ module Analytics
         occurred_at: occurred_at.to_f,
       }
     end
+
+    # THIS BREAKS TOO MUCH STUFF - GOING TO CONTINUE USING ACTIVE RECORD UNTIL WE CAN UPGRADE THE CLICKHOUSE ACTIVERECORD GEM
+    # overwritting this method in order to correctly include milliseconds in timestamps :/
+    # this should realistically only be called from the ClickHouseWriter classes, so all the data should already be formatted correctly here
+    # def self.insert_all!(events_arr)
+    #   events_arr = [events_arr] if !events_arr.is_a?(Array)
+    #   columns = "uuid, swishjam_api_key, name, user_profile_id, organization_profile_id, properties, user_properties, organization_properties, occurred_at, ingested_at"
+    #   values = events_arr.map do |event|
+    #     "('#{event['uuid']}', '#{event['swishjam_api_key']}', '#{event['name']}', #{event['user_profile_id'].nil? ? 'NULL' : "'#{event['user_profile_id']}'"}, #{event['organization_profile_id'].nil? ? 'NULL' : "'#{event['organization_profile_id']}'"}, '#{event['properties']}', '#{event['user_properties']}', '#{event['organization_properties']}', '#{event['occurred_at'].to_datetime.utc.strftime('%Y-%m-%d %H:%M:%S.%3N')}', '#{DateTime.now.utc.strftime('%Y-%m-%d %H:%M:%S.%3N')}')"
+    #   end.join(", ")
+    #   insert_statement = <<~SQL
+    #     INSERT INTO events (#{columns}) VALUES #{values}
+    #   SQL
+    #   execute_sql(insert_statement, format: nil)
+    # end
   end
 end

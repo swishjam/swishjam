@@ -117,11 +117,14 @@ export class Client {
   _setSessionAttributesInMemory = () => {
     return this.errorHandler.executeWithErrorHandling(() => {
       let sessionAttributes = {
-        session_referrer: document.referrer,
+        session_referrer: Util.documentReferrerOrDirect(),
         session_landing_page_url: window.location.href,
       }
       this.config.includedUrlParams.forEach(param => {
-        sessionAttributes[`session_${param}`] = Util.getUrlParam(param);
+        const value = Util.getUrlParam(param);
+        if (value) {
+          sessionAttributes[`session_${param}`] = value;
+        }
       });
       SessionPersistance.set(SWISHJAM_SESSION_ATTRIBUTES_SESSION_STORAGE_KEY, sessionAttributes);
     });

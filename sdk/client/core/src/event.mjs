@@ -29,7 +29,7 @@ export class Event {
       timestamp: Date.now(),
       attributes: {
         // referrer can sometimes be overridden by attributes just in case it's a SPA and the referrer is not indicative of the actual referrer
-        referrer: document.referrer,
+        referrer: Util.documentReferrerOrDirect(),
         ...deviceDetails.all(),
         ...SessionPersistance.get(SWISHJAM_SESSION_ATTRIBUTES_SESSION_STORAGE_KEY) || {},
         ...this.attributes,

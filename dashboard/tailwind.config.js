@@ -78,6 +78,11 @@ module.exports = {
         '4xl': '2rem',
       },
       keyframes: {
+        "green-glow": {
+          '0%': { boxShadow: '0 0 5px #30bb78, 0 0 10px #30bb78' },
+          '50%': { boxShadow: '0 0 15px #30bb78, 0 0 20px #30bb78' },
+          '100%': { boxShadow: '0 0 5px #30bb78, 0 0 10px #30bb78' },
+        },
         "accordion-down": {
           from: { height: 0 },
           to: { height: "var(--radix-accordion-content-height)" },
@@ -96,6 +101,7 @@ module.exports = {
         },
       },
       animation: {
+        "green-glow": "green-glow 2s infinite",
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
       },

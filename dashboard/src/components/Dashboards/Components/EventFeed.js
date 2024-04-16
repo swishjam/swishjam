@@ -22,7 +22,8 @@ import {
   ZapIcon,
   ChevronRightIcon,
   BotIcon,
-  ExternalLinkIcon,
+  ArrowUpIcon,
+  SparklesIcon,
 } from "lucide-react";
 
 import CalComLogo from '@public/logos/calcom.png'
@@ -31,7 +32,7 @@ import ResendLogo from '@public/logos/resend.png'
 import StripeLogo from '@public/logos/stripe.jpeg'
 import { useRouter } from "next/navigation"
 import { Skeleton } from "@/components/ui/skeleton"
-import Link from "next/link"
+import { MaybeExternalLink } from "@/components/utils/MaybeExternalLink"
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(' ')
@@ -82,7 +83,7 @@ const RecursivePropertiesDisplay = ({ properties, linkToUrls = true }) => {
     <>
       {Object.keys(properties).map((key, i) => {
         const value = properties[key];
-        if (typeof value === 'object') {
+        if (typeof value === 'object' && value !== null && value !== undefined) {
           return (
             <div key={i} className="pt-1">
               <div className="text-gray-500">{key}:</div>
@@ -97,15 +98,11 @@ const RecursivePropertiesDisplay = ({ properties, linkToUrls = true }) => {
               <div className="text-gray-500">{key}:</div>
               <div className="text-gray-900">
                 {linkToUrls && key === 'url' && value
-                  ? <Link
-                    href={value}
-                    target='_blank'
-                    className='text-blue-600 flex items-center space-x-1 hover:underline'
-                    onClick={e => e.stopPropagation()}
-                  >
-                    {value} <ExternalLinkIcon className='h-3 w-3' />
-                  </Link>
-                  : value ?? <span className='italic'>undefined</span>
+                  ? (
+                    <MaybeExternalLink href={value} onClick={e => e.stopPropagation()}>
+                      {value}
+                    </MaybeExternalLink>
+                  ) : value === undefined || value === null ? <span className='italic text-gray-700'>{'undefined'}</span> : value.toString()
                 }
               </div>
             </div>
@@ -116,15 +113,14 @@ const RecursivePropertiesDisplay = ({ properties, linkToUrls = true }) => {
   )
 }
 
-const EventFeedItem = ({ event, isExpandable, leftItemHeaderKey, rightItemKey, rightItemKeyFormatter, leftItemSubHeaderFormatter, isLastItem = false }) => {
-  const [isExpanded, setIsExpanded] = useState(false);
+const EventFeedItem = ({ event, onExpandClick, isExpanded, isExpandable, leftItemHeaderKey, rightItemKey, rightItemKeyFormatter, leftItemSubHeaderFormatter, isLastItem = false }) => {
   const properties = JSON.parse(event.properties);
 
   return (
     <li
       key={event.id}
       className={`relative ${isExpandable ? 'hover:bg-gray-50 rounded-md py-2 pr-2 cursor-pointer' : ''}`}
-      onClick={() => isExpandable && setIsExpanded(!isExpanded)}
+      onClick={() => isExpandable && onExpandClick()}
     >
       <div className="flex gap-x-4">
         <div className={classNames(isLastItem ? 'h-10' : '-bottom-6', 'absolute left-0 top-0 flex w-6 justify-center')}>
@@ -180,9 +176,18 @@ const EventFeed = ({
   title,
   viewAllLink,
 }) => {
+  const [expandedEvents, setExpandedEvents] = useState([]);
   const [eventCount, setEventCount] = useState(initialLimit);
   const router = useRouter();
   let currentDay = null;
+
+  const toggleEventExpansion = eventId => {
+    if (expandedEvents.includes(eventId)) {
+      setExpandedEvents(expandedEvents.filter(id => id !== eventId));
+    } else {
+      setExpandedEvents([...expandedEvents, eventId]);
+    }
+  }
 
   if (!events) {
     return (
@@ -224,24 +229,39 @@ const EventFeed = ({
                 const showDayHeader = includeDateSeparators && thisEventsDay !== currentDay;
                 currentDay = thisEventsDay;
                 const isLastItem = eventIdx === events.length - 1 || thisEventsDay !== new Date(events[eventIdx + 1].occurred_at).toLocaleDateString('en-us', { month: "long", day: "numeric", year: "numeric" });
+                const isLastHighlightedItem = event.isHighlighted && events[eventIdx + 1] && !events[eventIdx + 1].isHighlighted;
                 return (
                   <>
                     {showDayHeader && (
-                      <li key={event.id} className={`relative flex gap-x-4 mb-2 ${eventIdx > 0 ? 'mt-8' : ''}`}>
+                      <li key={`header-${event.uuid || eventIdx}`} className={`relative flex gap-x-4 mb-2 ${eventIdx > 0 ? 'mt-8' : ''}`}>
                         <p className="flex-auto py-0.5 text-sm leading-5">
                           <span className="font-medium text-gray-900">{thisEventsDay}</span>
                         </p>
                       </li>
                     )}
                     <EventFeedItem
+                      key={event.uuid || eventIdx}
                       event={event}
                       isLastItem={isLastItem}
                       isExpandable={isExpandable}
+                      isExpanded={expandedEvents.includes(event.uuid || eventIdx)}
                       leftItemHeaderKey={leftItemHeaderKey}
+                      onExpandClick={() => toggleEventExpansion(event.uuid || eventIdx)}
                       rightItemKey={rightItemKey}
                       rightItemKeyFormatter={rightItemKeyFormatter}
                       leftItemSubHeaderFormatter={leftItemSubHeaderFormatter}
                     />
+                    {isLastHighlightedItem && (
+                      <li key={`highlighted-${event.uuid || eventIdx}`}>
+                        <div className="border-b-2 border-swishjam h-0 relative">
+                          <div className='absolute left-0 right-0 mx-auto flex items-center rounded-b-md bg-swishjam text-white text-xs font-medium px-1 py-0.5 w-fit z-10'>
+                            <SparklesIcon className='h-3 w-3 mr-1' />
+                            New Events
+                            <ArrowUpIcon className='h-3 w-3 ml-1' />
+                          </div>
+                        </div>
+                      </li>
+                    )}
                   </>
                 )
               })}

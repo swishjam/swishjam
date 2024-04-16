@@ -21,22 +21,20 @@ export class InteractionHandler {
   _initClickListeners = () => {
     if (!this.recordClicks) return;
     document.addEventListener('click', e => {
-      if (!this._shouldRecordClick(e)) return;
-      this.onInteractionCallbacks.forEach(callback => (
-        callback({
-          type: 'click',
-          attributes: {
-            clicked_id: e.target.id,
-            clicked_class: e.target.className,
-            clicked_text: e.target.innerText,
-          }
-        })
-      ));
+      const target = this._targetToAttributeClickTo(e.target);
+      if (!target) return;
+      const { id, className, tagName, href } = target;
+      let clickedText = target.innerText;
+      if (clickedText.length > 100) {
+        clickedText = `${clickedText.slice(0, 100)}...`;
+      }
+      let attributes = { clicked_id: id, clicked_class: className, clicked_text: clickedText, clicked_element: tagName };
+      if (href) attributes.clicked_href = href;
+      this.onInteractionCallbacks.forEach(callback => callback({ type: 'click', attributes }));
     });
   }
 
   _initFormListeners = () => {
-    debugger
     if (!this.recordFormSubmits) return;
     document.addEventListener('submit', e => {
       this._maybeAutoIdentifyFormSubmit(e);
@@ -55,16 +53,18 @@ export class InteractionHandler {
     });
   }
 
-  _shouldRecordClick = event => {
-    const { target } = event;
+  _targetToAttributeClickTo = (target, numIterations = 1) => {
+    if (!target || numIterations >= 10) return;
     const { tagName } = target;
     if (this.clickElementTypes.includes(tagName)) {
-      return true;
-    } else if (tagName === 'INPUT') {
+      return target;
+    } else if (tagName === 'INPUT' && this.clickElementTypes.includes('BUTTON')) {
       const { type: inputType } = target;
-      return ['submit', 'button'].includes(inputType)
+      if (['submit', 'button'].includes(inputType)) {
+        return target;
+      }
     } else {
-      return false;
+      return this._targetToAttributeClickTo(target.parentNode, numIterations + 1);
     }
   }
 

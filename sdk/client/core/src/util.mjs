@@ -12,6 +12,10 @@ export class Util {
     return urlParams.get(name);
   }
 
+  static documentReferrerOrDirect() {
+    return document.referrer === '' ? 'Direct' : document.referrer;
+  }
+
   static smartCookieDomain() {
     const hostname = window.location.hostname;
     const parts = hostname.split('.').reverse();
