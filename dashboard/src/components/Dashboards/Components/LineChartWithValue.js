@@ -76,6 +76,7 @@ export default function LineChartWithValue({
       <span className='block'>No data available</span>
     </div>
   ),
+  onGroupByChange,
   showAxis = false,
   showTooltip = true,
   timeseries,
@@ -111,6 +112,22 @@ export default function LineChartWithValue({
     updateHeaderDisplayValues(timeseries[timeseries.length - 1])
   }, [timeseries, valueKey, comparisonValueKey, dateKey, groupedBy])
 
+  const settingsOptions = [
+    { onChange: setShowXAxis, enabled: showXAxis, label: 'Show X-Axis' },
+    { onChange: setShowYAxis, enabled: showYAxis, label: 'Show Y-Axis' },
+    { onChange: setShowComparisonData, enabled: showComparisonData, label: 'Include Comparison Data' },
+    onGroupByChange && {
+      onChange: onGroupByChange,
+      label: <span className='capitalize'>Group By <span className='duration-500 transition-all group-hover:text-swishjam underline decoration-dotted italic'>{groupedBy}</span></span>,
+      options: [
+        { value: 'hour', enabled: groupedBy === 'hour' },
+        { value: 'day', enabled: groupedBy === 'day' },
+        { value: 'week', enabled: groupedBy === 'week' },
+        { value: 'month', enabled: groupedBy === 'month' },
+      ]
+    }
+  ].filter(Boolean)
+
   return (
     <>
       <ConditionalCardWrapper
@@ -119,11 +136,7 @@ export default function LineChartWithValue({
         includeCard={includeCard}
         includeSettingsDropdown={includeSettingsDropdown}
         isEnlargable={isEnlargable}
-        settings={[
-          { onChange: setShowXAxis, enabled: showXAxis, label: 'Show X-Axis' },
-          { onChange: setShowYAxis, enabled: showYAxis, label: 'Show Y-Axis' },
-          { onChange: setShowComparisonData, enabled: showComparisonData, label: 'Include Comparison Data' },
-        ]}
+        settings={settingsOptions}
         title={title}
       >
         <ValueDisplay

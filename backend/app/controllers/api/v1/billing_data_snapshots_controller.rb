@@ -40,13 +40,15 @@ module Api
             public_keys_for_requested_data_source, 
             columns: %i[mrr_in_cents num_active_subscriptions num_customers_with_paid_subscriptions],
             start_time: start_timestamp, 
-            end_time: end_timestamp
+            end_time: end_timestamp,
+            group_by: params[:group_by],
           )
           comparison_billing_data_getter = ClickHouseQueries::BillingDataSnapshots::Timeseries.new(
             public_keys_for_requested_data_source, 
             columns: %i[mrr_in_cents num_active_subscriptions num_customers_with_paid_subscriptions],
             start_time: comparison_start_timestamp, 
-            end_time: comparison_end_timestamp
+            end_time: comparison_end_timestamp,
+            group_by: params[:group_by],
           )
 
           render json: {

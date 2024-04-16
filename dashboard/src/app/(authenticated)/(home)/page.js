@@ -41,79 +41,74 @@ export default function Home() {
   const [newOrganizationsData, setNewOrganizationsData] = useState();
   const [newUsersModels, setNewUsersModels] = useState();
 
-  const getBillingData = async (timeframe) => {
-    return await SwishjamAPI.BillingData.timeseries({ timeframe }).then(({ mrr, active_subscriptions }) => {
+  const getBillingData = async (timeframe, groupBy) => {
+    setMrrChart();
+    setActiveSubsChart();
+    return await SwishjamAPI.BillingData.timeseries({ timeframe, groupBy }).then(({ mrr, active_subscriptions }) => {
       setStateFromTimeseriesResponse(mrr, setMrrChart);
       setStateFromTimeseriesResponse(active_subscriptions, setActiveSubsChart);
     });
   };
 
   const getChurnRateData = async (timeframe) => {
+    setChurnRateData();
     return await SwishjamAPI.SaasMetrics.ChurnRate.timeseries({ timeframe, excludeComparison: true }).then(resp => setStateFromMultiDimensionalTimeseriesResponse(resp, setChurnRateData));
   };
 
   const getPageViewsTimeseriesData = async (timeframe) => {
+    setPageViewsTimeseriesData();
     return await SwishjamAPI.PageViews.timeseries({ timeframe, dataSource: "marketing" }).then(timeseriesData => {
       setStateFromTimeseriesResponse(timeseriesData, setPageViewsTimeseriesData)
     });
   };
 
   const getSessionsMarketingData = async (timeframe) => {
+    setSessionsMarketingChart();
     return await SwishjamAPI.Sessions.timeseries({ dataSource: "marketing", timeframe }).then(timeseriesData => {
       setStateFromTimeseriesResponse(timeseriesData, setSessionsMarketingChart)
     });
   };
 
   const getNewUsersChartData = async (timeframe) => {
+    setNewUsersChartData();
     return await SwishjamAPI.Users.timeseries({ timeframe }).then((newUserData) => {
       setStateFromTimeseriesResponse(newUserData, setNewUsersChartData);
     });
   };
 
   const getUniqueVisitorsMarketingData = async (timeframe, type) => {
+    setUniqueVisitorsMarketingChartData();
     return await SwishjamAPI.Users.Active.timeseries({ timeframe, dataSource: "marketing", type, include_comparison: true }).then(timeseriesData => {
       setStateFromTimeseriesResponse(timeseriesData, setUniqueVisitorsMarketingChartData)
     });
   };
 
   const getUniqueVisitorsProductData = async (timeframe, type) => {
+    setUniqueVisitorsProductChartData();
     return await SwishjamAPI.Users.Active.timeseries({ timeframe, dataSource: "product", type, include_comparison: true }).then(timeseriesData => {
       setStateFromTimeseriesResponse(timeseriesData, setUniqueVisitorsProductChartData)
     });
   };
 
   const getUserRetentionData = async () => {
+    setUserRetentionData();
     return await SwishjamAPI.RetentionCohorts.get().then(setUserRetentionData);
   };
 
   const getUsersData = async () => {
+    setNewUsersModels();
     return await SwishjamAPI.Users.list({ limit: 5 }).then(({ users }) => (
       setNewUsersModels(new UserProfilesCollection(users).models())
     ));
   };
 
   const getOrganizationsData = async () => {
+    setNewOrganizationsData();
     return await SwishjamAPI.Organizations.list({ limit: 5 }).then(({ organizations }) => setNewOrganizationsData(organizations));
   };
 
   const getAllData = async (timeframe) => {
     setIsRefreshing(true);
-    // Product
-    setNewUsersChartData();
-    setUniqueVisitorsProductChartData();
-    setUserRetentionData();
-    // Marketing
-    setUniqueVisitorsMarketingChartData();
-    setPageViewsTimeseriesData();
-    setSessionsMarketingChart();
-    // SaaS Metrics
-    setMrrChart();
-    setActiveSubsChart();
-    setChurnRateData();
-
-    // Users & Orgs
-    setNewUsersModels();
-    setNewOrganizationsData();
     await Promise.all([
       getPageViewsTimeseriesData(timeframe),
       getSessionsMarketingData(timeframe),
@@ -201,6 +196,8 @@ export default function Home() {
       <div className='grid grid-cols-3 gap-2 pt-2'>
         <LineChartWithValue
           title="MRR"
+          groupedBy={mrrChart?.groupedBy}
+          onGroupByChange={group => getBillingData(timeframeFilter, group)}
           value={mrrChart?.value}
           previousValue={mrrChart?.previousValue}
           previousValueDate={mrrChart?.previousValueDate}
@@ -211,6 +208,8 @@ export default function Home() {
         />
         <LineChartWithValue
           title="Active Subscriptions"
+          groupedBy={activeSubsChart?.groupedBy}
+          onGroupByChange={group => getBillingData(timeframeFilter, group)}
           showAxis={false}
           timeseries={activeSubsChart?.timeseries}
           noDataMessage={

@@ -5,9 +5,9 @@ module ClickHouseQueries
       include TimeseriesHelper
       attr_accessor :group_by, :start_time, :end_time
 
-      def initialize(public_keys, columns: nil, start_time: 6.months.ago, end_time: Time.current)
+      def initialize(public_keys, columns: nil, start_time: 6.months.ago, end_time: Time.current, group_by: nil)
         @public_keys = public_keys.is_a?(Array) ? public_keys : [public_keys]
-        @group_by = derived_group_by(start_ts: start_time, end_ts: end_time)
+        @group_by = group_by || derived_group_by(start_ts: start_time, end_ts: end_time)
         @start_time, @end_time = rounded_timestamps(start_ts: start_time, end_ts: end_time, group_by: @group_by)
         @columns = columns || %i[mrr_in_cents total_revenue_in_cents num_active_subscriptions num_free_trial_subscriptions num_canceled_subscriptions num_customers_with_paid_subscriptions]
       end
