@@ -31,9 +31,9 @@ module TimeseriesHelper
     case end_ts - start_ts
     when 0..(8.days - 1.second)
       :hour
-    when 8.days..(1.month + 1.day)
+    when 8.days..(2.month + 1.day)
       :day
-    when (1.month + 1.day)..3.months
+    when (2.month + 1.day)..(6.months + 1.week)
       :week
     else
       :month
