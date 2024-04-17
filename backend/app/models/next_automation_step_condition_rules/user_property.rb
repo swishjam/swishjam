@@ -26,7 +26,7 @@ module NextAutomationStepConditionRules
         # this way we can check if the property is defined and does not have a nil or empty string value
         !user_property_value(prepared_event).blank?
       when 'is_not_defined'
-        !has_property?(prepared_event)
+        user_property_value(prepared_event).blank?
       when 'ends_with'
         return false if user_property_value(prepared_event).nil?
         user_property_value(prepared_event).ends_with?(expected_value)
@@ -70,10 +70,6 @@ module NextAutomationStepConditionRules
       value = prepared_event.user_properties[formatted_event_property_key]
       return if value.nil?
       value.to_s.downcase.strip
-    end
-
-    def has_property?(prepared_event)
-      prepared_event.user_properties.key?(formatted_event_property_key)
     end
 
     def formatted_event_property_key
