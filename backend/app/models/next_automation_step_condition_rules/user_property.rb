@@ -23,7 +23,8 @@ module NextAutomationStepConditionRules
         return true if user_property_value(prepared_event).nil?
         !user_property_value(prepared_event).include?(expected_value)
       when 'is_defined'
-        has_property?(prepared_event)
+        # this way we can check if the property is defined and does not have a nil or empty string value
+        !user_property_value(prepared_event).blank?
       when 'is_not_defined'
         !has_property?(prepared_event)
       when 'ends_with'
