@@ -92,7 +92,7 @@ module Ingestion
           existing_device.owner.last_seen_at_in_web_app = Time.current
           existing_device.owner.email = provided_user_data['email'] if !provided_user_data['email'].blank?
           existing_device.owner.metadata = existing_device.owner.metadata.merge!(provided_user_data.except('id', 'email'))
-          existing_device.save!
+          existing_device.owner.save!
           existing_device.owner
         else
           anonymous_user = workspace.analytics_user_profiles.create!(

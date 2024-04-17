@@ -37,6 +37,7 @@ module Ingestion
 
       def create_or_update_user_profile!
         @user_profile ||= begin
+          byebug
           user_profile = workspace.analytics_user_profiles.find_by(user_unique_identifier: provided_unique_user_identifier)
           if user_profile.nil? && !provided_email.blank?
             user_profile = workspace.analytics_user_profiles.find_by(user_unique_identifier: nil, email: provided_email)

@@ -3,6 +3,14 @@ import LZString from "lz-string";
 import { SWISHJAM_PERSISTENT_USER_DATA_COOKIE_NAME } from "./constants.mjs";
 
 export class PersistentMemoryManager {
+  static markUserAsIdentified = () => {
+    this.set('user_identified', true);
+  }
+
+  static userIsIdentified = () => {
+    return this.get('user_identified');
+  }
+
   static setOrganizationData = (uniqueIdentifier, attributes = {}) => {
     this.set('organization_data', { ...attributes, id: uniqueIdentifier })
   }

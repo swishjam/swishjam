@@ -62,6 +62,12 @@ export default function ProfileInformationSideBar({ userData, hasStripeIntegrati
                   {userData.full_name || (userData.enrichment_data.first_name || '') + (userData.enrichment_data.last_name || '') || '-'}
                 </dd>
               </div>
+              <div className="px-4 py-2 col-span-1 sm:px-0 grid grid-cols-2 cursor-default">
+                <dt className="text-sm font-medium leading-6 text-gray-900">Unique Identifier</dt>
+                <dd className="text-sm leading-6 text-gray-700 text-right">
+                  {userData.user_unique_identifier || '-'}
+                </dd>
+              </div>
               <div className="px-4 py-2 col-span-1 grid grid-cols-2 sm:px-0 cursor-default">
                 <dt className="text-sm font-medium leading-6 text-gray-900">First seen</dt>
                 <dd className="text-sm leading-6 text-gray-700 text-right">

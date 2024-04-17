@@ -73,12 +73,13 @@ export class InteractionHandler {
     const emailInputs = submitEvent.target.querySelectorAll('input[type="email"]');
     const emailValues = Array.from(emailInputs).map(input => input.value);
     const uniqueEmailValues = [...new Set(emailValues)];
-    // pretty basic way of making sure it's a legit email
-    if (uniqueEmailValues.length === 1 && uniqueEmailValues[0].length > 3) {
-      this.onInteractionCallbacks.forEach(callback => (
-        callback({ type: 'setUser', attributes: { email: emailValues[0], auto_identified: true } })
-      ));
-    }
+    if (uniqueEmailValues.length !== 1) return;
+    const maybeEmail = uniqueEmailValues[0];
+    const isEmail = maybeEmail.includes('@') && maybeEmail.includes('.') && maybeEmail.length > 5;
+    if (!isEmail) return;
+    this.onInteractionCallbacks.forEach(callback => (
+      callback({ type: 'setUser', attributes: { email: maybeEmail, auto_identified: true } })
+    ));
   }
 }
 

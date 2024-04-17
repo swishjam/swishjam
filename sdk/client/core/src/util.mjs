@@ -13,7 +13,7 @@ export class Util {
   }
 
   static documentReferrerOrDirect() {
-    return document.referrer === '' ? 'Direct' : document.referrer;
+    return document.referrer === '' ? 'direct' : document.referrer;
   }
 
   static smartCookieDomain() {

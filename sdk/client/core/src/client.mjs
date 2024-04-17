@@ -60,6 +60,7 @@ export class Client {
       return this.errorHandler.executeWithErrorHandling(() => {
         const { organization, org, ...userTraits } = traits;
         const identifyEvent = this.eventQueueManager.recordEvent('identify', { userIdentifier, auto_identified: false, ...userTraits })
+        PersistentMemoryManager.markUserAsIdentified();
         if (organization || org) {
           const { id, identifier, ...orgTraits } = organization || org || {};
           if (id || identifier) {
@@ -156,7 +157,9 @@ export class Client {
       this.interactionHandler.onInteraction(({ type, attributes }) => {
         return this.errorHandler.executeWithErrorHandling(() => {
           if (type === 'setUser') {
-            this.setUser(attributes);
+            if (!PersistentMemoryManager.userIsIdentified()) {
+              this.setUser(attributes);
+            }
           } else {
             this.eventQueueManager.recordEvent(type, attributes);
           }

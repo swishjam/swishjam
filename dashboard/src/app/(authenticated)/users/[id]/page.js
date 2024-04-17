@@ -23,25 +23,31 @@ const UserProfile = ({ params }) => {
   const [userData, setUserData] = useState();
 
   const getEvents = async () => {
+    setRecentEvents();
     return await SwishjamAPI.Users.Events.list(userId, { timeframe: '90_days', limit: 5 }).then(setRecentEvents);
   }
 
   const getPageViews = async () => {
+    setPageViewsData();
     return await SwishjamAPI.Users.PageViews.list(userId, { timeframe: '90_days' }).then(pageViews => {
       setPageViewsData(pageViews.map(({ url, count }) => ({ name: url, value: count, href: url })));
     });
   }
 
   const getSessions = async () => {
+    setSessionTimeseriesData();
     return await SwishjamAPI.Users.Sessions.timeseries(userId).then(data => setStateFromTimeseriesResponse(data, setSessionTimeseriesData));
   }
 
+  const getUserData = async () => {
+    setUserData();
+    return await SwishjamAPI.Users.retrieve(userId).then(setUserData);
+  }
+
   const getAllData = async () => {
-    setRecentEvents();
-    setPageViewsData();
-    setSessionTimeseriesData();
     setIsRefreshing(true);
     await Promise.all([
+      getUserData(),
       getEvents(),
       getPageViews(),
       getSessions(),
@@ -50,7 +56,6 @@ const UserProfile = ({ params }) => {
   }
 
   useEffect(() => {
-    SwishjamAPI.Users.retrieve(userId).then(setUserData);
     SwishjamAPI.Integrations.list().then(({ enabled_integrations }) => {
       const stripeIntegration = enabled_integrations.find(({ name }) => name.toLowerCase() === 'stripe');
       setHasStripeIntegrationEnabled(stripeIntegration !== undefined);
