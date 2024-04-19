@@ -16,6 +16,12 @@ import {
   SWISHJAM_SESSION_ATTRIBUTES_SESSION_STORAGE_KEY,
 } from './constants.mjs'
 
+const RESERVED_EVENT_NAMES = ['new_session', 'page_view', 'page_left', 'identify', 'organization', 'update_user', 'click', 'form_submit'];
+const VALID_CONFIG_OPTIONS = [
+  'apiKey', 'apiEndpoint', 'apiHost', 'apiPath', 'autoIdentify', 'disabled', 'disabledUrls', 'includedUrlParams',
+  'maxEventsInMemory', 'recordClicks', 'recordFormSubmits', 'reportingHeartbeatMs', 'sessionTimeoutMinutes', 'useSegment',
+];
+
 export class Client {
   constructor(options = {}) {
     this.config = this._setConfig(options);
@@ -34,23 +40,36 @@ export class Client {
       recordFormSubmits: this.config.recordFormSubmits,
     });
 
-    // the order here is important, we want to make sure we have a session before we start register the page views in the _initPageViewListeners
+    // the order here is important, we want to make sure we have a session before we register for page views in the _initPageViewListeners
     if (!this.getSession()) {
       this._setSessionAttributesInMemory();
       this.newSession({ registerPageView: false });
     }
     this._initPageViewListeners();
     this._initInteractionListeners();
+    this._initSegmentListenersIfNecessary();
     this._recordInMemoryEvents();
   }
 
   record = (eventName, properties = {}) => {
-    if (['page_view', 'page_left', 'new_session', 'identify', 'organization'].includes(eventName)) {
+    if (RESERVED_EVENT_NAMES.includes(eventName)) {
       throw new Error(`Cannot name a Swishjam event '${eventName}' because it is a reserved event name.`)
     }
-    return this.errorHandler.executeWithErrorHandling(() => (
-      this.eventQueueManager.recordEvent(eventName, properties)
-    ))
+    return this.errorHandler.executeWithErrorHandling(() => {
+      this._registerNewSessionIfExceededTimeoutThresholdAndUpdateLastInteractionTime();
+      return this.eventQueueManager.recordEvent(eventName, properties)
+    })
+  }
+
+  reservedEvent = (eventName, properties = {}, options = {}) => {
+    return this.errorHandler.executeWithErrorHandling(() => {
+      // either use the provided option, or if it isn't a new_session or page_left event
+      const checkForSessionTimeout = options.checkForSessionTimeout ?? !['new_session', 'page_left'].includes(eventName);
+      if (checkForSessionTimeout) {
+        this._registerNewSessionIfExceededTimeoutThresholdAndUpdateLastInteractionTime();
+      }
+      return this.eventQueueManager.recordEvent(eventName, properties)
+    })
   }
 
   identify = (identifier, traits = {}) => {
@@ -59,12 +78,12 @@ export class Client {
     } else {
       return this.errorHandler.executeWithErrorHandling(() => {
         const { organization, org, ...userTraits } = traits;
-        const currentlyIdentifiedUser = PersistentMemoryManager.getIdentifiedUser();
+        const currentlyIdentifiedUser = PersistentMemoryManager.getCurrentUserData();
         if (Util.jsonIsEqual(currentlyIdentifiedUser, { ...userTraits, identifier })) {
           return;
         }
-        PersistentMemoryManager.setIdentifiedUser({ ...userTraits, auto_identified: false, identifier });
-        const identifyEvent = this.eventQueueManager.recordEvent('identify')
+        PersistentMemoryManager.setCurrentUserData({ ...userTraits, auto_identified: false, identifier });
+        const identifyEvent = this.reservedEvent('identify')
         if (organization || org) {
           const { id, identifier, ...orgTraits } = organization || org || {};
           if (id || identifier) {
@@ -78,7 +97,9 @@ export class Client {
 
   updateUser = (traits = {}) => {
     return this.errorHandler.executeWithErrorHandling(() => {
-      this.eventQueueManager.recordEvent('update_user', { user: traits })
+      // not caching/checking if these traits are already applied
+      PersistentMemoryManager.updateCurrentUserData(traits)
+      return this.reservedEvent('update_user', { user: traits })
     })
   }
 
@@ -88,10 +109,15 @@ export class Client {
     } else {
       return this.errorHandler.executeWithErrorHandling(() => {
         const previouslySetOrgData = PersistentMemoryManager.getOrganizationData();
-        const newOrgData = PersistentMemoryManager.setOrganizationData(organizationIdentifier, traits);
+        const newOrgData = PersistentMemoryManager.setOrganizationData({ traits, identifier: organizationIdentifier });
         if (Util.jsonIsEqual(previouslySetOrgData, newOrgData)) return;
-        if (previouslySetOrgData.identifier !== organizationIdentifier) this.newSession();
-        return this.eventQueueManager.recordEvent('organization');
+        const changedOrg = previouslySetOrgData.identifier !== organizationIdentifier;
+        if (changedOrg) {
+          this.newSession();
+          return this.reservedEvent('organization', {}, { checkForSessionTimeout: false });
+        } else {
+          return this.reservedEvent('organization');
+        }
       });
     }
   }
@@ -106,7 +132,7 @@ export class Client {
     return this.errorHandler.executeWithErrorHandling(() => {
       // important to set this first because new events will be created with this value
       CookieHelper.setCookie({ name: SWISHJAM_SESSION_IDENTIFIER_COOKIE_NAME, value: Util.generateUUID('s') });
-      this.eventQueueManager.recordEvent('new_session');
+      this.reservedEvent('new_session');
       if (registerPageView) this.pageViewManager.recordPageView();
       return this.getSession();
     });
@@ -116,7 +142,22 @@ export class Client {
     return this.errorHandler.executeWithErrorHandling(() => {
       DeviceIdentifiers.resetUserDeviceIdentifierValue();
       PersistentMemoryManager.reset();
+      SessionPersistance.clear();
       return this.newSession();
+    });
+  }
+
+  _registerNewSessionIfExceededTimeoutThresholdAndUpdateLastInteractionTime = () => {
+    return this.errorHandler.executeWithErrorHandling(() => {
+      let createdNewSession = false;
+      if (this.lastInteractionTime && (new Date() - this.lastInteractionTime) > (this.config.sessionTimeoutMinutes * 60 * 1_000)) {
+        createdNewSession = true;
+        SessionPersistance.clear();
+        SessionPersistance.set(SWISHJAM_SESSION_ATTRIBUTES_SESSION_STORAGE_KEY, { session_referrer_url: 'timed_out_session' });
+        this.newSession();
+      }
+      this.lastInteractionTime = new Date();
+      return createdNewSession;
     });
   }
 
@@ -142,13 +183,13 @@ export class Client {
       this.pageViewManager.onNewPage((_newUrl, previousUrl) => {
         return this.errorHandler.executeWithErrorHandling(() => {
           SessionPersistance.set(SWISHJAM_PAGE_VIEW_IDENTIFIER_SESSION_STORAGE_KEY, Util.generateUUID('pv'));
-          this.eventQueueManager.recordEvent('page_view', { page_referrer: previousUrl });
+          this.reservedEvent('page_view', { page_referrer: previousUrl });
         });
       });
 
       window.addEventListener('beforeunload', async () => {
         return this.errorHandler.executeWithErrorHandling(() => {
-          this.eventQueueManager.recordEvent('page_left', { milliseconds_on_page: this.pageViewManager.millisecondsOnCurrentPage() });
+          this.reservedEvent('page_left', { milliseconds_on_page: this.pageViewManager.millisecondsOnCurrentPage() });
           this.eventQueueManager.flushQueue();
         });
       })
@@ -166,21 +207,41 @@ export class Client {
               this.updateUser(attributes);
             }
           } else {
-            this.eventQueueManager.recordEvent(type, attributes);
+            this.reservedEvent(type, attributes);
           }
         });
       })
     })
   }
 
+  _initSegmentListenersIfNecessary = (numAttempts = 0) => {
+    if (!this.config.useSegment) return;
+    return this.errorHandler.executeWithErrorHandling(() => {
+      if (window.analytics) {
+        window.analytics.on('identify', (id, properties, _options) => {
+          this.identify(id, properties);
+        });
+        window.analytics.on('track', (event, properties, _options) => {
+          this.record(event, properties);
+        });
+        window.analytics.on('group', (id, properties, _options) => {
+          this.setOrganization(id, properties);
+        });
+        // window.analytics.on('page', ({ properties }) => {
+        //   this.reservedEvent('page_view', properties);
+        // });
+      } else if (numAttempts < 6) {
+        setTimeout(() => this._initSegmentListenersIfNecessary(numAttempts + 1), 250);
+      } else {
+        console.warn('[Swishjam SDK Error]: Could not find `window.analytics` object to attach Segment event listeners to within 1.5 seconds.');
+      }
+    });
+  }
+
   _setConfig = options => {
     if (!options.apiKey) throw new Error('Swishjam `apiKey` is required');
-    const validOptions = [
-      'apiKey', 'apiEndpoint', 'apiHost', 'apiPath', 'autoIdentify', 'disabled', 'disabledUrls', 'includedUrlParams',
-      'maxEventsInMemory', 'recordClicks', 'recordFormSubmits', 'reportingHeartbeatMs'
-    ];
     Object.keys(options).forEach(key => {
-      if (!validOptions.includes(key)) console.warn(`SwishjamJS received unrecognized config: ${key}`);
+      if (!VALID_CONFIG_OPTIONS.includes(key)) console.warn(`[Swishjam SDK Warning]: received unrecognized config: ${key}`);
     });
     return {
       apiKey: options.apiKey,
@@ -189,10 +250,12 @@ export class Client {
       disabled: options.disabled ?? false,
       disabledUrls: options.disabledUrls || ['http://localhost'],
       includedUrlParams: [...(options.includedUrlParams || []), 'utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content', 'gclid'],
-      maxEventsInMemory: options.maxEventsInMemory || 20,
+      maxEventsInMemory: parseInt(options.maxEventsInMemory || 20),
       recordClicks: options.recordClicks ?? true,
       recordFormSubmits: options.recordFormSubmits ?? true,
-      reportingHeartbeatMs: options.reportingHeartbeatMs || 2_500,
+      reportingHeartbeatMs: parseInt(options.reportingHeartbeatMs || 2_500),
+      sessionTimeoutMinutes: parseInt(options.sessionTimeoutMinutes || 30),
+      useSegment: options.useSegment ?? false,
       version: SDK_VERSION,
     }
   }

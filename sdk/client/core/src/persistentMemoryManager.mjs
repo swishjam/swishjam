@@ -3,20 +3,25 @@ import LZString from "lz-string";
 import { SWISHJAM_PERSISTENT_USER_DATA_COOKIE_NAME } from "./constants.mjs";
 
 export class PersistentMemoryManager {
-  static setIdentifiedUser = userData => {
-    return this.set('identified_user', userData);
+  static setCurrentUserData = userData => {
+    return this.set('current_user', userData);
   }
 
-  static getIdentifiedUser = () => {
-    return this.get('identified_user') || {};
+  static updateCurrentUserData = traits => {
+    const currentUserData = this.getCurrentUserData();
+    return this.setCurrentUserData({ ...currentUserData, ...traits });
+  }
+
+  static getCurrentUserData = () => {
+    return this.get('current_user') || {};
   }
 
   static userIsIdentified = () => {
-    return this.get('identified_user') !== undefined;
+    return this.getCurrentUserData().identifier !== undefined;
   }
 
-  static setOrganizationData = (uniqueIdentifier, attributes = {}) => {
-    return this.set('organization_data', { ...attributes, identifier: uniqueIdentifier })
+  static setOrganizationData = orgData => {
+    return this.set('organization_data', orgData)
   }
 
   static getOrganizationData = () => {

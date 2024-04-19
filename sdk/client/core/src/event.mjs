@@ -28,18 +28,21 @@ export class Event {
       attributes: {
         // referrer can sometimes be overridden by attributes just in case it's a SPA and the referrer is not indicative of the actual referrer
         page_referrer: Util.documentReferrerOrDirect(),
-        ...deviceDetails.all(),
-        ...SessionPersistance.get(SWISHJAM_SESSION_ATTRIBUTES_SESSION_STORAGE_KEY) || {},
-        ...this.attributes,
         // `page_referrer` is replacing `referrer` now, but keeping `referrer` for backwards compatibility
         referrer: this.attributes.page_referrer || this.attributes.referrer || Util.documentReferrerOrDirect(),
+        // user_agent, browser_name, etc...
+        ...deviceDetails.all(),
+        // session_referrer_url, session_landing_page_url, session_utms...
+        ...SessionPersistance.get(SWISHJAM_SESSION_ATTRIBUTES_SESSION_STORAGE_KEY) || {},
+        // attributes provided by the event
+        ...this.attributes,
         device_identifier: DeviceIdentifiers.getUserDeviceIdentifierValue(),
         page_view_identifier: SessionPersistance.get(SWISHJAM_PAGE_VIEW_IDENTIFIER_SESSION_STORAGE_KEY),
         sdk_version: SDK_VERSION,
         session_identifier: CookieHelper.getCookie(SWISHJAM_SESSION_IDENTIFIER_COOKIE_NAME),
         url: window.location.href,
         organization: PersistentMemoryManager.getOrganizationData(),
-        user: PersistentMemoryManager.getIdentifiedUser(),
+        user: PersistentMemoryManager.getCurrentUserData(),
       },
     }
   }

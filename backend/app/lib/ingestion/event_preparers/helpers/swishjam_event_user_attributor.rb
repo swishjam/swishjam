@@ -45,7 +45,6 @@ module Ingestion
               return
             end
             user_profile = nil
-            byebug
             # either they called `.identify` in the client SDK, or they provided a `user` object in the event properties
             if provided_unique_user_identifier.present?
               user_profile = workspace.analytics_user_profiles.find_by(user_unique_identifier: provided_unique_user_identifier)
