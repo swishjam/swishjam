@@ -3,27 +3,34 @@ import LZString from "lz-string";
 import { SWISHJAM_PERSISTENT_USER_DATA_COOKIE_NAME } from "./constants.mjs";
 
 export class PersistentMemoryManager {
-  static markUserAsIdentified = () => {
-    this.set('user_identified', true);
+  static setIdentifiedUser = userData => {
+    return this.set('identified_user', userData);
+  }
+
+  static getIdentifiedUser = () => {
+    return this.get('identified_user') || {};
   }
 
   static userIsIdentified = () => {
-    return this.get('user_identified');
+    return this.get('identified_user') !== undefined;
   }
 
   static setOrganizationData = (uniqueIdentifier, attributes = {}) => {
-    this.set('organization_data', { ...attributes, id: uniqueIdentifier })
+    return this.set('organization_data', { ...attributes, identifier: uniqueIdentifier })
   }
 
   static getOrganizationData = () => {
     let orgData = this.get('organization_data');
     if (!orgData) {
-      orgData = JSON.parse(this.get('organization_metadata') || '{}');
-      orgData.id = this.get('organization_identifier');
-      orgData.name = this.get('organization_name');
-      orgData = JSON.stringify(orgData);
+      // for backwards compatibility
+      orgData = {
+        id: this.get('organization_identifier'),
+        name: this.get('organization_name'),
+        ...(this.get('organization_metadata') || {})
+      }
+      Object.keys(orgData).forEach(key => orgData[key] === undefined && delete orgData[key]);
     }
-    return JSON.parse(orgData || '{}')
+    return orgData || {}
   }
 
   static getAll = ({ except = [] } = {}) => {
@@ -50,7 +57,8 @@ export class PersistentMemoryManager {
     all[key] = value;
     const oneYear = 365 * 24 * 60 * 60 * 1000;
     const compressedValue = LZString.compressToUTF16(JSON.stringify(all));
-    return CookieHelper.setCookie({ name: SWISHJAM_PERSISTENT_USER_DATA_COOKIE_NAME, value: compressedValue, expiresIn: oneYear });
+    CookieHelper.setCookie({ name: SWISHJAM_PERSISTENT_USER_DATA_COOKIE_NAME, value: compressedValue, expiresIn: oneYear });
+    return value;
   }
 
   static reset = () => {

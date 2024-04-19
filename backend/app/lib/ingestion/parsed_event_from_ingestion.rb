@@ -67,34 +67,26 @@ module Ingestion
 
     def sanitized_properties
       # all of attributes that are sent in the event's properties payload, but we don't want to store in the properties column
-      properties.except(
-        'device_fingerprint', 'device_identifier', 'user_attributes', 'organization_attributes', 'user', 'userId', 'user_id', 'userIdentifier',
-        'organization', 'organizationId', 'organization_id', 'organizationIdentifier', 'organization_identifier', 'orgId', 'org_id', 'orgIdentifier', 'org_identifier',
-      )
+      properties_to_exclude = %w[device_fingerprint device_identifier]
+      if !%w[identify update_user].include?(name)
+        properties_to_exclude.concat(%w[user user_id userId userIdentifier organization organizationId organization_id organizationIdentifier organization_identifier orgId org_id orgIdentifier org_identifier])
+      end
+      if !%w[organization update_organization].include?(name)
+        properties_to_exclude.concat(%w[organization organizationId organization_id organizationIdentifier organization_identifier orgId org_id orgIdentifier org_identifier])
+      end
+      properties.except(*properties_to_exclude)
     end
 
     def properties
-      if event_json['properties'].is_a?(String)
-        JSON.parse(event_json['properties']).with_indifferent_access
-      else
-        (event_json['properties'] || {}).with_indifferent_access
-      end
+      safe_json(event_json['properties'])
     end
 
     def user_properties
-      if event_json['user_properties'].is_a?(String)
-        JSON.parse(event_json['user_properties'] || '{}').with_indifferent_access
-      else
-        (event_json['user_properties'] || {}).with_indifferent_access
-      end
+      safe_json(event_json['user_properties'])
     end
 
     def organization_properties
-      if event_json['organization_properties'].is_a?(String)
-        JSON.parse(event_json['organization_properties'] || '{}').with_indifferent_access
-      else
-        (event_json['organization_properties'] || {}).with_indifferent_access
-      end
+      safe_json(event_json['organization_properties'])
     end
 
     def occurred_at
@@ -153,6 +145,14 @@ module Ingestion
     end
 
     private
+
+    def safe_json(value)
+      if value.is_a?(String)
+        JSON.parse(value || '{}').with_indifferent_access
+      else
+        (value || {}).with_indifferent_access
+      end
+    end
 
     def validate!
       required_keys = %w[uuid swishjam_api_key name occurred_at]

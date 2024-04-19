@@ -1,6 +1,8 @@
 'use client'
 
 import LoadingSpinner from "@/components/LoadingSpinner";
+import NewWorkspaceModal from "@/components/Workspaces/NewWorkspaceModal";
+import { Button } from "@/components/ui/button";
 import PageWithHeader from "@/components/utils/PageWithHeader";
 import SwishjamAPI from "@/lib/api-client/swishjam-api";
 import { ChevronRightIcon } from "lucide-react";
@@ -9,20 +11,25 @@ import { useEffect, useState } from "react"
 
 export default function Workspaces() {
   const [workspaces, setWorkspaces] = useState();
+  const [newWorkspaceModalIsOpen, setNewWorkspaceModalIsOpen] = useState(false);
 
   useEffect(() => {
     SwishjamAPI.Workspaces.list().then(setWorkspaces)
   }, [])
 
   return (
-    <PageWithHeader title='Your Workspaces'>
+    <PageWithHeader
+      title='Your Workspaces'
+      buttons={<Button variant='swishjam' onClick={() => setNewWorkspaceModalIsOpen(true)}>New Workspace</Button>}
+    >
+      <NewWorkspaceModal isOpen={newWorkspaceModalIsOpen} onClose={() => setNewWorkspaceModalIsOpen(false)} />
       {!workspaces
         ? (
           <div className='w-full h-72 flex items-center justify-center'>
             <LoadingSpinner size={12} />
           </div>
         ) : (
-          <div className='space-y-4'>
+          <div className='space-y-2'>
             {workspaces.map(w => (
               <Link
                 href={`/change-workspaces/${w.id}`}

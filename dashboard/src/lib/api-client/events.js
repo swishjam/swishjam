@@ -6,8 +6,8 @@ export class Events extends Base {
   static Properties = Properties;
   static Users = Users;
 
-  static async list(options = {}) {
-    return await this._get('/api/v1/events', options)
+  static async list({ dataSource, userId, limit }) {
+    return await this._get('/api/v1/events', { data_source: dataSource, user_id: userId, limit })
   }
 
   static async listUnique(options = {}) {

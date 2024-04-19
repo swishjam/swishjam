@@ -5,6 +5,15 @@ module Api
         render json: current_user.workspaces, status: :ok
       end
 
+      def create
+        workspace = current_user.workspaces.new(workspace_params)
+        if workspace.save
+          render json: { workspace: workspace }, status: :ok
+        else
+          render json: { error: workspace.errors.full_messages.join('. ') }, status: :unprocessable_entity
+        end
+      end
+
       def update
         workspace = current_workspace
         if workspace.update(workspace_params)
@@ -29,7 +38,7 @@ module Api
       private
 
       def workspace_params
-        params.require(:workspace).permit(:name)
+        params.require(:workspace).permit(:name, :company_url)
       end
     end
   end

@@ -1,4 +1,4 @@
-import { Button } from "@/components/ui/button"
+import { Button, buttonVariants } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import EmptyState from "@components/EmptyState"
 import { HiCursorArrowRays } from 'react-icons/hi2'
@@ -30,9 +30,9 @@ import CalComLogo from '@public/logos/calcom.png'
 import IntercomLogo from '@public/logos/intercom.png'
 import ResendLogo from '@public/logos/resend.png'
 import StripeLogo from '@public/logos/stripe.jpeg'
-import { useRouter } from "next/navigation"
 import { Skeleton } from "@/components/ui/skeleton"
 import { MaybeExternalLink } from "@/components/utils/MaybeExternalLink"
+import Link from "next/link"
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(' ')
@@ -178,7 +178,6 @@ const EventFeed = ({
 }) => {
   const [expandedEvents, setExpandedEvents] = useState([]);
   const [eventCount, setEventCount] = useState(initialLimit);
-  const router = useRouter();
   let currentDay = null;
 
   const toggleEventExpansion = eventId => {
@@ -278,13 +277,9 @@ const EventFeed = ({
                     Show More Events
                   </Button>
                 ) : viewAllLink && events.length > 0 && (
-                  <Button
-                    onClick={() => router.push(viewAllLink)}
-                    variant="outline"
-                    className='mt-10 w-full'
-                  >
+                  <Link href={viewAllLink} className={`w-full mt-10 ${buttonVariants({ variant: 'outline' })}`}>
                     View All Events
-                  </Button>
+                  </Link>
                 )
             )}
           </div>

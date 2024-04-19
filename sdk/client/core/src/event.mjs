@@ -14,38 +14,34 @@ import {
 const deviceDetails = new DeviceDetails();
 
 export class Event {
-  constructor(eventName, attributes, options = {}) {
+  constructor(eventName, attributes = {}, options = {}) {
     this.eventName = eventName;
     this.attributes = attributes;
-    this.persistentDeviceData = PersistentMemoryManager.getAll() || {};
     this.options = options;
-    this.options.includeOrganizationData = typeof options.includeOrganizationData === 'boolean' ? options.includeOrganizationData : true;
   }
 
   toJSON() {
-    let data = {
-      uuid: Util.generateUUID(`evt-${Date.now()}`),
+    return {
+      uuid: this.attributes.uuid ?? Util.generateUUID(`evt-${Date.now()}`),
       event: this.eventName,
       timestamp: Date.now(),
       attributes: {
         // referrer can sometimes be overridden by attributes just in case it's a SPA and the referrer is not indicative of the actual referrer
-        referrer: Util.documentReferrerOrDirect(),
+        page_referrer: Util.documentReferrerOrDirect(),
         ...deviceDetails.all(),
         ...SessionPersistance.get(SWISHJAM_SESSION_ATTRIBUTES_SESSION_STORAGE_KEY) || {},
         ...this.attributes,
+        // `page_referrer` is replacing `referrer` now, but keeping `referrer` for backwards compatibility
+        referrer: this.attributes.page_referrer || this.attributes.referrer || Util.documentReferrerOrDirect(),
         device_identifier: DeviceIdentifiers.getUserDeviceIdentifierValue(),
         page_view_identifier: SessionPersistance.get(SWISHJAM_PAGE_VIEW_IDENTIFIER_SESSION_STORAGE_KEY),
         sdk_version: SDK_VERSION,
         session_identifier: CookieHelper.getCookie(SWISHJAM_SESSION_IDENTIFIER_COOKIE_NAME),
         url: window.location.href,
+        organization: PersistentMemoryManager.getOrganizationData(),
+        user: PersistentMemoryManager.getIdentifiedUser(),
       },
     }
-
-    if (this.options.includeOrganizationData) {
-      data.attributes.organization = PersistentMemoryManager.getOrganizationData();
-    }
-
-    return data;
   }
 }
 

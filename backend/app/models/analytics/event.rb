@@ -13,21 +13,61 @@ module Analytics
         def all
           METHOD_NAMES.collect{ |method_name| self.send(method_name) }
         end
+
       end
     end
-
+    
     class ReservedPropertyNames
       class << self
-        METHOD_NAMES = %i[SESSION_IDENTIFIER DEVICE_IDENTIFIER USER_DEVICE_IDENTIFIER ORGANIZATION_DEVICE_IDENTIFIER PAGE_VIEW_IDENTIFIER SWISHJAM_ORGANIZATION_ID REFERRER URL USER_PROFILE_ID]
-
-        METHOD_NAMES.each do |property_name|
+        # some of these might be deprecated, but including to account for any legacy data
+        PROPERTIES = %i[
+          BROWSER_MAJOR_VERSION
+          BROWSER_NAME
+          BROWSER_VERSION
+          DEVICE
+          DEVICE_FINGERPRINT
+          DEVICE_IDENTIFIER
+          DEVICE_VENDOR
+          INITIAL_LANDING_PAGE_URL
+          INITIAL_REFERRER_URL
+          IS_MOBILE
+          LANGUAGE
+          ORGANIZATION
+          ORGANIZATION_ATTRIBUTES
+          ORGANIZATION_DEVICE_IDENTIFIER
+          OS
+          OS_VERSION
+          PAGE_REFERRER
+          PAGE_VIEW_IDENTIFIER
+          REFERRER
+          SDK_VERSION
+          SESSION_GCLID
+          SESSION_IDENTIFIER
+          SESSION_LANDING_PAGE_URL
+          SESSION_REFERRER_URL
+          SESSION_UTM_CAMPAIGN
+          SESSION_UTM_CONTENT
+          SESSION_UTM_MEDIUM
+          SESSION_UTM_SOURCE
+          SESSION_UTM_TERM
+          SWISHJAM_ORGANIZATION_ID
+          SYSTEM_LANGUAGE
+          TIMEZONE
+          URL
+          USER_AGENT
+          USER_ATTRIBUTES
+          USER_DEVICE_IDENTIFIER
+          USER_PROFILE_ID
+        ]
+        
+        PROPERTIES.each do |property_name|
           define_method(property_name) do
             property_name.to_s.downcase
           end
         end
         
         def all
-          METHOD_NAMES.collect{ |method_name| self.send(method_name) }
+          PROPERTIES.collect{ |method_name| self.send(method_name) }
         end
       end
     end

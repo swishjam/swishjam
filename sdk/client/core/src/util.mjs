@@ -34,6 +34,26 @@ export class Util {
       return '.' + hostname;
     }
   }
+
+  static jsonIsEqual(a, b) {
+    return Util._stringifySorted(a) === Util._stringifySorted(b);
+  }
+
+  static _stringifySorted(obj) {
+    if (Array.isArray(obj)) {
+      return JSON.stringify(obj.map(stringifySorted));
+    } else if (obj !== null && typeof obj === 'object') {
+      return JSON.stringify(
+        Object.keys(obj)
+          .sort()
+          .reduce((result, key) => {
+            result[key] = Util._stringifySorted(obj[key]);
+            return result;
+          }, {})
+      );
+    }
+    return JSON.stringify(obj);
+  }
 }
 
 export default Util;

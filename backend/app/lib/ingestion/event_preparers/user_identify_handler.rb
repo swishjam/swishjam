@@ -44,8 +44,9 @@ module Ingestion
           end
           if user_profile.nil?
             supplemented_user_properties = sanitized_user_properties
-            supplemented_user_properties[AnalyticsUserProfile::ReservedMetadataProperties.INITIAL_LANDING_PAGE_URL] = parsed_event.properties['url'] if parsed_event.properties['url'].present?
-            supplemented_user_properties[AnalyticsUserProfile::ReservedMetadataProperties.INITIAL_REFERRER_URL] = parsed_event.properties['referrer'] if !parsed_event.properties['referrer'].nil?
+            supplemented_user_properties[AnalyticsUserProfile::ReservedMetadataProperties.INITIAL_LANDING_PAGE_URL] = parsed_event.properties['session_landing_page_url'] || parsed_event.properties['url'] if parsed_event.properties['session_landing_page_url'].present? || parsed_event.properties['url'].present?
+            supplemented_user_properties[AnalyticsUserProfile::ReservedMetadataProperties.INITIAL_REFERRER_URL] = parsed_event.properties['session_referrer'] || parsed_event.properties['referrer'] if parsed_event.properties['session_referrer'].present? || parsed_event.properties['referrer'].present?
+
             user_profile = workspace.analytics_user_profiles.new(
               user_unique_identifier: provided_unique_user_identifier,
               email: provided_email,
@@ -73,10 +74,7 @@ module Ingestion
       end
 
       def sanitized_user_properties
-        parsed_event.properties.except(
-          'userIdentifier', 'email', 'user_attributes', 'device_fingerprint', 'device_identifier', 'url', 
-          'sdk_version', 'session_identifier', 'page_view_identifier', 'organization_attributes', 'initial_referrer', 'initial_url'
-        )
+        parsed_event.properties.except('email', 'userIdentifier', *Analytics::Event::ReservedPropertyNames.all.map(&:to_s))
       end
     end
   end

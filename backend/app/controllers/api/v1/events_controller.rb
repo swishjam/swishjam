@@ -13,6 +13,8 @@ module Api
           end_time: end_timestamp,
           limit: limit,
           columns: ['uuid'],
+          user_profile_id: params[:user_id],
+          workspace_id: current_workspace.id,
         ).get
         render json: events, status: :ok
       end

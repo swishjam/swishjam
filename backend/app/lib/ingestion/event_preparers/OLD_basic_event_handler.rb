@@ -11,19 +11,27 @@ module Ingestion
 
       def organization_for_event
         @organization_for_event ||= begin
-          provided_org_attributes = parsed_event.properties['organization_attributes'] || parsed_event.properties['organization'] || {}
-          organization_identifier = parsed_event.properties['org_id'] || 
-                                      parsed_event.properties['organization_id'] || 
-                                      parsed_event.properties['orgIdentifier'] ||
-                                      parsed_event.properties['organizationIdentifier'] ||
-                                      parsed_event.properties['organization_identifier'] || 
-                                      provided_org_attributes['organization_identifier'] || 
+          provided_org_attributes = parsed_event.name == 'organization' ? parsed_event.properties : parsed_event.properties['organization'] || {}
+          organization_identifier = provided_org_attributes['organization_identifier'] || 
                                       provided_org_attributes['id'] ||
                                       provided_org_attributes['org_id'] ||
                                       provided_org_attributes['organization_id'] ||
                                       provided_org_attributes['orgIdentifier'] ||
                                       provided_org_attributes['organizationIdentifier'] ||
                                       provided_org_attributes['organization_identifier']
+          # provided_org_attributes = parsed_event.properties['organization_attributes'] || parsed_event.properties['organization'] || {}
+          # organization_identifier = parsed_event.properties['org_id'] || 
+          #                             parsed_event.properties['organization_id'] || 
+          #                             parsed_event.properties['orgIdentifier'] ||
+          #                             parsed_event.properties['organizationIdentifier'] ||
+          #                             parsed_event.properties['organization_identifier'] || 
+          #                             provided_org_attributes['organization_identifier'] || 
+          #                             provided_org_attributes['id'] ||
+          #                             provided_org_attributes['org_id'] ||
+          #                             provided_org_attributes['organization_id'] ||
+          #                             provided_org_attributes['orgIdentifier'] ||
+          #                             provided_org_attributes['organizationIdentifier'] ||
+          #                             provided_org_attributes['organization_identifier']
           if organization_identifier.present?
             org = workspace.analytics_organization_profiles.find_by(organization_unique_identifier: organization_identifier)
             maybe_org_name = provided_org_attributes['organization_name'] || provided_org_attributes['name'] || provided_org_attributes['organizationName'] || provided_org_attributes['org_name'] || provided_org_attributes['orgName']
@@ -92,10 +100,11 @@ module Ingestion
           existing_device.owner.last_seen_at_in_web_app = Time.current
           existing_device.owner.email = provided_user_data['email'] if !provided_user_data['email'].blank?
           existing_device.owner.metadata = existing_device.owner.metadata.merge!(provided_user_data.except('id', 'email'))
+          byebug
           existing_device.owner.save!
           existing_device.owner
         else
-          anonymous_user = workspace.analytics_user_profiles.create!(
+          new_anonymous_user = workspace.analytics_user_profiles.create!(
             first_seen_at_in_web_app: Time.current, 
             last_seen_at_in_web_app: Time.current,
             email: provided_user_data['email'],
@@ -105,16 +114,16 @@ module Ingestion
           workspace.analytics_user_profile_devices.create!(
             swishjam_cookie_value: parsed_event.device_identifier, 
             device_fingerprint: parsed_event.device_fingerprint,
-            analytics_user_profile_id: anonymous_user.id,
+            analytics_user_profile_id: new_anonymous_user.id,
           )
-          anonymous_user
+          new_anonymous_user
         end
       end
 
       def supplemented_metadata_for_new_user_profile
         user_metadata = {}
-        user_metadata[AnalyticsUserProfile::ReservedMetadataProperties.INITIAL_LANDING_PAGE_URL] = parsed_event.properties['url'] if parsed_event.properties['url'].present?
-        user_metadata[AnalyticsUserProfile::ReservedMetadataProperties.INITIAL_REFERRER_URL] = parsed_event.properties['referrer'] if !parsed_event.properties['referrer'].nil?
+        user_metadata[AnalyticsUserProfile::ReservedMetadataProperties.INITIAL_LANDING_PAGE_URL] = parsed_event.properties['session_landing_page_url'] || parsed_event.properties['url'] if parsed_event.properties['session_landing_page_url'].present? || parsed_event.properties['url'].present?
+        user_metadata[AnalyticsUserProfile::ReservedMetadataProperties.INITIAL_REFERRER_URL] = parsed_event.properties['session_referrer'] || parsed_event.properties['referrer'] if parsed_event.properties['session_referrer'].present? || parsed_event.properties['referrer'].present?
         user_metadata.merge!(provided_user_data.except('id', 'email'))
         user_metadata
       end

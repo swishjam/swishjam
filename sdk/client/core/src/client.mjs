@@ -53,14 +53,18 @@ export class Client {
     ))
   }
 
-  identify = (userIdentifier, traits = {}) => {
-    if (!userIdentifier || userIdentifier === 'undefined' || userIdentifier === 'null') {
-      console.error(`SwishjamJS: \`identify\` requires a unique identifier to be provided, received: ${userIdentifier}`);
+  identify = (identifier, traits = {}) => {
+    if (!identifier || identifier === 'undefined' || identifier === 'null') {
+      console.error(`SwishjamJS: \`identify\` requires a unique identifier to be provided, received: ${identifier}`);
     } else {
       return this.errorHandler.executeWithErrorHandling(() => {
         const { organization, org, ...userTraits } = traits;
-        const identifyEvent = this.eventQueueManager.recordEvent('identify', { userIdentifier, auto_identified: false, ...userTraits })
-        PersistentMemoryManager.markUserAsIdentified();
+        const currentlyIdentifiedUser = PersistentMemoryManager.getIdentifiedUser();
+        if (Util.jsonIsEqual(currentlyIdentifiedUser, { ...userTraits, identifier })) {
+          return;
+        }
+        PersistentMemoryManager.setIdentifiedUser({ ...userTraits, auto_identified: false, identifier });
+        const identifyEvent = this.eventQueueManager.recordEvent('identify')
         if (organization || org) {
           const { id, identifier, ...orgTraits } = organization || org || {};
           if (id || identifier) {
@@ -72,9 +76,9 @@ export class Client {
     }
   }
 
-  setUser = (traits = {}) => {
+  updateUser = (traits = {}) => {
     return this.errorHandler.executeWithErrorHandling(() => {
-      this.eventQueueManager.recordEvent('set_user', { user: traits })
+      this.eventQueueManager.recordEvent('update_user', { user: traits })
     })
   }
 
@@ -83,10 +87,11 @@ export class Client {
       console.error(`SwishjamJS: \`setOrganization\` requires a unique identifier to be provided, received: ${organizationIdentifier}`);
     } else {
       return this.errorHandler.executeWithErrorHandling(() => {
-        const { organization_identifier: previouslySetOrganizationIdentifier } = PersistentMemoryManager.getOrganizationData();
-        PersistentMemoryManager.setOrganizationData(organizationIdentifier, traits);
-        if (previouslySetOrganizationIdentifier && previouslySetOrganizationIdentifier !== organizationIdentifier) this.newSession();
-        return this.eventQueueManager.recordEvent('organization', { organizationIdentifier, ...traits }, { includeOrganizationData: false });
+        const previouslySetOrgData = PersistentMemoryManager.getOrganizationData();
+        const newOrgData = PersistentMemoryManager.setOrganizationData(organizationIdentifier, traits);
+        if (Util.jsonIsEqual(previouslySetOrgData, newOrgData)) return;
+        if (previouslySetOrgData.identifier !== organizationIdentifier) this.newSession();
+        return this.eventQueueManager.recordEvent('organization');
       });
     }
   }
@@ -118,7 +123,7 @@ export class Client {
   _setSessionAttributesInMemory = () => {
     return this.errorHandler.executeWithErrorHandling(() => {
       let sessionAttributes = {
-        session_referrer: Util.documentReferrerOrDirect(),
+        session_referrer_url: Util.documentReferrerOrDirect(),
         session_landing_page_url: window.location.href,
       }
       this.config.includedUrlParams.forEach(param => {
@@ -137,7 +142,7 @@ export class Client {
       this.pageViewManager.onNewPage((_newUrl, previousUrl) => {
         return this.errorHandler.executeWithErrorHandling(() => {
           SessionPersistance.set(SWISHJAM_PAGE_VIEW_IDENTIFIER_SESSION_STORAGE_KEY, Util.generateUUID('pv'));
-          this.eventQueueManager.recordEvent('page_view', { referrer: previousUrl });
+          this.eventQueueManager.recordEvent('page_view', { page_referrer: previousUrl });
         });
       });
 
@@ -158,7 +163,7 @@ export class Client {
         return this.errorHandler.executeWithErrorHandling(() => {
           if (type === 'setUser') {
             if (!PersistentMemoryManager.userIsIdentified()) {
-              this.setUser(attributes);
+              this.updateUser(attributes);
             }
           } else {
             this.eventQueueManager.recordEvent(type, attributes);

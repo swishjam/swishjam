@@ -42,7 +42,7 @@ Rails.application.routes.draw do
 
       resources :workspace_members, only: [:destroy]
 
-      resources :workspaces, only: :index
+      resources :workspaces, only: [:index, :create]
       resources :workspace, only: [] do
         collection do
           patch '/update', to: 'workspaces#update'
