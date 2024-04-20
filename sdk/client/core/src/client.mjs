@@ -40,7 +40,7 @@ export class Client {
       recordFormSubmits: this.config.recordFormSubmits,
     });
 
-    // the order here is important, we want to make sure we have a session before we register for page views in the _initPageViewListeners
+    // the order here is important, we want to make sure we have a session before _initPageViewListeners
     if (!this.getSession()) {
       this._setSessionAttributesInMemory();
       this.newSession({ registerPageView: false });
@@ -110,7 +110,9 @@ export class Client {
       return this.errorHandler.executeWithErrorHandling(() => {
         const previouslySetOrgData = PersistentMemoryManager.getOrganizationData();
         const newOrgData = PersistentMemoryManager.setOrganizationData({ traits, identifier: organizationIdentifier });
-        if (Util.jsonIsEqual(previouslySetOrgData, newOrgData)) return;
+        if (Util.jsonIsEqual(previouslySetOrgData, newOrgData)) {
+          return;
+        }
         const changedOrg = previouslySetOrgData.identifier !== organizationIdentifier;
         if (changedOrg) {
           this.newSession();

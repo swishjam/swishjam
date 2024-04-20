@@ -44,7 +44,7 @@ export function formatSelectedValueForCombobox(option) {
   );
 }
 
-export function formatEventOptionsForCombobox(eventData) {
+export function formatEventOptionsForCombobox(eventData, options = {}) {
   let formattedEventData = []
 
   const nonIntegrationEvents = eventData.filter(event => {
@@ -53,7 +53,7 @@ export function formatEventOptionsForCombobox(eventData) {
   });
   if (nonIntegrationEvents.length > 0) {
     formattedEventData.push({
-      heading: createHeading(<SwishjamLogo className='h-4 mr-2' />, "Swishjam Events"),
+      heading: createHeading(<SwishjamLogo className='h-4 mr-2' />, options.swishjamEventsHeading || "Swishjam Events"),
       items: nonIntegrationEvents.map(createCustomEvent)
     })
   }

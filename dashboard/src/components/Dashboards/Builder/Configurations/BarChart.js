@@ -22,6 +22,7 @@ export default function BarChartConfiguration({ onConfigurationSave = () => { } 
       type='Bar Chart'
       includeCalculationsDropdown={false}
       includePropertiesDropdown={true}
+      includeUserProperties={true}
       onConfigurationChange={onConfigurationChange}
       onSave={onConfigurationSave}
       previewDashboardComponent={title => (

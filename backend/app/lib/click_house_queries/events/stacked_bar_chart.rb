@@ -25,7 +25,7 @@ module ClickHouseQueries
         @start_time, @end_time = rounded_timestamps(start_ts: start_time, end_ts: end_time, group_by: @group_by)
         @select_function_formatter = select_function_formatter
         @select_function_argument = select_function_argument
-        @property_alias = property_alias || property
+        @property_alias = property_alias || property.gsub('.', '_')
         @count_distinct_property = count_distinct_property
         @max_ranking_to_not_be_considered_other = max_ranking_to_not_be_considered_other
         @exclude_empty_property_values = exclude_empty_property_values
@@ -86,7 +86,11 @@ module ClickHouseQueries
         # ie: extractURLParameter(JSONExtractString(e.properties, 'url'), 'utm_source')
         select = ""
         select += "#{@select_function_formatter}(" if @select_function_formatter
-        select += "JSONExtractString(e.properties, '#{@property}')"
+        if @property.starts_with?('user.')
+          select += "JSONExtractString(e.user_properties, '#{@property.gsub('user.', '')}')"
+        else
+          select += "JSONExtractString(e.properties, '#{@property}')"
+        end
         select += ", '#{@select_function_argument}'" if @select_function_argument && @select_function_formatter
         select += ")" if @select_function_formatter
         select

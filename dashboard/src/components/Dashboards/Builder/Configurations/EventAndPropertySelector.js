@@ -2,25 +2,36 @@ import Dropdown from '@/components/utils/Dropdown'
 import { Skeleton } from '@/components/ui/skeleton';
 import SwishjamAPI from '@/lib/api-client/swishjam-api';
 import { useEffect, useState } from 'react'
+import ComboboxEvents from '@/components/utils/ComboboxEvents';
 
 export default function EventAndPropertySelector({
   calculationOptions = [],
   dataSource,
   includePropertiesDropdown = true,
+  includeUserProperties = false,
   onEventSelected,
   onPropertySelected,
   onCalculationSelected,
 }) {
   const [selectedCalculation, setSelectedCalculation] = useState();
+  const [selectedEvent, setSelectedEvent] = useState();
+  const [selectedEventProperty, setSelectedEventProperty] = useState();
   const [uniqueEvents, setUniqueEvents] = useState();
   const [uniquePropertiesForEvent, setUniquePropertiesForEvent] = useState();
+  const [uniqueUserProperties, setUniqueUserProperties] = useState();
 
   useEffect(() => {
     SwishjamAPI.Events.listUnique({ dataSource }).then(events => {
-      setUniqueEvents(events.sort((a, b) => a.name.localeCompare(b.name)));
+      setUniqueEvents(events.map(e => e.name).sort((a, b) => a.localeCompare(b)));
     });
     setUniquePropertiesForEvent();
   }, [dataSource])
+
+  useEffect(() => {
+    if (includeUserProperties) {
+      SwishjamAPI.Users.uniqueProperties().then(properties => setUniqueUserProperties(properties.map(p => `user.${p}`)));
+    }
+  }, [includeUserProperties])
 
   return (
     <div className='flex text-sm text-gray-700 items-center mt-2 break-keep'>
@@ -48,10 +59,12 @@ export default function EventAndPropertySelector({
       </div>
       {uniqueEvents
         ? (
-          <Dropdown
-            label={<span className='italic'>event</span>}
-            options={uniqueEvents}
-            onSelect={event => {
+          <ComboboxEvents
+            options={uniqueEvents || []}
+            selectedValue={selectedEvent}
+            placeholder="Select an event"
+            onSelectionChange={event => {
+              setSelectedEvent(event)
               onEventSelected(event);
               SwishjamAPI.Events.Properties.listUnique(event).then(setUniquePropertiesForEvent);
             }}
@@ -65,11 +78,19 @@ export default function EventAndPropertySelector({
           ? <span className='mx-1'>the most.</span>
           : (
             <>
-              <span className='mx-1'>event's</span>
-              <Dropdown
-                label={<span className='italic'>property</span>}
-                options={uniquePropertiesForEvent || []}
-                onSelect={onPropertySelected}
+              <span className='mx-1'>by the {selectedEventProperty && selectedEventProperty.startsWith('user.') ? 'user' : 'event'}'s</span>
+              <ComboboxEvents
+                selectedValue={selectedEventProperty}
+                onSelectionChange={selection => {
+                  setSelectedEventProperty(selection)
+                  onPropertySelected(selection)
+                }}
+                options={[
+                  ...(uniquePropertiesForEvent || []),
+                  ...(includeUserProperties ? uniqueUserProperties || [] : [])
+                ]}
+                placeholder="Select a property"
+                swishjamEventsHeading="Event Properties"
               />
               <span className='mx-1'>property over time.</span>
             </>

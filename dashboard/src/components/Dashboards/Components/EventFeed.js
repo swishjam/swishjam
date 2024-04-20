@@ -178,7 +178,9 @@ const EventFeed = ({
 }) => {
   const [expandedEvents, setExpandedEvents] = useState([]);
   const [eventCount, setEventCount] = useState(initialLimit);
+  const numHighlightedEvents = (events || []).filter(event => event.isHighlighted).length;
   let currentDay = null;
+
 
   const toggleEventExpansion = eventId => {
     if (expandedEvents.includes(eventId)) {
@@ -255,7 +257,7 @@ const EventFeed = ({
                         <div className="border-b-2 border-swishjam h-0 relative">
                           <div className='absolute left-0 right-0 mx-auto flex items-center rounded-b-md bg-swishjam text-white text-xs font-medium px-1 py-0.5 w-fit z-10'>
                             <SparklesIcon className='h-3 w-3 mr-1' />
-                            New Events
+                            {numHighlightedEvents} New Event{numHighlightedEvents > 1 ? 's' : ''}
                             <ArrowUpIcon className='h-3 w-3 ml-1' />
                           </div>
                         </div>

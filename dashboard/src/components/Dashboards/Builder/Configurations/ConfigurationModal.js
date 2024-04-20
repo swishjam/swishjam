@@ -9,6 +9,7 @@ export default function ConfigurationModal({
   description,
   includeCalculationsDropdown,
   includePropertiesDropdown = true,
+  includeUserProperties = false,
   onConfigurationChange,
   onSave = () => { },
   previewDashboardComponent,
@@ -38,7 +39,7 @@ export default function ConfigurationModal({
     <form onSubmit={onFormSubmit}>
       <h1 className='text-lg font-medium text-gray-700'>Configure {type}</h1>
       <h2 className='text-sm text-gray-500 mb-4'>{description}</h2>
-      <div className='grid grid-cols-2 gap-4 flex items-center'>
+      <div className='grid grid-cols-2 gap-4 items-center'>
         <div>
           <input className='input' placeholder={`${type} Title`} value={title} onChange={e => setTitle(e.target.value)} />
         </div>
@@ -47,6 +48,7 @@ export default function ConfigurationModal({
         calculationOptions={includeCalculationsDropdown ? calculationOptions : []}
         dataSource={dataSourceToPullFrom}
         includePropertiesDropdown={includePropertiesDropdown}
+        includeUserProperties={includeUserProperties}
         onCalculationSelected={calculation => {
           setSelectedCalculation(calculation);
           onConfigurationChange({
