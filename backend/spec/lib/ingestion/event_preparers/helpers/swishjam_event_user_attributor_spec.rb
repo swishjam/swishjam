@@ -51,6 +51,28 @@ describe Ingestion::EventPreparers::Helpers::SwishjamEventUserAttributor do
       expect(user_profile.metadata.keys.count).to eq(2)
     end
 
+    it 'updates and returns the user profile when the unique identifier is provided as { user_attributes: { unique_identifier }} in the event properties and the user exists' do
+      user_profile = FactoryBot.create(:analytics_user_profile, workspace: @workspace, user_unique_identifier: '123', email: 'old@email.com', metadata: { 'key_should_be_overwritten' => 'old_value', 'key_should_remain' => 'unchanged' })
+      user = described_class.new(
+        parsed_event(swishjam_api_key: @public_key, properties: { user_attributes: { unique_identifier: '123', email: 'new@email.com', 'key_should_be_overwritten' => 'new_value' }})
+      ).get_user_profile_and_associate_to_device_if_necessary!
+
+      expect(@workspace.analytics_user_profiles.count).to be(1)
+      expect(@workspace.analytics_user_profile_devices.count).to be(1)
+      expect(user.email).to eq('new@email.com')
+      expect(user.user_unique_identifier).to eq('123')
+      expect(user.metadata['key_should_be_overwritten']).to eq('new_value')
+      expect(user.metadata['key_should_remain']).to eq('unchanged')
+
+      user_profile.reload
+      expect(user_profile.email).to eq('new@email.com')
+      expect(user_profile.user_unique_identifier).to eq('123')
+      expect(user_profile.metadata['key_should_be_overwritten']).to eq('new_value')
+      expect(user_profile.metadata['key_should_remain']).to eq('unchanged')
+      expect(user_profile.metadata.keys.count).to eq(2)
+    end
+
+
     it 'updates and returns the user profile when the unique identifier is provided as `user_id` in the event properties and the user exists' do
       user_profile = FactoryBot.create(:analytics_user_profile, workspace: @workspace, user_unique_identifier: '123', email: 'old@email.com', metadata: { 'key_should_be_overwritten' => 'old_value', 'key_should_remain' => 'unchanged' })
       user = described_class.new(

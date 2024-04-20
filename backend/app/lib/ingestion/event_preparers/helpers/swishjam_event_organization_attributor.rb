@@ -48,8 +48,8 @@ module Ingestion
         end
 
         def provided_org_attributes 
-          # legacy instrumentation sends `organization` events with the organization properties in the root of the event properties
-          parsed_event.properties['organization'] || (parsed_event.name == 'organization' ? parsed_event.properties : {}) || {}
+          # legacy instrumentation sends `organization` events with the organization properties in the root of the event properties, and all other events with the organization properties in the `organization_attributes` key
+          parsed_event.properties['organization'] || parsed_event.properties['organization_attributes'] || (parsed_event.name == 'organization' ? parsed_event.properties : {}) || {}
         end
 
         def org_attr(*keys)

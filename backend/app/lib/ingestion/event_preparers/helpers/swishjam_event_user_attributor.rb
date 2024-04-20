@@ -36,7 +36,7 @@ module Ingestion
             user_profile.user_unique_identifier ||= provided_unique_user_identifier
             user_profile.email = provided_user_properties['email'] if !provided_user_properties['email'].blank?
             user_profile.metadata ||= {}
-            user_profile.metadata = user_profile.metadata.merge(sanitized_user_properties)
+            user_profile.metadata = user_profile.metadata.merge(sanitized_user_properties.dig('metadata') || sanitized_user_properties)
             Ingestion::EventPreparers::Helpers::AutomaticUserAttributeApplier.apply_user_attributes_if_necessary!(user_profile.metadata, parsed_event.properties)
             user_profile.last_seen_at_in_web_app = Time.current
             user_profile.first_seen_at_in_web_app ||= Time.current
@@ -99,8 +99,8 @@ module Ingestion
         end
 
         def provided_user_properties
-          # legacy instrumentation sends `identify` events with the user properties in the root of the event properties
-          all_user_properties = parsed_event.properties.dig('user') || (parsed_event.name == 'identify' ? parsed_event.properties : {}) || {}
+          # legacy instrumentation sends `identify` events with the user properties in the root of the event properties, and all other events with the user properties in the `user_attributes` key
+          all_user_properties = parsed_event.properties.dig('user') || parsed_event.properties.dig('user_attributes') || (parsed_event.name == 'identify' ? parsed_event.properties : {}) || {}
         end
 
         def pre_existing_user_profile_for_provided_user_data
@@ -117,6 +117,7 @@ module Ingestion
         def provided_unique_user_identifier
           # legacy instrumentation sends `identify` events with the user properties in the root of the event properties
           provided_user_properties['identifier'] ||
+            provided_user_properties['unique_identifier'] ||
             provided_user_properties['id'] ||
             provided_user_properties['userIdentifier'] || 
             provided_user_properties['user_id'] || 
@@ -124,7 +125,7 @@ module Ingestion
         end
 
         def sanitized_user_properties
-          provided_user_properties.except('email', 'id', 'identifier', 'userIdentifier', 'user_id', 'userId', *Analytics::Event::ReservedPropertyNames.all.map(&:to_s))
+          provided_user_properties.except('email', 'id', 'identifier', 'unique_identifier', 'userIdentifier', 'user_id', 'userId', *Analytics::Event::ReservedPropertyNames.all.map(&:to_s))
         end
         
       end
