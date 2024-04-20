@@ -58,7 +58,6 @@ module Ingestion
       ingestion_batch.num_successful_records += prepared_events.count
       ingestion_batch.save! if (@update_ingestion_batch_every_n_iterations || 0) > 0 && (ingestion_batch.num_successful_records + ingestion_batch.num_failed_records) % @update_ingestion_batch_every_n_iterations == 0
     rescue => e
-      byebug
       Sentry.capture_exception(e)
       Sentry.capture_message("Error preparing event into ingestion format during events ingestion, continuing with the rest of the events in the queue and pushing this one to the DLQ.\nerror: #{e.message}", extra: { event_json: event_json })
       event_json['dlq_data'] = { error_message: e.message, errored_at: Time.current }
@@ -68,9 +67,6 @@ module Ingestion
     end
 
     def event_preparer_klass_for_event(event_name)
-      # if event_name == 'identify'
-      #   Ingestion::EventPreparers::UserIdentifyHandler
-      # elsif event_name.starts_with?('stripe.')
       if event_name.starts_with?('stripe.')
         Ingestion::EventPreparers::StripeEventHandler
       elsif event_name.starts_with?('resend.')
@@ -82,7 +78,6 @@ module Ingestion
       elsif event_name.starts_with?('cal.')
         Ingestion::EventPreparers::CalComEventHandler
       else
-        # Ingestion::EventPreparers::BasicEventHandler
         Ingestion::EventPreparers::SwishjamEventHandler
       end
     end

@@ -24,12 +24,8 @@ module Ingestion
           @organization_for_event ||= begin
             organization_identifier = org_attr('id', 'identifier', 'organization_identifier', 'org_id', 'organization_id', 'orgIdentifier', 'organizationIdentifier', 'organization_identifier')
             return if organization_identifier.blank?
-            org = workspace.analytics_organization_profiles.find_by(organization_unique_identifier: organization_identifier)
-            if org.nil?
-              org = workspace.analytics_organization_profiles.new(organization_unique_identifier: organization_identifier)
-            end
+            org = workspace.analytics_organization_profiles.find_by(organization_unique_identifier: organization_identifier) || workspace.analytics_organization_profiles.new(organization_unique_identifier: organization_identifier)
             maybe_org_name = org_attr('organization_name', 'name', 'organizationName', 'org_name', 'orgName')
-            byebug
             org.name = maybe_org_name if maybe_org_name.present?
             org.metadata ||= {}
             org.metadata = org.metadata.merge(sanitized_provided_org_properties)

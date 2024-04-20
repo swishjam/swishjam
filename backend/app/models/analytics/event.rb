@@ -28,8 +28,6 @@ module Analytics
           DEVICE_FINGERPRINT
           DEVICE_IDENTIFIER
           DEVICE_VENDOR
-          INITIAL_LANDING_PAGE_URL
-          INITIAL_REFERRER_URL
           IS_MOBILE
           LANGUAGE
           ORGANIZATION
