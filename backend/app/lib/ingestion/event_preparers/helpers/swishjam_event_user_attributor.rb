@@ -31,7 +31,6 @@ module Ingestion
             user_profile.email = provided_user_properties['email'] if !provided_user_properties['email'].blank?
             user_profile.metadata ||= {}
             user_profile.metadata = user_profile.metadata.merge(sanitized_user_properties.dig('metadata') || sanitized_user_properties)
-            Ingestion::EventPreparers::Helpers::UserPropertiesAugmentor.new(parsed_event).augment_user_properties!
             user_profile.last_seen_at_in_web_app = Time.current
             user_profile.first_seen_at_in_web_app ||= Time.current
             user_profile.save! if user_profile.changed?

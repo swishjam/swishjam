@@ -22,6 +22,7 @@ describe Ingestion::EventPreparers::Helpers::UserPropertiesAugmentor do
 
   describe '#augment_user_properties!' do
     it 'automatically applies the initial landing page, referrer, and UTM params to the user profile from the event' do
+      user_profile = FactoryBot.create(:analytics_user_profile, workspace: @workspace)
       parsed_event = parsed_event(
         swishjam_api_key: @public_key, 
         properties: { 
@@ -41,29 +42,30 @@ describe Ingestion::EventPreparers::Helpers::UserPropertiesAugmentor do
       
       # event properties should always be augmented first...
       Ingestion::EventPreparers::Helpers::EventPropertiesAugmentor.new(parsed_event).augment_properties!
-      described_class.new(parsed_event).augment_user_properties!
+      described_class.new(user_profile, parsed_event).augment_user_properties!
 
-      expect(parsed_event.user_properties[AnalyticsUserProfile::ReservedMetadataProperties.INITIAL_LANDING_PAGE_URL]).to eq('http://landing.com/a-path?say=hello')
-      expect(parsed_event.user_properties[AnalyticsUserProfile::ReservedMetadataProperties.INITIAL_LANDING_PAGE_URL_PATH]).to eq('/a-path')
-      expect(parsed_event.user_properties[AnalyticsUserProfile::ReservedMetadataProperties.INITIAL_LANDING_PAGE_URL_HOST]).to eq('landing.com')
-      expect(parsed_event.user_properties[AnalyticsUserProfile::ReservedMetadataProperties.INITIAL_LANDING_PAGE_URL_QUERY_PARAMS]).to eq('say=hello')
-      expect(parsed_event.user_properties[AnalyticsUserProfile::ReservedMetadataProperties.INITIAL_LANDING_PAGE_BASE_URL]).to eq('landing.com/a-path')
+      expect(user_profile.metadata[AnalyticsUserProfile::ReservedMetadataProperties.INITIAL_LANDING_PAGE_URL]).to eq('http://landing.com/a-path?say=hello')
+      expect(user_profile.metadata[AnalyticsUserProfile::ReservedMetadataProperties.INITIAL_LANDING_PAGE_URL_PATH]).to eq('/a-path')
+      expect(user_profile.metadata[AnalyticsUserProfile::ReservedMetadataProperties.INITIAL_LANDING_PAGE_URL_HOST]).to eq('landing.com')
+      expect(user_profile.metadata[AnalyticsUserProfile::ReservedMetadataProperties.INITIAL_LANDING_PAGE_URL_QUERY_PARAMS]).to eq('say=hello')
+      expect(user_profile.metadata[AnalyticsUserProfile::ReservedMetadataProperties.INITIAL_LANDING_PAGE_BASE_URL]).to eq('landing.com/a-path')
 
-      expect(parsed_event.user_properties[AnalyticsUserProfile::ReservedMetadataProperties.INITIAL_REFERRER_URL]).to eq('http://session_referrer.com?hi=bye')
-      expect(parsed_event.user_properties[AnalyticsUserProfile::ReservedMetadataProperties.INITIAL_REFERRER_URL_PATH]).to eq('/')
-      expect(parsed_event.user_properties[AnalyticsUserProfile::ReservedMetadataProperties.INITIAL_REFERRER_URL_HOST]).to eq('session_referrer.com')
-      expect(parsed_event.user_properties[AnalyticsUserProfile::ReservedMetadataProperties.INITIAL_REFERRER_URL_QUERY_PARAMS]).to eq('hi=bye')
-      expect(parsed_event.user_properties[AnalyticsUserProfile::ReservedMetadataProperties.INITIAL_REFERRER_BASE_URL]).to eq('session_referrer.com')
+      expect(user_profile.metadata[AnalyticsUserProfile::ReservedMetadataProperties.INITIAL_REFERRER_URL]).to eq('http://session_referrer.com?hi=bye')
+      expect(user_profile.metadata[AnalyticsUserProfile::ReservedMetadataProperties.INITIAL_REFERRER_URL_PATH]).to eq('/')
+      expect(user_profile.metadata[AnalyticsUserProfile::ReservedMetadataProperties.INITIAL_REFERRER_URL_HOST]).to eq('session_referrer.com')
+      expect(user_profile.metadata[AnalyticsUserProfile::ReservedMetadataProperties.INITIAL_REFERRER_URL_QUERY_PARAMS]).to eq('hi=bye')
+      expect(user_profile.metadata[AnalyticsUserProfile::ReservedMetadataProperties.INITIAL_REFERRER_BASE_URL]).to eq('session_referrer.com')
 
-      expect(parsed_event.user_properties[AnalyticsUserProfile::ReservedMetadataProperties.INITIAL_UTM_CAMPAIGN]).to eq('my_utm_campaign')
-      expect(parsed_event.user_properties[AnalyticsUserProfile::ReservedMetadataProperties.INITIAL_UTM_SOURCE]).to eq('my_utm_source')
-      expect(parsed_event.user_properties[AnalyticsUserProfile::ReservedMetadataProperties.INITIAL_UTM_MEDIUM]).to eq('my_utm_medium')
-      expect(parsed_event.user_properties[AnalyticsUserProfile::ReservedMetadataProperties.INITIAL_UTM_CONTENT]).to eq('my_utm_content')
-      expect(parsed_event.user_properties[AnalyticsUserProfile::ReservedMetadataProperties.INITIAL_UTM_TERM]).to eq('my_utm_term')
-      expect(parsed_event.user_properties[AnalyticsUserProfile::ReservedMetadataProperties.INITIAL_GCLID]).to eq('my_gclid')
+      expect(user_profile.metadata[AnalyticsUserProfile::ReservedMetadataProperties.INITIAL_UTM_CAMPAIGN]).to eq('my_utm_campaign')
+      expect(user_profile.metadata[AnalyticsUserProfile::ReservedMetadataProperties.INITIAL_UTM_SOURCE]).to eq('my_utm_source')
+      expect(user_profile.metadata[AnalyticsUserProfile::ReservedMetadataProperties.INITIAL_UTM_MEDIUM]).to eq('my_utm_medium')
+      expect(user_profile.metadata[AnalyticsUserProfile::ReservedMetadataProperties.INITIAL_UTM_CONTENT]).to eq('my_utm_content')
+      expect(user_profile.metadata[AnalyticsUserProfile::ReservedMetadataProperties.INITIAL_UTM_TERM]).to eq('my_utm_term')
+      expect(user_profile.metadata[AnalyticsUserProfile::ReservedMetadataProperties.INITIAL_GCLID]).to eq('my_gclid')
     end
 
     it 'does not set any augmented properties if the user already has any of the augmented properties already applied' do
+      user_profile = FactoryBot.create(:analytics_user_profile, workspace: @workspace, metadata: { AnalyticsUserProfile::ReservedMetadataProperties.INITIAL_UTM_CAMPAIGN => 'existing_utm_campaign!' })
       parsed_event = parsed_event(
         swishjam_api_key: @public_key, 
         properties: { 
@@ -78,35 +80,32 @@ describe Ingestion::EventPreparers::Helpers::UserPropertiesAugmentor do
           Analytics::Event::ReservedPropertyNames.SESSION_UTM_CONTENT => 'my_utm_content',
           Analytics::Event::ReservedPropertyNames.SESSION_UTM_TERM => 'my_utm_term',
           Analytics::Event::ReservedPropertyNames.SESSION_GCLID => 'my_gclid',
-        },
-        user_properties: {
-          AnalyticsUserProfile::ReservedMetadataProperties.INITIAL_UTM_CAMPAIGN => 'existing_utm_campaign!',
         }
       )
       
       # event properties should always be augmented first...
       Ingestion::EventPreparers::Helpers::EventPropertiesAugmentor.new(parsed_event).augment_properties!
-      described_class.new(parsed_event).augment_user_properties!
+      described_class.new(user_profile, parsed_event).augment_user_properties!
       
-      expect(parsed_event.user_properties[AnalyticsUserProfile::ReservedMetadataProperties.INITIAL_UTM_CAMPAIGN]).to eq('existing_utm_campaign!')
+      expect(user_profile.metadata[AnalyticsUserProfile::ReservedMetadataProperties.INITIAL_UTM_CAMPAIGN]).to eq('existing_utm_campaign!')
 
-      expect(parsed_event.user_properties[AnalyticsUserProfile::ReservedMetadataProperties.INITIAL_LANDING_PAGE_URL]).to be(nil)
-      expect(parsed_event.user_properties[AnalyticsUserProfile::ReservedMetadataProperties.INITIAL_LANDING_PAGE_URL_PATH]).to be(nil)
-      expect(parsed_event.user_properties[AnalyticsUserProfile::ReservedMetadataProperties.INITIAL_LANDING_PAGE_URL_HOST]).to be(nil)
-      expect(parsed_event.user_properties[AnalyticsUserProfile::ReservedMetadataProperties.INITIAL_LANDING_PAGE_URL_QUERY_PARAMS]).to be(nil)
-      expect(parsed_event.user_properties[AnalyticsUserProfile::ReservedMetadataProperties.INITIAL_LANDING_PAGE_BASE_URL]).to be(nil)
+      expect(user_profile.metadata[AnalyticsUserProfile::ReservedMetadataProperties.INITIAL_LANDING_PAGE_URL]).to be(nil)
+      expect(user_profile.metadata[AnalyticsUserProfile::ReservedMetadataProperties.INITIAL_LANDING_PAGE_URL_PATH]).to be(nil)
+      expect(user_profile.metadata[AnalyticsUserProfile::ReservedMetadataProperties.INITIAL_LANDING_PAGE_URL_HOST]).to be(nil)
+      expect(user_profile.metadata[AnalyticsUserProfile::ReservedMetadataProperties.INITIAL_LANDING_PAGE_URL_QUERY_PARAMS]).to be(nil)
+      expect(user_profile.metadata[AnalyticsUserProfile::ReservedMetadataProperties.INITIAL_LANDING_PAGE_BASE_URL]).to be(nil)
 
-      expect(parsed_event.user_properties[AnalyticsUserProfile::ReservedMetadataProperties.INITIAL_REFERRER_URL]).to be(nil)
-      expect(parsed_event.user_properties[AnalyticsUserProfile::ReservedMetadataProperties.INITIAL_REFERRER_URL_PATH]).to be(nil)
-      expect(parsed_event.user_properties[AnalyticsUserProfile::ReservedMetadataProperties.INITIAL_REFERRER_URL_HOST]).to be(nil)
-      expect(parsed_event.user_properties[AnalyticsUserProfile::ReservedMetadataProperties.INITIAL_REFERRER_URL_QUERY_PARAMS]).to be(nil)
-      expect(parsed_event.user_properties[AnalyticsUserProfile::ReservedMetadataProperties.INITIAL_REFERRER_BASE_URL]).to be(nil)
+      expect(user_profile.metadata[AnalyticsUserProfile::ReservedMetadataProperties.INITIAL_REFERRER_URL]).to be(nil)
+      expect(user_profile.metadata[AnalyticsUserProfile::ReservedMetadataProperties.INITIAL_REFERRER_URL_PATH]).to be(nil)
+      expect(user_profile.metadata[AnalyticsUserProfile::ReservedMetadataProperties.INITIAL_REFERRER_URL_HOST]).to be(nil)
+      expect(user_profile.metadata[AnalyticsUserProfile::ReservedMetadataProperties.INITIAL_REFERRER_URL_QUERY_PARAMS]).to be(nil)
+      expect(user_profile.metadata[AnalyticsUserProfile::ReservedMetadataProperties.INITIAL_REFERRER_BASE_URL]).to be(nil)
 
-      expect(parsed_event.user_properties[AnalyticsUserProfile::ReservedMetadataProperties.INITIAL_UTM_SOURCE]).to be(nil)
-      expect(parsed_event.user_properties[AnalyticsUserProfile::ReservedMetadataProperties.INITIAL_UTM_MEDIUM]).to be(nil)
-      expect(parsed_event.user_properties[AnalyticsUserProfile::ReservedMetadataProperties.INITIAL_UTM_CONTENT]).to be(nil)
-      expect(parsed_event.user_properties[AnalyticsUserProfile::ReservedMetadataProperties.INITIAL_UTM_TERM]).to be(nil)
-      expect(parsed_event.user_properties[AnalyticsUserProfile::ReservedMetadataProperties.INITIAL_GCLID]).to be(nil)
+      expect(user_profile.metadata[AnalyticsUserProfile::ReservedMetadataProperties.INITIAL_UTM_SOURCE]).to be(nil)
+      expect(user_profile.metadata[AnalyticsUserProfile::ReservedMetadataProperties.INITIAL_UTM_MEDIUM]).to be(nil)
+      expect(user_profile.metadata[AnalyticsUserProfile::ReservedMetadataProperties.INITIAL_UTM_CONTENT]).to be(nil)
+      expect(user_profile.metadata[AnalyticsUserProfile::ReservedMetadataProperties.INITIAL_UTM_TERM]).to be(nil)
+      expect(user_profile.metadata[AnalyticsUserProfile::ReservedMetadataProperties.INITIAL_GCLID]).to be(nil)
     end
   end
 end

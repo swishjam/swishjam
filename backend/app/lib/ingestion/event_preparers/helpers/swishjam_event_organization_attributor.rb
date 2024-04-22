@@ -4,17 +4,6 @@ module Ingestion
       class SwishjamEventOrganizationAttributor < Ingestion::EventPreparers::Base
         attr_reader :parsed_event, :user_profile_for_event
 
-        AUTO_APPLY_FROM_USER_PROPERTIES_DICT = [
-          AnalyticsUserProfile::ReservedMetadataProperties.INITIAL_LANDING_PAGE_URL,
-          AnalyticsUserProfile::ReservedMetadataProperties.INITIAL_REFERRER_URL,
-          AnalyticsUserProfile::ReservedMetadataProperties.INITIAL_UTM_CAMPAIGN,
-          AnalyticsUserProfile::ReservedMetadataProperties.INITIAL_UTM_SOURCE,
-          AnalyticsUserProfile::ReservedMetadataProperties.INITIAL_UTM_MEDIUM,
-          AnalyticsUserProfile::ReservedMetadataProperties.INITIAL_UTM_CONTENT,
-          AnalyticsUserProfile::ReservedMetadataProperties.INITIAL_UTM_TERM,
-          AnalyticsUserProfile::ReservedMetadataProperties.INITIAL_GCLID,
-        ]
-
         def initialize(parsed_event, user_profile_for_event)
           @parsed_event = parsed_event
           @user_profile_for_event = user_profile_for_event
@@ -30,15 +19,7 @@ module Ingestion
             org.metadata ||= {}
             org.metadata = org.metadata.merge(sanitized_provided_org_properties)
             org.domain = org_attr('domain') if org_attr('domain').present?
-            if org.domain.nil? && user_profile_for_event&.email.present? && !GenericEmailDetector.is_generic_email?(user_profile_for_event.email)
-              domain_from_user_email = user_profile_for_event.email.split('@').last
-              org.domain = domain_from_user_email
-            end
-            if user_profile_for_event.present?
-              AUTO_APPLY_FROM_USER_PROPERTIES_DICT.each do |property_name|
-                org.metadata[property_name] ||= user_profile_for_event.metadata[property_name] if user_profile_for_event.metadata[property_name].present?
-              end
-            end
+            apply_domain_value_if_necessary!(org)
             org.save! if org.changed?
             if user_profile_for_event.present? && !org.analytics_organization_members.exists?(analytics_user_profile_id: user_profile_for_event.id)
               org.analytics_organization_members.create!(analytics_user_profile_id: user_profile_for_event.id)
@@ -63,6 +44,12 @@ module Ingestion
 
         def sanitized_provided_org_properties
           (provided_org_attributes['metadata'] || provided_org_attributes).except('id', 'identifier', 'organization_identifier', 'name', 'organization_name', 'domain', 'org_id', 'organization_id', 'orgIdentifier', 'organizationIdentifier', 'organization_identifier', *Analytics::Event::ReservedPropertyNames.all.map(&:to_s))
+        end
+
+        def apply_domain_value_if_necessary!(org)
+          if org.domain.nil? && user_profile_for_event&.email.present? && !GenericEmailDetector.is_generic_email?(user_profile_for_event.email)
+            org.domain = user_profile_for_event.email.split('@').last
+          end
         end
 
       end
