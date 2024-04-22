@@ -81,12 +81,26 @@ module Ingestion
       safe_json(event_json['properties'])
     end
 
+    def set_property(key, value)
+      event_json['properties'][key] = value
+    end
+
     def user_properties
       safe_json(event_json['user_properties'])
     end
 
+    def set_user_property(key, value)
+      event_json['user_properties'] ||= {}
+      event_json['user_properties'][key] = value
+    end
+
     def organization_properties
       safe_json(event_json['organization_properties'])
+    end
+
+    def set_organization_property(key, value)
+      event_json['organization_properties'] ||= {}
+      event_json['organization_properties'][key] = value
     end
 
     def occurred_at

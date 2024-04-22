@@ -2,12 +2,6 @@ module Ingestion
   module EventPreparers
     module Helpers
       class SwishjamEventUserAttributor < Ingestion::EventPreparers::Base
-        attr_reader :parsed_event
-
-        def initialize(parsed_event)
-          @parsed_event = parsed_event
-        end
-
         def get_user_profile_and_associate_to_device_if_necessary!
           is_new_device_owner = user_profile_for_event.present? && device_for_event.present? && device_for_event.owner != user_profile_for_event
           return user_profile_for_event if !is_new_device_owner
@@ -37,7 +31,8 @@ module Ingestion
             user_profile.email = provided_user_properties['email'] if !provided_user_properties['email'].blank?
             user_profile.metadata ||= {}
             user_profile.metadata = user_profile.metadata.merge(sanitized_user_properties.dig('metadata') || sanitized_user_properties)
-            Ingestion::EventPreparers::Helpers::AutomaticUserAttributeApplier.apply_user_attributes_if_necessary!(user_profile.metadata, parsed_event.properties)
+            byebug
+            Ingestion::EventPreparers::Helpers::UserPropertiesAugmentor.new(parsed_event).augment_user_properties!
             user_profile.last_seen_at_in_web_app = Time.current
             user_profile.first_seen_at_in_web_app ||= Time.current
             user_profile.save! if user_profile.changed?
