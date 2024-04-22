@@ -94,8 +94,11 @@ module Ingestion
         end
 
         def pre_existing_device
-          return if parsed_event.device_identifier.blank?
-          @pre_existing_device ||= workspace.analytics_user_profile_devices.find_by(swishjam_cookie_value: parsed_event.device_identifier)
+          return @pre_existing_device if defined?(@pre_existing_device)
+          @pre_existing_device ||= begin
+            return nil if parsed_event.device_identifier.blank?
+            workspace.analytics_user_profile_devices.find_by(swishjam_cookie_value: parsed_event.device_identifier)
+          end
         end
 
         def provided_user_properties
