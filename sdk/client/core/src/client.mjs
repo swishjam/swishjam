@@ -202,9 +202,9 @@ export class Client {
 
   _initInteractionListeners = () => {
     return this.errorHandler.executeWithErrorHandling(() => {
-      this.interactionHandler.onInteraction(({ type, attributes }) => {
+      this.interactionHandler.onInteraction((type, attributes) => {
         return this.errorHandler.executeWithErrorHandling(() => {
-          if (type === 'setUser') {
+          if (type === 'updateUser') {
             if (!PersistentMemoryManager.userIsIdentified()) {
               this.updateUser(attributes);
             }
