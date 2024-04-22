@@ -25,7 +25,7 @@ module ClickHouseQueries
         @start_time, @end_time = rounded_timestamps(start_ts: start_time, end_ts: end_time, group_by: @group_by)
         @select_function_formatter = select_function_formatter
         @select_function_argument = select_function_argument
-        @property_alias = property_alias || property.gsub('.', '_')
+        @property_alias = property_alias || property.to_s.gsub('.', '_')
         @count_distinct_property = count_distinct_property
         @max_ranking_to_not_be_considered_other = max_ranking_to_not_be_considered_other
         @exclude_empty_property_values = exclude_empty_property_values
