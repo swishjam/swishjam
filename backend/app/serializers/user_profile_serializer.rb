@@ -1,6 +1,7 @@
 class UserProfileSerializer < ActiveModel::Serializer
-  attributes :id, :user_unique_identifier, :email, :lifetime_value_in_cents, :initials, :full_name, :first_name, :last_name, :metadata, :tags,
-              :created_at, :organizations, :enrichment_data, :active_subscriptions, :current_mrr_in_cents, :gravatar_url, :created_by_data_source, :is_anonymous
+  attributes :id, :user_unique_identifier, :email, :first_seen_at_in_web_app, :last_seen_at_in_web_app, :lifetime_value_in_cents, :initials, 
+              :full_name, :first_name, :last_name, :metadata, :tags, :created_at, :organizations, :enrichment_data, :active_subscriptions, 
+              :current_mrr_in_cents, :gravatar_url, :created_by_data_source, :is_anonymous, :merged_into_analytics_user_profile_id
 
   def organizations
     object.analytics_organization_profiles

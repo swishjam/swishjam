@@ -15,9 +15,10 @@ export default function ComboboxEvents({
   minWidth = '200px',
   maxHeight = '400px',
   scrollSelectedOptionIntoView = true,
+  swishjamEventsHeading,
 }) {
   const [isOpen, setIsOpen] = useState(false)
-  const formattedOptions = formatEventOptionsForCombobox(options)
+  const formattedOptions = formatEventOptionsForCombobox(options, { swishjamEventsHeading })
   const popoverContentRef = useRef();
 
   useEffect(() => {

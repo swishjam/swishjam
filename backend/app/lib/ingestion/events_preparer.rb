@@ -67,9 +67,7 @@ module Ingestion
     end
 
     def event_preparer_klass_for_event(event_name)
-      if event_name == 'identify'
-        Ingestion::EventPreparers::UserIdentifyHandler
-      elsif event_name.starts_with?('stripe.')
+      if event_name.starts_with?('stripe.')
         Ingestion::EventPreparers::StripeEventHandler
       elsif event_name.starts_with?('resend.')
         Ingestion::EventPreparers::ResendEventHandler
@@ -80,7 +78,7 @@ module Ingestion
       elsif event_name.starts_with?('cal.')
         Ingestion::EventPreparers::CalComEventHandler
       else
-        Ingestion::EventPreparers::BasicEventHandler
+        Ingestion::EventPreparers::SwishjamEventHandler
       end
     end
   end

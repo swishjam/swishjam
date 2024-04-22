@@ -7,6 +7,15 @@ export class Util {
     });
   }
 
+  static getUrlParam(name) {
+    const urlParams = new URLSearchParams(window.location.search);
+    return urlParams.get(name);
+  }
+
+  static documentReferrerOrDirect() {
+    return document.referrer === '' ? 'direct' : document.referrer;
+  }
+
   static smartCookieDomain() {
     const hostname = window.location.hostname;
     const parts = hostname.split('.').reverse();
@@ -24,6 +33,26 @@ export class Util {
       // Localhost or similar
       return '.' + hostname;
     }
+  }
+
+  static jsonIsEqual(a, b) {
+    return Util._stringifySorted(a) === Util._stringifySorted(b);
+  }
+
+  static _stringifySorted(obj) {
+    if (Array.isArray(obj)) {
+      return JSON.stringify(obj.map(stringifySorted));
+    } else if (obj !== null && typeof obj === 'object') {
+      return JSON.stringify(
+        Object.keys(obj)
+          .sort()
+          .reduce((result, key) => {
+            result[key] = Util._stringifySorted(obj[key]);
+            return result;
+          }, {})
+      );
+    }
+    return JSON.stringify(obj);
   }
 }
 

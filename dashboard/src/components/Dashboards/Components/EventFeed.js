@@ -1,4 +1,4 @@
-import { Button } from "@/components/ui/button"
+import { Button, buttonVariants } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import EmptyState from "@components/EmptyState"
 import { HiCursorArrowRays } from 'react-icons/hi2'
@@ -22,15 +22,16 @@ import {
   ZapIcon,
   ChevronRightIcon,
   BotIcon,
-  ExternalLinkIcon,
+  ArrowUpIcon,
+  SparklesIcon,
 } from "lucide-react";
 
 import CalComLogo from '@public/logos/calcom.png'
 import IntercomLogo from '@public/logos/intercom.png'
 import ResendLogo from '@public/logos/resend.png'
 import StripeLogo from '@public/logos/stripe.jpeg'
-import { useRouter } from "next/navigation"
 import { Skeleton } from "@/components/ui/skeleton"
+import { MaybeExternalLink } from "@/components/utils/MaybeExternalLink"
 import Link from "next/link"
 
 function classNames(...classes) {
@@ -82,7 +83,7 @@ const RecursivePropertiesDisplay = ({ properties, linkToUrls = true }) => {
     <>
       {Object.keys(properties).map((key, i) => {
         const value = properties[key];
-        if (typeof value === 'object') {
+        if (typeof value === 'object' && value !== null && value !== undefined) {
           return (
             <div key={i} className="pt-1">
               <div className="text-gray-500">{key}:</div>
@@ -96,16 +97,13 @@ const RecursivePropertiesDisplay = ({ properties, linkToUrls = true }) => {
             <div key={i} className="flex space-x-2 pt-1">
               <div className="text-gray-500">{key}:</div>
               <div className="text-gray-900">
-                {linkToUrls && key === 'url'
-                  ? <Link
-                    href={value}
-                    target='_blank'
-                    className='text-blue-600 flex items-center space-x-1 hover:underline'
-                    onClick={e => e.stopPropagation()}
-                  >
-                    {value} <ExternalLinkIcon className='h-3 w-3' />
-                  </Link>
-                  : value}
+                {linkToUrls && key === 'url' && value
+                  ? (
+                    <MaybeExternalLink href={value} onClick={e => e.stopPropagation()}>
+                      {value}
+                    </MaybeExternalLink>
+                  ) : value === undefined || value === null ? <span className='italic text-gray-700'>{'undefined'}</span> : value.toString()
+                }
               </div>
             </div>
           )
@@ -115,15 +113,14 @@ const RecursivePropertiesDisplay = ({ properties, linkToUrls = true }) => {
   )
 }
 
-const EventFeedItem = ({ event, isExpandable, leftItemHeaderKey, rightItemKey, rightItemKeyFormatter, leftItemSubHeaderFormatter, isLastItem = false }) => {
-  const [isExpanded, setIsExpanded] = useState(false);
+const EventFeedItem = ({ event, onExpandClick, isExpanded, isExpandable, leftItemHeaderKey, rightItemKey, rightItemKeyFormatter, leftItemSubHeaderFormatter, isLastItem = false }) => {
   const properties = JSON.parse(event.properties);
 
   return (
     <li
       key={event.id}
       className={`relative ${isExpandable ? 'hover:bg-gray-50 rounded-md py-2 pr-2 cursor-pointer' : ''}`}
-      onClick={() => isExpandable && setIsExpanded(!isExpanded)}
+      onClick={() => isExpandable && onExpandClick()}
     >
       <div className="flex gap-x-4">
         <div className={classNames(isLastItem ? 'h-10' : '-bottom-6', 'absolute left-0 top-0 flex w-6 justify-center')}>
@@ -132,14 +129,16 @@ const EventFeedItem = ({ event, isExpandable, leftItemHeaderKey, rightItemKey, r
         <div className="relative flex h-6 w-6 flex-none items-center justify-center">
           {iconForEvent(event) || <div className="h-1.5 w-1.5 rounded-full bg-gray-100 ring-1 ring-gray-300" />}
         </div>
-        <div className="flex flex-auto py-0.5 text-xs leading-5 items-center space-x-1">
-          <ChevronRightIcon className={classNames('h-3 w-3 text-gray-900 transition-transform', isExpanded ? 'rotate-90' : '')} />
-          <span className='font-medium text-gray-900'>{event[leftItemHeaderKey]}</span>
+        <div className={classNames("flex flex-auto py-0.5 text-xs leading-5 items-center space-x-1", event.isHighlighted ? 'text-swishjam font-medium' : 'text-gray-900')}>
+          <ChevronRightIcon className={classNames('h-3 w-3 transition-transform', isExpanded ? 'rotate-90' : '')} />
+          <span className='font-medium'>{event[leftItemHeaderKey]}</span>
           {leftItemSubHeaderFormatter && (
-            <span className="ml-2 text-gray-400">{leftItemSubHeaderFormatter(event)}</span>
+            <span className={classNames("ml-2", event.isHighlighted ? 'text-swishjam font-medium' : 'text-gray-400')}>
+              {leftItemSubHeaderFormatter(event)}
+            </span>
           )}
         </div>
-        <span className="flex-none py-0.5 text-xs leading-5 text-gray-500">
+        <span className={classNames("flex-none py-0.5 text-xs leading-5", event.isHighlighted ? 'text-swishjam font-medium' : "text-gray-500")}>
           {rightItemKeyFormatter(event[rightItemKey])}
         </span>
       </div>
@@ -153,24 +152,43 @@ const EventFeedItem = ({ event, isExpandable, leftItemHeaderKey, rightItemKey, r
 }
 
 const EventFeed = ({
-  className,
+  className = '',
   isExpandable = true,
+  displayShowMoreButton = true,
   events,
   includeDateSeparators = false,
-  initialLimit = 5,
-  leftItemHeaderKey,
-  leftItemSubHeaderFormatter,
+  initialLimit,
+  leftItemHeaderKey = "name",
+  leftItemSubHeaderFormatter = event => {
+    if (event.name === 'page_view') {
+      return JSON.parse(event.properties).url
+    } else if (event.name === 'click') {
+      return JSON.parse(event.properties).clicked_text || JSON.parse(event.properties).clicked_id || JSON.parse(event.properties).clicked_class
+    } else if (event.name === 'form_submit') {
+      return JSON.parse(event.properties).form_id || JSON.parse(event.properties).form_action || JSON.parse(event.properties).form_class
+    }
+  },
   loadMoreEventsIncrement = 1,
   noDataMsg = 'No events triggered.',
-  rightItemKey,
-  rightItemKeyFormatter = value => value,
+  rightItemKey = "occurred_at",
+  rightItemKeyFormatter = date => new Date(date).toLocaleTimeString('en-us', { hour: 'numeric', minute: "2-digit", second: "2-digit" }),
   subTitle,
   title,
   viewAllLink,
 }) => {
+  const [expandedEvents, setExpandedEvents] = useState([]);
   const [eventCount, setEventCount] = useState(initialLimit);
-  const router = useRouter();
+  const numHighlightedEvents = (events || []).filter(event => event.isHighlighted).length;
   let currentDay = null;
+
+
+  const toggleEventExpansion = eventId => {
+    if (expandedEvents.includes(eventId)) {
+      setExpandedEvents(expandedEvents.filter(id => id !== eventId));
+    } else {
+      setExpandedEvents([...expandedEvents, eventId]);
+    }
+  }
 
   if (!events) {
     return (
@@ -182,7 +200,7 @@ const EventFeed = ({
           </CardHeader>
           <CardContent>
             <div className="flow-root">
-              {Array.from({ length: initialLimit }).map((_, idx) => (
+              {Array.from({ length: initialLimit || 10 }).map((_, idx) => (
                 <Skeleton className='w-full rounded h-6 m-2' key={idx} />
               ))}
             </div>
@@ -195,63 +213,77 @@ const EventFeed = ({
   return (
     <div className={className}>
       <Card>
-        <CardHeader>
-          <CardTitle className="text-sm font-medium cursor-default">{title}</CardTitle>
-          {subTitle && <CardDescription>{subTitle}</CardDescription>}
-        </CardHeader>
-        <CardContent>
+        {title && (
+          <CardHeader>
+            <CardTitle className="text-sm font-medium cursor-default">{title}</CardTitle>
+            {subTitle && <CardDescription>{subTitle}</CardDescription>}
+          </CardHeader>
+        )}
+        <CardContent className={title ? '' : 'py-6'}>
           <div className="flow-root">
             {events && events.length === 0 && (
               <EmptyState msg={noDataMsg} border={true} icon={<HiCursorArrowRays className="mx-auto h-12 w-12 text-gray-300 group-hover:animate-pulse" />} />
             )}
             <ul role="list" className={isExpandable ? '' : "space-y-6"}>
-              {events && events.slice(0, eventCount).map((event, eventIdx) => {
+              {events && (initialLimit ? events.slice(0, eventCount) : events).map((event, eventIdx) => {
                 const thisEventsDay = new Date(event.occurred_at).toLocaleDateString('en-us', { month: "long", day: "numeric", year: "numeric" });
                 const showDayHeader = includeDateSeparators && thisEventsDay !== currentDay;
                 currentDay = thisEventsDay;
                 const isLastItem = eventIdx === events.length - 1 || thisEventsDay !== new Date(events[eventIdx + 1].occurred_at).toLocaleDateString('en-us', { month: "long", day: "numeric", year: "numeric" });
+                const isLastHighlightedItem = event.isHighlighted && events[eventIdx + 1] && !events[eventIdx + 1].isHighlighted;
                 return (
                   <>
                     {showDayHeader && (
-                      <li key={event.id} className={`relative flex gap-x-4 mb-2 ${eventIdx > 0 ? 'mt-8' : ''}`}>
+                      <li key={`header-${event.uuid || eventIdx}`} className={`relative flex gap-x-4 mb-2 ${eventIdx > 0 ? 'mt-8' : ''}`}>
                         <p className="flex-auto py-0.5 text-sm leading-5">
                           <span className="font-medium text-gray-900">{thisEventsDay}</span>
                         </p>
                       </li>
                     )}
                     <EventFeedItem
+                      key={event.uuid || eventIdx}
                       event={event}
                       isLastItem={isLastItem}
                       isExpandable={isExpandable}
+                      isExpanded={expandedEvents.includes(event.uuid || eventIdx)}
                       leftItemHeaderKey={leftItemHeaderKey}
+                      onExpandClick={() => toggleEventExpansion(event.uuid || eventIdx)}
                       rightItemKey={rightItemKey}
                       rightItemKeyFormatter={rightItemKeyFormatter}
                       leftItemSubHeaderFormatter={leftItemSubHeaderFormatter}
                     />
+                    {isLastHighlightedItem && (
+                      <li key={`highlighted-${event.uuid || eventIdx}`}>
+                        <div className="border-b-2 border-swishjam h-0 relative">
+                          <div className='absolute left-0 right-0 mx-auto flex items-center rounded-b-md bg-swishjam text-white text-xs font-medium px-1 py-0.5 w-fit z-10'>
+                            <SparklesIcon className='h-3 w-3 mr-1' />
+                            {numHighlightedEvents} New Event{numHighlightedEvents > 1 ? 's' : ''}
+                            <ArrowUpIcon className='h-3 w-3 ml-1' />
+                          </div>
+                        </div>
+                      </li>
+                    )}
                   </>
                 )
               })}
             </ul>
 
-            {events && events.length > eventCount
-              ? (
-                <Button
-                  onClick={() => setEventCount(eventCount + loadMoreEventsIncrement)}
-                  variant="outline"
-                  className='mt-10 w-full'
-                >
-                  Show More Events
-                </Button>
-              ) : viewAllLink && events.length > 0 && (
-                <Button
-                  onClick={() => router.push(viewAllLink)}
-                  variant="outline"
-                  className='mt-10 w-full'
-                >
-                  View All Events
-                </Button>
-              )
-            }
+            {events && displayShowMoreButton && (
+              events.length > eventCount
+                ? (
+                  <Button
+                    onClick={() => setEventCount(eventCount + loadMoreEventsIncrement)}
+                    variant="outline"
+                    className='mt-10 w-full'
+                  >
+                    Show More Events
+                  </Button>
+                ) : viewAllLink && events.length > 0 && (
+                  <Link href={viewAllLink} className={`w-full mt-10 ${buttonVariants({ variant: 'outline' })}`}>
+                    View All Events
+                  </Link>
+                )
+            )}
           </div>
         </CardContent>
       </Card>

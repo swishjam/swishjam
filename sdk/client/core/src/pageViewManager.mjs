@@ -1,3 +1,5 @@
+import Util from "./util.mjs";
+
 export class PageViewManager {
   constructor() {
     this.newPageCallbacks = [];
@@ -5,7 +7,7 @@ export class PageViewManager {
   }
 
   currentUrl = () => this._currentUrl;
-  previousUrl = () => this._previousUrl || document.referrer;
+  previousUrl = () => this._previousUrl || Util.documentReferrerOrDirect();
   millisecondsOnCurrentPage = () => this._arrivedAtCurrentPage ? new Date() - this._arrivedAtCurrentPage : 0;
 
   onNewPage = callback => {
@@ -14,7 +16,7 @@ export class PageViewManager {
 
   recordPageView = () => {
     const url = window.location.href;
-    this._previousUrl = this._currentUrl || document.referrer;
+    this._previousUrl = this._currentUrl || Util.documentReferrerOrDirect();
     this._currentUrl = url;
     this._arrivedAtCurrentPage = new Date();
     this.newPageCallbacks.forEach(func => func(this.currentUrl(), this.previousUrl()));

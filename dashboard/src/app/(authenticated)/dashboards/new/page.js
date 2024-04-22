@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import SwishjamAPI from "@/lib/api-client/swishjam-api";
 import { useRouter } from "next/navigation";
-import LoadingSpinner from "@/components/LoadingSpinner";
+import Logo from "@/components/Logo";
 
 export default function NewDashboard() {
   const router = useRouter();
@@ -15,8 +15,8 @@ export default function NewDashboard() {
   }, [])
 
   return (
-    <main className="mx-auto max-w-7xl px-4 mt-8 sm:px-6 lg:px-8 mb-8 h-screen flex items-center justify-center">
-      <LoadingSpinner size={10} />
-    </main>
+    <div className='h-screen w-full flex items-center justify-center'>
+      <Logo className='h-20 w-20 animate-bounce' />
+    </div>
   )
 }

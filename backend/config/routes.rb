@@ -42,6 +42,7 @@ Rails.application.routes.draw do
 
       resources :workspace_members, only: [:destroy]
 
+      resources :workspaces, only: [:index, :create]
       resources :workspace, only: [] do
         collection do
           patch '/update', to: 'workspaces#update'
@@ -142,15 +143,8 @@ Rails.application.routes.draw do
           get :bar_chart
         end
       end
-
-      # TODO: I don't think we need this route?
-      # resources :events, only: [] do
-      #   collection do
-      #     get :timeseries
-      #   end
-      # end
       
-      resources :events, only: [:show], param: :name, constraints: { name: /[^\/]+/ } do # all the :name parameter to contain any character besides a '/'
+      resources :events, only: [:index, :show], param: :name, constraints: { name: /[^\/]+/ } do # allow the :name parameter to contain any character besides a '/'
         collection do
           get :feed
           get :unique

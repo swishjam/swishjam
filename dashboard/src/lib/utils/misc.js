@@ -6,6 +6,7 @@ export const safelyParseURL = url => {
   }
 }
 
+const CAPITALIZED_WORDS = ['OS', 'UTM', 'URL', 'GCLID']
 export const humanizeVariable = variableName => {
   try {
     // unless every letter is capitalized
@@ -16,11 +17,11 @@ export const humanizeVariable = variableName => {
         .join(' ')
     } else {
       return variableName
-        .replace(/([A-Z])/g, ' $1')
+        .replace(/([A-Z][a-z])/g, ' $1') // Only add a space before a capital letter if it is followed by a lowercase letter
         .replace(/_/g, ' ')
         .trim()
         .split(/\s+/)
-        .map(w => `${w[0].toUpperCase()}${w.slice(1, w.length)}`)
+        .map(w => CAPITALIZED_WORDS.includes(w.toUpperCase()) ? w.toUpperCase() : `${w[0].toUpperCase()}${w.slice(1, w.length)}`)
         .join(' ')
     }
   } catch (err) {

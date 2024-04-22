@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe Ingestion::EventPreparers::BasicEventHandler do
+describe Ingestion::EventPreparers::SwishjamEventHandler do
   def parsed_event(swishjam_api_key:, name: 'some_random_event', timestamp: 10.minutes.ago, properties: {})
     Ingestion::ParsedEventFromIngestion.new({
       'uuid' => 'evt-123',
@@ -21,7 +21,7 @@ describe Ingestion::EventPreparers::BasicEventHandler do
 
   describe '#handle_and_return_prepared_events!' do
     it 'returns a prepared event without any user profile if the event payload does not provide a user_id or device_identifier' do
-      event = Ingestion::EventPreparers::BasicEventHandler.new(
+      event = Ingestion::EventPreparers::SwishjamEventHandler.new(
         parsed_event(
           swishjam_api_key: @public_key,
           properties: { a_property: 'a_value', device_identifier: nil, device_fingerprint: nil }
@@ -43,7 +43,7 @@ describe Ingestion::EventPreparers::BasicEventHandler do
       expect(@workspace.analytics_user_profiles.count).to be(0)
       expect(@workspace.analytics_user_profile_devices.count).to be(0)
       
-      event = Ingestion::EventPreparers::BasicEventHandler.new(
+      event = Ingestion::EventPreparers::SwishjamEventHandler.new(
         parsed_event(
           swishjam_api_key: @public_key,
           properties: { a_property: 'a_value' }
@@ -88,7 +88,7 @@ describe Ingestion::EventPreparers::BasicEventHandler do
         device_fingerprint: 'abc',
       )
       
-      event = Ingestion::EventPreparers::BasicEventHandler.new(
+      event = Ingestion::EventPreparers::SwishjamEventHandler.new(
         parsed_event(
           swishjam_api_key: @public_key,
           properties: { 
@@ -140,7 +140,7 @@ describe Ingestion::EventPreparers::BasicEventHandler do
         }
       )
 
-      event = Ingestion::EventPreparers::BasicEventHandler.new(
+      event = Ingestion::EventPreparers::SwishjamEventHandler.new(
         parsed_event(
           swishjam_api_key: @public_key,
           properties: {
@@ -190,7 +190,7 @@ describe Ingestion::EventPreparers::BasicEventHandler do
         }
       )
 
-      event = Ingestion::EventPreparers::BasicEventHandler.new(
+      event = Ingestion::EventPreparers::SwishjamEventHandler.new(
         parsed_event(
           swishjam_api_key: @public_key,
           properties: {
@@ -240,7 +240,7 @@ describe Ingestion::EventPreparers::BasicEventHandler do
         }
       )
 
-      event = Ingestion::EventPreparers::BasicEventHandler.new(
+      event = Ingestion::EventPreparers::SwishjamEventHandler.new(
         parsed_event(
           swishjam_api_key: @public_key,
           properties: {
@@ -290,7 +290,7 @@ describe Ingestion::EventPreparers::BasicEventHandler do
         }
       )
 
-      event = Ingestion::EventPreparers::BasicEventHandler.new(
+      event = Ingestion::EventPreparers::SwishjamEventHandler.new(
         parsed_event(
           swishjam_api_key: @public_key,
           properties: {
@@ -323,7 +323,7 @@ describe Ingestion::EventPreparers::BasicEventHandler do
     end
 
     it 'creates a new organization profile if the event payload contains organization_attributes in the payload and we dont have an organization for the provided organization_identifier' do
-      event = Ingestion::EventPreparers::BasicEventHandler.new(
+      event = Ingestion::EventPreparers::SwishjamEventHandler.new(
         parsed_event(
           swishjam_api_key: @public_key,
           properties: {
@@ -372,7 +372,7 @@ describe Ingestion::EventPreparers::BasicEventHandler do
         }
       )
 
-      event = Ingestion::EventPreparers::BasicEventHandler.new(
+      event = Ingestion::EventPreparers::SwishjamEventHandler.new(
         parsed_event(
           swishjam_api_key: @public_key,
           properties: {
@@ -417,7 +417,7 @@ describe Ingestion::EventPreparers::BasicEventHandler do
 
     %i[org_id organization_id orgIdentifier organizationIdentifier organization_identifier].each do |root_event_payload_org_identifier_key|
       it "accepts `#{root_event_payload_org_identifier_key}` in the root of the event payload as the organization_unique_identifier and reads the organization properties from the `organization` key" do
-        event = Ingestion::EventPreparers::BasicEventHandler.new(
+        event = Ingestion::EventPreparers::SwishjamEventHandler.new(
           parsed_event(
             swishjam_api_key: @public_key,
             properties: {
@@ -458,7 +458,7 @@ describe Ingestion::EventPreparers::BasicEventHandler do
     %i[organization_identifier id org_id organization_id orgIdentifier organizationIdentifier organization_identifier].each do |nested_org_payload_org_identifier_key|
       %i[organization_attributes organization].each do |nested_org_payload_key|
         it "accepts `#{nested_org_payload_org_identifier_key}` in the #{nested_org_payload_key} hash event payload as the organization_unique_identifier and reads the organization properties from it" do
-          event = Ingestion::EventPreparers::BasicEventHandler.new(
+          event = Ingestion::EventPreparers::SwishjamEventHandler.new(
             parsed_event(
               swishjam_api_key: @public_key,
               properties: {
@@ -507,7 +507,7 @@ describe Ingestion::EventPreparers::BasicEventHandler do
         }
       )
 
-      event = Ingestion::EventPreparers::BasicEventHandler.new(
+      event = Ingestion::EventPreparers::SwishjamEventHandler.new(
         parsed_event(
           swishjam_api_key: @public_key,
           properties: {
@@ -556,7 +556,7 @@ describe Ingestion::EventPreparers::BasicEventHandler do
     end
 
     it 'sets the events organization_profile_id to nil and the organization_properties to an empty hash if the event payload does not provide any organization details' do
-      event = Ingestion::EventPreparers::BasicEventHandler.new(
+      event = Ingestion::EventPreparers::SwishjamEventHandler.new(
         parsed_event(
           swishjam_api_key: @public_key,
           properties: {

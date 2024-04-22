@@ -20,7 +20,6 @@ export class DeviceDetails {
       is_mobile: this.isMobile(),
       timezone: this.getTimeZone(),
       language: this.getLanguage(),
-      system_language: this.getSystemLanguage(),
     }
   }
 

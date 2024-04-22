@@ -1,7 +1,17 @@
 class AnalyticsUserProfile < Transactional
   class ReservedMetadataProperties
     class << self
-      PROPERTY_NAMES = %i[INITIAL_LANDING_PAGE_URL INITIAL_REFERRER_URL GRAVATAR_URL]
+      PROPERTY_NAMES = %i[
+        INITIAL_LANDING_PAGE_URL 
+        INITIAL_REFERRER_URL 
+        INITIAL_UTM_CAMPAIGN
+        INITIAL_UTM_CONTENT
+        INITIAL_UTM_MEDIUM
+        INITIAL_UTM_SOURCE
+        INITIAL_UTM_TERM
+        INITIAL_GCLID
+        GRAVATAR_URL
+      ]
       
       def all
         PROPERTY_NAMES

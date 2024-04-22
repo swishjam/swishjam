@@ -1,66 +1,50 @@
 import CookieHelper from './cookieHelper.mjs';
+import { DeviceDetails } from './deviceDetails.mjs';
 import { DeviceIdentifiers } from './deviceIdentifiers.mjs';
-import { PersistentUserDataManager } from './persistentUserDataManager.mjs';
+import { PersistentMemoryManager } from './PersistentMemoryManager.mjs';
 import { SessionPersistance } from './sessionPersistance.mjs';
 import { Util } from './util.mjs';
-
 import {
   SDK_VERSION,
   SWISHJAM_SESSION_IDENTIFIER_COOKIE_NAME,
   SWISHJAM_PAGE_VIEW_IDENTIFIER_SESSION_STORAGE_KEY,
+  SWISHJAM_SESSION_ATTRIBUTES_SESSION_STORAGE_KEY,
 } from './constants.mjs'
 
-export class Event {
-  constructor(eventName, attributes, options = {}) {
-    this.attributes = attributes;
-    this.eventName = eventName;
-    this.pageViewId = SessionPersistance.get(SWISHJAM_PAGE_VIEW_IDENTIFIER_SESSION_STORAGE_KEY);
-    this.persistentDeviceData = PersistentUserDataManager.getAll() || {};
-    this.sessionId = CookieHelper.getCookie(SWISHJAM_SESSION_IDENTIFIER_COOKIE_NAME);
-    this.ts = Date.now();
-    this.userDeviceIdentifierValue = DeviceIdentifiers.getUserDeviceIdentifierValue();
-    this.url = window.location.href;
-    this.userVisitStatus = SessionPersistance.get('userVisitStatus');
-    this.uuid = Util.generateUUID(`evt-${Date.now()}`);
+const deviceDetails = new DeviceDetails();
 
+export class Event {
+  constructor(eventName, attributes = {}, options = {}) {
+    this.eventName = eventName;
+    this.attributes = attributes;
     this.options = options;
-    this.options.includeOrganizationData = typeof options.includeOrganizationData === 'boolean' ? options.includeOrganizationData : true;
   }
 
   toJSON() {
-    let data = {
-      uuid: this.uuid,
+    return {
+      uuid: this.attributes.uuid ?? Util.generateUUID(`evt-${Date.now()}`),
       event: this.eventName,
-      timestamp: this.ts,
+      timestamp: Date.now(),
       attributes: {
+        // referrer can sometimes be overridden by attributes just in case it's a SPA and the referrer is not indicative of the actual referrer
+        page_referrer: Util.documentReferrerOrDirect(),
+        // `page_referrer` is replacing `referrer` now, but keeping `referrer` for backwards compatibility
+        referrer: this.attributes.page_referrer || this.attributes.referrer || Util.documentReferrerOrDirect(),
+        // user_agent, browser_name, etc...
+        ...deviceDetails.all(),
+        // session_referrer_url, session_landing_page_url, session_utms...
+        ...SessionPersistance.get(SWISHJAM_SESSION_ATTRIBUTES_SESSION_STORAGE_KEY) || {},
+        // attributes provided by the event
         ...this.attributes,
-        device_identifier: this.userDeviceIdentifierValue,
-        page_view_identifier: this.pageViewId,
+        device_identifier: DeviceIdentifiers.getUserDeviceIdentifierValue(),
+        page_view_identifier: SessionPersistance.get(SWISHJAM_PAGE_VIEW_IDENTIFIER_SESSION_STORAGE_KEY),
         sdk_version: SDK_VERSION,
-        session_identifier: this.sessionId,
-        url: this.url,
-        user_attributes: {
-          unique_identifier: this.persistentDeviceData.user_unique_identifier,
-          email: this.persistentDeviceData.user_email,
-          first_name: this.persistentDeviceData.user_first_name,
-          last_name: this.persistentDeviceData.user_last_name,
-          metadata: this.persistentDeviceData.user_metadata,
-          initial_url: this.persistentDeviceData.initial_url,
-          initial_referrer: this.persistentDeviceData.initial_referrer,
-        },
-        user_visit_status: this.userVisitStatus,
+        session_identifier: CookieHelper.getCookie(SWISHJAM_SESSION_IDENTIFIER_COOKIE_NAME),
+        url: window.location.href,
+        organization: PersistentMemoryManager.getOrganizationData(),
+        user: PersistentMemoryManager.getCurrentUserData(),
       },
     }
-
-    if (this.options.includeOrganizationData) {
-      data.attributes.organization_attributes = {
-        organization_identifier: this.persistentDeviceData.organization_identifier,
-        organization_name: this.persistentDeviceData.organization_name,
-        metadata: this.persistentDeviceData.organization_metadata,
-      }
-    }
-
-    return data;
   }
 }
 

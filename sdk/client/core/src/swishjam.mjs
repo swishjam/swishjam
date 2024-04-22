@@ -16,6 +16,7 @@ export class Swishjam {
 
   event = (eventName, properties) => this[_client].record(eventName, properties);
   identify = (userIdentifier, traits) => this[_client].identify(userIdentifier, traits);
+  updateUser = (traits) => this[_client].updateUser(traits);
   setOrganization = (organizationIdentifier, traits) => this[_client].setOrganization(organizationIdentifier, traits);
   getSession = () => this[_client].getSession();
   newSession = () => this[_client].newSession();

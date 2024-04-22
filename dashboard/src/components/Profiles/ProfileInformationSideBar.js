@@ -27,12 +27,12 @@ export default function ProfileInformationSideBar({ userData, hasStripeIntegrati
           <Avatar className="h-16 w-16 mr-4 border border-slate-200">
             {userData.gravatar_url
               ? <AvatarImage src={userData.gravatar_url} alt="Avatar" />
-              : <AvatarFallback className="text-lg">{userData.initials}</AvatarFallback>
+              : <AvatarFallback className="text-lg">{userData.initials || userData.id.slice(0, 2)}</AvatarFallback>
             }
           </Avatar>
           <div>
             <CardTitle className='text-2xl flex items-center'>
-              {userData.full_name || userData.email || userData.user_unique_identifier || (<>Anonymous User <span className='italic'>{userData.id.slice(0, 6)}</span></>)}
+              {userData.full_name || userData.email || userData.user_unique_identifier || (<>Anonymous User<span className='italic ml-1'>{userData.id.slice(0, 6)}</span></>)}
               {!userData.full_name && userData.email && <CopiableText value={userData.email} className='ml-2' iconOnly={true} />}
             </CardTitle>
             {userData.full_name && (
@@ -60,6 +60,12 @@ export default function ProfileInformationSideBar({ userData, hasStripeIntegrati
                 <dt className="text-sm font-medium leading-6 text-gray-900">Full name</dt>
                 <dd className="text-sm leading-6 text-gray-700 text-right">
                   {userData.full_name || (userData.enrichment_data.first_name || '') + (userData.enrichment_data.last_name || '') || '-'}
+                </dd>
+              </div>
+              <div className="px-4 py-2 col-span-1 sm:px-0 grid grid-cols-2 cursor-default">
+                <dt className="text-sm font-medium leading-6 text-gray-900">Unique Identifier</dt>
+                <dd className="text-sm leading-6 text-gray-700 text-right">
+                  {userData.user_unique_identifier || '-'}
                 </dd>
               </div>
               <div className="px-4 py-2 col-span-1 grid grid-cols-2 sm:px-0 cursor-default">
@@ -133,7 +139,7 @@ export default function ProfileInformationSideBar({ userData, hasStripeIntegrati
                   <div className="px-4 py-2 col-span-1 grid grid-cols-2 sm:px-0">
                     <dt className="text-sm font-medium leading-6 text-gray-900">{humanizeVariable(key)}</dt>
                     <dd className="text-sm leading-6 text-gray-700 text-right flex flex-col">
-                      {key.endsWith('_id') ? userData.metadata[key] : humanizeVariable(userData.metadata[key])}
+                      {key.endsWith('_id') ? userData.metadata[key] : humanizeVariable([undefined, null].includes(userData.metadata[key]) ? '-' : userData.metadata[key].toString())}
                     </dd>
                   </div>
                 ))}
