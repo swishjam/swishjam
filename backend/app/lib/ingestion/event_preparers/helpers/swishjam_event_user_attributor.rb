@@ -62,8 +62,8 @@ module Ingestion
 
         def determine_user_profile_for_event!
           @determined_user_profile_for_event ||= begin
-            # a server side event that didn't provide any user information, so we don't attribute it to a user
-            if parsed_event.device_identifier.nil? && provided_unique_user_identifier.nil? && provided_user_properties['email'].nil? && sanitized_user_properties.blank?
+            # a server side event that didn't provide any unique user information, so we don't attribute it to a user
+            if parsed_event.device_identifier.nil? && provided_unique_user_identifier.nil? && provided_user_properties['email'].nil?
               return
             end
             if pre_existing_device.nil?
@@ -81,7 +81,7 @@ module Ingestion
               # this is where the device owner would get merged into this profile if the owner is anonymous
               return pre_existing_user_profile_for_provided_user_data
             end
-            # it's a new user!
+            # it's an existing device, but the first time we've seen this user identifier/email before
             if pre_existing_device.owner.is_anonymous?
               # just update the device owner with the new user's info
               return pre_existing_device.owner
