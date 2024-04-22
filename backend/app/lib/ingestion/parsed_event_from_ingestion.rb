@@ -82,6 +82,9 @@ module Ingestion
     end
 
     def set_property(key, value)
+      if !event_json['properties'].is_a?(Hash)
+        event_json['properties'] = safe_json(event_json['properties'])
+      end
       event_json['properties'][key] = value
     end
 
@@ -90,7 +93,9 @@ module Ingestion
     end
 
     def set_user_property(key, value)
-      event_json['user_properties'] ||= {}
+      if !event_json['user_properties'].is_a?(Hash)
+        event_json['user_properties'] = safe_json(event_json['user_properties'])
+      end
       event_json['user_properties'][key] = value
     end
 
@@ -99,7 +104,9 @@ module Ingestion
     end
 
     def set_organization_property(key, value)
-      event_json['organization_properties'] ||= {}
+      if !event_json['organization_properties'].is_a?(Hash)
+        event_json['organization_properties'] = safe_json(event_json['organization_properties'])
+      end
       event_json['organization_properties'][key] = value
     end
 
