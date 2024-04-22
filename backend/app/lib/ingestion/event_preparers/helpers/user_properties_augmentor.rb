@@ -25,6 +25,9 @@ module Ingestion
         }
 
         def augment_user_properties!
+          # if we have already set the `initial_referrer_url`, but not the `initial_landing_page_url` then we should not continue
+          # this is really only for users who have been identified earlier than ~04/22/2024
+          return if user_already_has_any_initial_properties_set?
           AUTO_APPLY_USER_PROPERTIES_DICT.each do |user_property_key, event_property_name|
             next if parsed_event.user_properties.key?(user_property_key)
             user_property_value = nil
@@ -36,6 +39,10 @@ module Ingestion
             next if user_property_value.nil?
             parsed_event.set_user_property(user_property_key, user_property_value)
           end
+        end
+
+        def user_already_has_any_initial_properties_set?
+          AUTO_APPLY_USER_PROPERTIES_DICT.keys.any?{ |property_name| parsed_event.user_properties.key?(property_name) }
         end
       end
     end
