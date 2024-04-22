@@ -103,7 +103,7 @@ module Ingestion
 
         def provided_user_properties
           # legacy instrumentation sends `identify` events with the user properties in the root of the event properties, and all other events with the user properties in the `user_attributes` key
-          all_user_properties = parsed_event.properties.dig('user') || parsed_event.properties.dig('user_attributes') || (parsed_event.name == 'identify' ? parsed_event.properties : {}) || {}
+          parsed_event.properties.dig('user') || (parsed_event.name == 'identify' ? parsed_event.properties : parsed_event.properties.dig('user_attributes')) || {}
         end
 
         def pre_existing_user_profile_for_provided_user_data
