@@ -111,9 +111,8 @@ module Ingestion
           @pre_existing_user_profile_for_provided_user_data ||= begin
             return if !provided_unique_user_identifier.present? && !provided_user_properties['email'].present?
             profile_by_identifier = workspace.analytics_user_profiles.find_by(user_unique_identifier: provided_unique_user_identifier)
-            return profile_by_identifier if profile_by_identifier.present?
-            profile_by_email = provided_user_properties['email'].present? && workspace.analytics_user_profiles.find_by(user_unique_identifier: nil, email: provided_user_properties['email']) 
-            return profile_by_email if profile_by_email.present?
+            return profile_by_identifier if profile_by_identifier.present? || provided_user_properties['email'].blank?
+            workspace.analytics_user_profiles.find_by(user_unique_identifier: nil, email: provided_user_properties['email']) 
           end
         end
 
