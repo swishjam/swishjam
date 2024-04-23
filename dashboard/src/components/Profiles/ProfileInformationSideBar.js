@@ -2,12 +2,20 @@ import { ArrowTopRightOnSquareIcon } from "@heroicons/react/24/outline";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import EnrichedDataItem from "@/components/Profiles/EnrichedDataItem";
-import { CopyIcon, Lock } from "lucide-react";
+import { Lock } from "lucide-react";
 import { humanizeVariable, safelyParseURL } from "@/lib/utils/misc";
 import { Tooltipable } from '@/components/ui/tooltip'
 import { prettyDateTime } from "@/lib/utils/timeHelpers";
 import ProfileTags from "./ProfileTags";
 import CopiableText from "../utils/CopiableText";
+
+const shouldHumanizeValue = key => (
+  !key.toLowerCase().endsWith('_id') &&
+  !key.toLowerCase().includes('referrer') &&
+  !key.toLowerCase().includes('url') &&
+  !key.toLowerCase().includes('email') &&
+  !key.toLowerCase().includes('gclid')
+)
 
 export default function ProfileInformationSideBar({ userData, hasStripeIntegrationEnabled, hasProfileEnrichmentEnabled }) {
   const hasNoEnrichmentData = !userData.enrichment_data?.job_title &&
@@ -139,7 +147,7 @@ export default function ProfileInformationSideBar({ userData, hasStripeIntegrati
                   <div className="px-4 py-2 col-span-1 grid grid-cols-2 sm:px-0">
                     <dt className="text-sm font-medium leading-6 text-gray-900">{humanizeVariable(key)}</dt>
                     <dd className="text-sm leading-6 text-gray-700 text-right flex flex-col">
-                      {key.endsWith('_id') ? userData.metadata[key] : humanizeVariable([undefined, null].includes(userData.metadata[key]) ? '-' : userData.metadata[key].toString())}
+                      {!shouldHumanizeValue(key) ? userData.metadata[key] : humanizeVariable([undefined, null].includes(userData.metadata[key]) ? '-' : userData.metadata[key].toString())}
                     </dd>
                   </div>
                 ))}

@@ -12,6 +12,7 @@ import LineChartWithValue from "@/components/Dashboards/Components/LineChartWith
 import ClickableValueCard from "@/components/Dashboards/Components/ClickableValueCard";
 import BarChart from "@/components/Dashboards/Components/BarChart";
 import { formatNumbers, formatShrinkNumbers } from "@/lib/utils/numberHelpers";
+import PageWithHeader from "@/components/utils/PageWithHeader";
 //import { BsArrowLeftShort } from 'react-icons/bs'
 //import { dateFormatterForGrouping } from "@/lib/utils/timeseriesHelpers";
 // import LoadingView from './LoadingView'
@@ -172,17 +173,18 @@ export default function PageMetrics() {
   }, []);
 
   return (
-    <main className="mx-auto mb-8 max-w-7xl px-4 sm:px-6 lg:px-8">
-      <div className="mt-8 flex grid grid-cols-2 items-center">
+    <PageWithHeader
+      title={
         <div>
           <Link href="/dashboards" className="mb-0 text-xs font-medium text-gray-400 flex hover:text-swishjam transition duration-300 hover:underline">
             <RxBarChart size={16} className="mr-1" />Dashboards
           </Link>
           <h1 className="mb-0 text-lg font-medium text-gray-700">
-            Marketing Analytics
+            Web Analytics
           </h1>
         </div>
-
+      }
+      buttons={
         <div className="flex w-full items-center justify-end">
           <Button
             variant="ghost"
@@ -200,141 +202,144 @@ export default function PageMetrics() {
             }}
           />
         </div>
-      </div>
-      <div className="grid grid-cols-4 gap-2 pt-8">
-        <div className="grid gap-2">
-          <ClickableValueCard
-            title="Sessions"
-            selected={currentSelectedChart == "Sessions"}
-            value={sessionsTimeseriesData?.value}
-            previousValue={sessionsTimeseriesData?.previousValue}
-            previousValueDate={sessionsTimeseriesData?.previousValueDate}
-            timeseries={sessionsTimeseriesData?.timeseries}
-            valueFormatter={formatNumbers}
-            onClick={() => setCurrentSelectedChart("Sessions")}
-          />
-          <ClickableValueCard
-            title="Unique Visitors"
-            selected={currentSelectedChart === "Unique Visitors"}
-            value={uniqueVisitorsChart?.value}
-            previousValue={uniqueVisitorsChart?.previousValue}
-            previousValueDate={uniqueVisitorsChart?.previousValueDate}
-            timeseries={uniqueVisitorsChart?.timeseries}
-            valueFormatter={formatNumbers}
-            onClick={() => setCurrentSelectedChart("Unique Visitors")}
-          />
-          <ClickableValueCard
-            title="Page Views"
-            selected={currentSelectedChart === "Page Views"}
-            value={pageViewsTimeseriesData?.value}
-            previousValue={pageViewsTimeseriesData?.previousValue}
-            previousValueDate={pageViewsTimeseriesData?.previousValueDate}
-            timeseries={pageViewsTimeseriesData?.timeseries}
-            valueFormatter={formatNumbers}
-            onClick={() => setCurrentSelectedChart("Page Views")}
-          />
+      }
+    >
+      <>
+        <div className="grid grid-cols-4 gap-2 pt-2">
+          <div className="grid gap-2">
+            <ClickableValueCard
+              title="Sessions"
+              selected={currentSelectedChart == "Sessions"}
+              value={sessionsTimeseriesData?.value}
+              previousValue={sessionsTimeseriesData?.previousValue}
+              previousValueDate={sessionsTimeseriesData?.previousValueDate}
+              timeseries={sessionsTimeseriesData?.timeseries}
+              valueFormatter={formatNumbers}
+              onClick={() => setCurrentSelectedChart("Sessions")}
+            />
+            <ClickableValueCard
+              title="Unique Visitors"
+              selected={currentSelectedChart === "Unique Visitors"}
+              value={uniqueVisitorsChart?.value}
+              previousValue={uniqueVisitorsChart?.previousValue}
+              previousValueDate={uniqueVisitorsChart?.previousValueDate}
+              timeseries={uniqueVisitorsChart?.timeseries}
+              valueFormatter={formatNumbers}
+              onClick={() => setCurrentSelectedChart("Unique Visitors")}
+            />
+            <ClickableValueCard
+              title="Page Views"
+              selected={currentSelectedChart === "Page Views"}
+              value={pageViewsTimeseriesData?.value}
+              previousValue={pageViewsTimeseriesData?.previousValue}
+              previousValueDate={pageViewsTimeseriesData?.previousValueDate}
+              timeseries={pageViewsTimeseriesData?.timeseries}
+              valueFormatter={formatNumbers}
+              onClick={() => setCurrentSelectedChart("Page Views")}
+            />
+          </div>
+          <div className="col-span-3">
+            <LineChartWithValue
+              groupedBy={currentChartLookup[currentSelectedChart]?.groupedBy}
+              previousValue={currentChartLookup[currentSelectedChart]?.previousValue}
+              previousValueDate={currentChartLookup[currentSelectedChart]?.previousValueDate}
+              showAxis={true}
+              timeseries={currentChartLookup[currentSelectedChart]?.timeseries}
+              title={currentSelectedChart}
+              value={currentChartLookup[currentSelectedChart]?.value}
+              valueFormatter={formatNumbers}
+              yAxisFormatter={formatShrinkNumbers}
+            />
+          </div>
         </div>
-        <div className="col-span-3">
-          <LineChartWithValue
-            groupedBy={currentChartLookup[currentSelectedChart]?.groupedBy}
-            previousValue={currentChartLookup[currentSelectedChart]?.previousValue}
-            previousValueDate={currentChartLookup[currentSelectedChart]?.previousValueDate}
-            showAxis={true}
-            timeseries={currentChartLookup[currentSelectedChart]?.timeseries}
-            title={currentSelectedChart}
-            value={currentChartLookup[currentSelectedChart]?.value}
+        <div className='grid grid-cols-8 gap-2 pt-2'>
+          <BarChart
+            title='Page Views'
+            TableTitle='Top Pages'
+            className="col-span-8"
+            data={pageViewsBarChartData}
             valueFormatter={formatNumbers}
             yAxisFormatter={formatShrinkNumbers}
+            showLegend={true}
+            showTableInsteadOfLegend={true}
           />
         </div>
-      </div>
-      <div className='grid grid-cols-8 gap-2 pt-2'>
-        <BarChart
-          title='Page Views'
-          TableTitle='Top Pages'
-          className="col-span-8"
-          data={pageViewsBarChartData}
-          valueFormatter={formatNumbers}
-          yAxisFormatter={formatShrinkNumbers}
-          showLegend={true}
-          showTableInsteadOfLegend={true}
-        />
-      </div>
-      <div className='grid grid-cols-8 gap-2 pt-2'>
-        <BarChart
-          title='Referrers'
-          TableTitle='Top Referrers'
-          className="col-span-8"
-          data={referrersBarChartData}
-          valueFormatter={formatNumbers}
-          yAxisFormatter={formatShrinkNumbers}
-          showLegend={true}
-          showTableInsteadOfLegend={true}
-        />
-      </div>
-      <div className='grid grid-cols-8 gap-2 pt-2'>
-        <BarChart
-          title='Devices'
-          TableTitle='Top Devices'
-          className="col-span-8"
-          data={deviceTypesBarChartData}
-          valueFormatter={formatNumbers}
-          yAxisFormatter={formatShrinkNumbers}
-          showLegend={true}
-          showTableInsteadOfLegend={true}
-        />
-      </div>
-      <div className='grid grid-cols-2 gap-2 pt-2'>
-        <BarChart
-          title='Browsers'
-          TableTitle='Top Browsers'
-          className="col-span-8"
-          data={browsersBarChartData}
-          valueFormatter={formatNumbers}
-          yAxisFormatter={formatShrinkNumbers}
-          showLegend={true}
-          showTableInsteadOfLegend={true}
-        />
-      </div>
-      <div className='grid grid-cols-2 gap-2 pt-2'>
-        <BarChart
-          title='UTM Campaigns'
-          TableTitle='Top UTM Campaigns'
-          data={utmCampaignsBarChartData}
-          valueFormatter={formatNumbers}
-          yAxisFormatter={formatShrinkNumbers}
-          showLegend={true}
-          showTableInsteadOfLegend={false}
-        />
-        <BarChart
-          title='UTM Mediums'
-          TableTitle='Top UTM Mediums'
-          data={utmMediumsBarChartData}
-          valueFormatter={formatNumbers}
-          yAxisFormatter={formatShrinkNumbers}
-          showLegend={true}
-          showTableInsteadOfLegend={false}
-        />
-        <BarChart
-          title='UTM Sources'
-          TableTitle='Top UTM Sources'
-          data={utmSourcesBarChartData}
-          valueFormatter={formatNumbers}
-          yAxisFormatter={formatShrinkNumbers}
-          showLegend={true}
-          showTableInsteadOfLegend={false}
-        />
-        <BarChart
-          title='UTM Terms'
-          TableTitle='Top UTM Terms'
-          className="col-span"
-          data={utmTermsBarChartData}
-          valueFormatter={formatNumbers}
-          yAxisFormatter={formatShrinkNumbers}
-          showLegend={true}
-          showTableInsteadOfLegend={false}
-        />
-      </div>
-    </main>
+        <div className='grid grid-cols-8 gap-2 pt-2'>
+          <BarChart
+            title='Referrers'
+            TableTitle='Top Referrers'
+            className="col-span-8"
+            data={referrersBarChartData}
+            valueFormatter={formatNumbers}
+            yAxisFormatter={formatShrinkNumbers}
+            showLegend={true}
+            showTableInsteadOfLegend={true}
+          />
+        </div>
+        <div className='grid grid-cols-8 gap-2 pt-2'>
+          <BarChart
+            title='Devices'
+            TableTitle='Top Devices'
+            className="col-span-8"
+            data={deviceTypesBarChartData}
+            valueFormatter={formatNumbers}
+            yAxisFormatter={formatShrinkNumbers}
+            showLegend={true}
+            showTableInsteadOfLegend={true}
+          />
+        </div>
+        <div className='grid grid-cols-2 gap-2 pt-2'>
+          <BarChart
+            title='Browsers'
+            TableTitle='Top Browsers'
+            className="col-span-8"
+            data={browsersBarChartData}
+            valueFormatter={formatNumbers}
+            yAxisFormatter={formatShrinkNumbers}
+            showLegend={true}
+            showTableInsteadOfLegend={true}
+          />
+        </div>
+        <div className='grid grid-cols-2 gap-2 pt-2'>
+          <BarChart
+            title='UTM Campaigns'
+            TableTitle='Top UTM Campaigns'
+            data={utmCampaignsBarChartData}
+            valueFormatter={formatNumbers}
+            yAxisFormatter={formatShrinkNumbers}
+            showLegend={true}
+            showTableInsteadOfLegend={false}
+          />
+          <BarChart
+            title='UTM Mediums'
+            TableTitle='Top UTM Mediums'
+            data={utmMediumsBarChartData}
+            valueFormatter={formatNumbers}
+            yAxisFormatter={formatShrinkNumbers}
+            showLegend={true}
+            showTableInsteadOfLegend={false}
+          />
+          <BarChart
+            title='UTM Sources'
+            TableTitle='Top UTM Sources'
+            data={utmSourcesBarChartData}
+            valueFormatter={formatNumbers}
+            yAxisFormatter={formatShrinkNumbers}
+            showLegend={true}
+            showTableInsteadOfLegend={false}
+          />
+          <BarChart
+            title='UTM Terms'
+            TableTitle='Top UTM Terms'
+            className="col-span"
+            data={utmTermsBarChartData}
+            valueFormatter={formatNumbers}
+            yAxisFormatter={formatShrinkNumbers}
+            showLegend={true}
+            showTableInsteadOfLegend={false}
+          />
+        </div>
+      </>
+    </PageWithHeader>
   );
 }
