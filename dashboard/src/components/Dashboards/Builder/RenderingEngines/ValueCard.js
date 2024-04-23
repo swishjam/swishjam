@@ -6,7 +6,7 @@ export default function ValueCardRenderingEngine({ configuration, timeframe }) {
   const [value, setValue] = useState();
   const [previousValue, setPreviousValue] = useState();
   const [previousValueDate, setPreviousValueDate] = useState();
-  const { title, event, property, calculation, dataSource } = configuration;
+  const { title, subtitle, event, property, calculation, dataSource } = configuration;
 
   useEffect(() => {
     setValue();
@@ -58,6 +58,7 @@ export default function ValueCardRenderingEngine({ configuration, timeframe }) {
       includeCard={false}
       previousValue={previousValue}
       previousValueDate={previousValueDate}
+      subtitle={subtitle}
       title={title}
       value={value}
       valueFormatter={value => {

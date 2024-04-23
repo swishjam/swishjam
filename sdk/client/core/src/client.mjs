@@ -63,9 +63,7 @@ export class Client {
 
   reservedEvent = (eventName, properties = {}, options = {}) => {
     return this.errorHandler.executeWithErrorHandling(() => {
-      // either use the provided option, or if it isn't a new_session or page_left event
-      const checkForSessionTimeout = options.checkForSessionTimeout ?? !['new_session', 'page_left'].includes(eventName);
-      if (checkForSessionTimeout) {
+      if (eventName !== 'new_session' && eventName !== 'page_left' && options.checkForSessionTimeout !== false) {
         this._registerNewSessionIfExceededTimeoutThresholdAndUpdateLastInteractionTime();
       }
       return this.eventQueueManager.recordEvent(eventName, properties)
@@ -130,11 +128,11 @@ export class Client {
     ));
   }
 
-  newSession = ({ registerPageView = true } = {}) => {
+  newSession = ({ registerPageView = true, properties = {} } = {}) => {
     return this.errorHandler.executeWithErrorHandling(() => {
       // important to set this first because new events will be created with this value
       CookieHelper.setCookie({ name: SWISHJAM_SESSION_IDENTIFIER_COOKIE_NAME, value: Util.generateUUID('s') });
-      this.reservedEvent('new_session');
+      this.reservedEvent('new_session', properties);
       if (registerPageView) this.pageViewManager.recordPageView();
       return this.getSession();
     });
@@ -152,13 +150,15 @@ export class Client {
   _registerNewSessionIfExceededTimeoutThresholdAndUpdateLastInteractionTime = () => {
     return this.errorHandler.executeWithErrorHandling(() => {
       let createdNewSession = false;
-      if (this.lastInteractionTime && (new Date() - this.lastInteractionTime) > (this.config.sessionTimeoutMinutes * 60 * 1_000)) {
+      if (this.lastInteractionTime && this.config.sessionTimeoutMinutes && (new Date() - this.lastInteractionTime) > (this.config.sessionTimeoutMinutes * 60 * 1_000)) {
         createdNewSession = true;
         SessionPersistance.clear();
-        SessionPersistance.set(SWISHJAM_SESSION_ATTRIBUTES_SESSION_STORAGE_KEY, { session_referrer_url: 'timed_out_session' });
-        this.newSession();
+        SessionPersistance.set(SWISHJAM_SESSION_ATTRIBUTES_SESSION_STORAGE_KEY, { session_referrer_url: 'direct' });
+        this.lastInteractionTime = new Date();
+        this.newSession({ properties: { from_timeout: true } });
+      } else {
+        this.lastInteractionTime = new Date();
       }
-      this.lastInteractionTime = new Date();
       return createdNewSession;
     });
   }

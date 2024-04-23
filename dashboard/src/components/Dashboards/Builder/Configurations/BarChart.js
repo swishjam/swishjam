@@ -25,12 +25,14 @@ export default function BarChartConfiguration({ onConfigurationSave = () => { } 
       includeUserProperties={true}
       onConfigurationChange={onConfigurationChange}
       onSave={onConfigurationSave}
-      previewDashboardComponent={title => (
+      previewDashboardComponent={(title, subTitle) => (
         <BarChartComponent
           title={title}
+          subTitle={subTitle}
           data={barChartResults?.data}
           groupedBy={barChartResults?.groupedBy}
           includeSettingsDropdown={false}
+          includeCard={true}
         />
       )}
     />

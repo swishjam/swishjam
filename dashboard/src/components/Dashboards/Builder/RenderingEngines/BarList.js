@@ -4,7 +4,7 @@ import SwishjamAPI from '@/lib/api-client/swishjam-api';
 
 export default function BarListDashboardComponent({ configuration, timeframe }) {
   const [barListData, setBarListData] = useState();
-  const { title, event, property, dataSource } = configuration;
+  const { title, subtitle, event, property, dataSource } = configuration;
 
   useEffect(() => {
     setBarListData();
@@ -32,6 +32,7 @@ export default function BarListDashboardComponent({ configuration, timeframe }) 
       includeCard={false}
       items={barListData}
       title={title}
+      subtitle={subtitle}
     />
   )
 }

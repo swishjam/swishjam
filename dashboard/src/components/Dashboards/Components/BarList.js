@@ -17,7 +17,7 @@ const LoadingState = () => (
   </div>
 )
 
-export default function BarList({ title, items, color, includeCard = true, noDataMessage = 'No data', ...props }) {
+export default function BarList({ title, subtitle, items, color, includeCard = true, noDataMessage = 'No data', ...props }) {
   if (!items) {
     return (
       <ConditionalCardWrapper title={title} includeCard={includeCard} {...props}>
@@ -30,7 +30,7 @@ export default function BarList({ title, items, color, includeCard = true, noDat
   const sortedItems = items.sort((item1, item2) => item2.value - item1.value);
 
   return (
-    <ConditionalCardWrapper title={title} includeCard={includeCard} {...props}>
+    <ConditionalCardWrapper title={title} subtitle={subtitle} includeCard={includeCard} {...props}>
       {sortedItems.length === 0 && <EmptyState msg={noDataMessage} />}
       <div>
         <div className="flex justify-between space-x-6">

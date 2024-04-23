@@ -25,6 +25,7 @@ export default function BarChartComponent({
   showYAxis = true,
   showTableInsteadOfLegend = false,
   stackOffset = 'none',
+  subtitle,
   title,
   tableTitle,
   valueFormatter = val => val,
@@ -34,7 +35,14 @@ export default function BarChartComponent({
 }) {
   if ([null, undefined].includes(data)) {
     return (
-      <ConditionalCardWrapper includeCard={includeCard} title={title} className={className}>
+      <ConditionalCardWrapper
+        includeCard={includeCard}
+        title={title}
+        subtitle={subtitle}
+        className={className}
+        includeSettingsDropdown={includeSettingsDropdown}
+        isEnlargable={includeSettingsDropdown}
+      >
         <Skeleton className="w-[100px] h-[30px] rounded-sm" />
         <Skeleton className="w-full h-44 rounded-sm mt-1" />
       </ConditionalCardWrapper>
@@ -55,7 +63,14 @@ export default function BarChartComponent({
     uniqueKeys = uniqueKeys.slice(0, 50)
   } else if (uniqueKeys.length === 0) {
     return (
-      <ConditionalCardWrapper includeCard={includeCard} title={title} className={className}>
+      <ConditionalCardWrapper
+        includeCard={includeCard}
+        title={title}
+        subtitle={subtitle}
+        className={className}
+        includeSettingsDropdown={includeSettingsDropdown}
+        isEnlargable={includeSettingsDropdown}
+      >
         <EmptyState msg={noDataMessage} />
       </ConditionalCardWrapper>
     )
@@ -104,6 +119,8 @@ export default function BarChartComponent({
     <ConditionalCardWrapper
       className={className}
       includeCard={includeCard}
+      includeSettingsDropdown={includeSettingsDropdown}
+      isEnlargable={includeSettingsDropdown}
       settings={[
         { onChange: setIncludeYAxis, label: 'Include Y-Axis', enabled: includeYAxis },
         { onChange: setIncludeXAxis, label: 'Include X-Axis', enabled: includeXAxis },
@@ -112,6 +129,7 @@ export default function BarChartComponent({
         { onChange: setUseTableInsteadOfLegend, label: 'Use Table Instead of Legend', enabled: useTableInsteadOfLegend },
       ]}
       title={title}
+      subtitle={subtitle}
     >
       {data.length === 0
         ? <EmptyState msg={noDataMessage} />

@@ -3,6 +3,7 @@ import SwishjamLogo from '@components/Logo'
 import { LuCode, LuHotel, LuMail, LuUserCircle } from 'react-icons/lu';
 import { SiIntercom } from 'react-icons/si'
 import { BsStripe } from 'react-icons/bs'
+import { humanizeVariable } from './misc';
 
 const SlackIcon = ({ className }) => <img src={'/logos/slack.svg'} className={className} />
 const createHeading = (icon, label) => <span className='flex items-center capitalize'>{icon} {label}</span>
@@ -12,13 +13,12 @@ const createCustomEvent = value => ({
   icon: INTEGRATION_PREFIXES[value.replace(/^event\./, '').split('.')[0]]?.icon || SwishjamLogo
 })
 const eventDisplayValue = event => (
-  event.replace(/^(event\.)/, '')
-    .replace(/^(user\.|organization\.|intercom\.|stripe\.|resend\.|github\.|slack\.|cal\.)/, '')
-    .replaceAll('swishjam_bot.', ' Swishjam Bot - ')
-    .replaceAll('.', ' ')
-    .replaceAll('_', ' ')
-    .replaceAll(' url', ' URL')
-    .replace(/ id(?= |$)/g, ' ID')
+  humanizeVariable(
+    // important event. is removed first because there are some events that start with event. and user.
+    event.replace(/^(event\.)/, '')
+      .replace(/^(user\.|organization\.|intercom\.|stripe\.|resend\.|github\.|slack\.|cal\.)/, '')
+      .replaceAll('swishjam_bot.', ' Swishjam Bot - ')
+  )
 )
 
 const INTEGRATION_PREFIXES = {
@@ -54,7 +54,7 @@ export function formatEventOptionsForCombobox(eventData, options = {}) {
   if (nonIntegrationEvents.length > 0) {
     formattedEventData.push({
       heading: createHeading(<SwishjamLogo className='h-4 mr-2' />, options.swishjamEventsHeading || "Swishjam Events"),
-      items: nonIntegrationEvents.map(createCustomEvent)
+      items: nonIntegrationEvents.sort().map(createCustomEvent)
     })
   }
 
@@ -79,7 +79,7 @@ export function formatEventOptionsForCombobox(eventData, options = {}) {
     if ((integrationEventsByPrefix[prefix] || []).length > 0) {
       formattedEventData.push({
         heading: createHeading(Icon && <Icon className='w-4 h-4 mr-2' />, title || `${prefix.replace('.', ' ')} events`),
-        items: integrationEventsByPrefix[prefix].map(createCustomEvent)
+        items: integrationEventsByPrefix[prefix].sort().map(createCustomEvent)
       })
     }
   })

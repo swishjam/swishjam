@@ -7,7 +7,7 @@ export default function LineChartRenderingEngine({ configuration, timeframe }) {
   const includeComparison = configuration.include_comparison ?? true;
   const includeSettingsDropdown = configuration.include_settings_dropdown ?? true;
   const hideAxis = configuration.hide_axis ?? false;
-  const { title, event, property, calculation, dataSource } = configuration;
+  const { title, subtitle, event, property, calculation, dataSource } = configuration;
 
   useEffect(() => {
     setTimeseriesData();
@@ -37,6 +37,7 @@ export default function LineChartRenderingEngine({ configuration, timeframe }) {
       showAxis={!hideAxis}
       timeseries={timeseriesData?.timeseries}
       title={title}
+      subtitle={subtitle}
       valueFormatter={value => {
         try {
           if (configuration.value_formatter === 'currency') {

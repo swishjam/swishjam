@@ -4,7 +4,7 @@ import { InfoIcon } from "lucide-react"
 import SettingsDropdown from "./SettingsDropdown"
 import { useEnlargableDashboardComponent } from "@/hooks/useEnlargableDashboardComponent"
 import useSheet from "@/hooks/useSheet"
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useRef } from "react"
 
 export default function ConditionalCardWrapper({
   AdditionalHeaderActions = [],
@@ -15,6 +15,7 @@ export default function ConditionalCardWrapper({
   isEnlargable = true,
   onSettingChange,
   settings,
+  subtitle,
   title,
   ...props
 }) {
@@ -25,7 +26,7 @@ export default function ConditionalCardWrapper({
   useEffect(() => {
     const enlargedComponentIsThisComponent = componentDetailsToEnlarge && componentDetailsToEnlarge.el === containerEl.current;
     if (enlargedComponentIsThisComponent) {
-      updateComponent({ title, DocumentationContent, AdditionalHeaderActions, settings, includeSettingsDropdown, onSettingChange, children, el: containerEl.current })
+      updateComponent({ title, subtitle, DocumentationContent, AdditionalHeaderActions, settings, includeSettingsDropdown, onSettingChange, children, el: containerEl.current })
     }
   }, [children])
 
@@ -57,6 +58,7 @@ export default function ConditionalCardWrapper({
             {includeSettingsDropdown && settings && <SettingsDropdown options={settings} />}
           </div>
         </div>
+        {subtitle && <h2 className='text-xs text-gray-500'>{subtitle}</h2>}
       </CardTitle>
     </CardHeader>
   </>

@@ -12,6 +12,9 @@ module Ingestion
           AnalyticsUserProfile::ReservedMetadataProperties.INITIAL_LANDING_PAGE_URL_QUERY_PARAMS => [Analytics::Event::ReservedPropertyNames.SESSION_LANDING_PAGE_URL_QUERY_PARAMS, Analytics::Event::ReservedPropertyNames.URL_QUERY_PARAMS],
           AnalyticsUserProfile::ReservedMetadataProperties.INITIAL_LANDING_PAGE_BASE_URL => [Analytics::Event::ReservedPropertyNames.SESSION_LANDING_PAGE_BASE_URL, Analytics::Event::ReservedPropertyNames.BASE_URL],
 
+          # .INITIAL_REFERRER semantically makes the most sense becaues the referrer can be 'direct' or a URL
+          # the _URL suffixes (besides .INITIAL_REFERRER_URL) will only be populated if the referrer is a URL
+          AnalyticsUserProfile::ReservedMetadataProperties.INITIAL_REFERRER => [Analytics::Event::ReservedPropertyNames.SESSION_REFERRER_URL, Analytics::Event::ReservedPropertyNames.REFERRER]
           AnalyticsUserProfile::ReservedMetadataProperties.INITIAL_REFERRER_URL => [Analytics::Event::ReservedPropertyNames.SESSION_REFERRER_URL, Analytics::Event::ReservedPropertyNames.REFERRER],
           AnalyticsUserProfile::ReservedMetadataProperties.INITIAL_REFERRER_URL_HOST => [Analytics::Event::ReservedPropertyNames.SESSION_REFERRER_URL_HOST, Analytics::Event::ReservedPropertyNames.REFERRER_URL_HOST],
           AnalyticsUserProfile::ReservedMetadataProperties.INITIAL_REFERRER_URL_PATH => [Analytics::Event::ReservedPropertyNames.SESSION_REFERRER_URL_PATH, Analytics::Event::ReservedPropertyNames.REFERRER_URL_PATH],

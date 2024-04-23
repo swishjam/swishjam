@@ -124,7 +124,7 @@ export default function LineChartConfiguration({ onConfigurationSave = () => { }
       includeCalculationsDropdown={true}
       includePropertiesDropdown={true}
       onSave={onSave}
-      previewDashboardComponent={title => (
+      previewDashboardComponent={(title, subtitle) => (
         <LineChartWithValue
           includeSettingsDropdown={includeSettingsDropdownConfig}
           includeComparisonData={includeComparisonDataConfig}
@@ -134,6 +134,7 @@ export default function LineChartConfiguration({ onConfigurationSave = () => { }
           showAxis={!hideAxisConfig}
           timeseries={timeseriesData?.timeseries}
           title={title}
+          subtitle={subtitle}
           value={timeseriesData?.value}
           valueFormatter={val => {
             try {

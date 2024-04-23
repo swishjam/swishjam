@@ -44,7 +44,7 @@ export default function Combobox({
               className={`w-full justify-between font-normal text-sm ${buttonClass || ''}`}
             >
               <span className="truncate overflow-hidden">
-                {selectedValue ? optionForValue(selectedValue)?.label : placeholder}
+                {selectedValue ? optionForValue(selectedValue)?.label : <span className='italic text-gray-500'>{placeholder}</span>}
               </span>
               <LuChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
             </Button>
@@ -69,9 +69,10 @@ export default function Combobox({
                       </div>
                     )
                   } else {
+                    const isSelected = selectedValue && selectedValue.toLowerCase() === option.value.toLowerCase()
                     return (
                       <CommandItem
-                        className='text-gray-700 cursor-pointer hover:bg-gray-100 transition-colors duration-100 ease-in-out pl-2'
+                        className={`text-gray-700 cursor-pointer hover:bg-gray-100 transition-colors duration-100 ease-in-out pl-2 ${isSelected ? 'bg-gray-100 text-swishjam font-semibold' : ''}`}
                         key={i}
                         value={option.value}
                         onSelect={newValue => {
@@ -80,12 +81,7 @@ export default function Combobox({
                         }}
                       >
                         {option.label}
-                        <LuCheck
-                          className={cn(
-                            "ml-auto h-4 w-4",
-                            selectedValue && selectedValue.toLowerCase() === option.value.toLowerCase() ? "opacity-100" : "opacity-0"
-                          )}
-                        />
+                        <LuCheck className={cn("ml-auto h-4 w-4", isSelected ? "opacity-100" : "opacity-0")} />
                       </CommandItem>
                     )
                   }
