@@ -8,6 +8,7 @@ import { Tooltipable } from '@/components/ui/tooltip'
 import { prettyDateTime } from "@/lib/utils/timeHelpers";
 import ProfileTags from "./ProfileTags";
 import CopiableText from "../utils/CopiableText";
+import { MaybeExternalLink } from "../utils/MaybeExternalLink";
 
 const shouldHumanizeValue = key => (
   !key.toLowerCase().endsWith('_id') &&
@@ -16,6 +17,8 @@ const shouldHumanizeValue = key => (
   !key.toLowerCase().includes('email') &&
   !key.toLowerCase().includes('gclid')
 )
+
+const LINKABLE_METADATA_KEYS = ['initial_landing_page_url', 'initial_referrer_url', 'initial_referrer']
 
 export default function ProfileInformationSideBar({ userData, hasStripeIntegrationEnabled, hasProfileEnrichmentEnabled }) {
   const hasNoEnrichmentData = !userData.enrichment_data?.job_title &&
@@ -26,7 +29,7 @@ export default function ProfileInformationSideBar({ userData, hasStripeIntegrati
     !userData.enrichment_data?.company_industry &&
     !userData.enrichment_data?.company_location_metro;
 
-  const metadataKeysToDisplay = Object.keys(userData.metadata || {}).filter(key => !['name', 'firstName', 'first_name', 'lastName', 'last_name', 'initial_landing_page_url', 'initial_referrer_url', 'gravatar_url'].includes(key))
+  const metadataKeysToDisplay = Object.keys(userData.metadata || {}).filter(key => !['name', 'firstName', 'first_name', 'lastName', 'last_name', 'gravatar_url'].includes(key))
 
   return (
     <Card className='col-span-4 relative'>
@@ -111,43 +114,30 @@ export default function ProfileInformationSideBar({ userData, hasStripeIntegrati
                 </dd>
               </div>
               <>
-                <EnrichedDataItem
-                  title='Initial Referrer'
-                  enrichmentData={{ initial_referrer: userData.metadata.initial_referrer_url }}
-                  enrichmentKey='initial_referrer'
-                  formatter={referrer => (
-                    <Tooltipable content={referrer}>
-                      <span className="flex items-center justify-end max-w-full">
-                        <span className='truncate'>{referrer === '' ? 'Direct' : referrer}</span>
-                      </span>
-                    </Tooltipable>
-                  )}
-                />
-                <EnrichedDataItem
-                  title='Initial Landing Page'
-                  enrichmentData={{ initial_landing_page_url: userData.metadata.initial_landing_page_url }}
-                  enrichmentKey='initial_landing_page_url'
-                  formatter={url => (
-                    <Tooltipable content={url}>
-                      <a
-                        className="hover:underline hover:text-blue-400 transition duration-500 flex items-center justify-end max-w-full"
-                        href={url}
-                        target="_blank"
-                        title={url}
-                      >
-                        <span className='truncate'>
-                          {url}
-                        </span>
-                        <ArrowTopRightOnSquareIcon className='inline-block ml-1 h-3 w-3' />
-                      </a>
-                    </Tooltipable>
-                  )}
-                />
                 {metadataKeysToDisplay.map((key, i) => (
                   <div className="px-4 py-2 col-span-1 grid grid-cols-2 sm:px-0">
                     <dt className="text-sm font-medium leading-6 text-gray-900">{humanizeVariable(key)}</dt>
                     <dd className="text-sm leading-6 text-gray-700 text-right flex flex-col">
-                      {!shouldHumanizeValue(key) ? userData.metadata[key] : humanizeVariable([undefined, null].includes(userData.metadata[key]) ? '-' : userData.metadata[key].toString())}
+                      <span className='flex justify-end truncate'>
+                        {LINKABLE_METADATA_KEYS.includes(key)
+                          && (
+                            userData.metadata[key]
+                              ? <MaybeExternalLink href={userData.metadata[key]} newTab={true} className='truncate justify-self-end'>
+                                {userData.metadata[key]}
+                              </MaybeExternalLink>
+                              : '-'
+                          )
+                        }
+                        {!LINKABLE_METADATA_KEYS.includes(key) && (
+                          !shouldHumanizeValue(key)
+                            ? userData.metadata[key]
+                            : humanizeVariable(
+                              [undefined, null].includes(userData.metadata[key])
+                                ? '-'
+                                : userData.metadata[key].toString()
+                            )
+                        )}
+                      </span>
                     </dd>
                   </div>
                 ))}
