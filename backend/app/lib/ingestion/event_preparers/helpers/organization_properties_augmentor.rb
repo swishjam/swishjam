@@ -32,7 +32,7 @@ module Ingestion
         end
 
         def augment_organization_properties!
-          return org if !user_profile_for_event.present? || org_has_any_initial_properties_set?
+          return org if org.nil? || user_profile_for_event.nil? || org_has_any_initial_properties_set?
           AUTO_APPLY_FROM_USER_PROPERTIES_DICT.each do |property_name|
             next if !user_profile_for_event.metadata[property_name].present?
             org.metadata[property_name] ||= user_profile_for_event.metadata[property_name] 
