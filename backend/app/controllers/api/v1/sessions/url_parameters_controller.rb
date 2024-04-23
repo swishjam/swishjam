@@ -8,7 +8,7 @@ module Api
             bar_chart_data = ClickHouseQueries::Events::StackedBarChart.new(
               public_keys_for_requested_data_source,
               event: Analytics::Event::ReservedNames.NEW_SESSION,
-              property: params[:query_param].strip.downcase,
+              property: Analytics::Event::ReservedPropertyNames.URL,
               start_time: start_timestamp,
               end_time: end_timestamp,
               select_function_formatter: 'extractURLParameter',
@@ -26,7 +26,7 @@ module Api
                 bar_chart_data = ClickHouseQueries::Events::StackedBarChart.new(
                   public_keys_for_requested_data_source,
                   event: Analytics::Event::ReservedNames.NEW_SESSION,
-                  property: query_param.strip.downcase,
+                  property: Analytics::Event::ReservedPropertyNames.URL,
                   start_time: start_timestamp,
                   end_time: end_timestamp,
                   select_function_formatter: 'extractURLParameter',
