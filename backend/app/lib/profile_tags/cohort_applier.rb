@@ -78,12 +78,16 @@ module ProfileTags
         properties[:user_unique_identifier] = profile.user_unique_identifier
         properties[:profile_name] = profile.full_name if profile.full_name.present?
         properties[:profile_email] = profile.email
+        # so it gets attributed to the user during event preparation ingestion
+        properties[:user] = { identifier: profile.user_unique_identifier }
       else
         # important so the event gets associated with the organization
         properties[:organization_id] = profile.organization_unique_identifier
         properties[:organization_name] = profile.name if profile.name.present?
         properties[:organization_unique_identifier] = profile.organization_unique_identifier
         properties[:profile_name] = profile.name if profile.name.present?
+        # so it gets attributed to the organization during event preparation ingestion
+        properties[:organization] = { identifier: profile.organization_unique_identifier }
       end
       # not idempotent...
       Ingestion::EventsPreparer.format_for_events_to_prepare_queue(
