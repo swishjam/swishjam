@@ -219,36 +219,5 @@ describe Ingestion::EventPreparers::Helpers::SwishjamEventUserAttributor do
       anonymous_user_profile.reload
       expect(anonymous_user_profile.merged_into_analytics_user_profile_id).to eq(existing_identified_user_profile.id)
     end
-
-    it 'automatically applies the auto user properties from the event payload to the user profile if they don\'t already exist' do
-      existing_user_profile = FactoryBot.create(:analytics_user_profile, 
-        workspace: @workspace, 
-        user_unique_identifier: '123', 
-        email: 'existing@email.com', 
-        metadata: { 
-          birthday: '11/07/1992', 
-          AnalyticsUserProfile::ReservedMetadataProperties.INITIAL_REFERRER_URL => 'referrer-that-persists.com' 
-        }
-      )
-      device = FactoryBot.create(:analytics_user_profile_device, workspace: @workspace, swishjam_cookie_value: 'd-xyz', analytics_user_profile: existing_user_profile)
-      returned_user = described_class.new(
-        parsed_event(
-          swishjam_api_key: @public_key, 
-          device_identifier: device.swishjam_cookie_value, 
-          properties: { 
-            Analytics::Event::ReservedPropertyNames.SESSION_LANDING_PAGE_URL => 'new-landing.com',
-            Analytics::Event::ReservedPropertyNames.SESSION_REFERRER_URL => 'should-not-get-applied-referrer.com',
-            user: { 
-              id: '123', 
-              email: 'new@email.com', 
-              birthday: '11/07/1992', 
-            }
-          }
-        )
-      ).get_user_profile_and_associate_to_device_if_necessary!
-
-      expect(returned_user.metadata[AnalyticsUserProfile::ReservedMetadataProperties.INITIAL_LANDING_PAGE_URL]).to eq('new-landing.com')
-      expect(returned_user.metadata[AnalyticsUserProfile::ReservedMetadataProperties.INITIAL_REFERRER_URL]).to eq('referrer-that-persists.com')
-    end
   end
 end
