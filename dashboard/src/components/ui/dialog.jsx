@@ -85,6 +85,23 @@ const DialogDescription = React.forwardRef(({ className, ...props }, ref) => (
 ))
 DialogDescription.displayName = DialogPrimitive.Description.displayName
 
+const DialogModal = ({ children, title, open, onClose, fullHeight = false, fullWidth = false, ...props }) => {
+  return (
+    <Dialog open={open} onOpenChange={onClose} {...props}>
+      <DialogContent fullHeight={fullHeight} fullWidth={fullWidth}>
+        <DialogHeader>
+          {title && (
+            <DialogTitle className='flex items-center space-x-2'>
+              {title}
+            </DialogTitle>
+          )}
+        </DialogHeader>
+        {children}
+      </DialogContent>
+    </Dialog>
+  )
+}
+
 export {
   Dialog,
   DialogPortal,
@@ -96,4 +113,5 @@ export {
   DialogFooter,
   DialogTitle,
   DialogDescription,
+  DialogModal,
 }

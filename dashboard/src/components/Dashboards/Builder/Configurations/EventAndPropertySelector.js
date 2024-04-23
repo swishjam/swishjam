@@ -3,6 +3,16 @@ import { Skeleton } from '@/components/ui/skeleton';
 import SwishjamAPI from '@/lib/api-client/swishjam-api';
 import { useEffect, useState } from 'react'
 import ComboboxEvents from '@/components/utils/ComboboxEvents';
+import Combobox from '@/components/utils/Combobox';
+import { CalculatorIcon, ChevronLeftIcon, ChevronRightIcon, HashIcon, PlusIcon } from 'lucide-react';
+
+const CALCULATION_ICONS = {
+  count: <HashIcon className='h-3 w-3' />,
+  sum: <PlusIcon className='h-3 w-3' />,
+  min: <ChevronLeftIcon className='h-3 w-3' />,
+  max: <ChevronRightIcon className='h-3 w-3' />,
+  avg: <CalculatorIcon className='h-3 w-3' />,
+}
 
 export default function EventAndPropertySelector({
   calculationOptions = [],
@@ -33,20 +43,26 @@ export default function EventAndPropertySelector({
     }
   }, [includeUserProperties])
 
+  const formattedCalculationOptions = calculationOptions.map(option => ({
+    label: <span className='flex items-center space-x-2'>{CALCULATION_ICONS[option]} <span>{option}</span></span>,
+    value: option,
+  }))
+
   return (
-    <div className='flex text-sm text-gray-700 items-center mt-2 break-keep'>
+    <div className='flex text-sm text-gray-700 items-center mt-2 break-keep' >
       <div className='inline-flex items-center mx-1'>
         Chart the
         {calculationOptions.length > 0
           ? (
             <div className='mx-1'>
-              <Dropdown
-                label={<span className='italic'>calculation</span>}
-                options={calculationOptions}
-                onSelect={calculation => {
+              <Combobox
+                placeholder='calculation'
+                selectedValue={selectedCalculation}
+                onSelectionChange={calculation => {
                   setSelectedCalculation(calculation);
                   onCalculationSelected(calculation)
                 }}
+                options={formattedCalculationOptions}
               />
             </div>
           ) : <>{' '}occurrences</>
@@ -72,31 +88,32 @@ export default function EventAndPropertySelector({
         ) : <Skeleton className='h-8 w-12' />
       }
 
-      {selectedCalculation === 'count' || !includePropertiesDropdown
-        ? <span className='mx-1'>event over time.</span>
-        : selectedCalculation === 'users'
-          ? <span className='mx-1'>the most.</span>
-          : (
-            <>
-              <span className='mx-1'>by the {selectedEventProperty && selectedEventProperty.startsWith('user.') ? 'user' : 'event'}'s</span>
-              <ComboboxEvents
-                selectedValue={selectedEventProperty}
-                onSelectionChange={selection => {
-                  setSelectedEventProperty(selection)
-                  onPropertySelected(selection)
-                }}
-                options={[
-                  ...(uniquePropertiesForEvent || []),
-                  ...(includeUserProperties ? uniqueUserProperties || [] : [])
-                ]}
-                placeholder="Select a property"
-                swishjamEventsHeading="Event Properties"
-              />
-              <span className='mx-1'>property over time.</span>
-            </>
-          )
+      {
+        selectedCalculation === 'count' || !includePropertiesDropdown
+          ? <span className='mx-1'>event over time.</span>
+          : selectedCalculation === 'users'
+            ? <span className='mx-1'>the most.</span>
+            : (
+              <>
+                <span className='mx-1'>by the {selectedEventProperty && selectedEventProperty.startsWith('user.') ? 'user' : 'event'}'s</span>
+                <ComboboxEvents
+                  selectedValue={selectedEventProperty}
+                  onSelectionChange={selection => {
+                    setSelectedEventProperty(selection)
+                    onPropertySelected(selection)
+                  }}
+                  options={[
+                    ...(uniquePropertiesForEvent || []),
+                    ...(includeUserProperties ? uniqueUserProperties || [] : [])
+                  ]}
+                  placeholder="Select a property"
+                  swishjamEventsHeading="Event Properties"
+                />
+                <span className='mx-1'>property over time.</span>
+              </>
+            )
       }
-    </div>
+    </div >
   )
 }
 

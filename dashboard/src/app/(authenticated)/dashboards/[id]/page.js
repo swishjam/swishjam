@@ -16,6 +16,7 @@ import Timefilter from "@/components/Timefilter";
 import { useEffect, useState, useRef } from "react";
 import ValueCardConfiguration from "@/components/Dashboards/Builder/Configurations/ValueCard";
 import { swishjam } from "@swishjam/react";
+import { Dialog, DialogModal } from "@/components/ui/dialog";
 
 const AUTO_SAVE_CHECK_INTERVAL = 2_500;
 const DEFAULT_GRID_CONFIGURATIONS = {
@@ -36,9 +37,10 @@ const ConfigureDashboardComponentModal = ({ componentType, eventOptions, onSave,
     ValueCard: ValueCardConfiguration,
   }[componentType];
   return (
-    <Modal onClose={onClose} isOpen={true} closeOnBackdropClick={false} size="x-large">
+
+    <DialogModal open={true} onOpenChange={onClose} fullWidth={true} title={`Configure ${componentType}`}>
       <ConfigurationComponent eventOptions={eventOptions} onConfigurationSave={onSave} />
-    </Modal>
+    </DialogModal>
   )
 }
 
@@ -168,7 +170,7 @@ export default function Dashboard({ params }) {
           }}
         />
       )}
-      <div className='grid grid-cols-2 mt-8 flex items-center'>
+      <div className='grid grid-cols-2 mt-8 items-center'>
         <div>
           {dashboardName === undefined
             ? <Skeleton className='h-12 w-40' />

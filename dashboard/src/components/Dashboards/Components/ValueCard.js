@@ -7,6 +7,7 @@ import ConditionalCardWrapper from "./ConditionalCardWrapper";
 
 export default function ValueCard({
   title,
+  subtitle,
   value,
   previousValue,
   previousValueDate,
@@ -15,7 +16,7 @@ export default function ValueCard({
 }) {
   if ([null, undefined].includes(value)) {
     return (
-      <ConditionalCardWrapper title={title} includeCard={includeCard}>
+      <ConditionalCardWrapper title={title} subtitle={subtitle} includeCard={includeCard}>
         <Skeleton className="w-12 h-10 rounded-sm mt-1" />
       </ConditionalCardWrapper>
     )
@@ -24,7 +25,7 @@ export default function ValueCard({
   const changeInValue = typeof previousValue !== 'undefined' ? value - previousValue : null;
 
   return (
-    <ConditionalCardWrapper title={title} includeCard={includeCard}>
+    <ConditionalCardWrapper title={title} subtitle={subtitle} includeCard={includeCard}>
       <div className="flex">
         <div className="text-2xl font-bold cursor-default">
           {valueFormatter(value)}

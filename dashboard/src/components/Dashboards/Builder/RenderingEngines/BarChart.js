@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 
 export default function BarListDashboardComponent({ configuration, timeframe }) {
   const [barChartResults, setBarChartResults] = useState();
-  const { title, event, property, dataSource } = configuration;
+  const { title, subtitle, event, property, dataSource } = configuration;
 
   useEffect(() => {
     setBarChartResults();
@@ -18,6 +18,7 @@ export default function BarListDashboardComponent({ configuration, timeframe }) 
   return (
     <BarChart
       title={title}
+      subtitle={subtitle}
       data={barChartResults?.data}
       groupedBy={barChartResults?.groupedBy}
       includeCard={false}

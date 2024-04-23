@@ -10,7 +10,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { useCallback, useState, useEffect, useRef } from 'react';
 import ValueDisplay from './LineChart/ValueDisplay';
 
-const LoadingState = ({ title, includeCard = true }) => {
+const LoadingState = ({ title, subtitle, includeCard = true }) => {
   const cardRef = useRef();
   const [loadingStateHeight, setLoadingStateHeight] = useState(0);
 
@@ -30,6 +30,7 @@ const LoadingState = ({ title, includeCard = true }) => {
                 {title}
               </div>
             </div>
+            {subtitle && <div className='text-xs text-gray-500'>{subtitle}</div>}
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -79,19 +80,18 @@ export default function LineChartWithValue({
   onGroupByChange,
   showAxis = false,
   showTooltip = true,
+  subtitle,
   timeseries,
   title,
   valueKey = 'value',
   valueFormatter = val => val,
   yAxisFormatter = val => val,
 }) {
-  if ([null, undefined].includes(timeseries)) return <LoadingState title={title} includeCard={includeCard} />;
-
   const [headerDisplayValues, setHeaderDisplayValues] = useState({
-    currentValue: timeseries[timeseries.length - 1]?.[valueKey],
-    comparisonValue: timeseries[timeseries.length - 1]?.[comparisonValueKey],
-    currentValueDate: timeseries[timeseries.length - 1]?.[dateKey],
-    comparisonValueDate: timeseries[timeseries.length - 1]?.[comparisonDateKey],
+    currentValue: timeseries?.[timeseries?.length - 1]?.[valueKey],
+    comparisonValue: timeseries?.[timeseries?.length - 1]?.[comparisonValueKey],
+    currentValueDate: timeseries?.[timeseries?.length - 1]?.[dateKey],
+    comparisonValueDate: timeseries?.[timeseries?.length - 1]?.[comparisonDateKey],
   });
   const [showXAxis, setShowXAxis] = useState(showAxis);
   const [showYAxis, setShowYAxis] = useState(showAxis);
@@ -109,6 +109,7 @@ export default function LineChartWithValue({
   const dateFormatter = dateFormatterForGrouping(groupedBy)
 
   useEffect(() => {
+    if (!timeseries) return;
     updateHeaderDisplayValues(timeseries[timeseries.length - 1])
   }, [timeseries, valueKey, comparisonValueKey, dateKey, groupedBy])
 
@@ -128,6 +129,8 @@ export default function LineChartWithValue({
     }
   ].filter(Boolean)
 
+  if ([null, undefined].includes(timeseries)) return <LoadingState title={title} subtitle={subtitle} includeCard={includeCard} />;
+
   return (
     <>
       <ConditionalCardWrapper
@@ -138,6 +141,7 @@ export default function LineChartWithValue({
         isEnlargable={isEnlargable}
         settings={settingsOptions}
         title={title}
+        subtitle={subtitle}
       >
         <ValueDisplay
           comparisonDate={headerDisplayValues.comparisonValueDate}
