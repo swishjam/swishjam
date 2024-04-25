@@ -1,5 +1,4 @@
 import { Card } from "@/components/ui/card"
-import BarChartDashboardComponent from "../../../RenderingEngines/BarChart"
 import ConditionalCardWrapper from "@/components/Dashboards/Components/ConditionalCardWrapper";
 import { TriangleAlertIcon } from "lucide-react";
 
@@ -12,18 +11,22 @@ const MissingDataMessage = ({ className, text }) => (
   </div>
 )
 
-export default function BarChartPreviewer({
-  title,
-  subtitle,
+export default function ComponentPreviewer({
+  aggregation,
+  dataSource,
   event,
   property,
-  dataSource,
+  subtitle,
+  title,
   whereClauseGroups,
+  ComponentRenderingEngine,
+  ...componentSpecificProps
 }) {
-  console.log('BarChartPreviewer', { whereClauseGroups })
+  const isValid = event && aggregation && (property || aggregation === 'count');
+  console.log('ComponentPreviewer', { event, property, aggregation })
   return (
     <Card>
-      {!event || !property
+      {!isValid
         ? (
           <ConditionalCardWrapper
             includeCard={false}
@@ -35,16 +38,16 @@ export default function BarChartPreviewer({
             <MissingDataMessage className='w-full h-72' text='Select an event and property to visualize.' />
           </ConditionalCardWrapper>
         ) : (
-          <BarChartDashboardComponent
-            configuration={{
-              title: title || <MissingDataMessage className='w-fit' text='Input a Title' />,
-              subtitle,
-              event,
-              property,
-              dataSource,
-              whereClauseGroups,
-            }}
+          <ComponentRenderingEngine
+            aggregation={aggregation}
+            dataSource={dataSource}
+            event={event}
+            property={property}
+            subtitle={subtitle}
             timeframe='7_days'
+            title={title || <MissingDataMessage className='w-fit' text='Input a Title' />}
+            whereClauseGroups={whereClauseGroups}
+            {...componentSpecificProps}
           />
         )}
     </Card>

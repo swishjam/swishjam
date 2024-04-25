@@ -8,7 +8,7 @@ import useCommonQueries from '@/hooks/useCommonQueries';
 import { Button } from '@/components/ui/button';
 import WhereClauseGroup from './WhereClauseGroup';
 
-const OPERATOR_ICONS = {
+const AGGREGATION_ICONS = {
   count: <HashIcon className='h-3 w-3' />,
   sum: <PlusIcon className='h-3 w-3' />,
   min: <ChevronLeftIcon className='h-3 w-3' />,
@@ -16,37 +16,33 @@ const OPERATOR_ICONS = {
   avg: <CalculatorIcon className='h-3 w-3' />,
 }
 
+const AGGREGATION_OPTIONS = ['count', 'sum', 'min', 'max', 'avg'];
+
 export default function QueryBuilder({
-  operatorOptions = [],
+  configuration = {},
   includePropertiesDropdown = true,
   includeUserProperties = true,
+  // aGGREGATION_OPTIONS = [],
   onConfigurationChange,
 }) {
-  const [selectedOperator, setSelectedOperator] = useState();
-  const [selectedEvent, setSelectedEvent] = useState();
-  const [selectedEventProperty, setSelectedEventProperty] = useState();
   const [uniquePropertiesForEvent, setUniquePropertiesForEvent] = useState();
-  const [whereClauseGroups, setWhereClauseGroups] = useState([]);
+  const {
+    aggregation: selectedAggregation,
+    event: selectedEvent,
+    property: selectedEventProperty,
+    whereClauseGroups = []
+  } = configuration;
 
   useEffect(() => {
     SwishjamAPI.Events.Properties.listUnique(selectedEvent).then(setUniquePropertiesForEvent);
   }, [selectedEvent])
 
-  useEffect(() => {
-    onConfigurationChange({
-      operator: selectedOperator,
-      event: selectedEvent,
-      property: selectedEventProperty,
-      whereClauseGroups,
-    })
-  }, [selectedEvent, selectedEventProperty, selectedOperator, whereClauseGroups])
-
   const { uniqueEventsAndCounts, uniqueUserProperties } = useCommonQueries();
   const eventOptions = uniqueEventsAndCounts?.map(e => e.name);
   const uniqueUserPropertyOptions = uniqueUserProperties?.map(p => `user.${p}`);
 
-  const formattedOperatorOptions = operatorOptions.map(option => ({
-    label: <div className='flex items-center space-x-2'>{OPERATOR_ICONS[option]} <span>{option}</span></div>,
+  const formattedAggregationOptions = AGGREGATION_OPTIONS.map(option => ({
+    label: <div className='flex items-center space-x-2'>{AGGREGATION_ICONS[option]} <span>{option}</span></div>,
     value: option,
   }))
 
@@ -54,23 +50,23 @@ export default function QueryBuilder({
     <>
       <div className='flex text-sm text-gray-700 items-center mt-2 break-keep' >
         <div className='inline-flex items-center mx-1'>
-          Chart the
-          {operatorOptions.length > 0
-            ? (
-              <div className='mx-1'>
-                <Combobox
-                  placeholder='operator'
-                  selectedValue={selectedOperator}
-                  onSelectionChange={operator => {
-                    setSelectedOperator(operator);
-
-                  }}
-                  options={formattedOperatorOptions}
-                />
-              </div>
-            ) : <>{' '}occurrences</>
-          }
-          {selectedOperator === 'users'
+          Visualize the
+          <div className='mx-1'>
+            <Combobox
+              placeholder={
+                <div className='flex items-center'>
+                  <div className='p-1 mr-1 bg-yellow-100 text-yellow-500 rounded'>
+                    <TriangleAlertIcon className='h-4 w-4 mx-auto' />
+                  </div>
+                  Aggregation
+                </div>
+              }
+              selectedValue={selectedAggregation}
+              onSelectionChange={aggregation => onConfigurationChange({ aggregation })}
+              options={formattedAggregationOptions}
+            />
+          </div>
+          {selectedAggregation === 'users'
             ? <span className='mx-1'>who have triggered the</span>
             : <span className='mx-1'>of the</span>
           }
@@ -85,24 +81,24 @@ export default function QueryBuilder({
                   <div className='p-1 mr-1 bg-yellow-100 text-yellow-500 rounded'>
                     <TriangleAlertIcon className='h-4 w-4 mx-auto' />
                   </div>
-                  Select an event
+                  Event
                 </div>
               }
-              onSelectionChange={setSelectedEvent}
+              onSelectionChange={event => onConfigurationChange({ event })}
             />
           ) : <Skeleton className='h-8 w-12' />
         }
 
-        {selectedOperator === 'count' || !includePropertiesDropdown
+        {selectedAggregation === 'count' || !includePropertiesDropdown
           ? <span className='mx-1'>event over time.</span>
-          : selectedOperator === 'users'
+          : selectedAggregation === 'users'
             ? <span className='mx-1'>the most.</span>
             : (
               <>
                 <span className='mx-1'>event by its {selectedEventProperty && selectedEventProperty.startsWith('user.') ? 'user\'s' : ''}</span>
                 <ComboboxEvents
                   selectedValue={selectedEventProperty}
-                  onSelectionChange={setSelectedEventProperty}
+                  onSelectionChange={property => onConfigurationChange({ property })}
                   options={[
                     ...(uniquePropertiesForEvent || []),
                     ...(includeUserProperties ? uniqueUserPropertyOptions || [] : [])
@@ -112,7 +108,7 @@ export default function QueryBuilder({
                       <div className='p-1 mr-1 bg-yellow-100 text-yellow-500 rounded'>
                         <TriangleAlertIcon className='h-4 w-4 mx-auto' />
                       </div>
-                      Select a property
+                      Property
                     </div>
                   }
                   swishjamEventsHeading="Event Properties"
@@ -125,17 +121,19 @@ export default function QueryBuilder({
           <Button
             className='text-gray-700'
             onClick={() => {
-              setWhereClauseGroups([{
-                sequence_index: 0,
-                previous_group_operator: null,
-                queries: [{
-                  previous_query_operator: null,
+              onConfigurationChange({
+                whereClauseGroups: [{
                   sequence_index: 0,
-                  property: null,
-                  operator: null,
-                  value: null,
-                }],
-              }])
+                  previous_group_operator: null,
+                  queries: [{
+                    previous_query_operator: null,
+                    sequence_index: 0,
+                    property: null,
+                    operator: null,
+                    value: null,
+                  }],
+                }]
+              })
             }}
             variant='ghost'
           >
@@ -154,8 +152,8 @@ export default function QueryBuilder({
                 ...(uniquePropertiesForEvent || []),
                 ...(includeUserProperties ? uniqueUserPropertyOptions || [] : []),
               ]}
-              onUpdate={newGroup => setWhereClauseGroups(whereClauseGroups.map((g, i) => i === index ? newGroup : g))}
-              onRemove={_group => setWhereClauseGroups(whereClauseGroups.filter((_, i) => i !== index))}
+              onUpdate={newGroup => onConfigurationChange({ whereClauseGroups: whereClauseGroups.map((g, i) => i === index ? newGroup : g) })}
+              onRemove={_group => onConfigurationChange({ whereClauseGroups: whereClauseGroups.filter((_, i) => i !== index) })}
             />
           ))}
         </div>

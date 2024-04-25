@@ -36,6 +36,7 @@ export const signUserUp = async ({ email, password, companyUrl }) => {
   const { error, user, workspace, token } = await SwishjamAPI.Auth.register({ email, password, companyUrl });
   if (token) {
     const { email, first_name, last_name } = user;
+    debugger;
     swishjam.identify(user.id, { email, first_name, last_name });
     swishjam.setOrganization(workspace.id, { name: workspace.name, company_url: workspace.company_url });
     swishjam.event('user_signup', { ...user, workspace: workspace.name });

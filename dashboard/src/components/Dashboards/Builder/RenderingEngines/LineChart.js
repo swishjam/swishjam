@@ -2,16 +2,16 @@ import { useEffect, useState } from 'react';
 import LineChartWithValue from "../../Components/LineChartWithValue";
 import SwishjamAPI from '@/lib/api-client/swishjam-api';
 
-export default function LineChartRenderingEngine({ configuration, timeframe }) {
+export default function LineChartRenderingEngine({ title, subtitle, event, property, aggregation, dataSource, timeframe, configuration = {} }) {
   const [timeseriesData, setTimeseriesData] = useState();
+  // todo - figure out what we want to do with `configuration` for V2...?
   const includeComparison = configuration.include_comparison ?? true;
   const includeSettingsDropdown = configuration.include_settings_dropdown ?? true;
   const hideAxis = configuration.hide_axis ?? false;
-  const { title, subtitle, event, property, calculation, dataSource } = configuration;
 
   useEffect(() => {
     setTimeseriesData();
-    SwishjamAPI.Events.timeseries(event, property, { calculation, timeframe, dataSource, include_comparison: includeComparison }).then(
+    SwishjamAPI.Events.timeseries(event, property, { calculation: aggregation, timeframe, dataSource, include_comparison: includeComparison }).then(
       ({ timeseries, comparison_timeseries, current_count, comparison_count, comparison_end_time, grouped_by }) => {
         setTimeseriesData({
           value: current_count,
@@ -26,7 +26,7 @@ export default function LineChartRenderingEngine({ configuration, timeframe }) {
           }))
         });
       });
-  }, [event, property, calculation, timeframe]);
+  }, [event, property, aggregation, timeframe]);
 
   return (
     <LineChartWithValue

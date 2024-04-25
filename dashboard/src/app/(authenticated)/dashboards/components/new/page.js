@@ -5,6 +5,16 @@ import CommonQueriesProvider from "@/providers/CommonQueriesProvider";
 import PageWithHeader from "@/components/utils/PageWithHeader"
 import { useState } from "react";
 
+const DEFAULT_CONFIGURATIONS_DICT = {
+  BarChart: {
+    showGridLines: true,
+    showLegend: true,
+    showTableInsteadOfLegend: true,
+    showXAxis: true,
+    showYAxis: true,
+  }
+}
+
 export default function NewDashboardComponentPage() {
   const [configuration, setConfiguration] = useState({});
 
@@ -22,7 +32,6 @@ export default function NewDashboardComponentPage() {
   }
 
   const onConfigurationChange = async configuration => {
-    console.log('configuration changed!', configuration);
     setConfiguration(configuration);
   }
 
@@ -32,8 +41,8 @@ export default function NewDashboardComponentPage() {
         <ComponentBuilder
           configuration={configuration}
           onConfigurationChange={onConfigurationChange}
-          previewDashboardComponent={console.log}
           onFormSubmit={onFormSubmit}
+          onComponentTypeChange={type => setConfiguration({ ...configuration, ...DEFAULT_CONFIGURATIONS_DICT[type] })}
         />
       </PageWithHeader>
     </CommonQueriesProvider>

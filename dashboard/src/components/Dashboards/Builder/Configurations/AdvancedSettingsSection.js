@@ -3,17 +3,19 @@ import Dropdown from '@/components/utils/Dropdown'
 import SwishjamAPI from '@/lib/api-client/swishjam-api';
 import { useState, useEffect } from 'react'
 
-export default function AdvancedSettingsSection({ selectedDataSource, onDataSourceSelected, children, ...props }) {
+export default function AdvancedSettingsSection({ selectedDataSource, onDataSourceSelected, includeDataSourceSelector = true, children, ...props }) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [dataSources, setDataSources] = useState();
 
   useEffect(() => {
-    SwishjamAPI.Config.retrieve().then(({ api_keys }) => {
-      setDataSources(
-        ['all', ...api_keys.map(({ data_source }) => data_source)]
-      );
-    })
-  }, [])
+    if (includeDataSourceSelector) {
+      SwishjamAPI.Config.retrieve().then(({ api_keys }) => {
+        setDataSources(
+          ['all', ...api_keys.map(({ data_source }) => data_source)]
+        );
+      })
+    }
+  }, [includeDataSourceSelector])
 
   return (
     <div {...props}>
@@ -28,17 +30,19 @@ export default function AdvancedSettingsSection({ selectedDataSource, onDataSour
         <div className='border-t border-gray-400 border-dashed w-full' />
       </div>
       <div className={`${isExpanded ? '' : 'hidden'} px-4 py-2 transition-all overflow-hidden`}>
-        <div className='flex items-center gap-x-4'>
-          <span className='text-sm text-gray-700'>Select the data source to query from.</span>
-          <div className='w-fit'>
-            <Dropdown
-              label={'Select data source.'}
-              options={dataSources}
-              onSelect={onDataSourceSelected}
-              selected={selectedDataSource}
-            />
+        {includeDataSourceSelector && (
+          <div className='flex items-center gap-x-4'>
+            <span className='text-sm text-gray-700'>Select the data source to query from.</span>
+            <div className='w-fit'>
+              <Dropdown
+                label={'Select data source.'}
+                options={dataSources}
+                onSelect={onDataSourceSelected}
+                selected={selectedDataSource}
+              />
+            </div>
           </div>
-        </div>
+        )}
         {children}
       </div>
     </div>
