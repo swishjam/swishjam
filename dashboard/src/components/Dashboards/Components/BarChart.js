@@ -33,6 +33,13 @@ export default function BarChartComponent({
   xAxisKey = 'date',
   className,
 }) {
+  const [includeXAxis, setIncludeXAxis] = useState(showXAxis);
+  const [includeYAxis, setIncludeYAxis] = useState(showYAxis);
+  const [includeGridLines, setIncludeGridLines] = useState(showGridLines);
+  const [includeLegendOrTable, setIncludeLegendOrTable] = useState(showLegend);
+  const [useTableInsteadOfLegend, setUseTableInsteadOfLegend] = useState(showTableInsteadOfLegend);
+  const colorDict = useRef({});
+
   if ([null, undefined].includes(data)) {
     return (
       <ConditionalCardWrapper
@@ -49,34 +56,14 @@ export default function BarChartComponent({
     )
   }
 
-  const [includeXAxis, setIncludeXAxis] = useState(showXAxis);
-  const [includeYAxis, setIncludeYAxis] = useState(showYAxis);
-  const [includeGridLines, setIncludeGridLines] = useState(showGridLines);
-  const [includeLegendOrTable, setIncludeLegendOrTable] = useState(showLegend);
-  const [useTableInsteadOfLegend, setUseTableInsteadOfLegend] = useState(showTableInsteadOfLegend);
-
   const dateFormatter = dateFormatterForGrouping(groupedBy)
 
-  let uniqueKeys = [...new Set(data.flatMap(Object.keys))].filter(key => key !== xAxisKey);
+  let uniqueKeys = [...new Set((data || []).flatMap(Object.keys))].filter(key => key !== xAxisKey);
   if (uniqueKeys.length > 50) {
     console.error('BarChart can only accept up to 50 unique keys.');
     uniqueKeys = uniqueKeys.slice(0, 50)
-  } else if (uniqueKeys.length === 0) {
-    return (
-      <ConditionalCardWrapper
-        includeCard={includeCard}
-        title={title}
-        subtitle={subtitle}
-        className={className}
-        includeSettingsDropdown={includeSettingsDropdown}
-        isEnlargable={includeSettingsDropdown}
-      >
-        <EmptyState msg={noDataMessage} />
-      </ConditionalCardWrapper>
-    )
   }
 
-  const colorDict = useRef({});
   let colorsToChooseFrom = [...colors];
   const getColorForName = name => {
     if (!colorDict.current[name]) {
@@ -85,34 +72,32 @@ export default function BarChartComponent({
     return colorDict.current[name];
   }
 
-  const CustomTooltip = ({ active, payload }) => {
-    if (active && payload && payload.length) {
-      const data = payload[0].payload;
-      const keysInTooltip = Object.keys(data).filter(key => key !== xAxisKey)
+  const CustomTooltip = ({ payload, label }) => {
+    if (!payload || payload.length === 0) return null;
+    const data = payload[0]?.payload || {};
+    const keysInTooltip = Object.keys(data).filter(key => key !== xAxisKey)
 
-      return (
-        <Card className="z-[50000] bg-white">
-          <CardContent className="py-2">
-            <span className='block text-sm font-medium'>{dateFormatter(data[xAxisKey])}</span>
-            {keysInTooltip.map(key => {
-              const color = getColorForName(key);
-              return (
-                <div key={key} className='flex items-center mt-1'>
-                  <div
-                    className='transition-all rounded-full h-3 w-3 mr-2'
-                    style={{ backgroundColor: color }}
-                  />
-                  <span className='transition-all text-sm text-gray-700'>
-                    {key}: {yAxisFormatter(data[key])}
-                  </span>
-                </div>
-              )
-            })}
-          </CardContent>
-        </Card>
-      );
-    }
-    return null;
+    return (
+      <Card className="z-[50000] bg-white">
+        <CardContent className="py-2">
+          <span className='block text-sm font-medium'>{dateFormatter(label)}</span>
+          {keysInTooltip.map(key => {
+            const color = getColorForName(key);
+            return (
+              <div key={key} className='flex items-center mt-1'>
+                <div
+                  className='transition-all rounded-full h-3 w-3 mr-2'
+                  style={{ backgroundColor: color }}
+                />
+                <span className='transition-all text-sm text-gray-700'>
+                  {key}: {yAxisFormatter(data[key])}
+                </span>
+              </div>
+            )
+          })}
+        </CardContent>
+      </Card>
+    );
   }
 
   return (

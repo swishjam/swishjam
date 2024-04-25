@@ -3,7 +3,7 @@ import Dropdown from '@/components/utils/Dropdown'
 import SwishjamAPI from '@/lib/api-client/swishjam-api';
 import { useState, useEffect } from 'react'
 
-export default function AdvancedSettingsSection({ selectedDataSource, onDataSourceSelected, children }) {
+export default function AdvancedSettingsSection({ selectedDataSource, onDataSourceSelected, children, ...props }) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [dataSources, setDataSources] = useState();
 
@@ -16,7 +16,7 @@ export default function AdvancedSettingsSection({ selectedDataSource, onDataSour
   }, [])
 
   return (
-    <>
+    <div {...props}>
       <div className='flex items-center flex-nowrap gap-x-4 mt-4'>
         <span
           className='text-xs whitespace-nowrap cursor-pointer hover:bg-gray-100 px-2 py-1 rounded'
@@ -41,6 +41,6 @@ export default function AdvancedSettingsSection({ selectedDataSource, onDataSour
         </div>
         {children}
       </div>
-    </>
+    </div>
   )
 }

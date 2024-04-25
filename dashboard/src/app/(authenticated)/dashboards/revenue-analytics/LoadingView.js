@@ -5,7 +5,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 export default function LoadingView() {
   return (
     <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mb-8">
-      <div className='grid grid-cols-2 mt-8 flex items-center'>
+      <div className='grid grid-cols-2 mt-8 items-center'>
         <div>
           <h1 className="text-lg font-medium text-gray-700 mb-0">Marketing Site Metrics</h1>
         </div>

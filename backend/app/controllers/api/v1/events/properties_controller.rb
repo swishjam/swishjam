@@ -158,10 +158,12 @@ module Api
           params[:data_source] ||= 'all'
           event_name = URI.decode_uri_component(params[:event_name])
           property = URI.decode_uri_component(params[:name])
+          query_groups = JSON.parse(params[:query_groups] || '[]')
           bar_chart_results = ClickHouseQueries::Events::StackedBarChart.new(
             public_keys_for_requested_data_source,
             event: event_name,
             property: property,
+            query_groups: query_groups,
             start_time: start_timestamp,
             end_time: end_timestamp,
             max_ranking_to_not_be_considered_other: params[:max_ranking_to_not_be_considered_other] || 10,

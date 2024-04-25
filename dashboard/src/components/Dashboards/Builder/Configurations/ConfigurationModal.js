@@ -16,11 +16,12 @@ export default function ConfigurationModal({
   onSave = () => { },
   previewDashboardComponent,
 }) {
-  const [dataSourceToPullFrom, setDataSourceToPullFrom] = useState(defaultDataSource)
+  const [dataSourceToPullFrom, setDataSourceToPullFrom] = useState('all')
   const [errorMessage, setErrorMessage] = useState();
   const [selectedPropertyName, setSelectedPropertyName] = useState();
   const [selectedEventName, setSelectedEventName] = useState();
-  const [selectedCalculation, setSelectedCalculation] = useState(includeCalculationsDropdown ? null : 'count');
+  // const [selectedCalculation, setSelectedCalculation] = useState(includeCalculationsDropdown ? null : 'count');
+  const [selectedCalculation, setSelectedCalculation] = useState('count');
   const [subtitle, setSubtitle] = useState();
   const [title, setTitle] = useState();
 

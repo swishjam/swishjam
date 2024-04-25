@@ -28,7 +28,7 @@ export class Properties extends Base {
   }
 
   static async barChartForProperty(eventName, propertyName, options = {}) {
-    return await this._get(`/api/v1/events/${eventName}/properties/${propertyName}/stacked_bar_chart`, options);
+    return await this._get(`/api/v1/events/${encodeURIComponent(eventName)}/properties/${encodeURIComponent(propertyName)}/stacked_bar_chart`, options);
   }
 }
 

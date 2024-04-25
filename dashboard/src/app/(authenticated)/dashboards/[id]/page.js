@@ -7,7 +7,6 @@ import ComponentOptionsSlideout from "@/components/Dashboards/Builder/ComponentO
 import DashboardNameDisplayEditor from "@/components/Dashboards/Builder/DashboardNameDisplayEditor";
 import LineChartConfiguration from "@/components/Dashboards/Builder/Configurations/LineChart";
 import LoadingSpinner from "@/components/LoadingSpinner";
-import Modal from "@/components/utils/Modal";
 import PieChartConfiguration from "@/components/Dashboards/Builder/Configurations/PieChart";
 import RenderingEngine from "@/components/Dashboards/Builder/RenderingEngine";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -16,7 +15,7 @@ import Timefilter from "@/components/Timefilter";
 import { useEffect, useState, useRef } from "react";
 import ValueCardConfiguration from "@/components/Dashboards/Builder/Configurations/ValueCard";
 import { swishjam } from "@swishjam/react";
-import { Dialog, DialogModal } from "@/components/ui/dialog";
+import { DialogModal } from "@/components/ui/dialog";
 
 const AUTO_SAVE_CHECK_INTERVAL = 2_500;
 const DEFAULT_GRID_CONFIGURATIONS = {

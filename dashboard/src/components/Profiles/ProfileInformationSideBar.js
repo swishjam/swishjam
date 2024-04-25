@@ -75,8 +75,11 @@ export default function ProfileInformationSideBar({ userData, hasStripeIntegrati
               </div>
               <div className="px-4 py-2 col-span-1 sm:px-0 grid grid-cols-2 cursor-default">
                 <dt className="text-sm font-medium leading-6 text-gray-900">Unique Identifier</dt>
-                <dd className="text-sm leading-6 text-gray-700 text-right">
-                  {userData.user_unique_identifier || '-'}
+                <dd className="text-sm leading-6 text-gray-700 flex justify-end">
+                  <span className='truncate'>
+                    {userData.user_unique_identifier || '-'}
+                  </span>
+                  <CopiableText value={userData.user_unique_identifier} className='ml-1' iconOnly={true} />
                 </dd>
               </div>
               <div className="px-4 py-2 col-span-1 grid grid-cols-2 sm:px-0 cursor-default">
