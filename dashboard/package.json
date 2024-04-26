@@ -37,7 +37,7 @@
     "@radix-ui/react-toast": "^1.1.5",
     "@radix-ui/react-tooltip": "^1.0.6",
     "@sentry/nextjs": "^7.95.0",
-    "@swishjam/react": "^0.0.5",
+    "@swishjam/react": "^0.0.52",
     "@tanstack/react-table": "^8.10.7",
     "class-variance-authority": "^0.7.0",
     "classnames": "^2.3.2",
