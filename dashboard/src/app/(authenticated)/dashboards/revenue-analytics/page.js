@@ -7,7 +7,7 @@ import { formatMoney, formatNumbers, formatShrinkMoney, formatShrinkNumbers } fr
 import Heatmap from "@/components/Dashboards/Components/HeatMap";
 import Image from "next/image";
 import Link from 'next/link'
-import LineChartWithValue from "@/components/Dashboards/Components/LineChartWithValue";
+import LineChartWithValue from "@/components/Dashboards/Components/AreaChartWithValue";
 import Modal from "@/components/utils/Modal";
 import RevenueRetentionWidget from '@/components/Dashboards/Components/RevenueRetentionWidget';
 import { RxBarChart } from 'react-icons/rx'

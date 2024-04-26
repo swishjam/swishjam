@@ -8,7 +8,7 @@ import { dateFormatterForGrouping } from "@/lib/utils/timeseriesHelpers";
 import GoogleSearchConsoleLogo from '@public/logos/google-logo.png'
 import Image from "next/image";
 import { Label } from "@/components/ui/label";
-import LineChartWithValue from "@/components/Dashboards/Components/LineChartWithValue";
+import LineChartWithValue from "@/components/Dashboards/Components/AreaChartWithValue";
 import Link from 'next/link'
 import { Popover, PopoverContent, PopoverTrigger, PopoverClose } from "@/components/ui/popover"
 import { RxBarChart } from 'react-icons/rx'

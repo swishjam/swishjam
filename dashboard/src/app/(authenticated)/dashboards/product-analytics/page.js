@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowPathIcon } from "@heroicons/react/24/outline";
 import { RxBarChart } from 'react-icons/rx'
 import ActiveUsersLineChartWithValue from "@/components/Dashboards/Components/ActiveUsersLineChartWithValue";
-import LineChartWithValue from "@/components/Dashboards/Components/LineChartWithValue";
+import LineChartWithValue from "@/components/Dashboards/Components/AreaChartWithValue";
 import ItemizedList from '@/components/Dashboards/Components/ItemizedList';
 import Link from 'next/link'
 import RetentionWidget from '@/components/Dashboards/Components/RetentionWidget';

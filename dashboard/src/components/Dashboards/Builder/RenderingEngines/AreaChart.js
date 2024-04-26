@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
-import LineChartWithValue from "../../Components/LineChartWithValue";
+import LineChartWithValue from "../../Components/AreaChartWithValue";
 import SwishjamAPI from '@/lib/api-client/swishjam-api';
 
-export default function LineChartRenderingEngine({
+export default function AreaChartRenderingEngine({
   title,
   subtitle,
   event,
@@ -14,8 +14,8 @@ export default function LineChartRenderingEngine({
   ...settings
 }) {
   const [timeseriesData, setTimeseriesData] = useState();
-  const include_comparison = settings.includeComparison ?? true;
-  console.log('LineChartRenderingEngine', { event, property, aggregation, timeframe, whereClauseGroups, include_comparison });
+  const include_comparison = settings.includeComparison ?? settings.include_comparison ?? true;
+  const valueFormatter = settings.value_formatter ?? settings.valueFormatter ?? 'number';
 
   useEffect(() => {
     setTimeseriesData();
@@ -41,11 +41,11 @@ export default function LineChartRenderingEngine({
       {...settings}
       valueFormatter={value => {
         try {
-          if (settings.value_formatter === 'currency') {
+          if (valueFormatter === 'currency') {
             return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(parseFloat(value) / 100)
-          } else if (settings.value_formatter === 'percent') {
+          } else if (valueFormatter === 'percent') {
             return new Intl.NumberFormat('en-US', { style: 'percent', minimumFractionDigits: 2 }).format(value)
-          } else if (settings.value_formatter === 'number') {
+          } else if (valueFormatter === 'number') {
             return parseFloat(value).toLocaleString('en-US', { maximumFractionDigits: 2 })
           } else {
             return value

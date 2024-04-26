@@ -6,7 +6,7 @@ import Breadcrumbs from "@/components/Breadcrumbs";
 import { Button } from "@/components/ui/button";
 import EventFeed from "@/components/Dashboards/Components/EventFeed";
 import LoadingView from "./LoadingView";
-import LineChartWithValue from '@/components/Dashboards/Components/LineChartWithValue';
+import LineChartWithValue from '@/components/Dashboards/Components/AreaChartWithValue';
 import ProfileInformationSideBar from "@/components/Profiles/ProfileInformationSideBar";
 import { setStateFromTimeseriesResponse } from "@/lib/utils/timeseriesHelpers";
 import { SwishjamAPI } from "@/lib/api-client/swishjam-api";

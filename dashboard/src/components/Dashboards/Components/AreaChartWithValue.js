@@ -3,12 +3,12 @@
 import { AreaChart, Area, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis, } from 'recharts';
 import { BsCloudSlash } from "react-icons/bs"
 import ConditionalCardWrapper from './ConditionalCardWrapper';
-import CustomTooltip from './LineChart/CustomTooltip';
+import CustomTooltip from './AreaChart/CustomTooltip';
 import { dateFormatterForGrouping } from '@/lib/utils/timeseriesHelpers';
 import { useCallback, useState, useEffect } from 'react';
-import ValueDisplay from './LineChart/ValueDisplay';
+import ValueDisplay from './AreaChart/ValueDisplay';
 
-export default function LineChartWithValue({
+export default function AreaChartWithValue({
   additionalTooltipDataFormatter,
   className,
   connectNulls = false,
@@ -19,7 +19,10 @@ export default function LineChartWithValue({
   groupedBy,
   includeCard = true,
   includeComparisonData = true,
+  includeGridLines = false,
   includeSettingsDropdown = true,
+  includeXAxis,
+  includeYAxis,
   isEnlargable = true,
   noDataMessage = (
     <div className="text-center">
@@ -43,9 +46,19 @@ export default function LineChartWithValue({
     currentValueDate: timeseries?.[timeseries?.length - 1]?.[dateKey],
     comparisonValueDate: timeseries?.[timeseries?.length - 1]?.[comparisonDateKey],
   });
-  const [showXAxis, setShowXAxis] = useState(showAxis);
-  const [showYAxis, setShowYAxis] = useState(showAxis);
-  const [showComparisonData, setShowComparisonData] = useState(includeComparisonData);
+  const [showXAxis, setShowXAxis] = useState();
+  const [showYAxis, setShowYAxis] = useState();
+  const [showComparisonData, setShowComparisonData] = useState();
+  const [showGridLines, setShowGridLines] = useState();
+
+  // these are all the settings that can be changed in the settings dropdown
+  useEffect(() => {
+    // showAxis is still being used in some places, but we should only us showXAxis and showYAxis in the future
+    setShowXAxis(includeXAxis ?? showAxis)
+    setShowYAxis(includeYAxis ?? showAxis)
+    setShowComparisonData(includeComparisonData)
+    setShowGridLines(includeGridLines)
+  }, [showAxis, includeXAxis, includeYAxis, includeComparisonData, includeGridLines])
 
   const updateHeaderDisplayValues = useCallback(displayData => {
     setHeaderDisplayValues({
@@ -66,6 +79,7 @@ export default function LineChartWithValue({
   const settingsOptions = [
     { onChange: setShowXAxis, enabled: showXAxis, label: 'Show X-Axis' },
     { onChange: setShowYAxis, enabled: showYAxis, label: 'Show Y-Axis' },
+    { onChange: setShowGridLines, enabled: showGridLines, label: 'Show Grid Lines' },
     { onChange: setShowComparisonData, enabled: showComparisonData, label: 'Include Comparison Data' },
     onGroupByChange && {
       onChange: onGroupByChange,
@@ -132,7 +146,7 @@ export default function LineChartWithValue({
                     tickLine={false}
                     width={40}
                   />
-                  {showYAxis && <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" strokeWidth={1} />}
+                  {showGridLines && <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" strokeWidth={1} />}
                   {showTooltip && (
                     <Tooltip
                       allowEscapeViewBox={{ x: false, y: true }}

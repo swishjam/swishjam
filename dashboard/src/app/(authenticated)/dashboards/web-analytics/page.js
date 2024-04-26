@@ -8,7 +8,7 @@ import { ArrowPathIcon } from "@heroicons/react/24/outline";
 import { RxBarChart } from 'react-icons/rx'
 import Link from 'next/link'
 
-import LineChartWithValue from "@/components/Dashboards/Components/LineChartWithValue";
+import LineChartWithValue from "@/components/Dashboards/Components/AreaChartWithValue";
 import ClickableValueCard from "@/components/Dashboards/Components/ClickableValueCard";
 import BarChart from "@/components/Dashboards/Components/BarChart";
 import { formatNumbers, formatShrinkNumbers } from "@/lib/utils/numberHelpers";

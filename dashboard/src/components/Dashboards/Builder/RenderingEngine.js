@@ -3,7 +3,7 @@ import BarList from '@/components/Dashboards/Builder/RenderingEngines/BarList';
 import BarChart from '@/components/Dashboards/Builder/RenderingEngines/BarChart';
 import { Card } from '@/components/ui/card';
 import ContextMenuableComponent from '@/components/Dashboards/Builder/DashboardComponentContextMenu';
-import LineChart from '@/components/Dashboards/Builder/RenderingEngines/LineChart';
+import LineChart from '@/components/Dashboards/Builder/RenderingEngines/AreaChart';
 import PieChart from '@/components/Dashboards/Builder/RenderingEngines/PieChart';
 import ReactGridLayout, { WidthProvider } from 'react-grid-layout'
 import UserRetention from '@/components/Dashboards/Builder/RenderingEngines/RetentionWidget';

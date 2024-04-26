@@ -1,4 +1,4 @@
-import LineChartWithValue from "@/components/Dashboards/Components/LineChartWithValue"
+import LineChartWithValue from "@/components/Dashboards/Components/AreaChartWithValue"
 import BarList from "@/components/Dashboards/Components/BarList"
 import { Skeleton } from "@/components/ui/skeleton"
 

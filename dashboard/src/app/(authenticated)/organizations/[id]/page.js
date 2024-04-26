@@ -13,7 +13,7 @@ import ProfileTags from "@/components/Profiles/ProfileTags";
 import { Button } from "@/components/ui/button";
 import { RefreshCcw } from "lucide-react";
 import EventFeed from "@/components/Dashboards/Components/EventFeed";
-import LineChartWithValue from "@/components/Dashboards/Components/LineChartWithValue";
+import LineChartWithValue from "@/components/Dashboards/Components/AreaChartWithValue";
 import { Skeleton } from "@/components/ui/skeleton";
 import { setStateFromTimeseriesResponse } from "@/lib/utils/timeseriesHelpers";
 

@@ -1,6 +1,6 @@
 'use client';
 
-import LineChartWithValue from "@/components/Dashboards/Components/LineChartWithValue";
+import LineChartWithValue from "@/components/Dashboards/Components/AreaChartWithValue";
 import { CheckCircleIcon } from '@heroicons/react/20/solid';
 import {
   DropdownMenu,
@@ -48,7 +48,7 @@ const GroupingDropdown = ({ currentGrouping, onSelection }) => (
 export default function ActiveUsersLineChart({ data, selectedGrouping, onGroupingChange, includeSettingsDropdown = true, ...props }) {
   return (
     <LineChartWithValue
-      {...props} 
+      {...props}
       title={<div><GroupingDropdown currentGrouping={selectedGrouping} onSelection={onGroupingChange} /></div>}
       value={data?.value}
       timeseries={data?.timeseries}

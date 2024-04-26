@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import SwishjamAPI from "@/lib/api-client/swishjam-api";
-import LineChartWithValue from "@/components/Dashboards/Components/LineChartWithValue";
+import LineChartWithValue from "@/components/Dashboards/Components/AreaChartWithValue";
 import ItemizedList from "@/components/Dashboards/Components/ItemizedList";
 import BarList from "@/components/Dashboards/Components/BarList";
 

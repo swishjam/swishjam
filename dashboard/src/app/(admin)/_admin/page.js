@@ -2,7 +2,7 @@
 
 import { ArrowPathIcon } from '@heroicons/react/24/outline';
 import { Button } from '@/components/ui/button';
-import LineChartWithValue from '@/components/Dashboards/Components/LineChartWithValue';
+import LineChartWithValue from '@/components/Dashboards/Components/AreaChartWithValue';
 import SwishjamAPI from "@/lib/api-client/swishjam-api"
 import { useEffect, useState } from 'react'
 import { Skeleton } from '@/components/ui/skeleton';

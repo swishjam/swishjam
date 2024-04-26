@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { BsCloudSlash } from "react-icons/bs";
 import { SwishjamAPI } from "@/lib/api-client/swishjam-api";
-import LineChartWithValue from "@/components/Dashboards/Components/LineChartWithValue";
+import LineChartWithValue from "@/components/Dashboards/Components/AreaChartWithValue";
 import ActiveUsersLineChartWithValue from "@/components/Dashboards/Components/ActiveUsersLineChartWithValue";
 import Timefilter from "@/components/Timefilter";
 import { Button } from "@/components/ui/button";

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { API } from '@/lib/api-client/base';
-import LineChartWithValue from "../LineChartWithValue";
+import LineChartWithValue from "../AreaChartWithValue";
 import { CheckCircleIcon } from '@heroicons/react/20/solid';
 import {
   DropdownMenu,
@@ -62,8 +62,8 @@ export default function ActiveUsersLineChart({ timeframe = '30_days', loadingSta
   return (
     <LineChartWithValue
       title={
-        <GroupingDropdown 
-          currentGrouping={grouping} 
+        <GroupingDropdown
+          currentGrouping={grouping}
           onSelection={newGrouping => {
             setActiveUserData();
             // SwishjamMemory.set('activeUsersGroupingPreference', newGrouping);
@@ -75,7 +75,7 @@ export default function ActiveUsersLineChart({ timeframe = '30_days', loadingSta
       timeseries={activeUserData?.timeseries}
       valueFormatter={n => n.toLocaleString('en-US')}
       dateFormatter={date => {
-        switch(grouping) {
+        switch (grouping) {
           case 'daily':
             return new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
           case 'weekly':

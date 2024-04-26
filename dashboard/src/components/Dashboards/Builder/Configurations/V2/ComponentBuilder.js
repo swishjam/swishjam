@@ -8,7 +8,7 @@ import { useEffect, useState } from 'react'
 import ComponentPreviewer from './ComponentPreviewer';
 import BarChartDashboardComponent from '../../RenderingEngines/BarChart';
 import BarListDashboardComponent from '../../RenderingEngines/BarList';
-import LineChartRenderingEngine from '../../RenderingEngines/LineChart';
+import AreaChartRenderingEngine from '../../RenderingEngines/AreaChart';
 import PieChartDashboardComponent from '../../RenderingEngines/PieChart';
 import ValueCardRenderingEngine from '../../RenderingEngines/ValueCard';
 
@@ -17,7 +17,7 @@ import BarChartAdditionalSettings from './AdditionalSettings/BarChart';
 const COMPONENT_RENDERING_ENGINE_DICT = {
   BarChart: BarChartDashboardComponent,
   BarList: BarListDashboardComponent,
-  LineChart: LineChartRenderingEngine,
+  LineChart: AreaChartRenderingEngine,
   PieChart: PieChartDashboardComponent,
   ValueCard: ValueCardRenderingEngine,
 }

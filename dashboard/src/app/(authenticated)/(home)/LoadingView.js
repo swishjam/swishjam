@@ -3,7 +3,7 @@
 import ActiveUsersLineChart from "@/components/Dashboards/Components/ActiveUsersLineChartWithValue"
 import ItemizedUsersList from "@/components/Dashboards/Components/ItemizedList"
 import ItemizedOrganizationsList from "@/components/Dashboards/Components/ItemizedList"
-import LineChartWithValue from "@/components/Dashboards/Components/LineChartWithValue"
+import LineChartWithValue from "@/components/Dashboards/Components/AreaChartWithValue"
 import ClickableValueCard from "@/components/Dashboards/Components/ClickableValueCard"
 import { Separator } from "@/components/ui/separator"
 import { Skeleton } from "@/components/ui/skeleton"
