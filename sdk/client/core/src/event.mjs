@@ -1,7 +1,7 @@
 import CookieHelper from './cookieHelper.mjs';
 import { DeviceDetails } from './deviceDetails.mjs';
 import { DeviceIdentifiers } from './deviceIdentifiers.mjs';
-import { PersistentMemoryManager } from './PersistentMemoryManager.mjs';
+import { PersistentMemoryManager } from './persistentMemoryManager.mjs';
 import { SessionPersistance } from './sessionPersistance.mjs';
 import { Util } from './util.mjs';
 import {

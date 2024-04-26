@@ -1,6 +1,6 @@
 {
   "name": "@swishjam/cdn",
-  "version": "0.0.503",
+  "version": "0.0.52",
   "description": "",
   "main": "build.js",
   "scripts": {
@@ -11,7 +11,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@swishjam/core": "^0.0.501"
+    "@swishjam/core": "^0.0.52"
   },
   "devDependencies": {
     "@babel/core": "^7.22.15",

@@ -4,7 +4,7 @@ import { ErrorHandler } from './errorHandler.mjs';
 import { EventQueueManager } from "./eventQueueManager.mjs";
 import { InteractionHandler } from "./interactionHandler.mjs";
 import { PageViewManager } from "./pageViewManager.mjs";
-import { PersistentMemoryManager } from "./PersistentMemoryManager.mjs";
+import { PersistentMemoryManager } from "./persistentMemoryManager.mjs";
 import { Requester } from "./requester.mjs";
 import { SessionPersistance } from "./sessionPersistance.mjs";
 import { Util } from "./util.mjs";
