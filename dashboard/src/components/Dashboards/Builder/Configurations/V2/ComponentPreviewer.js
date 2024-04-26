@@ -22,8 +22,8 @@ export default function ComponentPreviewer({
   ComponentRenderingEngine,
   ...componentSpecificProps
 }) {
-  const isValid = event && aggregation && (property || aggregation === 'count');
-  console.log('ComponentPreviewer', { event, property, aggregation })
+  const isValid = event && aggregation && (property || ['users', 'organizations', 'count'].includes(aggregation));
+  console.log('ComponentPreviewer', { event, property, aggregation, isValid })
   return (
     <Card>
       {!isValid

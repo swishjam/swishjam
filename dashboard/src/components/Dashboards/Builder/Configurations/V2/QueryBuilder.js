@@ -3,26 +3,57 @@ import SwishjamAPI from '@/lib/api-client/swishjam-api';
 import { useEffect, useState } from 'react'
 import ComboboxEvents from '@/components/utils/ComboboxEvents';
 import Combobox from '@/components/utils/Combobox';
-import { CalculatorIcon, ChevronLeftIcon, ChevronRightIcon, HashIcon, PlusIcon, TriangleAlertIcon } from 'lucide-react';
+import { CalculatorIcon, ChevronLeftIcon, ChevronRightIcon, FilterIcon, HashIcon, PlusIcon, TriangleAlertIcon, UserIcon, UsersIcon } from 'lucide-react';
 import useCommonQueries from '@/hooks/useCommonQueries';
 import { Button } from '@/components/ui/button';
 import WhereClauseGroup from './WhereClauseGroup';
 
-const AGGREGATION_ICONS = {
-  count: <HashIcon className='h-3 w-3' />,
-  sum: <PlusIcon className='h-3 w-3' />,
-  min: <ChevronLeftIcon className='h-3 w-3' />,
-  max: <ChevronRightIcon className='h-3 w-3' />,
-  avg: <CalculatorIcon className='h-3 w-3' />,
-}
-
-const AGGREGATION_OPTIONS = ['count', 'sum', 'min', 'max', 'avg'];
+const AGGREGATION_OPTIONS = [
+  {
+    label: 'Occurrences',
+    value: 'count',
+    Icon: HashIcon,
+  },
+  {
+    label: 'Unique Users',
+    value: 'users',
+    Icon: UserIcon,
+  },
+  {
+    label: 'Unique Organizations',
+    value: 'organizations',
+    Icon: UsersIcon,
+  },
+  {
+    label: 'Sum',
+    value: 'sum',
+    Icon: PlusIcon,
+    requiresPropertyOption: true,
+  },
+  {
+    label: 'Min',
+    value: 'min',
+    Icon: ChevronLeftIcon,
+    requiresPropertyOption: true,
+  },
+  {
+    label: 'Max',
+    value: 'max',
+    Icon: ChevronRightIcon,
+    requiresPropertyOption: true,
+  },
+  {
+    label: 'Average',
+    value: 'avg',
+    Icon: CalculatorIcon,
+    requiresPropertyOption: true,
+  },
+]
 
 export default function QueryBuilder({
   configuration = {},
   includePropertiesDropdown = true,
   includeUserProperties = true,
-  // aGGREGATION_OPTIONS = [],
   onConfigurationChange,
 }) {
   const [uniquePropertiesForEvent, setUniquePropertiesForEvent] = useState();
@@ -41,10 +72,9 @@ export default function QueryBuilder({
   const eventOptions = uniqueEventsAndCounts?.map(e => e.name);
   const uniqueUserPropertyOptions = uniqueUserProperties?.map(p => `user.${p}`);
 
-  const formattedAggregationOptions = AGGREGATION_OPTIONS.map(option => ({
-    label: <div className='flex items-center space-x-2'>{AGGREGATION_ICONS[option]} <span>{option}</span></div>,
-    value: option,
-  }))
+  const formattedAggregationOptions = AGGREGATION_OPTIONS.map(({ label, Icon, value }) => ({
+    value, label: <span className='flex items-center'><Icon className='h-3 w-3 mr-2' /> {label}</span>,
+  }));
 
   return (
     <>
@@ -89,7 +119,33 @@ export default function QueryBuilder({
           ) : <Skeleton className='h-8 w-12' />
         }
 
-        {selectedAggregation === 'count' || !includePropertiesDropdown
+        {!includePropertiesDropdown || ['count', 'users', 'organizations'].includes(selectedAggregation)
+          ? <span className='mx-1'>event over time.</span>
+          : (
+            <>
+              <span className='mx-1'>event by its {selectedEventProperty && selectedEventProperty.startsWith('user.') ? 'user\'s' : ''}</span>
+              <ComboboxEvents
+                selectedValue={selectedEventProperty}
+                onSelectionChange={property => onConfigurationChange({ property })}
+                swishjamEventsHeading="Event Properties"
+                options={[
+                  ...(uniquePropertiesForEvent || []),
+                  ...(includeUserProperties ? uniqueUserPropertyOptions || [] : [])
+                ]}
+                placeholder={
+                  <div className='flex items-center'>
+                    <div className='p-1 mr-1 bg-yellow-100 text-yellow-500 rounded'>
+                      <TriangleAlertIcon className='h-4 w-4 mx-auto' />
+                    </div>
+                    Property
+                  </div>
+                }
+              />
+              <span className='mx-1'>property over time.</span>
+            </>
+          )
+        }
+        {/* {selectedAggregation === 'count' || !includePropertiesDropdown
           ? <span className='mx-1'>event over time.</span>
           : selectedAggregation === 'users'
             ? <span className='mx-1'>the most.</span>
@@ -99,6 +155,7 @@ export default function QueryBuilder({
                 <ComboboxEvents
                   selectedValue={selectedEventProperty}
                   onSelectionChange={property => onConfigurationChange({ property })}
+                  swishjamEventsHeading="Event Properties"
                   options={[
                     ...(uniquePropertiesForEvent || []),
                     ...(includeUserProperties ? uniqueUserPropertyOptions || [] : [])
@@ -111,12 +168,11 @@ export default function QueryBuilder({
                       Property
                     </div>
                   }
-                  swishjamEventsHeading="Event Properties"
                 />
                 <span className='mx-1'>property over time.</span>
               </>
             )
-        }
+        } */}
         {(whereClauseGroups.length === 0 || whereClauseGroups.every(group => group.queries.length === 0)) && (
           <Button
             className='text-gray-700'
@@ -137,7 +193,7 @@ export default function QueryBuilder({
             }}
             variant='ghost'
           >
-            + Where
+            + Filter <FilterIcon className='h-4 w-4 ml-1' />
           </Button>
         )}
       </div>

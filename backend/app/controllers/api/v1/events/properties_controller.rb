@@ -163,6 +163,7 @@ module Api
             public_keys_for_requested_data_source,
             event: event_name,
             property: property,
+            aggregation: params[:aggregation],
             query_groups: query_groups,
             start_time: start_timestamp,
             end_time: end_timestamp,

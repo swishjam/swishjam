@@ -32,9 +32,7 @@ const ADDITIONAL_SETTINGS_DICT = {
 
 export default function ComponentBuilder({
   configuration,
-  operatorOptions = ['count', 'sum', 'avg', 'min', 'max'],
   chartTypeSelector = true,
-  includeOperatorsDropdown,
   includePropertiesDropdown = true,
   includeUserProperties = true,
   onConfigurationChange,

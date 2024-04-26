@@ -40,7 +40,7 @@ export default function WhereClauseGroup({ group, propertyOptions, onUpdate, onN
               ])
             }}
           >
-            AND
+            + AND
           </Button>
         )}
         <Button

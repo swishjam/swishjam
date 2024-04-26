@@ -28,6 +28,7 @@ module DataFormatters
           hash[:date] = current_time
           results_for_date.each do |result|
             hash[result.send(@key_method)] = result.send(@value_method)
+            # hash[@key_method] = result.send(@value_method)
           end
         end
 

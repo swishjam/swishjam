@@ -4,7 +4,8 @@ import { InfoIcon } from "lucide-react"
 import SettingsDropdown from "./SettingsDropdown"
 import { useEnlargableDashboardComponent } from "@/hooks/useEnlargableDashboardComponent"
 import useSheet from "@/hooks/useSheet"
-import { useEffect, useRef } from "react"
+import { useEffect, useRef, useState } from "react"
+import { Skeleton } from "@/components/ui/skeleton"
 
 export default function ConditionalCardWrapper({
   AdditionalHeaderActions = [],
@@ -13,6 +14,7 @@ export default function ConditionalCardWrapper({
   includeCard = true,
   includeSettingsDropdown = true,
   isEnlargable = true,
+  loading = false,
   onSettingChange,
   settings,
   subtitle,
@@ -22,6 +24,13 @@ export default function ConditionalCardWrapper({
   const { openSheetWithContent } = useSheet();
   const { enlargeComponent, updateComponent, componentDetailsToEnlarge } = useEnlargableDashboardComponent();
   const containerEl = useRef();
+  const [loadingStateHeight, setLoadingStateHeight] = useState(0);
+
+  useEffect(() => {
+    if (containerEl.current) {
+      setLoadingStateHeight(containerEl.current.offsetWidth * 0.33)
+    }
+  }, [containerEl.current])
 
   useEffect(() => {
     const enlargedComponentIsThisComponent = componentDetailsToEnlarge && componentDetailsToEnlarge.el === containerEl.current;
@@ -63,7 +72,6 @@ export default function ConditionalCardWrapper({
     </CardHeader>
   </>
 
-
   if (includeCard) {
     return (
       <Card
@@ -73,7 +81,10 @@ export default function ConditionalCardWrapper({
       >
         {HeaderContent}
         <CardContent>
-          {children}
+          {loading
+            ? <Skeleton className="w-full rounded-sm mt-1" style={{ height: `${loadingStateHeight}px` }} />
+            : children
+          }
         </CardContent>
       </Card>
     )
@@ -87,7 +98,10 @@ export default function ConditionalCardWrapper({
         >
           {HeaderContent}
           <CardContent>
-            {children}
+            {loading
+              ? <Skeleton className="w-full rounded-sm mt-1" style={{ height: `${loadingStateHeight}px` }} />
+              : children
+            }
           </CardContent>
         </div>
       </>
