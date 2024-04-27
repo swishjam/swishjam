@@ -1,6 +1,6 @@
 {
   "name": "@swishjam/react",
-  "version": "0.0.52",
+  "version": "0.0.522",
   "description": "React wrapper for SwishjamJS.",
   "main": "./dist/cjs/index.js",
   "module": "./dist/esm/index.js",
@@ -25,7 +25,7 @@
   "author": "Swishjam",
   "license": "MIT",
   "dependencies": {
-    "@swishjam/core": "^0.0.52"
+    "@swishjam/core": "^0.0.521"
   },
   "devDependencies": {
     "@babel/plugin-transform-runtime": "^7.21.0",

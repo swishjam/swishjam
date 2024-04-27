@@ -107,7 +107,7 @@ export class Client {
     } else {
       return this.errorHandler.executeWithErrorHandling(() => {
         const previouslySetOrgData = PersistentMemoryManager.getOrganizationData();
-        const newOrgData = PersistentMemoryManager.setOrganizationData({ traits, identifier: organizationIdentifier });
+        const newOrgData = PersistentMemoryManager.setOrganizationData({ ...traits, identifier: organizationIdentifier });
         if (Util.jsonIsEqual(previouslySetOrgData, newOrgData)) {
           return;
         }
