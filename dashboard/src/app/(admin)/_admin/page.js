@@ -163,7 +163,7 @@ export default function AdminPage() {
         value={eventCountsTimeseries && eventCountsTimeseries[eventCountsTimeseries.length - 1].value}
         timeseries={eventCountsTimeseries}
         groupedBy='hour'
-        showAxis={true}
+        showXAxis={true}
         showYAxis={true}
       />
       <div className='grid grid-cols-2 gap-2 mt-2'>
@@ -171,7 +171,7 @@ export default function AdminPage() {
           title='Queueing times (seconds from event occurred_at to ingested).'
           timeseries={queueingTimeTimeseries?.timeseries}
           groupedBy='minute'
-          showAxis={true}
+          showXAxis={true}
           showYAxis={true}
           dateKey='timeperiod'
           valueKey='average_seconds_to_ingest'
@@ -182,7 +182,7 @@ export default function AdminPage() {
           groupedBy='minute'
           dateKey='date'
           valueKey='value'
-          showAxis={true}
+          showXAxis={true}
           showYAxis={true}
           connectNulls={true}
         />

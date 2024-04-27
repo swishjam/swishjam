@@ -12,6 +12,14 @@ const DEFAULT_CONFIGURATIONS_DICT = {
     showTableInsteadOfLegend: true,
     showXAxis: true,
     showYAxis: true,
+  },
+  AreaChart: {
+    showGridLines: true,
+    showYAxis: true,
+    showXAxis: true,
+    includeTable: true,
+    primaryColor: '#7dd3fc',
+    secondaryColor: "#878b90",
   }
 }
 

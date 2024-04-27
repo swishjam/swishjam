@@ -55,21 +55,21 @@ module ClickHouseQueries
       def self.query_statement(column:, property:, operator:, value:)
         case operator
         when 'equals'
-          "JSONExtractString(e.#{column}, '#{property}') = '#{value}'"
+          "LOWER(JSONExtractString(e.#{column}, '#{property}')) = '#{value.downcase}'"
         when 'does_not_equal'
-          "JSONExtractString(e.#{column}, '#{property}') != '#{value}'"
+          "LOWER(JSONExtractString(e.#{column}, '#{property}')) != '#{value.downcase}'"
         when 'contains'
-          "JSONExtractString(e.#{column}, '#{property}') LIKE '%#{value}%'"
+          "LOWER(JSONExtractString(e.#{column}, '#{property}')) LIKE '%#{value.downcase}%'"
         when 'does_not_contain'
-          "JSONExtractString(e.#{column}, '#{property}') NOT LIKE '%#{value}%'"
+          "LOWER(JSONExtractString(e.#{column}, '#{property}')) NOT LIKE '%#{value.downcase}%'"
         when 'greater_than'
-          "JSONExtractFloat(e.#{column}, '#{property}') > #{value}"
+          "JSONExtractFloat(e.#{column}, '#{property}') > #{value.downcase}"
         when 'greater_than_or_equal_to'
-          "JSONExtractFloat(e.#{column}, '#{property}') >= #{value}"
+          "JSONExtractFloat(e.#{column}, '#{property}') >= #{value.downcase}"
         when 'less_than'
-          "JSONExtractFloat(e.#{column}, '#{property}') < #{value}"
+          "JSONExtractFloat(e.#{column}, '#{property}') < #{value.downcase}"
         when 'less_than_or_equal_to'
-          "JSONExtractFloat(e.#{column}, '#{property}') <= #{value}"
+          "JSONExtractFloat(e.#{column}, '#{property}') <= #{value.downcase}"
         when 'is_defined'
           "JSONExtractString(e.#{column}, '#{property}') IS NOT NULL"
         when 'is_not_defined'

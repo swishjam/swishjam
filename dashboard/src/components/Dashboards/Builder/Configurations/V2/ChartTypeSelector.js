@@ -2,12 +2,12 @@ import { AreaChartIcon, BarChart2Icon, FileDigitIcon, PieChartIcon } from "lucid
 
 const ICONS_DICT = {
   BarChart: BarChart2Icon,
-  LineChart: AreaChartIcon,
+  AreaChart: AreaChartIcon,
   PieChart: PieChartIcon,
   ValueCard: FileDigitIcon,
 }
 
-export default function ChartTypeSelector({ options = ['BarChart', 'LineChart', 'PieChart', 'ValueCard'], selected, setSelected, ...props }) {
+export default function ChartTypeSelector({ options = ['BarChart', 'AreaChart', 'PieChart', 'ValueCard'], selected, setSelected, ...props }) {
   return (
     <div {...props} className={`flex items-center space-x-2 ${props.className}`}>
       {options.map(option => {

@@ -13,19 +13,20 @@ import PieChartDashboardComponent from '../../RenderingEngines/PieChart';
 import ValueCardRenderingEngine from '../../RenderingEngines/ValueCard';
 
 import BarChartAdditionalSettings from './AdditionalSettings/BarChart';
+import AreaChartAdditionalSettings from './AdditionalSettings/AreaChart';
 
 const COMPONENT_RENDERING_ENGINE_DICT = {
+  AreaChart: AreaChartRenderingEngine,
   BarChart: BarChartDashboardComponent,
   BarList: BarListDashboardComponent,
-  LineChart: AreaChartRenderingEngine,
   PieChart: PieChartDashboardComponent,
   ValueCard: ValueCardRenderingEngine,
 }
 
 const ADDITIONAL_SETTINGS_DICT = {
+  AreaChart: AreaChartAdditionalSettings,
   BarChart: BarChartAdditionalSettings,
   BarList: BarChartAdditionalSettings,
-  LineChart: BarChartAdditionalSettings,
   PieChart: BarChartAdditionalSettings,
   ValueCard: BarChartAdditionalSettings,
 }
@@ -87,6 +88,7 @@ export default function ComponentBuilder({
           includePropertiesDropdown={includePropertiesDropdown}
           includeUserProperties={includeUserProperties}
           onConfigurationChange={updateConfiguration}
+          propertyIsRequired={componentType === 'BarChart' || !['count', 'users', 'organizations'].includes(configuration.aggregation)}
         />
         <AdvancedSettingsSection
           className='mb-2'
@@ -107,6 +109,7 @@ export default function ComponentBuilder({
         {...configuration}
         ComponentRenderingEngine={RenderingEngineForSelectedComponentType}
         whereClauseGroups={sanitizedWhereClauseGroups}
+        propertyIsRequired={componentType === 'BarChart' || !['count', 'users', 'organizations'].includes(configuration.aggregation)}
       />
       <div className='border-t border-gray-200 py-4 mt-4'>
         {errorMessage && <p className='text-red-500 text-sm mb-2'>{errorMessage}</p>}

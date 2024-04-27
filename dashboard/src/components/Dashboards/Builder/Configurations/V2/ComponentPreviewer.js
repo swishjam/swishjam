@@ -20,13 +20,16 @@ export default function ComponentPreviewer({
   title,
   whereClauseGroups,
   ComponentRenderingEngine,
+  propertyIsRequired,
   ...componentSpecificProps
 }) {
-  const isValid = event && aggregation && (property || ['users', 'organizations', 'count'].includes(aggregation));
-  console.log('ComponentPreviewer', { event, property, aggregation, isValid })
+  let missingRequiredFields = [];
+  if (!aggregation) missingRequiredFields.push('an aggregation method');
+  if (!event) missingRequiredFields.push('an event');
+  if (propertyIsRequired && !property) missingRequiredFields.push('a property');
   return (
     <Card>
-      {!isValid
+      {missingRequiredFields.length > 0
         ? (
           <ConditionalCardWrapper
             includeCard={false}
@@ -35,7 +38,10 @@ export default function ComponentPreviewer({
             includeSettingsDropdown={false}
             isEnlargable={false}
           >
-            <MissingDataMessage className='w-full h-72' text='Select an event and property to visualize.' />
+            <MissingDataMessage
+              className='w-full h-72'
+              text={`Select ${missingRequiredFields.slice(0, -1).join(', ')}${missingRequiredFields.length > 1 ? ',' : ''}${missingRequiredFields.length > 1 ? ' and ' : ''}${missingRequiredFields[missingRequiredFields.length - 1]} to preview your visualization.`}
+            />
           </ConditionalCardWrapper>
         ) : (
           <ComponentRenderingEngine

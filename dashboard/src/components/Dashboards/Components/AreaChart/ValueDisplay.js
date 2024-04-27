@@ -27,9 +27,8 @@ export default function ValueDisplay({
               <span className='text-xs'>There were {valueFormatter(comparisonValue)} {title} on {dateFormatter(comparisonDate)}.</span>
             </HoverCardContent>
           </HoverCard>
-        ) : (() => {
-          return <></>
-        })()}
+        ) : <></>
+        }
       </div>
       <div className=''>
         <span className='text-xs font-light cursor-default block'>{date ? dateFormatter(date) : ''}</span>

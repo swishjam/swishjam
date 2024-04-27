@@ -1,5 +1,6 @@
 import BarChart from "@/components/Dashboards/Components/BarChart";
 import SwishjamAPI from '@/lib/api-client/swishjam-api';
+import { humanizeVariable } from "@/lib/utils/misc";
 import { useEffect, useState } from "react";
 
 export default function BarChartDashboardComponent({ title, subtitle, event, property, aggregation, dataSource, whereClauseGroups, timeframe, ...settings }) {
@@ -24,6 +25,7 @@ export default function BarChartDashboardComponent({ title, subtitle, event, pro
       data={barChartResults?.data}
       groupedBy={barChartResults?.groupedBy}
       includeCard={false}
+      tableTitle={property && humanizeVariable(property.replace(/User./i, 'User\'s '))}
       {...settings}
     />
   )

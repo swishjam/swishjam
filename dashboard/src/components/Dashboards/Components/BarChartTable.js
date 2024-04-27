@@ -3,7 +3,15 @@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { ScrollArea } from "@/components/ui/scroll-area"
 
-export default function BarChartTable({ headers, barChartData, getColor, ignoredKeys = ['date'], ...props }) {
+export default function BarChartTable({
+  headers,
+  barChartData,
+  getColor,
+  valueDisplayFormatter = v => v,
+  countDisplayFormatter = v => v,
+  ignoredKeys = ['date'],
+  ...props
+}) {
   let tableData = {};
   (barChartData || []).forEach(dataForDate => {
     Object.keys(dataForDate).forEach(key => {
@@ -37,11 +45,11 @@ export default function BarChartTable({ headers, barChartData, getColor, ignored
                         className='transition-all rounded-full h-2 w-2 mr-2'
                         style={{ backgroundColor: getColor(row.value) }}
                       />
-                      {row.value}
+                      {valueDisplayFormatter(row.value)}
                     </div>
                   </TableCell>
                   <TableCell>
-                    {row.count}
+                    {countDisplayFormatter(row.count)}
                   </TableCell>
                 </TableRow>
               ))

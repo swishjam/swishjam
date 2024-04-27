@@ -43,7 +43,7 @@ module Api
         ).get
         
         comparison_timeseries = nil
-        if params[:include_comparison]
+        if params[:include_comparison] == 'true'
           comparison_timeseries = ClickHouseQueries::Events::Timeseries.new(
             public_keys_for_requested_data_source, 
             event: event_name, 

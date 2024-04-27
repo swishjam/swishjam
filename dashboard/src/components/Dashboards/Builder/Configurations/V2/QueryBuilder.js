@@ -52,9 +52,9 @@ const AGGREGATION_OPTIONS = [
 
 export default function QueryBuilder({
   configuration = {},
-  includePropertiesDropdown = true,
   includeUserProperties = true,
   onConfigurationChange,
+  propertyIsRequired = false,
 }) {
   const [uniquePropertiesForEvent, setUniquePropertiesForEvent] = useState();
   const {
@@ -119,7 +119,7 @@ export default function QueryBuilder({
           ) : <Skeleton className='h-8 w-12' />
         }
 
-        {!includePropertiesDropdown || ['count', 'users', 'organizations'].includes(selectedAggregation)
+        {!propertyIsRequired
           ? <span className='mx-1'>event over time.</span>
           : (
             <>

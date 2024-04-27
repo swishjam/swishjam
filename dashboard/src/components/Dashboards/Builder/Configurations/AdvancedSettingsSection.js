@@ -2,6 +2,7 @@ import { ChevronDownIcon, ChevronRightIcon } from "@heroicons/react/24/outline"
 import Dropdown from '@/components/utils/Dropdown'
 import SwishjamAPI from '@/lib/api-client/swishjam-api';
 import { useState, useEffect } from 'react'
+import { CogIcon } from "lucide-react";
 
 export default function AdvancedSettingsSection({ selectedDataSource, onDataSourceSelected, includeDataSourceSelector = true, children, ...props }) {
   const [isExpanded, setIsExpanded] = useState(false);
@@ -21,10 +22,11 @@ export default function AdvancedSettingsSection({ selectedDataSource, onDataSour
     <div {...props}>
       <div className='flex items-center flex-nowrap gap-x-4 mt-4'>
         <span
-          className='text-xs whitespace-nowrap cursor-pointer hover:bg-gray-100 px-2 py-1 rounded'
+          className='text-xs whitespace-nowrap cursor-pointer hover:bg-gray-100 px-2 py-1 rounded flex items-center'
           onClick={() => setIsExpanded(!isExpanded)}
         >
           {isExpanded ? <ChevronDownIcon className='h-3 w-3 inline-block mr-1' /> : <ChevronRightIcon className='h-3 w-3 inline-block mr-1' />}
+          <CogIcon className='h-4 w-4 inline-block mr-1' />
           Additional Settings
         </span>
         <div className='border-t border-gray-400 border-dashed w-full' />
