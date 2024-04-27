@@ -32,3 +32,12 @@ export const humanizeVariable = variableName => {
 export const caseInsensitiveSortedArray = array => {
   return array.sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()))
 }
+
+export const isURL = url => {
+  try {
+    new URL(url)
+    return true
+  } catch (err) {
+    return false
+  }
+}

@@ -3,7 +3,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import EnrichedDataItem from "@/components/Profiles/EnrichedDataItem";
 import { Lock } from "lucide-react";
-import { humanizeVariable, safelyParseURL } from "@/lib/utils/misc";
+import { humanizeVariable, isURL, safelyParseURL } from "@/lib/utils/misc";
 import { Tooltipable } from '@/components/ui/tooltip'
 import { prettyDateTime } from "@/lib/utils/timeHelpers";
 import ProfileTags from "./ProfileTags";
@@ -17,8 +17,6 @@ const shouldHumanizeValue = key => (
   !key.toLowerCase().includes('email') &&
   !key.toLowerCase().includes('gclid')
 )
-
-const LINKABLE_METADATA_KEYS = ['initial_landing_page_url', 'initial_referrer_url', 'initial_referrer']
 
 export default function ProfileInformationSideBar({ userData, hasStripeIntegrationEnabled, hasProfileEnrichmentEnabled }) {
   const hasNoEnrichmentData = !userData.enrichment_data?.job_title &&
@@ -119,24 +117,17 @@ export default function ProfileInformationSideBar({ userData, hasStripeIntegrati
                     <dt className="text-sm font-medium leading-6 text-gray-900">{humanizeVariable(key)}</dt>
                     <dd className="text-sm leading-6 text-gray-700 text-right flex flex-col">
                       <span className='flex justify-end truncate'>
-                        {LINKABLE_METADATA_KEYS.includes(key)
-                          && (
-                            userData.metadata[key]
-                              ? <MaybeExternalLink href={userData.metadata[key]} newTab={true} className='truncate justify-self-end'>
-                                {userData.metadata[key]}
-                              </MaybeExternalLink>
-                              : '-'
+                        {isURL(userData.metadata[key])
+                          ? (
+                            <MaybeExternalLink href={userData.metadata[key]} newTab={true} className='truncate justify-self-end'>
+                              {userData.metadata[key]}
+                            </MaybeExternalLink>
+                          ) : (
+                            shouldHumanizeValue(key)
+                              ? [undefined, null].includes(userData.metadata[key]) ? '-' : humanizeVariable(userData.metadata[key])
+                              : userData.metadata[key].toString()
                           )
                         }
-                        {!LINKABLE_METADATA_KEYS.includes(key) && (
-                          !shouldHumanizeValue(key)
-                            ? userData.metadata[key]
-                            : humanizeVariable(
-                              [undefined, null].includes(userData.metadata[key])
-                                ? '-'
-                                : userData.metadata[key].toString()
-                            )
-                        )}
                       </span>
                     </dd>
                   </div>
