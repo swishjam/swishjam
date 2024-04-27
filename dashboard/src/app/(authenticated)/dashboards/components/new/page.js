@@ -4,6 +4,7 @@ import ComponentBuilder from "@/components/Dashboards/Builder/Configurations/V2/
 import CommonQueriesProvider from "@/providers/CommonQueriesProvider";
 import PageWithHeader from "@/components/utils/PageWithHeader"
 import { useState } from "react";
+import SwishjamAPI from "@/lib/api-client/swishjam-api";
 
 const DEFAULT_CONFIGURATIONS_DICT = {
   BarChart: {
@@ -19,7 +20,9 @@ const DEFAULT_CONFIGURATIONS_DICT = {
     showXAxis: true,
     includeTable: true,
     primaryColor: '#7dd3fc',
+    primaryColorFill: '#bde7fd',
     secondaryColor: "#878b90",
+    secondaryColorFill: "#bfc3ca",
   }
 }
 
@@ -28,6 +31,7 @@ export default function NewDashboardComponentPage() {
 
   const onFormSubmit = e => {
     e.preventDefault();
+    SwishjamAPI.DashboardComponents.create(configuration);
     // if (!selectedCalculation && includeCalculationsDropdown) {
     //   setErrorMessage('Please select a calculation to use from the event dropdown.')
     // } else if (!selectedEventName) {

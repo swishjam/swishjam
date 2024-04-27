@@ -28,7 +28,7 @@ export default function ComponentPreviewer({
   if (!event) missingRequiredFields.push('an event');
   if (propertyIsRequired && !property) missingRequiredFields.push('a property');
   return (
-    <Card>
+    <Card className={componentSpecificProps.className}>
       {missingRequiredFields.length > 0
         ? (
           <ConditionalCardWrapper

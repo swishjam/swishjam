@@ -11,7 +11,7 @@ module Api
       end
 
       def create
-        component = DashboardComponent.new(configuration: params.dig(:dashboard_component).dig(:configuration))
+        component = DashboardComponent.new(configuration: params[:configuration])
         component.workspace = current_workspace
         component.created_by_user = current_user
         if component.save

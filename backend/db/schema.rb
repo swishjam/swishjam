@@ -10,17 +10,11 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2024_04_01_151729) do
+ActiveRecord::Schema.define(version: 2024_04_27_024558) do
 
   # These are extensions that must be enabled in order to support this database
-  enable_extension "pg_graphql"
-  enable_extension "pg_stat_statements"
   enable_extension "pgcrypto"
-  enable_extension "pgjwt"
-  enable_extension "pgsodium"
   enable_extension "plpgsql"
-  enable_extension "supabase_vault"
-  enable_extension "uuid-ossp"
 
   create_table "analytics_organization_members", force: :cascade do |t|
     t.uuid "analytics_organization_profile_id", null: false
@@ -178,6 +172,7 @@ ActiveRecord::Schema.define(version: 2024_04_01_151729) do
   create_table "dashboards_dashboard_components", force: :cascade do |t|
     t.uuid "dashboard_id"
     t.uuid "dashboard_component_id"
+    t.jsonb "position_config", default: {}, null: false
     t.index ["dashboard_component_id"], name: "index_dashboards_dashboard_components_on_dashboard_component_id"
     t.index ["dashboard_id", "dashboard_component_id"], name: "index_dashboards_dashboard_components", unique: true
     t.index ["dashboard_id"], name: "index_dashboards_dashboard_components_on_dashboard_id"
@@ -530,7 +525,6 @@ ActiveRecord::Schema.define(version: 2024_04_01_151729) do
     t.datetime "updated_at", precision: 6, null: false
     t.index ["email"], name: "index_users_on_email"
     t.index ["jwt_secret_key"], name: "index_users_on_jwt_secret_key"
-    t.check_constraint "(email_change_confirm_status >= 0) AND (email_change_confirm_status <= 2)", name: "users_email_change_confirm_status_check"
   end
 
   create_table "workspace_invitations", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|

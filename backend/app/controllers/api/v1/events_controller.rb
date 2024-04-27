@@ -54,118 +54,44 @@ module Api
             end_time: comparison_end_timestamp
           ).get
         end
-
-        # case params[:aggregation]
-        # when 'count'
-        #   timeseries = ClickHouseQueries::Events::Count::Timeseries.new(
-        #     public_keys_for_requested_data_source, 
-        #     event_name: event_name, 
-        #     start_time: start_timestamp, 
-        #     end_time: end_timestamp
-        #   ).get
-          
-        #   if params[:include_comparison]
-        #     comparison_timeseries = ClickHouseQueries::Events::Count::Timeseries.new(
-        #       public_keys_for_requested_data_source, 
-        #       event_name: event_name, 
-        #       start_time: comparison_start_timestamp, 
-        #       end_time: comparison_end_timestamp
-        #     ).get
-        #   end
-        # when 'sum'
-        #   if !params[:property]
-        #     render json: { error: "Property must be provided for sum aggregation" }, status: :bad_request
-        #     return
-        #   end
-        #   timeseries = ClickHouseQueries::Events::Sum::Timeseries.new(
-        #     public_keys_for_requested_data_source, 
-        #     event_name: event_name, 
-        #     property: params[:property],
-        #     start_time: start_timestamp, 
-        #     end_time: end_timestamp
-        #   ).get
-          
-        #   if params[:include_comparison]
-        #     comparison_timeseries = ClickHouseQueries::Events::Sum::Timeseries.new(
-        #       public_keys_for_requested_data_source, 
-        #       event_name: event_name, 
-        #       property: params[:property],
-        #       start_time: comparison_start_timestamp, 
-        #       end_time: comparison_end_timestamp
-        #     ).get
-        #   end
-        # when 'average', 'avg'
-        #   if !params[:property]
-        #     render json: { error: "Property must be provided for average aggregation" }, status: :bad_request
-        #     return
-        #   end
-        #   timeseries = ClickHouseQueries::Events::Average::Timeseries.new(
-        #     public_keys_for_requested_data_source,
-        #     event_name: event_name,
-        #     property: params[:property],
-        #     start_time: start_timestamp,
-        #     end_time: end_timestamp
-        #   ).get
-
-        #   if params[:include_comparison]
-        #     comparison_timeseries = ClickHouseQueries::Events::Average::Timeseries.new(
-        #       public_keys_for_requested_data_source,
-        #       event_name: event_name,
-        #       property: params[:property],
-        #       start_time: comparison_start_timestamp,
-        #       end_time: comparison_end_timestamp
-        #     ).get
-        #   end
-        # when 'maximum', 'max'
-        #   if !params[:property]
-        #     render json: { error: "Property must be provided for maximum aggregation" }, status: :bad_request
-        #     return
-        #   end
-        #   timeseries = ClickHouseQueries::Events::Maximum::Timeseries.new(
-        #     public_keys_for_requested_data_source,
-        #     event_name: event_name,
-        #     property: params[:property],
-        #     start_time: start_timestamp,
-        #     end_time: end_timestamp
-        #   ).get
-
-        #   if params[:include_comparison]
-        #     comparison_timeseries = ClickHouseQueries::Events::Maximum::Timeseries.new(
-        #       public_keys_for_requested_data_source,
-        #       event_name: event_name,
-        #       property: params[:property],
-        #       start_time: comparison_start_timestamp,
-        #       end_time: comparison_end_timestamp
-        #     ).get
-        #   end
-        # when 'minimum', 'min'
-        #   if !params[:property]
-        #     render json: { error: "Property must be provided for minimum aggregation" }, status: :bad_request
-        #     return
-        #   end
-        #   timeseries = ClickHouseQueries::Events::Minimum::Timeseries.new(
-        #     public_keys_for_requested_data_source,
-        #     event_name: event_name,
-        #     property: params[:property],
-        #     start_time: start_timestamp,
-        #     end_time: end_timestamp
-        #   ).get
-
-        #   if params[:include_comparison]
-        #     comparison_timeseries = ClickHouseQueries::Events::Minimum::Timeseries.new(
-        #       public_keys_for_requested_data_source,
-        #       event_name: event_name,
-        #       property: params[:property],
-        #       start_time: comparison_start_timestamp,
-        #       end_time: comparison_end_timestamp
-        #     ).get
-        #   end
-        # else
-        #   render json: { error: "Invalid aggregation provided: #{params[:aggregation]}" }, status: :bad_request
-        #   return
-        # end
-
         render json: render_timeseries_json(timeseries, comparison_timeseries), status: :ok
+      end
+
+      def value
+        params[:data_source] ||= 'all'
+        event_name = URI.decode_uri_component(params[:name])
+        aggregated_column = params[:property] ? URI.decode_uri_component(params[:property]) : nil
+        query_groups = JSON.parse(params[:query_groups] || '[]')
+
+        value = ClickHouseQueries::Events::Value.new(
+          public_keys_for_requested_data_source, 
+          event: event_name, 
+          aggregation: params[:aggregation],
+          aggregated_column: aggregated_column,
+          query_groups: query_groups,
+          start_time: start_timestamp, 
+          end_time: end_timestamp
+        ).get
+        comparison_value = nil
+        if params[:include_comparison] == 'true'
+          comparison_value = ClickHouseQueries::Events::Value.new(
+            public_keys_for_requested_data_source, 
+            event: event_name, 
+            aggregation: params[:aggregation],
+            aggregated_column: aggregated_column,
+            query_groups: query_groups,
+            start_time: comparison_start_timestamp, 
+            end_time: comparison_end_timestamp
+          ).get
+        end
+        render json: { 
+          value: value, 
+          comparison_value: comparison_value,
+          start_time: start_timestamp,
+          end_time: end_timestamp,
+          comparison_start_time: comparison_start_timestamp,
+          comparison_end_time: comparison_end_timestamp,
+        }, status: :ok
       end
 
       def count

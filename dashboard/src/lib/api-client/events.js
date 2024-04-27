@@ -14,6 +14,10 @@ export class Events extends Base {
     return await this._get('/api/v1/events/unique', options)
   }
 
+  static async value(event, options = {}) {
+    return await this._get(`/api/v1/events/${window.encodeURIComponent(event)}/value`, options)
+  }
+
   static async count(event, options = {}) {
     return await this._get(`/api/v1/events/${window.encodeURIComponent(event)}/count`, options)
   }

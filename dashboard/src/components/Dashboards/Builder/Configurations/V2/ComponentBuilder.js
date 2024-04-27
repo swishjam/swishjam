@@ -14,6 +14,7 @@ import ValueCardRenderingEngine from '../../RenderingEngines/ValueCard';
 
 import BarChartAdditionalSettings from './AdditionalSettings/BarChart';
 import AreaChartAdditionalSettings from './AdditionalSettings/AreaChart';
+import ValueCardAdditionalSettings from './AdditionalSettings/ValueCard';
 
 const COMPONENT_RENDERING_ENGINE_DICT = {
   AreaChart: AreaChartRenderingEngine,
@@ -28,7 +29,7 @@ const ADDITIONAL_SETTINGS_DICT = {
   BarChart: BarChartAdditionalSettings,
   BarList: BarChartAdditionalSettings,
   PieChart: BarChartAdditionalSettings,
-  ValueCard: BarChartAdditionalSettings,
+  ValueCard: ValueCardAdditionalSettings,
 }
 
 export default function ComponentBuilder({
@@ -107,6 +108,8 @@ export default function ComponentBuilder({
       </Card>
       <ComponentPreviewer
         {...configuration}
+        includeCard={componentType === 'ValueCard'}
+        className={componentType === 'ValueCard' ? 'p-20' : ''}
         ComponentRenderingEngine={RenderingEngineForSelectedComponentType}
         whereClauseGroups={sanitizedWhereClauseGroups}
         propertyIsRequired={componentType === 'BarChart' || !['count', 'users', 'organizations'].includes(configuration.aggregation)}

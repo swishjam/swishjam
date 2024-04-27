@@ -3,8 +3,9 @@ import { RadioGroupItems } from "@/components/ui/radio-group"
 import { Switch } from "@/components/ui/switch";
 
 const COLOR_OPTIONS = [
-  { color: '#7dd3fc', fill: '#E2E8F0' },
-  { color: '#878b90', fill: "#F2FAFE" },
+  // { color: '#7dd3fc', fill: '#E2E8F0' },
+  { color: '#7dd3fc', fill: '#bde7fd' },
+  { color: '#878b90', fill: "#bfc3ca" },
   { color: '#ff0422', fill: '#FDE8E8' },
   { color: '#F5A623', fill: '#FFF6E5' },
   { color: '#F8E71C', fill: '#FFFAE5' },
@@ -18,8 +19,6 @@ const COLOR_OPTIONS = [
   { color: '#B8E986', fill: '#F0FAE9' },
   { color: '#4A4A4A', fill: '#F2F2F2' },
 ]
-
-// const COLOR_OPTIONS = ['#7dd3fc', '#ff0422', '#F5A623', '#F8E71C', '#cb8447', '#7ED321', '#417505', '#BD10E0', '#9013FE', '#4A90E2', '#50E3C2', '#B8E986', '#4A4A4A', '#878b90'];
 
 export default function AreaChartAdditionalSettings({
   onConfigurationChange,

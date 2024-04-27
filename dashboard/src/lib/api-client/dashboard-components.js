@@ -9,13 +9,17 @@ class DashboardComponents extends Base {
     return await this._patch('/api/v1/dashboard_components/bulk_update', { dashboard_components: dashboardComponents });
   }
 
-  static async create(dashboardId, dashboardComponentConfiguration) {
-    return await this._post('/api/v1/dashboard_components', {
-      dashboard_id: dashboardId,
-      dashboard_component: {
-        configuration: dashboardComponentConfiguration
-      }
-    })
+  // static async create(dashboardId, dashboardComponentConfiguration) {
+  //   return await this._post('/api/v1/dashboard_components', {
+  //     dashboard_id: dashboardId,
+  //     dashboard_component: {
+  //       configuration: dashboardComponentConfiguration
+  //     }
+  //   })
+  // }
+
+  static async create(configuration, dashboardId) {
+    return await this._post('/api/v1/dashboard_components', { configuration, dashboard_id: dashboardId });
   }
 
   static async delete(id) {

@@ -6,13 +6,14 @@ import { ArrowTrendingDownIcon, ArrowTrendingUpIcon, CalendarIcon } from "@heroi
 import ConditionalCardWrapper from "./ConditionalCardWrapper";
 
 export default function ValueCard({
-  title,
-  subtitle,
-  value,
+  includeCard = true,
+  includeComparisonData = true,
   previousValue,
   previousValueDate,
+  subtitle,
+  title,
+  value,
   valueFormatter = val => val,
-  includeCard = true
 }) {
   if ([null, undefined].includes(value)) {
     return (
@@ -30,7 +31,7 @@ export default function ValueCard({
         <div className="text-2xl font-bold cursor-default">
           {valueFormatter(value)}
         </div>
-        {changeInValue && changeInValue !== 0
+        {includeComparisonData && changeInValue && changeInValue !== 0
           ? (
             <HoverCard>
               <HoverCardTrigger className='block w-fit ml-2 pt-2'>

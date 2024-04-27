@@ -151,6 +151,7 @@ Rails.application.routes.draw do
         end
         member do
           get :count
+          get :value
           get :timeseries
         end
         resources :properties, only: [:index], param: :name, controller: :'events/properties' do
