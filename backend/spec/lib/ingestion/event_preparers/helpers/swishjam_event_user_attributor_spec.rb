@@ -219,5 +219,18 @@ describe Ingestion::EventPreparers::Helpers::SwishjamEventUserAttributor do
       anonymous_user_profile.reload
       expect(anonymous_user_profile.merged_into_analytics_user_profile_id).to eq(existing_identified_user_profile.id)
     end
+
+    it 'creates a new user profile if just an email is provided and there are no matching users with that email' do
+      existing_resend_user = FactoryBot.create(:analytics_user_profile, workspace: @workspace, user_unique_identifier: nil, email: 'resend@user.com')
+      user = described_class.new(
+        parsed_event(swishjam_api_key: @public_key, name: 'update_user', properties: { device_identifier: 'foo', user: { email: 'new@email.com' }})
+      ).get_user_profile_and_associate_to_device_if_necessary!
+      
+      expect(@workspace.analytics_user_profiles.count).to be(2)
+      expect(user.email).to eq('new@email.com')
+      expect(user.user_unique_identifier).to be(nil)
+
+      expect(existing_resend_user.reload.email).to eq('resend@user.com')
+    end
   end
 end

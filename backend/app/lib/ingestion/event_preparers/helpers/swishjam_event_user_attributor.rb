@@ -102,10 +102,14 @@ module Ingestion
         def pre_existing_user_profile_for_provided_user_data
           return @pre_existing_user_profile_for_provided_user_data if defined?(@pre_existing_user_profile_for_provided_user_data)
           @pre_existing_user_profile_for_provided_user_data ||= begin
-            return if !provided_unique_user_identifier.present? && !provided_user_properties['email'].present?
-            profile_by_identifier = workspace.analytics_user_profiles.find_by(user_unique_identifier: provided_unique_user_identifier)
-            return profile_by_identifier if profile_by_identifier.present? || provided_user_properties['email'].blank?
-            workspace.analytics_user_profiles.find_by(user_unique_identifier: nil, email: provided_user_properties['email']) 
+            if provided_unique_user_identifier.present?
+              user_by_identifier = workspace.analytics_user_profiles.find_by(user_unique_identifier: provided_unique_user_identifier)
+              return user_by_identifier if user_by_identifier.present?
+            end
+            if provided_user_properties['email'].present?
+              user_by_email = workspace.analytics_user_profiles.find_by(email: provided_user_properties['email'], user_unique_identifier: nil)
+              return user_by_email if user_by_email.present?
+            end
           end
         end
 
