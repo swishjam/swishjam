@@ -3,7 +3,6 @@ import { RadioGroupItems } from "@/components/ui/radio-group"
 import { Switch } from "@/components/ui/switch";
 
 const COLOR_OPTIONS = [
-  // { color: '#7dd3fc', fill: '#E2E8F0' },
   { color: '#7dd3fc', fill: '#bde7fd' },
   { color: '#878b90', fill: "#bfc3ca" },
   { color: '#ff0422', fill: '#FDE8E8' },

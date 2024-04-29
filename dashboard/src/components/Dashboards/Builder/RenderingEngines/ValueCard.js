@@ -35,7 +35,6 @@ export default function ValueCardRenderingEngine({
       })
   }, [event, property, aggregation, timeframe, include_comparison, JSON.stringify(whereClauseGroups.map(group => group.queries))]);
 
-  console.log('ValueCardSettings', settings)
   return (
     <ValueCard
       includeCard={false}

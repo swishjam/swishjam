@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { BsCloudSlash } from "react-icons/bs";
 import { SwishjamAPI } from "@/lib/api-client/swishjam-api";
-import LineChartWithValue from "@/components/Dashboards/Components/AreaChartWithValue";
+import AreaChartWithValue from "@/components/Dashboards/Components/AreaChartWithValue";
 import ActiveUsersLineChartWithValue from "@/components/Dashboards/Components/ActiveUsersLineChartWithValue";
 import Timefilter from "@/components/Timefilter";
 import { Button } from "@/components/ui/button";
@@ -164,20 +164,20 @@ export default function Home() {
           data={uniqueVisitorsProductChartData}
           selectedGrouping={uniqueVisitorsProductGrouping}
           valueFormatter={formatNumbers}
-          showAxis={false}
+          includeTable={false}
           onGroupingChange={(group) => {
             setUniqueVisitorsProductChartData();
             setUniqueVisitorsProductGrouping(group);
             getUniqueVisitorsProductData(timeframeFilter, group);
           }}
         />
-        <LineChartWithValue
+        <AreaChartWithValue
           title="New Users"
           value={newUsersChartData?.value}
           previousValue={newUsersChartData?.previousValue}
           previousValueDate={newUsersChartData?.previousValueDate}
-          showAxis={false}
           timeseries={newUsersChartData?.timeseries}
+          includeTable={false}
           valueFormatter={formatNumbers}
           yAxisFormatter={formatShrinkNumbers}
         />
@@ -194,7 +194,7 @@ export default function Home() {
         </Link>
       </div>
       <div className='grid grid-cols-3 gap-2 pt-2'>
-        <LineChartWithValue
+        <AreaChartWithValue
           title="MRR"
           groupedBy={mrrChart?.groupedBy}
           onGroupByChange={group => getBillingData(timeframeFilter, group)}
@@ -205,12 +205,12 @@ export default function Home() {
           yAxisFormatter={formatShrinkMoney}
           showAxis={false}
           timeseries={mrrChart?.timeseries}
+          includeTable={false}
         />
-        <LineChartWithValue
+        <AreaChartWithValue
           title="Active Subscriptions"
           groupedBy={activeSubsChart?.groupedBy}
           onGroupByChange={group => getBillingData(timeframeFilter, group)}
-          showAxis={false}
           timeseries={activeSubsChart?.timeseries}
           noDataMessage={
             <div className="text-center">
@@ -228,10 +228,11 @@ export default function Home() {
           value={activeSubsChart?.value}
           previousValue={activeSubsChart?.previousValue}
           previousValueDate={activeSubsChart?.previousValueDate}
+          includeTable={false}
           valueFormatter={formatNumbers}
           yAxisFormatter={formatShrinkNumbers}
         />
-        <LineChartWithValue
+        <AreaChartWithValue
           additionalTooltipDataFormatter={d => (
             <>
               <strong>{d.num_churned_subscriptions_in_period}</strong> of the <strong>{d.num_active_subscriptions_at_snapshot_date + d.num_new_subscriptions_in_period}</strong> subscriptions that were active on {formattedUTCMonthAndDay(d.snapshot_date)} churned between then and {formattedUTCMonthAndDay(d.date)}.
@@ -250,10 +251,10 @@ export default function Home() {
               </p>
             </>
           }
+          includeTable={false}
           groupedBy={churnRateData?.groupedBy}
           previousValue={churnRateData?.previousValue}
           previousValueDate={churnRateData?.previousValueDate}
-          showAxis={false}
           timeseries={churnRateData?.timeseries}
           title='Churn Rate'
           value={churnRateData?.value}
@@ -273,34 +274,34 @@ export default function Home() {
         </Link>
       </div>
       <div className='grid grid-cols-3 gap-2 pt-2'>
-        <LineChartWithValue
+        <AreaChartWithValue
           title="Sessions"
           value={sessionsMarketingChart?.value}
           previousValue={sessionsMarketingChart?.previousValue}
           previousValueDate={sessionsMarketingChart?.previousValueDate}
-          showAxis={true}
+          includeTable={false}
           timeseries={sessionsMarketingChart?.timeseries}
           valueFormatter={formatNumbers}
           yAxisFormatter={formatShrinkNumbers}
         />
-        <LineChartWithValue
+        <AreaChartWithValue
           title="Page Views"
           value={pageViewsTimeseriesData?.value}
           previousValue={pageViewsTimeseriesData?.previousValue}
           previousValueDate={pageViewsTimeseriesData?.previousValueDate}
-          showAxis={true}
+          includeTable={false}
           timeseries={pageViewsTimeseriesData?.timeseries}
           valueFormatter={formatNumbers}
           yAxisFormatter={formatShrinkNumbers}
         />
-        <LineChartWithValue
+        <AreaChartWithValue
           title="Unique Visitors"
           value={uniqueVisitorsMarketingChartData?.value}
           previousValue={uniqueVisitorsMarketingChartData?.previousValue}
           previousValueDate={
             uniqueVisitorsMarketingChartData?.previousValueDate
           }
-          showAxis={true}
+          includeTable={false}
           timeseries={uniqueVisitorsMarketingChartData?.timeseries}
           valueFormatter={formatNumbers}
           yAxisFormatter={formatShrinkNumbers}

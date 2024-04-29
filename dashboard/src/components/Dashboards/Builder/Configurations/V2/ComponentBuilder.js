@@ -109,7 +109,7 @@ export default function ComponentBuilder({
       <ComponentPreviewer
         {...configuration}
         includeCard={componentType === 'ValueCard'}
-        className={componentType === 'ValueCard' ? 'p-20' : ''}
+        className={componentType === 'ValueCard' ? 'py-12 px-72' : ''}
         ComponentRenderingEngine={RenderingEngineForSelectedComponentType}
         whereClauseGroups={sanitizedWhereClauseGroups}
         propertyIsRequired={componentType === 'BarChart' || !['count', 'users', 'organizations'].includes(configuration.aggregation)}
