@@ -7,7 +7,7 @@ export default function ValueCardRenderingEngine({
   subtitle,
   event,
   property,
-  aggregation,
+  aggregation_method,
   dataSource,
   timeframe,
   whereClauseGroups = [],
@@ -27,13 +27,13 @@ export default function ValueCardRenderingEngine({
     if (!event) {
       return;
     }
-    SwishjamAPI.Events.value(event, { property, query_groups: JSON.stringify(whereClauseGroups), aggregation, timeframe, dataSource, include_comparison })
+    SwishjamAPI.Events.value(event, { property, query_groups: JSON.stringify(whereClauseGroups), aggregation_method, timeframe, dataSource, include_comparison })
       .then(({ value, comparison_value, comparison_start_time }) => {
         setValue(value);
         setPreviousValue(comparison_value);
         setPreviousValueDate(comparison_start_time);
       })
-  }, [event, property, aggregation, timeframe, include_comparison, JSON.stringify(whereClauseGroups.map(group => group.queries))]);
+  }, [event, property, aggregation_method, timeframe, include_comparison, JSON.stringify(whereClauseGroups.map(group => group.queries))]);
 
   return (
     <ValueCard

@@ -15,6 +15,8 @@ import ValueCardRenderingEngine from '../../RenderingEngines/ValueCard';
 import BarChartAdditionalSettings from './AdditionalSettings/BarChart';
 import AreaChartAdditionalSettings from './AdditionalSettings/AreaChart';
 import ValueCardAdditionalSettings from './AdditionalSettings/ValueCard';
+import { Button } from '@/components/ui/button';
+import LoadingSpinner from '@/components/LoadingSpinner';
 
 const COMPONENT_RENDERING_ENGINE_DICT = {
   AreaChart: AreaChartRenderingEngine,
@@ -33,16 +35,29 @@ const ADDITIONAL_SETTINGS_DICT = {
 }
 
 export default function ComponentBuilder({
+  componentType: initialComponentType = 'BarChart',
   configuration,
   chartTypeSelector = true,
   includePropertiesDropdown = true,
   includeUserProperties = true,
+  isLoading,
   onConfigurationChange,
   onComponentTypeChange,
-  onFormSubmit,
+  onSave,
 }) {
-  const [componentType, setComponentType] = useState('BarChart');
+  const [componentType, setComponentType] = useState(initialComponentType);
   const [errorMessage, setErrorMessage] = useState();
+
+  const saveComponent = e => {
+    e.preventDefault();
+    setErrorMessage('');
+    const { title } = configuration;
+    if (!title) {
+      setErrorMessage('Enter a title for the component.');
+    } else {
+      onSave();
+    }
+  }
 
   useEffect(() => {
     onComponentTypeChange(componentType);
@@ -61,7 +76,7 @@ export default function ComponentBuilder({
   const RenderingEngineForSelectedComponentType = COMPONENT_RENDERING_ENGINE_DICT[componentType];
 
   return (
-    <form onSubmit={onFormSubmit}>
+    <form onSubmit={saveComponent}>
       {chartTypeSelector && (
         <ChartTypeSelector
           className='mb-2'
@@ -89,7 +104,7 @@ export default function ComponentBuilder({
           includePropertiesDropdown={includePropertiesDropdown}
           includeUserProperties={includeUserProperties}
           onConfigurationChange={updateConfiguration}
-          propertyIsRequired={componentType === 'BarChart' || !['count', 'users', 'organizations'].includes(configuration.aggregation)}
+          propertyIsRequired={componentType === 'BarChart' || !['count', 'users', 'organizations'].includes(configuration.aggregation_method)}
         />
         <AdvancedSettingsSection
           className='mb-2'
@@ -112,17 +127,15 @@ export default function ComponentBuilder({
         className={componentType === 'ValueCard' ? 'py-12 px-72' : ''}
         ComponentRenderingEngine={RenderingEngineForSelectedComponentType}
         whereClauseGroups={sanitizedWhereClauseGroups}
-        propertyIsRequired={componentType === 'BarChart' || !['count', 'users', 'organizations'].includes(configuration.aggregation)}
+        propertyIsRequired={componentType === 'BarChart' || !['count', 'users', 'organizations'].includes(configuration.aggregation_method)}
       />
       <div className='border-t border-gray-200 py-4 mt-4'>
-        {errorMessage && <p className='text-red-500 text-sm mb-2'>{errorMessage}</p>}
+        {errorMessage && <p className='text-red-500 text-sm font-medium text-center mb-2'>{errorMessage}</p>}
         <div className='flex justify-end'>
-          <button
-            className='ml-2 flex justify-center items-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white focus:outline-none focus:ring-2 bg-swishjam hover:bg-swishjam-dark'
-            type='submit'
-          >
-            Save
-          </button>
+          <Button variant='swishjam' type='submit' disabled={isLoading}>
+            {isLoading && <LoadingSpinner center={true} color='white' />}
+            {!isLoading && 'Save'}
+          </Button>
         </div>
       </div>
     </form>

@@ -155,6 +155,8 @@ ActiveRecord::Schema.define(version: 2024_04_27_024558) do
     t.jsonb "configuration"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.string "title"
+    t.string "subtitle"
     t.index ["created_by_user_id"], name: "index_dashboard_components_on_created_by_user_id"
     t.index ["workspace_id"], name: "index_dashboard_components_on_workspace_id"
   end

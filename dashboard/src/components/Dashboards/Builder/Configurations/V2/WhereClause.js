@@ -8,8 +8,6 @@ export default function WhereClause({ query, propertyOptions, onUpdate, leadingT
   const [queryValue, setQueryValue] = useState(query.value);
   const debounceTimeoutRef = useRef(null);
 
-  const isComplete = query.property && query.operator && (query.value || ['is_defined', 'is_not_defined'].includes(query.operator));
-
   const handleQueryValueChange = (value, query) => {
     clearTimeout(debounceTimeoutRef.current);
     setQueryValue(value);

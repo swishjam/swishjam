@@ -18,8 +18,8 @@ class DashboardComponents extends Base {
   //   })
   // }
 
-  static async create(configuration, dashboardId) {
-    return await this._post('/api/v1/dashboard_components', { configuration, dashboard_id: dashboardId });
+  static async create({ title, subtitle, configuration, dashboardId }) {
+    return await this._post('/api/v1/dashboard_components', { title, subtitle, configuration, dashboard_id: dashboardId });
   }
 
   static async delete(id) {

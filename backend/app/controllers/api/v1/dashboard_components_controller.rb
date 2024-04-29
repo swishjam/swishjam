@@ -11,9 +11,12 @@ module Api
       end
 
       def create
-        component = DashboardComponent.new(configuration: params[:configuration])
-        component.workspace = current_workspace
-        component.created_by_user = current_user
+        component = current_workspace.dashboard_components.new(
+          title: params[:title], 
+          subtitle: params[:subtitle], 
+          configuration: (params[:configuration] || {}).as_json,
+          created_by_user: current_user,
+        )
         if component.save
           if params[:dashboard_id]
             dashboard = current_workspace.dashboards.find(params[:dashboard_id])
@@ -78,7 +81,7 @@ module Api
       private
 
       def component_params
-        params.require(:dashboard_component).permit(:configuration)
+        params.require(:dashboard_component).permit(:title, :subtitle, :configuration)
       end
     end
   end

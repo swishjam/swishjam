@@ -7,7 +7,7 @@ export default function AreaChartRenderingEngine({
   subtitle,
   event,
   property,
-  aggregation,
+  aggregation_method,
   dataSource,
   timeframe,
   whereClauseGroups = [],
@@ -19,7 +19,7 @@ export default function AreaChartRenderingEngine({
 
   useEffect(() => {
     setTimeseriesData();
-    SwishjamAPI.Events.timeseries(event, property, { query_groups: JSON.stringify(whereClauseGroups), aggregation, timeframe, dataSource, include_comparison }).then(
+    SwishjamAPI.Events.timeseries(event, property, { query_groups: JSON.stringify(whereClauseGroups), aggregation_method, timeframe, dataSource, include_comparison }).then(
       ({ timeseries, comparison_timeseries, grouped_by }) => {
         if (comparison_timeseries) {
           if (comparison_timeseries.length > timeseries.length) {
@@ -39,7 +39,7 @@ export default function AreaChartRenderingEngine({
           setTimeseriesData({ groupedBy: grouped_by, timeseries });
         }
       });
-  }, [event, property, aggregation, timeframe, include_comparison, JSON.stringify(whereClauseGroups.map(group => group.queries))]);
+  }, [event, property, aggregation_method, timeframe, include_comparison, JSON.stringify(whereClauseGroups.map(group => group.queries))]);
 
   return (
     <AreaChartWithValue

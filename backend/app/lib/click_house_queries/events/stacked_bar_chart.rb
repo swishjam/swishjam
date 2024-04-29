@@ -8,7 +8,7 @@ module ClickHouseQueries
         public_keys, 
         event:, 
         property:, 
-        aggregation: 'count',
+        aggregation_method: 'count',
         start_time:, 
         end_time:, 
         query_groups: [],
@@ -18,12 +18,13 @@ module ClickHouseQueries
         count_distinct_property: nil,
         property_alias: nil, 
         max_ranking_to_not_be_considered_other: 10,
-        exclude_empty_property_values: true
+        exclude_empty_values: true,
+        empty_value_placeholder: 'EMPTY'
       )
         @public_keys = public_keys.is_a?(Array) ? public_keys : [public_keys]
         @event = event
         @property = property
-        @aggregation = aggregation
+        @aggregation_method = aggregation_method
         @query_groups = query_groups
         @group_by = group_by || derived_group_by(start_ts: start_time, end_ts: end_time)
         @start_time, @end_time = rounded_timestamps(start_ts: start_time, end_ts: end_time, group_by: @group_by)
@@ -32,7 +33,8 @@ module ClickHouseQueries
         @property_alias = property_alias || property.to_s.gsub(/user\./, '').gsub(/\s|\./, '_')
         @count_distinct_property = count_distinct_property
         @max_ranking_to_not_be_considered_other = max_ranking_to_not_be_considered_other
-        @exclude_empty_property_values = exclude_empty_property_values
+        @exclude_empty_values = exclude_empty_values
+        @empty_value_placeholder = empty_value_placeholder
       end
 
       def get
@@ -45,7 +47,7 @@ module ClickHouseQueries
           group_by: @group_by, 
           key_method: @property_alias,
           value_method: :count, 
-          # value_method: @aggregation.to_sym,
+          # value_method: @aggregation_method.to_sym,
           date_method: :group_by_date,
         )
       end
@@ -55,24 +57,22 @@ module ClickHouseQueries
           WITH ranked_properties AS (
             SELECT
               #{select_clause_property_portion} AS #{@property_alias},
-              CAST(COUNT(DISTINCT #{count_distinct_clause}) AS INT) as total_count,
-              RANK() OVER (ORDER BY COUNT() DESC) as rank
+              CAST(COUNT(DISTINCT #{count_distinct_clause}) AS INT) AS total_count,
+              DENSE_RANK() OVER (ORDER BY COUNT() DESC, #{@property_alias} ASC) AS rank,
+              IF (rank <= #{@max_ranking_to_not_be_considered_other}, #{@property_alias}, 'Other') AS #{@property_alias}_or_other
             FROM events AS e
             WHERE
               swishjam_api_key IN #{formatted_in_clause(@public_keys)} AND
               occurred_at BETWEEN '#{formatted_time(@start_time)}' AND '#{formatted_time(@end_time)}' AND
               name = '#{@event}' AND
               #{ClickHouseQueries::FilterHelpers::DashboardComponentWhereClause.where_clause_statements(@query_groups)}
+              #{@exclude_empty_values ?  " AND notEmpty(#{@property_alias})" : ''}
             GROUP BY #{@property_alias}
           )
           SELECT
-            CASE
-              WHEN rr.rank <= #{@max_ranking_to_not_be_considered_other} THEN #{select_clause_property_portion}
-              ELSE 'Other'
-            END AS #{@property_alias},
+            IF(empty(rr.#{@property_alias}_or_other), '#{@empty_value_placeholder}', rr.#{@property_alias}_or_other) AS #{@property_alias},
             DATE_TRUNC('#{@group_by}', e.occurred_at) AS group_by_date,
-            CAST(COUNT(DISTINCT #{count_distinct_clause}) AS INT) as count,
-            #{select_clause_for_aggregation_method} AS #{@aggregation}
+            #{select_clause_for_aggregation_method} AS #{@aggregation_method}
           FROM events AS e
           JOIN ranked_properties AS rr ON #{select_clause_property_portion} = rr.#{@property_alias}
           WHERE
@@ -80,9 +80,9 @@ module ClickHouseQueries
             e.occurred_at BETWEEN '#{formatted_time(@start_time)}' AND '#{formatted_time(@end_time)}' AND
             e.name = '#{@event}' AND
             #{ClickHouseQueries::FilterHelpers::DashboardComponentWhereClause.where_clause_statements(@query_groups)}
-            #{@exclude_empty_property_values ?  " AND notEmpty(#{@property_alias})" : ''}
+            #{@exclude_empty_values ?  " AND notEmpty(#{@property_alias})" : ''}
           GROUP BY group_by_date, #{@property_alias}
-          ORDER BY group_by_date, #{@aggregation}
+          ORDER BY group_by_date, #{@aggregation_method}
         SQL
       end
 
@@ -92,7 +92,7 @@ module ClickHouseQueries
 
       def select_clause_for_aggregation_method
         aggregated_property_statement_num = "JSONExtractFloat(#{@property.starts_with?('user.') ? "e.user_properties" : "e.properties"}, '#{@property.gsub('user.', '')}')"
-        case @aggregation
+        case @aggregation_method
         when 'count'
           "CAST(COUNT(DISTINCT #{count_distinct_clause}) AS INT)"
         when 'average', 'avg'
@@ -104,7 +104,7 @@ module ClickHouseQueries
         when 'maximum', 'max'
           "MAX(#{aggregated_property_statement_num})"
         else
-          raise ArgumentError, "Unsupported aggregation method: #{@aggregation}"
+          raise ArgumentError, "Unsupported aggregation_method method: #{@aggregation_method}"
         end
       end
 

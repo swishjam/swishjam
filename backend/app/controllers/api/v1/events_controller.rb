@@ -28,7 +28,7 @@ module Api
 
       def timeseries
         params[:data_source] ||= 'all'
-        params[:aggregation] ||= 'count'
+        params[:aggregation_method] ||= 'count'
         event_name = URI.decode_uri_component(params[:name])
         query_groups = JSON.parse(params[:query_groups] || '[]')
 
@@ -37,7 +37,7 @@ module Api
           event: event_name, 
           query_groups: query_groups,
           aggregated_column: params[:property],
-          aggregation: params[:aggregation],
+          aggregation_method: params[:aggregation_method],
           start_time: start_timestamp, 
           end_time: end_timestamp
         ).get
@@ -49,7 +49,7 @@ module Api
             event: event_name, 
             query_groups: query_groups,
             aggregated_column: params[:property],
-            aggregation: params[:aggregation],
+            aggregation_method: params[:aggregation_method],
             start_time: comparison_start_timestamp, 
             end_time: comparison_end_timestamp
           ).get
@@ -57,6 +57,7 @@ module Api
         render json: render_timeseries_json(timeseries, comparison_timeseries), status: :ok
       end
 
+      # DEPRECATED FOR data_viz#value
       def value
         params[:data_source] ||= 'all'
         event_name = URI.decode_uri_component(params[:name])
@@ -66,7 +67,7 @@ module Api
         value = ClickHouseQueries::Events::Value.new(
           public_keys_for_requested_data_source, 
           event: event_name, 
-          aggregation: params[:aggregation],
+          aggregation_method: params[:aggregation_method],
           aggregated_column: aggregated_column,
           query_groups: query_groups,
           start_time: start_timestamp, 
@@ -77,7 +78,7 @@ module Api
           comparison_value = ClickHouseQueries::Events::Value.new(
             public_keys_for_requested_data_source, 
             event: event_name, 
-            aggregation: params[:aggregation],
+            aggregation_method: params[:aggregation_method],
             aggregated_column: aggregated_column,
             query_groups: query_groups,
             start_time: comparison_start_timestamp, 

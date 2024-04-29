@@ -10,7 +10,7 @@ module Api
             property: Analytics::Event::ReservedPropertyNames.REFERRER,
             start_time: start_timestamp,
             end_time: end_timestamp,
-            exclude_empty_property_values: false, # an empty referrer is a direct visit
+            exclude_empty_values: false, # an empty referrer is a direct visit
           ).get
           render json: {
             data: chart_data.filled_in_data,

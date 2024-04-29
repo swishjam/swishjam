@@ -10,6 +10,132 @@ import EmptyState from '@/components/EmptyState';
 import { Skeleton } from "@/components/ui/skeleton"
 import { useEffect, useRef, useState } from 'react';
 
+const CustomTooltip = ({ payload, label, dateFormatter, getColorForName, yAxisFormatter, xAxisKey }) => {
+  if (!payload || payload.length === 0) return null;
+  const data = payload[0]?.payload || {};
+  const keysInTooltip = Object.keys(data).filter(key => key !== xAxisKey)
+
+  return (
+    <Card className="z-[50000] bg-white">
+      <CardContent className="py-2">
+        <span className='block text-sm font-medium'>{dateFormatter(label)}</span>
+        {keysInTooltip.map(key => {
+          const color = getColorForName(key);
+          return (
+            <div key={key} className='flex items-center mt-1'>
+              <div
+                className='transition-all rounded-full h-3 w-3 mr-2'
+                style={{ backgroundColor: color }}
+              />
+              <span className='transition-all text-sm text-gray-700'>
+                {key}: {yAxisFormatter(data[key])}
+              </span>
+            </div>
+          )
+        })}
+      </CardContent>
+    </Card>
+  );
+}
+
+
+const BarChartContent = ({
+  data,
+  dateFormatter,
+  getColorForName,
+  height,
+  includeGridLines,
+  includeLegendOrTable,
+  includeXAxis,
+  includeYAxis,
+  noDataMessage,
+  stackOffset,
+  tableTitle,
+  uniqueKeys,
+  useTableInsteadOfLegend,
+  valueFormatter,
+  xAxisKey,
+  yAxisFormatter,
+}) => (
+  data.length === 0
+    ? <EmptyState msg={noDataMessage} />
+    : (
+      <>
+        <div className={`flex align-center justify-center my-6 ${height}`}>
+          <ResponsiveContainer width="100%" height='100%'>
+            <BarChart data={data} margin={{ top: 0, right: 0, left: 0, bottom: 0 }} stackOffset={stackOffset}>
+              {includeGridLines && <CartesianGrid strokeDasharray="4 4" vertical={false} opacity={0.75} />}
+              {includeXAxis && <XAxis dataKey={xAxisKey} tickFormatter={dateFormatter} angle={0} tick={{ fontSize: '12px' }} />}
+              {includeYAxis &&
+                <YAxis
+                  width={40}
+                  tick={{ fontSize: '12px', fill: "#9CA3AF" }}
+                  tickFormatter={yAxisFormatter}
+                  allowDecimals={false}
+                  axisLine={false}
+                  tickLine={false}
+                  padding={{ top: 0, bottom: 0, left: 0, right: 20 }}
+                />
+              }
+              {includeLegendOrTable && !useTableInsteadOfLegend && (
+                <Legend
+                  content={({ payload }) => (
+                    <div className='flex flex-wrap items-center justify-center gap-2 border border-gray-200 px-4 py-2 mt-4 rounded max-h-24 overflow-scroll'>
+                      {payload.map((entry, index) => (
+                        <div key={index} className='inline-flex items-center justify-center w-fit rounded-md transition-all px-2 py-1'>
+                          <div className='transition-all rounded-full h-2 w-2 mr-2' style={{ backgroundColor: entry.color }} />
+                          <span className='transition-all text-xs text-gray-700'>
+                            {valueFormatter(entry.value)}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                />
+              )}
+              <Tooltip
+                // animationBegin={200}
+                // animationDuration={400}
+                // animationEasing='ease-in-out'
+                isAnimationActive={false}
+                content={
+                  <CustomTooltip
+                    dateFormatter={dateFormatter}
+                    getColorForName={getColorForName}
+                    yAxisFormatter={yAxisFormatter}
+                    xAxisKey={xAxisKey}
+                  />
+                }
+                allowEscapeViewBox={{ x: false, y: true }}
+                wrapperStyle={{ outline: "none", zIndex: 1000 }}
+              />
+              {uniqueKeys.map((key, i, arr) => {
+                return (
+                  <Bar
+                    key={i}
+                    dataKey={key}
+                    stackId='a'
+                    fill={getColorForName(key)}
+                  />
+                )
+              })}
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+        {includeLegendOrTable && useTableInsteadOfLegend && (
+          <div className='w-full ml-4'>
+            <BarChartTable
+              className='h-auto'
+              valueHeader={tableTitle}
+              barChartData={data}
+              getColor={getColorForName}
+            />
+          </div>
+        )}
+      </>
+    )
+)
+
 export default function BarChartComponent({
   className,
   colors = DEFAULT_COLORS,
@@ -47,7 +173,6 @@ export default function BarChartComponent({
     setIncludeLegendOrTable(showLegend);
     setUseTableInsteadOfLegend(showTableInsteadOfLegend);
   }, [showXAxis, showYAxis, showGridLines, showLegend, showTableInsteadOfLegend])
-  console.log('useTableInsteadOfLegend', useTableInsteadOfLegend)
 
   if ([null, undefined].includes(data)) {
     return (
@@ -81,34 +206,6 @@ export default function BarChartComponent({
     return colorDict.current[name];
   }
 
-  const CustomTooltip = ({ payload, label }) => {
-    if (!payload || payload.length === 0) return null;
-    const data = payload[0]?.payload || {};
-    const keysInTooltip = Object.keys(data).filter(key => key !== xAxisKey)
-
-    return (
-      <Card className="z-[50000] bg-white">
-        <CardContent className="py-2">
-          <span className='block text-sm font-medium'>{dateFormatter(label)}</span>
-          {keysInTooltip.map(key => {
-            const color = getColorForName(key);
-            return (
-              <div key={key} className='flex items-center mt-1'>
-                <div
-                  className='transition-all rounded-full h-3 w-3 mr-2'
-                  style={{ backgroundColor: color }}
-                />
-                <span className='transition-all text-sm text-gray-700'>
-                  {key}: {yAxisFormatter(data[key])}
-                </span>
-              </div>
-            )
-          })}
-        </CardContent>
-      </Card>
-    );
-  }
-
   return (
     <ConditionalCardWrapper
       className={className}
@@ -125,77 +222,26 @@ export default function BarChartComponent({
       title={title}
       subtitle={subtitle}
     >
-      {data.length === 0
-        ? <EmptyState msg={noDataMessage} />
-        : (
-          <>
-            <div className={`flex align-center justify-center my-6 ${height}`}>
-              <ResponsiveContainer width="100%" height='100%'>
-                <BarChart data={data} margin={{ top: 0, right: 0, left: 0, bottom: 0 }} stackOffset={stackOffset}>
-                  {includeGridLines && <CartesianGrid strokeDasharray="4 4" vertical={false} opacity={0.75} />}
-                  {includeXAxis && <XAxis dataKey={xAxisKey} tickFormatter={dateFormatter} angle={0} tick={{ fontSize: '12px' }} />}
-                  {includeYAxis &&
-                    <YAxis
-                      width={40}
-                      tick={{ fontSize: '12px', fill: "#9CA3AF" }}
-                      tickFormatter={yAxisFormatter}
-                      allowDecimals={false}
-                      axisLine={false}
-                      tickLine={false}
-                      padding={{ top: 0, bottom: 0, left: 0, right: 20 }}
-                    />
-                  }
-                  {includeLegendOrTable && !useTableInsteadOfLegend && (
-                    <Legend
-                      content={({ payload }) => (
-                        <div className='flex flex-wrap items-center justify-center gap-2 border border-gray-200 px-4 py-2 mt-4 rounded max-h-24 overflow-scroll'>
-                          {payload.map((entry, index) => (
-                            <div key={index} className='inline-flex items-center justify-center w-fit rounded-md transition-all px-2 py-1'>
-                              <div className='transition-all rounded-full h-2 w-2 mr-2' style={{ backgroundColor: entry.color }} />
-                              <span className='transition-all text-xs text-gray-700'>
-                                {valueFormatter(entry.value)}
-                              </span>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                    />
-                  )}
-                  <Tooltip
-                    // animationBegin={200}
-                    // animationDuration={400}
-                    // animationEasing='ease-in-out'
-                    isAnimationActive={false}
-                    content={<CustomTooltip />}
-                    allowEscapeViewBox={{ x: false, y: true }}
-                    wrapperStyle={{ outline: "none", zIndex: 1000 }}
-                  />
-                  {uniqueKeys.map((key, i, arr) => {
-                    return (
-                      <Bar
-                        key={i}
-                        dataKey={key}
-                        stackId='a'
-                        fill={getColorForName(key)}
-                      />
-                    )
-                  })}
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-            {includeLegendOrTable && useTableInsteadOfLegend && (
-              <div className='w-full ml-4'>
-                <BarChartTable
-                  className='h-auto'
-                  headers={[tableTitle || 'Value', 'Total Count']}
-                  barChartData={data}
-                  getColor={getColorForName}
-                />
-              </div>
-            )}
-          </>
-        )
-      }
+      <BarChartContent
+        data={data}
+        dateFormatter={dateFormatter}
+        getColorForName={getColorForName}
+        height={height}
+        includeGridLines={includeGridLines}
+        includeLegendOrTable={includeLegendOrTable}
+        includeXAxis={includeXAxis}
+        includeYAxis={includeYAxis}
+        noDataMessage={noDataMessage}
+        stackOffset={stackOffset}
+        tableTitle={tableTitle}
+        uniqueKeys={uniqueKeys}
+        useTableInsteadOfLegend={useTableInsteadOfLegend}
+        valueFormatter={valueFormatter}
+        xAxisKey={xAxisKey}
+        yAxisFormatter={yAxisFormatter}
+      />
     </ConditionalCardWrapper>
   )
 }
+
+

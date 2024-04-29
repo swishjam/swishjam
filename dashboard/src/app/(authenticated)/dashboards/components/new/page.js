@@ -5,6 +5,8 @@ import CommonQueriesProvider from "@/providers/CommonQueriesProvider";
 import PageWithHeader from "@/components/utils/PageWithHeader"
 import { useState } from "react";
 import SwishjamAPI from "@/lib/api-client/swishjam-api";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 const DEFAULT_CONFIGURATIONS_DICT = {
   BarChart: {
@@ -13,6 +15,9 @@ const DEFAULT_CONFIGURATIONS_DICT = {
     showTableInsteadOfLegend: true,
     showXAxis: true,
     showYAxis: true,
+    maxRankingToNotBeConsideredOther: 10,
+    excludeEmptyValues: false,
+    emptyValuePlaceholder: 'EMPTY',
   },
   AreaChart: {
     showGridLines: true,
@@ -27,20 +32,25 @@ const DEFAULT_CONFIGURATIONS_DICT = {
 }
 
 export default function NewDashboardComponentPage() {
-  const [configuration, setConfiguration] = useState({});
+  const [configuration, setConfiguration] = useState(DEFAULT_CONFIGURATIONS_DICT.BarChart);
+  const [componentType, setComponentType] = useState('BarChart');
+  const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
 
-  const onFormSubmit = e => {
-    e.preventDefault();
-    SwishjamAPI.DashboardComponents.create(configuration);
-    // if (!selectedCalculation && includeCalculationsDropdown) {
-    //   setErrorMessage('Please select a calculation to use from the event dropdown.')
-    // } else if (!selectedEventName) {
-    //   setErrorMessage('Please select an event to chart from the event dropdown.')
-    // } else if (selectedCalculation !== 'count' && !selectedPropertyName) {
-    //   setErrorMessage('Please select a property to use from the property dropdown.')
-    // } else {
-    //   // onSave({ title, subtitle, event: selectedEventName, property: selectedPropertyName, calculation: selectedCalculation, dataSource: dataSourceToPullFrom });
-    // }
+  const onSave = async e => {
+    setIsLoading(true);
+    const { title, subtitle, ...rest } = configuration;
+    const response = await SwishjamAPI.DashboardComponents.create({ title, subtitle, configuration: { ...rest, type: componentType } });
+    if (response.error) {
+      setIsLoading(false);
+      toast.error('Failed to create dashboard component', {
+        description: response.error,
+        duration: 15_000,
+      })
+    } else {
+      toast.success('Dashboard component created successfully');
+      router.push(`/dashboards/components/${response.id}`);
+    }
   }
 
   const onConfigurationChange = async configuration => {
@@ -52,9 +62,14 @@ export default function NewDashboardComponentPage() {
       <PageWithHeader title='New Dashboard Component'>
         <ComponentBuilder
           configuration={configuration}
+          componentType='BarChart'
+          isLoading={isLoading}
           onConfigurationChange={onConfigurationChange}
-          onFormSubmit={onFormSubmit}
-          onComponentTypeChange={type => setConfiguration({ ...configuration, ...DEFAULT_CONFIGURATIONS_DICT[type] })}
+          onSave={onSave}
+          onComponentTypeChange={type => {
+            setComponentType(type);
+            setConfiguration({ ...configuration, ...DEFAULT_CONFIGURATIONS_DICT[type] });
+          }}
         />
       </PageWithHeader>
     </CommonQueriesProvider>

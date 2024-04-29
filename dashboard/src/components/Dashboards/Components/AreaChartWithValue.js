@@ -219,19 +219,27 @@ export default function AreaChartWithValue({
           )
         }
         {includeTable && (
-          <BarChartTable
-            className='h-auto mt-4'
-            headers={[tableTitle || 'Value', 'Total Count']}
-            barChartData={timeseries}
-            getColor={seriesType => seriesType === valueKey ? primaryColor : secondaryColor}
-            countDisplayFormatter={valueFormatter}
-            valueDisplayFormatter={areaType => (
-              areaType === valueKey
-                ? `Current period (${dateFormatter(timeseries[0]?.[dateKey])} - ${dateFormatter(timeseries[timeseries.length - 1]?.[dateKey])})`
-                : `Comparison period (${dateFormatter(timeseries[0]?.[comparisonDateKey])} - ${dateFormatter(timeseries[timeseries.length - 1]?.[comparisonDateKey])})`)
-            }
-            ignoredKeys={[dateKey, comparisonDateKey]}
-          />
+          <>
+            <BarChartTable
+              className='h-auto mt-4 rounded-t-sm rounded-b-none'
+              valueHeader={tableTitle}
+              barChartData={timeseries}
+              getColor={seriesType => seriesType === valueKey ? primaryColor : secondaryColor}
+              rowValueFormatter={valueFormatter}
+              rowTitleFormatter={areaType => areaType === valueKey ? 'Current period' : 'Comparison period'}
+              ignoredRowKeys={[comparisonValueKey, comparisonDateKey]}
+            />
+            <BarChartTable
+              className='h-auto border-t-0 rounded-b-sm rounded-t-none'
+              valueHeader={tableTitle}
+              barChartData={timeseries}
+              getColor={seriesType => seriesType === valueKey ? primaryColor : secondaryColor}
+              rowValueFormatter={valueFormatter}
+              rowTitleFormatter={areaType => areaType === valueKey ? 'Current period' : 'Comparison period'}
+              ignoredRowKeys={[valueKey, dateKey]}
+              dateKey={[comparisonDateKey]}
+            />
+          </>
         )}
       </ConditionalCardWrapper>
     </>

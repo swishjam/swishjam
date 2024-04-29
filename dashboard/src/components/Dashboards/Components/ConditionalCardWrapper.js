@@ -67,8 +67,8 @@ export default function ConditionalCardWrapper({
             {includeSettingsDropdown && settings && <SettingsDropdown options={settings} />}
           </div>
         </div>
-        {subtitle && <h2 className='text-xs text-gray-500'>{subtitle}</h2>}
       </CardTitle>
+      {subtitle && <h2 className='text-xs text-gray-500'>{subtitle}</h2>}
     </CardHeader>
   </>
 

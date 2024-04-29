@@ -8,7 +8,7 @@ module ClickHouseQueries
         event:, 
         start_time:, 
         end_time:, 
-        aggregation: 'count',
+        aggregation_method: 'count',
         aggregated_column: nil,
         query_groups: [],
         workspace_id: nil, 
@@ -22,9 +22,9 @@ module ClickHouseQueries
         @event = event
         @query_groups = query_groups
         # one of count, users, organizations, average, sum, minimum, maximum
-        @aggregation_method = aggregation
-        # if `aggregation` is `count`, `users`, or `organizations` (ie: a count-based query), then `aggregated_column` is not required
-        # if `aggregation` is `average`, `sum`, `minimum`, or `maximum`, then `aggregated_column` is required because we need to know 
+        @aggregation_method = aggregation_method
+        # if `aggregation_method` is `count`, `users`, or `organizations` (ie: a count-based query), then `aggregated_column` is not required
+        # if `aggregation_method` is `average`, `sum`, `minimum`, or `maximum`, then `aggregated_column` is required because we need to know 
         # which event or user property to calculate against
         @aggregated_column = aggregated_column
         # we only use the `distinct_count_property` for "count-based" queries (ie: count of distinct events, users, organizations)
@@ -73,7 +73,7 @@ module ClickHouseQueries
         when 'maximum', 'max'
           "CAST(MAX(JSONExtractFloat(#{json_extract_options})) AS FLOAT)"
         else
-          raise ArgumentError, "Unsupported aggregation: #{@aggregation_method}"
+          raise ArgumentError, "Unsupported aggregation_method: #{@aggregation_method}"
         end
       end
 
@@ -100,7 +100,7 @@ module ClickHouseQueries
             "JSONExtractString(e.properties, '#{@distinct_count_property}')"
           end
         else
-          # it's a math-based aggregation, so aggregated_column is defined/required/validated
+          # it's a math-based aggregation_method, so aggregated_column is defined/required/validated
           if @aggregated_column.starts_with?('user.')
             "JSONExtractString(e.user_properties, '#{@aggregated_column.gsub('user.', '')}')"
           else
@@ -179,7 +179,7 @@ module ClickHouseQueries
           raise ArgumentError, '`workspace_id` is required when `user_profile_id` is provided.'
         end
         if @aggregated_column.nil? && !is_distinct_count_query?
-          raise ArgumentError, '`aggregated_column` is required when `aggregation` is not `count`, `users`, or `organizations`.'
+          raise ArgumentError, '`aggregated_column` is required when `aggregation_method` is not `count`, `users`, or `organizations`.'
         end
       end
 

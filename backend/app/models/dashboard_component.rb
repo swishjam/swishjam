@@ -10,9 +10,11 @@ class DashboardComponent < Transactional
   private
 
   def has_valid_configuration
-    errors.add(:configuration, "configuration must have an `x` attribute.") if configuration['x'].blank?
-    errors.add(:configuration, "configuration must have an `y` attribute.") if configuration['y'].blank?
-    errors.add(:configuration, "configuration must have an `w` attribute.") if configuration['w'].blank?
-    errors.add(:configuration, "configuration must have an `h` attribute.") if configuration['h'].blank?
+    # TODO: move to dashboard_dashboard_component
+    errors.add(:configuration, "configuration must have an `type` attribute.") if configuration['type'].blank?
+    # errors.add(:configuration, "configuration must have an `x` attribute.") if configuration['x'].blank?
+    # errors.add(:configuration, "configuration must have an `y` attribute.") if configuration['y'].blank?
+    # errors.add(:configuration, "configuration must have an `w` attribute.") if configuration['w'].blank?
+    # errors.add(:configuration, "configuration must have an `h` attribute.") if configuration['h'].blank?
   end
 end

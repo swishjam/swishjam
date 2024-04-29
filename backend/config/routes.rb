@@ -50,6 +50,15 @@ Rails.application.routes.draw do
         end
       end
 
+      resources :data_viz, only: [] do
+        collection do
+          get :timeseries
+          get :stacked_bar_chart
+          get :value
+          get :pie_chart
+        end
+      end
+
       ################################
       ## BEGIN ORGANIZATIONS ROUTES ##
       ################################

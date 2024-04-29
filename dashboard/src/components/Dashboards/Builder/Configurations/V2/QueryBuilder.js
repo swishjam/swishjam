@@ -58,7 +58,7 @@ export default function QueryBuilder({
 }) {
   const [uniquePropertiesForEvent, setUniquePropertiesForEvent] = useState();
   const {
-    aggregation: selectedAggregation,
+    aggregation_method: selectedAggregation,
     event: selectedEvent,
     property: selectedEventProperty,
     whereClauseGroups = []
@@ -92,7 +92,7 @@ export default function QueryBuilder({
                 </div>
               }
               selectedValue={selectedAggregation}
-              onSelectionChange={aggregation => onConfigurationChange({ aggregation })}
+              onSelectionChange={aggregation_method => onConfigurationChange({ aggregation_method })}
               options={formattedAggregationOptions}
             />
           </div>

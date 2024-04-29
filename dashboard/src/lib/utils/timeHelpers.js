@@ -20,7 +20,11 @@ const prettyDateTime = (date, opts = {}) => {
   const milliseconds = opts.milliseconds || 'none';
   const d = new Date(date);
   if (hour === 'none' && minute === 'none' && seconds === 'none') {
-    return `${d.toLocaleDateString('en-US', { month, day, year })}`
+    if (year === 'none') {
+      return `${d.toLocaleDateString('en-US', { month, day })}`.replace(d.getFullYear(), '')
+    } else {
+      return `${d.toLocaleDateString('en-US', { month, day, year })}`
+    }
   } else {
     if (month === 'none' && day === 'none' && year === 'none') {
       if (seconds === 'none') {

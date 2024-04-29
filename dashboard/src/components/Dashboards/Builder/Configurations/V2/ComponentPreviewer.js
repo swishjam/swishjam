@@ -12,7 +12,7 @@ const MissingDataMessage = ({ className, text }) => (
 )
 
 export default function ComponentPreviewer({
-  aggregation,
+  aggregation_method,
   dataSource,
   event,
   property,
@@ -24,7 +24,7 @@ export default function ComponentPreviewer({
   ...componentSpecificProps
 }) {
   let missingRequiredFields = [];
-  if (!aggregation) missingRequiredFields.push('an aggregation method');
+  if (!aggregation_method) missingRequiredFields.push('an aggregation_method method');
   if (!event) missingRequiredFields.push('an event');
   if (propertyIsRequired && !property) missingRequiredFields.push('a property');
   return (
@@ -45,7 +45,7 @@ export default function ComponentPreviewer({
           </ConditionalCardWrapper>
         ) : (
           <ComponentRenderingEngine
-            aggregation={aggregation}
+            aggregation_method={aggregation_method}
             dataSource={dataSource}
             event={event}
             property={property}

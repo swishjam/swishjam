@@ -154,6 +154,7 @@ module Api
           render json: properties_breakdown, status: :ok
         end
 
+        # DEPRECATED IN FAVOR OF data_viz_controller#stacked_bar_chart
         def stacked_bar_chart
           params[:data_source] ||= 'all'
           event_name = URI.decode_uri_component(params[:event_name])
@@ -163,7 +164,7 @@ module Api
             public_keys_for_requested_data_source,
             event: event_name,
             property: property,
-            aggregation: params[:aggregation],
+            aggregation_method: params[:aggregation_method],
             query_groups: query_groups,
             start_time: start_timestamp,
             end_time: end_timestamp,
