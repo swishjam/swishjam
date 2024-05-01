@@ -1,5 +1,5 @@
 import ConfigurationModal from "./ConfigurationModal";
-import PieChart from "@/components/Dashboards/Components/PieChart";
+import PieChart from "@/components/Dashboards/DataVisualizations/PieChart";
 import SwishjamAPI from "@/lib/api-client/swishjam-api";
 import { useState } from "react";
 

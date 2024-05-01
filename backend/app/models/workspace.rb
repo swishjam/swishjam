@@ -9,8 +9,10 @@ class Workspace < Transactional
   has_many :customer_subscriptions, dependent: :destroy
   has_many :customer_subscription_items, through: :customer_subscriptions
   has_many :dashboards, dependent: :destroy
+  # DEPRECATED
   has_many :dashboard_components, dependent: :destroy
   has_many :data_syncs, dependent: :destroy
+  has_many :data_visualizations, dependent: :destroy
   has_many :do_not_enrich_user_profile_rules, dependent: :destroy
   has_many :event_triggers, dependent: :destroy
   has_many :integrations, dependent: :destroy

@@ -5,7 +5,7 @@ import { useDebouncedValue } from "@/hooks/useDebouncedValue";
 import { useState } from "react";
 
 export default function BarChartAdditionalSettings({
-  onConfigurationChange,
+  onConfigChange,
   emptyValuePlaceholder = 'EMPTY',
   excludeEmptyValues = false,
   maxRankingToNotBeConsideredOther = 10,
@@ -17,7 +17,7 @@ export default function BarChartAdditionalSettings({
 }) {
   const [visibleEmptyValuePlaceholderValue, setVisibleEmptyValuePlaceholderValue] = useDebouncedValue(
     useState(emptyValuePlaceholder),
-    v => onConfigurationChange({ emptyValuePlaceholder: v })
+    v => onConfigChange({ emptyValuePlaceholder: v })
   )
 
   return (
@@ -34,11 +34,11 @@ export default function BarChartAdditionalSettings({
             selected={showLegend ? (showTableInsteadOfLegend ? 'table' : 'legend') : 'none'}
             onSelect={value => {
               if (value === 'none') {
-                onConfigurationChange({ showLegend: false })
+                onConfigChange({ showLegend: false })
               } else if (value === 'table') {
-                onConfigurationChange({ showLegend: true, showTableInsteadOfLegend: true })
+                onConfigChange({ showLegend: true, showTableInsteadOfLegend: true })
               } else {
-                onConfigurationChange({ showLegend: true, showTableInsteadOfLegend: false })
+                onConfigChange({ showLegend: true, showTableInsteadOfLegend: false })
               }
             }}
           />
@@ -55,7 +55,7 @@ export default function BarChartAdditionalSettings({
             type='number'
             min={1}
             max={20}
-            onChange={e => onConfigurationChange({ maxRankingToNotBeConsideredOther: e.target.value })}
+            onChange={e => onConfigChange({ maxRankingToNotBeConsideredOther: e.target.value })}
             value={maxRankingToNotBeConsideredOther}
           />
         </div>
@@ -68,7 +68,7 @@ export default function BarChartAdditionalSettings({
         <div className='flex items-center'>
           <Switch
             checked={excludeEmptyValues}
-            onCheckedChange={checked => onConfigurationChange({ excludeEmptyValues: checked })}
+            onCheckedChange={checked => onConfigChange({ excludeEmptyValues: checked })}
           />
         </div>
       </div>
@@ -97,7 +97,7 @@ export default function BarChartAdditionalSettings({
         <div className='flex items-center'>
           <Switch
             checked={showYAxis}
-            onCheckedChange={checked => onConfigurationChange({ showYAxis: checked })}
+            onCheckedChange={checked => onConfigChange({ showYAxis: checked })}
           />
         </div>
       </div>
@@ -109,7 +109,7 @@ export default function BarChartAdditionalSettings({
         <div className='flex items-center'>
           <Switch
             checked={showXAxis}
-            onCheckedChange={checked => onConfigurationChange({ showXAxis: checked })}
+            onCheckedChange={checked => onConfigChange({ showXAxis: checked })}
           />
         </div>
       </div>
@@ -121,7 +121,7 @@ export default function BarChartAdditionalSettings({
         <div className='flex items-center'>
           <Switch
             checked={showGridLines}
-            onCheckedChange={checked => onConfigurationChange({ showGridLines: checked })}
+            onCheckedChange={checked => onConfigChange({ showGridLines: checked })}
           />
         </div>
       </div>

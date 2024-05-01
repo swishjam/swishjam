@@ -1,5 +1,5 @@
-import LineChartWithValue from "@/components/Dashboards/Components/AreaChartWithValue"
-import BarList from "@/components/Dashboards/Components/BarList"
+import LineChartWithValue from "@/components/Dashboards/DataVisualizations/AreaChartWithValue"
+import BarList from "@/components/Dashboards/DataVisualizations/BarList"
 import { Skeleton } from "@/components/ui/skeleton"
 
 export default function LoadingView() {

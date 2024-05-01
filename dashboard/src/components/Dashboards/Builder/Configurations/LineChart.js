@@ -9,7 +9,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import LineChartWithValue from "@/components/Dashboards/Components/AreaChartWithValue";
+import LineChartWithValue from "@/components/Dashboards/DataVisualizations/AreaChartWithValue";
 import SwishjamAPI from "@/lib/api-client/swishjam-api";
 import Toggle from "@/components/utils/Toggle";
 import { useState } from "react";

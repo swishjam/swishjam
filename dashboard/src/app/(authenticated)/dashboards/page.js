@@ -7,9 +7,7 @@ import SwishjamAPI from "@/lib/api-client/swishjam-api";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react"
 import { Card, CardContent } from "@/components/ui/card"
-//import { Button } from "@/components/ui/button"
 
-//import { BsArrowRightShort } from 'react-icons/bs'
 import { ChartPieIcon } from "@heroicons/react/24/outline";
 import { LuClipboardPaste, LuPlus } from "react-icons/lu";
 
@@ -20,11 +18,8 @@ const ImageCard = ({ title, description, img }) => {
     <Card className={`group hover:ring-2 offset-2 ring-swishjam duration-500 transition cursor-pointer overflow-hidden`}>
       <CardContent className={`!p-0`}>
         <div className="border-b overflow-hidden w-full bg-accent h-36">
-          <div className="mx-auto mt-8 mx-8 rounded-md overflow-hidden border border-gray-200 min-h-20">
-            <img
-              className=""
-              src={img}
-            />
+          <div className="mt-8 mx-8 rounded-md overflow-hidden border border-gray-200 min-h-20">
+            <img src={img} />
           </div>
         </div>
         <div className="p-6">
@@ -83,9 +78,9 @@ export default function Dashboards() {
               className={`duration-300 transition-all ml-2 flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white focus:outline-none focus:ring-2 bg-swishjam hover:bg-swishjam-dark`}
             >
               <LuPlus className="h-4 w-4 mt-0.5 mr-2" />
-              New Dashboard 
+              New Dashboard
             </Button>
-          </Link> 
+          </Link>
         </div>
       </div>
 

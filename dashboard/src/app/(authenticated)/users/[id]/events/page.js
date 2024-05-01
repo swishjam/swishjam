@@ -5,7 +5,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import SwishjamAPI from "@/lib/api-client/swishjam-api";
 import { useEffect, useState } from "react";
 import PageWithHeader from "@/components/utils/PageWithHeader";
-import LiveEventsFeed from "@/components/Dashboards/Components/LiveEventsFeed";
+import LiveEventsFeed from "@/components/Dashboards/DataVisualizations/LiveEventsFeed";
 
 export default function UserEventFeed({ params }) {
   const { id: userId } = params;

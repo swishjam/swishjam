@@ -1,12 +1,12 @@
 'use client'
 
 import { ArrowPathIcon } from "@heroicons/react/24/outline";
-import BarList from "@/components/Dashboards/Components/BarList";
+import BarList from "@/components/Dashboards/DataVisualizations/BarList";
 import Breadcrumbs from "@/components/Breadcrumbs";
 import { Button } from "@/components/ui/button";
-import EventFeed from "@/components/Dashboards/Components/EventFeed";
+import EventFeed from "@/components/Dashboards/DataVisualizations/EventFeed";
 import LoadingView from "./LoadingView";
-import LineChartWithValue from '@/components/Dashboards/Components/AreaChartWithValue';
+import LineChartWithValue from '@/components/Dashboards/DataVisualizations/AreaChartWithValue';
 import ProfileInformationSideBar from "@/components/Profiles/ProfileInformationSideBar";
 import { setStateFromTimeseriesResponse } from "@/lib/utils/timeseriesHelpers";
 import { SwishjamAPI } from "@/lib/api-client/swishjam-api";

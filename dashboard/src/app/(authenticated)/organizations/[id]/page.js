@@ -4,16 +4,16 @@ import { useEffect, useState } from "react";
 import { SwishjamAPI } from "@/lib/api-client/swishjam-api";
 import { Card, CardHeader, CardContent, CardTitle, CardDescription } from "@/components/ui/card"
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import ItemizedList from "@/components/Dashboards/Components/ItemizedList";
-import BarList from "@/components/Dashboards/Components/BarList";
+import ItemizedList from "@/components/Dashboards/DataVisualizations/ItemizedList";
+import BarList from "@/components/Dashboards/DataVisualizations/BarList";
 import Breadcrumbs from "@/components/Breadcrumbs";
 import { prettyDateTime } from "@/lib/utils/timeHelpers";
 import { humanizeVariable } from "@/lib/utils/misc";
 import ProfileTags from "@/components/Profiles/ProfileTags";
 import { Button } from "@/components/ui/button";
 import { RefreshCcw } from "lucide-react";
-import EventFeed from "@/components/Dashboards/Components/EventFeed";
-import LineChartWithValue from "@/components/Dashboards/Components/AreaChartWithValue";
+import EventFeed from "@/components/Dashboards/DataVisualizations/EventFeed";
+import LineChartWithValue from "@/components/Dashboards/DataVisualizations/AreaChartWithValue";
 import { Skeleton } from "@/components/ui/skeleton";
 import { setStateFromTimeseriesResponse } from "@/lib/utils/timeseriesHelpers";
 

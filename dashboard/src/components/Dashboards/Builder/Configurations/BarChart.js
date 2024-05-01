@@ -1,4 +1,4 @@
-import BarChartComponent from "@/components/Dashboards/Components/BarChart";
+import BarChartComponent from "@/components/Dashboards/DataVisualizations/BarChart";
 import ConfigurationModal from "./ConfigurationModal";
 import SwishjamAPI from "@/lib/api-client/swishjam-api";
 import { useState } from "react";

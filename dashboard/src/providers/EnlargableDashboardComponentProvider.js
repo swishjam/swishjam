@@ -3,10 +3,11 @@
 import { ArrowsPointingInIcon } from '@heroicons/react/24/outline';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import EnlargableDashboardComponentContext from '@/contexts/EnlargableDashboardComponentContext';
-import { InfoIcon } from 'lucide-react';
-import SettingsDropdown from '@/components/Dashboards/Components/SettingsDropdown';
+import { InfoIcon, SlidersHorizontalIcon } from 'lucide-react';
+import SettingsDropdown from '@/components/Dashboards/DataVisualizations/utils/SettingsDropdown';
 import { useRef, useState } from 'react';
 import useSheet from '@/hooks/useSheet';
+import { Tooltipable } from '@/components/ui/tooltip';
 
 const EnlargableDashboardComponentProvider = ({ children }) => {
   const { openSheetWithContent } = useSheet();
@@ -20,6 +21,7 @@ const EnlargableDashboardComponentProvider = ({ children }) => {
 
   const enlargeComponent = content => {
     if (!content) throw new Error('You must pass a component to enlargeComponent()');
+    window.document.body.style.overflow = 'hidden';
     setComponentIsEnlarged(true);
     setComponentDetailsToEnlarge(content);
     const { width, height, top, left } = content.el.getBoundingClientRect();
@@ -51,6 +53,7 @@ const EnlargableDashboardComponentProvider = ({ children }) => {
   const collapseComponent = () => {
     const { width, height, top, left } = componentDetailsToEnlarge.el.getBoundingClientRect();
 
+    window.document.body.style.overflow = 'auto';
     enlargedComponentRef.current.style.width = `${width}px`;
     enlargedComponentRef.current.style.height = `${height}px`;
     setTimeout(() => {
@@ -88,7 +91,7 @@ const EnlargableDashboardComponentProvider = ({ children }) => {
         ref={placeholderElRef}
       />
       <Card
-        className={`${componentIsEnlarged ? 'group fixed z-[49] bg-white shadow-lg transition-all duration-1000' : 'hidden'}`}
+        className={`${componentIsEnlarged ? 'group fixed z-[49] flex flex-col group bg-white shadow-lg transition-all duration-1000 h-[95vh] w-[95vw] m-auto top-0 left-0 right-0 bottom-0 overflow-y-scroll' : 'hidden'}`}
         ref={enlargedComponentRef}
       >
         <CardHeader className="space-y-0 pb-2">
@@ -106,6 +109,13 @@ const EnlargableDashboardComponentProvider = ({ children }) => {
                 )}
               </div>
               <div className='flex justify-end flex-shrink gap-x-1'>
+                {componentDetailsToEnlarge?.QueryDetails && (
+                  <Tooltipable content={componentDetailsToEnlarge.QueryDetails}>
+                    <div className='group-hover:opacity-100 opacity-0 flex items-center justify-center duration-300 transition text-gray-500 hover:bg-gray-100 rounded-md'>
+                      <SlidersHorizontalIcon className='h-4 w-4 m-1 text-gray-500' />
+                    </div>
+                  </Tooltipable>
+                )}
                 <button
                   onClick={collapseComponent}
                   className='p-1 flex items-center justify-center outline-0 ring-0 duration-300 transition text-gray-500 cursor-pointer hover:bg-gray-100 rounded-md'
@@ -117,8 +127,9 @@ const EnlargableDashboardComponentProvider = ({ children }) => {
               </div>
             </div>
           </CardTitle>
+          {componentDetailsToEnlarge?.subtitle && <h2 className='text-xs text-gray-500 w-fit'>{componentDetailsToEnlarge.subtitle}</h2>}
         </CardHeader>
-        <CardContent>
+        <CardContent className='flex-1 min-h-0 h-full mt-2 flex flex-col'>
           {componentDetailsToEnlarge?.children}
         </CardContent>
       </Card>

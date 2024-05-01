@@ -1,10 +1,10 @@
-import PieChartComponent from '@/components/Dashboards/Components/PieChart'
+import PieChartComponent from '@/components/Dashboards/DataVisualizations/PieChart'
 
 export default function PieChartOption({ onClick }) {
   return (
     <div className='cursor-pointer hover:scale-105 transition-all' onClick={onClick}>
-      <PieChartComponent 
-        title='Pie Chart' 
+      <PieChartComponent
+        title='Pie Chart'
         data={[
           { name: 'Group A', value: 400 },
           { name: 'Group B', value: 300 },

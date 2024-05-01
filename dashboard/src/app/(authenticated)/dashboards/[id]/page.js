@@ -1,106 +1,88 @@
 'use client'
 
-import BarChartConfiguration from "@/components/Dashboards/Builder/Configurations/BarChart";
-import BarListConfiguration from "@/components/Dashboards/Builder/Configurations/BarList";
 import { ChartPieIcon, PencilSquareIcon, PlusCircleIcon } from "@heroicons/react/24/outline";
-import ComponentOptionsSlideout from "@/components/Dashboards/Builder/ComponentOptions/OptionsSlideout";
 import DashboardNameDisplayEditor from "@/components/Dashboards/Builder/DashboardNameDisplayEditor";
-import LineChartConfiguration from "@/components/Dashboards/Builder/Configurations/LineChart";
 import LoadingSpinner from "@/components/LoadingSpinner";
-import PieChartConfiguration from "@/components/Dashboards/Builder/Configurations/PieChart";
-import RenderingEngine from "@/components/Dashboards/Builder/RenderingEngine";
+import DataVisualizationsDashboardCanvas from "@/components/Dashboards/Builder/DataVisualizationsDashboardCanvas";
 import { Skeleton } from "@/components/ui/skeleton";
 import SwishjamAPI from "@/lib/api-client/swishjam-api";
 import Timefilter from "@/components/Timefilter";
 import { useEffect, useState, useRef } from "react";
-import ValueCardConfiguration from "@/components/Dashboards/Builder/Configurations/ValueCard";
 import { swishjam } from "@swishjam/react";
-import { DialogModal } from "@/components/ui/dialog";
+import DataVisualizationLibrary from "@/components/Dashboards/DataVisualizations/DataVisualizationLibrary";
+import { toast } from "sonner";
 
 const AUTO_SAVE_CHECK_INTERVAL = 2_500;
 const DEFAULT_GRID_CONFIGURATIONS = {
-  BarChart: { w: 20, h: 20, y: 0, x: 0, minH: 10, minW: 10 },
-  BarList: { w: 20, h: 15, y: 0, x: 0, minH: 8, minW: 10 },
-  LineChart: { w: 15, h: 16, y: 0, x: 0, minH: 10, minW: 10 },
-  PieChart: { w: 10, h: 10, y: 0, x: 0, minH: 10, minW: 10 },
-  UserRetention: { w: 30, h: 24, y: 0, x: 0, minH: 24, maxH: 24, minW: 20 },
-  ValueCard: { w: 10, h: 6, y: 0, x: 0, minH: 6, minW: 8 },
+  BarChart: { w: 2, h: 16, y: 0, x: 0, minH: 6, minW: 2 },
+  BarList: { w: 2, h: 16, y: 0, x: 0, minH: 8, minW: 2 },
+  AreaChart: { w: 2, h: 16, y: 0, x: 0, minH: 10, minW: 2 },
+  PieChart: { w: 2, h: 10, y: 0, x: 0, minH: 10, minW: 2 },
+  UserRetention: { w: 4, h: 24, y: 0, x: 0, minH: 24, maxH: 24, minW: 4 },
+  ValueCard: { w: 1, h: 4, y: 0, x: 0, minH: 2, minW: 1 },
 }
-
-const ConfigureDashboardComponentModal = ({ componentType, eventOptions, onSave, onClose }) => {
-  const ConfigurationComponent = {
-    BarChart: BarChartConfiguration,
-    BarList: BarListConfiguration,
-    LineChart: LineChartConfiguration,
-    PieChart: PieChartConfiguration,
-    ValueCard: ValueCardConfiguration,
-  }[componentType];
-  return (
-
-    <DialogModal open={true} onOpenChange={onClose} fullWidth={true} title={`Configure ${componentType}`}>
-      <ConfigurationComponent eventOptions={eventOptions} onConfigurationSave={onSave} />
-    </DialogModal>
-  )
-}
-
-const LoadingState = () => (
-  <main className="mx-auto max-w-7xl px-4 mt-8 sm:px-6 lg:px-8 mb-8">
-    <Skeleton className='h-96 mt-8' />
-  </main>
-)
 
 const EmptyState = ({ onClick }) => (
   <button
     type="button"
-    className="relative block w-full rounded-lg border-2 border-dashed border-gray-300 p-12 text-center hover:border-gray-400"
+    className="relative block w-full h-[80vh] rounded-lg border-2 border-dashed border-gray-300 p-12 text-center hover:border-gray-400"
     onClick={onClick}
   >
-    <ChartPieIcon className="mx-auto h-12 w-12 text-gray-400" />
-    <span className="mt-2 block text-sm font-semibold text-gray-400">Add a dashboard component.</span>
+    <ChartPieIcon className="mx-auto h-16 w-16 text-gray-400" />
+    <span className="mt-2 block text-md font-semibold text-gray-400">Add a data visualization.</span>
   </button>
 )
 
 export default function Dashboard({ params }) {
   const { id: dashboardId } = params;
-  const [componentSlideoutIsOpen, setComponentSlideoutIsOpen] = useState(false);
-  const [currentTimeframe, setCurrentTimeframe] = useState('thirty_days');
-  const [dashboardComponents, setDashboardComponents] = useState();
-  const [dashboardComponentToConfigure, setDashboardComponentToConfigure] = useState();
+  const [dataVisualizationLibraryIsOpen, setDataVisualizationLibraryIsOpen] = useState(false);
+  const [currentTimeframe, setCurrentTimeframe] = useState('seven_days');
+  const [dashboardDataVisualizations, setDashboardDataVisualizations] = useState();
   const [dashboardName, setDashboardName] = useState();
   const [isInEditMode, setIsInEditMode] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [pendingDashboardLayoutUpdates, setPendingDashboardLayoutUpdates] = useState([]);
 
-  const detectChangedComponentsFromLayoutAndSave = layout => {
-    const changedDashboardComponents = dashboardComponents.map(component => {
-      const layoutItemForComponent = layout.find(({ i }) => i === component.id);
-      if (!layoutItemForComponent) return;
+  const detectChangedDashboardDataVisualizationsFromLayoutAndSave = layout => {
+    const changedDashboardDataVisualizations = dashboardDataVisualizations.map(dashboardDataVisualization => {
+      const layoutItemForDashboardDataVisualization = layout.find(({ i }) => i === dashboardDataVisualization.id);
+      if (!layoutItemForDashboardDataVisualization) return;
       if (
-        layoutItemForComponent.x !== component.configuration.x ||
-        layoutItemForComponent.y !== component.configuration.y ||
-        layoutItemForComponent.w !== component.configuration.w ||
-        layoutItemForComponent.h !== component.configuration.h
+        layoutItemForDashboardDataVisualization.x !== dashboardDataVisualization.position_config.x ||
+        layoutItemForDashboardDataVisualization.y !== dashboardDataVisualization.position_config.y ||
+        layoutItemForDashboardDataVisualization.w !== dashboardDataVisualization.position_config.w ||
+        layoutItemForDashboardDataVisualization.h !== dashboardDataVisualization.position_config.h
       ) {
+        console.log("CHANGED!", {
+          ...dashboardDataVisualization,
+          position_config: {
+            ...dashboardDataVisualization.position_config,
+            x: layoutItemForDashboardDataVisualization.x,
+            y: layoutItemForDashboardDataVisualization.y,
+            w: layoutItemForDashboardDataVisualization.w,
+            h: layoutItemForDashboardDataVisualization.h
+          }
+        })
         return {
-          ...component,
-          configuration: {
-            ...component.configuration,
-            x: layoutItemForComponent.x,
-            y: layoutItemForComponent.y,
-            w: layoutItemForComponent.w,
-            h: layoutItemForComponent.h
+          ...dashboardDataVisualization,
+          position_config: {
+            ...dashboardDataVisualization.position_config,
+            x: layoutItemForDashboardDataVisualization.x,
+            y: layoutItemForDashboardDataVisualization.y,
+            w: layoutItemForDashboardDataVisualization.w,
+            h: layoutItemForDashboardDataVisualization.h
           }
         }
       }
     }).filter(Boolean);
-    const pendingDashboardUpdatesNotInThisChange = pendingDashboardLayoutUpdates.filter(pendingUpdateComponent => changedDashboardComponents.includes(({ id }) => id === pendingUpdateComponent.id));
-    setPendingDashboardLayoutUpdates([...pendingDashboardUpdatesNotInThisChange, ...changedDashboardComponents]);
+    const pendingDashboardUpdatesNotInThisChange = pendingDashboardLayoutUpdates.filter(dashboardDataVisualizationWithPendingUpdates => changedDashboardDataVisualizations.includes(({ id }) => id === dashboardDataVisualizationWithPendingUpdates.id));
+    setPendingDashboardLayoutUpdates([...pendingDashboardUpdatesNotInThisChange, ...changedDashboardDataVisualizations]);
   }
 
-  const updateDashboardComponents = async components => {
-    const formattedComponents = components.map(({ configuration, id }) => ({ id, configuration }));
+  const updateDashboardDataVisualizations = async dashboardDataVisualizations => {
+    const formattedDashboardDataVisualizations = dashboardDataVisualizations.map(({ id, position_config }) => ({ id, position_config }));
     setIsSaving(true);
-    return SwishjamAPI.DashboardComponents.bulkUpdate(formattedComponents).then(({ errors, updated_components }) => {
+    return SwishjamAPI.DashboardDataVizualizations.bulkUpdate(dashboardId, formattedDashboardDataVisualizations).then(({ errors }) => {
       setIsSaving(false);
       if (errors) {
 
@@ -108,25 +90,23 @@ export default function Dashboard({ params }) {
     })
   }
 
-  const createDashboardComponent = async componentConfiguration => {
-    const formattedConfiguration = { ...DEFAULT_GRID_CONFIGURATIONS[componentConfiguration.type], ...componentConfiguration, y: 1_000_000 };
-    setIsSaving(true);
-    return SwishjamAPI.DashboardComponents.create(dashboardId, formattedConfiguration).then(result => {
-      setIsSaving(false);
-      if (result.error) {
-
-      } else {
-        setDashboardComponents([...dashboardComponents, result]);
-        window.scrollTo(0, document.body.scrollHeight);
-      }
-    });
+  const addDataVisualizationToDashboard = async dataVisualization => {
+    const response = await SwishjamAPI.DashboardDataVizualizations.create(dashboardId, dataVisualization.id, DEFAULT_GRID_CONFIGURATIONS[dataVisualization.visualization_type])
+    if (response.error) {
+      toast.error('Error adding visualization to dashboard', {
+        description: response.error,
+        duration: 15_000,
+      })
+    } else {
+      setDashboardDataVisualizations([...dashboardDataVisualizations, response]);
+    }
   }
 
   const pendingDashboardLayoutUpdatesRef = useRef(pendingDashboardLayoutUpdates);
 
   const savePendingDashboardLayoutUpdatesIfNecessary = () => {
     if (pendingDashboardLayoutUpdatesRef.current.length > 0) {
-      updateDashboardComponents(pendingDashboardLayoutUpdatesRef.current).then(() => setPendingDashboardLayoutUpdates([]));
+      updateDashboardDataVisualizations(pendingDashboardLayoutUpdatesRef.current).then(() => setPendingDashboardLayoutUpdates([]));
     }
   }
 
@@ -136,39 +116,33 @@ export default function Dashboard({ params }) {
 
   useEffect(() => {
     SwishjamAPI.Dashboards.retrieve(dashboardId).then(({ name }) => setDashboardName(name));
-    SwishjamAPI.DashboardComponents.list(dashboardId).then(setDashboardComponents);
-    const interval = setInterval(() => savePendingDashboardLayoutUpdatesIfNecessary(), AUTO_SAVE_CHECK_INTERVAL);
-    return () => clearInterval(interval);
+    SwishjamAPI.DashboardDataVizualizations.list(dashboardId).then(setDashboardDataVisualizations);
+    const saveHotKeyListener = window.addEventListener('keydown', event => {
+      if (event.metaKey && event.key === 's') {
+        event.preventDefault();
+        toast.info('Swishjam Dashboards are auto-saved.', {
+          description: 'No need to manually save your changes!',
+          duration: 10_000,
+        })
+      }
+    });
+    const autoSaveInterval = setInterval(() => savePendingDashboardLayoutUpdatesIfNecessary(), AUTO_SAVE_CHECK_INTERVAL);
+    return () => {
+      clearInterval(autoSaveInterval);
+      window.removeEventListener('keydown', saveHotKeyListener);
+    }
   }, []);
-
 
   return (
     <main className="mx-auto max-w-7xl px-4 mt-8 sm:px-6 lg:px-8 mb-8">
-      <ComponentOptionsSlideout
-        isOpen={componentSlideoutIsOpen}
-        onClose={() => setComponentSlideoutIsOpen(false)}
-        onSelect={componentType => {
-          setComponentSlideoutIsOpen(false);
-          swishjam.event('new_dashboard_component_selected', { component_type: componentType })
-          // There is no configuration options for the RetentionWidget, add it to the dashboard immediately
-          if (componentType === 'UserRetention') {
-            createDashboardComponent({ type: componentType })
-          } else {
-            setDashboardComponentToConfigure(componentType);
-          }
+      <DataVisualizationLibrary
+        isOpen={dataVisualizationLibraryIsOpen}
+        onClose={() => setDataVisualizationLibraryIsOpen(false)}
+        onDataVisualizationSelected={dataVisualization => {
+          setDataVisualizationLibraryIsOpen(false);
+          addDataVisualizationToDashboard(dataVisualization);
         }}
       />
-      {dashboardComponentToConfigure && (
-        <ConfigureDashboardComponentModal
-          componentType={dashboardComponentToConfigure}
-          onClose={() => setDashboardComponentToConfigure()}
-          onSave={componentConfiguration => {
-            swishjam.event('dashboard_component_added', { component_type: dashboardComponentToConfigure, ...componentConfiguration })
-            setDashboardComponentToConfigure();
-            createDashboardComponent({ type: dashboardComponentToConfigure, ...componentConfiguration });
-          }}
-        />
-      )}
       <div className='grid grid-cols-2 mt-8 items-center'>
         <div>
           {dashboardName === undefined
@@ -197,11 +171,11 @@ export default function Dashboard({ params }) {
                   type="button"
                   className="ml-2 inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-100"
                   onClick={() => {
-                    swishjam.event('dashboard_component_picker_opened')
-                    setComponentSlideoutIsOpen(true)
+                    swishjam.event('data_visualization_library_modal_opened')
+                    setDataVisualizationLibraryIsOpen(true)
                   }}
                 >
-                  Add Component <PlusCircleIcon className='h-4 w-4 ml-1' />
+                  Add Visualization <PlusCircleIcon className='h-4 w-4 ml-1' />
                 </button>
                 <button
                   type="button"
@@ -230,27 +204,28 @@ export default function Dashboard({ params }) {
         </div>
       </div>
       <div className="mt-8">
-        {dashboardComponents
-          ? dashboardComponents.length > 0
+        {dashboardDataVisualizations
+          ? dashboardDataVisualizations.length > 0
             ? (
-              <RenderingEngine
-                components={dashboardComponents}
+              <DataVisualizationsDashboardCanvas
+                dashboardDataVisualizations={dashboardDataVisualizations}
                 timeframe={currentTimeframe}
-                onLayoutChange={detectChangedComponentsFromLayoutAndSave}
+                onLayoutChange={detectChangedDashboardDataVisualizationsFromLayoutAndSave}
                 editable={isInEditMode}
-                onDashboardComponentEdit={({ id, configuration }) => () => setDashboardComponentToConfigure({ id, ...configuration.type })}
-                onDashboardComponentDelete={id => {
-                  setDashboardComponents(dashboardComponents.filter(({ id: componentId }) => componentId !== id));
-                  SwishjamAPI.DashboardComponents.delete(id);
+                onDataVisualizationDelete={id => {
+                  setDashboardDataVisualizations(dashboardDataVisualizations.filter(({ id: dashboardDataVisualizations }) => dashboardDataVisualizations !== id));
+                  SwishjamAPI.DashboardDataVizualizations.delete(dashboardId, id);
                 }}
               />
-            ) : <EmptyState
-              onClick={() => {
-                swishjam.event('dashboard_component_picker_opened')
-                setComponentSlideoutIsOpen(true)
-              }}
-            />
-          : <LoadingState />
+            ) : (
+              <EmptyState
+                onClick={() => {
+                  swishjam.event('data_visualization_library_modal_opened')
+                  setDataVisualizationLibraryIsOpen(true)
+                }}
+              />
+            )
+          : <Skeleton className='h-96' />
         }
       </div>
     </main>

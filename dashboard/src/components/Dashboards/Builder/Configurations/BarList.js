@@ -1,7 +1,7 @@
 
 import AdvancedSettingsSection from "@/components/Dashboards/Builder/Configurations/AdvancedSettingsSection";
 import { Button } from "@/components/ui/button"
-import BarList from '@/components/Dashboards/Components/BarList';
+import BarList from '@/components/Dashboards/DataVisualizations/BarList';
 import { ChevronDownIcon } from "@heroicons/react/24/outline";
 import {
   DropdownMenu,

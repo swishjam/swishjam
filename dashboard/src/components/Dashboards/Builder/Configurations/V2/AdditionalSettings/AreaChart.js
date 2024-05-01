@@ -20,7 +20,7 @@ const COLOR_OPTIONS = [
 ]
 
 export default function AreaChartAdditionalSettings({
-  onConfigurationChange,
+  onConfigChange,
   valueFormatter = 'number',
   includeComparisonData = true,
   includeTable,
@@ -44,7 +44,7 @@ export default function AreaChartAdditionalSettings({
             className='w-3/4'
             placeholder='Your x-axis title'
             value={xAxisTitle}
-            onChange={e => onConfigurationChange({ xAxisTitle: e.target.value })}
+            onChange={e => onConfigChange({ xAxisTitle: e.target.value })}
           />
         </div>
       </div>
@@ -58,7 +58,7 @@ export default function AreaChartAdditionalSettings({
             className='w-3/4'
             placeholder='Your y-axis title'
             value={yAxisTitle}
-            onChange={e => onConfigurationChange({ yAxisTitle: e.target.value })}
+            onChange={e => onConfigChange({ yAxisTitle: e.target.value })}
           />
         </div>
       </div>
@@ -72,7 +72,7 @@ export default function AreaChartAdditionalSettings({
             direction='horizontal'
             items={['number', 'currency', 'percent']}
             selected={valueFormatter}
-            onSelect={valueFormatter => onConfigurationChange({ valueFormatter })}
+            onSelect={valueFormatter => onConfigChange({ valueFormatter })}
           />
         </div>
       </div>
@@ -86,7 +86,7 @@ export default function AreaChartAdditionalSettings({
             <div
               key={color}
               className={`cursor-pointer w-6 h-6 rounded-lg hover:opacity-80 hover:scale-105 transition-all duration-200 ${primaryColor === color ? 'ring-2 ring-offset-2 ring-gray-400' : ''}`}
-              onClick={() => onConfigurationChange({ primaryColor: color, primaryColorFill: fill })}
+              onClick={() => onConfigChange({ primaryColor: color, primaryColorFill: fill })}
               style={{ backgroundColor: color }}
             />
           ))}
@@ -105,7 +105,7 @@ export default function AreaChartAdditionalSettings({
             <div
               key={color}
               className={`cursor-pointer w-6 h-6 rounded-lg hover:opacity-80 hover:scale-105 transition-all duration-200 ${includeComparisonData && secondaryColor === color ? 'ring-2 ring-offset-2 ring-gray-400' : ''}`}
-              onClick={() => onConfigurationChange({ secondaryColor: color, secondaryColorFill: fill })}
+              onClick={() => onConfigChange({ secondaryColor: color, secondaryColorFill: fill })}
               style={{ backgroundColor: color }}
             />
           ))}
@@ -119,7 +119,7 @@ export default function AreaChartAdditionalSettings({
         <div className='flex items-center'>
           <Switch
             checked={includeComparisonData}
-            onCheckedChange={checked => onConfigurationChange({ includeComparisonData: checked })}
+            onCheckedChange={checked => onConfigChange({ includeComparisonData: checked })}
           />
         </div>
       </div>
@@ -131,7 +131,7 @@ export default function AreaChartAdditionalSettings({
         <div className='flex items-center'>
           <Switch
             checked={includeTable}
-            onCheckedChange={checked => onConfigurationChange({ includeTable: checked })}
+            onCheckedChange={checked => onConfigChange({ includeTable: checked })}
           />
         </div>
       </div>
@@ -143,7 +143,7 @@ export default function AreaChartAdditionalSettings({
         <div className='flex items-center'>
           <Switch
             checked={showYAxis}
-            onCheckedChange={checked => onConfigurationChange({ showYAxis: checked })}
+            onCheckedChange={checked => onConfigChange({ showYAxis: checked })}
           />
         </div>
       </div>
@@ -155,7 +155,7 @@ export default function AreaChartAdditionalSettings({
         <div className='flex items-center'>
           <Switch
             checked={showXAxis}
-            onCheckedChange={checked => onConfigurationChange({ showXAxis: checked })}
+            onCheckedChange={checked => onConfigChange({ showXAxis: checked })}
           />
         </div>
       </div>
@@ -167,7 +167,7 @@ export default function AreaChartAdditionalSettings({
         <div className='flex items-center'>
           <Switch
             checked={showGridLines}
-            onCheckedChange={checked => onConfigurationChange({ showGridLines: checked })}
+            onCheckedChange={checked => onConfigChange({ showGridLines: checked })}
           />
         </div>
       </div>

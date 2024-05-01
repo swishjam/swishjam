@@ -4,12 +4,12 @@ import { ArrowPathIcon } from "@heroicons/react/24/outline";
 import Timefilter from "@/components/Timefilter";
 import { Button } from "@/components/ui/button";
 import { formatMoney, formatNumbers, formatShrinkMoney, formatShrinkNumbers } from "@/lib/utils/numberHelpers";
-import Heatmap from "@/components/Dashboards/Components/HeatMap";
+import Heatmap from "@/components/Dashboards/DataVisualizations/HeatMap";
 import Image from "next/image";
 import Link from 'next/link'
-import LineChartWithValue from "@/components/Dashboards/Components/AreaChartWithValue";
+import LineChartWithValue from "@/components/Dashboards/DataVisualizations/AreaChartWithValue";
 import Modal from "@/components/utils/Modal";
-import RevenueRetentionWidget from '@/components/Dashboards/Components/RevenueRetentionWidget';
+import RevenueRetentionWidget from '@/components/Dashboards/DataVisualizations/RevenueRetentionWidget';
 import { RxBarChart } from 'react-icons/rx'
 import { formattedUTCMonthAndDay, setStateFromMultiDimensionalTimeseriesResponse, setStateFromTimeseriesResponse } from "@/lib/utils/timeseriesHelpers";
 import { SwishjamAPI } from "@/lib/api-client/swishjam-api";

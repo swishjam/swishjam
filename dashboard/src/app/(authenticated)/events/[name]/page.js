@@ -2,9 +2,9 @@
 
 import { useEffect, useState } from "react";
 import SwishjamAPI from "@/lib/api-client/swishjam-api";
-import LineChartWithValue from "@/components/Dashboards/Components/AreaChartWithValue";
-import ItemizedList from "@/components/Dashboards/Components/ItemizedList";
-import BarList from "@/components/Dashboards/Components/BarList";
+import LineChartWithValue from "@/components/Dashboards/DataVisualizations/AreaChartWithValue";
+import ItemizedList from "@/components/Dashboards/DataVisualizations/ItemizedList";
+import BarList from "@/components/Dashboards/DataVisualizations/BarList";
 
 export default function EventDetails({ params }) {
   const { name: encodedName } = params;

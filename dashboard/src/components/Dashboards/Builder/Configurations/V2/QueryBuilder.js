@@ -51,18 +51,18 @@ const AGGREGATION_OPTIONS = [
 ]
 
 export default function QueryBuilder({
-  configuration = {},
+  config = {},
   includeUserProperties = true,
-  onConfigurationChange,
+  onConfigChange,
   propertyIsRequired = false,
 }) {
   const [uniquePropertiesForEvent, setUniquePropertiesForEvent] = useState();
   const {
-    aggregation_method: selectedAggregation,
+    aggregationMethod: selectedAggregation,
     event: selectedEvent,
     property: selectedEventProperty,
     whereClauseGroups = []
-  } = configuration;
+  } = config;
 
   useEffect(() => {
     SwishjamAPI.Events.Properties.listUnique(selectedEvent).then(setUniquePropertiesForEvent);
@@ -92,7 +92,7 @@ export default function QueryBuilder({
                 </div>
               }
               selectedValue={selectedAggregation}
-              onSelectionChange={aggregation_method => onConfigurationChange({ aggregation_method })}
+              onSelectionChange={aggregationMethod => onConfigChange({ aggregationMethod })}
               options={formattedAggregationOptions}
             />
           </div>
@@ -114,7 +114,7 @@ export default function QueryBuilder({
                   Event
                 </div>
               }
-              onSelectionChange={event => onConfigurationChange({ event })}
+              onSelectionChange={event => onConfigChange({ event })}
             />
           ) : <Skeleton className='h-8 w-12' />
         }
@@ -126,7 +126,7 @@ export default function QueryBuilder({
               <span className='mx-1'>event by its {selectedEventProperty && selectedEventProperty.startsWith('user.') ? 'user\'s' : ''}</span>
               <ComboboxEvents
                 selectedValue={selectedEventProperty}
-                onSelectionChange={property => onConfigurationChange({ property })}
+                onSelectionChange={property => onConfigChange({ property })}
                 swishjamEventsHeading="Event Properties"
                 options={[
                   ...(uniquePropertiesForEvent || []),
@@ -145,39 +145,11 @@ export default function QueryBuilder({
             </>
           )
         }
-        {/* {selectedAggregation === 'count' || !includePropertiesDropdown
-          ? <span className='mx-1'>event over time.</span>
-          : selectedAggregation === 'users'
-            ? <span className='mx-1'>the most.</span>
-            : (
-              <>
-                <span className='mx-1'>event by its {selectedEventProperty && selectedEventProperty.startsWith('user.') ? 'user\'s' : ''}</span>
-                <ComboboxEvents
-                  selectedValue={selectedEventProperty}
-                  onSelectionChange={property => onConfigurationChange({ property })}
-                  swishjamEventsHeading="Event Properties"
-                  options={[
-                    ...(uniquePropertiesForEvent || []),
-                    ...(includeUserProperties ? uniqueUserPropertyOptions || [] : [])
-                  ]}
-                  placeholder={
-                    <div className='flex items-center'>
-                      <div className='p-1 mr-1 bg-yellow-100 text-yellow-500 rounded'>
-                        <TriangleAlertIcon className='h-4 w-4 mx-auto' />
-                      </div>
-                      Property
-                    </div>
-                  }
-                />
-                <span className='mx-1'>property over time.</span>
-              </>
-            )
-        } */}
         {(whereClauseGroups.length === 0 || whereClauseGroups.every(group => group.queries.length === 0)) && (
           <Button
             className='text-gray-700'
             onClick={() => {
-              onConfigurationChange({
+              onConfigChange({
                 whereClauseGroups: [{
                   sequence_index: 0,
                   previous_group_operator: null,
@@ -208,8 +180,8 @@ export default function QueryBuilder({
                 ...(uniquePropertiesForEvent || []),
                 ...(includeUserProperties ? uniqueUserPropertyOptions || [] : []),
               ]}
-              onUpdate={newGroup => onConfigurationChange({ whereClauseGroups: whereClauseGroups.map((g, i) => i === index ? newGroup : g) })}
-              onRemove={_group => onConfigurationChange({ whereClauseGroups: whereClauseGroups.filter((_, i) => i !== index) })}
+              onUpdate={newGroup => onConfigChange({ whereClauseGroups: whereClauseGroups.map((g, i) => i === index ? newGroup : g) })}
+              onRemove={_group => onConfigChange({ whereClauseGroups: whereClauseGroups.filter((_, i) => i !== index) })}
             />
           ))}
         </div>

@@ -8,9 +8,9 @@ import { ArrowPathIcon } from "@heroicons/react/24/outline";
 import { RxBarChart } from 'react-icons/rx'
 import Link from 'next/link'
 
-import LineChartWithValue from "@/components/Dashboards/Components/AreaChartWithValue";
-import ClickableValueCard from "@/components/Dashboards/Components/ClickableValueCard";
-import BarChart from "@/components/Dashboards/Components/BarChart";
+import LineChartWithValue from "@/components/Dashboards/DataVisualizations/AreaChartWithValue";
+import ClickableValueCard from "@/components/Dashboards/DataVisualizations/ClickableValueCard";
+import BarChart from "@/components/Dashboards/DataVisualizations/BarChart";
 import { formatNumbers, formatShrinkNumbers } from "@/lib/utils/numberHelpers";
 import PageWithHeader from "@/components/utils/PageWithHeader";
 //import { BsArrowLeftShort } from 'react-icons/bs'

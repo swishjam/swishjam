@@ -176,14 +176,22 @@ Rails.application.routes.draw do
         resources :users, only: [:index], controller: :'events/users'
       end
 
-      resources :dashboards, only: [:index, :show, :create, :update, :destroy]
-      resources :dashboard_components, only: [:index, :create, :update, :destroy] do
+      resources :dashboards, only: [:index, :show, :create, :update, :destroy] do
+        resources :dashboard_data_visualizations, only: [:index, :create, :destroy] do
+          collection do
+            patch :bulk_update
+          end
+        end
+      end
+      resources :dashboard_components, only: [:index, :create, :update, :destroy, :show] do
         collection do
           patch :bulk_update
           post :bulk_create
         end
       end
       resources :dashboards_dashboard_components, only: [:destroy]
+
+      resources :data_visualizations, only: [:index, :show, :create, :update, :destroy]
 
       resources :cohorts do
         member do

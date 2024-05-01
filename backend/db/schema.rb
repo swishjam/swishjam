@@ -155,10 +155,18 @@ ActiveRecord::Schema.define(version: 2024_04_27_024558) do
     t.jsonb "configuration"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
-    t.string "title"
-    t.string "subtitle"
     t.index ["created_by_user_id"], name: "index_dashboard_components_on_created_by_user_id"
     t.index ["workspace_id"], name: "index_dashboard_components_on_workspace_id"
+  end
+
+  create_table "dashboard_data_visualizations", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "dashboard_id", null: false
+    t.uuid "data_visualization_id", null: false
+    t.jsonb "position_config", default: {}, null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["dashboard_id"], name: "index_dashboard_data_visualizations_on_dashboard_id"
+    t.index ["data_visualization_id"], name: "index_dashboard_data_visualizations_on_data_visualization_id"
   end
 
   create_table "dashboards", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -174,7 +182,6 @@ ActiveRecord::Schema.define(version: 2024_04_27_024558) do
   create_table "dashboards_dashboard_components", force: :cascade do |t|
     t.uuid "dashboard_id"
     t.uuid "dashboard_component_id"
-    t.jsonb "position_config", default: {}, null: false
     t.index ["dashboard_component_id"], name: "index_dashboards_dashboard_components_on_dashboard_component_id"
     t.index ["dashboard_id", "dashboard_component_id"], name: "index_dashboards_dashboard_components", unique: true
     t.index ["dashboard_id"], name: "index_dashboards_dashboard_components_on_dashboard_id"
@@ -193,6 +200,19 @@ ActiveRecord::Schema.define(version: 2024_04_27_024558) do
     t.uuid "synced_object_id"
     t.index ["synced_object_type", "synced_object_id"], name: "index_data_syncs_on_synced_object"
     t.index ["workspace_id"], name: "index_data_syncs_on_workspace_id"
+  end
+
+  create_table "data_visualizations", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "workspace_id", null: false
+    t.uuid "created_by_user_id", null: false
+    t.string "title"
+    t.string "subtitle"
+    t.string "visualization_type"
+    t.jsonb "config", default: {}, null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["created_by_user_id"], name: "index_data_visualizations_on_created_by_user_id"
+    t.index ["workspace_id"], name: "index_data_visualizations_on_workspace_id"
   end
 
   create_table "do_not_enrich_user_profile_rules", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -582,7 +602,11 @@ ActiveRecord::Schema.define(version: 2024_04_27_024558) do
   add_foreign_key "automation_steps", "automations"
   add_foreign_key "automations", "users", column: "created_by_user_id"
   add_foreign_key "automations", "workspaces"
+  add_foreign_key "dashboard_data_visualizations", "dashboards"
+  add_foreign_key "dashboard_data_visualizations", "data_visualizations"
   add_foreign_key "data_syncs", "workspaces"
+  add_foreign_key "data_visualizations", "users", column: "created_by_user_id"
+  add_foreign_key "data_visualizations", "workspaces"
   add_foreign_key "executed_automation_steps", "automation_steps"
   add_foreign_key "executed_automation_steps", "executed_automations"
   add_foreign_key "executed_automations", "analytics_user_profiles", column: "executed_on_user_profile_id"

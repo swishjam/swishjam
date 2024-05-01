@@ -6,11 +6,11 @@ import Timefilter from "@/components/Timefilter";
 import { Button } from "@/components/ui/button";
 import { ArrowPathIcon } from "@heroicons/react/24/outline";
 import { RxBarChart } from 'react-icons/rx'
-import ActiveUsersLineChartWithValue from "@/components/Dashboards/Components/ActiveUsersLineChartWithValue";
-import LineChartWithValue from "@/components/Dashboards/Components/AreaChartWithValue";
-import ItemizedList from '@/components/Dashboards/Components/ItemizedList';
+import ActiveUsersLineChartWithValue from "@/components/Dashboards/DataVisualizations/ActiveUsersLineChartWithValue";
+import LineChartWithValue from "@/components/Dashboards/DataVisualizations/AreaChartWithValue";
+import ItemizedList from '@/components/Dashboards/DataVisualizations/ItemizedList';
 import Link from 'next/link'
-import RetentionWidget from '@/components/Dashboards/Components/RetentionWidget';
+import RetentionWidget from '@/components/Dashboards/DataVisualizations/RetentionWidget';
 import { formatNumbers } from "@/lib/utils/numberHelpers";
 import { setStateFromTimeseriesResponse } from "@/lib/utils/timeseriesHelpers";
 

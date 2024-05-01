@@ -1,10 +1,10 @@
 'use client'
 
-import ActiveUsersLineChart from "@/components/Dashboards/Components/ActiveUsersLineChartWithValue"
-import ItemizedUsersList from "@/components/Dashboards/Components/ItemizedList"
-import ItemizedOrganizationsList from "@/components/Dashboards/Components/ItemizedList"
-import LineChartWithValue from "@/components/Dashboards/Components/AreaChartWithValue"
-import ClickableValueCard from "@/components/Dashboards/Components/ClickableValueCard"
+import ActiveUsersLineChart from "@/components/Dashboards/DataVisualizations/ActiveUsersLineChartWithValue"
+import ItemizedUsersList from "@/components/Dashboards/DataVisualizations/ItemizedList"
+import ItemizedOrganizationsList from "@/components/Dashboards/DataVisualizations/ItemizedList"
+import LineChartWithValue from "@/components/Dashboards/DataVisualizations/AreaChartWithValue"
+import ClickableValueCard from "@/components/Dashboards/DataVisualizations/ClickableValueCard"
 import { Separator } from "@/components/ui/separator"
 import { Skeleton } from "@/components/ui/skeleton"
 

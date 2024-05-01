@@ -3,12 +3,12 @@
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { ArrowPathIcon, CheckIcon, ExclamationTriangleIcon, LinkIcon } from "@heroicons/react/24/outline";
 import { Button } from "@/components/ui/button";
-import ConditionalCardWrapper from "@/components/Dashboards/Components/ConditionalCardWrapper";
+import ConditionalCardWrapper from "@/components/Dashboards/DataVisualizations/utils/ConditionalCardWrapper";
 import { dateFormatterForGrouping } from "@/lib/utils/timeseriesHelpers";
 import GoogleSearchConsoleLogo from '@public/logos/google-logo.png'
 import Image from "next/image";
 import { Label } from "@/components/ui/label";
-import LineChartWithValue from "@/components/Dashboards/Components/AreaChartWithValue";
+import LineChartWithValue from "@/components/Dashboards/DataVisualizations/AreaChartWithValue";
 import Link from 'next/link'
 import { Popover, PopoverContent, PopoverTrigger, PopoverClose } from "@/components/ui/popover"
 import { RxBarChart } from 'react-icons/rx'

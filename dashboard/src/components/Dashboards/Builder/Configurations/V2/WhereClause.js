@@ -59,16 +59,136 @@ export default function WhereClause({ query, propertyOptions, onUpdate, leadingT
           onUpdate(query);
         }}
         options={[
-          { label: 'equals', value: 'equals' },
-          { label: 'does not equal', value: 'does_not_equal' },
-          { label: 'contains', value: 'contains' },
-          { label: 'does not contain', value: 'does_not_contain' },
-          { label: 'is greater than', value: 'greater_than' },
-          { label: 'is less than', value: 'less_than' },
-          { label: 'is greater than or equal to', value: 'greater_than_or_equal_to' },
-          { label: 'is less than or equal to', value: 'less_than_or_equal_to' },
-          { label: 'is defined', value: 'is_defined' },
-          { label: 'is not defined', value: 'is_not_defined' },
+          {
+            label: (
+              <div className='flex items-center space-x-2'>
+                <span>
+                  =
+                </span>
+                <span>
+                  equals
+                </span>
+              </div>
+            ),
+            value: 'equals'
+          },
+          {
+            label: (
+              <div className='flex items-center space-x-2'>
+                <span>
+                  ≠
+                </span>
+                <span>
+                  does not equal
+                </span>
+              </div>
+            ),
+            value: 'does_not_equal'
+          },
+          {
+            label: (
+              <div className='flex items-center space-x-2'>
+                <span>
+                  ≈
+                </span>
+                <span>
+                  contains
+                </span>
+              </div>
+            ),
+            value: 'contains'
+          },
+          {
+            label: (
+              <div className='flex items-center space-x-2'>
+                <span>
+                  ≉
+                </span>
+                <span>
+                  does not contain
+                </span>
+              </div>
+            ),
+            value: 'does_not_contain'
+          },
+          {
+            label: (
+              <div className='flex items-center space-x-2'>
+                <span>
+                  {'>'}
+                </span>
+                <span>
+                  is greater than
+                </span>
+              </div>
+            ),
+            value: 'greater_than'
+          },
+          {
+            label: (
+              <div className='flex items-center space-x-2'>
+                <span>
+                  {'<'}
+                </span>
+                <span>
+                  is less than
+                </span>
+              </div>
+            ),
+            value: 'less_than'
+          },
+          {
+            label: (
+              <div className='flex items-center space-x-2'>
+                <span>
+                  {'>='}
+                </span>
+                <span>
+                  is greater than or equal to
+                </span>
+              </div>
+            ),
+            value: 'greater_than_or_equal_to'
+          },
+          {
+            label: (
+              <div className='flex items-center space-x-2'>
+                <span>
+                  {'<='}
+                </span>
+                <span>
+                  is less than or equal to
+                </span>
+              </div>
+            ),
+            value: 'less_than_or_equal_to'
+          },
+          {
+            label: (
+              <div className='flex items-center space-x-2'>
+                <span>
+                  ✓
+                </span>
+                <span>
+                  is defined
+                </span>
+              </div>
+            ),
+            value: 'is_defined'
+          },
+          {
+            label: (
+              <div className='flex items-center space-x-2'>
+                <span>
+                  ✗
+                </span>
+                <span>
+                  is not defined
+                </span>
+              </div>
+            ),
+            value: 'is_not_defined'
+          },
         ]}
       />
       {!['is_defined', 'is_not_defined'].includes(query.operator) && (

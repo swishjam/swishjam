@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import SwishjamAPI from "@/lib/api-client/swishjam-api";
 import { useState } from "react";
-import ValueCard from "@/components/Dashboards/Components/ValueCard";
+import ValueCard from "@/components/Dashboards/DataVisualizations/ValueCard";
 
 export default function PieChartConfiguration({ onConfigurationSave = () => { } }) {
   const [valueCardValue, setValueCardValue] = useState();

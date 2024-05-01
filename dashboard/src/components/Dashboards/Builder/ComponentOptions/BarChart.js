@@ -1,4 +1,4 @@
-import BarChart from '@/components/Dashboards/Components/BarChart'
+import BarChart from '@/components/Dashboards/DataVisualizations/BarChart'
 import { randomNumberBetween } from '@/lib/utils/numberHelpers'
 
 export default function BarChartOption({ onClick }) {

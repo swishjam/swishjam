@@ -5,7 +5,7 @@ import CommonQueriesProvider from "@/providers/CommonQueriesProvider";
 import ExecutedAutomationDetails from "@/components/Automations/Results/ExecutedAutomationDetails";
 import ExecutedAutomationsFilter from "@/components/Automations/Results/ExecutedAutomationsFilter";
 import { Cog, FlaskConicalIcon, RefreshCcw } from "lucide-react";
-import LineChartWithValue from "@/components/Dashboards/Components/AreaChartWithValue";
+import LineChartWithValue from "@/components/Dashboards/DataVisualizations/AreaChartWithValue";
 import Link from "next/link";
 import { LuArrowLeft } from "react-icons/lu";
 import PageWithHeader from "@/components/utils/PageWithHeader";

@@ -1,4 +1,4 @@
-import RetentionWidget from '@/components/Dashboards/Components/RetentionWidget'
+import RetentionWidget from '@/components/Dashboards/DataVisualizations/RetentionWidget'
 
 const DUMMY_RETENTION_DATA = {
   '2023-07-10': {

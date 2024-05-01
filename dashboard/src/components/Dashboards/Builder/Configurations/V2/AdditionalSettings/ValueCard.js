@@ -1,9 +1,8 @@
-import { Input } from "@/components/ui/input";
 import { RadioGroupItems } from "@/components/ui/radio-group"
 import { Switch } from "@/components/ui/switch";
 
 export default function ValueCardAdditionalSettings({
-  onConfigurationChange,
+  onConfigChange,
   valueFormatter = 'number',
   includeComparisonData = true,
 }) {
@@ -19,7 +18,7 @@ export default function ValueCardAdditionalSettings({
             direction='horizontal'
             items={['number', 'currency', 'percent']}
             selected={valueFormatter}
-            onSelect={valueFormatter => onConfigurationChange({ valueFormatter })}
+            onSelect={valueFormatter => onConfigChange({ valueFormatter })}
           />
         </div>
       </div>
@@ -31,7 +30,7 @@ export default function ValueCardAdditionalSettings({
         <div className='flex items-center'>
           <Switch
             checked={includeComparisonData}
-            onCheckedChange={checked => onConfigurationChange({ includeComparisonData: checked })}
+            onCheckedChange={checked => onConfigChange({ includeComparisonData: checked })}
           />
         </div>
       </div>
