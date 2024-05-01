@@ -2,7 +2,7 @@
 
 import { ArrowPathIcon } from '@heroicons/react/24/outline';
 import { Button } from '@/components/ui/button';
-import LineChartWithValue from '@/components/Dashboards/DataVisualizations/AreaChartWithValue';
+import LineChartWithValue from '@/components/DataVisualizations/AreaChartWithValue';
 import SwishjamAPI from "@/lib/api-client/swishjam-api"
 import { useEffect, useState } from 'react'
 import { Skeleton } from '@/components/ui/skeleton';
@@ -161,7 +161,7 @@ export default function AdminPage() {
       <LineChartWithValue
         title='Global events ingested.'
         value={eventCountsTimeseries && eventCountsTimeseries[eventCountsTimeseries.length - 1].value}
-        timeseries={eventCountsTimeseries}
+        data={eventCountsTimeseries}
         groupedBy='hour'
         showXAxis={true}
         showYAxis={true}
@@ -169,7 +169,7 @@ export default function AdminPage() {
       <div className='grid grid-cols-2 gap-2 mt-2'>
         <LineChartWithValue
           title='Queueing times (seconds from event occurred_at to ingested).'
-          timeseries={queueingTimeTimeseries?.timeseries}
+          data={queueingTimeTimeseries?.timeseries}
           groupedBy='minute'
           showXAxis={true}
           showYAxis={true}
@@ -178,7 +178,7 @@ export default function AdminPage() {
         />
         <LineChartWithValue
           title='Event Trigger delay (seconds from event occurred_at to triggered).'
-          timeseries={eventTriggerDelayTimeTimeseries}
+          data={eventTriggerDelayTimeTimeseries}
           groupedBy='minute'
           dateKey='date'
           valueKey='value'

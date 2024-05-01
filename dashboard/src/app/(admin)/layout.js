@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation'
 import { useAuthData } from "@/hooks/useAuthData";
 import LoadingSpinner from "@/components/LoadingSpinner";
 import SheetProvider from '@/providers/SheetProvider';
-import EnlargableDashboardComponentProvider from '@/providers/EnlargableDashboardComponentProvider';
+import EnlargableDataVisualizationProvider from '@/providers/EnlargableDataVisualizationProvider';
 import ConfirmationModalProvider from '@/providers/ConfirmationModalProvider';
 import { Toaster } from 'sonner'
 
@@ -24,11 +24,11 @@ export default function Layout({ children }) {
     return (
       <>
         <SheetProvider>
-          <EnlargableDashboardComponentProvider>
+          <EnlargableDataVisualizationProvider>
             <ConfirmationModalProvider>
               {children}
             </ConfirmationModalProvider>
-          </EnlargableDashboardComponentProvider>
+          </EnlargableDataVisualizationProvider>
         </SheetProvider>
         <Toaster richColors closeButton />
       </>

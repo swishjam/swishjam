@@ -3,12 +3,12 @@
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { ArrowPathIcon, CheckIcon, ExclamationTriangleIcon, LinkIcon } from "@heroicons/react/24/outline";
 import { Button } from "@/components/ui/button";
-import ConditionalCardWrapper from "@/components/Dashboards/DataVisualizations/utils/ConditionalCardWrapper";
+import ConditionalCardWrapper from "@/components/DataVisualizations/utils/ConditionalCardWrapper";
 import { dateFormatterForGrouping } from "@/lib/utils/timeseriesHelpers";
 import GoogleSearchConsoleLogo from '@public/logos/google-logo.png'
 import Image from "next/image";
 import { Label } from "@/components/ui/label";
-import LineChartWithValue from "@/components/Dashboards/DataVisualizations/AreaChartWithValue";
+import LineChartWithValue from "@/components/DataVisualizations/AreaChartWithValue";
 import Link from 'next/link'
 import { Popover, PopoverContent, PopoverTrigger, PopoverClose } from "@/components/ui/popover"
 import { RxBarChart } from 'react-icons/rx'
@@ -258,7 +258,8 @@ export default function SearchConsole() {
               previousValue={impressionsTimeseriesData?.previousValue}
               previousValueDate={impressionsTimeseriesData?.previousValueDate}
               showAxis={true}
-              timeseries={errorMessage ? [] : impressionsTimeseriesData?.timeseries}
+              showYAxis={true}
+              data={errorMessage ? [] : impressionsTimeseriesData?.timeseries}
               valueFormatter={n => n?.toLocaleString('en-US')}
             />
             <LineChartWithValue
@@ -267,7 +268,8 @@ export default function SearchConsole() {
               previousValue={ctrTimeseriesData?.previousValue}
               previousValueDate={ctrTimeseriesData?.previousValueDate}
               showAxis={true}
-              timeseries={errorMessage ? [] : ctrTimeseriesData?.timeseries}
+              showYAxis={true}
+              data={errorMessage ? [] : ctrTimeseriesData?.timeseries}
               valueFormatter={n => `${n?.toLocaleString('en-US')}%`}
             />
             <LineChartWithValue
@@ -276,7 +278,8 @@ export default function SearchConsole() {
               previousValue={clicksTimeseriesData?.previousValue}
               previousValueDate={clicksTimeseriesData?.previousValueDate}
               showAxis={true}
-              timeseries={errorMessage ? [] : clicksTimeseriesData?.timeseries}
+              showYAxis={true}
+              data={errorMessage ? [] : clicksTimeseriesData?.timeseries}
               valueFormatter={n => n?.toLocaleString('en-US')}
             />
             <LineChartWithValue
@@ -285,7 +288,8 @@ export default function SearchConsole() {
               previousValue={positionTimeseriesData?.previousValue}
               previousValueDate={positionTimeseriesData?.previousValueDate}
               showAxis={true}
-              timeseries={errorMessage ? [] : positionTimeseriesData?.timeseries}
+              showYAxis={true}
+              data={errorMessage ? [] : positionTimeseriesData?.timeseries}
               valueFormatter={n => n?.toLocaleString('en-US')}
             />
           </div>

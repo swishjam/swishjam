@@ -8,9 +8,9 @@ import { ArrowPathIcon } from "@heroicons/react/24/outline";
 import { RxBarChart } from 'react-icons/rx'
 import Link from 'next/link'
 
-import LineChartWithValue from "@/components/Dashboards/DataVisualizations/AreaChartWithValue";
-import ClickableValueCard from "@/components/Dashboards/DataVisualizations/ClickableValueCard";
-import BarChart from "@/components/Dashboards/DataVisualizations/BarChart";
+import LineChartWithValue from "@/components/DataVisualizations/AreaChartWithValue";
+import ClickableValueCard from "@/components/DataVisualizations/ClickableValueCard";
+import BarChart from "@/components/DataVisualizations/BarChart";
 import { formatNumbers, formatShrinkNumbers } from "@/lib/utils/numberHelpers";
 import PageWithHeader from "@/components/utils/PageWithHeader";
 //import { BsArrowLeftShort } from 'react-icons/bs'
@@ -213,7 +213,7 @@ export default function PageMetrics() {
               value={sessionsTimeseriesData?.value}
               previousValue={sessionsTimeseriesData?.previousValue}
               previousValueDate={sessionsTimeseriesData?.previousValueDate}
-              timeseries={sessionsTimeseriesData?.timeseries}
+              data={sessionsTimeseriesData?.timeseries}
               valueFormatter={formatNumbers}
               onClick={() => setCurrentSelectedChart("Sessions")}
             />
@@ -223,7 +223,7 @@ export default function PageMetrics() {
               value={uniqueVisitorsChart?.value}
               previousValue={uniqueVisitorsChart?.previousValue}
               previousValueDate={uniqueVisitorsChart?.previousValueDate}
-              timeseries={uniqueVisitorsChart?.timeseries}
+              data={uniqueVisitorsChart?.timeseries}
               valueFormatter={formatNumbers}
               onClick={() => setCurrentSelectedChart("Unique Visitors")}
             />
@@ -233,7 +233,7 @@ export default function PageMetrics() {
               value={pageViewsTimeseriesData?.value}
               previousValue={pageViewsTimeseriesData?.previousValue}
               previousValueDate={pageViewsTimeseriesData?.previousValueDate}
-              timeseries={pageViewsTimeseriesData?.timeseries}
+              data={pageViewsTimeseriesData?.timeseries}
               valueFormatter={formatNumbers}
               onClick={() => setCurrentSelectedChart("Page Views")}
             />
@@ -244,7 +244,8 @@ export default function PageMetrics() {
               previousValue={currentChartLookup[currentSelectedChart]?.previousValue}
               previousValueDate={currentChartLookup[currentSelectedChart]?.previousValueDate}
               showAxis={true}
-              timeseries={currentChartLookup[currentSelectedChart]?.timeseries}
+              showYAxis={true}
+              data={currentChartLookup[currentSelectedChart]?.timeseries}
               title={currentSelectedChart}
               value={currentChartLookup[currentSelectedChart]?.value}
               valueFormatter={formatNumbers}
@@ -260,8 +261,7 @@ export default function PageMetrics() {
             data={pageViewsBarChartData}
             valueFormatter={formatNumbers}
             yAxisFormatter={formatShrinkNumbers}
-            showLegend={true}
-            showTableInsteadOfLegend={true}
+            legendType='table'
           />
         </div>
         <div className='grid grid-cols-8 gap-2 pt-2'>
@@ -272,8 +272,7 @@ export default function PageMetrics() {
             data={referrersBarChartData}
             valueFormatter={formatNumbers}
             yAxisFormatter={formatShrinkNumbers}
-            showLegend={true}
-            showTableInsteadOfLegend={true}
+            legendType='table'
           />
         </div>
         <div className='grid grid-cols-8 gap-2 pt-2'>
@@ -284,8 +283,7 @@ export default function PageMetrics() {
             data={deviceTypesBarChartData}
             valueFormatter={formatNumbers}
             yAxisFormatter={formatShrinkNumbers}
-            showLegend={true}
-            showTableInsteadOfLegend={true}
+            legendType='table'
           />
         </div>
         <div className='grid grid-cols-2 gap-2 pt-2'>
@@ -296,8 +294,7 @@ export default function PageMetrics() {
             data={browsersBarChartData}
             valueFormatter={formatNumbers}
             yAxisFormatter={formatShrinkNumbers}
-            showLegend={true}
-            showTableInsteadOfLegend={true}
+            legendType='table'
           />
         </div>
         <div className='grid grid-cols-2 gap-2 pt-2'>
@@ -307,8 +304,7 @@ export default function PageMetrics() {
             data={utmCampaignsBarChartData}
             valueFormatter={formatNumbers}
             yAxisFormatter={formatShrinkNumbers}
-            showLegend={true}
-            showTableInsteadOfLegend={false}
+            legendType='legend'
           />
           <BarChart
             title='UTM Mediums'
@@ -316,8 +312,7 @@ export default function PageMetrics() {
             data={utmMediumsBarChartData}
             valueFormatter={formatNumbers}
             yAxisFormatter={formatShrinkNumbers}
-            showLegend={true}
-            showTableInsteadOfLegend={false}
+            legendType='legend'
           />
           <BarChart
             title='UTM Sources'
@@ -325,8 +320,7 @@ export default function PageMetrics() {
             data={utmSourcesBarChartData}
             valueFormatter={formatNumbers}
             yAxisFormatter={formatShrinkNumbers}
-            showLegend={true}
-            showTableInsteadOfLegend={false}
+            legendType='legend'
           />
           <BarChart
             title='UTM Terms'
@@ -335,8 +329,7 @@ export default function PageMetrics() {
             data={utmTermsBarChartData}
             valueFormatter={formatNumbers}
             yAxisFormatter={formatShrinkNumbers}
-            showLegend={true}
-            showTableInsteadOfLegend={false}
+            legendType='legend'
           />
         </div>
       </>

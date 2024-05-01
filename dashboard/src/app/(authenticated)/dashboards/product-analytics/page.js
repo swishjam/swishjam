@@ -6,11 +6,11 @@ import Timefilter from "@/components/Timefilter";
 import { Button } from "@/components/ui/button";
 import { ArrowPathIcon } from "@heroicons/react/24/outline";
 import { RxBarChart } from 'react-icons/rx'
-import ActiveUsersLineChartWithValue from "@/components/Dashboards/DataVisualizations/ActiveUsersLineChartWithValue";
-import LineChartWithValue from "@/components/Dashboards/DataVisualizations/AreaChartWithValue";
-import ItemizedList from '@/components/Dashboards/DataVisualizations/ItemizedList';
+import ActiveUsersLineChartWithValue from "@/components/DataVisualizations/ActiveUsersLineChartWithValue";
+import LineChartWithValue from "@/components/DataVisualizations/AreaChartWithValue";
+import ItemizedList from '@/components/DataVisualizations/ItemizedList';
 import Link from 'next/link'
-import RetentionWidget from '@/components/Dashboards/DataVisualizations/RetentionWidget';
+import RetentionWidget from '@/components/DataVisualizations/RetentionWidget';
 import { formatNumbers } from "@/lib/utils/numberHelpers";
 import { setStateFromTimeseriesResponse } from "@/lib/utils/timeseriesHelpers";
 
@@ -100,6 +100,7 @@ export default function PageMetrics() {
             data={uniqueVisitorsChartData}
             selectedGrouping={uniqueVisitorsGrouping}
             showAxis={true}
+            showYAxis={true}
             onGroupingChange={group => {
               setUniqueVisitorsChartData();
               setUniqueVisitorsGrouping(group);
@@ -114,7 +115,8 @@ export default function PageMetrics() {
             previousValue={newUsersLineChartData?.previousValue}
             previousValueDate={newUsersLineChartData?.previousValueDate}
             showAxis={true}
-            timeseries={newUsersLineChartData?.timeseries}
+            showYAxis={true}
+            data={newUsersLineChartData?.timeseries}
             valueFormatter={formatNumbers}
           />
         </div>

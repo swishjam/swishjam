@@ -4,12 +4,12 @@ import { ArrowPathIcon } from "@heroicons/react/24/outline";
 import Timefilter from "@/components/Timefilter";
 import { Button } from "@/components/ui/button";
 import { formatMoney, formatNumbers, formatShrinkMoney, formatShrinkNumbers } from "@/lib/utils/numberHelpers";
-import Heatmap from "@/components/Dashboards/DataVisualizations/HeatMap";
+import Heatmap from "@/components/DataVisualizations/HeatMap";
 import Image from "next/image";
 import Link from 'next/link'
-import LineChartWithValue from "@/components/Dashboards/DataVisualizations/AreaChartWithValue";
+import LineChartWithValue from "@/components/DataVisualizations/AreaChartWithValue";
 import Modal from "@/components/utils/Modal";
-import RevenueRetentionWidget from '@/components/Dashboards/DataVisualizations/RevenueRetentionWidget';
+import RevenueRetentionWidget from '@/components/DataVisualizations/RevenueRetentionWidget';
 import { RxBarChart } from 'react-icons/rx'
 import { formattedUTCMonthAndDay, setStateFromMultiDimensionalTimeseriesResponse, setStateFromTimeseriesResponse } from "@/lib/utils/timeseriesHelpers";
 import { SwishjamAPI } from "@/lib/api-client/swishjam-api";
@@ -159,7 +159,8 @@ export default function PageMetrics() {
           groupedBy={mrrChartData?.groupedBy}
           onGroupByChange={group => getBillingData(timeframeFilter, group)}
           showAxis={false}
-          timeseries={mrrChartData?.timeseries}
+          showYAxis={false}
+          data={mrrChartData?.timeseries}
           title='MRR'
           valueFormatter={formatMoney}
           yAxisFormatter={formatShrinkMoney}
@@ -169,7 +170,8 @@ export default function PageMetrics() {
           groupedBy={activeSubscriptionsChartData?.groupedBy}
           onGroupByChange={group => getBillingData(timeframeFilter, group)}
           showAxis={false}
-          timeseries={activeSubscriptionsChartData?.timeseries}
+          showYAxis={false}
+          data={activeSubscriptionsChartData?.timeseries}
           title='Active Subscriptions'
           valueFormatter={formatNumbers}
           yAxisFormatter={formatShrinkNumbers}
@@ -191,7 +193,8 @@ export default function PageMetrics() {
           }
           groupedBy={churnRateChartData?.groupedBy}
           showAxis={false}
-          timeseries={churnRateChartData?.timeseries}
+          showYAxis={false}
+          data={churnRateChartData?.timeseries}
           title='Churn Rate'
           valueFormatter={n => `${n.toFixed(2)}%`}
           valueKey='churn_rate'
@@ -234,7 +237,8 @@ export default function PageMetrics() {
           }
           groupedBy={revenuePerCustomerChartData?.groupedBy}
           showAxis={false}
-          timeseries={revenuePerCustomerChartData?.timeseries}
+          showYAxis={false}
+          data={revenuePerCustomerChartData?.timeseries}
           title='Average MRR / Subscriber'
           valueKey='mrr_per_customer'
           valueFormatter={formatMoney}
@@ -244,7 +248,8 @@ export default function PageMetrics() {
           DocumentationContent={<><span className='italic'>New Subscribers</span> is equivalent to the number of <span className='italic'>Stripe Customers</span> created in the selected timeframe.</>}
           groupedBy={customersChartData?.groupedBy}
           showAxis={false}
-          timeseries={customersChartData?.timeseries}
+          showYAxis={false}
+          data={customersChartData?.timeseries}
           title='New Subscribers'
           valueFormatter={formatNumbers}
           yAxisFormatter={formatShrinkNumbers}
@@ -252,7 +257,8 @@ export default function PageMetrics() {
         <LineChartWithValue
           groupedBy={freeTrialsChartData?.groupedBy}
           showAxis={false}
-          timeseries={freeTrialsChartData?.timeseries}
+          showYAxis={false}
+          data={freeTrialsChartData?.timeseries}
           title='Free Trials Started'
           valueFormatter={formatNumbers}
           yAxisFormatter={formatShrinkNumbers}
@@ -267,7 +273,8 @@ export default function PageMetrics() {
           }
           groupedBy={churnedMrrChartData?.groupedBy}
           showAxis={false}
-          timeseries={churnedMrrChartData?.timeseries}
+          showYAxis={false}
+          data={churnedMrrChartData?.timeseries}
           title='Churned MRR'
           valueFormatter={formatMoney}
           yAxisFormatter={formatShrinkMoney}

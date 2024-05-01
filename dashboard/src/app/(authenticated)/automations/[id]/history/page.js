@@ -5,7 +5,7 @@ import CommonQueriesProvider from "@/providers/CommonQueriesProvider";
 import ExecutedAutomationDetails from "@/components/Automations/Results/ExecutedAutomationDetails";
 import ExecutedAutomationsFilter from "@/components/Automations/Results/ExecutedAutomationsFilter";
 import { Cog, FlaskConicalIcon, RefreshCcw } from "lucide-react";
-import LineChartWithValue from "@/components/Dashboards/DataVisualizations/AreaChartWithValue";
+import LineChartWithValue from "@/components/DataVisualizations/AreaChartWithValue";
 import Link from "next/link";
 import { LuArrowLeft } from "react-icons/lu";
 import PageWithHeader from "@/components/utils/PageWithHeader";
@@ -114,7 +114,8 @@ export default function AutomationDetailsPage({ params }) {
         <LineChartWithValue
           includeSettingsDropdown={false}
           showAxis={true}
-          timeseries={executedAutomationsTimeseries}
+          showYAxis={true}
+          data={executedAutomationsTimeseries}
           title='Execution History'
           valueKey='count'
         />

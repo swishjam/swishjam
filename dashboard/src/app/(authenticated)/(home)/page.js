@@ -4,13 +4,13 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { BsCloudSlash } from "react-icons/bs";
 import { SwishjamAPI } from "@/lib/api-client/swishjam-api";
-import AreaChartWithValue from "@/components/Dashboards/DataVisualizations/AreaChartWithValue";
-import ActiveUsersLineChartWithValue from "@/components/Dashboards/DataVisualizations/ActiveUsersLineChartWithValue";
+import AreaChartWithValue from "@/components/DataVisualizations/AreaChartWithValue";
+import ActiveUsersLineChartWithValue from "@/components/DataVisualizations/ActiveUsersLineChartWithValue";
 import Timefilter from "@/components/Timefilter";
 import { Button } from "@/components/ui/button";
 import { ArrowPathIcon } from "@heroicons/react/24/outline";
-import ItemizedList from "@/components/Dashboards/DataVisualizations/ItemizedList";
-import RetentionWidgetTiny from "@/components/Dashboards/DataVisualizations/RetentionWidgetTiny";
+import ItemizedList from "@/components/DataVisualizations/ItemizedList";
+import RetentionWidgetTiny from "@/components/DataVisualizations/RetentionWidgetTiny";
 import { BsArrowRightShort } from "react-icons/bs";
 import { formatMoney, formatNumbers, formatShrinkNumbers, formatShrinkMoney } from "@/lib/utils/numberHelpers";
 import { setStateFromTimeseriesResponse, setStateFromMultiDimensionalTimeseriesResponse, formattedUTCMonthAndDay } from "@/lib/utils/timeseriesHelpers";
@@ -176,7 +176,7 @@ export default function Home() {
           value={newUsersChartData?.value}
           previousValue={newUsersChartData?.previousValue}
           previousValueDate={newUsersChartData?.previousValueDate}
-          timeseries={newUsersChartData?.timeseries}
+          data={newUsersChartData?.timeseries}
           includeTable={false}
           valueFormatter={formatNumbers}
           yAxisFormatter={formatShrinkNumbers}
@@ -204,14 +204,15 @@ export default function Home() {
           valueFormatter={formatMoney}
           yAxisFormatter={formatShrinkMoney}
           showAxis={false}
-          timeseries={mrrChart?.timeseries}
+          showYAxis={false}
+          data={mrrChart?.timeseries}
           includeTable={false}
         />
         <AreaChartWithValue
           title="Active Subscriptions"
           groupedBy={activeSubsChart?.groupedBy}
           onGroupByChange={group => getBillingData(timeframeFilter, group)}
-          timeseries={activeSubsChart?.timeseries}
+          data={activeSubsChart?.timeseries}
           noDataMessage={
             <div className="text-center">
               <BsCloudSlash size={24} className="text-gray-500 m-auto" />
@@ -255,7 +256,7 @@ export default function Home() {
           groupedBy={churnRateData?.groupedBy}
           previousValue={churnRateData?.previousValue}
           previousValueDate={churnRateData?.previousValueDate}
-          timeseries={churnRateData?.timeseries}
+          data={churnRateData?.timeseries}
           title='Churn Rate'
           value={churnRateData?.value}
           valueFormatter={n => `${n.toFixed(2)}%`}
@@ -280,7 +281,7 @@ export default function Home() {
           previousValue={sessionsMarketingChart?.previousValue}
           previousValueDate={sessionsMarketingChart?.previousValueDate}
           includeTable={false}
-          timeseries={sessionsMarketingChart?.timeseries}
+          data={sessionsMarketingChart?.timeseries}
           valueFormatter={formatNumbers}
           yAxisFormatter={formatShrinkNumbers}
         />
@@ -290,7 +291,7 @@ export default function Home() {
           previousValue={pageViewsTimeseriesData?.previousValue}
           previousValueDate={pageViewsTimeseriesData?.previousValueDate}
           includeTable={false}
-          timeseries={pageViewsTimeseriesData?.timeseries}
+          data={pageViewsTimeseriesData?.timeseries}
           valueFormatter={formatNumbers}
           yAxisFormatter={formatShrinkNumbers}
         />
@@ -302,7 +303,7 @@ export default function Home() {
             uniqueVisitorsMarketingChartData?.previousValueDate
           }
           includeTable={false}
-          timeseries={uniqueVisitorsMarketingChartData?.timeseries}
+          data={uniqueVisitorsMarketingChartData?.timeseries}
           valueFormatter={formatNumbers}
           yAxisFormatter={formatShrinkNumbers}
         />

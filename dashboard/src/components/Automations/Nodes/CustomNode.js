@@ -25,7 +25,9 @@ export default memo(({
   dialogFullWidth = true,
   icon,
   includeTopHandle = true,
+  topHandlePosition = Position.Top,
   includeBottomHandle = true,
+  bottomHandlePosition = Position.Bottom,
   onEditClick,
   requiredData = [],
   showWarningWhenNoEntryPointEvent = true,
@@ -171,7 +173,7 @@ export default memo(({
             <Handle
               type="target"
               isConnectable={false}
-              position={Position.Top}
+              position={topHandlePosition}
               style={{ background: '#b1b1b7' }}
             />
           )}
@@ -179,7 +181,7 @@ export default memo(({
             <Handle
               type="source"
               isConnectable={false}
-              position={Position.Bottom}
+              position={bottomHandlePosition}
               style={{ background: '#b1b1b7' }}
             />
           )}

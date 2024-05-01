@@ -3,15 +3,15 @@
 import PageWithHeader from "@/components/utils/PageWithHeader"
 import { useEffect, useState } from "react";
 import SwishjamAPI from "@/lib/api-client/swishjam-api";
-import ComponentPreviewer from "@/components/Dashboards/Builder/Configurations/V2/DataVisualizationPreviewer";
-import AreaChartRenderingEngine from "@/components/Dashboards/DataVisualizations/RenderingEngines/AreaChart";
-import BarChartDashboardComponent from "@/components/Dashboards/DataVisualizations/RenderingEngines/BarChart";
+import ComponentPreviewer from "@/components/Dashboards/Configurations/V2/DataVisualizationPreviewer";
+import AreaChartRenderingEngine from "@/components/DataVisualizations/RenderingEngines/AreaChart";
+import BarChartDashboardComponent from "@/components/DataVisualizations/RenderingEngines/BarChart";
 import Timefilter from "@/components/Timefilter";
 import { buttonVariants } from "@/components/ui/button";
 import Link from "next/link";
 import { Skeleton } from "@/components/ui/skeleton";
 import { PencilIcon } from "lucide-react";
-import ValueCardRenderingEngine from "@/components/Dashboards/DataVisualizations/RenderingEngines/ValueCard";
+import ValueCardRenderingEngine from "@/components/DataVisualizations/RenderingEngines/ValueCard";
 
 const COMPONENT_RENDERING_ENGINE_DICT = {
   AreaChart: AreaChartRenderingEngine,

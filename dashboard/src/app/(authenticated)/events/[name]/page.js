@@ -2,9 +2,9 @@
 
 import { useEffect, useState } from "react";
 import SwishjamAPI from "@/lib/api-client/swishjam-api";
-import LineChartWithValue from "@/components/Dashboards/DataVisualizations/AreaChartWithValue";
-import ItemizedList from "@/components/Dashboards/DataVisualizations/ItemizedList";
-import BarList from "@/components/Dashboards/DataVisualizations/BarList";
+import LineChartWithValue from "@/components/DataVisualizations/AreaChartWithValue";
+import ItemizedList from "@/components/DataVisualizations/ItemizedList";
+import BarList from "@/components/DataVisualizations/BarList";
 
 export default function EventDetails({ params }) {
   const { name: encodedName } = params;
@@ -62,9 +62,10 @@ export default function EventDetails({ params }) {
           value={eventTimeseries?.value}
           previousValue={eventTimeseries?.previousValue}
           previousValueDate={eventTimeseries?.previousValueDate}
-          timeseries={eventTimeseries?.timeseries}
+          data={eventTimeseries?.timeseries}
           groupedBy={eventTimeseries?.groupedBy}
           showAxis={true}
+          showYAxis={true}
         />
       </div>
       <div className='mt-8 grid grid-cols-2 gap-x-4'>

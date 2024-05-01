@@ -1,19 +1,20 @@
 'use client'
 
 import { ChartPieIcon, PencilSquareIcon, PlusCircleIcon } from "@heroicons/react/24/outline";
-import DashboardNameDisplayEditor from "@/components/Dashboards/Builder/DashboardNameDisplayEditor";
+import DashboardNameDisplayEditor from "@/components/Dashboards/DashboardNameDisplayEditor";
 import LoadingSpinner from "@/components/LoadingSpinner";
-import DataVisualizationsDashboardCanvas from "@/components/Dashboards/Builder/DataVisualizationsDashboardCanvas";
+import DataVisualizationsDashboardCanvas from "@/components/Dashboards/DataVisualizationsDashboardCanvas";
 import { Skeleton } from "@/components/ui/skeleton";
 import SwishjamAPI from "@/lib/api-client/swishjam-api";
 import Timefilter from "@/components/Timefilter";
 import { useEffect, useState, useRef } from "react";
 import { swishjam } from "@swishjam/react";
-import DataVisualizationLibrary from "@/components/Dashboards/DataVisualizations/DataVisualizationLibrary";
+import DataVisualizationLibrary from "@/components/DataVisualizations/DataVisualizationLibrary";
 import { toast } from "sonner";
+import useConfirmationModal from "@/hooks/useConfirmationModal";
 
 const AUTO_SAVE_CHECK_INTERVAL = 2_500;
-const DEFAULT_GRID_CONFIGURATIONS = {
+const DEFAULT_GRID_DIMENSIONS = {
   BarChart: { w: 2, h: 16, y: 0, x: 0, minH: 6, minW: 2 },
   BarList: { w: 2, h: 16, y: 0, x: 0, minH: 8, minW: 2 },
   AreaChart: { w: 2, h: 16, y: 0, x: 0, minH: 10, minW: 2 },
@@ -43,6 +44,8 @@ export default function Dashboard({ params }) {
   const [isSaving, setIsSaving] = useState(false);
   const [pendingDashboardLayoutUpdates, setPendingDashboardLayoutUpdates] = useState([]);
 
+  const { displayConfirmation } = useConfirmationModal();
+
   const detectChangedDashboardDataVisualizationsFromLayoutAndSave = layout => {
     const changedDashboardDataVisualizations = dashboardDataVisualizations.map(dashboardDataVisualization => {
       const layoutItemForDashboardDataVisualization = layout.find(({ i }) => i === dashboardDataVisualization.id);
@@ -53,16 +56,6 @@ export default function Dashboard({ params }) {
         layoutItemForDashboardDataVisualization.w !== dashboardDataVisualization.position_config.w ||
         layoutItemForDashboardDataVisualization.h !== dashboardDataVisualization.position_config.h
       ) {
-        console.log("CHANGED!", {
-          ...dashboardDataVisualization,
-          position_config: {
-            ...dashboardDataVisualization.position_config,
-            x: layoutItemForDashboardDataVisualization.x,
-            y: layoutItemForDashboardDataVisualization.y,
-            w: layoutItemForDashboardDataVisualization.w,
-            h: layoutItemForDashboardDataVisualization.h
-          }
-        })
         return {
           ...dashboardDataVisualization,
           position_config: {
@@ -81,9 +74,15 @@ export default function Dashboard({ params }) {
 
   const updateDashboardDataVisualizations = async dashboardDataVisualizations => {
     const formattedDashboardDataVisualizations = dashboardDataVisualizations.map(({ id, position_config }) => ({ id, position_config }));
+    const start = performance.now();
     setIsSaving(true);
     return SwishjamAPI.DashboardDataVizualizations.bulkUpdate(dashboardId, formattedDashboardDataVisualizations).then(({ errors }) => {
-      setIsSaving(false);
+      const saveTime = performance.now() - start;
+      if (saveTime < 1_500) {
+        setTimeout(() => setIsSaving(false), 1_500 - saveTime);
+      } else {
+        setIsSaving(false);
+      }
       if (errors) {
 
       }
@@ -91,7 +90,7 @@ export default function Dashboard({ params }) {
   }
 
   const addDataVisualizationToDashboard = async dataVisualization => {
-    const response = await SwishjamAPI.DashboardDataVizualizations.create(dashboardId, dataVisualization.id, DEFAULT_GRID_CONFIGURATIONS[dataVisualization.visualization_type])
+    const response = await SwishjamAPI.DashboardDataVizualizations.create(dashboardId, dataVisualization.id, DEFAULT_GRID_DIMENSIONS[dataVisualization.visualization_type])
     if (response.error) {
       toast.error('Error adding visualization to dashboard', {
         description: response.error,
@@ -100,6 +99,19 @@ export default function Dashboard({ params }) {
     } else {
       setDashboardDataVisualizations([...dashboardDataVisualizations, response]);
     }
+  }
+
+  const deleteDashboardDataVisualization = async dashboardDataVisualizationId => {
+    displayConfirmation({
+      title: 'Remove Visualization?',
+      body: 'This will remove the visualization from your dashboard. The visualization will still be available in your data visualization library and will not impact other dashboards referencing it.',
+      confirmButtonText: 'Remove Visualization',
+      callback: () => {
+        setDashboardDataVisualizations(dashboardDataVisualizations.filter(({ id: dashboardDataVisualizations }) => dashboardDataVisualizations !== dashboardDataVisualizationId));
+        SwishjamAPI.DashboardDataVizualizations.delete(dashboardId, dashboardDataVisualizationId);
+        toast.success('Visualization removed from dashboard.')
+      }
+    })
   }
 
   const pendingDashboardLayoutUpdatesRef = useRef(pendingDashboardLayoutUpdates);
@@ -164,7 +176,7 @@ export default function Dashboard({ params }) {
                 {isSaving && (
                   <span className='text-xs text-gray-400 inline-flex items-center'>
                     Saving changes...
-                    <LoadingSpinner center={true} color='gray-400' className='h-1 w-1 mx-1 inline-block' />
+                    <LoadingSpinner center={true} color='gray-400' className='h-3 w-3 mx-1 inline-block' />
                   </span>
                 )}
                 <button
@@ -212,10 +224,7 @@ export default function Dashboard({ params }) {
                 timeframe={currentTimeframe}
                 onLayoutChange={detectChangedDashboardDataVisualizationsFromLayoutAndSave}
                 editable={isInEditMode}
-                onDataVisualizationDelete={id => {
-                  setDashboardDataVisualizations(dashboardDataVisualizations.filter(({ id: dashboardDataVisualizations }) => dashboardDataVisualizations !== id));
-                  SwishjamAPI.DashboardDataVizualizations.delete(dashboardId, id);
-                }}
+                onDashboardDataVisualizationDelete={deleteDashboardDataVisualization}
               />
             ) : (
               <EmptyState

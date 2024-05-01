@@ -1,12 +1,12 @@
 'use client'
 
 import { ArrowPathIcon } from "@heroicons/react/24/outline";
-import BarList from "@/components/Dashboards/DataVisualizations/BarList";
+import BarList from "@/components/DataVisualizations/BarList";
 import Breadcrumbs from "@/components/Breadcrumbs";
 import { Button } from "@/components/ui/button";
-import EventFeed from "@/components/Dashboards/DataVisualizations/EventFeed";
+import EventFeed from "@/components/DataVisualizations/EventFeed";
 import LoadingView from "./LoadingView";
-import LineChartWithValue from '@/components/Dashboards/DataVisualizations/AreaChartWithValue';
+import LineChartWithValue from '@/components/DataVisualizations/AreaChartWithValue';
 import ProfileInformationSideBar from "@/components/Profiles/ProfileInformationSideBar";
 import { setStateFromTimeseriesResponse } from "@/lib/utils/timeseriesHelpers";
 import { SwishjamAPI } from "@/lib/api-client/swishjam-api";
@@ -118,7 +118,7 @@ const UserProfile = ({ params }) => {
                 <LineChartWithValue
                   title='Sessions'
                   value={sessionTimeseriesData?.value}
-                  timeseries={sessionTimeseriesData?.timeseries}
+                  data={sessionTimeseriesData?.timeseries}
                   valueFormatter={numSessions => numSessions.toLocaleString('en-US')}
                 />
                 <BarList className="mt-4" title='Page Views' items={pageViewsData} noDataMessage="No page views in the last 90 days." />

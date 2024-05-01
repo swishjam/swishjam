@@ -15,10 +15,11 @@ const NEW_EDGE_ID_PREFIX = 'new-edge-';
 
 const dagreGraph = new dagre.graphlib.Graph();
 dagreGraph.setDefaultEdgeLabel(() => ({}));
-const EDGE_LENGTH_HEIGHT_MULTIPLIER = 2;
+// const EDGE_LENGTH_HEIGHT_MULTIPLIER = 2;
+const EDGE_LENGTH_HEIGHT_MULTIPLIER = 1.25;
 
-export const autoLayoutNodesAndEdges = (nodes, edges) => {
-  dagreGraph.setGraph({ rankdir: 'TB' });
+export const autoLayoutNodesAndEdges = (nodes, edges, { direction = 'LR' } = {}) => {
+  dagreGraph.setGraph({ rankdir: direction });
 
   nodes.forEach((node) => {
     dagreGraph.setNode(node.id, { width: NODE_WIDTH, height: NODE_HEIGHT });
@@ -37,13 +38,21 @@ export const autoLayoutNodesAndEdges = (nodes, edges) => {
 
     const parentNode = nodes.find(n => edges.find(e => e.target === node.id && e.source === n.id));
     const parentNodeXCoordinate = (parentNode || { position: { x: 0 } }).position.x
+    const parentNodeYCoordinate = (parentNode || { position: { y: 0 } }).position.y
 
     // We are shifting the dagre node position (anchor=center center) to the top left
     // so it matches the React Flow node anchor point (top left).
-    node.position = {
-      x: parentNodeXCoordinate,
-      y: (nodeWithPosition.y - NODE_HEIGHT / 2) * EDGE_LENGTH_HEIGHT_MULTIPLIER,
-    };
+    if (direction === 'LR') {
+      node.position = {
+        x: (nodeWithPosition.x - NODE_WIDTH / 2) * EDGE_LENGTH_HEIGHT_MULTIPLIER,
+        y: parentNodeYCoordinate,
+      }
+    } else {
+      node.position = {
+        x: parentNodeXCoordinate,
+        y: (nodeWithPosition.y - NODE_HEIGHT / 2) * EDGE_LENGTH_HEIGHT_MULTIPLIER,
+      };
+    }
   });
 
   return { nodes, edges };

@@ -1,6 +1,6 @@
 'use client'
 
-import DataVisualizationBuilder from "@/components/Dashboards/Builder/Configurations/V2/DataVisualizationBuilder";
+import DataVisualizationBuilder from "@/components/Dashboards/Configurations/V2/DataVisualizationBuilder";
 import CommonQueriesProvider from "@/providers/CommonQueriesProvider";
 import PageWithHeader from "@/components/utils/PageWithHeader"
 import { useState } from "react";
@@ -11,8 +11,7 @@ import { useRouter } from "next/navigation";
 const DEFAULT_CONFIGS_DICT = {
   BarChart: {
     showGridLines: true,
-    showLegend: true,
-    showTableInsteadOfLegend: true,
+    legendType: 'table',
     showXAxis: true,
     showYAxis: true,
     maxRankingToNotBeConsideredOther: 10,
