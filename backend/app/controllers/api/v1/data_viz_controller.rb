@@ -101,6 +101,23 @@ module Api
       end
 
       def pie_chart
+        params[:data_source] ||= 'all'
+        if event.blank? || property.blank?
+          render json: { error: '`event` and `property` params are required' }, status: :bad_request
+          return
+        end
+        results = ClickHouseQueries::Events::PieChart.new(
+          public_keys_for_requested_data_source, 
+          event: event, 
+          aggregation_method: aggregation_method,
+          property: property,
+          query_groups: query_groups,
+          start_time: start_timestamp, 
+          end_time: end_timestamp,
+          # TODO: I think we should support grouping by a different property...?
+          group_by: property
+        ).get
+        render json: results, status: :ok
       end
 
       private

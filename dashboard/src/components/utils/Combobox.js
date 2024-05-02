@@ -54,7 +54,7 @@ export default function Combobox({
               <CommandInput className="border-0" placeholder="Search..." />
               <CommandEmpty>No results found for search.</CommandEmpty>
 
-              <CommandGroup className='max-h-80 overflow-y-scroll' style={{ maxHeight }}>
+              <CommandGroup className='overflow-y-scroll' style={{ maxHeight }}>
                 {options.map((option, i) => {
                   if (option.type === "separator") {
                     return <CommandSeparator className='my-1' key={i} />

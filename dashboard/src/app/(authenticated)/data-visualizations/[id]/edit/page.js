@@ -9,41 +9,20 @@ import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { Skeleton } from "@/components/ui/skeleton";
 import { TriangleAlertIcon } from "lucide-react";
-
-const DEFAULT_CONFIGURATIONS_DICT = {
-  BarChart: {
-    showGridLines: true,
-    legendType: 'table',
-    showXAxis: true,
-    showYAxis: true,
-    maxRankingToNotBeConsideredOther: 10,
-    excludeEmptyValues: false,
-    emptyValuePlaceholder: 'EMPTY',
-  },
-  AreaChart: {
-    showGridLines: true,
-    showYAxis: true,
-    showXAxis: true,
-    includeTable: true,
-    primaryColor: '#7dd3fc',
-    primaryColorFill: '#bde7fd',
-    secondaryColor: "#878b90",
-    secondaryColorFill: "#bfc3ca",
-  }
-}
+import { DEFAULT_CONFIGURATIONS_DICT, sanitizedConfigDataForVisualizationType } from "@/lib/data-visualizations-helpers";
 
 export default function EditDashboardComponentPage({ params }) {
   const { id: dashboardComponentId } = params;
   const [config, setConfig] = useState();
-  const [componentType, setDataVisualizationType] = useState();
+  const [dataVisualizationType, setDataVisualizationType] = useState();
   const [isLoading, setIsLoading] = useState(false);
   const [numDashboards, setNumDashboards] = useState();
   const router = useRouter();
 
   useEffect(() => {
-    SwishjamAPI.DataVizualizations.retrieve(dashboardComponentId).then(({ title, subtitle, config, num_dashboards }) => {
+    SwishjamAPI.DataVizualizations.retrieve(dashboardComponentId).then(({ title, subtitle, visualization_type, config, num_dashboards }) => {
       setConfig({ title, subtitle, ...config });
-      setDataVisualizationType(config.type)
+      setDataVisualizationType(visualization_type);
       setNumDashboards(num_dashboards);
     })
   }, [])
@@ -52,22 +31,27 @@ export default function EditDashboardComponentPage({ params }) {
   const onSave = async () => {
     setIsLoading(true);
     const { title, subtitle, ...rest } = config;
-    const response = await SwishjamAPI.DataVizualizations.update(dashboardComponentId, { title, subtitle, config: { ...rest, type: componentType } });
+    const response = await SwishjamAPI.DataVizualizations.update(dashboardComponentId, {
+      title,
+      subtitle,
+      visualization_type: dataVisualizationType,
+      config: sanitizedConfigDataForVisualizationType(dataVisualizationType, rest),
+    });
     if (response.error) {
       setIsLoading(false);
-      toast.error('Failed to create dashboard component', {
+      toast.error('Failed to create data visualization', {
         description: response.error,
         duration: 15_000,
       })
     } else {
-      toast.success('Dashboard component updated successfully');
+      toast.success('Data visualization updated successfully');
       router.push(`/dashboards/components/${response.id}`);
     }
   }
 
   return (
     <CommonQueriesProvider queriesToInclude={['uniqueEventsAndCounts', 'uniqueUserProperties', 'uniqueOrganizationProperties']}>
-      <PageWithHeader title='Edit Dashboard Component'>
+      <PageWithHeader title='Edit Data Visualization'>
         {numDashboards && numDashboards > 0 ? (
           <div className='bg-yellow-100 text-yellow-600 w-full p-4 mb-4 flex items-center rounded-md'>
             <TriangleAlertIcon className='w-6 h-6 mr-2' />
@@ -78,7 +62,7 @@ export default function EditDashboardComponentPage({ params }) {
           ? (
             <DataVisualizationBuilder
               config={config}
-              dataVisualizationType={componentType}
+              dataVisualizationType={dataVisualizationType}
               isLoading={isLoading}
               onConfigChange={setConfig}
               onSave={onSave}

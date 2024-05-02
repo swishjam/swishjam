@@ -4,19 +4,22 @@ import DataVisualizationContextMenu from "./utils/DataVisualizationContextMenu";
 
 const defineComponentAsDataVisualization = (DataVisualizationComponent, {
   loadingDetectionProp = 'data',
-  contextMenu = true,
+  includeContextMenu: componentDefinedIncludeContextMenu = true,
   settings: componentDefinedSettings = []
 } = {}) => {
-  return function ({
+  return function DataVisualizationWrapper({
     AdditionalHeaderActions,
     className,
     dataVisualizationId,
     DocumentationContent,
     includeCard = true,
+    includeContextMenu = true,
     includeSettingsDropdown = true,
+    includeQueryDetails = true,
     isEnlargable = true,
-    linkToComponentDetailsPage = true,
+    linkToDataVisualizationDetailsPage = true,
     onDelete,
+    onlyDisplayHeaderActionsOnHover = true,
     settings,
     subtitle,
     title,
@@ -28,7 +31,7 @@ const defineComponentAsDataVisualization = (DataVisualizationComponent, {
       <DataVisualizationSettingsProvider settings={dataVisualizationSettings}>
         <DataVisualizationContextMenu
           dataVisualizationId={dataVisualizationId}
-          isTriggerable={contextMenu}
+          isTriggerable={componentDefinedIncludeContextMenu ?? includeContextMenu}
           onDelete={onDelete}
         >
           <ConditionalCardWrapper
@@ -38,9 +41,11 @@ const defineComponentAsDataVisualization = (DataVisualizationComponent, {
             DocumentationContent={DocumentationContent}
             includeCard={includeCard}
             includeSettingsDropdown={includeSettingsDropdown}
+            includeQueryDetails={includeQueryDetails}
             isEnlargable={isEnlargable}
-            linkToComponentDetailsPage={linkToComponentDetailsPage}
+            linkToDataVisualizationDetailsPage={linkToDataVisualizationDetailsPage}
             loading={dataVisualizationSpecificProps[loadingDetectionProp] === undefined}
+            onlyDisplayHeaderActionsOnHover={onlyDisplayHeaderActionsOnHover}
             QueryDetails={QueryDetails}
             settings={dataVisualizationSettings}
             subtitle={subtitle}

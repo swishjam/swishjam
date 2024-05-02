@@ -12,9 +12,11 @@ export default function ConditionalCardWrapper({
   DocumentationContent,
   includeCard = true,
   includeSettingsDropdown = true,
+  includeQueryDetails = true,
   isEnlargable = true,
-  linkToComponentDetailsPage = true,
+  linkToDataVisualizationDetailsPage = true,
   loading = false,
+  onlyDisplayHeaderActionsOnHover = true,
   QueryDetails,
   settings,
   subtitle,
@@ -38,10 +40,9 @@ export default function ConditionalCardWrapper({
               </button>
             )}
           </div>
-          <div className='flex justify-end flex-shrink gap-x-2 group-hover:opacity-100 opacity-0 duration-300 transition'>
-            {/* {AdditionalHeaderActions.map((Action, i) => <Action key={i} />)} */}
+          <div className={`flex justify-end flex-shrink gap-x-2 duration-300 transition ${onlyDisplayHeaderActionsOnHover ? 'opacity-0 group-hover:opacity-100' : ''}`}>
             {AdditionalHeaderActions}
-            {QueryDetails && (
+            {(includeQueryDetails && QueryDetails) && (
               <Tooltipable content={QueryDetails}>
                 <div className='flex items-center justify-center duration-300 transition text-gray-500 hover:bg-gray-100 rounded-md'>
                   <SlidersHorizontalIcon className='h-4 w-4 m-1 text-gray-500' />
@@ -49,7 +50,7 @@ export default function ConditionalCardWrapper({
               </Tooltipable>
             )}
             {includeSettingsDropdown && (
-              <SettingsDropdown dataVisualizationId={linkToComponentDetailsPage && dataVisualizationId} />
+              <SettingsDropdown dataVisualizationId={linkToDataVisualizationDetailsPage && dataVisualizationId} />
             )}
           </div>
         </div>

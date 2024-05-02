@@ -35,7 +35,12 @@ const ValueCard = ({
 
   useResizeObserver(containerRef, () => {
     clearTimeout(resizeObserverDebounceRef.current);
-    resizeObserverDebounceRef.current = setTimeout(updateFontSizeBasedOnHeight, 25);
+    resizeObserverDebounceRef.current = setTimeout(() => {
+      if (!resizeValueBasedOnHeight) {
+        return;
+      }
+      updateFontSizeBasedOnHeight()
+    }, 25);
   }, { enabled: resizeValueBasedOnHeight })
 
   useEffect(() => {
@@ -71,6 +76,7 @@ const ValueCard = ({
     const height = containerRef.current.getBoundingClientRect().height;
 
     if (valueTextRef.current) {
+      // no less than 25px, no more than either 75% of the height or 100px, whichever is smaller
       const valueTextFontSize = Math.max(
         25,
         Math.min(height * 0.75, maxFontSize),
@@ -107,7 +113,7 @@ const ValueCard = ({
       >
         {valueFormatter(value)}
       </div>
-      {(comparisonFormat !== 'none' && changeInValue && changeInValue !== 0) && (
+      {(comparisonFormat !== 'none' && parseFloat(changeInValue || 0) !== parseFloat(0)) && (
         <HoverCard>
           <HoverCardTrigger className='block w-fit ml-2 pt-2'>
             <p className="text-xs text-muted-foreground cursor-default transition-all duration-100">

@@ -3,41 +3,30 @@
 import PageWithHeader from "@/components/utils/PageWithHeader"
 import { useEffect, useState } from "react";
 import SwishjamAPI from "@/lib/api-client/swishjam-api";
-import ComponentPreviewer from "@/components/Dashboards/Configurations/V2/DataVisualizationPreviewer";
-import AreaChartRenderingEngine from "@/components/DataVisualizations/RenderingEngines/AreaChart";
-import BarChartDashboardComponent from "@/components/DataVisualizations/RenderingEngines/BarChart";
 import Timefilter from "@/components/Timefilter";
 import { buttonVariants } from "@/components/ui/button";
 import Link from "next/link";
 import { Skeleton } from "@/components/ui/skeleton";
 import { PencilIcon } from "lucide-react";
-import ValueCardRenderingEngine from "@/components/DataVisualizations/RenderingEngines/ValueCard";
+import DataVisualizationRenderingEngine from "@/components/DataVisualizations/RenderingEngines/DataVisualizationRenderingEngine";
 
-const COMPONENT_RENDERING_ENGINE_DICT = {
-  AreaChart: AreaChartRenderingEngine,
-  BarChart: BarChartDashboardComponent,
-  // BarList: BarListDashboardComponent,
-  // PieChart: PieChartDashboardComponent,
-  ValueCard: ValueCardRenderingEngine,
-}
-
-export default function NewDashboardComponentPage({ params }) {
-  const { id: dashboardComponentId } = params;
-  const [dashboardComponent, setDashboardComponent] = useState();
+export default function NewdataVisualizationPage({ params }) {
+  const { id: dataVisualizationId } = params;
+  const [dataVisualization, setdataVisualization] = useState();
   const [selectedTimeRange, setSelectedTimeRange] = useState('seven_days');
 
   useEffect(() => {
-    SwishjamAPI.DataVizualizations.retrieve(dashboardComponentId).then(setDashboardComponent)
+    SwishjamAPI.DataVizualizations.retrieve(dataVisualizationId).then(setdataVisualization)
   }, [])
 
   return (
     <PageWithHeader
-      title='Dashboard Component'
+      title='Data Visualization'
       buttons={
         <>
           <Timefilter onSelection={setSelectedTimeRange} selection={selectedTimeRange} />
           <Link
-            href={`/dashboards/components/${dashboardComponentId}/edit`}
+            href={`/data-visualizations/${dataVisualizationId}/edit`}
             className={`flex items-center space-x-1 ${buttonVariants({ variant: 'outline' })}`}
           >
             <PencilIcon className='h-4 w-4' />
@@ -46,17 +35,18 @@ export default function NewDashboardComponentPage({ params }) {
         </>
       }
     >
-      {dashboardComponent
+      {dataVisualization
         ? (
-          <ComponentPreviewer
-            {...dashboardComponent.config}
-            title={dashboardComponent.title}
-            subtitle={dashboardComponent.subtitle}
-            includeCard={dashboardComponent.visualization_type === 'ValueCard'}
-            className={dashboardComponent.visualization_type === 'ValueCard' ? 'py-12 px-72' : ''}
-            ComponentRenderingEngine={COMPONENT_RENDERING_ENGINE_DICT[dashboardComponent.visualization_type]}
-            timeframe={selectedTimeRange}
-          />
+          <div className={`${dataVisualization.visualization_type === 'ValueCard' ? 'h-96' : 'h-[80vh]'} w-full`}>
+            <DataVisualizationRenderingEngine
+              {...dataVisualization.config}
+              title={dataVisualization.title}
+              subtitle={dataVisualization.subtitle}
+              type={dataVisualization.visualization_type}
+              timeframe={selectedTimeRange}
+              includeCard={true}
+            />
+          </div>
         ) : <Skeleton className='w-full h-96' />
       }
     </PageWithHeader>

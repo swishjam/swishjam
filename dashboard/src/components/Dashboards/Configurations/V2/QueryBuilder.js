@@ -7,6 +7,7 @@ import { CalculatorIcon, ChevronLeftIcon, ChevronRightIcon, FilterIcon, HashIcon
 import useCommonQueries from '@/hooks/useCommonQueries';
 import { Button } from '@/components/ui/button';
 import WhereClauseGroup from './WhereClauseGroup';
+import LoadingSpinner from '@/components/LoadingSpinner';
 
 const AGGREGATION_OPTIONS = [
   {
@@ -65,7 +66,10 @@ export default function QueryBuilder({
   } = config;
 
   useEffect(() => {
-    SwishjamAPI.Events.Properties.listUnique(selectedEvent).then(setUniquePropertiesForEvent);
+    setUniquePropertiesForEvent();
+    if (selectedEvent) {
+      SwishjamAPI.Events.Properties.listUnique(selectedEvent).then(setUniquePropertiesForEvent);
+    }
   }, [selectedEvent])
 
   const { uniqueEventsAndCounts, uniqueUserProperties } = useCommonQueries();
@@ -133,12 +137,20 @@ export default function QueryBuilder({
                   ...(includeUserProperties ? uniqueUserPropertyOptions || [] : [])
                 ]}
                 placeholder={
-                  <div className='flex items-center'>
-                    <div className='p-1 mr-1 bg-yellow-100 text-yellow-500 rounded'>
-                      <TriangleAlertIcon className='h-4 w-4 mx-auto' />
-                    </div>
-                    Property
-                  </div>
+                  !selectedEvent || uniquePropertiesForEvent
+                    ? (
+                      <div className='flex items-center'>
+                        <div className='p-1 mr-1 bg-yellow-100 text-yellow-500 rounded'>
+                          <TriangleAlertIcon className='h-4 w-4 mx-auto' />
+                        </div>
+                        Property
+                      </div>
+                    ) : (
+                      <div className='flex items-center'>
+                        <LoadingSpinner className='h-4 w-4 mr-1' />
+                        Property
+                      </div>
+                    )
                 }
               />
               <span className='mx-1'>property over time.</span>

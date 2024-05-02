@@ -71,9 +71,9 @@ module ClickHouseQueries
         when 'less_than_or_equal_to'
           "JSONExtractFloat(e.#{column}, '#{property}') <= #{value.downcase}"
         when 'is_defined'
-          "JSONExtractString(e.#{column}, '#{property}') IS NOT NULL"
+          "notEmpty(JSONExtractString(e.#{column}, '#{property}')) AND isNotNull(JSONExtractString(e.#{column}, '#{property}'))"
         when 'is_not_defined'
-          "JSONExtractString(e.#{column}, '#{property}') IS NULL"
+          "empty(JSONExtractString(e.#{column}, '#{property}')) OR isNull(JSONExtractString(e.#{column}, '#{property}'))"
         else
           raise InvalidFilterGroupError, "Invalid operator: #{operator}"
         end

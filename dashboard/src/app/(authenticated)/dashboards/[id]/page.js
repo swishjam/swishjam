@@ -129,7 +129,7 @@ export default function Dashboard({ params }) {
   useEffect(() => {
     SwishjamAPI.Dashboards.retrieve(dashboardId).then(({ name }) => setDashboardName(name));
     SwishjamAPI.DashboardDataVizualizations.list(dashboardId).then(setDashboardDataVisualizations);
-    const saveHotKeyListener = window.addEventListener('keydown', event => {
+    const saveHotKeyListener = event => {
       if (event.metaKey && event.key === 's') {
         event.preventDefault();
         toast.info('Swishjam Dashboards are auto-saved.', {
@@ -137,7 +137,8 @@ export default function Dashboard({ params }) {
           duration: 10_000,
         })
       }
-    });
+    }
+    window.addEventListener('keydown', saveHotKeyListener);
     const autoSaveInterval = setInterval(() => savePendingDashboardLayoutUpdatesIfNecessary(), AUTO_SAVE_CHECK_INTERVAL);
     return () => {
       clearInterval(autoSaveInterval);

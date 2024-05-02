@@ -6,7 +6,7 @@ export default function QueryDetailsComposer({ event, property, aggregationMetho
     <div className='text-sm text-gray-700 font-normal p-4'>
       <h3 className='font-medium'>Query Details:</h3>
       <div className='mt-2'>
-        Visualizes the <DottedUnderline>{aggregationMethod}</DottedUnderline> of the <DottedUnderline>{event}</DottedUnderline> event{property ? '\'s' : ''}{property && <><DottedUnderline>{property}</DottedUnderline> property</>}
+        Visualizes the <DottedUnderline>{aggregationMethod}</DottedUnderline> of the <DottedUnderline>{event}</DottedUnderline> event{property ? '\'s ' : ''}{property && <>{property.startsWith('user.') ? 'user\'s ' : ''}<DottedUnderline>{property.replace(/user\./i, '')}</DottedUnderline> property</>}
         {(whereClauseGroups || []).map((group, i) => (
           <div key={i} className='ml-4 mt-2'>
             {(group.queries || []).map((query, j) => (

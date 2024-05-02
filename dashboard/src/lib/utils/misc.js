@@ -32,3 +32,10 @@ export const humanizeVariable = variableName => {
 export const caseInsensitiveSortedArray = array => {
   return array.sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()))
 }
+
+export const validateProps = (props, requiredProps) => {
+  const missingProps = requiredProps.filter(prop => props[prop] === undefined)
+  if (missingProps.length > 0) {
+    throw Error(`Missing required props: ${missingProps.join(', ')}`)
+  }
+}

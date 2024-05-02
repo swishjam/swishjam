@@ -32,6 +32,7 @@ module ClickHouseQueries
         # we handle distinct users differently because we need to check if the user has been merged or not (see line 107)
         # for count of sessions or page_views, this would be `session_identifier` or `page_view_identifier`
         @distinct_count_property = distinct_count_property || is_distinct_count_query? ? 'uuid' : nil
+        @group_by = group_by
         @user_profile_id = user_profile_id
         @organization_profile_id = organization_profile_id
         @start_time = start_time
@@ -53,6 +54,7 @@ module ClickHouseQueries
             #{maybe_user_profile_id_where_clause} AND
             #{maybe_organization_profile_id_where_clause} AND
             #{ClickHouseQueries::FilterHelpers::DashboardComponentWhereClause.where_clause_statements(@query_groups)}
+          #{maybe_group_by_statement}
         SQL
       end
 
@@ -115,6 +117,7 @@ module ClickHouseQueries
         columns << 'properties' if requires_properties_column?
         columns << 'user_profile_id' if @user_profile_id || @distinct_count_property == 'users' || @aggregation_method == 'users'
         columns << 'user_properties' if requires_user_properties_column?
+        columns << 'organization_properties' if requires_organization_properties_column?
         columns << 'organization_profile_id' if @organization_profile_id || @distinct_count_property == 'organizations' || @aggregation_method == 'organizations'
         ClickHouseQueries::Common::DeDupedEventsQuery.sql(
           public_keys: @public_keys,
@@ -123,7 +126,7 @@ module ClickHouseQueries
           event_name: @event,
           all_events: @event == self.class.ANY_EVENT,
           columns: columns,
-          group_by_column: @distinct_count_property == 'users' ? 'uuid' : @distinct_count_property,
+          group_by_column: is_distinct_count_query? ? 'uuid' : @distinct_count_property,
         )
       end
 
@@ -131,6 +134,7 @@ module ClickHouseQueries
         return true if @distinct_count_property && !@distinct_count_property.in?(['uuid', 'name', 'users']) && !@distinct_count_property.starts_with?('user.')
         return true if @aggregated_column && !@aggregated_column.starts_with?('user.')
         return true if @query_groups.any? { |group| (group['queries'] || []).any? { |query| query['property'] && !query['property'].starts_with?('user.') }}
+        return true if @group_by && !@group_by.starts_with?('user.') && !@group_by.starts_with?('organization.')
         false
       end
 
@@ -138,6 +142,15 @@ module ClickHouseQueries
         return true if @distinct_count_property && @distinct_count_property.starts_with?('user.')
         return true if @aggregated_column && @aggregated_column.starts_with?('user.')
         return true if @query_groups.any? { |group| (group['queries'] || []).any? { |query| query['property'] && query['property'].starts_with?('user.') }}
+        return true if @group_by && @group_by.starts_with?('user.')
+        false
+      end
+
+      def requires_organization_properties_column?
+        return true if @distinct_count_property && @distinct_count_property.starts_with?('organization.')
+        return true if @aggregated_column && @aggregated_column.starts_with?('organization.')
+        return true if @query_groups.any? { |group| (group['queries'] || []).any? { |query| query['property'] && query['property'].starts_with?('organization.') }}
+        return true if @group_by && @group_by.starts_with?('organization.')
         false
       end
 
@@ -168,6 +181,19 @@ module ClickHouseQueries
         <<~SQL
           e.organization_profile_id = '#{@organization_profile_id}'
         SQL
+      end
+
+      def maybe_group_by_statement
+        return '' unless @group_by.present?
+        group_column = nil
+        if @group_by.starts_with?('user.')
+          group_column = "JSONExtractString(e.user_properties, '#{@group_by.gsub('user.', '')}')"
+        elsif @group_by.starts_with?('organization.')
+          group_column = "JSONExtractString(e.organization_properties, '#{@group_by.gsub('organization.', '')}')"
+        else
+          group_column = "JSONExtractString(e.properties, '#{@group_by}')"
+        end
+        "GROUP BY #{group_column}"
       end
 
       def is_distinct_count_query?

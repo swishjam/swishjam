@@ -4,6 +4,139 @@ import ComboboxEvents from "@/components/utils/ComboboxEvents";
 import { TriangleAlertIcon } from "lucide-react";
 import { useRef, useState } from "react";
 
+const OPERATOR_OPTIONS = [
+  {
+    label: (
+      <div className='flex items-center space-x-2'>
+        <span>
+          =
+        </span>
+        <span>
+          equals
+        </span>
+      </div>
+    ),
+    value: 'equals'
+  },
+  {
+    label: (
+      <div className='flex items-center space-x-2'>
+        <span>
+          ≠
+        </span>
+        <span>
+          does not equal
+        </span>
+      </div>
+    ),
+    value: 'does_not_equal'
+  },
+  {
+    label: (
+      <div className='flex items-center space-x-2'>
+        <span>
+          ≈
+        </span>
+        <span>
+          contains
+        </span>
+      </div>
+    ),
+    value: 'contains'
+  },
+  {
+    label: (
+      <div className='flex items-center space-x-2'>
+        <span>
+          ≉
+        </span>
+        <span>
+          does not contain
+        </span>
+      </div>
+    ),
+    value: 'does_not_contain'
+  },
+  {
+    label: (
+      <div className='flex items-center space-x-2'>
+        <span>
+          {'>'}
+        </span>
+        <span>
+          is greater than
+        </span>
+      </div>
+    ),
+    value: 'greater_than'
+  },
+  {
+    label: (
+      <div className='flex items-center space-x-2'>
+        <span>
+          {'<'}
+        </span>
+        <span>
+          is less than
+        </span>
+      </div>
+    ),
+    value: 'less_than'
+  },
+  {
+    label: (
+      <div className='flex items-center space-x-2'>
+        <span>
+          {'>='}
+        </span>
+        <span>
+          is greater than or equal to
+        </span>
+      </div>
+    ),
+    value: 'greater_than_or_equal_to'
+  },
+  {
+    label: (
+      <div className='flex items-center space-x-2'>
+        <span>
+          {'<='}
+        </span>
+        <span>
+          is less than or equal to
+        </span>
+      </div>
+    ),
+    value: 'less_than_or_equal_to'
+  },
+  {
+    label: (
+      <div className='flex items-center space-x-2'>
+        <span>
+          ✓
+        </span>
+        <span>
+          is defined
+        </span>
+      </div>
+    ),
+    value: 'is_defined'
+  },
+  {
+    label: (
+      <div className='flex items-center space-x-2'>
+        <span>
+          ✗
+        </span>
+        <span>
+          is not defined
+        </span>
+      </div>
+    ),
+    value: 'is_not_defined'
+  },
+]
+
 export default function WhereClause({ query, propertyOptions, onUpdate, leadingText }) {
   const [queryValue, setQueryValue] = useState(query.value);
   const debounceTimeoutRef = useRef(null);
@@ -45,6 +178,7 @@ export default function WhereClause({ query, propertyOptions, onUpdate, leadingT
       <span>property</span>
       <Combobox
         buttonClass='w-fit'
+        maxHeight={null}
         placeholder={
           <div className='flex items-center'>
             <div className='p-1 mr-1 bg-yellow-100 text-yellow-500 rounded'>
@@ -58,138 +192,7 @@ export default function WhereClause({ query, propertyOptions, onUpdate, leadingT
           query.operator = operator
           onUpdate(query);
         }}
-        options={[
-          {
-            label: (
-              <div className='flex items-center space-x-2'>
-                <span>
-                  =
-                </span>
-                <span>
-                  equals
-                </span>
-              </div>
-            ),
-            value: 'equals'
-          },
-          {
-            label: (
-              <div className='flex items-center space-x-2'>
-                <span>
-                  ≠
-                </span>
-                <span>
-                  does not equal
-                </span>
-              </div>
-            ),
-            value: 'does_not_equal'
-          },
-          {
-            label: (
-              <div className='flex items-center space-x-2'>
-                <span>
-                  ≈
-                </span>
-                <span>
-                  contains
-                </span>
-              </div>
-            ),
-            value: 'contains'
-          },
-          {
-            label: (
-              <div className='flex items-center space-x-2'>
-                <span>
-                  ≉
-                </span>
-                <span>
-                  does not contain
-                </span>
-              </div>
-            ),
-            value: 'does_not_contain'
-          },
-          {
-            label: (
-              <div className='flex items-center space-x-2'>
-                <span>
-                  {'>'}
-                </span>
-                <span>
-                  is greater than
-                </span>
-              </div>
-            ),
-            value: 'greater_than'
-          },
-          {
-            label: (
-              <div className='flex items-center space-x-2'>
-                <span>
-                  {'<'}
-                </span>
-                <span>
-                  is less than
-                </span>
-              </div>
-            ),
-            value: 'less_than'
-          },
-          {
-            label: (
-              <div className='flex items-center space-x-2'>
-                <span>
-                  {'>='}
-                </span>
-                <span>
-                  is greater than or equal to
-                </span>
-              </div>
-            ),
-            value: 'greater_than_or_equal_to'
-          },
-          {
-            label: (
-              <div className='flex items-center space-x-2'>
-                <span>
-                  {'<='}
-                </span>
-                <span>
-                  is less than or equal to
-                </span>
-              </div>
-            ),
-            value: 'less_than_or_equal_to'
-          },
-          {
-            label: (
-              <div className='flex items-center space-x-2'>
-                <span>
-                  ✓
-                </span>
-                <span>
-                  is defined
-                </span>
-              </div>
-            ),
-            value: 'is_defined'
-          },
-          {
-            label: (
-              <div className='flex items-center space-x-2'>
-                <span>
-                  ✗
-                </span>
-                <span>
-                  is not defined
-                </span>
-              </div>
-            ),
-            value: 'is_not_defined'
-          },
-        ]}
+        options={OPERATOR_OPTIONS}
       />
       {!['is_defined', 'is_not_defined'].includes(query.operator) && (
         <div className='relative flex items-center'>

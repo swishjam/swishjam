@@ -1,6 +1,6 @@
 import BarChart from "@/components/DataVisualizations/BarChart";
 import SwishjamAPI from '@/lib/api-client/swishjam-api';
-import { humanizeVariable } from "@/lib/utils/misc";
+import { humanizeVariable, validateProps } from "@/lib/utils/misc";
 import { useEffect, useState } from "react";
 import QueryDetailsComposer from "../utils/QueryDetailsComposer";
 
@@ -19,24 +19,27 @@ export default function BarChartRenderingEngine({
   whereClauseGroups = [],
   ...settings
 }) {
+  validateProps({ event, property, aggregationMethod }, ['event', 'property', 'aggregationMethod']);
   const [barChartResults, setBarChartResults] = useState();
+  console.log("BAR CHART RENDER!")
 
   const getData = async () => {
     setBarChartResults();
-    if (event && property) {
-      const { bar_chart_data, grouped_by } = await SwishjamAPI.DataViz.barChart({
-        event,
-        property,
-        aggregation_method: aggregationMethod,
-        query_groups: JSON.stringify(whereClauseGroups || []),
-        max_ranking_to_not_be_considered_other: maxRankingToNotBeConsideredOther,
-        empty_value_placeholder: emptyValuePlaceholder,
-        exclude_empty_values: excludeEmptyValues,
-        timeframe,
-        data_source: dataSource
-      });
-      setBarChartResults({ data: bar_chart_data, groupedBy: grouped_by });
-    }
+    console.log('GETTING.....?')
+    // if (event && property) {
+    const { bar_chart_data, grouped_by } = await SwishjamAPI.DataViz.barChart({
+      event,
+      property,
+      aggregation_method: aggregationMethod,
+      query_groups: JSON.stringify(whereClauseGroups || []),
+      max_ranking_to_not_be_considered_other: maxRankingToNotBeConsideredOther,
+      empty_value_placeholder: emptyValuePlaceholder,
+      exclude_empty_values: excludeEmptyValues,
+      timeframe,
+      data_source: dataSource
+    });
+    setBarChartResults({ data: bar_chart_data, groupedBy: grouped_by });
+    // }
   }
 
   useEffect(() => {

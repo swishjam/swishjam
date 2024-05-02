@@ -12,6 +12,10 @@ export class DataViz extends Base {
   static async value(options) {
     return await this._get('/api/v1/data_viz/value', options);
   }
+
+  static async pieChart(options) {
+    return await this._get('/api/v1/data_viz/pie_chart', options);
+  }
 }
 
 Object.assign(DataViz, Base);

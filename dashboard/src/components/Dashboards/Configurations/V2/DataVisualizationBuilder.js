@@ -1,43 +1,29 @@
 import AdvancedSettingsSection from '@/components/Dashboards/Configurations/AdvancedSettingsSection';
 import { Card } from '@/components/ui/card';
-import ChartTypeSelector from './ChartTypeSelector';
 import { Input } from '@/components/ui/input';
 import QueryBuilder from './QueryBuilder';
 import { useEffect, useState } from 'react'
-
-import ComponentPreviewer from './DataVisualizationPreviewer';
-import BarChartDashboardComponent from '../../../DataVisualizations/RenderingEngines/BarChart';
-import BarListDashboardComponent from '../../../DataVisualizations/RenderingEngines/BarList';
-import AreaChartRenderingEngine from '../../../DataVisualizations/RenderingEngines/AreaChart';
-import PieChartDashboardComponent from '../../../DataVisualizations/RenderingEngines/PieChart';
-import ValueCardRenderingEngine from '../../../DataVisualizations/RenderingEngines/ValueCard';
+import VisualizationTypeSelector from './VisualizationTypeSelector';
+import DataVisualizationPreviewer from './DataVisualizationPreviewer';
+import { Button } from '@/components/ui/button';
+import LoadingSpinner from '@/components/LoadingSpinner';
 
 import BarChartAdditionalSettings from './AdditionalSettings/BarChart';
 import AreaChartAdditionalSettings from './AdditionalSettings/AreaChart';
 import ValueCardAdditionalSettings from './AdditionalSettings/ValueCard';
-import { Button } from '@/components/ui/button';
-import LoadingSpinner from '@/components/LoadingSpinner';
-
-const COMPONENT_RENDERING_ENGINE_DICT = {
-  AreaChart: AreaChartRenderingEngine,
-  BarChart: BarChartDashboardComponent,
-  BarList: BarListDashboardComponent,
-  PieChart: PieChartDashboardComponent,
-  ValueCard: ValueCardRenderingEngine,
-}
+import PieChartAdditionalSettings from './AdditionalSettings/PieChart';
 
 const ADDITIONAL_SETTINGS_DICT = {
   AreaChart: AreaChartAdditionalSettings,
   BarChart: BarChartAdditionalSettings,
   BarList: BarChartAdditionalSettings,
-  PieChart: BarChartAdditionalSettings,
+  PieChart: PieChartAdditionalSettings,
   ValueCard: ValueCardAdditionalSettings,
 }
 
 export default function DataVisualizationBuilder({
-  componentType: initialComponentType = 'BarChart',
+  visualizationType: initialComponentType = 'BarChart',
   config,
-  displayDataVisualizationTypeSelector = true,
   includePropertiesDropdown = true,
   includeUserProperties = true,
   isLoading,
@@ -45,7 +31,7 @@ export default function DataVisualizationBuilder({
   onDataVisualizationTypeChange,
   onSave,
 }) {
-  const [componentType, setComponentType] = useState(initialComponentType);
+  const [visualizationType, setVisualizationType] = useState(initialComponentType);
   const [errorMessage, setErrorMessage] = useState();
 
   const saveComponent = e => {
@@ -60,8 +46,8 @@ export default function DataVisualizationBuilder({
   }
 
   useEffect(() => {
-    onDataVisualizationTypeChange(componentType);
-  }, [componentType])
+    onDataVisualizationTypeChange(visualizationType);
+  }, [visualizationType])
 
   const updateConfig = newConfig => {
     onConfigChange({ ...config, ...newConfig });
@@ -72,18 +58,10 @@ export default function DataVisualizationBuilder({
     return { ...group, queries: completedQueries };
   })
 
-  const AdditionalSettingsForSelectedComponentType = ADDITIONAL_SETTINGS_DICT[componentType];
-  const RenderingEngineForSelectedComponentType = COMPONENT_RENDERING_ENGINE_DICT[componentType];
+  const AdditionalSettingsForSelectedComponentType = ADDITIONAL_SETTINGS_DICT[visualizationType];
 
   return (
     <>
-      {displayDataVisualizationTypeSelector && (
-        <ChartTypeSelector
-          className='mb-2'
-          selected={componentType}
-          setSelected={setComponentType}
-        />
-      )}
       <form onSubmit={saveComponent}>
         <Card className='p-6 mb-2'>
           <Input
@@ -105,7 +83,7 @@ export default function DataVisualizationBuilder({
             includePropertiesDropdown={includePropertiesDropdown}
             includeUserProperties={includeUserProperties}
             onConfigChange={updateConfig}
-            propertyIsRequired={componentType === 'BarChart' || !['count', 'users', 'organizations'].includes(config.aggregationMethod)}
+            propertyIsRequired={['BarChart', 'PieChart'].includes(visualizationType) || !['count', 'users', 'organizations'].includes(config.aggregationMethod)}
           />
           <AdvancedSettingsSection
             className='mb-2'
@@ -122,14 +100,16 @@ export default function DataVisualizationBuilder({
             }
           </AdvancedSettingsSection>
         </Card>
-        <ComponentPreviewer
-          {...config}
-          className={componentType === 'ValueCard' ? 'py-12 px-72' : ''}
-          ComponentRenderingEngine={RenderingEngineForSelectedComponentType}
-          includeCard={componentType === 'ValueCard'}
-          propertyIsRequired={componentType === 'BarChart' || !['count', 'users', 'organizations'].includes(config.aggregationMethod)}
-          whereClauseGroups={sanitizedWhereClauseGroups}
-        />
+        <Card className={visualizationType === 'ValueCard' ? 'h-[40vh] py-12 px-44' : 'h-[80vh]'}>
+          <DataVisualizationPreviewer
+            {...config}
+            visualizationType={visualizationType}
+            whereClauseGroups={sanitizedWhereClauseGroups}
+            includeSettingsDropdown={false}
+            onlyDisplayHeaderActionsOnHover={false}
+            AdditionalHeaderActions={<VisualizationTypeSelector selected={visualizationType} setSelected={setVisualizationType} />}
+          />
+        </Card>
         <div className='border-t border-gray-200 py-4 mt-4'>
           {errorMessage && <p className='text-red-500 text-sm font-medium text-center mb-2'>{errorMessage}</p>}
           <div className='flex justify-end'>

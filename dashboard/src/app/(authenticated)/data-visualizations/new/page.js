@@ -3,32 +3,11 @@
 import DataVisualizationBuilder from "@/components/Dashboards/Configurations/V2/DataVisualizationBuilder";
 import CommonQueriesProvider from "@/providers/CommonQueriesProvider";
 import PageWithHeader from "@/components/utils/PageWithHeader"
-import { useState } from "react";
+import { sanitizedConfigDataForVisualizationType, DEFAULT_CONFIGS_DICT } from "@/lib/data-visualizations-helpers";
 import SwishjamAPI from "@/lib/api-client/swishjam-api";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
-
-const DEFAULT_CONFIGS_DICT = {
-  BarChart: {
-    showGridLines: true,
-    legendType: 'table',
-    showXAxis: true,
-    showYAxis: true,
-    maxRankingToNotBeConsideredOther: 10,
-    excludeEmptyValues: false,
-    emptyValuePlaceholder: 'EMPTY',
-  },
-  AreaChart: {
-    showGridLines: true,
-    showYAxis: true,
-    showXAxis: true,
-    includeTable: true,
-    primaryColor: '#7dd3fc',
-    primaryColorFill: '#bde7fd',
-    secondaryColor: "#878b90",
-    secondaryColorFill: "#bfc3ca",
-  }
-}
+import { useState } from "react";
 
 export default function NewDashboardComponentPage() {
   const [config, setConfig] = useState(DEFAULT_CONFIGS_DICT.BarChart);
@@ -40,7 +19,12 @@ export default function NewDashboardComponentPage() {
     setIsLoading(true);
     const { title, subtitle, ...rest } = config;
     debugger;
-    const response = await SwishjamAPI.DataVizualizations.create({ title, subtitle, visualization_type: dataVisualizationType, config: rest });
+    const response = await SwishjamAPI.DataVizualizations.create({
+      title,
+      subtitle,
+      visualization_type: dataVisualizationType,
+      config: sanitizedConfigDataForVisualizationType(dataVisualizationType, rest),
+    });
     if (response.error) {
       setIsLoading(false);
       toast.error('Failed to create data visualization', {
@@ -53,11 +37,9 @@ export default function NewDashboardComponentPage() {
     }
   }
 
-  console.log('config', config)
-
   return (
     <CommonQueriesProvider queriesToInclude={['uniqueEventsAndCounts', 'uniqueUserProperties', 'uniqueOrganizationProperties']}>
-      <PageWithHeader title='New Dashboard Component'>
+      <PageWithHeader title='New Data Visualization'>
         <DataVisualizationBuilder
           config={config}
           dataVisualizationType='BarChart'
