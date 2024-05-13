@@ -21,7 +21,7 @@ module Slack
       end.flatten
     end
 
-    def post_message_to_channel(channel:, text: nil, blocks: nil, thread_ts: nil, metadata_event_type: nil, metadata_event_payload: {}, unfurl_links: true, unfurl_media: true, __bypass_dev_flag: false)
+    def post_message_to_channel(channel:, text: nil, blocks: nil, thread_ts: nil, metadata_event_type: nil, metadata_event_payload: {}, unfurl_links: true, unfurl_media: true, __bypass_dev_flag: false, auto_join_channel_on_failure: true)
       raise BadRequestError, "`post_message_to_channel` must contain either `text` or `blocks` argument." if text.blank? && blocks.blank?
       if !Rails.env.production? && ENV['ENABLE_SLACK_NOTIFICATIONS_IN_DEV'] != 'true' && !__bypass_dev_flag
         Rails.logger.info("\nWould have sent Slack message to channel #{channel} with text: #{text} and blocks: #{blocks}\n")
@@ -39,6 +39,24 @@ module Slack
         payload[:blocks] = blocks.to_json if blocks.present?
         payload[:thread_ts] = thread_ts if thread_ts.present?
         post('chat.postMessage', payload)
+      end
+    rescue BadRequestError => e
+      if auto_join_channel_on_failure
+        join_channel(channel)
+        post_message_to_channel(
+          channel: channel, 
+          text: text, 
+          blocks: blocks, 
+          thread_ts: thread_ts, 
+          metadata_event_type: metadata_event_type, 
+          metadata_event_payload: metadata_event_payload || {}, 
+          unfurl_links: unfurl_links, 
+          unfurl_media: unfurl_media, 
+          __bypass_dev_flag: __bypass_dev_flag, 
+          auto_join_channel_on_failure: false
+        )
+      else
+        raise e
       end
     end
 
@@ -77,6 +95,15 @@ module Slack
 
     def add_reaction_to_message(channel:, message_ts:, emoji:)
       post('reactions.add', { channel: channel, timestamp: message_ts, name: emoji })
+    end
+
+    def join_conversation(channel_id)
+      post('conversations.join', { channel: channel_id })
+    end
+    alias join_channel join_conversation
+
+    def list_permissions
+      get('apps.permissions.info')
     end
 
     private

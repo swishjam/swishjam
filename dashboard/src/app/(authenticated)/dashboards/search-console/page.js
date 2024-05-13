@@ -77,7 +77,7 @@ const SiteSelector = ({ sites, selectedSite, onSelect }) => {
 const ConnectGoogleSearchConsoleView = () => {
   const { token } = useAuthData();
   const clientId = '411519113339-t2fidfed57o2pbkd2mc203in85k87fms.apps.googleusercontent.com';
-  const redirectHost = '56b9-2603-8000-7200-9d38-51d0-1b32-6c01-f3d5.ngrok-free.app';
+  const redirectHost = process.env.NEXT_PUBLIC_GOOGLE_OAUTH_REDIRECT_HOST || 'b75f-2603-8000-7200-9d38-ac7c-5d8a-742c-7b64.ngrok-free.app';
   const redirectUri = `https://${redirectHost}/oauth/google/callback`;
   const loginHint = 'collin@swishjam.com'
   const scope = 'https://www.googleapis.com/auth/webmasters.readonly'

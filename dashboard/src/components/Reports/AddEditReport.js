@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState } from 'react';
 import SwishjamAPI from '@/lib/api-client/swishjam-api';
 import { LuPlus, LuTrash } from "react-icons/lu";
 
@@ -228,7 +228,7 @@ export default function AddEditReport({
               )}
             />
 
-            <FormField
+            {/* <FormField
               control={form.control}
               name="sending_mechanism"
               render={({ field }) => (
@@ -250,7 +250,7 @@ export default function AddEditReport({
                   <FormMessage />
                 </FormItem>
               )}
-            />
+            /> */}
 
             <FormField
               control={form.control}
