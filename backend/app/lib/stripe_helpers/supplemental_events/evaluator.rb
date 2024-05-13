@@ -11,6 +11,7 @@ module StripeHelpers
       def parsed_events_for_any_matching_supplemental_events
         events = []        
         events << formatted_supplemental_event(StripeHelpers::SupplementalEvents::SubscriptionChurned) if is_churned_subscription_event?
+        events << formatted_supplemental_event(StripeHelpers::SupplementalEvents::CancellationFeedbackReceived) if just_received_cancellation_feedback?
         events << formatted_supplemental_event(StripeHelpers::SupplementalEvents::NewFreeTrial) if is_new_free_trial_event?
         events << formatted_supplemental_event(StripeHelpers::SupplementalEvents::NewActiveSubscription) if is_new_paid_subscription_event?
         events << formatted_supplemental_event(StripeHelpers::SupplementalEvents::ChargeSucceeded) if @stripe_event.type == 'charge.succeeded'
@@ -36,7 +37,9 @@ module StripeHelpers
       def is_new_paid_subscription_event?
         return false unless ['customer.subscription.created', 'customer.subscription.updated'].include?(@stripe_event.type)
         is_paid_subscription = stripe_object.items.data.any?{ |item| item.price.unit_amount.positive? }
-        is_paid_subscription && (stripe_object.status == 'active' || attribute_changed_to?('status', 'active'))
+        updated_to_active = @stripe_event.type == 'customer.subscription.updated' && attribute_changed_to?('status', 'active')
+        created_as_active = @stripe_event.type == 'customer.subscription.created' && stripe_object.status == 'active'
+        is_paid_subscription && (created_as_active || updated_to_active)
       end
 
       def is_churned_subscription_event?
@@ -56,6 +59,10 @@ module StripeHelpers
         true
       end
 
+      def just_received_cancellation_feedback?
+        @stripe_event.type == 'customer.subscription.updated' && attribute_changed?('cancellation_details')
+      end
+
       def is_new_free_trial_event?
         is_new_subscription_with_free_trial = @stripe_event.type == 'customer.subscription.created' && stripe_object.status == 'trialing' 
         subscription_updated_to_free_trial = @stripe_event.type == 'customer.subscription.updated' && attribute_changed_to?('status', 'trialing')
@@ -63,7 +70,12 @@ module StripeHelpers
       end
 
       def attribute_changed_to?(attribute_name, value)
-        previous_attributes.keys.include?(attribute_name.to_sym) && previous_attributes[attribute_name.to_s] != value && stripe_object[attribute_name.to_s] == value
+        attribute_changed?(attribute_name) && previous_attributes[attribute_name.to_s] != value && stripe_object[attribute_name.to_s] == value
+      end
+
+      def attribute_changed?(attribute_name)
+        # pretty sure it's always symbols, but just incase
+        previous_attributes.keys.include?(attribute_name.to_sym) || previous_attributes.keys.include?(attribute_name.to_s)
       end
 
       def stripe_object
