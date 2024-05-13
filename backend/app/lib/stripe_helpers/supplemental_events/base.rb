@@ -24,6 +24,8 @@ module StripeHelpers
           stripe_record
         elsif stripe_record.respond_to?(:customer) && stripe_record.customer.is_a?(Stripe::Customer)
           stripe_record.customer
+        elsif @stripe_customer.is_a?(String)
+          @stripe_customer = Stripe::Customer.retrieve(@stripe_customer, stripe_account: @stripe_event.account)
         else
           @stripe_customer
         end

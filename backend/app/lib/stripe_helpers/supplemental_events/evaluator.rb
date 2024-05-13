@@ -37,7 +37,9 @@ module StripeHelpers
       def is_new_paid_subscription_event?
         return false unless ['customer.subscription.created', 'customer.subscription.updated'].include?(@stripe_event.type)
         is_paid_subscription = stripe_object.items.data.any?{ |item| item.price.unit_amount.positive? }
-        is_paid_subscription && (stripe_object.status == 'active' || attribute_changed_to?('status', 'active'))
+        updated_to_active = @stripe_event.type == 'customer.subscription.updated' && attribute_changed_to?('status', 'active')
+        created_as_active = @stripe_event.type == 'customer.subscription.created' && stripe_object.status == 'active'
+        is_paid_subscription && (created_as_active || updated_to_active)
       end
 
       def is_churned_subscription_event?
