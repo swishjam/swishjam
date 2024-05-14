@@ -12,11 +12,11 @@ module StripeHelpers
       end
       
       def self.EVENT_NAME
-        "stripe.supplemental.#{self.to_s.split('::').last.underscore}"
+        self.to_s.split('::').last.underscore
       end
 
       def occurred_at
-        stripe_record.created
+        @stripe_event.created
       end
 
       def stripe_customer
@@ -49,7 +49,7 @@ module StripeHelpers
         Ingestion::ParsedEventFromIngestion.new(
           uuid: uuid,
           swishjam_api_key: public_key,
-          name: self.class.EVENT_NAME,
+          name: "stripe.supplemental.#{self.class.EVENT_NAME}",
           properties: props,
           user_profile_id: user_profile_id,
           occurred_at: occurred_at,
