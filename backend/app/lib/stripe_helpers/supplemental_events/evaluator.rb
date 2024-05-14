@@ -60,7 +60,8 @@ module StripeHelpers
       end
 
       def just_received_cancellation_feedback?
-        @stripe_event.type == 'customer.subscription.updated' && attribute_changed?('cancellation_details')
+        cancellation_details = previous_attributes['cancellation_details'] || {}
+        cancellation_details.keys.include?(:feedback) || cancellation_details.keys.include?(:comment)
       end
 
       def is_new_free_trial_event?
