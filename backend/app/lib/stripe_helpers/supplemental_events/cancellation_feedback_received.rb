@@ -2,6 +2,15 @@ module StripeHelpers
   module SupplementalEvents
     class CancellationFeedbackReceived < Base
       # record = Stripe::Subscription
+      FEEDBACK_CODES = {
+        'customer_service' => 'Customer service was less than expected',
+        'low_quality' => 'Quality was less than expected',
+        'missing_features' => 'Some features are missing',
+        'other' => 'Other reason',
+        'switched_service' => "I'm switching to a different service",
+        'too_complex' => 'Ease of use was less than expected',
+        'unused' => "I don't use the service enough",
+      }
 
       def properties
         mrr = nil
@@ -17,7 +26,8 @@ module StripeHelpers
           mrr: mrr,
           display_mrr: display_mrr,
           cancellation_comment: stripe_record.cancellation_details&.comment,
-          cancellation_feedback: stripe_record.cancellation_details&.feedback,
+          cancellation_feedback: FEEDBACK_CODES[stripe_record.cancellation_details&.feedback],
+          cancellation_feedback_code: stripe_record.cancellation_details&.feedback,
           cancellation_reason: stripe_record.cancellation_details&.reason,
         }
       end
