@@ -22,11 +22,12 @@ module IndexableJsonKeyValues
       end
 
       after_update do
-        return if !self.saved_change_to_attribute?(jsonb_column)
-        keys.each do |key|
-          config_key_changed = ((self.saved_changes[jsonb_column] || [])[0] || {})[key] != ((self.saved_changes[jsonb_column] || [])[1] || {})[key]
-          next if !config_key_changed
-          self.indexed_jsonb_keys.where(column: jsonb_column, key: key).update_all(value: self.send(jsonb_column).try(:[], key))
+        if self.saved_change_to_attribute?(jsonb_column)
+          keys.each do |key|
+            config_key_changed = ((self.saved_changes[jsonb_column] || [])[0] || {})[key] != ((self.saved_changes[jsonb_column] || [])[1] || {})[key]
+            next if !config_key_changed
+            self.indexed_jsonb_keys.where(column: jsonb_column, key: key).update_all(value: self.send(jsonb_column).try(:[], key))
+          end
         end
       end
 
